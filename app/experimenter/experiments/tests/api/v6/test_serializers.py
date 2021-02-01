@@ -63,6 +63,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,
                 "probeSets": [probe_set.slug],
+                "featureIds": [experiment.feature_config.slug],
             },
         )
         self.assertEqual(
@@ -203,6 +204,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         serializer = NimbusExperimentSerializer(experiment)
         experiment_data = serializer.data.copy()
+        self.assertEqual(experiment_data["featureIds"], [])
         branches_data = [dict(b) for b in experiment_data.pop("branches")]
         self.assertEqual(len(branches_data), 2)
         for branch in experiment.branches.all():
