@@ -29,6 +29,7 @@ export const EXTERNAL_URLS = {
 export const FIELD_MESSAGES = {
   REQUIRED: "This field may not be blank.",
   NUMBER: "This field must be a number.",
+  URL: "This field must be a URL.",
 };
 
 export const REQUIRED_FIELD = {
@@ -37,4 +38,11 @@ export const REQUIRED_FIELD = {
 
 export const NUMBER_FIELD = {
   validate: (value) => (!!value && !isNaN(value)) || FIELD_MESSAGES.NUMBER,
+} as RegisterOptions;
+
+export const URL_FIELD = {
+  pattern: {
+    value: /^(http|https):\/\/[^ "]+$/,
+    message: FIELD_MESSAGES.URL,
+  },
 } as RegisterOptions;

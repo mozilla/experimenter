@@ -11,6 +11,7 @@ import {
 } from "@testing-library/react";
 import React from "react";
 import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
+import { FIELD_MESSAGES } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
 import { Subject } from "./mocks";
@@ -132,6 +133,7 @@ describe("FormOverview", () => {
     fireEvent.change(linkField, {
       target: { value: value.link },
     });
+    fireEvent.blur(linkField);
   };
 
   const checkExistingForm = async (expected: Record<string, any>) => {
@@ -257,8 +259,21 @@ describe("FormOverview", () => {
       experiment.documentationLinks![0] = {
         __typename: "NimbusDocumentationLinkType",
         title: NimbusDocumentationLinkTitle.ENG_TICKET,
-        link: "https://ooga.booga",
+        link: "https://",
       };
+      fillDocumentationLinkFields(experiment.documentationLinks![0], 0);
+    });
+
+    // Whoops! Invalid URL.
+    expect(
+      screen
+        .getByTestId("DocumentationLink")
+        .querySelector(".invalid-feedback"),
+    ).toHaveTextContent(FIELD_MESSAGES.URL);
+
+    // Fix the invalid URL
+    experiment.documentationLinks![0].link = "https://ooga.booga";
+    await act(async () => {
       fillDocumentationLinkFields(experiment.documentationLinks![0], 0);
     });
 
