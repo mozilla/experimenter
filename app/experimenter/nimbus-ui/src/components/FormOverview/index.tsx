@@ -18,7 +18,6 @@ import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Info } from "../../images/info.svg";
 import { EXTERNAL_URLS, REQUIRED_FIELD } from "../../lib/constants";
 import { getExperiment } from "../../types/getExperiment";
-import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
 import InlineErrorIcon from "../InlineErrorIcon";
 import LinkExternal from "../LinkExternal";
 import {
@@ -68,22 +67,12 @@ const FormOverview = ({
 }: FormOverviewProps) => {
   const { application, hypothesisDefault } = useConfig();
 
-  const hasExistingDocLinks =
-    experiment?.documentationLinks && experiment?.documentationLinks.length > 0;
   const defaultValues = {
     name: experiment?.name || "",
     hypothesis: experiment?.hypothesis || (hypothesisDefault as string).trim(),
     application: "",
     publicDescription: experiment?.publicDescription as string,
     riskMitigationLink: experiment?.riskMitigationLink as string,
-    documentationLinks: (hasExistingDocLinks
-      ? experiment?.documentationLinks!
-      : [
-          {
-            title: "",
-            link: "",
-          },
-        ]) as { title: NimbusDocumentationLinkTitle | ""; link: string }[],
   };
 
   const {
