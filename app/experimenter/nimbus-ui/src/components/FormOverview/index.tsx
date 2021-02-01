@@ -16,7 +16,7 @@ import {
 } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Info } from "../../images/info.svg";
-import { EXTERNAL_URLS, REQUIRED_FIELD } from "../../lib/constants";
+import { EXTERNAL_URLS, REQUIRED_FIELD, URL_FIELD } from "../../lib/constants";
 import { getExperiment } from "../../types/getExperiment";
 import InlineErrorIcon from "../InlineErrorIcon";
 import LinkExternal from "../LinkExternal";
@@ -239,7 +239,7 @@ const FormOverview = ({
                 )}
               </Form.Label>
               <Form.Control
-                {...formControlAttrs("riskMitigationLink")}
+                {...formControlAttrs("riskMitigationLink", URL_FIELD)}
                 type="url"
               />
               <Form.Text className="text-muted">
