@@ -9,6 +9,7 @@ import Form from "react-bootstrap/Form";
 import { ArrayField, FieldError } from "react-hook-form";
 import { useCommonNestedForm, useConfig } from "../../hooks";
 import { ReactComponent as DeleteIcon } from "../../images/x.svg";
+import { URL_FIELD } from "../../lib/constants";
 import { AnnotatedDocumentationLink } from "./documentationLink";
 
 export const documentationLinkFieldNames = ["title", "link"] as const;
@@ -74,7 +75,7 @@ export const FormDocumentationLink = ({
           <Form.Control
             placeholder="Link"
             type="url"
-            {...formControlAttrs("link")}
+            {...formControlAttrs("link", URL_FIELD)}
           />
           <FormErrors name="link" />
         </Form.Group>
