@@ -27,6 +27,12 @@ export function getStatus(
     complete: status === NimbusExperimentStatus.COMPLETE,
     // The experiment's fields generally cannot be updated (accepted, live, or complete)
     locked: released || status === NimbusExperimentStatus.ACCEPTED,
+    // The experiment is in review, preview, or accepted state
+    preparation: [
+      NimbusExperimentStatus.REVIEW,
+      "PREVIEW", // EXP-866 mock value until backend API & types are updated
+      NimbusExperimentStatus.ACCEPTED,
+    ].includes(status!),
     // The experiment is or was out in the wild (live or complete)
     released,
   };
