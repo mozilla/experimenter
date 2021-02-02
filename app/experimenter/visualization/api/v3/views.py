@@ -24,6 +24,7 @@ class BranchComparison:
 class Metric:
     RETENTION = "retained"
     SEARCH = "search_count"
+    DAYS_OF_USE = "days_of_use"
     USER_COUNT = "identity"
 
 
@@ -52,6 +53,7 @@ def get_results_metrics_map(primary_probe_sets, secondary_probe_sets):
     RESULTS_METRICS_MAP = {
         Metric.RETENTION: set([Statistic.BINOMIAL]),
         Metric.SEARCH: set([Statistic.MEAN]),
+        Metric.DAYS_OF_USE: set([Statistic.MEAN]),
         Metric.USER_COUNT: set([Statistic.COUNT, Statistic.PERCENT]),
     }
     primary_metrics_set = set()

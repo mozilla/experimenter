@@ -45,7 +45,7 @@ describe("TableHighlights", () => {
 
     expect(screen.getByTestId("positive-significance")).toBeInTheDocument();
     expect(screen.getByTestId("negative-significance")).toBeInTheDocument();
-    expect(screen.getByTestId("neutral-significance")).toBeInTheDocument();
+    expect(screen.queryAllByTestId("neutral-significance")).toHaveLength(2);
   });
 
   it("has the expected control and treatment labels", async () => {
