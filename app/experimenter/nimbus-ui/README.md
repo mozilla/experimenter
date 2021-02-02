@@ -89,11 +89,35 @@ export interface GetExperimentOverviews {
 
 This app has an [`AppErrorBoundary`](./src/components/AppErrorBoundary/index.tsx) that will capture any uncaught error that occurs and report them to Sentry. This acts as our last line of defense, but ideally we are able to handle errors before they get to this stage. As well, errors that we wish to display to the user should generally be handled in a consistent fashion.
 
-There are two types of errors to account for:
+### General errors
 
-### Validation errors
+General errors can occur when an operation fails altogether. This could be for any reason, such as when a network request fails, or a bad code path raises an exception. For these errors you'll use React Bootstrap's [`Alert`](https://react-bootstrap.github.io/components/alerts/) components.
 
-These occur when you try to create or modify a record and the server tells us that one or more fields provided incorrect data. For these you should use React Bootstrap's [`Form.Control.Feedback`](https://react-bootstrap.github.io/components/forms/#form-control-feedback-props) component in combination with other form components.
+For example, if error occurs while saving a record:
+
+```tsx
+<Alert variant="warning">Sorry, there was a problem.</Alert>
+```
+
+_Note:_ displaying technical error messages to the user may not be very helpful, so it's generally advised to either provide a [generic message](./src/lib/constants.ts) or instructions on what to do.
+
+## Form Validation
+
+**See the form validation section of [Storybook](https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html) for much more detailed info and examples**
+
+There are three kinds of validation that need to be applied to forms: client-side, server-side, and "required for launch". For a visual guide to the interaction UX, see this STORYBOOK LINK
+
+#### Client-side validation errors
+
+Client-side validation should be used to prevent invalid mutations from being attempted (i.e. the wrong type or fields that cannot be `null` in the database). It should NOT be used to validate fields that are required for launch or to duplicate server-side validation.
+
+#### Required for launch validation
+
+Some fields like `publicDescription` are allowed to be `null` while someone is editing a draft, but must be set before the experiment can move to the `review` status. You should NOT mark these fields `required`, but rather add help text that indicates they must be filled out before launch.
+
+#### Server-side validation
+
+These occur when you try to create or modify a record and the server tells us that one or more fields provided incorrect data. For these you should use the `useCommonForm` hook or React Bootstrap's [`Form.Control.Feedback`](https://react-bootstrap.github.io/components/forms/#form-control-feedback-props) component in combination with other form components.
 
 A basic example might look like this:
 
@@ -109,18 +133,6 @@ A basic example might look like this:
   )}
 </Form.Group>
 ```
-
-### General errors
-
-General errors can occur when an operation fails altogether. This could be for any reason, such as when a network request fails, or a bad code path raises an exception. For these errors you'll use React Bootstrap's [`Alert`](https://react-bootstrap.github.io/components/alerts/) components.
-
-For example, if error occurs while saving a record:
-
-```tsx
-<Alert variant="warning">Sorry, there was a problem.</Alert>
-```
-
-_Note:_ displaying technical error messages to the user may not be very helpful, so it's generally advised to either provide a [generic message](./src/lib/constants.ts) or instructions on what to do.
 
 ## Handling GraphQL operation errors
 
