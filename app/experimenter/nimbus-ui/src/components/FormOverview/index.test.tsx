@@ -171,6 +171,34 @@ describe("FormOverview", () => {
     expect(onSubmit.mock.calls[0][0]).toEqual(expected);
   });
 
+  it("requires a URL for the risk mitigation link", async () => {
+    const { experiment } = mockExperimentQuery("boo");
+    render(<Subject {...{ experiment }} />);
+    const linkField = screen.getByTestId("riskMitigationLink");
+
+    await act(async () => {
+      fireEvent.change(linkField, {
+        target: { value: "whatchu-talkin-bout-willis" },
+      });
+      fireEvent.blur(linkField);
+    });
+
+    expect(
+      screen.getByTestId("FormOverview").querySelector(".invalid-feedback"),
+    ).toHaveTextContent(FIELD_MESSAGES.URL);
+
+    await act(async () => {
+      fireEvent.change(linkField, {
+        target: { value: "https://www.com" },
+      });
+      fireEvent.blur(linkField);
+    });
+
+    expect(
+      screen.getByTestId("FormOverview").querySelector(".invalid-feedback"),
+    ).toBeNull();
+  });
+
   it("with existing experiment data, asserts field values before allowing submit and next", async () => {
     const { experiment } = mockExperimentQuery("boo");
 
