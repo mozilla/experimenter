@@ -588,6 +588,36 @@ class TestNimbusExperimentBranchMixin(TestCase):
         self.assertEqual(experiment.branches.count(), branch_count)
         self.assertEqual(experiment.name, "new name")
 
+    def test_no_duplicate_branch_names(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+
+        reference_branch = {"name": "control", "description": "a control", "ratio": 1}
+        treatment_branches = [
+            {"name": "control", "description": "desc1", "ratio": 1},
+        ]
+
+        data = {
+            "feature_config": None,
+            "reference_branch": reference_branch,
+            "treatment_branches": treatment_branches,
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME},
+                "treatment_branches": [
+                    {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
+                    for i in data["treatment_branches"]
+                ],
+            },
+        )
+
 
 class TestNimbusExperimentProbeSetMixin(TestCase):
     def test_serializer_updates_probe_sets_on_experiment(self):
