@@ -144,6 +144,20 @@ mutation ($input: ExperimentInput!){
 """
 
 
+END_EXPERIMENT_MUTATION = """\
+mutation ($input: ExperimentIdInput!){
+  endExperiment(input: $input){
+    nimbusExperiment {
+      id
+      isEndRequested
+    }
+    message
+    status
+  }
+}
+"""
+
+
 class TestMutations(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
     maxDiff = None
@@ -671,3 +685,61 @@ class TestMutations(GraphQLTestCase):
                 ]
             },
         )
+
+    def test_end_experiment_in_kinto(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+        )
+        response = self.query(
+            END_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        result = content["data"]["endExperiment"]
+        self.assertEqual(
+            result["nimbusExperiment"],
+            {
+                "id": experiment.id,
+                "isEndRequested": True,
+            },
+        )
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.is_end_requested, True)
+        latest_change = experiment.changes.order_by("-changed_on").first()
+        self.assertEqual(latest_change.experiment_data["is_end_requested"], True)
+
+    def test_end_experiment_in_kinto_fails_with_nonlive_status(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        response = self.query(
+            END_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        result = content["data"]["endExperiment"]
+        self.assertEqual(
+            result["message"],
+            "Nimbus Experiment has status 'Draft', but can only "
+            "be ended when set to 'Live'.",
+        )
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.is_end_requested, False)

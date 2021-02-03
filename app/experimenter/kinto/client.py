@@ -66,3 +66,15 @@ class KintoClient:
         return self.kinto_http_client.get_records(
             bucket=settings.KINTO_BUCKET_MAIN, collection=self.collection
         )
+
+    def delete_from_kinto(self, id):
+        self.kinto_http_client.delete_record(
+            id=id,
+            collection=self.collection,
+            bucket=settings.KINTO_BUCKET,
+        )
+        self.kinto_http_client.patch_collection(
+            id=self.collection,
+            data={"status": KINTO_REVIEW_STATUS},
+            bucket=settings.KINTO_BUCKET,
+        )
