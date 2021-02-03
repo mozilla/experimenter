@@ -122,33 +122,28 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             return obj.reference_branch.slug
 
     def get_targeting(self, obj):
-        version_expr = ""
-        if obj.firefox_min_version:
-            version_expr = "{version_check} && ".format(
-                version_check=NimbusExperiment.TARGETING_VERSION.format(
-                    version=obj.firefox_min_version
-                )
-            )
+        exprs = []
 
-        channel_expr = ""
-        if obj.channel:
-            channel_expr = "{channel_check} && ".format(
-                channel_check=NimbusExperiment.TARGETING_CHANNEL.format(
-                    channel=obj.channel
+        if obj.is_desktop_experiment:
+            if obj.channel:
+                exprs.append(
+                    NimbusExperiment.TARGETING_CHANNEL.format(channel=obj.channel)
                 )
-            )
+            if obj.firefox_min_version:
+                exprs.append(
+                    NimbusExperiment.TARGETING_VERSION.format(
+                        version=obj.firefox_min_version
+                    )
+                )
 
-        targeting_expr = ""
         if obj.targeting_config:
-            targeting_expr = "{targeting_check} && ".format(
-                targeting_check=obj.targeting_config.targeting.format(experiment=obj)
-            )
+            exprs.append(obj.targeting_config.targeting.format(experiment=obj))
 
         # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
-        return (
-            f"{channel_expr}{version_expr}{targeting_expr}"
-            "'app.shield.optoutstudies.enabled'|preferenceValue"
-        )
+        if obj.is_desktop_experiment:
+            exprs.append("'app.shield.optoutstudies.enabled'|preferenceValue")
+
+        return " && ".join(exprs)
 
     def get_featureIds(self, obj):
         if obj.feature_config:
