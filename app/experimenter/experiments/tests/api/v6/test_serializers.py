@@ -183,7 +183,12 @@ class TestNimbusExperimentSerializer(TestCase):
         ]
     )
     def test_sets_app_id_name_channel_for_application(
-        self, application, channel, expected_application, expected_appId, expected_appName
+        self,
+        application,
+        channel,
+        expected_application,
+        expected_appId,
+        expected_appName,
     ):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
@@ -200,6 +205,7 @@ class TestNimbusExperimentSerializer(TestCase):
     def test_serializer_outputs_expected_schema_without_feature(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
+            application=NimbusExperiment.Application.DESKTOP,
             feature_config=None,
         )
         serializer = NimbusExperimentSerializer(experiment)
@@ -235,6 +241,32 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         check_schema("experiments/NimbusExperiment", serializer.data)
 
+    def test_serializer_outputs_expected_targeting_for_mobile(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.ACCEPTED,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(serializer.data["targeting"], "localeLanguageCode == 'en'")
+        check_schema("experiments/NimbusExperiment", serializer.data)
+
+    def test_serializer_outputs_empty_targeting_for_mobile_without_targeting(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.ACCEPTED,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(serializer.data["targeting"], "")
+        check_schema("experiments/NimbusExperiment", serializer.data)
+
     def test_serializer_outputs_targeting_for_experiment_without_firefox_min_version(
         self,
     ):
@@ -242,6 +274,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperiment.Status.ACCEPTED,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NIGHTLY,
         )
 
@@ -261,6 +294,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperiment.Status.ACCEPTED,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
         serializer = NimbusExperimentSerializer(experiment)
