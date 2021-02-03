@@ -10,7 +10,11 @@ from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializ
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.kinto import tasks
-from experimenter.kinto.client import KINTO_REJECTED_STATUS, KINTO_ROLLBACK_STATUS
+from experimenter.kinto.client import (
+    KINTO_REJECTED_STATUS,
+    KINTO_REVIEW_STATUS,
+    KINTO_ROLLBACK_STATUS,
+)
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 
 
@@ -336,3 +340,43 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
                 id=fenix_experiment.id, status=NimbusExperiment.Status.LIVE
             ).exists()
         )
+
+
+class TestEndExperimentInKinto(MockKintoClientMixin, TestCase):
+    def test_exception_for_failed_delete(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+        )
+        self.mock_kinto_client.delete_record.side_effect = Exception
+        with self.assertRaises(Exception):
+            tasks.nimbus_end_experiment_in_kinto(experiment.id)
+
+    def test_push_experiment_to_kinto_sends_desktop_experiment_data(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        tasks.nimbus_end_experiment_in_kinto(experiment.id)
+
+        self.mock_kinto_client.delete_record.assert_called_with(
+            id=experiment.id,
+            collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET,
+        )
+
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET,
+            data={"status": KINTO_REVIEW_STATUS},
+        )
+
+        self.assertTrue(
+            NimbusExperiment.objects.filter(id=experiment.id, is_ended=True).exists()
+        )
+
+        changelogs = NimbusChangeLog.objects.order_by("-changed_on").filter(
+            experiment=experiment
+        )
+        self.assertTrue(changelogs[0].experiment_data["is_ended"])
+        self.assertFalse(changelogs[1].experiment_data["is_ended"])
