@@ -86,3 +86,25 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         self.assertEqual(
             self.client.get_rejected_record(), "bug-9999-rapid-test-release-55"
         )
+
+    def test_delete_from_kinto_sends_id_updates_collection(self):
+        expected_id = "abc-123"
+
+        self.client.delete_from_kinto(expected_id)
+
+        self.mock_kinto_client_creator.assert_called_with(
+            server_url=settings.KINTO_HOST,
+            auth=(settings.KINTO_USER, settings.KINTO_PASS),
+        )
+
+        self.mock_kinto_client.delete_record.assert_called_with(
+            id=expected_id,
+            collection=self.collection,
+            bucket=settings.KINTO_BUCKET,
+        )
+
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=self.collection,
+            data={"status": KINTO_REVIEW_STATUS},
+            bucket=settings.KINTO_BUCKET,
+        )

@@ -168,6 +168,7 @@ type NimbusExperimentType {
   publicDescription: String!
   riskMitigationLink: String!
   isPaused: Boolean!
+  isEnded: Boolean!
   proposedDuration: Int!
   proposedEnrollment: Int!
   populationPercent: String
