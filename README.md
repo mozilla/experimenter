@@ -53,7 +53,7 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 1.  Run tests
 
-        make test
+        make check
 
 1.  Setup the database
 
