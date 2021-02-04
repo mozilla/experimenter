@@ -9,6 +9,81 @@ export const MOCK_UNAVAILABLE_ANALYSIS = {
   overall: null,
 };
 
+export const CONTROL_NEUTRAL = {
+  absolute: {
+    first: {
+      point: 0.05,
+      count: 10,
+      lower: 0.024357271316207685,
+      upper: 0.08411463700173483,
+    },
+    all: [
+      {
+        point: 0.05,
+        count: 10,
+        lower: 0.024357271316207685,
+        upper: 0.08411463700173483,
+      },
+    ],
+  },
+  difference: {
+    first: {},
+    all: [],
+  },
+  relative_uplift: {
+    first: {},
+    all: [],
+  },
+};
+
+export const TREATMENT_NEUTRAL = {
+  absolute: {
+    first: {
+      point: 0.049019607843137254,
+      count: 10,
+      lower: 0.023872203557007872,
+      upper: 0.08249069209461024,
+    },
+    all: [
+      {
+        point: 0.049019607843137254,
+        count: 10,
+        lower: 0.023872203557007872,
+        upper: 0.08249069209461024,
+      },
+    ],
+  },
+  difference: {
+    first: {
+      point: -0.0006569487628876534,
+      upper: 0.04316381736512019,
+      lower: 0.04175095963994029,
+    },
+    all: [
+      {
+        point: -0.0006569487628876534,
+        upper: 0.04316381736512019,
+        lower: 0.04175095963994029,
+      },
+    ],
+  },
+  relative_uplift: {
+    first: {
+      lower: -0.455210299676828,
+      upper: 0.5104985718410426,
+      point: -0.06233954570562385,
+    },
+    all: [
+      {
+        lower: -0.455210299676828,
+        upper: 0.5104985718410426,
+        point: -0.06233954570562385,
+      },
+    ],
+  },
+  significance: "neutral",
+};
+
 export const weeklyMockAnalysis = (modifications = {}) =>
   Object.assign(
     {
@@ -338,32 +413,8 @@ export const mockAnalysis = (modifications = {}) =>
                 all: [],
               },
             },
-            feature_c: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
-                },
-                all: [
-                  {
-                    point: 0.05,
-                    count: 10,
-                    lower: 0.024357271316207685,
-                    upper: 0.08411463700173483,
-                  },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
+            feature_c: CONTROL_NEUTRAL,
+            days_of_use: CONTROL_NEUTRAL,
             feature_d: {
               absolute: {
                 first: {
@@ -747,53 +798,8 @@ export const mockAnalysis = (modifications = {}) =>
               },
               significance: "neutral",
             },
-            feature_c: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
-                },
-                all: [
-                  {
-                    point: 0.049019607843137254,
-                    count: 10,
-                    lower: 0.023872203557007872,
-                    upper: 0.08249069209461024,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
-                },
-                all: [
-                  {
-                    point: -0.0006569487628876534,
-                    upper: 0.04316381736512019,
-                    lower: 0.04175095963994029,
-                  },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                },
-                all: [
-                  {
-                    lower: -0.455210299676828,
-                    upper: 0.5104985718410426,
-                    point: -0.06233954570562385,
-                  },
-                ],
-              },
-              significance: "neutral",
-            },
+            feature_c: TREATMENT_NEUTRAL,
+            days_of_use: TREATMENT_NEUTRAL,
             feature_d: {
               absolute: {
                 first: {
