@@ -99,6 +99,17 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "featureIds",
         )
 
+    def to_representation(self, instance):
+        representation = super(NimbusExperimentSerializer, self).to_representation(
+            instance
+        )
+
+        # issue #4542: remove targeting altogether, if it's None
+        if representation["targeting"] is None:
+            representation.pop("targeting")
+
+        return representation
+
     def get_application(self, obj):
         return self.get_appId(obj)
 
@@ -142,6 +153,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
         if obj.is_desktop_experiment:
             exprs.append("'app.shield.optoutstudies.enabled'|preferenceValue")
+
+        if len(exprs) == 0:
+            return None
 
         return " && ".join(exprs)
 
