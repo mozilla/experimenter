@@ -28,6 +28,7 @@ describe("TableResults", () => {
       "Picture-in-Picture Conversion",
       "2-Week Browser Retention",
       "Daily Mean Searches Per User",
+      "Overall Mean Days of Use Per User",
       "Total Users",
     ];
 
@@ -63,7 +64,7 @@ describe("TableResults", () => {
 
     expect(screen.getByTestId("positive-significance")).toBeInTheDocument();
     expect(screen.getByTestId("negative-significance")).toBeInTheDocument();
-    expect(screen.getByTestId("neutral-significance")).toBeInTheDocument();
+    expect(screen.queryAllByTestId("neutral-significance")).toHaveLength(2);
   });
 
   it("renders missing retention with warning", () => {
