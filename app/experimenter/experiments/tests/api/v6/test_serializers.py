@@ -264,7 +264,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
 
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(serializer.data["targeting"], "")
+        self.assertTrue("targeting" not in serializer.data)
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_serializer_outputs_targeting_for_experiment_without_firefox_min_version(
