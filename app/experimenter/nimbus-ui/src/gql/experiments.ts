@@ -88,6 +88,15 @@ export const UPDATE_EXPERIMENT_PROBESETS_MUTATION = gql`
   }
 `;
 
+export const END_EXPERIMENT_MUTATION = gql`
+  mutation endExperiment($input: ExperimentIdInput!) {
+    endExperiment(input: $input) {
+      message
+      status
+    }
+  }
+`;
+
 export const UPDATE_EXPERIMENT_AUDIENCE_MUTATION = gql`
   mutation updateExperimentAudience($input: ExperimentInput!) {
     updateExperiment(input: $input) {
@@ -115,6 +124,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       slug
       status
       monitoringDashboardUrl
+      isEndRequested
 
       hypothesis
       application
@@ -205,6 +215,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       proposedEnrollment
       endDate
       status
+      isEndRequested
       monitoringDashboardUrl
       featureConfig {
         slug

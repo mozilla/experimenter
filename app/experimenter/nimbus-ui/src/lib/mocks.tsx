@@ -295,6 +295,7 @@ export function mockExperimentQuery<
       name: "Open-architected background installation",
       slug,
       status: "DRAFT",
+      isEndRequested: false,
       monitoringDashboardUrl: "https://grafana.telemetry.mozilla.org",
       hypothesis: "Realize material say pretty.",
       application: "DESKTOP",
@@ -398,13 +399,16 @@ export const mockExperimentMutation = (
   input: ExperimentInput,
   key: string,
   {
-    status = 200,
-    message = "success",
+    status,
+    message,
     experiment,
   }: {
     status?: number;
     message?: string | Record<string, any>;
     experiment?: Record<string, any> | null;
+  } = {
+    status: 200,
+    message: "success",
   },
 ) => {
   return {
@@ -459,6 +463,7 @@ export function mockSingleDirectoryExperiment(
     proposedDuration: 28,
     startDate: fiveDaysAgo.toISOString(),
     endDate: new Date(Date.now() + 12096e5).toISOString(),
+    isEndRequested: false,
     ...overrides,
   };
 }

@@ -18,7 +18,7 @@ const SummaryTimeline = ({
   const status = getStatus(experiment);
 
   return (
-    <div className="mb-5" data-testid="summary-timeline">
+    <div className="mb-4" data-testid="summary-timeline">
       <StartEnd
         {...{
           status,
