@@ -24,6 +24,7 @@ export const getTableDisplayType = (
       displayType = DISPLAY_TYPE.POPULATION;
       break;
     case METRIC.SEARCH:
+    case METRIC.DAYS_OF_USE:
       if (tableLabel === TABLE_LABEL.RESULTS || isControl) {
         displayType = DISPLAY_TYPE.COUNT;
         break;

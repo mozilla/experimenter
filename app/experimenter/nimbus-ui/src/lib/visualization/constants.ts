@@ -8,6 +8,7 @@ export const METRICS_TIPS = {
   USER_COUNT:
     "Total users in a variant and the % of users out of the entire experiment population",
   CONVERSION: "Percentage of users in the variant who used this feature",
+  DAYS_OF_USE: "Average number of days each client sent a main ping",
 };
 
 export const SEGMENT_TIPS = {
@@ -58,6 +59,7 @@ export const SIGNIFICANCE = {
 export const METRIC = {
   RETENTION: "retained",
   SEARCH: "search_count",
+  DAYS_OF_USE: "days_of_use",
   USER_COUNT: "identity",
 };
 
@@ -116,6 +118,11 @@ export const HIGHLIGHTS_METRICS_LIST = [
     name: "Search",
     tooltip: METRICS_TIPS.SEARCH,
   },
+  {
+    value: METRIC.DAYS_OF_USE,
+    name: "Days of Use",
+    tooltip: METRICS_TIPS.DAYS_OF_USE,
+  },
 ];
 
 // This is used as an ordered list of metrics to
@@ -131,6 +138,12 @@ export const RESULTS_METRICS_LIST = [
     value: METRIC.SEARCH,
     name: "Daily Mean Searches Per User",
     tooltip: METRICS_TIPS.SEARCH,
+    type: METRIC_TYPE.GUARDRAIL,
+  },
+  {
+    value: METRIC.DAYS_OF_USE,
+    name: "Overall Mean Days of Use Per User",
+    tooltip: METRICS_TIPS.DAYS_OF_USE,
     type: METRIC_TYPE.GUARDRAIL,
   },
   {
