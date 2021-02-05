@@ -34,6 +34,9 @@ export enum NimbusExperimentDocumentationLink {
 
 export enum NimbusExperimentFirefoxMinVersion {
   FIREFOX_100 = "FIREFOX_100",
+  FIREFOX_80 = "FIREFOX_80",
+  FIREFOX_81 = "FIREFOX_81",
+  FIREFOX_82 = "FIREFOX_82",
   FIREFOX_83 = "FIREFOX_83",
   FIREFOX_84 = "FIREFOX_84",
   FIREFOX_85 = "FIREFOX_85",
