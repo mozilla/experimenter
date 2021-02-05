@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from rest_framework import serializers
 
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
+from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
@@ -68,6 +69,34 @@ class NimbusExperimentBranchMixin:
 
     def validate(self, data):
         data = super().validate(data)
+        data = self._validate_duplicate_branch_names(data)
+        data = self._validate_feature_configs(data)
+        return data
+
+    def _validate_duplicate_branch_names(self, data):
+        if "reference_branch" in data and "treatment_branches" in data:
+            ref_branch_name = data["reference_branch"]["name"]
+            treatment_branch_names = [
+                branch["name"] for branch in data["treatment_branches"]
+            ]
+            all_names = [ref_branch_name, *treatment_branch_names]
+            unique_names = set(all_names)
+
+            if len(all_names) != len(unique_names):
+                raise serializers.ValidationError(
+                    {
+                        "reference_branch": {
+                            "name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME
+                        },
+                        "treatment_branches": [
+                            {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
+                            for i in data["treatment_branches"]
+                        ],
+                    }
+                )
+        return data
+
+    def _validate_feature_configs(self, data):
         # Determine if we require a feature_config
         feature_config_required = data.get("reference_branch", {}).get(
             "feature_enabled", False
