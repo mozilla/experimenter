@@ -111,6 +111,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     changes = ExperimentChangeLogSerializer(many=True)
     results = serializers.SerializerMethodField()
     normandy_slug = serializers.CharField(source="recipe_slug")
+    projects = serializers.SerializerMethodField()
 
     class Meta:
         model = Experiment
@@ -147,7 +148,11 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "variants",
             "results",
             "changes",
+            "projects",
         )
 
     def get_results(self, obj):
         return ResultsSerializer(obj).data
+
+    def get_projects(self, obj):
+        return list(obj.projects.values_list("name", flat=True))

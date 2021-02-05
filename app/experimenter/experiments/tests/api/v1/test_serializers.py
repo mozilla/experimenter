@@ -153,6 +153,7 @@ class TestExperimentSerializer(TestCase):
                 "results_measure_impact": None,
                 "results_impact_notes": None,
             },
+            "projects": list(experiment.projects.values_list("name", flat=True)),
         }
 
         self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
