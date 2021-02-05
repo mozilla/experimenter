@@ -124,6 +124,9 @@ class NimbusConstants(object):
 
     class Version(models.TextChoices):
         NO_VERSION = ""
+        FIREFOX_80 = "80.!"
+        FIREFOX_81 = "81.!"
+        FIREFOX_82 = "82.!"
         FIREFOX_83 = "83.!"
         FIREFOX_84 = "84.!"
         FIREFOX_85 = "85.!"
