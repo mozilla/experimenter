@@ -13,7 +13,8 @@
 """
 import graphene
 
-from experimenter.experiments.api.v5.inputs import ExperimentInput
+from experimenter import kinto
+from experimenter.experiments.api.v5.inputs import ExperimentIdInput, ExperimentInput
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.api.v5.types import NimbusExperimentType, ObjectField
 from experimenter.experiments.models import NimbusExperiment
@@ -68,8 +69,28 @@ class UpdateExperiment(graphene.Mutation):
         return handle_with_serializer(cls, serializer)
 
 
+class EndExperiment(graphene.Mutation):
+    nimbus_experiment_id = graphene.Int()
+    message = ObjectField()
+    status = graphene.Int()
+
+    class Arguments:
+        input = ExperimentIdInput(required=True)
+
+    @classmethod
+    def mutate(cls, root, info, input: ExperimentIdInput):
+        exp = NimbusExperiment.objects.get(id=input.id)
+        kinto.tasks.nimbus_end_experiment_in_kinto.delay(exp.id)
+        return cls(
+            nimbus_experiment_id=exp.id,
+            message="success",
+            status=200,
+        )
+
+
 class Mutation(graphene.ObjectType):
     create_experiment = CreateExperiment.Field(
         description="Create a new Nimbus Experiment."
     )
     update_experiment = UpdateExperiment.Field(description="Update a Nimbus Experiment.")
+    end_experiment = EndExperiment.Field(description="End a Nimbus Experiment.")

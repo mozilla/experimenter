@@ -35,3 +35,16 @@ class MockKintoClientMixin(object):
 
     def setup_kinto_get_main_records(self, slugs):
         self.mock_kinto_client.get_records.return_value = [{"id": slug} for slug in slugs]
+
+
+class MockKintoTasksMixin(object):
+    def setUp(self):
+        super().setUp()
+
+        mock_nimbus_end_experiment_in_kinto = mock.patch(
+            "experimenter.kinto.tasks.nimbus_end_experiment_in_kinto"
+        )
+        self.mock_nimbus_end_experiment_in_kinto = (
+            mock_nimbus_end_experiment_in_kinto.start()
+        )
+        self.addCleanup(mock_nimbus_end_experiment_in_kinto.stop)
