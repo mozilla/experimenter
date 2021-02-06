@@ -11,6 +11,7 @@ from experimenter.experiments.tests.factories.nimbus import (
     NimbusFeatureConfigFactory,
     NimbusProbeSetFactory,
 )
+from experimenter.kinto.tests.mixins import MockKintoTasksMixin
 
 CREATE_EXPERIMENT_MUTATION = """\
 mutation($input: ExperimentInput!) {
@@ -144,7 +145,18 @@ mutation ($input: ExperimentInput!){
 """
 
 
-class TestMutations(GraphQLTestCase):
+END_EXPERIMENT_MUTATION = """\
+mutation ($input: ExperimentIdInput!){
+  endExperiment(input: $input){
+    nimbusExperimentId
+    message
+    status
+  }
+}
+"""
+
+
+class TestMutations(MockKintoTasksMixin, GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
     maxDiff = None
 
@@ -671,3 +683,26 @@ class TestMutations(GraphQLTestCase):
                 ]
             },
         )
+
+    def test_nimbus_end_experiment_in_kinto(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.LIVE,
+        )
+        response = self.query(
+            END_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["endExperiment"]
+        self.assertEqual(
+            result["nimbusExperimentId"],
+            experiment.id,
+        )
+        self.mock_nimbus_end_experiment_in_kinto.delay.assert_called_with(experiment.id)
