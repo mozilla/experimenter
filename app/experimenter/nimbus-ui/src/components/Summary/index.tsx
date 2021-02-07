@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { ReactComponent as ExternalIcon } from "../../images/external.svg";
-import { getStatus } from "../../lib/experiment";
+import { ExperimentContext } from "../../lib/contexts";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
 import NotSet from "../NotSet";
@@ -15,29 +14,32 @@ import TableAudience from "./TableAudience";
 import TableBranches from "./TableBranches";
 import TableSummary from "./TableSummary";
 
-type SummaryProps = {
-  experiment: getExperiment_experimentBySlug;
-};
+const Summary = () => {
+  const { experiment, status } = useContext(ExperimentContext);
+  const {
+    slug,
+    referenceBranch,
+    treatmentBranches,
+    monitoringDashboardUrl,
+  } = experiment!;
 
-const Summary = ({ experiment }: SummaryProps) => {
-  const status = getStatus(experiment);
-  const branchCount = [
-    experiment.referenceBranch,
-    ...(experiment.treatmentBranches || []),
-  ].filter((branch) => !!branch).length;
+  const branchCount = [referenceBranch, ...(treatmentBranches || [])].filter(
+    (branch) => !!branch,
+  ).length;
 
   return (
     <div data-testid="summary">
-      <LinkMonitoring {...experiment} />
+      <LinkMonitoring {...{ monitoringDashboardUrl }} />
+
       <h2 className="h5 mb-3">Timeline</h2>
-      <SummaryTimeline {...{ experiment }} />
+      <SummaryTimeline />
 
       <div className="d-flex flex-row justify-content-between">
         <h2 className="h5 mb-3">Summary</h2>
         {!status.draft && !status.review && (
           <span>
             <LinkExternal
-              href={`/api/v6/experiments/${experiment.slug}/`}
+              href={`/api/v6/experiments/${slug}/`}
               data-testid="link-json"
             >
               <span className="mr-1 align-middle">
@@ -48,15 +50,15 @@ const Summary = ({ experiment }: SummaryProps) => {
           </span>
         )}
       </div>
-      <TableSummary {...{ experiment }} />
+      <TableSummary />
 
       <h2 className="h5 mb-3">Audience</h2>
-      <TableAudience {...{ experiment }} />
+      <TableAudience />
 
       <h2 className="h5 mb-3" data-testid="branches-section-title">
         Branches ({branchCount})
       </h2>
-      <TableBranches {...{ experiment }} />
+      <TableBranches />
     </div>
   );
 };

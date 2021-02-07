@@ -2,22 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
+import { AnalysisContext, ExperimentContext } from "../../../lib/contexts";
 import {
   METRICS_TIPS,
   METRIC_TYPE,
   RESULTS_METRICS_LIST,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
-
-type TableResultsProps = {
-  primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
-  results: AnalysisDataOverall;
-};
 
 const getResultMetrics = (
   probeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[],
@@ -36,10 +31,10 @@ const getResultMetrics = (
   return resultsMetricsList;
 };
 
-const TableResults = ({
-  primaryProbeSets,
-  results = {},
-}: TableResultsProps) => {
+const TableResults = () => {
+  const primaryProbeSets = useContext(ExperimentContext).experiment!
+    .primaryProbeSets!;
+  const results = useContext(AnalysisContext).analysis!.overall || {};
   const resultsMetricsList = getResultMetrics(primaryProbeSets);
 
   return (

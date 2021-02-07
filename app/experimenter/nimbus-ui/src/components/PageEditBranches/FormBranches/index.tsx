@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -10,18 +10,17 @@ import Form from "react-bootstrap/Form";
 import { FormProvider, SubmitHandler } from "react-hook-form";
 import { useExitWarning, useForm } from "../../../hooks";
 import { IsDirtyUnsaved } from "../../../hooks/useCommonForm/useCommonFormMethods";
+import { ExperimentContext } from "../../../lib/contexts";
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_featureConfig,
 } from "../../../types/getConfig";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import FormBranch from "./FormBranch";
 import { FormBranchesSaveState, useFormBranchesReducer } from "./reducer";
 import { FormData } from "./reducer/update";
 
 type FormBranchesProps = {
   isLoading: boolean;
-  experiment: getExperiment_experimentBySlug;
   featureConfig: getConfig_nimbusConfig["featureConfig"];
   onSave: (
     state: FormBranchesSaveState,
@@ -33,11 +32,12 @@ type FormBranchesProps = {
 
 export const FormBranches = ({
   isLoading,
-  experiment,
   featureConfig,
   onSave,
   onNext,
 }: FormBranchesProps) => {
+  const { experiment } = useContext(ExperimentContext);
+
   const reviewErrors =
     typeof experiment?.readyForReview?.message !== "string"
       ? experiment?.readyForReview?.message
@@ -53,7 +53,7 @@ export const FormBranches = ({
     },
     extractSaveState,
     dispatch,
-  ] = useFormBranchesReducer(experiment);
+  ] = useFormBranchesReducer(experiment!);
 
   const defaultValues = useMemo(
     () => ({

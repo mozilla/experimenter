@@ -4,7 +4,7 @@
 
 import React from "react";
 import SummaryTimeline from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import { MockExperimentContextProvider } from "../../../lib/mocks";
 import { NimbusExperimentStatus } from "../../../types/globalTypes";
 
 export const Subject = ({
@@ -19,13 +19,16 @@ export const Subject = ({
   proposedDuration?: number;
   proposedEnrollment?: number;
   status?: NimbusExperimentStatus;
-}) => {
-  const { experiment } = mockExperimentQuery("something-vague", {
-    startDate,
-    endDate,
-    proposedDuration,
-    proposedEnrollment,
-    status,
-  });
-  return <SummaryTimeline {...{ experiment }} />;
-};
+}) => (
+  <MockExperimentContextProvider
+    overrides={{
+      startDate,
+      endDate,
+      proposedDuration,
+      proposedEnrollment,
+      status,
+    }}
+  >
+    <SummaryTimeline />
+  </MockExperimentContextProvider>
+);

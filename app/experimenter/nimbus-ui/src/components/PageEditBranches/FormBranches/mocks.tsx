@@ -6,7 +6,12 @@ import React, { useEffect } from "react";
 import { FormProvider } from "react-hook-form";
 import FormBranches from ".";
 import { useForm } from "../../../hooks";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
+import {
+  MockExperimentContextProvider,
+  mockExperimentQuery,
+  MOCK_CONFIG,
+} from "../../../lib/mocks";
+import { getExperiment } from "../../../types/getExperiment";
 import FormBranch from "./FormBranch";
 import { AnnotatedBranch } from "./reducer";
 import { formBranchesActionReducer } from "./reducer/actions";
@@ -119,13 +124,15 @@ export const SubjectBranch = ({
 
 export const SubjectBranches = ({
   isLoading = false,
-  experiment = MOCK_EXPERIMENT,
+  // experiment = MOCK_EXPERIMENT,
   featureConfig = MOCK_CONFIG.featureConfig,
   onSave = () => {},
   onNext = () => {},
   saveOnInitialRender = false,
+  experiment: overrides = {},
 }: Partial<React.ComponentProps<typeof FormBranches>> & {
   saveOnInitialRender?: boolean;
+  experiment?: Partial<getExperiment["experimentBySlug"]>;
 } = {}) => {
   useEffect(() => {
     if (saveOnInitialRender) {
@@ -138,17 +145,19 @@ export const SubjectBranches = ({
   }, [saveOnInitialRender]);
 
   return (
-    <div className="p-5">
-      <FormBranches
-        {...{
-          isLoading,
-          experiment,
-          featureConfig,
-          onSave,
-          onNext,
-        }}
-      />
-    </div>
+    <MockExperimentContextProvider {...{ overrides }}>
+      <div className="p-5">
+        <FormBranches
+          {...{
+            isLoading,
+            // experiment,
+            featureConfig,
+            onSave,
+            onNext,
+          }}
+        />
+      </div>
+    </MockExperimentContextProvider>
   );
 };
 

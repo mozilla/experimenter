@@ -2,43 +2,45 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import { ExperimentContext } from "../../../lib/contexts";
 import { humanDate } from "../../../lib/dateUtils";
-import { getStatus, StatusCheck } from "../../../lib/experiment";
+import { StatusCheck } from "../../../lib/experiment";
 import pluralize from "../../../lib/pluralize";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import NotSet from "../../NotSet";
 
-const SummaryTimeline = ({
-  experiment,
-}: {
-  experiment: getExperiment_experimentBySlug;
-}) => {
-  const status = getStatus(experiment);
+const SummaryTimeline = () => {
+  const { experiment, status } = useContext(ExperimentContext);
+  const {
+    startDate,
+    endDate,
+    proposedDuration,
+    proposedEnrollment,
+  } = experiment!;
 
   return (
     <div className="mb-5" data-testid="summary-timeline">
       <StartEnd
         {...{
           status,
-          startDate: experiment.startDate,
-          endDate: experiment.endDate,
+          startDate,
+          endDate,
         }}
       />
 
       <Progress
         {...{
           status,
-          startDate: experiment.startDate,
-          endDate: experiment.endDate,
+          startDate,
+          endDate,
         }}
       />
 
       <Duration
         {...{
-          duration: experiment.proposedDuration,
-          enrollment: experiment.proposedEnrollment,
+          duration: proposedDuration,
+          enrollment: proposedEnrollment,
         }}
       />
     </div>

@@ -5,54 +5,28 @@
 import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
-import AppLayoutWithSidebar from ".";
-import { mockGetStatus } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { Subject } from "./mocks";
 
 storiesOf("components/AppLayoutWithSidebar", module)
   .addDecorator(withLinks)
-  .add("basic", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar>
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
-  ))
+  .add("basic", () => <Subject />)
   .add("missing details", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar
-        review={{
-          ready: false,
-          invalidPages: ["branches", "audience"],
-        }}
-      >
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
+    <Subject
+      review={{
+        __typename: "NimbusReadyForReviewType",
+        ready: false,
+        message: {
+          reference_branch: ["This field may not be null."],
+          channel: ["This field may not be null."],
+        },
+      }}
+    />
   ))
   .add("status: review", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar
-        status={mockGetStatus(NimbusExperimentStatus.REVIEW)}
-      >
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
+    <Subject status={NimbusExperimentStatus.REVIEW} />
   ))
   .add("status: accepted", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar
-        status={mockGetStatus(NimbusExperimentStatus.ACCEPTED)}
-      >
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
+    <Subject status={NimbusExperimentStatus.ACCEPTED} />
   ))
-  .add("status: live", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar status={mockGetStatus(NimbusExperimentStatus.LIVE)}>
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
-  ));
+  .add("status: live", () => <Subject status={NimbusExperimentStatus.LIVE} />);

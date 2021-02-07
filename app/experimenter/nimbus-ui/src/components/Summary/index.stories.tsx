@@ -5,39 +5,36 @@
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import Summary from ".";
-import { mockExperimentQuery } from "../../lib/mocks";
+import { MockExperimentContextProvider } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { getExperiment } from "../../types/getExperiment";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 import AppLayout from "../AppLayout";
 
 storiesOf("components/Summary", module)
-  .add("draft status", () => {
-    const { experiment } = mockExperimentQuery("demo-slug");
-    return <Subject {...{ experiment }} />;
-  })
-  .add("non-draft status", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.ACCEPTED,
-    });
-    return <Subject {...{ experiment }} />;
-  })
-  .add("no branches", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      referenceBranch: null,
-      treatmentBranches: null,
-    });
-    return <Subject {...{ experiment }} />;
-  });
+  .add("draft status", () => <Subject />)
+  .add("non-draft status", () => (
+    <Subject experiment={{ status: NimbusExperimentStatus.ACCEPTED }} />
+  ))
+  .add("no branches", () => (
+    <Subject
+      experiment={{
+        referenceBranch: null,
+        treatmentBranches: null,
+      }}
+    />
+  ));
 
 const Subject = ({
-  experiment,
+  experiment: overrides = {},
 }: {
-  experiment: getExperiment_experimentBySlug;
+  experiment?: Partial<getExperiment["experimentBySlug"]>;
 }) => (
-  <AppLayout>
-    <RouterSlugProvider>
-      <Summary {...{ experiment }} />
-    </RouterSlugProvider>
-  </AppLayout>
+  <MockExperimentContextProvider {...{ overrides }}>
+    <AppLayout>
+      <RouterSlugProvider>
+        <Summary />
+      </RouterSlugProvider>
+    </AppLayout>
+  </MockExperimentContextProvider>
 );

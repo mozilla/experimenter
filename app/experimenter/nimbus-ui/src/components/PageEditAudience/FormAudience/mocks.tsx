@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { FormAudience } from ".";
 import {
   MockedCache,
+  MockExperimentContextProvider,
   mockExperimentQuery,
   MOCK_CONFIG,
 } from "../../../lib/mocks";
@@ -13,9 +14,7 @@ import { getConfig_nimbusConfig } from "../../../types/getConfig";
 
 export const Subject = ({
   config = MOCK_CONFIG,
-  experiment = MOCK_EXPERIMENT,
   submitErrors = {},
-  isMissingField = () => false,
   isLoading = false,
   isServerValid = true,
   onSubmit = () => {},
@@ -29,18 +28,18 @@ export const Subject = ({
   return (
     <div className="p-5">
       <MockedCache {...{ config }}>
-        <FormAudience
-          submitErrors={submitErrorsDefault}
-          {...{
-            experiment,
-            setSubmitErrors,
-            isMissingField,
-            isLoading,
-            isServerValid,
-            onSubmit,
-            onNext,
-          }}
-        />
+        <MockExperimentContextProvider>
+          <FormAudience
+            submitErrors={submitErrorsDefault}
+            {...{
+              setSubmitErrors,
+              isLoading,
+              isServerValid,
+              onSubmit,
+              onNext,
+            }}
+          />
+        </MockExperimentContextProvider>
       </MockedCache>
     </div>
   );

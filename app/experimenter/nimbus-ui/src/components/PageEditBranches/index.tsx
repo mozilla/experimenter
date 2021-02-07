@@ -4,12 +4,12 @@
 
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useContext } from "react";
 import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
 import { useConfig } from "../../hooks";
 import { EXTERNAL_URLS } from "../../lib/constants";
+import { ExperimentContext } from "../../lib/contexts";
 import { editCommonRedirects } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
 import { updateExperimentBranches_updateExperiment as UpdateExperimentBranchesResult } from "../../types/updateExperimentBranches";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
@@ -19,16 +19,24 @@ import { FormBranchesSaveState } from "./FormBranches/reducer";
 
 export const SUBMIT_ERROR_MESSAGE = "Save failed, no error available";
 
-const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
+const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => (
+  <AppLayoutWithExperiment
+    title="Branches"
+    testId="PageEditBranches"
+    redirect={editCommonRedirects}
+  >
+    <PageContents />
+  </AppLayoutWithExperiment>
+);
+
+const PageContents = () => {
+  const { experiment } = useContext(ExperimentContext);
   const { featureConfig } = useConfig();
 
   const [updateExperimentBranches, { loading }] = useMutation<
     { updateExperiment: UpdateExperimentBranchesResult },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_BRANCHES_MUTATION);
-
-  const currentExperiment = useRef<getExperiment_experimentBySlug>();
-  const refetchReview = useRef<() => void>();
 
   const onFormSave = useCallback(
     async (
@@ -42,7 +50,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
     ) => {
       try {
         // issue #3954: Need to parse string IDs into numbers
-        const nimbusExperimentId = currentExperiment.current!.id;
+        const nimbusExperimentId = experiment!.id;
         const result = await updateExperimentBranches({
           variables: {
             input: {
@@ -68,7 +76,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         setSubmitErrors({ "*": [error.message] });
       }
     },
-    [updateExperimentBranches],
+    [updateExperimentBranches, experiment],
   );
 
   const onFormNext = useCallback(() => {
@@ -76,41 +84,27 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   }, []);
 
   return (
-    <AppLayoutWithExperiment
-      title="Branches"
-      testId="PageEditBranches"
-      redirect={editCommonRedirects}
-    >
-      {({ experiment, review }) => {
-        currentExperiment.current = experiment;
-        refetchReview.current = review.refetch;
-        return (
-          <>
-            <p>
-              If you want, you can add a <strong>feature flag</strong>{" "}
-              configuration to each branch. Experiments can only change one flag
-              at a time.{" "}
-              <LinkExternal
-                href={EXTERNAL_URLS.BRANCHES_GOOGLE_DOC}
-                data-testid="learn-more-link"
-              >
-                Learn more
-              </LinkExternal>
-            </p>
-            <FormBranches
-              {...{
-                experiment,
-                // TODO: EXP-560 - configs should be filtered by application type
-                featureConfig,
-                isLoading: loading,
-                onSave: onFormSave,
-                onNext: onFormNext,
-              }}
-            />
-          </>
-        );
-      }}
-    </AppLayoutWithExperiment>
+    <>
+      <p>
+        If you want, you can add a <strong>feature flag</strong> configuration
+        to each branch. Experiments can only change one flag at a time.{" "}
+        <LinkExternal
+          href={EXTERNAL_URLS.BRANCHES_GOOGLE_DOC}
+          data-testid="learn-more-link"
+        >
+          Learn more
+        </LinkExternal>
+      </p>
+      <FormBranches
+        {...{
+          // TODO: EXP-560 - configs should be filtered by application type
+          featureConfig,
+          isLoading: loading,
+          onSave: onFormSave,
+          onNext: onFormNext,
+        }}
+      />
+    </>
   );
 };
 

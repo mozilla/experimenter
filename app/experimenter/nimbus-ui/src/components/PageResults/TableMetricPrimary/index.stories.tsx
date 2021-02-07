@@ -7,7 +7,6 @@ import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableMetricPrimary from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
-import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 storiesOf("pages/Results/TableMetricPrimary", module)
   .addDecorator(withLinks)
@@ -25,7 +24,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
 
     return (
       <TableMetricPrimary
-        results={mockAnalysis().overall}
+        // results={mockAnalysis().overall}
         probeSet={experiment.primaryProbeSets![0]!}
       />
     );
@@ -44,7 +43,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
 
     return (
       <TableMetricPrimary
-        results={mockAnalysis().overall}
+        // results={mockAnalysis().overall}
         probeSet={experiment.primaryProbeSets![0]!}
       />
     );
@@ -63,7 +62,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
 
     return (
       <TableMetricPrimary
-        results={mockAnalysis().overall}
+        // results={mockAnalysis().overall}
         probeSet={experiment.primaryProbeSets![0]!}
       />
     );

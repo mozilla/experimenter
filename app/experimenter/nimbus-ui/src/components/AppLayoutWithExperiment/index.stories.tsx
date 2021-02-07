@@ -5,29 +5,9 @@
 import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
-import AppLayoutWithExperiment from ".";
-import { mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
-
-const { mock } = mockExperimentQuery("demo-slug");
+import { Subject } from "./mocks";
 
 storiesOf("components/AppLayoutWithExperiment", module)
   .addDecorator(withLinks)
-  .add("default, with sidebar", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <AppLayoutWithExperiment title="Howdy!" testId="AppLayoutWithExperiment">
-        {({ experiment }) => <p>{experiment.name}</p>}
-      </AppLayoutWithExperiment>
-    </RouterSlugProvider>
-  ))
-  .add("without sidebar", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <AppLayoutWithExperiment
-        title="Howdy!"
-        testId="AppLayoutWithExperiment"
-        sidebar={false}
-      >
-        {({ experiment }) => <p>{experiment.name}</p>}
-      </AppLayoutWithExperiment>
-    </RouterSlugProvider>
-  ));
+  .add("default, with sidebar", () => <Subject />)
+  .add("without sidebar", () => <Subject sidebar={false} />);

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import Select from "react-select";
@@ -10,8 +10,8 @@ import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig, useExitWarning } from "../../../hooks";
 import { SelectOption } from "../../../hooks/useCommonForm/useCommonFormMethods";
 import { ReactComponent as Info } from "../../../images/info.svg";
+import { ExperimentContext } from "../../../lib/contexts";
 import {
-  getExperiment,
   getExperiment_experimentBySlug_primaryProbeSets,
   getExperiment_experimentBySlug_secondaryProbeSets,
 } from "../../../types/getExperiment";
@@ -22,7 +22,6 @@ export const metricsFieldNames = [
 ] as const;
 
 type FormMetricsProps = {
-  experiment: getExperiment["experimentBySlug"];
   isLoading: boolean;
   isServerValid: boolean;
   submitErrors: Record<string, string[]>;
@@ -47,7 +46,6 @@ export const SECONDARY_PROBE_SETS_TOOLTIP =
   "Specific metrics that you are interested in observing in your experiment but they don't affect the results of your experiment.";
 
 const FormMetrics = ({
-  experiment,
   isLoading,
   isServerValid,
   submitErrors,
@@ -55,6 +53,8 @@ const FormMetrics = ({
   onSave,
   onNext,
 }: FormMetricsProps) => {
+  const { experiment } = useContext(ExperimentContext);
+  const { primaryProbeSets, secondaryProbeSets } = experiment!;
   const { probeSets } = useConfig();
 
   const getProbeSetIds = (probeSets: ProbeSets) =>
@@ -63,10 +63,10 @@ const FormMetrics = ({
   // We must alter primary probe set options when a secondary set is selected
   // to exclude the set from primary probe set options and vice versa
   const [primaryProbeSetIds, setPrimaryProbeSetIds] = useState<string[]>(
-    getProbeSetIds(experiment?.primaryProbeSets!),
+    getProbeSetIds(primaryProbeSets!),
   );
   const [secondaryProbeSetIds, setSecondaryProbeSetIds] = useState<string[]>(
-    getProbeSetIds(experiment?.secondaryProbeSets!),
+    getProbeSetIds(secondaryProbeSets!),
   );
 
   const probeSetOption = (probeSet: ProbeSet) => ({
@@ -89,13 +89,9 @@ const FormMetrics = ({
 
   const defaultValues = {
     primaryProbeSetIds:
-      experiment?.primaryProbeSets?.map((probeSet) =>
-        probeSetOption(probeSet!),
-      ) || "",
+      primaryProbeSets?.map((probeSet) => probeSetOption(probeSet!)) || "",
     secondaryProbeSetIds:
-      experiment?.secondaryProbeSets?.map((probeSet) =>
-        probeSetOption(probeSet!),
-      ) || "",
+      secondaryProbeSets?.map((probeSet) => probeSetOption(probeSet!)) || "",
   };
 
   const {

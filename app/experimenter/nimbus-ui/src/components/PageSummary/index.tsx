@@ -19,7 +19,7 @@ const PageSummary: React.FunctionComponent<PageRequestReviewProps> = ({
     sidebar={false}
     {...{ polling }}
   >
-    {({ experiment }) => <Summary {...{ experiment }} />}
+    <Summary />
   </AppLayoutWithExperiment>
 );
 

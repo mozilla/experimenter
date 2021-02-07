@@ -4,26 +4,36 @@
 
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { UPDATE_EXPERIMENT_PROBESETS_MUTATION } from "../../gql/experiments";
 import { EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
+import { ExperimentContext } from "../../lib/contexts";
 import { editCommonRedirects } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
 import { updateExperimentProbeSets_updateExperiment as UpdateExperimentProbeSetsResult } from "../../types/updateExperimentProbeSets";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
 import FormMetrics from "./FormMetrics";
 
-const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
+const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => (
+  <AppLayoutWithExperiment
+    title="Metrics"
+    testId="PageEditMetrics"
+    redirect={editCommonRedirects}
+  >
+    <PageContents />
+  </AppLayoutWithExperiment>
+);
+
+const PageContents = () => {
+  const { refetch, experiment } = useContext(ExperimentContext);
+
   const [updateExperimentProbeSets, { loading }] = useMutation<
     { updateExperiment: UpdateExperimentProbeSetsResult },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_PROBESETS_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
-  const currentExperiment = useRef<getExperiment_experimentBySlug>();
-  const refetchReview = useRef<() => void>();
   const [isServerValid, setIsServerValid] = useState(true);
 
   const onSave = useCallback(
@@ -32,7 +42,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
       secondaryProbeSetIds,
     }: Record<string, number[]>) => {
       try {
-        const nimbusExperimentId = currentExperiment.current!.id;
+        const nimbusExperimentId = experiment!.id;
         const result = await updateExperimentProbeSets({
           variables: {
             input: {
@@ -55,14 +65,13 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
         } else {
           setIsServerValid(true);
           setSubmitErrors({});
-          // In practice this should be defined by the time we get here
-          refetchReview.current!();
+          refetch();
         }
       } catch (error) {
         setSubmitErrors({ "*": SUBMIT_ERROR });
       }
     },
-    [updateExperimentProbeSets, currentExperiment],
+    [updateExperimentProbeSets, experiment, refetch],
   );
 
   const onNext = useCallback(() => {
@@ -70,45 +79,30 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   }, []);
 
   return (
-    <AppLayoutWithExperiment
-      title="Metrics"
-      testId="PageEditMetrics"
-      redirect={editCommonRedirects}
-    >
-      {({ experiment, review }) => {
-        currentExperiment.current = experiment;
-        refetchReview.current = review.refetch;
-
-        return (
-          <>
-            <p>
-              Every experiment analysis automatically includes how your
-              experiment has impacted{" "}
-              <strong>Retention, Search Count, and Ad Click</strong> metrics.
-              Get more information on{" "}
-              <LinkExternal
-                href={EXTERNAL_URLS.METRICS_GOOGLE_DOC}
-                data-testid="core-metrics-link"
-              >
-                Core Firefox Metrics
-              </LinkExternal>
-              .
-            </p>
-            <FormMetrics
-              {...{
-                experiment,
-                isLoading: loading,
-                isServerValid,
-                submitErrors,
-                setSubmitErrors,
-                onSave,
-                onNext,
-              }}
-            />
-          </>
-        );
-      }}
-    </AppLayoutWithExperiment>
+    <>
+      <p>
+        Every experiment analysis automatically includes how your experiment has
+        impacted <strong>Retention, Search Count, and Ad Click</strong> metrics.
+        Get more information on{" "}
+        <LinkExternal
+          href={EXTERNAL_URLS.METRICS_GOOGLE_DOC}
+          data-testid="core-metrics-link"
+        >
+          Core Firefox Metrics
+        </LinkExternal>
+        .
+      </p>
+      <FormMetrics
+        {...{
+          isLoading: loading,
+          isServerValid,
+          submitErrors,
+          setSubmitErrors,
+          onSave,
+          onNext,
+        }}
+      />
+    </>
   );
 };
 

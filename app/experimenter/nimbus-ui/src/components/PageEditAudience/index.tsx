@@ -4,25 +4,35 @@
 
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { UPDATE_EXPERIMENT_AUDIENCE_MUTATION } from "../../gql/experiments";
 import { SUBMIT_ERROR } from "../../lib/constants";
+import { ExperimentContext } from "../../lib/contexts";
 import { editCommonRedirects } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
 import { updateExperimentAudience_updateExperiment as UpdateExperimentAudienceResult } from "../../types/updateExperimentAudience";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import FormAudience from "./FormAudience";
 
-const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
+const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => (
+  <AppLayoutWithExperiment
+    title="Audience"
+    testId="PageEditAudience"
+    redirect={editCommonRedirects}
+  >
+    <PageContents />
+  </AppLayoutWithExperiment>
+);
+
+const PageContents = () => {
+  const { experiment, refetch } = useContext(ExperimentContext);
+
   const [updateExperimentAudience, { loading }] = useMutation<
     { updateExperiment: UpdateExperimentAudienceResult },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_AUDIENCE_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
-  const currentExperiment = useRef<getExperiment_experimentBySlug>();
-  const refetchReview = useRef<() => void>();
   const [isServerValid, setIsServerValid] = useState(true);
 
   const onFormSubmit = useCallback(
@@ -37,7 +47,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
     }: Record<string, any>) => {
       try {
         // issue #3954: Need to parse string IDs into numbers
-        const nimbusExperimentId = currentExperiment.current!.id;
+        const nimbusExperimentId = experiment!.id;
         const result = await updateExperimentAudience({
           variables: {
             input: {
@@ -65,14 +75,13 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
         } else {
           setIsServerValid(true);
           setSubmitErrors({});
-          // In practice this should be defined by the time we get here
-          refetchReview.current!();
+          refetch();
         }
       } catch (error) {
         setSubmitErrors({ "*": SUBMIT_ERROR });
       }
     },
-    [updateExperimentAudience, currentExperiment],
+    [updateExperimentAudience, experiment, refetch],
   );
 
   const onFormNext = useCallback(() => {
@@ -80,33 +89,16 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
   }, []);
 
   return (
-    <AppLayoutWithExperiment
-      title="Audience"
-      testId="PageEditAudience"
-      redirect={editCommonRedirects}
-    >
-      {({ experiment, review }) => {
-        currentExperiment.current = experiment;
-        refetchReview.current = review.refetch;
-
-        const { isMissingField } = review;
-
-        return (
-          <FormAudience
-            {...{
-              experiment,
-              submitErrors,
-              setSubmitErrors,
-              isMissingField,
-              isServerValid,
-              isLoading: loading,
-              onSubmit: onFormSubmit,
-              onNext: onFormNext,
-            }}
-          />
-        );
+    <FormAudience
+      {...{
+        submitErrors,
+        setSubmitErrors,
+        isServerValid,
+        isLoading: loading,
+        onSubmit: onFormSubmit,
+        onNext: onFormNext,
       }}
-    </AppLayoutWithExperiment>
+    />
   );
 };
 

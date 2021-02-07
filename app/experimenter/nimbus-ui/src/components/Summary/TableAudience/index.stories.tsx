@@ -5,51 +5,50 @@
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableAudience from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import { MockExperimentContextProvider } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import { getExperiment } from "../../../types/getExperiment";
 import { NimbusExperimentChannel } from "../../../types/globalTypes";
 import AppLayout from "../../AppLayout";
 
 storiesOf("components/Summary/TableAudience", module)
-  .add("all fields filled out", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      channel: NimbusExperimentChannel.BETA,
-    });
-    return (
-      <Subject>
-        <TableAudience {...{ experiment }} />
-      </Subject>
-    );
-  })
-  .add("only required fields filled out", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      totalEnrolledClients: 0,
-      targetingConfigSlug: null,
-    });
-    return (
-      <Subject>
-        <TableAudience {...{ experiment }} />
-      </Subject>
-    );
-  })
-  .add("missing required fields", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      channel: null,
-      firefoxMinVersion: null,
-      populationPercent: "0",
-      totalEnrolledClients: 0,
-      targetingConfigSlug: null,
-    });
+  .add("all fields filled out", () => (
+    <Subject
+      experiment={{
+        channel: NimbusExperimentChannel.BETA,
+      }}
+    />
+  ))
+  .add("only required fields filled out", () => (
+    <Subject
+      experiment={{
+        totalEnrolledClients: 0,
+        targetingConfigSlug: null,
+      }}
+    />
+  ))
+  .add("missing required fields", () => (
+    <Subject
+      experiment={{
+        channel: null,
+        firefoxMinVersion: null,
+        populationPercent: "0",
+        totalEnrolledClients: 0,
+        targetingConfigSlug: null,
+      }}
+    />
+  ));
 
-    return (
-      <Subject>
-        <TableAudience {...{ experiment }} />
-      </Subject>
-    );
-  });
-
-const Subject = ({ children }: { children: React.ReactElement }) => (
-  <AppLayout>
-    <RouterSlugProvider>{children}</RouterSlugProvider>
-  </AppLayout>
+const Subject = ({
+  experiment: overrides = {},
+}: {
+  experiment?: Partial<getExperiment["experimentBySlug"]>;
+}) => (
+  <MockExperimentContextProvider {...{ overrides }}>
+    <AppLayout>
+      <RouterSlugProvider>
+        <TableAudience />
+      </RouterSlugProvider>
+    </AppLayout>
+  </MockExperimentContextProvider>
 );

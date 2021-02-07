@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Link, RouteComponentProps, useParams } from "@reach/router";
-import React from "react";
+import { Link, RouteComponentProps } from "@reach/router";
+import React, { useContext } from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
@@ -11,7 +11,7 @@ import Row from "react-bootstrap/Row";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
 import { BASE_PATH } from "../../lib/constants";
-import { StatusCheck } from "../../lib/experiment";
+import { ExperimentContext } from "../../lib/contexts";
 import { DisabledItem } from "../DisabledItem";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as AlertCircle } from "./alert-circle.svg";
@@ -23,11 +23,6 @@ import { ReactComponent as Person } from "./person.svg";
 type AppLayoutWithSidebarProps = {
   testid?: string;
   children: React.ReactNode;
-  status?: StatusCheck;
-  review?: {
-    invalidPages: string[];
-    ready: boolean;
-  };
 } & RouteComponentProps;
 
 const editPages = [
@@ -56,10 +51,9 @@ const editPages = [
 export const AppLayoutWithSidebar = ({
   children,
   testid = "AppLayoutWithSidebar",
-  status,
-  review,
 }: AppLayoutWithSidebarProps) => {
-  const { slug } = useParams();
+  const { experiment, status, review } = useContext(ExperimentContext);
+  const { slug } = experiment!;
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>

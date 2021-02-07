@@ -2,21 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { useConfig } from "../../../hooks";
+import { ExperimentContext } from "../../../lib/contexts";
 import { getConfigLabel } from "../../../lib/getConfigLabel";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 
-type TableHighlightsOverviewProps = {
-  experiment: getExperiment_experimentBySlug;
-  results: AnalysisDataOverall;
-};
+const TableHighlightsOverview = () => {
+  const { experiment } = useContext(ExperimentContext);
+  const {
+    firefoxMinVersion,
+    channel,
+    targetingConfigSlug,
+    primaryProbeSets,
+    owner,
+  } = experiment!;
 
-const TableHighlightsOverview = ({
-  experiment,
-}: TableHighlightsOverviewProps) => {
-  const { firefoxMinVersion, channel, targetingConfigSlug } = useConfig();
+  const {
+    firefoxMinVersion: configFirefoxMinVersions,
+    channel: configChannels,
+    targetingConfigSlug: configTargetingConfigSlugs,
+  } = useConfig();
 
   return (
     <table
@@ -28,27 +33,24 @@ const TableHighlightsOverview = ({
           <td>
             <h3 className="h6">Targeting</h3>
             <div>
-              {getConfigLabel(experiment.firefoxMinVersion, firefoxMinVersion)}+
+              {getConfigLabel(firefoxMinVersion, configFirefoxMinVersions)}+
             </div>
-            <div>{getConfigLabel(experiment.channel, channel)}</div>
+            <div>{getConfigLabel(channel, configChannels)}</div>
             <div>
-              {getConfigLabel(
-                experiment.targetingConfigSlug,
-                targetingConfigSlug,
-              )}
+              {getConfigLabel(targetingConfigSlug, configTargetingConfigSlugs)}
             </div>
           </td>
           <td>
             <h3 className="h6">Probe Sets</h3>
-            {experiment.primaryProbeSets?.length
-              ? experiment.primaryProbeSets.map((probeSet) => (
+            {primaryProbeSets?.length
+              ? primaryProbeSets.map((probeSet) => (
                   <div key={probeSet?.name}>{probeSet?.name}</div>
                 ))
               : ""}
           </td>
           <td>
             <h3 className="h6">Owner</h3>
-            <span>{experiment.owner?.email}</span>
+            <span>{owner?.email}</span>
           </td>
         </tr>
       </tbody>

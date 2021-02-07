@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
+import { AnalysisContext } from "../../../lib/contexts";
 import {
   DISPLAY_TYPE,
   METRIC_TYPE,
   SECONDARY_METRIC_COLUMNS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { AnalysisData } from "../../../lib/visualization/types";
 import GraphsWeekly from "../GraphsWeekly";
 import TableVisualizationRow from "../TableVisualizationRow";
 
@@ -21,7 +21,6 @@ type SecondaryMetricStatistic = {
 };
 
 type TableMetricSecondaryProps = {
-  results: AnalysisData;
   probeSetSlug: string;
   probeSetName: string;
   isDefault?: boolean;
@@ -40,16 +39,16 @@ const getStatistics = (slug: string): Array<SecondaryMetricStatistic> => {
 };
 
 const TableMetricSecondary = ({
-  results = {
-    daily: [],
-    weekly: {},
-    overall: {},
-    show_analysis: false,
-  },
   probeSetSlug,
   probeSetName,
   isDefault = true,
 }: TableMetricSecondaryProps) => {
+  const results = useContext(AnalysisContext).analysis || {
+    daily: [],
+    weekly: {},
+    overall: {},
+    show_analysis: false,
+  };
   const secondaryMetricStatistics = getStatistics(probeSetSlug);
   const secondaryType = isDefault
     ? METRIC_TYPE.DEFAULT_SECONDARY

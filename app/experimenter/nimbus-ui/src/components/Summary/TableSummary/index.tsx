@@ -2,25 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig } from "../../../hooks";
 import { ReactComponent as ExternalIcon } from "../../../images/external.svg";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import { ExperimentContext } from "../../../lib/contexts";
 import LinkExternal from "../../LinkExternal";
 import NotSet from "../../NotSet";
 import RichText from "../../RichText";
 
-type TableSummaryProps = {
-  experiment: getExperiment_experimentBySlug;
-};
-
 // `<tr>`s showing optional fields that are not set are not displayed.
 
-const TableSummary = ({ experiment }: TableSummaryProps) => {
+const TableSummary = () => {
+  const { experiment } = useContext(ExperimentContext);
   const {
+    slug,
+    owner,
     application,
+    hypothesis,
+    publicDescription,
+    riskMitigationLink,
+    documentationLinks,
+    featureConfig,
+    primaryProbeSets,
+    secondaryProbeSets,
+  } = experiment!;
+
+  const {
+    application: configApplications,
     documentationLink: configDocumentationLinks,
   } = useConfig();
 
@@ -30,45 +40,39 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
         <tr>
           <th className="w-33">Slug</th>
           <td data-testid="experiment-slug" className="text-monospace">
-            {experiment.slug}
+            {slug}
           </td>
         </tr>
         <tr>
           <th>Experiment owner</th>
           <td data-testid="experiment-owner">
-            {experiment.owner ? experiment.owner.email : <NotSet />}
+            {owner ? owner.email : <NotSet />}
           </td>
         </tr>
         <tr>
           <th>Application</th>
           <td data-testid="experiment-application">
-            {displayConfigLabelOrNotSet(experiment.application, application)}
+            {displayConfigLabelOrNotSet(application, configApplications)}
           </td>
         </tr>
         <tr>
           <th>Hypothesis</th>
           <td data-testid="experiment-hypothesis">
-            <RichText text={experiment.hypothesis || ""} />
+            <RichText text={hypothesis || ""} />
           </td>
         </tr>
         <tr>
           <th>Public description</th>
           <td data-testid="experiment-description">
-            {experiment.publicDescription ? (
-              experiment.publicDescription
-            ) : (
-              <NotSet />
-            )}
+            {publicDescription ? publicDescription : <NotSet />}
           </td>
         </tr>
         <tr>
           <th>Risk mitigation checklist</th>
           <td data-testid="experiment-risk-mitigation-link">
-            {experiment.riskMitigationLink ? (
-              <LinkExternal href={experiment.riskMitigationLink}>
-                <span className="mr-1 align-middle">
-                  {experiment.riskMitigationLink}
-                </span>
+            {riskMitigationLink ? (
+              <LinkExternal href={riskMitigationLink}>
+                <span className="mr-1 align-middle">{riskMitigationLink}</span>
                 <ExternalIcon />
               </LinkExternal>
             ) : (
@@ -76,56 +80,51 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
             )}
           </td>
         </tr>
-        {experiment.documentationLinks &&
-          experiment.documentationLinks?.length > 0 && (
-            <tr>
-              <th>Additional links</th>
-              <td data-testid="experiment-additional-links">
-                {experiment.documentationLinks.map((documentationLink, idx) => (
-                  <LinkExternal
-                    href={documentationLink.link}
-                    data-testid="experiment-additional-link"
-                    key={`doc-link-${idx}`}
-                    className="d-block"
-                  >
-                    <span className="mr-1 align-middle">
-                      {
-                        configDocumentationLinks!.find(
-                          (d) => d?.value === documentationLink.title,
-                        )?.label
-                      }
-                    </span>
-                    <ExternalIcon />
-                  </LinkExternal>
-                ))}
-              </td>
-            </tr>
-          )}
-        {experiment.featureConfig?.name && (
+        {documentationLinks && documentationLinks?.length > 0 && (
+          <tr>
+            <th>Additional links</th>
+            <td data-testid="experiment-additional-links">
+              {documentationLinks.map((documentationLink, idx) => (
+                <LinkExternal
+                  href={documentationLink.link}
+                  data-testid="experiment-additional-link"
+                  key={`doc-link-${idx}`}
+                  className="d-block"
+                >
+                  <span className="mr-1 align-middle">
+                    {
+                      configDocumentationLinks!.find(
+                        (d) => d?.value === documentationLink.title,
+                      )?.label
+                    }
+                  </span>
+                  <ExternalIcon />
+                </LinkExternal>
+              ))}
+            </td>
+          </tr>
+        )}
+        {featureConfig?.name && (
           <tr>
             <th>Feature config</th>
             <td data-testid="experiment-feature-config">
-              {experiment.featureConfig.name}
+              {featureConfig.name}
             </td>
           </tr>
         )}
-        {experiment.primaryProbeSets?.length !== 0 && (
+        {primaryProbeSets?.length !== 0 && (
           <tr>
             <th>Primary probe sets</th>
             <td data-testid="experiment-probe-primary">
-              {experiment
-                .primaryProbeSets!.map((probeSet) => probeSet?.name)
-                .join(", ")}
+              {primaryProbeSets!.map((probeSet) => probeSet?.name).join(", ")}
             </td>
           </tr>
         )}
-        {experiment.secondaryProbeSets?.length !== 0 && (
+        {secondaryProbeSets?.length !== 0 && (
           <tr>
             <th>Secondary probe sets</th>
             <td data-testid="experiment-probe-secondary">
-              {experiment
-                .secondaryProbeSets!.map((probeSet) => probeSet?.name)
-                .join(", ")}
+              {secondaryProbeSets!.map((probeSet) => probeSet?.name).join(", ")}
             </td>
           </tr>
         )}
