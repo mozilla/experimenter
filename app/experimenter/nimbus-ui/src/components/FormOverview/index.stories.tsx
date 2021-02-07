@@ -5,7 +5,7 @@
 import { action } from "@storybook/addon-actions";
 import { storiesOf } from "@storybook/react";
 import React from "react";
-import { mockExperimentQuery } from "../../lib/mocks";
+import { MockExperimentContextProvider } from "../../lib/mocks";
 import { Subject } from "./mocks";
 
 const onSubmit = action("onSubmit");
@@ -27,6 +27,9 @@ storiesOf("components/FormOverview", module)
     />
   ))
   .add("with experiment", () => {
-    const { experiment } = mockExperimentQuery("boo");
-    return <Subject {...{ experiment, onSubmit, onNext }} />;
+    return (
+      <MockExperimentContextProvider>
+        <Subject {...{ onSubmit, onNext }} />
+      </MockExperimentContextProvider>
+    );
   });

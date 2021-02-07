@@ -89,7 +89,6 @@ storiesOf("pages/EditBranches/FormBranches", module)
     <SubjectBranches
       {...commonFormBranchesProps}
       experiment={{
-        ...MOCK_EXPERIMENT,
         referenceBranch: null,
         treatmentBranches: null,
       }}
@@ -100,7 +99,6 @@ storiesOf("pages/EditBranches/FormBranches", module)
     <SubjectBranches
       {...commonFormBranchesProps}
       experiment={{
-        ...MOCK_EXPERIMENT,
         referenceBranch: { ...MOCK_EXPERIMENT.referenceBranch!, ratio: 1 },
         treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map((branch) => ({
           ...branch!,
@@ -113,7 +111,6 @@ storiesOf("pages/EditBranches/FormBranches", module)
     <SubjectBranches
       {...commonFormBranchesProps}
       experiment={{
-        ...MOCK_EXPERIMENT,
         featureConfig: MOCK_FEATURE_CONFIG,
       }}
     />
@@ -122,7 +119,6 @@ storiesOf("pages/EditBranches/FormBranches", module)
     <SubjectBranches
       {...commonFormBranchesProps}
       experiment={{
-        ...MOCK_EXPERIMENT,
         featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
       }}
     />
@@ -133,7 +129,6 @@ storiesOf("pages/EditBranches/FormBranches", module)
         ...commonFormBranchesProps,
       }}
       experiment={{
-        ...MOCK_EXPERIMENT,
         featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
         readyForReview: {
           __typename: "NimbusReadyForReviewType",
@@ -197,7 +192,6 @@ storiesOf("pages/EditBranches/FormBranches", module)
           saveOnInitialRender: true,
         }}
         experiment={{
-          ...MOCK_EXPERIMENT,
           featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
         }}
       />

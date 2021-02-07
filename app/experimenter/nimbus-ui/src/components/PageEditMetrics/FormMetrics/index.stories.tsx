@@ -5,7 +5,6 @@
 import { action } from "@storybook/addon-actions";
 import { storiesOf } from "@storybook/react";
 import React from "react";
-import { mockExperimentQuery } from "../../../lib/mocks";
 import { Subject } from "./mocks";
 
 const onSave = action("onSave");
@@ -23,8 +22,4 @@ storiesOf("pages/EditMetrics/FormMetrics", module)
       }}
       {...{ onSave, onNext }}
     />
-  ))
-  .add("with experiment", () => {
-    const { experiment } = mockExperimentQuery("boo");
-    return <Subject {...{ experiment, onSave, onNext }} />;
-  });
+  ));

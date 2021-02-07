@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -17,7 +17,7 @@ import {
 import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Info } from "../../images/info.svg";
 import { EXTERNAL_URLS, REQUIRED_FIELD, URL_FIELD } from "../../lib/constants";
-import { getExperiment } from "../../types/getExperiment";
+import { ExperimentContext } from "../../lib/contexts";
 import InlineErrorIcon from "../InlineErrorIcon";
 import LinkExternal from "../LinkExternal";
 import {
@@ -31,10 +31,8 @@ import FormDocumentationLink, {
 type FormOverviewProps = {
   isLoading: boolean;
   isServerValid: boolean;
-  isMissingField?: (fieldName: string) => boolean;
   submitErrors: SubmitErrors;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-  experiment?: getExperiment["experimentBySlug"];
   onSubmit: (data: Record<string, any>, reset: Function) => void;
   onCancel?: (ev: React.FormEvent) => void;
   onNext?: (ev: React.FormEvent) => void;
@@ -57,15 +55,18 @@ type OverviewFieldName = typeof overviewFieldNames[number];
 const FormOverview = ({
   isLoading,
   isServerValid,
-  isMissingField,
   submitErrors,
   setSubmitErrors,
-  experiment,
   onSubmit,
   onCancel,
   onNext,
 }: FormOverviewProps) => {
-  const { application, hypothesisDefault } = useConfig();
+  const {
+    experiment,
+    review: { isMissingField },
+  } = useContext(ExperimentContext);
+
+  const { application: configApplications, hypothesisDefault } = useConfig();
 
   const defaultValues = {
     name: experiment?.name || "",
@@ -176,8 +177,9 @@ const FormOverview = ({
             <Form.Control
               as="input"
               value={
-                application!.find((a) => a?.value === experiment.application)
-                  ?.label as string
+                configApplications!.find(
+                  (a) => a?.value === experiment.application,
+                )?.label as string
               }
               readOnly
             />
@@ -187,7 +189,7 @@ const FormOverview = ({
               as="select"
             >
               <option value="">Select...</option>
-              {application!.map((app, idx) => (
+              {configApplications!.map((app, idx) => (
                 <option key={`application-${idx}`} value={app!.value as string}>
                   {app!.label}
                 </option>

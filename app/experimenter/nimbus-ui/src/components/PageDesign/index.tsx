@@ -19,7 +19,7 @@ const PageDesign: React.FunctionComponent<RouteComponentProps> = () => {
         }
       }}
     >
-      {({ experiment }) => <Summary {...{ experiment }} />}
+      <Summary />
     </AppLayoutWithExperiment>
   );
 };

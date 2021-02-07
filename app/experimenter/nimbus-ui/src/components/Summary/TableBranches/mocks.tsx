@@ -4,8 +4,11 @@
 
 import React from "react";
 import TableBranches from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
+import {
+  MockExperimentContextProvider,
+  mockExperimentQuery,
+} from "../../../lib/mocks";
+import { getExperiment } from "../../../types/getExperiment";
 import AppLayout from "../../AppLayout";
 
 type TableBranchesProps = React.ComponentProps<typeof TableBranches>;
@@ -20,13 +23,14 @@ export const MOCK_EXPERIMENT = {
 };
 
 export const Subject = ({
-  experiment = MOCK_EXPERIMENT,
-}: Partial<TableBranchesProps>) => {
-  return (
+  experiment: overrides = {},
+}: // experiment = MOCK_EXPERIMENT,
+Partial<TableBranchesProps> & {
+  experiment?: Partial<getExperiment["experimentBySlug"]>;
+}) => (
+  <MockExperimentContextProvider {...{ overrides }}>
     <AppLayout>
-      <RouterSlugProvider>
-        <TableBranches {...{ experiment }} />
-      </RouterSlugProvider>
+      <TableBranches />
     </AppLayout>
-  );
-};
+  </MockExperimentContextProvider>
+);

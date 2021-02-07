@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
@@ -10,15 +10,13 @@ import InputGroup from "react-bootstrap/InputGroup";
 import { useCommonForm } from "../../../hooks";
 import { useConfig } from "../../../hooks/useConfig";
 import { EXTERNAL_URLS, NUMBER_FIELD } from "../../../lib/constants";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import { ExperimentContext } from "../../../lib/contexts";
 import InlineErrorIcon from "../../InlineErrorIcon";
 import LinkExternal from "../../LinkExternal";
 
 type FormAudienceProps = {
-  experiment: getExperiment_experimentBySlug;
   submitErrors: Record<string, string[]>;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-  isMissingField: (fieldName: string) => boolean;
   isServerValid: boolean;
   isLoading: boolean;
   onSubmit: (data: Record<string, any>, reset: Function) => void;
@@ -38,25 +36,37 @@ export const audienceFieldNames = [
 ] as const;
 
 export const FormAudience = ({
-  experiment,
   submitErrors,
   setSubmitErrors,
-  isMissingField,
   isServerValid,
   isLoading,
   onSubmit,
   onNext,
 }: FormAudienceProps) => {
+  const {
+    experiment,
+    review: { ready, isMissingField },
+  } = useContext(ExperimentContext);
+  const {
+    channel,
+    firefoxMinVersion,
+    targetingConfigSlug,
+    populationPercent,
+    totalEnrolledClients,
+    proposedEnrollment,
+    proposedDuration,
+  } = experiment!;
+
   const config = useConfig();
 
   const defaultValues = {
-    channel: experiment.channel,
-    firefoxMinVersion: experiment.firefoxMinVersion,
-    targetingConfigSlug: experiment.targetingConfigSlug,
-    populationPercent: experiment.populationPercent,
-    totalEnrolledClients: experiment.totalEnrolledClients,
-    proposedEnrollment: experiment.proposedEnrollment,
-    proposedDuration: experiment.proposedDuration,
+    channel,
+    firefoxMinVersion,
+    targetingConfigSlug,
+    populationPercent,
+    totalEnrolledClients,
+    proposedEnrollment,
+    proposedDuration,
   };
 
   const {
@@ -91,7 +101,7 @@ export const FormAudience = ({
     [onNext],
   );
 
-  const isNextDisabled = isLoading || !experiment?.readyForReview?.ready;
+  const isNextDisabled = isLoading || ready;
 
   return (
     <Form

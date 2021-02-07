@@ -14,7 +14,7 @@ import { MockedResponse, MockLink } from "@apollo/client/testing";
 import { Observable } from "@apollo/client/utilities";
 import { equal } from "@wry/equality";
 import { DocumentNode, print } from "graphql";
-import React from "react";
+import React, { ReactNode } from "react";
 import { GET_CONFIG_QUERY } from "../gql/config";
 import {
   GET_EXPERIMENTS_QUERY,
@@ -38,7 +38,9 @@ import {
   NimbusFeatureConfigApplication,
   NimbusProbeKind,
 } from "../types/globalTypes";
-import { getStatus } from "./experiment";
+import { AnalysisContext, ExperimentContext } from "./contexts";
+import { getReviewReadiness, getStatus } from "./experiment";
+import { mockAnalysis } from "./visualization/mocks";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;
@@ -390,7 +392,6 @@ export const MOCK_REVIEW: ExperimentReview = {
   invalidPages: [],
   missingFields: [],
   isMissingField: () => false,
-  refetch: () => {},
 };
 
 export const mockExperimentMutation = (
@@ -514,3 +515,55 @@ export function mockDirectoryExperimentsQuery(
     },
   };
 }
+
+export const MockExperimentContextProvider = ({
+  overrides = {},
+  refetch = () => {},
+  children,
+}: {
+  overrides?: Partial<getExperiment["experimentBySlug"]>;
+  refetch?: () => void;
+  children: ReactNode;
+}) => {
+  const { experiment } = mockExperimentQuery("demo-slug", overrides);
+  const context = {
+    experiment,
+    status: getStatus(experiment),
+    review: getReviewReadiness(experiment),
+    refetch,
+  };
+
+  return (
+    <ExperimentContext.Provider value={context}>
+      {children}
+    </ExperimentContext.Provider>
+  );
+};
+
+export const MockAnalysisContextProvider = ({
+  overrides = {},
+  error,
+  loading = false,
+  loadingSidebar = false,
+  children,
+}: {
+  overrides?: Record<string, any> | null;
+  error?: Error;
+  loading?: boolean;
+  loadingSidebar?: boolean;
+  children: ReactNode;
+}) => {
+  const analysis = overrides === null ? null : mockAnalysis(overrides);
+  const context = {
+    analysis,
+    error,
+    loading,
+    loadingSidebar,
+  };
+
+  return (
+    <AnalysisContext.Provider value={context}>
+      {children}
+    </AnalysisContext.Provider>
+  );
+};

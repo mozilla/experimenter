@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { Table } from "react-bootstrap";
+import { ExperimentContext } from "../../../lib/contexts";
 import {
-  getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "../../../types/getExperiment";
@@ -15,17 +15,14 @@ type Branch =
   | getExperiment_experimentBySlug_referenceBranch
   | getExperiment_experimentBySlug_treatmentBranches;
 
-const TableBranches = ({
-  experiment,
-}: {
-  experiment: getExperiment_experimentBySlug;
-}) => {
-  const { featureConfig } = experiment;
+const TableBranches = () => {
+  const { experiment } = useContext(ExperimentContext);
+  const { featureConfig, referenceBranch, treatmentBranches } = experiment!;
+
   const hasSchema = featureConfig?.schema !== null;
-  const branches = [
-    experiment.referenceBranch,
-    ...(experiment.treatmentBranches || []),
-  ].filter((branch): branch is Branch => branch !== null);
+  const branches = [referenceBranch, ...(treatmentBranches || [])].filter(
+    (branch): branch is Branch => branch !== null,
+  );
 
   if (branches.length === 0) {
     return <NotSet />;

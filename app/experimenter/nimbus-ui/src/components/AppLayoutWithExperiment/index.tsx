@@ -4,15 +4,11 @@
 
 import { navigate, RouteComponentProps, useParams } from "@reach/router";
 import React, { useEffect } from "react";
-import { ExperimentReview, useAnalysis, useExperiment } from "../../hooks";
+import { useAnalysis, useExperiment } from "../../hooks";
 import { BASE_PATH } from "../../lib/constants";
+import { AnalysisContext, ExperimentContext } from "../../lib/contexts";
 import { getStatus, StatusCheck } from "../../lib/experiment";
 import { AnalysisData } from "../../lib/visualization/types";
-import {
-  getExperiment_experimentBySlug,
-  getExperiment_experimentBySlug_primaryProbeSets,
-  getExperiment_experimentBySlug_secondaryProbeSets,
-} from "../../types/getExperiment";
 import AppLayout from "../AppLayout";
 import AppLayoutSidebarLocked from "../AppLayoutSidebarLocked";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
@@ -21,16 +17,8 @@ import HeaderExperiment from "../HeaderExperiment";
 import PageExperimentNotFound from "../PageExperimentNotFound";
 import PageLoading from "../PageLoading";
 
-type AppLayoutWithExperimentChildrenProps = {
-  experiment: getExperiment_experimentBySlug;
-  review: ExperimentReview;
-  analysis?: AnalysisData;
-};
-
 type AppLayoutWithExperimentProps = {
-  children: (
-    props: AppLayoutWithExperimentChildrenProps,
-  ) => React.ReactNode | null;
+  children: React.ReactNode;
   testId: string;
   title?: string;
   polling?: boolean;
@@ -73,6 +61,7 @@ const AppLayoutWithExperiment = ({
     startPolling,
     stopPolling,
     review,
+    refetch,
   } = useExperiment(slug);
   const {
     execute: fetchAnalysis,
@@ -83,7 +72,7 @@ const AppLayoutWithExperiment = ({
   const status = getStatus(experiment);
   const analysisLoading = analysisFetchStatus === "loading";
   const analysisFetched = analysisFetchStatus !== "not-requested";
-  const analysisLoadingInSidebar = analysisRequiredInSidebar && analysisLoading;
+  const analysisSidebarLoading = analysisRequiredInSidebar && analysisLoading;
 
   // If the redirect prop function is supplied let's call it with
   // experiment status, review, and analysis details. If it returns
@@ -128,50 +117,45 @@ const AppLayoutWithExperiment = ({
     return <PageExperimentNotFound {...{ slug }} />;
   }
 
-  const {
-    name,
-    startDate,
-    endDate,
-    primaryProbeSets,
-    secondaryProbeSets,
-  } = experiment;
+  const experimentContext = {
+    experiment,
+    review,
+    status,
+    refetch,
+  };
+
+  const analysisContext = {
+    analysis,
+    loading: analysisLoading,
+    loadingSidebar: analysisSidebarLoading,
+    error: analysisError,
+  };
 
   return (
-    <Layout
-      {...{
-        sidebar,
-        children,
-        review,
-        analysis,
-        analysisLoadingInSidebar,
-        analysisError,
-        status,
-        primaryProbeSets,
-        secondaryProbeSets,
-      }}
-    >
-      <section data-testid={testId}>
-        <Head
-          title={title ? `${experiment.name} – ${title}` : experiment.name}
-        />
-
-        <HeaderExperiment
+    <ExperimentContext.Provider value={experimentContext}>
+      <AnalysisContext.Provider value={analysisContext}>
+        <Layout
           {...{
-            slug,
-            name,
-            startDate,
-            endDate,
+            sidebar,
+            children,
             status,
           }}
-        />
-        {title && (
-          <h2 className="mt-3 mb-4 h4" data-testid="page-title">
-            {title}
-          </h2>
-        )}
-        <div className="my-4">{children({ experiment, review, analysis })}</div>
-      </section>
-    </Layout>
+        >
+          <section data-testid={testId}>
+            <Head
+              title={title ? `${experiment.name} – ${title}` : experiment.name}
+            />
+            <HeaderExperiment />
+            {title && (
+              <h2 className="mt-3 mb-4 h4" data-testid="page-title">
+                {title}
+              </h2>
+            )}
+            <div className="my-4">{children}</div>
+          </section>
+        </Layout>
+      </AnalysisContext.Provider>
+    </ExperimentContext.Provider>
   );
 };
 
@@ -179,50 +163,18 @@ type LayoutProps = {
   sidebar: boolean;
   children: React.ReactElement;
   status: StatusCheck;
-  review: ExperimentReview;
-  analysis?: AnalysisData;
-  analysisLoadingInSidebar: boolean;
-  analysisError?: Error;
-  primaryProbeSets:
-    | (getExperiment_experimentBySlug_primaryProbeSets | null)[]
-    | null;
-  secondaryProbeSets:
-    | (getExperiment_experimentBySlug_secondaryProbeSets | null)[]
-    | null;
 };
 
-const Layout = ({
-  sidebar,
-  children,
-  review,
-  status,
-  analysis,
-  analysisLoadingInSidebar,
-  analysisError,
-  primaryProbeSets,
-  secondaryProbeSets,
-}: LayoutProps) =>
-  sidebar ? (
-    status?.locked ? (
-      <AppLayoutSidebarLocked
-        {...{
-          status,
-          analysis,
-          analysisLoadingInSidebar,
-          analysisError,
-          primaryProbeSets,
-          secondaryProbeSets,
-        }}
-      >
-        {children}
-      </AppLayoutSidebarLocked>
-    ) : (
-      <AppLayoutWithSidebar {...{ status, review }}>
-        {children}
-      </AppLayoutWithSidebar>
-    )
+const Layout = ({ sidebar, children, status }: LayoutProps) => {
+  if (!sidebar) {
+    return <AppLayout>{children}</AppLayout>;
+  }
+
+  return status?.locked ? (
+    <AppLayoutSidebarLocked>{children}</AppLayoutSidebarLocked>
   ) : (
-    <AppLayout>{children}</AppLayout>
+    <AppLayoutWithSidebar>{children}</AppLayoutWithSidebar>
   );
+};
 
 export default AppLayoutWithExperiment;

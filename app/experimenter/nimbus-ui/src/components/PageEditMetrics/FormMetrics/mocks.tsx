@@ -4,7 +4,7 @@
 
 import React, { useState } from "react";
 import FormMetrics from ".";
-import { MockedCache, mockExperimentQuery } from "../../../lib/mocks";
+import { MockedCache, MockExperimentContextProvider } from "../../../lib/mocks";
 
 export const Subject = ({
   isLoading = false,
@@ -12,24 +12,24 @@ export const Subject = ({
   submitErrors = {},
   onSave = () => {},
   onNext = () => {},
-  experiment = mockExperimentQuery("boo").experiment,
 }: Partial<React.ComponentProps<typeof FormMetrics>>) => {
   const [submitErrorsDefault, setSubmitErrors] = useState<Record<string, any>>(
     submitErrors,
   );
   return (
     <MockedCache>
-      <FormMetrics
-        submitErrors={submitErrorsDefault}
-        {...{
-          isLoading,
-          isServerValid,
-          setSubmitErrors,
-          onSave,
-          onNext,
-          experiment,
-        }}
-      />
+      <MockExperimentContextProvider>
+        <FormMetrics
+          submitErrors={submitErrorsDefault}
+          {...{
+            isLoading,
+            isServerValid,
+            setSubmitErrors,
+            onSave,
+            onNext,
+          }}
+        />
+      </MockExperimentContextProvider>
     </MockedCache>
   );
 };

@@ -11,7 +11,6 @@ storiesOf("components/Summary/TableBranches", module)
   .add("disabled branch", () => (
     <Subject
       experiment={{
-        ...MOCK_EXPERIMENT,
         referenceBranch: {
           ...MOCK_EXPERIMENT.referenceBranch!,
           featureEnabled: false,
@@ -22,7 +21,6 @@ storiesOf("components/Summary/TableBranches", module)
   .add("feature without schema", () => (
     <Subject
       experiment={{
-        ...MOCK_EXPERIMENT,
         featureConfig: {
           ...MOCK_EXPERIMENT.featureConfig!,
           schema: null,
@@ -33,7 +31,6 @@ storiesOf("components/Summary/TableBranches", module)
   .add("missing fields", () => (
     <Subject
       experiment={{
-        ...MOCK_EXPERIMENT,
         treatmentBranches: [
           {
             __typename: "NimbusBranchType",

@@ -1,5 +1,5 @@
-import { RouteComponentProps, useParams } from "@reach/router";
-import React from "react";
+import { RouteComponentProps } from "@reach/router";
+import React, { useContext } from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
@@ -7,8 +7,7 @@ import Row from "react-bootstrap/Row";
 import Scrollspy from "react-scrollspy";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
-import { StatusCheck } from "../../lib/experiment";
-import { AnalysisData } from "../../lib/visualization/types";
+import { AnalysisContext, ExperimentContext } from "../../lib/contexts";
 import { analysisAvailable } from "../../lib/visualization/utils";
 import {
   getExperiment_experimentBySlug_primaryProbeSets,
@@ -59,29 +58,16 @@ const probesetToMapping = (
 type AppLayoutSidebarLockedProps = {
   testid?: string;
   children: React.ReactNode;
-  status: StatusCheck;
-  analysis?: AnalysisData;
-  analysisLoadingInSidebar?: boolean;
-  analysisError?: Error;
-  primaryProbeSets:
-    | (getExperiment_experimentBySlug_primaryProbeSets | null)[]
-    | null;
-  secondaryProbeSets:
-    | (getExperiment_experimentBySlug_secondaryProbeSets | null)[]
-    | null;
 } & RouteComponentProps;
 
 export const AppLayoutSidebarLocked = ({
   children,
   testid = "AppLayoutSidebarLocked",
-  status,
-  analysis,
-  analysisLoadingInSidebar = false,
-  analysisError,
-  primaryProbeSets,
-  secondaryProbeSets,
 }: AppLayoutSidebarLockedProps) => {
-  const { slug } = useParams();
+  const { experiment, status } = useContext(ExperimentContext);
+  const { analysis, error, loadingSidebar } = useContext(AnalysisContext);
+  const { slug, primaryProbeSets, secondaryProbeSets } = experiment!;
+
   const primaryMetrics = probesetToMapping(primaryProbeSets || []);
   const secondaryMetrics = probesetToMapping(secondaryProbeSets || []);
   const sidebarKeys = [
@@ -171,9 +157,9 @@ export const AppLayoutSidebarLocked = ({
                 <DisabledItem name="Results" testId="show-no-results">
                   {status?.accepted ? (
                     "Waiting for experiment to launch"
-                  ) : analysisLoadingInSidebar ? (
+                  ) : loadingSidebar ? (
                     RESULTS_LOADING_TEXT
-                  ) : analysisError ? (
+                  ) : error ? (
                     <>
                       Could not get visualization data. Please contact data
                       science in{" "}

@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
+import { AnalysisContext } from "../../../lib/contexts";
 import {
   DISPLAY_TYPE,
   PRIMARY_METRIC_COLUMNS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
 import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 
@@ -20,7 +20,6 @@ type PrimaryMetricStatistic = {
 };
 
 type TableMetricPrimaryProps = {
-  results: AnalysisDataOverall;
   probeSet: getExperiment_experimentBySlug_primaryProbeSets;
 };
 
@@ -38,10 +37,8 @@ const getStatistics = (slug: string): Array<PrimaryMetricStatistic> => {
   return primaryMetricStatisticsList;
 };
 
-const TableMetricPrimary = ({
-  results = {},
-  probeSet,
-}: TableMetricPrimaryProps) => {
+const TableMetricPrimary = ({ probeSet }: TableMetricPrimaryProps) => {
+  const results = useContext(AnalysisContext).analysis?.overall || {};
   const primaryMetricStatistics = getStatistics(probeSet!.slug);
   const metricKey = `${probeSet.slug}_ever_used`;
 

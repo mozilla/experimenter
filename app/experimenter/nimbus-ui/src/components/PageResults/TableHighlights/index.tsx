@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { ReactComponent as Info } from "../../../images/info.svg";
+import { AnalysisContext, ExperimentContext } from "../../../lib/contexts";
 import {
   BRANCH_COMPARISON,
   HIGHLIGHTS_METRICS_LIST,
@@ -12,15 +13,9 @@ import {
   SEGMENT_TIPS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
-
-type TableHighlightsProps = {
-  primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
-  results: AnalysisDataOverall;
-};
 
 const getHighlightMetrics = (
   probeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[],
@@ -38,10 +33,11 @@ const getHighlightMetrics = (
   return highlightMetricsList;
 };
 
-const TableHighlights = ({
-  primaryProbeSets,
-  results = {},
-}: TableHighlightsProps) => {
+const TableHighlights = () => {
+  const primaryProbeSets = useContext(ExperimentContext).experiment!
+    .primaryProbeSets!;
+  const results = useContext(AnalysisContext).analysis!.overall!;
+
   const highlightMetricsList = getHighlightMetrics(primaryProbeSets);
 
   return (

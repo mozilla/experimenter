@@ -9,12 +9,10 @@ import { MockedCache } from "../../lib/mocks";
 export const Subject = ({
   isLoading = false,
   isServerValid = true,
-  isMissingField = () => false,
   submitErrors = {},
   onSubmit = () => {},
   onCancel,
   onNext,
-  experiment,
 }: Partial<React.ComponentProps<typeof FormOverview>>) => {
   const [submitErrorsDefault, setSubmitErrors] = useState<Record<string, any>>(
     submitErrors,
@@ -26,12 +24,10 @@ export const Subject = ({
         {...{
           isLoading,
           isServerValid,
-          isMissingField,
           setSubmitErrors,
           onSubmit,
           onCancel,
           onNext,
-          experiment,
         }}
       />
     </MockedCache>
