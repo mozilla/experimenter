@@ -155,4 +155,4 @@ class ExperimentSerializer(serializers.ModelSerializer):
         return ResultsSerializer(obj).data
 
     def get_projects(self, obj):
-        return list(obj.projects.values_list("name", flat=True))
+        return list(obj.projects.values_list("name", flat=True).order_by("name"))
