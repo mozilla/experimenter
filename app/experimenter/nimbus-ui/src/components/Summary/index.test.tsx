@@ -40,31 +40,32 @@ describe("Summary", () => {
   });
 
   describe("JSON representation link", () => {
-    it("renders when status is not 'draft' or 'review'", () => {
+    function renderWithStatus(status: NimbusExperimentStatus) {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        status: NimbusExperimentStatus.ACCEPTED,
+        status,
       });
       render(<Subject {...{ experiment }} />);
+    }
+    it("renders with the correct API link", () => {
+      renderWithStatus(NimbusExperimentStatus.LIVE);
       expect(screen.getByTestId("link-json")).toBeInTheDocument();
       expect(screen.getByTestId("link-json")).toHaveAttribute(
         "href",
         "/api/v6/experiments/demo-slug/",
       );
     });
-  });
-
-  it("does not render in 'draft' status", () => {
-    const { experiment } = mockExperimentQuery("demo-slug");
-    render(<Subject {...{ experiment }} />);
-    expect(screen.queryByTestId("link-json")).not.toBeInTheDocument();
-  });
-
-  it("does not render in 'review' status", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.REVIEW,
+    it("renders when status is 'review'", () => {
+      renderWithStatus(NimbusExperimentStatus.REVIEW);
+      expect(screen.queryByTestId("link-json")).toBeInTheDocument();
     });
-    render(<Subject {...{ experiment }} />);
-    expect(screen.queryByTestId("link-json")).not.toBeInTheDocument();
+    it("renders when status is 'accepted'", () => {
+      renderWithStatus(NimbusExperimentStatus.ACCEPTED);
+      expect(screen.queryByTestId("link-json")).toBeInTheDocument();
+    });
+    it("does not render in 'draft' status", () => {
+      renderWithStatus(NimbusExperimentStatus.DRAFT);
+      expect(screen.queryByTestId("link-json")).not.toBeInTheDocument();
+    });
   });
 });
 
