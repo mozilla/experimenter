@@ -89,11 +89,20 @@ class TestVisualizationView(TestCase):
                 }
             )
 
+    def add_all_probe_set_data(
+        self,
+        data,
+        formatted_data_with_pop,
+        formatted_data_without_pop,
+        primary_probe_sets,
+    ):
+        for probe_set in primary_probe_sets:
+            self.add_probe_set_data(
+                data, formatted_data_with_pop, formatted_data_without_pop, probe_set
+            )
+
     @parameterized.expand(
-        [
-            NimbusExperiment.Status.ACCEPTED,
-            # NimbusExperiment.Status.COMPLETE, ref: #4475
-        ]
+        [NimbusExperiment.Status.ACCEPTED, NimbusExperiment.Status.COMPLETE]
     )
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
@@ -123,11 +132,11 @@ class TestVisualizationView(TestCase):
             through_defaults={"is_primary": False},
         )
 
-        self.add_probe_set_data(
+        self.add_all_probe_set_data(
             TestConstants.DATA_WITHOUT_POPULATION_PERCENTAGE,
             TestConstants.FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
             TestConstants.FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
-            primary_probe_set,
+            experiment.primary_probe_sets,
         )
 
         response = self.client.get(
