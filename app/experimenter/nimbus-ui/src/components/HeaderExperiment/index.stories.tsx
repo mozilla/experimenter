@@ -69,3 +69,42 @@ storiesOf("components/HeaderExperiment", module)
       />
     </AppLayout>
   ));
+
+storiesOf("components/HeaderExperiment/Summary View", module)
+  .addDecorator(withLinks)
+  .add("status: draft", () => (
+    <AppLayout>
+      <HeaderExperiment
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        endDate={experiment.endDate}
+        status={mockGetStatus(NimbusExperimentStatus.DRAFT)}
+        summaryView
+      />
+    </AppLayout>
+  ))
+  .add("status: review", () => (
+    <AppLayout>
+      <HeaderExperiment
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        endDate={experiment.endDate}
+        status={mockGetStatus(NimbusExperimentStatus.REVIEW)}
+        summaryView
+      />
+    </AppLayout>
+  ))
+  .add("status: released", () => (
+    <AppLayout>
+      <HeaderExperiment
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        endDate={experiment.endDate}
+        status={mockGetStatus(NimbusExperimentStatus.LIVE)}
+        summaryView
+      />
+    </AppLayout>
+  ));

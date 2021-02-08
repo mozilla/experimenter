@@ -10,13 +10,13 @@ import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
+import { ReactComponent as Cog } from "../../images/cog.svg";
 import { BASE_PATH } from "../../lib/constants";
 import { StatusCheck } from "../../lib/experiment";
 import { DisabledItem } from "../DisabledItem";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as AlertCircle } from "./alert-circle.svg";
 import { ReactComponent as ChartArrow } from "./chart-arrow.svg";
-import { ReactComponent as Cog } from "./cog.svg";
 import { ReactComponent as Layers } from "./layers.svg";
 import { ReactComponent as Person } from "./person.svg";
 
