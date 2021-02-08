@@ -147,8 +147,11 @@ def generate_results_object(data, experiment, window="overall"):
     # These are metrics sent from Jetstream that are not explicitly chosen
     # by users to be either primary or secondary
     other_metrics = {}
-
     results = {}
+
+    result_metrics, primary_metrics_set = get_results_metrics_map(
+        experiment.primary_probe_sets, experiment.secondary_probe_sets
+    )
     for row in data:
         branch = row.get("branch")
         metric = row.get("metric")
@@ -158,19 +161,19 @@ def generate_results_object(data, experiment, window="overall"):
         statistic = row.get("statistic")
         window_index = row.get("window_index")
 
-        results[branch] = results.get(
-            branch,
-            {"is_control": experiment.reference_branch.slug == branch, BRANCH_DATA: {}},
-        )
-
-        result_metrics, primary_metrics_set = get_results_metrics_map(
-            experiment.primary_probe_sets, experiment.secondary_probe_sets
-        )
         if (
             metric in result_metrics
             and statistic in result_metrics[metric]
             or statistic == Statistic.MEAN
         ):
+            results[branch] = results.get(
+                branch,
+                {
+                    "is_control": experiment.reference_branch.slug == branch,
+                    BRANCH_DATA: {},
+                },
+            )
+
             results[branch][BRANCH_DATA][metric] = results[branch][BRANCH_DATA].get(
                 metric,
                 {
@@ -211,7 +214,7 @@ def generate_results_object(data, experiment, window="overall"):
     return results, primary_metrics_set, other_metrics
 
 
-def get_data(slug, window, experiment):
+def get_data(slug, window):
     filename = f"""statistics_{slug}_{window}.json"""
     data = load_data_from_gcs(filename)
     return data
@@ -227,7 +230,7 @@ def analysis_results_view(request, slug):
     recipe_slug = experiment.slug.replace("-", "_")
 
     for window in windows:
-        data = raw_data[window] = get_data(recipe_slug, window, experiment)
+        data = raw_data[window] = get_data(recipe_slug, window)
 
         if data and window == "overall":
             data, other_metrics = process_data_for_consumption(
