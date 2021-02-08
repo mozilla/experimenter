@@ -916,7 +916,7 @@ test = ["pytest (<5.4)", "pytest-cov"]
 
 [[package]]
 name = "mozilla-nimbus-shared"
-version = "1.3.0"
+version = "1.3.2"
 description = "Shared data and schemas for Project Nimbus"
 category = "main"
 optional = false
@@ -1551,7 +1551,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "0502a92a09e604122afed560a767fcb6c382e81ba7a2fd27d50660eaf809766c"
+content-hash = "a13d5ee20954a427874e2c5d1b3e2da9a6e01e2bd9b1b6bd3addd13b9862933b"
 
 [metadata.files]
 aiohttp = [
@@ -1952,8 +1952,8 @@ mock = [
     {file = "mock-4.0.3.tar.gz", hash = "sha256:7d3fbbde18228f4ff2f1f119a45cdffa458b4c0dee32eb4d2bb2f82554bac7bc"},
 ]
 mozilla-nimbus-shared = [
-    {file = "mozilla_nimbus_shared-1.3.0-py3-none-any.whl", hash = "sha256:80e42a27a9f4677f8a29e3f1ec459e8aa1c449f7cc840d957ddcff60deff5f13"},
-    {file = "mozilla_nimbus_shared-1.3.0.tar.gz", hash = "sha256:c671884aeeac5fb12b1e4403f5de4e8503dd5295abfd219b7d04d7de8357541a"},
+    {file = "mozilla_nimbus_shared-1.3.2-py3-none-any.whl", hash = "sha256:239a286656751f64ff5a883d7126284fd05087f5bb7429254eee5f5b948be8ff"},
+    {file = "mozilla_nimbus_shared-1.3.2.tar.gz", hash = "sha256:ae096e4f889616f0e587586d1dc30ae06b20ac6fe2a3c674b4bf85ec8875a343"},
 ]
 multidict = [
     {file = "multidict-4.7.6-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:275ca32383bc5d1894b6975bb4ca6a7ff16ab76fa622967625baeebcf8079000"},
