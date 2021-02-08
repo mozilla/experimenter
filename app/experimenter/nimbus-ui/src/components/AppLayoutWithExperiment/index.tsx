@@ -37,6 +37,7 @@ type AppLayoutWithExperimentProps = {
   sidebar?: boolean;
   analysisRequired?: boolean; // the page and sidebar need analysis data
   analysisRequiredInSidebar?: boolean; // only the sidebar needs analysis data
+  summaryView?: boolean;
   redirect?: ({
     status,
     review,
@@ -63,6 +64,7 @@ const AppLayoutWithExperiment = ({
   polling = false,
   analysisRequired = false,
   analysisRequiredInSidebar = false,
+  summaryView = false,
   redirect,
 }: AppLayoutWithExperimentProps) => {
   const { slug } = useParams();
@@ -162,6 +164,7 @@ const AppLayoutWithExperiment = ({
             startDate,
             endDate,
             status,
+            summaryView,
           }}
         />
         {title && (
