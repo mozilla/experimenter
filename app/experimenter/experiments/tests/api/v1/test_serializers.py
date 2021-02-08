@@ -3,7 +3,6 @@ import datetime
 from django.test import TestCase
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.experiments.api.v1.serializers import (
     ExperimentChangeLogSerializer,
     ExperimentSerializer,
@@ -18,6 +17,7 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
 )
 from experimenter.normandy.serializers import ExperimentRecipeVariantSerializer
+from experimenter.projects.tests.factories import ProjectFactory
 
 
 class TestJSTimestampField(TestCase):
@@ -94,7 +94,7 @@ class TestExperimentSerializer(TestCase):
             results_failures_notes="failure notes",
             platforms=[Experiment.PLATFORM_LINUX],
             is_high_population=True,
-            projects=[project1,project2]
+            projects=[project1, project2],
         )
 
         # ensure expected_data has "string" if pref_type is json string
@@ -157,7 +157,7 @@ class TestExperimentSerializer(TestCase):
                 "results_measure_impact": None,
                 "results_impact_notes": None,
             },
-            "projects": ["a_project2","b_project1"],
+            "projects": ["a_project2", "b_project1"],
         }
 
         self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
