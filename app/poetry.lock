@@ -883,7 +883,7 @@ python-versions = ">=3.5, <4"
 
 [[package]]
 name = "markus"
-version = "2.2.0"
+version = "3.0.0"
 description = "Metrics system for generating statistics about your app"
 category = "main"
 optional = false
@@ -1551,7 +1551,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "db26db1f8b014900b905a7a21a3e213aa072db40719813472704da59e775e5bd"
+content-hash = "95c9851b0dd3319d1fe4ecaa3593facab4f0c56906e9f36db25e584ef25fab01"
 
 [metadata.files]
 aiohttp = [
@@ -1940,8 +1940,8 @@ markdown2 = [
     {file = "markdown2-2.4.0.tar.gz", hash = "sha256:28d769f0e544e6f68f684f01e9b186747b079a6927d9ca77ebc8c640a2829b1b"},
 ]
 markus = [
-    {file = "markus-2.2.0-py3-none-any.whl", hash = "sha256:ed9a275aa4cbfc02e5cf0f2abbd34bc3720c43e432c1448ac7cc36c507111103"},
-    {file = "markus-2.2.0.tar.gz", hash = "sha256:f088183e7fef11a4f563f496069ab600942e072dd82e5301b0b896e8fd8b6bcb"},
+    {file = "markus-3.0.0-py3-none-any.whl", hash = "sha256:7affb46f91c17e0cda1043a997c19e5b18131ba590c835dd7ef6311dcdd4ecdc"},
+    {file = "markus-3.0.0.tar.gz", hash = "sha256:ba511498ae28163424edb127a424e4a9fbf3f4f8d29bddb2e48cc10df62f7832"},
 ]
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
