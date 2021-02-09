@@ -1,9 +1,11 @@
 import datetime
+from decimal import Decimal
 
 from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from parameterized import parameterized_class
+from parameterized.parameterized import parameterized
 
 from experimenter.experiments.models import NimbusExperiment, NimbusIsolationGroup
 from experimenter.experiments.tests.factories import (
@@ -182,6 +184,27 @@ class TestNimbusExperiment(TestCase):
         self.assertIsNone(experiment.reference_branch)
         self.assertEqual(experiment.branches.count(), 0)
         self.assertEqual(experiment.changes.count(), 1)
+
+    @parameterized.expand(
+        [
+            [False, NimbusExperiment.Status.DRAFT],
+            [True, NimbusExperiment.Status.REVIEW],
+            [False, NimbusExperiment.Status.ACCEPTED],
+            [False, NimbusExperiment.Status.LIVE],
+            [False, NimbusExperiment.Status.COMPLETE],
+        ]
+    )
+    def test_should_allocate_buckets(self, expected_value, status):
+        experiment = NimbusExperimentFactory(status=status)
+        self.assertEqual(experiment.should_allocate_bucket_range, expected_value)
+
+    def test_allocate_buckets_generates_bucket_range(self):
+        experiment = NimbusExperimentFactory(
+            status=NimbusExperiment.Status.DRAFT, population_percent=Decimal("50.0")
+        )
+        experiment.allocate_bucket_range()
+        self.assertEqual(experiment.bucket_range.count, 5000)
+        self.assertEqual(experiment.bucket_range.isolation_group.name, experiment.slug)
 
 
 class TestNimbusBranch(TestCase):

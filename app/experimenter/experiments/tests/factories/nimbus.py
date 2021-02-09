@@ -142,14 +142,10 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             experiment.status = status
             experiment.save()
 
-            generate_nimbus_changelog(experiment, experiment.owner)
+            if experiment.should_allocate_bucket_range:
+                experiment.allocate_bucket_range()
 
-            if status == NimbusExperiment.Status.REVIEW.value:
-                NimbusIsolationGroup.request_isolation_group_buckets(
-                    experiment.slug,
-                    experiment,
-                    100,
-                )
+            generate_nimbus_changelog(experiment, experiment.owner)
 
             if status == target_status:
                 break

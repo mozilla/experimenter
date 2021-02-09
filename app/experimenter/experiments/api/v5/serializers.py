@@ -390,7 +390,12 @@ class NimbusExperimentSerializer(
     def save(self, *args, **kwargs):
         with transaction.atomic():
             experiment = super().save(*args, **kwargs)
+
+            if experiment.should_allocate_bucket_range:
+                experiment.allocate_bucket_range()
+
             generate_nimbus_changelog(experiment, self.context["user"])
+
             return experiment
 
 
