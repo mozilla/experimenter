@@ -16,6 +16,8 @@ from experimenter.visualization.tests.api.constants import TestConstants
 
 @override_settings(FEATURE_ANALYSIS=False)
 class TestVisualizationView(TestCase):
+    maxDiff = None
+
     @parameterized.expand(
         [
             NimbusExperiment.Status.ACCEPTED,
@@ -102,24 +104,33 @@ class TestVisualizationView(TestCase):
             )
 
     @parameterized.expand(
-        [NimbusExperiment.Status.ACCEPTED, NimbusExperiment.Status.COMPLETE]
+        [
+            NimbusExperiment.Status.COMPLETE,
+            NimbusExperiment.Status.ACCEPTED,
+        ]
     )
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
     def test_analysis_results_view_data(self, status, mock_exists, mock_open):
         user_email = "user@example.com"
 
+        (
+            DATA_WITHOUT_POPULATION_PERCENTAGE,
+            FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
+            FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
+        ) = TestConstants.get_test_data()
+
         FULL_DATA = {
-            "daily": TestConstants.DATA_WITHOUT_POPULATION_PERCENTAGE,
-            "weekly": TestConstants.FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
-            "overall": TestConstants.FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
+            "daily": DATA_WITHOUT_POPULATION_PERCENTAGE,
+            "weekly": FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
+            "overall": FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
             "other_metrics": {"some_count": "Some Count"},
             "show_analysis": False,
         }
 
         class File:
             def read(self):
-                return json.dumps(TestConstants.DATA_WITHOUT_POPULATION_PERCENTAGE)
+                return json.dumps(DATA_WITHOUT_POPULATION_PERCENTAGE)
 
         mock_open.return_value = File()
         mock_exists.return_value = True
@@ -127,15 +138,16 @@ class TestVisualizationView(TestCase):
         experiment = NimbusExperimentFactory.create_with_status(
             target_status=status, probe_sets=[primary_probe_set]
         )
+
         experiment.probe_sets.add(
             NimbusProbeSetFactory.create(),
             through_defaults={"is_primary": False},
         )
 
         self.add_all_probe_set_data(
-            TestConstants.DATA_WITHOUT_POPULATION_PERCENTAGE,
-            TestConstants.FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
-            TestConstants.FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
+            DATA_WITHOUT_POPULATION_PERCENTAGE,
+            FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
+            FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
             experiment.primary_probe_sets,
         )
 
