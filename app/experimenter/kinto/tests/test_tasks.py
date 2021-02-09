@@ -1,5 +1,4 @@
 import datetime
-from decimal import Decimal
 
 import mock
 from django.conf import settings
@@ -7,7 +6,7 @@ from django.core import mail
 from django.test import TestCase
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.kinto import tasks
 from experimenter.kinto.client import (
@@ -21,15 +20,11 @@ from experimenter.kinto.tests.mixins import MockKintoClientMixin
 class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
     def test_push_experiment_to_kinto_sends_desktop_experiment_data(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.REVIEW,
             application=NimbusExperiment.Application.DESKTOP,
-            population_percent=Decimal("50.0"),
         )
 
         tasks.nimbus_push_experiment_to_kinto(experiment.id)
-
-        self.assertEqual(experiment.bucket_range.start, 0)
-        self.assertEqual(experiment.bucket_range.count, 5000)
 
         data = NimbusExperimentSerializer(experiment).data
 
@@ -40,26 +35,13 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             if_not_exists=True,
         )
 
-        self.assertTrue(
-            NimbusChangeLog.objects.filter(
-                experiment=experiment,
-                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.DRAFT,
-                new_status=NimbusExperiment.Status.ACCEPTED,
-            ).exists()
-        )
-
     def test_push_experiment_to_kinto_sends_fenix_experiment_data(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.REVIEW,
             application=NimbusExperiment.Application.FENIX,
-            population_percent=Decimal("50.0"),
         )
 
         tasks.nimbus_push_experiment_to_kinto(experiment.id)
-
-        self.assertEqual(experiment.bucket_range.start, 0)
-        self.assertEqual(experiment.bucket_range.count, 5000)
 
         data = NimbusExperimentSerializer(experiment).data
 
@@ -70,18 +52,9 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             if_not_exists=True,
         )
 
-        self.assertTrue(
-            NimbusChangeLog.objects.filter(
-                experiment=experiment,
-                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.DRAFT,
-                new_status=NimbusExperiment.Status.ACCEPTED,
-            ).exists()
-        )
-
     def test_push_experiment_to_kinto_reraises_exception(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.REVIEW,
         )
         self.mock_kinto_client.create_record.side_effect = Exception
         with self.assertRaises(Exception):
