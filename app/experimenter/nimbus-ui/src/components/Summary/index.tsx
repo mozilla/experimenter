@@ -34,7 +34,7 @@ const Summary = ({ experiment }: SummaryProps) => {
 
       <div className="d-flex flex-row justify-content-between">
         <h2 className="h5 mb-3">Summary</h2>
-        {!status.draft && !status.review && (
+        {!status.draft && (
           <span>
             <LinkExternal
               href={`/api/v6/experiments/${experiment.slug}/`}
