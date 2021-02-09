@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.test import TestCase
 from django.utils.text import slugify
 from parameterized import parameterized
@@ -9,7 +11,10 @@ from experimenter.experiments.api.v5.serializers import (
 )
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.models.nimbus import NimbusFeatureConfig
+from experimenter.experiments.models.nimbus import (
+    NimbusBucketRange,
+    NimbusFeatureConfig,
+)
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
@@ -1023,6 +1028,25 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assert_(
             serializer.errors["experiment"][0].startswith("Nimbus Experiment has status")
         )
+
+    def test_status_to_review_generates_bucket_allocation(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT, population_percent=Decimal("50.0")
+        )
+
+        self.assertFalse(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={"status": NimbusExperiment.Status.REVIEW},
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+        self.assertEqual(experiment.bucket_range.count, 5000)
 
 
 class TestNimbusReadyForReviewSerializer(TestCase):
