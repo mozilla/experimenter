@@ -94,6 +94,22 @@ describe("PageEditOverview", () => {
     });
   });
 
+  it("redirects to the review page if the experiment status is preview", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      // @ts-ignore EXP-879 mock value until backend API & types are updated
+      status: NimbusExperimentStatus.PREVIEW,
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/request-review`,
+        {
+          replace: true,
+        },
+      );
+    });
+  });
+
   it("redirects to the design page if the experiment status is live", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.LIVE,
