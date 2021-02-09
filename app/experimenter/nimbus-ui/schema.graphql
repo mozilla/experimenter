@@ -16,6 +16,16 @@ input DocumentationLinkType {
   link: String!
 }
 
+type EndExperiment {
+  nimbusExperiment: NimbusExperimentType
+  message: ObjectField
+  status: Int
+}
+
+input ExperimentIdInput {
+  id: Int
+}
+
 input ExperimentInput {
   id: Int
   status: NimbusExperimentStatus
@@ -42,6 +52,7 @@ input ExperimentInput {
 type Mutation {
   createExperiment(input: ExperimentInput!): CreateExperiment
   updateExperiment(input: ExperimentInput!): UpdateExperiment
+  endExperiment(input: ExperimentIdInput!): EndExperiment
 }
 
 type NimbusBranchType {
@@ -168,6 +179,7 @@ type NimbusExperimentType {
   publicDescription: String!
   riskMitigationLink: String!
   isPaused: Boolean!
+  isEndRequested: Boolean!
   proposedDuration: Int!
   proposedEnrollment: Int!
   populationPercent: String
