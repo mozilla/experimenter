@@ -206,6 +206,19 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(experiment.bucket_range.isolation_group.name, experiment.slug)
 
+    def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
+        experiment = NimbusExperimentFactory(
+            status=NimbusExperiment.Status.DRAFT, population_percent=Decimal("50.0")
+        )
+        experiment.allocate_bucket_range()
+        self.assertEqual(experiment.bucket_range.count, 5000)
+        self.assertEqual(experiment.bucket_range.isolation_group.name, experiment.slug)
+
+        experiment.population_percent = Decimal("20.0")
+        experiment.allocate_bucket_range()
+        self.assertEqual(experiment.bucket_range.count, 2000)
+        self.assertEqual(experiment.bucket_range.isolation_group.name, experiment.slug)
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
