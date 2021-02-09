@@ -41,7 +41,7 @@ export function getStatus(
 export type StatusCheck = ReturnType<typeof getStatus>;
 
 export function editCommonRedirects({ status }: { status: StatusCheck }) {
-  if (status.review) {
+  if (status.review || status.preview) {
     return "request-review";
   }
 
