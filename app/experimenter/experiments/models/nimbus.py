@@ -184,16 +184,17 @@ class NimbusExperiment(NimbusConstants, models.Model):
         return self.status in [NimbusExperiment.Status.REVIEW]
 
     def allocate_bucket_range(self):
-        if not NimbusBucketRange.objects.filter(experiment=self).exists():
-            NimbusIsolationGroup.request_isolation_group_buckets(
-                self.slug,
-                self,
-                int(
-                    self.population_percent
-                    / Decimal("100.0")
-                    * NimbusExperiment.BUCKET_TOTAL
-                ),
-            )
+        existing_bucket_range = NimbusBucketRange.objects.filter(experiment=self)
+        if existing_bucket_range.exists():
+            existing_bucket_range.delete()
+
+        NimbusIsolationGroup.request_isolation_group_buckets(
+            self.slug,
+            self,
+            int(
+                self.population_percent / Decimal("100.0") * NimbusExperiment.BUCKET_TOTAL
+            ),
+        )
 
 
 class NimbusBranch(models.Model):
