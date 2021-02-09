@@ -175,7 +175,7 @@ class NimbusExperimentBranchMixin:
 
 
 class NimbusExperimentProbeSetMixin:
-    def validate_primary_probe_set_ids(self, value):
+    def validate_primary_probe_set_slugs(self, value):
         if len(value) > NimbusExperiment.MAX_PRIMARY_PROBE_SETS:
             raise serializers.ValidationError(
                 "Exceeded maximum primary probe set limit of "
@@ -193,12 +193,12 @@ class NimbusExperimentProbeSetMixin:
 
         """
         data = super().validate(data)
-        primary_probe_set_ids = set(data.get("primary_probe_set_ids", []))
-        secondary_probe_set_ids = set(data.get("secondary_probe_set_ids", []))
-        if primary_probe_set_ids.intersection(secondary_probe_set_ids):
+        primary_probe_set_slugs = set(data.get("primary_probe_set_slugs", []))
+        secondary_probe_set_slugs = set(data.get("secondary_probe_set_slugs", []))
+        if primary_probe_set_slugs.intersection(secondary_probe_set_slugs):
             raise serializers.ValidationError(
                 {
-                    "primary_probe_set_ids": (
+                    "primary_probe_set_slugs": (
                         "Primary probe sets cannot overlap with secondary probe sets."
                     )
                 }
@@ -208,22 +208,22 @@ class NimbusExperimentProbeSetMixin:
     def update(self, experiment, data):
         with transaction.atomic():
             if set(data.keys()).intersection(
-                {"primary_probe_set_ids", "secondary_probe_set_ids"}
+                {"primary_probe_set_slugs", "secondary_probe_set_slugs"}
             ):
                 experiment.probe_sets.clear()
 
-            primary_probe_set_ids = data.pop("primary_probe_set_ids", [])
-            secondary_probe_set_ids = data.pop("secondary_probe_set_ids", [])
+            primary_probe_set_slugs = data.pop("primary_probe_set_slugs", [])
+            secondary_probe_set_slugs = data.pop("secondary_probe_set_slugs", [])
             experiment = super().update(experiment, data)
 
-            if primary_probe_set_ids:
-                for probe_set in primary_probe_set_ids:
+            if primary_probe_set_slugs:
+                for probe_set in primary_probe_set_slugs:
                     experiment.probe_sets.add(
                         probe_set, through_defaults={"is_primary": True}
                     )
 
-            if secondary_probe_set_ids:
-                for probe_set in secondary_probe_set_ids:
+            if secondary_probe_set_slugs:
+                for probe_set in secondary_probe_set_slugs:
                     experiment.probe_sets.add(
                         probe_set, through_defaults={"is_primary": False}
                     )
@@ -305,12 +305,19 @@ class NimbusExperimentSerializer(
         allow_null=True,
         required=False,
     )
-    primary_probe_set_ids = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=NimbusProbeSet.objects.all(), required=False
+
+    primary_probe_set_slugs = serializers.SlugRelatedField(
+        many=True,
+        queryset=NimbusProbeSet.objects.all(),
+        required=False,
+        slug_field="slug",
     )
 
-    secondary_probe_set_ids = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=NimbusProbeSet.objects.all(), required=False
+    secondary_probe_set_slugs = serializers.SlugRelatedField(
+        many=True,
+        queryset=NimbusProbeSet.objects.all(),
+        required=False,
+        slug_field="slug",
     )
     population_percent = serializers.DecimalField(
         7, 4, min_value=0.0, max_value=100.0, required=False
@@ -337,8 +344,8 @@ class NimbusExperimentSerializer(
             "feature_config",
             "reference_branch",
             "treatment_branches",
-            "primary_probe_set_ids",
-            "secondary_probe_set_ids",
+            "primary_probe_set_slugs",
+            "secondary_probe_set_slugs",
             "channel",
             "firefox_min_version",
             "population_percent",
