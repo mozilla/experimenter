@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
@@ -9,11 +7,7 @@ from experimenter.celery import app
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.email import nimbus_send_experiment_ending_email
-from experimenter.experiments.models import (
-    NimbusBucketRange,
-    NimbusExperiment,
-    NimbusIsolationGroup,
-)
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.kinto.client import KintoClient
 
 logger = get_task_logger(__name__)
@@ -47,25 +41,12 @@ def nimbus_push_experiment_to_kinto(experiment_id):
             NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
         )
 
-        if not NimbusBucketRange.objects.filter(experiment=experiment).exists():
-            NimbusIsolationGroup.request_isolation_group_buckets(
-                experiment.slug,
-                experiment,
-                int(
-                    experiment.population_percent
-                    / Decimal("100.0")
-                    * NimbusExperiment.BUCKET_TOTAL
-                ),
-            )
-
         data = NimbusExperimentSerializer(experiment).data
 
         kinto_client.push_to_kinto(data)
 
         experiment.status = NimbusExperiment.Status.ACCEPTED
         experiment.save()
-
-        generate_nimbus_changelog(experiment, get_kinto_user())
 
         logger.info(f"{experiment} pushed to Kinto")
         metrics.incr("push_experiment_to_kinto.completed")

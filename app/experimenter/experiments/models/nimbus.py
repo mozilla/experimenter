@@ -1,5 +1,6 @@
 import datetime
 import time
+from decimal import Decimal
 from urllib.parse import urljoin
 
 from django.conf import settings
@@ -177,6 +178,22 @@ class NimbusExperiment(NimbusConstants, models.Model):
         self.reference_branch = None
         self.save()
         self.branches.all().delete()
+
+    @property
+    def should_allocate_bucket_range(self):
+        return self.status in [NimbusExperiment.Status.REVIEW]
+
+    def allocate_bucket_range(self):
+        if not NimbusBucketRange.objects.filter(experiment=self).exists():
+            NimbusIsolationGroup.request_isolation_group_buckets(
+                self.slug,
+                self,
+                int(
+                    self.population_percent
+                    / Decimal("100.0")
+                    * NimbusExperiment.BUCKET_TOTAL
+                ),
+            )
 
 
 class NimbusBranch(models.Model):

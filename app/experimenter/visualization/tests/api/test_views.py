@@ -105,8 +105,8 @@ class TestVisualizationView(TestCase):
 
     @parameterized.expand(
         [
-            NimbusExperiment.Status.COMPLETE,
             NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.COMPLETE,
         ]
     )
     @patch("django.core.files.storage.default_storage.open")
