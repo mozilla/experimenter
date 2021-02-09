@@ -99,7 +99,14 @@ def nimbus_check_kinto_push_queue():
         if rejected_collection_data:
             rejected_slug = kinto_client.get_rejected_record()
             experiment = NimbusExperiment.objects.get(slug=rejected_slug)
-            experiment.status = NimbusExperiment.Status.DRAFT
+            if (
+                experiment.status == NimbusExperiment.Status.LIVE
+                and experiment.is_end_requested
+            ):
+                experiment.is_end_requested = False
+            else:
+                experiment.status = NimbusExperiment.Status.DRAFT
+
             experiment.save()
 
             generate_nimbus_changelog(
@@ -117,10 +124,20 @@ def nimbus_check_kinto_push_queue():
         queued_experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.REVIEW, application=application
         )
+        end_requested_experiments = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
+            application=application,
+            is_end_requested=True,
+        )
         if queued_experiments.exists():
             nimbus_push_experiment_to_kinto.delay(queued_experiments.first().id)
             metrics.incr(
                 f"check_kinto_push_queue.{collection}_queued_experiment_selected"
+            )
+        elif end_requested_experiments.exists():
+            nimbus_end_experiment_in_kinto.delay(end_requested_experiments.first().id)
+            metrics.incr(
+                f"check_kinto_push_queue.{collection}_end_requested_experiment_deleted"
             )
         else:
             metrics.incr(f"check_kinto_push_queue.{collection}_no_experiments_queued")
@@ -213,3 +230,28 @@ def nimbus_check_experiments_are_complete():
                 logger.info(f"{experiment} status is set to Complete")
 
     metrics.incr("check_experiments_are_complete.completed")
+
+
+@app.task
+@metrics.timer_decorator("end_experiment_in_kinto")
+def nimbus_end_experiment_in_kinto(experiment_id):
+    """
+    An invoked task that given a single experiment id, delete its data from
+    the configured collection. If it fails for any reason, log the error and
+    reraise it so it will be forwarded to sentry.
+    """
+    metrics.incr("end_experiment_in_kinto.started")
+
+    try:
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        logger.info(f"Deleting {experiment} from Kinto")
+        kinto_client = KintoClient(
+            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
+        )
+        kinto_client.delete_from_kinto(experiment.slug)
+        logger.info(f"{experiment} deleted from Kinto")
+        metrics.incr("end_experiment_in_kinto.completed")
+    except Exception as e:
+        metrics.incr("end_experiment_in_kinto.failed")
+        logger.info(f"Deleting experiment id {experiment_id} from Kinto failed: {e}")
+        raise e
