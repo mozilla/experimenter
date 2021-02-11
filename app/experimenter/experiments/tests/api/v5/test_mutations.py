@@ -99,10 +99,10 @@ mutation ($input: ExperimentInput!) {
     nimbusExperiment {
       id
       primaryProbeSets {
-        id
+        slug
       }
       secondaryProbeSets {
-        id
+        slug
       }
     }
     message
@@ -485,8 +485,8 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "primaryProbeSetIds": [p.id for p in probe_sets[:2]],
-                    "secondaryProbeSetIds": [p.id for p in probe_sets[2:]],
+                    "primaryProbeSetSlugs": [p.slug for p in probe_sets[:2]],
+                    "secondaryProbeSetSlugs": [p.slug for p in probe_sets[2:]],
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -499,14 +499,14 @@ class TestMutations(GraphQLTestCase):
             {
                 "id": experiment.id,
                 "primaryProbeSets": [
-                    {"id": str(probe_set.id)} for probe_set in probe_sets[:2]
+                    {"slug": str(probe_set.slug)} for probe_set in probe_sets[:2]
                 ],
                 "secondaryProbeSets": [
-                    {"id": str(probe_set.id)} for probe_set in probe_sets[2:]
+                    {"slug": str(probe_set.slug)} for probe_set in probe_sets[2:]
                 ],
             },
         )
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        experiment = NimbusExperiment.objects.get(slug=experiment.slug)
         self.assertEqual(set(experiment.probe_sets.all()), set(probe_sets))
         # These must be compared as lists to ensure ordering is retained.
         self.assertEqual(list(experiment.primary_probe_sets), probe_sets[:2])
@@ -522,8 +522,8 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "primaryProbeSetIds": [123],
-                    "secondaryProbeSetIds": [],
+                    "primaryProbeSetSlugs": ["my-lovely-slug"],
+                    "secondaryProbeSetSlugs": [],
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -533,7 +533,11 @@ class TestMutations(GraphQLTestCase):
         result = content["data"]["updateExperiment"]
         self.assertEqual(
             result["message"],
-            {"primary_probe_set_ids": ['Invalid pk "123" - object does not exist.']},
+            {
+                "primary_probe_set_slugs": [
+                    "Object with slug=my-lovely-slug does not exist."
+                ]
+            },
         )
 
     def test_update_experiment_audience(self):

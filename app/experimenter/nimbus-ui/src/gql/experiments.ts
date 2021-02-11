@@ -76,10 +76,10 @@ export const UPDATE_EXPERIMENT_PROBESETS_MUTATION = gql`
       nimbusExperiment {
         id
         primaryProbeSets {
-          id
+          slug
         }
         secondaryProbeSets {
-          id
+          slug
         }
       }
       message

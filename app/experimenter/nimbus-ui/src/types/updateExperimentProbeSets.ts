@@ -11,12 +11,12 @@ import { ExperimentInput } from "./globalTypes";
 
 export interface updateExperimentProbeSets_updateExperiment_nimbusExperiment_primaryProbeSets {
   __typename: "NimbusProbeSetType";
-  id: string;
+  slug: string;
 }
 
 export interface updateExperimentProbeSets_updateExperiment_nimbusExperiment_secondaryProbeSets {
   __typename: "NimbusProbeSetType";
-  id: string;
+  slug: string;
 }
 
 export interface updateExperimentProbeSets_updateExperiment_nimbusExperiment {

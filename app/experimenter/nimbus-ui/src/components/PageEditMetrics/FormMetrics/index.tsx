@@ -17,8 +17,8 @@ import {
 } from "../../../types/getExperiment";
 
 export const metricsFieldNames = [
-  "primaryProbeSetIds",
-  "secondaryProbeSetIds",
+  "primaryProbeSetSlugs",
+  "secondaryProbeSetSlugs",
 ] as const;
 
 type FormMetricsProps = {
@@ -57,21 +57,21 @@ const FormMetrics = ({
 }: FormMetricsProps) => {
   const { probeSets } = useConfig();
 
-  const getProbeSetIds = (probeSets: ProbeSets) =>
-    probeSets?.map((probeSet) => probeSet?.id as string) || [];
+  const getProbeSetSlugs = (probeSets: ProbeSets) =>
+    probeSets?.map((probeSet) => probeSet?.slug as string) || [];
 
   // We must alter primary probe set options when a secondary set is selected
   // to exclude the set from primary probe set options and vice versa
-  const [primaryProbeSetIds, setPrimaryProbeSetIds] = useState<string[]>(
-    getProbeSetIds(experiment?.primaryProbeSets!),
+  const [primaryProbeSetSlugs, setPrimaryProbeSetSlugs] = useState<string[]>(
+    getProbeSetSlugs(experiment?.primaryProbeSets!),
   );
-  const [secondaryProbeSetIds, setSecondaryProbeSetIds] = useState<string[]>(
-    getProbeSetIds(experiment?.secondaryProbeSets!),
-  );
+  const [secondaryProbeSetSlugs, setSecondaryProbeSetSlugs] = useState<
+    string[]
+  >(getProbeSetSlugs(experiment?.secondaryProbeSets!));
 
   const probeSetOption = (probeSet: ProbeSet) => ({
     label: probeSet.name,
-    value: probeSet.id,
+    value: probeSet.slug,
   });
 
   const primaryProbeSetOptions: SelectOption[] = [];
@@ -79,20 +79,20 @@ const FormMetrics = ({
 
   // Get primary/secondary options from server-supplied array of probe sets
   probeSets?.forEach((probeSet) => {
-    if (!secondaryProbeSetIds.includes(probeSet!.id)) {
+    if (!secondaryProbeSetSlugs.includes(probeSet!.slug)) {
       primaryProbeSetOptions.push(probeSetOption(probeSet!));
     }
-    if (!primaryProbeSetIds.includes(probeSet!.id)) {
+    if (!primaryProbeSetSlugs.includes(probeSet!.slug)) {
       secondaryProbeSetOptions.push(probeSetOption(probeSet!));
     }
   });
 
   const defaultValues = {
-    primaryProbeSetIds:
+    primaryProbeSetSlugs:
       experiment?.primaryProbeSets?.map((probeSet) =>
         probeSetOption(probeSet!),
       ) || "",
-    secondaryProbeSetIds:
+    secondaryProbeSetSlugs:
       experiment?.secondaryProbeSets?.map((probeSet) =>
         probeSetOption(probeSet!),
       ) || "",
@@ -122,12 +122,12 @@ const FormMetrics = ({
     if (isLoading) return;
     onSave(
       {
-        primaryProbeSetIds,
-        secondaryProbeSetIds,
+        primaryProbeSetSlugs,
+        secondaryProbeSetSlugs,
       },
       reset,
     );
-  }, [isLoading, onSave, reset, primaryProbeSetIds, secondaryProbeSetIds]);
+  }, [isLoading, onSave, reset, primaryProbeSetSlugs, secondaryProbeSetSlugs]);
 
   const handleNext = useCallback(
     (ev: React.FormEvent) => {
@@ -151,7 +151,7 @@ const FormMetrics = ({
       )}
 
       <Form.Group
-        controlId="primaryProbeSetIds"
+        controlId="primaryProbeSetSlugs"
         data-testid="primary-probe-sets"
       >
         <Form.Label>
@@ -167,19 +167,19 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
-          {...formSelectAttrs("primaryProbeSetIds", setPrimaryProbeSetIds)}
+          {...formSelectAttrs("primaryProbeSetSlugs", setPrimaryProbeSetSlugs)}
           options={primaryProbeSetOptions}
-          isOptionDisabled={() => primaryProbeSetIds.length >= 2}
+          isOptionDisabled={() => primaryProbeSetSlugs.length >= 2}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment. You may select up to 2 primary probe sets.
         </Form.Text>
-        <FormErrors name="primaryProbeSetIds" />
+        <FormErrors name="primaryProbeSetSlugs" />
       </Form.Group>
 
       <Form.Group
-        controlId="secondaryProbeSetIds"
+        controlId="secondaryProbeSetSlugs"
         data-testid="secondary-probe-sets"
       >
         <Form.Label>
@@ -194,14 +194,17 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
-          {...formSelectAttrs("secondaryProbeSetIds", setSecondaryProbeSetIds)}
+          {...formSelectAttrs(
+            "secondaryProbeSetSlugs",
+            setSecondaryProbeSetSlugs,
+          )}
           options={secondaryProbeSetOptions}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment.
         </Form.Text>
-        <FormErrors name="secondaryProbeSetIds" />
+        <FormErrors name="secondaryProbeSetSlugs" />
       </Form.Group>
 
       <div className="d-flex flex-row-reverse bd-highlight">

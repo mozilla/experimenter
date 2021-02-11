@@ -71,7 +71,7 @@ describe("hooks/useCommonForm", () => {
 
     it("clears submit error onChange of multiselect", async () => {
       const submitErrors = {
-        primary_probe_set_ids: ["You primary probed the wrong bear."],
+        primary_probe_set_slugs: ["You primary probed the wrong bear."],
       };
       const { experiment } = mockExperimentQuery("boo", {
         primaryProbeSets: [],
@@ -82,11 +82,11 @@ describe("hooks/useCommonForm", () => {
 
       const primaryProbeSets = screen.getByTestId("primary-probe-sets");
       const errorFeedback = screen.getByText(
-        submitErrors.primary_probe_set_ids[0],
+        submitErrors.primary_probe_set_slugs[0],
       );
       expect(errorFeedback).toBeInTheDocument();
       expect(
-        container.querySelector("[for='primaryProbeSetIds'] + div"),
+        container.querySelector("[for='primaryProbeSetSlugs'] + div"),
       ).toHaveClass("is-invalid border border-danger rounded");
 
       fireEvent.keyDown(primaryProbeSets.children[1], { key: "ArrowDown" });

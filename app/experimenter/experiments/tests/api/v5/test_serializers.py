@@ -628,17 +628,17 @@ class TestNimbusExperimentProbeSetMixin(TestCase):
     def test_serializer_updates_probe_sets_on_experiment(self):
         user = UserFactory()
         experiment = NimbusExperimentFactory(probe_sets=[])
-        primary_probe_set_ids = [
-            NimbusProbeSetFactory().id
+        primary_probe_set_slugs = [
+            NimbusProbeSetFactory().slug
             for i in range(NimbusExperiment.MAX_PRIMARY_PROBE_SETS)
         ]
-        secondary_probe_set_ids = [NimbusProbeSetFactory().id for i in range(3)]
+        secondary_probe_set_slugs = [NimbusProbeSetFactory().slug for i in range(3)]
 
         serializer = NimbusExperimentSerializer(
             experiment,
             {
-                "primary_probe_set_ids": primary_probe_set_ids,
-                "secondary_probe_set_ids": secondary_probe_set_ids,
+                "primary_probe_set_slugs": primary_probe_set_slugs,
+                "secondary_probe_set_slugs": secondary_probe_set_slugs,
             },
             context={"user": user},
         )
@@ -649,16 +649,16 @@ class TestNimbusExperimentProbeSetMixin(TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
         self.assertEqual(
-            set(primary_probe_set_ids) | set(secondary_probe_set_ids),
-            set(experiment.probe_sets.all().values_list("id", flat=True)),
+            set(primary_probe_set_slugs) | set(secondary_probe_set_slugs),
+            set(experiment.probe_sets.all().values_list("slug", flat=True)),
         )
         self.assertEqual(
-            set([p.id for p in experiment.primary_probe_sets]),
-            set(primary_probe_set_ids),
+            set([p.slug for p in experiment.primary_probe_sets]),
+            set(primary_probe_set_slugs),
         )
         self.assertEqual(
-            set([p.id for p in experiment.secondary_probe_sets]),
-            set(secondary_probe_set_ids),
+            set([p.slug for p in experiment.secondary_probe_sets]),
+            set(secondary_probe_set_slugs),
         )
 
     def test_serializer_rejects_duplicate_probes(self):
@@ -669,10 +669,10 @@ class TestNimbusExperimentProbeSetMixin(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             {
-                "primary_probe_set_ids": [
-                    p.id for p in probe_sets[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
+                "primary_probe_set_slugs": [
+                    p.slug for p in probe_sets[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
                 ],
-                "secondary_probe_set_ids": [p.id for p in probe_sets],
+                "secondary_probe_set_slugs": [p.slug for p in probe_sets],
             },
             context={"user": user},
         )
@@ -681,7 +681,7 @@ class TestNimbusExperimentProbeSetMixin(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(experiment.changes.count(), 0)
         self.assertEqual(
-            serializer.errors["primary_probe_set_ids"][0],
+            serializer.errors["primary_probe_set_slugs"][0],
             "Primary probe sets cannot overlap with secondary probe sets.",
         )
 
@@ -693,8 +693,8 @@ class TestNimbusExperimentProbeSetMixin(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             {
-                "primary_probe_set_ids": [p.id for p in probe_sets],
-                "secondary_probe_set_ids": [],
+                "primary_probe_set_slugs": [p.slug for p in probe_sets],
+                "secondary_probe_set_slugs": [],
             },
             context={"user": user},
         )
@@ -704,7 +704,7 @@ class TestNimbusExperimentProbeSetMixin(TestCase):
         self.assertEqual(experiment.changes.count(), 0)
         self.assertIn(
             "Exceeded maximum primary probe set limit of",
-            serializer.errors["primary_probe_set_ids"][0],
+            serializer.errors["primary_probe_set_slugs"][0],
         )
 
     def test_does_not_delete_probesets_when_other_fields_specified(self):
@@ -760,8 +760,8 @@ class TestNimbusExperimentSerializer(TestCase):
             "public_description": "",
             "feature_config": None,
             "treatment_branches": [],
-            "primary_probe_set_ids": [],
-            "secondary_probe_set_ids": [],
+            "primary_probe_set_slugs": [],
+            "secondary_probe_set_slugs": [],
             "channel": NimbusExperiment.Channel.NO_CHANNEL,
             "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
             "population_percent": "0.0",
