@@ -10,7 +10,7 @@ export function getStatus(
   experiment?: getExperiment_experimentBySlug | getAllExperiments_experiments,
 ) {
   const status = experiment?.status;
-
+  const ending = NimbusExperimentStatus.LIVE && !!experiment?.isEndRequested;
   const released = status
     ? [NimbusExperimentStatus.LIVE, NimbusExperimentStatus.COMPLETE].includes(
         status,
@@ -35,6 +35,7 @@ export function getStatus(
     ].includes(status!),
     // The experiment is or was out in the wild (live or complete)
     released,
+    ending,
   };
 }
 

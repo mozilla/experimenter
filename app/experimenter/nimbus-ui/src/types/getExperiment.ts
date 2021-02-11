@@ -78,6 +78,7 @@ export interface getExperiment_experimentBySlug {
   slug: string;
   status: NimbusExperimentStatus | null;
   monitoringDashboardUrl: string | null;
+  isEndRequested: boolean;
   hypothesis: string;
   application: NimbusExperimentApplication | null;
   publicDescription: string;
