@@ -30,6 +30,7 @@ export interface getAllExperiments_experiments {
   proposedEnrollment: number;
   endDate: DateTime | null;
   status: NimbusExperimentStatus | null;
+  isEndRequested: boolean;
   monitoringDashboardUrl: string | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
 }

@@ -29,5 +29,8 @@ describe("getStatus", () => {
     expect(getStatus(experiment).complete).toBeTruthy();
     expect(getStatus(experiment).released).toBeTruthy();
     expect(getStatus(experiment).locked).toBeTruthy();
+
+    experiment.isEndRequested = true;
+    expect(getStatus(experiment).ending).toBeTruthy();
   });
 });
