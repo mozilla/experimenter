@@ -13,6 +13,7 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 | Nimbus REST API | [/api/v6/experiments/][nimbus_rest_api_prod]          | [/api/v6/experiments/][nimbus_rest_api_stage]                      | [/api/v6/experiments/][nimbus_rest_api_local] |
 | GQL Playground  | [/api/v5/nimbus-api-graphql][gql_prod]                | [/api/v5/nimbus-api-graphql][gql_stage]                            | [/api/v5/nimbus-api-graphql][gql_local]       |
 | Storybook       | [Storybook Directory][storybook_prod]                 |                                                                    | https://localhost:3001                        |
+| Remote Settings | [settings-writer.prod.mozaws.net/v1/admin][rs_prod]   | [settings-writer.stage.mozaws.net/v1/admin][rs_stage]              | http://localhost:8888/v1/admin                |
 
 [legacy_home_prod]: https://experimenter.services.mozilla.com/
 [legacy_home_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/
@@ -26,6 +27,8 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 [gql_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/api/v5/nimbus-api-graphql/
 [gql_local]: https://localhost/api/v5/nimbus-api-graphql/
 [storybook_prod]: https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html
+[rs_prod]: https://settings-writer.prod.mozaws.net/v1/admin/
+[rs_stage]: https://settings-writer.stage.mozaws.net/v1/admin/
 
 ## Installation
 
@@ -220,6 +223,25 @@ Run the integration test suite inside a containerized instance of Firefox. You m
 ### integration_vnc_up
 
 Start a linux VM container with VNC available over `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter `tox -c tests/integration/` to run the integration tests and watch them run in a Firefox instance you can watch and interact with.
+
+## Accessing Remote Settings locally
+
+In development you may wish to approve or reject changes to experiments as if they were on Remote Settings. You can do so here: `http://localhost:8888/v1/admin/`
+
+There are three accounts you can log into Kinto with depending on what you want to do:
+
+- `admin` / `admin` - This account has permission to view and edit all of the collections.
+- `experimenter` / `experimenter` - This account is used by Experimenter to push its changes to Remote Settings and mark them for review.
+- `review` / `review` - This account should generally be used by developers testing the workflow, it can be used to approve/reject changes pushed from Experimenter.
+
+The `admin` and `review` credentials are hard-coded [here](https://github.com/mozilla/experimenter/blob/main/app/bin/setup_kinto.py#L7-L8), and the `experimenter` credentials can be found or updated in your `.env` file under `KINTO_USER` and `KINTO_PASS`.
+
+Any change in remote settings requires two accounts:
+
+- One to make changes and request a review
+- One to review and approve/reject those changes
+
+Any of the accounts above can be used for any of those two roles, but your local Experimenter will be configured to make its changes through the `experimenter` account, so that account can't also be used to approve/reject those changes, hence the existence of the `review` account.
 
 ## Frontend
 
