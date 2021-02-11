@@ -89,6 +89,10 @@ export interface DocumentationLinkType {
   link: string;
 }
 
+export interface ExperimentIdInput {
+  id?: number | null;
+}
+
 export interface ExperimentInput {
   id?: number | null;
   status?: NimbusExperimentStatus | null;

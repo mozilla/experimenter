@@ -10,6 +10,7 @@ import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
 import NotSet from "../NotSet";
+import EndExperiment from "./EndExperiment";
 import SummaryTimeline from "./SummaryTimeline";
 import TableAudience from "./TableAudience";
 import TableBranches from "./TableBranches";
@@ -28,9 +29,13 @@ const Summary = ({ experiment }: SummaryProps) => {
 
   return (
     <div data-testid="summary">
-      <LinkMonitoring {...experiment} />
       <h2 className="h5 mb-3">Timeline</h2>
       <SummaryTimeline {...{ experiment }} />
+      {status.live && <EndExperiment {...{ experiment, status }} />}
+
+      <hr />
+
+      <LinkMonitoring {...experiment} />
 
       <div className="d-flex flex-row justify-content-between">
         <h2 className="h5 mb-3">Summary</h2>

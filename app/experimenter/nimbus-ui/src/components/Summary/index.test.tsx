@@ -14,12 +14,21 @@ describe("Summary", () => {
     const { experiment } = mockExperimentQuery("demo-slug");
     render(<Subject {...{ experiment }} />);
     expect(screen.getByTestId("summary-timeline")).toBeInTheDocument();
+    expect(screen.queryByTestId("experiment-end")).not.toBeInTheDocument();
     expect(screen.getByTestId("table-summary")).toBeInTheDocument();
     expect(screen.getByTestId("table-audience")).toBeInTheDocument();
     expect(screen.queryAllByTestId("table-branch")).toHaveLength(2);
     expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
       "Branches (2)",
     );
+  });
+
+  it("renders end experiment component if experiment is live", async () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+    });
+    render(<Subject {...{ experiment }} />);
+    expect(screen.queryByTestId("experiment-end")).toBeInTheDocument();
   });
 
   it("renders as expected with no defined branches", () => {
