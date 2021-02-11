@@ -83,6 +83,7 @@ TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
 class NimbusConstants(object):
     class Status(models.TextChoices):
         DRAFT = "Draft"
+        PREVIEW = "Preview"
         REVIEW = "Review"
         ACCEPTED = "Accepted"
         LIVE = "Live"

@@ -139,6 +139,7 @@ enum NimbusExperimentFirefoxMinVersion {
 
 enum NimbusExperimentOptionalStatus {
   Draft
+  Preview
   Review
   Accepted
   Live
@@ -155,6 +156,7 @@ type NimbusExperimentOwner {
 
 enum NimbusExperimentStatus {
   DRAFT
+  PREVIEW
   REVIEW
   ACCEPTED
   LIVE
