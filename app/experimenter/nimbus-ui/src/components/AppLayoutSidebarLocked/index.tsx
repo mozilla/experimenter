@@ -8,7 +8,7 @@ import Scrollspy from "react-scrollspy";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
 import { StatusCheck } from "../../lib/experiment";
-import { AnalysisData } from "../../lib/visualization/types";
+import { AnalysisData, MetadataPoint } from "../../lib/visualization/types";
 import { analysisAvailable } from "../../lib/visualization/utils";
 import {
   getExperiment_experimentBySlug_primaryProbeSets,
@@ -56,6 +56,19 @@ const probesetToMapping = (
   return newMap;
 };
 
+const otherMetricsToFriendlyName = (
+  otherMetrics: { [metric: string]: string },
+  metricsMetaData: { [metric: string]: MetadataPoint },
+) => {
+  const newMap: { [key: string]: string } = {};
+  Object.keys(otherMetrics).map(
+    (metric) =>
+      (newMap[metric] =
+        metricsMetaData[metric]!.friendly_name || otherMetrics[metric]),
+  );
+  return newMap;
+};
+
 type AppLayoutSidebarLockedProps = {
   testid?: string;
   children: React.ReactNode;
@@ -84,6 +97,11 @@ export const AppLayoutSidebarLocked = ({
   const { slug } = useParams();
   const primaryMetrics = probesetToMapping(primaryProbeSets || []);
   const secondaryMetrics = probesetToMapping(secondaryProbeSets || []);
+  const otherMetrics = otherMetricsToFriendlyName(
+    analysis?.other_metrics || {},
+    analysis?.metadata?.metrics || {},
+  );
+
   const sidebarKeys = [
     "monitoring",
     "overview",
@@ -94,7 +112,7 @@ export const AppLayoutSidebarLocked = ({
     .concat("secondary-metrics")
     .concat(Object.keys(secondaryMetrics || []))
     .concat("default-metrics")
-    .concat(Object.keys(analysis?.other_metrics || []));
+    .concat(Object.keys(otherMetrics || []));
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
@@ -160,11 +178,8 @@ export const AppLayoutSidebarLocked = ({
                       getSidebarItems(primaryMetrics, "Primary Metrics")}
                     {Object.keys(secondaryMetrics).length &&
                       getSidebarItems(secondaryMetrics, "Secondary Metrics")}
-                    {analysis?.other_metrics &&
-                      getSidebarItems(
-                        analysis?.other_metrics,
-                        "Default Metrics",
-                      )}
+                    {otherMetrics &&
+                      getSidebarItems(otherMetrics, "Default Metrics")}
                   </Scrollspy>
                 </>
               ) : (

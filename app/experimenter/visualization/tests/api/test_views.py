@@ -46,6 +46,7 @@ class TestVisualizationView(TestCase):
                 "daily": None,
                 "weekly": None,
                 "overall": None,
+                "metadata": None,
                 "show_analysis": False,
             },
             json_data,
@@ -125,14 +126,23 @@ class TestVisualizationView(TestCase):
             "weekly": FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
             "overall": FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
             "other_metrics": {"some_count": "Some Count"},
+            "metadata": {},
             "show_analysis": False,
         }
 
         class File:
+            def __init__(self, filename):
+                self.name = filename
+
             def read(self):
+                if "metadata" in self.name:
+                    return "{}"
                 return json.dumps(DATA_WITHOUT_POPULATION_PERCENTAGE)
 
-        mock_open.return_value = File()
+        def open_file(filename):
+            return File(filename)
+
+        mock_open.side_effect = open_file
         mock_exists.return_value = True
         primary_probe_set = NimbusProbeSetFactory.create()
         experiment = NimbusExperimentFactory.create_with_status(
