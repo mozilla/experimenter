@@ -6,7 +6,6 @@ from experimenter.experiments.api.v5.types import (
     NimbusLabelValueType,
     NimbusProbeSetType,
 )
-from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import (
     NimbusExperiment,
     NimbusFeatureConfig,
@@ -71,11 +70,6 @@ class Query(graphene.ObjectType):
     experiments = graphene.List(
         NimbusExperimentType,
         description="List Nimbus Experiments.",
-        offset=graphene.Int(),
-        limit=graphene.Int(),
-        status=graphene.Enum(
-            "NimbusExperimentOptionalStatus", NimbusConstants.Status.choices
-        )(),
     )
     experiment_by_slug = graphene.Field(
         NimbusExperimentType,
@@ -88,11 +82,8 @@ class Query(graphene.ObjectType):
         description="Nimbus Configuration Data for front-end usage.",
     )
 
-    def resolve_experiments(root, info, offset=0, limit=20, status=None):
-        q = NimbusExperiment.objects.all()
-        if status:
-            q = q.filter(status=status)
-        return q[offset:limit]
+    def resolve_experiments(root, info):
+        return NimbusExperiment.objects.all()
 
     def resolve_experiment_by_slug(root, info, slug):
         try:

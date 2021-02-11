@@ -137,14 +137,6 @@ enum NimbusExperimentFirefoxMinVersion {
   FIREFOX_100
 }
 
-enum NimbusExperimentOptionalStatus {
-  Draft
-  Review
-  Accepted
-  Live
-  Complete
-}
-
 type NimbusExperimentOwner {
   id: ID!
   username: String!
@@ -278,7 +270,7 @@ type ProjectType {
 }
 
 type Query {
-  experiments(offset: Int, limit: Int, status: NimbusExperimentOptionalStatus): [NimbusExperimentType]
+  experiments: [NimbusExperimentType]
   experimentBySlug(slug: String!): NimbusExperimentType
   nimbusConfig: NimbusConfigurationType
 }
