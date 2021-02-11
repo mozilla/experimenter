@@ -28,23 +28,23 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
 
   const onSave = useCallback(
     async ({
-      primaryProbeSetIds,
-      secondaryProbeSetIds,
-    }: Record<string, number[]>) => {
+      primaryProbeSetSlugs,
+      secondaryProbeSetSlugs,
+    }: Record<string, string[]>) => {
       try {
         const nimbusExperimentId = currentExperiment.current!.id;
         const result = await updateExperimentProbeSets({
           variables: {
             input: {
               id: nimbusExperimentId,
-              primaryProbeSetIds,
-              secondaryProbeSetIds,
+              primaryProbeSetSlugs,
+              secondaryProbeSetSlugs,
             },
           },
         });
 
         if (!result.data?.updateExperiment) {
-          throw new Error("Save failed, no error available");
+          throw new Error(SUBMIT_ERROR);
         }
 
         const { message } = result.data.updateExperiment;

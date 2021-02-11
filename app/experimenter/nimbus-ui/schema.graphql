@@ -38,8 +38,8 @@ input ExperimentInput {
   documentationLinks: [DocumentationLinkType]
   referenceBranch: ReferenceBranchType
   treatmentBranches: [TreatmentBranchType]
-  primaryProbeSetIds: [Int]
-  secondaryProbeSetIds: [Int]
+  primaryProbeSetSlugs: [String]
+  secondaryProbeSetSlugs: [String]
   channel: NimbusExperimentChannel
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion
   populationPercent: String

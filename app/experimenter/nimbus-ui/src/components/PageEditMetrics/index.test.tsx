@@ -28,7 +28,7 @@ jest.mock("@reach/router", () => ({
   navigate: jest.fn(),
 }));
 
-let mockSubmitData: Record<string, number | number[]> = {};
+let mockSubmitData: Record<string, number | string[]> = {};
 const mockSubmit = jest.fn();
 
 describe("PageEditMetrics", () => {
@@ -57,22 +57,20 @@ describe("PageEditMetrics", () => {
   beforeEach(() => {
     mockSubmitData = {
       id: experiment.id!,
-      primaryProbeSetIds: experiment.primaryProbeSets!.map((p) =>
-        parseInt(p!.id),
-      ),
-      secondaryProbeSetIds: experiment.secondaryProbeSets!.map((p) =>
-        parseInt(p!.id),
+      primaryProbeSetSlugs: experiment.primaryProbeSets!.map((p) => p!.slug),
+      secondaryProbeSetSlugs: experiment.secondaryProbeSets!.map(
+        (p) => p!.slug,
       ),
     };
     const mockResponse = {
       experiment: {
         id: experiment.id,
         primaryProbeSets: experiment.primaryProbeSets!.map((p) => ({
-          id: p?.id,
+          slug: p?.slug,
           name: p?.name,
         })),
         secondaryProbeSets: experiment.secondaryProbeSets!.map((p) => ({
-          id: p?.id,
+          slug: p?.slug,
           name: p?.name,
         })),
       },
