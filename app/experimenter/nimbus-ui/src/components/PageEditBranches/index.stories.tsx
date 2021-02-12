@@ -13,7 +13,6 @@ import { NimbusFeatureConfigApplication } from "../../types/globalTypes";
 
 const { mock } = mockExperimentQuery("demo-slug", {
   featureConfig: {
-    __typename: "NimbusFeatureConfigType",
     id: "2",
     name: "Mauris odio erat",
     slug: "mauris-odio-erat",
@@ -26,7 +25,6 @@ const { mock } = mockExperimentQuery("demo-slug", {
 
 const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
   referenceBranch: {
-    __typename: "NimbusBranchType",
     name: "",
     slug: "",
     description: "",
@@ -36,7 +34,6 @@ const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
   },
   treatmentBranches: [
     {
-      __typename: "NimbusBranchType",
       name: "",
       slug: "",
       description: "",
@@ -46,7 +43,6 @@ const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
     },
   ],
   readyForReview: {
-    __typename: "NimbusReadyForReviewType",
     ready: false,
     message: {
       reference_branch: ["This field may not be null."],

@@ -301,7 +301,6 @@ export const mockUpdateExperimentBranchesMutation = (
   },
 ) => {
   const updateExperiment: updateExperiment_updateExperiment = {
-    __typename: "UpdateExperiment",
     message,
   };
   return {

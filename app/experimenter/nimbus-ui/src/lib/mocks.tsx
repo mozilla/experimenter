@@ -53,34 +53,28 @@ export interface MockedState {
 }
 
 export const MOCK_CONFIG: getConfig_nimbusConfig = {
-  __typename: "NimbusConfigurationType",
   application: [
     {
-      __typename: "NimbusLabelValueType",
       label: "Desktop",
       value: "DESKTOP",
     },
   ],
   channel: [
     {
-      __typename: "NimbusLabelValueType",
       label: "Desktop Beta",
       value: "BETA",
     },
     {
-      __typename: "NimbusLabelValueType",
       label: "Desktop Nightly",
       value: "NIGHTLY",
     },
     {
-      __typename: "NimbusLabelValueType",
       label: "Platypus Doorstop",
       value: "PLATYPUS_DOORSTOP",
     },
   ],
   featureConfig: [
     {
-      __typename: "NimbusFeatureConfigType",
       id: "1",
       name: "Picture-in-Picture",
       slug: "picture-in-picture",
@@ -91,7 +85,6 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       schema: null,
     },
     {
-      __typename: "NimbusFeatureConfigType",
       id: "2",
       name: "Mauris odio erat",
       slug: "mauris-odio-erat",
@@ -103,31 +96,26 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   ],
   firefoxMinVersion: [
     {
-      __typename: "NimbusLabelValueType",
       label: "Firefox 80",
       value: "FIREFOX_83",
     },
   ],
   probeSets: [
     {
-      __typename: "NimbusProbeSetType",
       name: "Probe Set A",
       slug: "probe-set-a",
     },
     {
-      __typename: "NimbusProbeSetType",
       name: "Probe Set B",
       slug: "probe-set-b",
     },
     {
-      __typename: "NimbusProbeSetType",
       name: "Probe Set C",
       slug: "probe-set-c",
     },
   ],
   targetingConfigSlug: [
     {
-      __typename: "NimbusLabelValueType",
       label: "Us Only",
       value: "US_ONLY",
     },
@@ -135,17 +123,14 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   hypothesisDefault: "Enter a hypothesis",
   documentationLink: [
     {
-      __typename: "NimbusLabelValueType",
       value: "DS_JIRA",
       label: "Data Science Jira Ticket",
     },
     {
-      __typename: "NimbusLabelValueType",
       value: "DESIGN_DOC",
       label: "Experiment Design Document",
     },
     {
-      __typename: "NimbusLabelValueType",
       value: "ENG_TICKET",
       label: "Engineering Ticket (Bugzilla/Jira/Github)",
     },
@@ -258,10 +243,8 @@ export function mockExperimentQuery<
 } {
   let experiment: getExperiment["experimentBySlug"] = Object.assign(
     {
-      __typename: "NimbusExperimentType",
       id: 1,
       owner: {
-        __typename: "NimbusExperimentOwner",
         email: "example@mozilla.com",
       },
       name: "Open-architected background installation",
@@ -274,7 +257,6 @@ export function mockExperimentQuery<
       publicDescription:
         "Official approach present industry strategy dream piece.",
       referenceBranch: {
-        __typename: "NimbusBranchType",
         name: "User-centric mobile solution",
         slug: "user-centric-mobile-solution",
         description: "Behind almost radio result personal none future current.",
@@ -285,7 +267,6 @@ export function mockExperimentQuery<
       featureConfig: null,
       treatmentBranches: [
         {
-          __typename: "NimbusBranchType",
           name: "Managed zero tolerance projection",
           slug: "managed-zero-tolerance-projection",
           description: "Next ask then he in degree order.",
@@ -296,14 +277,12 @@ export function mockExperimentQuery<
       ],
       primaryProbeSets: [
         {
-          __typename: "NimbusProbeSetType",
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
       ],
       secondaryProbeSets: [
         {
-          __typename: "NimbusProbeSetType",
           slug: "feature_b",
           name: "Feature B",
         },
@@ -319,7 +298,6 @@ export function mockExperimentQuery<
       readyForReview: {
         ready: true,
         message: {},
-        __typename: "NimbusReadyForReviewType",
       },
       startDate: new Date().toISOString(),
       endDate: new Date(Date.now() + 12096e5).toISOString(),
@@ -414,10 +392,8 @@ export function mockSingleDirectoryExperiment(
   overrides: Partial<getAllExperiments_experiments> = {},
 ): getAllExperiments_experiments {
   return {
-    __typename: "NimbusExperimentType",
     slug: `some-experiment-${Math.round(Math.random() * 100)}`,
     owner: {
-      __typename: "NimbusExperimentOwner",
       username: "example@mozilla.com",
     },
     monitoringDashboardUrl:
@@ -425,7 +401,6 @@ export function mockSingleDirectoryExperiment(
     name: "Open-architected background installation",
     status: NimbusExperimentStatus.COMPLETE,
     featureConfig: {
-      __typename: "NimbusFeatureConfigType",
       slug: "newtab",
       name: "New tab",
     },

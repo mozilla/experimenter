@@ -14,7 +14,6 @@ const { mock } = mockExperimentQuery("demo-slug");
 const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
   publicDescription: "",
   readyForReview: {
-    __typename: "NimbusReadyForReviewType",
     ready: false,
     message: {
       public_description: ["This field may not be null."],

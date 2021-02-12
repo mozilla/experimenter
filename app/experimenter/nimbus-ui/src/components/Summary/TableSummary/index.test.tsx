@@ -44,12 +44,10 @@ describe("TableSummary", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         primaryProbeSets: [
           {
-            __typename: "NimbusProbeSetType",
             slug: "picture_in_picture",
             name: "Picture-in-Picture",
           },
           {
-            __typename: "NimbusProbeSetType",
             slug: "feature_c",
             name: "Feature C",
           },
@@ -83,12 +81,10 @@ describe("TableSummary", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         secondaryProbeSets: [
           {
-            __typename: "NimbusProbeSetType",
             slug: "picture_in_picture",
             name: "Picture-in-Picture",
           },
           {
-            __typename: "NimbusProbeSetType",
             slug: "feature_b",
             name: "Feature B",
           },
@@ -176,12 +172,10 @@ describe("TableSummary", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         documentationLinks: [
           {
-            __typename: "NimbusDocumentationLinkType",
             title: NimbusDocumentationLinkTitle.DESIGN_DOC,
             link: "https://mozilla.org",
           },
           {
-            __typename: "NimbusDocumentationLinkType",
             title: NimbusDocumentationLinkTitle.DS_JIRA,
             link: "https://twitter.com",
           },

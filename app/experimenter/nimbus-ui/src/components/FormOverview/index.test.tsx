@@ -47,12 +47,10 @@ describe("FormOverview", () => {
     const { experiment } = mockExperimentQuery("boo", {
       documentationLinks: [
         {
-          __typename: "NimbusDocumentationLinkType",
           title: NimbusDocumentationLinkTitle.DESIGN_DOC,
           link: "https://mozilla.com",
         },
         {
-          __typename: "NimbusDocumentationLinkType",
           title: NimbusDocumentationLinkTitle.DS_JIRA,
           link: "https://mozilla.com",
         },
@@ -264,7 +262,6 @@ describe("FormOverview", () => {
     const { experiment } = mockExperimentQuery("boo", {
       documentationLinks: [
         {
-          __typename: "NimbusDocumentationLinkType",
           title: NimbusDocumentationLinkTitle.DS_JIRA,
           link: "https://bingo.bongo",
         },
@@ -285,7 +282,6 @@ describe("FormOverview", () => {
     // Update the values of the first set
     await act(async () => {
       experiment.documentationLinks![0] = {
-        __typename: "NimbusDocumentationLinkType",
         title: NimbusDocumentationLinkTitle.ENG_TICKET,
         link: "https://",
       };
@@ -309,7 +305,6 @@ describe("FormOverview", () => {
     await act(async () => void fireEvent.click(addButton));
     await act(async () => {
       experiment.documentationLinks!.push({
-        __typename: "NimbusDocumentationLinkType",
         title: NimbusDocumentationLinkTitle.DESIGN_DOC,
         link: "https://boingo.oingo",
       });

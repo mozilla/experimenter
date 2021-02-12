@@ -60,7 +60,6 @@ describe("PageRequestReview", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
       readyForReview: {
-        __typename: "NimbusReadyForReviewType",
         ready: false,
         message: {
           // This field exists on the Audience page
@@ -83,7 +82,6 @@ describe("PageRequestReview", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
       readyForReview: {
-        __typename: "NimbusReadyForReviewType",
         ready: false,
         message: {},
       },

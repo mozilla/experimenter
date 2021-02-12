@@ -10,18 +10,15 @@ import { NimbusExperimentStatus } from "./globalTypes";
 // ====================================================
 
 export interface getAllExperiments_experiments_owner {
-  __typename: "NimbusExperimentOwner";
   username: string;
 }
 
 export interface getAllExperiments_experiments_featureConfig {
-  __typename: "NimbusFeatureConfigType";
   slug: string;
   name: string;
 }
 
 export interface getAllExperiments_experiments {
-  __typename: "NimbusExperimentType";
   name: string;
   owner: getAllExperiments_experiments_owner;
   slug: string;

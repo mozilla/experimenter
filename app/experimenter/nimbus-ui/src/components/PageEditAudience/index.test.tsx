@@ -236,7 +236,6 @@ export const mockUpdateExperimentAudienceMutation = (
   },
 ) => {
   const updateExperiment: updateExperiment_updateExperiment = {
-    __typename: "UpdateExperiment",
     message,
   };
 
