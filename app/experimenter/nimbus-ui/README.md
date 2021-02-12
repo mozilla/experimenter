@@ -2,7 +2,7 @@
 
 ## Development
 
-- `yarn start` to start the app in development mode on `http://localhost:3000`
+- `yarn start` to start the app in development mode on `http://localhost:3000` (alternatively, run `make up` at the project root and navigate to `localhost/nimbus`)
 - `yarn build` to create a production build
 - `yarn test` to run unit tests, coverage details are displayed by default
 
@@ -87,6 +87,8 @@ export interface GetExperimentOverviews {
 
 ## Error handling
 
+Note: see the "Forms and Validation" section for form-specific error handling.
+
 This app has an [`AppErrorBoundary`](./src/components/AppErrorBoundary/index.tsx) that will capture any uncaught error that occurs and report them to Sentry. This acts as our last line of defense, but ideally we are able to handle errors before they get to this stage. As well, errors that we wish to display to the user should generally be handled in a consistent fashion.
 
 ### General errors
@@ -101,40 +103,7 @@ For example, if error occurs while saving a record:
 
 _Note:_ displaying technical error messages to the user may not be very helpful, so it's generally advised to either provide a [generic message](./src/lib/constants.ts) or instructions on what to do.
 
-## Form Validation
-
-**See the form validation section of [Storybook](https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html) for much more detailed info and examples**
-
-There are three kinds of validation that need to be applied to forms: client-side, server-side, and "required for launch". For a visual guide to the interaction UX, see this STORYBOOK LINK
-
-#### Client-side validation errors
-
-Client-side validation should be used to prevent invalid mutations from being attempted (i.e. the wrong type or fields that cannot be `null` in the database). It should NOT be used to validate fields that are required for launch or to duplicate server-side validation.
-
-#### Required for launch validation
-
-Some fields like `publicDescription` are allowed to be `null` while someone is editing a draft, but must be set before the experiment can move to the `review` status. You should NOT mark these fields `required`, but rather add help text that indicates they must be filled out before launch.
-
-#### Server-side validation
-
-These occur when you try to create or modify a record and the server tells us that one or more fields provided incorrect data. For these you should use the `useCommonForm` hook or React Bootstrap's [`Form.Control.Feedback`](https://react-bootstrap.github.io/components/forms/#form-control-feedback-props) component in combination with other form components.
-
-A basic example might look like this:
-
-```tsx
-<Form.Group controlId="description">
-  <Form.Label>Description</Form.Label>
-  <Form.Control type="text" autoFocus />
-  <Form.Text>This is the description.</Form.Text>
-  {errors["description"] && (
-    <Form.Control.Feedback type="invalid">
-      {errors["description"].message}
-    </Form.Control.Feedback>
-  )}
-</Form.Group>
-```
-
-## Handling GraphQL operation errors
+### Handling GraphQL operation errors
 
 As GQL queries and mutations are how we get data in and out of the app this is where a majority of our errors are going to occur. These should be handled in a consistent fashion as well.
 
@@ -196,6 +165,75 @@ if (message !== "success") {
 
 console.log("Retrieved record", record);
 ```
+
+## Forms and Validation
+
+**See the form validation section of [Storybook](https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html) for examples and a visual guide to the UX interaction.**
+
+There are three kinds of validation that need to be applied to forms: client-side, server-side, and "required for launch".
+
+### `useCommonForm` and `useCommonNestedForm`
+
+All forms use [`react-bootstrap`](https://react-bootstrap.github.io/components/forms/) as well as the custom convenience hooks `useCommonForm` or `useCommonNestedForm` for ease of use when developing new forms, to promote consistent behavior amongst our forms, and to limit any future changes affecting all forms in limited places. These hooks utilize the [`react-hook-form`](https://react-hook-form.com/api) package.
+
+If there are no nested forms, pass the needed parameters into `useCommonForm`. Otherwise, pull form methods out of _our_ `useForm` hook and pass them into `FormContext`. Then, in the nested form(s), pull out the methods and pass them into `useCommonNestedForm`.
+
+Server errors occur when a user attempts to create or modify a record and the server rejects the request. We surface client-side errors to prevent invalid mutations from being attempted and to give users instant feedback if we know a field is invalid. For non-field server-side errors, refer to the "General Errors" section above.
+
+Both hooks return a `FormErrors` JSX Element, intended for use on every form field, which will display client-side errors, server-side errors, or both, within React Bootstrap's [`Form.Control.Feedback`](https://react-bootstrap.github.io/components/forms/#form-control-feedback-props).
+
+Both hooks also return a form control method that returns an object containing field attributes that should be spread onto the form control or select (`formControlAttrs`).
+
+A basic example of a form field utilizing `useCommonForm`:
+
+```
+<Form.Group controlId="name">
+  <Form.Label>Public name</Form.Label>
+  <Form.Control
+    {...formControlAttrs("name")}
+    type="text"
+  />
+  <FormErrors name="name" />
+</Form.Group>
+```
+
+#### Client-side validation rules
+
+Form fields are optional by default - that is, users can save pieces of the experiment without filling in every input on the page. To enforce a required field or client-side validation on the field, pass a rule into the method...
+
+```
+{...formControlAttrs("hypothesis", REQUIRED_FIELD)}
+```
+
+```
+{...formControlAttrs("populationPercent", NUMBER_FIELD)}
+```
+
+... where the rule is a [`registerOptions`](https://react-hook-form.com/ts#RegisterOptions) object that can set the validation via handy properties like `maxLength`, and/or a `validate` function that can match a regex pattern or provide custom validation.
+
+Allow this argument to handle and dictate the client-side validation because we can (and should) display an error message to the user with it. Enforcing validation with `type` etc. can lead to invalid/red fields without a message for the user.
+
+#### Multiselects
+
+Multiselects use the hooks similarly, but because the `Select` element comes from the [`react-select`](https://react-select.com) package, the behavior is slightly different. Use and spread the object returned by `formSelectAttrs` provided by our hooks instead and use `FormErrors` identically.
+
+```
+<Form.Group
+  controlId="multi"
+  >
+  <Form.Label>Multi</Form.Label>
+    <Select
+      isMulti
+      {...formSelectAttrs("multi")}
+      options={arrayOfStringOptions}
+    />
+  <FormErrors name="multi" />
+</Form.Group>
+```
+
+### Required for Launch Validation
+
+Some fields like `publicDescription` are allowed to be `null` while someone is editing a draft, but must be set before the experiment can move to the `review` status. You should NOT mark these fields `required`, but rather add help text that indicates they must be filled out before launch.
 
 ## Access Visualization Data Locally
 
