@@ -5,12 +5,12 @@
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useRef, useState } from "react";
-import { UPDATE_EXPERIMENT_PROBESETS_MUTATION } from "../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
 import { editCommonRedirects } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
-import { updateExperimentProbeSets_updateExperiment as UpdateExperimentProbeSetsResult } from "../../types/updateExperimentProbeSets";
+import { updateExperiment_updateExperiment as UpdateExperimentProbeSetsResult } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
 import FormMetrics from "./FormMetrics";
@@ -19,7 +19,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   const [updateExperimentProbeSets, { loading }] = useMutation<
     { updateExperiment: UpdateExperimentProbeSetsResult },
     { input: ExperimentInput }
-  >(UPDATE_EXPERIMENT_PROBESETS_MUTATION);
+  >(UPDATE_EXPERIMENT_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
   const currentExperiment = useRef<getExperiment_experimentBySlug>();

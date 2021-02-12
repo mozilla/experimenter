@@ -79,11 +79,6 @@ export enum NimbusFeatureConfigApplication {
   FIREFOX_DESKTOP = "FIREFOX_DESKTOP",
 }
 
-export enum NimbusProbeKind {
-  EVENT = "EVENT",
-  SCALAR = "SCALAR",
-}
-
 export interface DocumentationLinkType {
   title: NimbusExperimentDocumentationLink;
   link: string;

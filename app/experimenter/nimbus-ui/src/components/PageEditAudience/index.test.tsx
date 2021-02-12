@@ -14,7 +14,7 @@ import {
 import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditAudience from ".";
-import { UPDATE_EXPERIMENT_AUDIENCE_MUTATION } from "../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { BASE_PATH, SUBMIT_ERROR } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
@@ -25,10 +25,7 @@ import {
   NimbusExperimentStatus,
   NimbusExperimentTargetingConfigSlug,
 } from "../../types/globalTypes";
-import {
-  updateExperimentAudience_updateExperiment,
-  updateExperimentAudience_updateExperiment_nimbusExperiment,
-} from "../../types/updateExperimentAudience";
+import { updateExperiment_updateExperiment } from "../../types/updateExperiment";
 import FormAudience from "./FormAudience";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
@@ -49,14 +46,7 @@ describe("PageEditAudience", () => {
     mockSubmitData = { ...MOCK_FORM_DATA };
     mutationMock = mockUpdateExperimentAudienceMutation(
       { ...mockSubmitData, id: experiment.id },
-      {
-        experiment: {
-          ...MOCK_FORM_DATA,
-          __typename: "NimbusExperimentType",
-          id: experiment.id!,
-          proposedEnrollment: parseFloat(MOCK_FORM_DATA.proposedEnrollment),
-        },
-      },
+      {},
     );
   });
 
@@ -240,25 +230,19 @@ jest.mock("./FormAudience", () => ({
 export const mockUpdateExperimentAudienceMutation = (
   input: Partial<ExperimentInput>,
   {
-    status = 200,
     message = "success",
-    experiment,
   }: {
-    status?: number;
     message?: string | Record<string, any>;
-    experiment: updateExperimentAudience_updateExperiment_nimbusExperiment;
   },
 ) => {
-  const updateExperiment: updateExperimentAudience_updateExperiment = {
+  const updateExperiment: updateExperiment_updateExperiment = {
     __typename: "UpdateExperiment",
-    status,
     message,
-    nimbusExperiment: experiment,
   };
 
   return {
     request: {
-      query: UPDATE_EXPERIMENT_AUDIENCE_MUTATION,
+      query: UPDATE_EXPERIMENT_MUTATION,
       variables: {
         input,
       },

@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusFeatureConfigApplication, NimbusProbeKind } from "./globalTypes";
+import { NimbusFeatureConfigApplication } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getConfig
@@ -38,23 +38,10 @@ export interface getConfig_nimbusConfig_firefoxMinVersion {
   value: string | null;
 }
 
-export interface getConfig_nimbusConfig_probeSets_probes {
-  __typename: "NimbusProbeType";
-  id: string;
-  kind: NimbusProbeKind;
-  name: string;
-  eventCategory: string;
-  eventMethod: string | null;
-  eventObject: string | null;
-  eventValue: string | null;
-}
-
 export interface getConfig_nimbusConfig_probeSets {
   __typename: "NimbusProbeSetType";
-  id: string;
   name: string;
   slug: string;
-  probes: getConfig_nimbusConfig_probeSets_probes[];
 }
 
 export interface getConfig_nimbusConfig_targetingConfigSlug {

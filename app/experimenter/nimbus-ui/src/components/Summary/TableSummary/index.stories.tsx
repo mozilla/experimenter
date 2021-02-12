@@ -26,13 +26,11 @@ storiesOf("components/Summary/TableSummary", module)
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
-          id: "1",
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
         {
           __typename: "NimbusProbeSetType",
-          id: "2",
           slug: "feature_C",
           name: "Feature C",
         },
@@ -40,13 +38,11 @@ storiesOf("components/Summary/TableSummary", module)
       secondaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
-          id: "1",
           slug: "feature_b",
           name: "Feature B",
         },
         {
           __typename: "NimbusProbeSetType",
-          id: "2",
           slug: "feature_d",
           name: "Feature D",
         },
