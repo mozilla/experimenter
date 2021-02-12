@@ -20,6 +20,10 @@ describe("getStatus", () => {
     expect(getStatus(experiment).accepted).toBeTruthy();
     expect(getStatus(experiment).locked).toBeTruthy();
 
+    experiment.status = NimbusExperimentStatus.PREVIEW;
+    expect(getStatus(experiment).preview).toBeTruthy();
+    expect(getStatus(experiment).locked).toBeTruthy();
+
     experiment.status = NimbusExperimentStatus.LIVE;
     expect(getStatus(experiment).live).toBeTruthy();
     expect(getStatus(experiment).released).toBeTruthy();

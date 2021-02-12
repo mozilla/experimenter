@@ -4,10 +4,9 @@
 
 import { useMutation } from "@apollo/client";
 import { RouteComponentProps } from "@reach/router";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Check } from "../../images/check.svg";
 import { SUBMIT_ERROR } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
@@ -16,98 +15,75 @@ import {
   ExperimentInput,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
-import { updateExperiment_updateExperiment as UpdateExperimentStatus } from "../../types/updateExperiment";
+import { updateExperiment_updateExperiment as UpdateExperiment } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import Summary from "../Summary";
 import FormLaunchDraftToPreview from "./FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "./FormLaunchDraftToReview";
 import FormLaunchPreviewToReview from "./FormLaunchPreviewToReview";
-import FormRequestReview from "./FormRequestReview";
 
 const PageRequestReview = ({
   polling = true,
-  /* istanbul ignore next until EXP-866 final */
-  onBackToDraft = () => {},
-  /* istanbul ignore next until EXP-866 final */
-  onLaunchToReview = () => {},
-  /* istanbul ignore next until EXP-866 final */
-  onLaunchToPreview = () => {},
 }: {
   polling?: boolean;
-  /* istanbul ignore next until EXP-866 final */
-  onBackToDraft?: () => void;
-  /* istanbul ignore next until EXP-866 final */
-  onLaunchToReview?: () => void;
-  /* istanbul ignore next until EXP-866 final */
-  onLaunchToPreview?: () => void;
 } & RouteComponentProps) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
+  const refetchReview = useRef<() => void>();
 
-  const [submitForReview, { loading: submitForReviewLoading }] = useMutation<
-    { updateExperiment: UpdateExperimentStatus },
+  const [updateExperiment, { loading }] = useMutation<
+    { updateExperiment: UpdateExperiment },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_MUTATION);
-  const { featureFlags } = useConfig();
 
-  /* istanbul ignore next until EXP-866 final */
   const [showLaunchDraftToReview, setShowLaunchDraftToReview] = useState(false);
 
-  /* istanbul ignore next until EXP-866 final */
   const toggleShowLaunchDraftToReview = useCallback(
     () => setShowLaunchDraftToReview(!showLaunchDraftToReview),
     [showLaunchDraftToReview, setShowLaunchDraftToReview],
   );
 
-  /* istanbul ignore next until EXP-866 final */
-  const [mockLoading, setMockLoading] = useState(false);
+  const [
+    onLaunchToPreviewClicked,
+    onBackToDraftClicked,
+    onLaunchClicked,
+  ] = useMemo(
+    () =>
+      [
+        NimbusExperimentStatus.PREVIEW,
+        NimbusExperimentStatus.DRAFT,
+        NimbusExperimentStatus.REVIEW,
+      ].map((status: NimbusExperimentStatus) => async () => {
+        try {
+          setSubmitError(null);
 
-  /* istanbul ignore next until EXP-866 final */
-  const loading = submitForReviewLoading || mockLoading;
+          const result = await updateExperiment({
+            variables: {
+              input: {
+                id: currentExperiment.current!.id,
+                status,
+              },
+            },
+          });
 
-  /* istanbul ignore next until EXP-866 final */
-  const fakeSubmission = (andThen: Function) => () => {
-    setMockLoading(true);
-    setTimeout(() => {
-      setMockLoading(false);
-      setSubmitSuccess(true);
-      andThen();
-    }, 1000);
-  };
+          if (!result.data?.updateExperiment) {
+            throw new Error(SUBMIT_ERROR);
+          }
 
-  /* istanbul ignore next until EXP-866 final */
-  const onLaunchToPreviewClicked = fakeSubmission(onLaunchToPreview);
+          const { message } = result.data.updateExperiment;
 
-  /* istanbul ignore next until EXP-866 final */
-  const onLaunchToReviewClicked = fakeSubmission(onLaunchToReview);
+          if (message && message !== "success" && typeof message === "object") {
+            return void setSubmitError(message.status.join(", "));
+          }
 
-  const onLaunchClicked = useCallback(async () => {
-    try {
-      const result = await submitForReview({
-        variables: {
-          input: {
-            id: currentExperiment.current!.id,
-            status: NimbusExperimentStatus.REVIEW,
-          },
-        },
-      });
-
-      if (!result.data?.updateExperiment) {
-        throw new Error(SUBMIT_ERROR);
-      }
-
-      const { message } = result.data.updateExperiment;
-
-      if (message && message !== "success" && typeof message === "object") {
-        return void setSubmitError(message.status.join(", "));
-      }
-
-      setSubmitSuccess(true);
-    } catch (error) {
-      setSubmitError(SUBMIT_ERROR);
-    }
-  }, [submitForReview, currentExperiment]);
+          refetchReview.current!();
+          setShowLaunchDraftToReview(false);
+        } catch (error) {
+          setSubmitError(SUBMIT_ERROR);
+        }
+      }),
+    [updateExperiment, currentExperiment],
+  );
 
   return (
     <AppLayoutWithExperiment
@@ -126,89 +102,59 @@ const PageRequestReview = ({
         }
       }}
     >
-      {({ experiment }) => {
+      {({ experiment, review }) => {
         currentExperiment.current = experiment;
+        refetchReview.current = review.refetch;
         const status = getStatus(experiment);
 
         return (
           <>
-            {
-              /* istanbul ignore next */ featureFlags.exp866Preview && (
-                <>
-                  {submitError && (
-                    <Alert data-testid="submit-error" variant="warning">
-                      {submitError}
-                    </Alert>
-                  )}
-
-                  {(submitSuccess || status.review) && (
-                    <Alert
-                      data-testid="submit-success"
-                      variant="success"
-                      className="bg-transparent text-success"
-                    >
-                      <p className="my-1" data-testid="in-review-label">
-                        <Check className="align-top" /> All set! Your experiment
-                        will launch as soon as it is approved.
-                      </p>
-                    </Alert>
-                  )}
-
-                  {!submitSuccess &&
-                    status.draft &&
-                    (showLaunchDraftToReview ? (
-                      <FormLaunchDraftToReview
-                        {...{
-                          isLoading: loading,
-                          onSubmit: onLaunchToReviewClicked,
-                          onCancel: toggleShowLaunchDraftToReview,
-                          onLaunchToPreview: onLaunchToPreviewClicked,
-                        }}
-                      />
-                    ) : (
-                      <FormLaunchDraftToPreview
-                        {...{
-                          isLoading: loading,
-                          onSubmit: onLaunchToPreviewClicked,
-                          onLaunchWithoutPreview: toggleShowLaunchDraftToReview,
-                        }}
-                      />
-                    ))}
-
-                  {!submitSuccess && status.preview && (
-                    <FormLaunchPreviewToReview
-                      {...{
-                        isLoading: loading,
-                        onSubmit: onLaunchToReviewClicked,
-                        onBackToDraft,
-                      }}
-                    />
-                  )}
-                </>
-              )
-            }
-
-            <Summary {...{ experiment }} />
-
-            {!featureFlags.exp866Preview && (
-              <>
-                {(submitSuccess || status.review) && (
-                  <p className="my-5" data-testid="in-review-label">
-                    All set! Your experiment is now <b>waiting for review</b>.
-                  </p>
-                )}
-
-                {!submitSuccess && status.draft && (
-                  <FormRequestReview
-                    {...{
-                      isLoading: loading,
-                      submitError,
-                      onSubmit: onLaunchClicked,
-                    }}
-                  />
-                )}
-              </>
+            {submitError && (
+              <Alert data-testid="submit-error" variant="warning">
+                {submitError}
+              </Alert>
             )}
+            {status.review && (
+              <Alert
+                data-testid="submit-success"
+                variant="success"
+                className="bg-transparent text-success"
+              >
+                <p className="my-1" data-testid="in-review-label">
+                  <Check className="align-top" /> All set! Your experiment will
+                  launch as soon as it is approved.
+                </p>
+              </Alert>
+            )}
+            {status.draft &&
+              (showLaunchDraftToReview ? (
+                <FormLaunchDraftToReview
+                  {...{
+                    isLoading: loading,
+                    onSubmit: onLaunchClicked,
+                    onCancel: toggleShowLaunchDraftToReview,
+                    onLaunchToPreview: onLaunchToPreviewClicked,
+                  }}
+                />
+              ) : (
+                <FormLaunchDraftToPreview
+                  {...{
+                    isLoading: loading,
+                    onSubmit: onLaunchToPreviewClicked,
+                    onLaunchWithoutPreview: toggleShowLaunchDraftToReview,
+                  }}
+                />
+              ))}
+            {status.preview && (
+              <FormLaunchPreviewToReview
+                {...{
+                  isLoading: loading,
+                  onSubmit: onLaunchClicked,
+                  onBackToDraft: onBackToDraftClicked,
+                }}
+              />
+            )}
+            <Summary {...{ experiment }} />
           </>
         );
       }}

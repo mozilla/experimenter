@@ -240,7 +240,10 @@ class NimbusStatusRestrictionMixin:
             NimbusExperiment.Status.PREVIEW,
             NimbusExperiment.Status.REVIEW,
         ),
-        NimbusExperiment.Status.PREVIEW: (NimbusExperiment.Status.DRAFT,),
+        NimbusExperiment.Status.PREVIEW: (
+            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.REVIEW,
+        ),
     }
 
     def validate(self, data):
@@ -384,8 +387,15 @@ class NimbusExperimentSerializer(
         ]
 
     def __init__(self, instance=None, data=None, **kwargs):
-        self.should_call_preview_task = (
-            data.get("status") == NimbusExperiment.Status.PREVIEW
+        self.should_call_preview_task = instance and (
+            (
+                instance.status == NimbusExperiment.Status.DRAFT
+                and data.get("status") == NimbusExperiment.Status.PREVIEW
+            )
+            or (
+                instance.status == NimbusExperiment.Status.PREVIEW
+                and data.get("status") == NimbusExperiment.Status.DRAFT
+            )
         )
         super().__init__(instance=instance, data=data, **kwargs)
 

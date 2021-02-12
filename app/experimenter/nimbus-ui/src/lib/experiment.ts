@@ -10,29 +10,35 @@ export function getStatus(
   experiment?: getExperiment_experimentBySlug | getAllExperiments_experiments,
 ) {
   const status = experiment?.status;
-  const released = status
-    ? [NimbusExperimentStatus.LIVE, NimbusExperimentStatus.COMPLETE].includes(
-        status,
-      )
-    : false;
+
+  // The experiment is in review or accepted state
+  const preparation = [
+    NimbusExperimentStatus.REVIEW,
+    NimbusExperimentStatus.ACCEPTED,
+  ].includes(status!);
+
+  // The experiment is or was out in the wild (live or complete)
+  const released = [
+    NimbusExperimentStatus.LIVE,
+    NimbusExperimentStatus.COMPLETE,
+  ].includes(status!);
+
+  // The experiment's fields generally cannot be updated (preview, accepted, live, or complete)
+  const locked =
+    released ||
+    [NimbusExperimentStatus.PREVIEW, NimbusExperimentStatus.ACCEPTED].includes(
+      status!,
+    );
 
   return {
     draft: status === NimbusExperimentStatus.DRAFT,
-    // @ts-ignore EXP-866 mock value until backend API & types are updated
-    preview: status === "PREVIEW",
+    preview: status === NimbusExperimentStatus.PREVIEW,
     review: status === NimbusExperimentStatus.REVIEW,
     accepted: status === NimbusExperimentStatus.ACCEPTED,
     live: status === NimbusExperimentStatus.LIVE,
     complete: status === NimbusExperimentStatus.COMPLETE,
-    // The experiment's fields generally cannot be updated (accepted, live, or complete)
-    locked: released || status === NimbusExperimentStatus.ACCEPTED,
-    // The experiment is in review, preview, or accepted state
-    preparation: [
-      NimbusExperimentStatus.REVIEW,
-      "PREVIEW", // EXP-866 mock value until backend API & types are updated
-      NimbusExperimentStatus.ACCEPTED,
-    ].includes(status!),
-    // The experiment is or was out in the wild (live or complete)
+    locked,
+    preparation,
     released,
   };
 }
