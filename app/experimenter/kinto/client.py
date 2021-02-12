@@ -18,24 +18,37 @@ class KintoClient:
         self.kinto_http_client.create_record(
             data=data,
             collection=self.collection,
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
             if_not_exists=True,
         )
         self.kinto_http_client.patch_collection(
             id=self.collection,
             data={"status": KINTO_REVIEW_STATUS},
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+    def update_record(self, data):
+        self.kinto_http_client.update_record(
+            data=data,
+            collection=self.collection,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            if_match='"0"',
+        )
+        self.kinto_http_client.patch_collection(
+            id=self.collection,
+            data={"status": KINTO_REVIEW_STATUS},
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
 
     def has_pending_review(self):
         collection = self.kinto_http_client.get_collection(
-            id=self.collection, bucket=settings.KINTO_BUCKET
+            id=self.collection, bucket=settings.KINTO_BUCKET_WORKSPACE
         )
         return collection["data"]["status"] == KINTO_REVIEW_STATUS
 
     def get_rejected_collection_data(self):
         collection = self.kinto_http_client.get_collection(
-            id=self.collection, bucket=settings.KINTO_BUCKET
+            id=self.collection, bucket=settings.KINTO_BUCKET_WORKSPACE
         )
 
         if collection["data"]["status"] == KINTO_REJECTED_STATUS:
@@ -47,7 +60,7 @@ class KintoClient:
         )
 
         workspace_records = self.kinto_http_client.get_records(
-            bucket=settings.KINTO_BUCKET, collection=self.collection
+            bucket=settings.KINTO_BUCKET_WORKSPACE, collection=self.collection
         )
 
         main_record_ids = [record["id"] for record in main_records]
@@ -59,7 +72,7 @@ class KintoClient:
         self.kinto_http_client.patch_collection(
             id=self.collection,
             data={"status": KINTO_ROLLBACK_STATUS},
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
 
     def get_main_records(self):
@@ -71,10 +84,10 @@ class KintoClient:
         self.kinto_http_client.delete_record(
             id=id,
             collection=self.collection,
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
         self.kinto_http_client.patch_collection(
             id=self.collection,
             data={"status": KINTO_REVIEW_STATUS},
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
         )

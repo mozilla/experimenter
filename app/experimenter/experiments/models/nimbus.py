@@ -145,11 +145,23 @@ class NimbusExperiment(NimbusConstants, models.Model):
             return end_changelog.get().changed_on
 
     @property
-    def proposed_end_date(self):
+    def proposed_enrollment_end_date(self):
         if self.start_date and self.proposed_enrollment:
+            return (
+                self.start_date + datetime.timedelta(days=self.proposed_enrollment)
+            ).date()
+
+    @property
+    def proposed_end_date(self):
+        if self.start_date and self.proposed_duration:
             return (
                 self.start_date + datetime.timedelta(days=self.proposed_duration)
             ).date()
+
+    @property
+    def should_pause(self):
+        if self.proposed_enrollment_end_date:
+            return datetime.date.today() >= self.proposed_enrollment_end_date
 
     @property
     def should_end(self):

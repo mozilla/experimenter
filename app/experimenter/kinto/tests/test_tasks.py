@@ -31,7 +31,7 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
             collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
             if_not_exists=True,
         )
 
@@ -48,7 +48,7 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
             collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
             if_not_exists=True,
         )
 
@@ -151,7 +151,7 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
             data={"status": KINTO_ROLLBACK_STATUS},
         )
 
@@ -199,7 +199,7 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
             data={"status": KINTO_ROLLBACK_STATUS},
         )
 
@@ -437,11 +437,139 @@ class TestEndExperimentInKinto(MockKintoClientMixin, TestCase):
         self.mock_kinto_client.delete_record.assert_called_with(
             id=experiment.slug,
             collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
             data={"status": KINTO_REVIEW_STATUS},
         )
+
+
+class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
+    def test_ignores_unpaused_experiment_with_isEnrollmentPaused_false(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_paused=False,
+        )
+        changes_count = experiment.changes.count()
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": False}
+        ]
+
+        tasks.nimbus_check_experiments_are_paused()
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertFalse(experiment.is_paused)
+        self.assertEqual(experiment.changes.count(), changes_count)
+
+    def test_updates_unpaused_experiment_with_isEnrollmentPaused_true(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_paused=False,
+        )
+        changes_count = experiment.changes.count()
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": True}
+        ]
+
+        tasks.nimbus_check_experiments_are_paused()
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertTrue(experiment.is_paused)
+        self.assertEqual(experiment.changes.count(), changes_count + 1)
+
+    def test_ignores_paused_experiment_with_isEnrollmentPaused_true(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_paused=True,
+        )
+        changes_count = experiment.changes.count()
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": True}
+        ]
+
+        tasks.nimbus_check_experiments_are_paused()
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertTrue(experiment.is_paused)
+        self.assertEqual(experiment.changes.count(), changes_count)
+
+
+class TestNimbusUpdatePausedExperimentsInKinto(MockKintoClientMixin, TestCase):
+    def test_ignores_experiments_before_pause_dat(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE, proposed_enrollment=10
+        )
+
+        self.setup_kinto_get_main_records([experiment.slug])
+
+        tasks.nimbus_update_paused_experiments_in_kinto()
+
+        self.mock_kinto_client.update_record.assert_not_called()
+        self.mock_kinto_client.patch_collection.assert_not_called()
+
+    def test_updates_experiment_record_after_pause_date_with_isEnrollmentPaused_false(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            proposed_enrollment=10,
+        )
+        launch_change = experiment.changes.get(
+            old_status=NimbusExperiment.Status.ACCEPTED,
+            new_status=NimbusExperiment.Status.LIVE,
+        )
+        launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
+        launch_change.save()
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": False}
+        ]
+
+        tasks.nimbus_update_paused_experiments_in_kinto()
+
+        self.mock_kinto_client.update_record.assert_called_with(
+            data={"id": experiment.slug, "isEnrollmentPaused": True},
+            collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            if_match='"0"',
+        )
+
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            data={"status": KINTO_REVIEW_STATUS},
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+    def test_ignores_experiment_record_after_pause_date_with_isEnrollmentPaused_true(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            proposed_enrollment=10,
+        )
+        launch_change = experiment.changes.get(
+            old_status=NimbusExperiment.Status.ACCEPTED,
+            new_status=NimbusExperiment.Status.LIVE,
+        )
+        launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
+        launch_change.save()
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": True}
+        ]
+
+        tasks.nimbus_update_paused_experiments_in_kinto()
+
+        self.mock_kinto_client.update_record.assert_not_called()
+        self.mock_kinto_client.patch_collection.assert_not_called()
