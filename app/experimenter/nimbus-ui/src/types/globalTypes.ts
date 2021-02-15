@@ -62,6 +62,7 @@ export enum NimbusExperimentStatus {
   COMPLETE = "COMPLETE",
   DRAFT = "DRAFT",
   LIVE = "LIVE",
+  PREVIEW = "PREVIEW",
   REVIEW = "REVIEW",
 }
 

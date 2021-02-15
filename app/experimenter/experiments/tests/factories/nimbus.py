@@ -139,6 +139,10 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         experiment = cls.create(**kwargs)
 
         for status, _ in NimbusExperiment.Status.choices:
+            if status == NimbusExperiment.Status.PREVIEW and status != target_status:
+                # HACK: exclude PREVIEW status from the usual mock sequence
+                continue
+
             experiment.status = status
             experiment.save()
 

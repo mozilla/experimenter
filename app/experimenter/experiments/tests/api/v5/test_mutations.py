@@ -683,9 +683,8 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(
             result["message"],
             {
-                "experiment": [
-                    "Nimbus Experiment has status 'Accepted', but can only be "
-                    "changed when set to 'Draft'."
+                "status": [
+                    "Nimbus Experiment status cannot transition from Accepted to Review."
                 ]
             },
         )
