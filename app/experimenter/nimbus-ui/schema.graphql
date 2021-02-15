@@ -147,6 +147,7 @@ type NimbusExperimentOwner {
 
 enum NimbusExperimentStatus {
   DRAFT
+  PREVIEW
   REVIEW
   ACCEPTED
   LIVE
