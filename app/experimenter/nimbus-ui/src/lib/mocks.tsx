@@ -36,7 +36,6 @@ import {
   NimbusDocumentationLinkTitle,
   NimbusExperimentStatus,
   NimbusFeatureConfigApplication,
-  NimbusProbeKind,
 } from "../types/globalTypes";
 import { getStatus } from "./experiment";
 
@@ -112,45 +111,18 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   probeSets: [
     {
       __typename: "NimbusProbeSetType",
-      id: "1",
       name: "Probe Set A",
       slug: "probe-set-a",
-      probes: [
-        {
-          __typename: "NimbusProbeType",
-          id: "1",
-          kind: NimbusProbeKind.EVENT,
-          name: "Public-key intangible Graphical User Interface",
-          eventCategory: "persevering-intangible-productivity",
-          eventMethod: "monitored-system-worthy-core",
-          eventObject: "ameliorated-uniform-protocol",
-          eventValue: "front-line-5thgeneration-product",
-        },
-        {
-          __typename: "NimbusProbeType",
-          id: "2",
-          kind: NimbusProbeKind.SCALAR,
-          name: "Total didactic moderator",
-          eventCategory: "horizontal-bifurcated-attitude",
-          eventMethod: "optimized-homogeneous-system-engine",
-          eventObject: "virtual-discrete-customer-loyalty",
-          eventValue: "automated-national-infrastructure",
-        },
-      ],
     },
     {
       __typename: "NimbusProbeSetType",
-      id: "2",
       name: "Probe Set B",
       slug: "probe-set-b",
-      probes: [],
     },
     {
       __typename: "NimbusProbeSetType",
-      id: "3",
       name: "Probe Set C",
       slug: "probe-set-c",
-      probes: [],
     },
   ],
   targetingConfigSlug: [
@@ -325,7 +297,6 @@ export function mockExperimentQuery<
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
-          id: "1",
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
@@ -333,7 +304,6 @@ export function mockExperimentQuery<
       secondaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
-          id: "2",
           slug: "feature_b",
           name: "Feature B",
         },

@@ -5,13 +5,13 @@
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useRef } from "react";
-import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { useConfig } from "../../hooks";
 import { EXTERNAL_URLS } from "../../lib/constants";
 import { editCommonRedirects } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
-import { updateExperimentBranches_updateExperiment as UpdateExperimentBranchesResult } from "../../types/updateExperimentBranches";
+import { updateExperiment_updateExperiment as UpdateExperimentBranchesResult } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
 import FormBranches from "./FormBranches";
@@ -25,7 +25,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   const [updateExperimentBranches, { loading }] = useMutation<
     { updateExperiment: UpdateExperimentBranchesResult },
     { input: ExperimentInput }
-  >(UPDATE_EXPERIMENT_BRANCHES_MUTATION);
+  >(UPDATE_EXPERIMENT_MUTATION);
 
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
   const refetchReview = useRef<() => void>();

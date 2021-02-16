@@ -16,130 +16,19 @@ CREATE_EXPERIMENT_MUTATION = """\
 mutation($input: ExperimentInput!) {
     createExperiment(input: $input) {
         nimbusExperiment {
-            name
-            hypothesis
-            application
+            slug
         }
         message
-        status
     }
 }
 """
 
 
-UPDATE_EXPERIMENT_OVERVIEW_MUTATION = """\
+UPDATE_EXPERIMENT_MUTATION = """\
 mutation($input: ExperimentInput!) {
     updateExperiment(input: $input) {
-        nimbusExperiment {
-            id
-            name
-            hypothesis
-            publicDescription
-            riskMitigationLink
-        }
         message
-        status
     }
-}
-"""
-
-
-UPDATE_EXPERIMENT_DOCUMENTATION_LINKS_MUTATION = """\
-mutation ($input: ExperimentInput !) {
-  updateExperiment(input: $input){
-    nimbusExperiment {
-      id
-      status
-      name
-      slug
-      documentationLinks {
-        title
-        link
-      }
-    }
-    message
-    status
-  }
-}
-"""
-
-
-UPDATE_EXPERIMENT_BRANCHES_MUTATION = """\
-mutation ($input: ExperimentInput !) {
-  updateExperiment(input: $input){
-    nimbusExperiment {
-      id
-      featureConfig {
-        name
-      }
-      status
-      name
-      slug
-      referenceBranch {
-        name
-        description
-        ratio
-      }
-      treatmentBranches {
-        name
-        description
-        ratio
-      }
-    }
-    message
-    status
-  }
-}
-"""
-
-
-UPDATE_EXPERIMENT_PROBESETS_MUTATION = """\
-mutation ($input: ExperimentInput!) {
-  updateExperiment(input: $input){
-    nimbusExperiment {
-      id
-      primaryProbeSets {
-        slug
-      }
-      secondaryProbeSets {
-        slug
-      }
-    }
-    message
-    status
-  }
-}
-"""
-
-UPDATE_EXPERIMENT_AUDIENCE_MUTATION = """\
-mutation ($input: ExperimentInput!){
-  updateExperiment(input: $input){
-    nimbusExperiment {
-      id
-      totalEnrolledClients
-      channel
-      firefoxMinVersion
-      populationPercent
-      proposedDuration
-      proposedEnrollment
-      targetingConfigSlug
-    }
-    message
-    status
-  }
-}
-"""
-
-UPDATE_EXPERIMENT_STATUS_MUTATION = """\
-mutation ($input: ExperimentInput!){
-  updateExperiment(input: $input){
-    nimbusExperiment {
-      id
-      status
-    }
-    message
-    status
-  }
 }
 """
 
@@ -147,12 +36,7 @@ mutation ($input: ExperimentInput!){
 END_EXPERIMENT_MUTATION = """\
 mutation ($input: ExperimentIdInput!){
   endExperiment(input: $input){
-    nimbusExperiment {
-      id
-      isEndRequested
-    }
     message
-    status
   }
 }
 """
@@ -178,21 +62,12 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         result = content["data"]["createExperiment"]
-        experiment = result["nimbusExperiment"]
-        self.assertEqual(
-            experiment,
-            {
-                "name": "Test 1234",
-                "hypothesis": "Test hypothesis",
-                "application": "DESKTOP",
-            },
-        )
-
         self.assertEqual(result["message"], "success")
-        self.assertEqual(result["status"], 200)
 
-        exp = NimbusExperiment.objects.first()
-        self.assertEqual(exp.slug, "test-1234")
+        experiment = NimbusExperiment.objects.first()
+        self.assertEqual(experiment.name, "Test 1234")
+        self.assertEqual(experiment.slug, "test-1234")
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
 
     def test_create_experiment_error(self):
         user_email = "user@example.com"
@@ -211,13 +86,10 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         result = content["data"]["createExperiment"]
-        self.assertEqual(result["nimbusExperiment"], None)
-
         self.assertEqual(
             result["message"],
             {"name": ["Ensure this field has no more than 255 characters."]},
         )
-        self.assertEqual(result["status"], 200)
 
     def test_update_experiment_overview(self):
         user_email = "user@example.com"
@@ -229,7 +101,7 @@ class TestMutations(GraphQLTestCase):
             public_description="old public description",
         )
         response = self.query(
-            UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -244,33 +116,21 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]
-        experiment_result = result["nimbusExperiment"]
-        self.assertEqual(
-            experiment_result,
-            {
-                "id": experiment.id,
-                "name": "new name",
-                "hypothesis": "new hypothesis",
-                "publicDescription": "new public description",
-                "riskMitigationLink": "https://example.com/risk",
-            },
-        )
-
         self.assertEqual(result["message"], "success")
-        self.assertEqual(result["status"], 200)
 
         experiment = NimbusExperiment.objects.first()
         self.assertEqual(experiment.slug, "old slug")
         self.assertEqual(experiment.name, "new name")
         self.assertEqual(experiment.hypothesis, "new hypothesis")
         self.assertEqual(experiment.public_description, "new public description")
+        self.assertEqual(experiment.risk_mitigation_link, "https://example.com/risk")
 
     def test_update_experiment_error(self):
         user_email = "user@example.com"
         long_name = "test" * 1000
         experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
         response = self.query(
-            UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -284,8 +144,6 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]
-        self.assertEqual(result["nimbusExperiment"], None)
-
         self.assertEqual(
             result["message"],
             {
@@ -293,7 +151,6 @@ class TestMutations(GraphQLTestCase):
                 "risk_mitigation_link": ["Enter a valid URL."],
             },
         )
-        self.assertEqual(result["status"], 200)
 
     def test_update_experiment_documentation_links(self):
         user_email = "user@example.com"
@@ -316,7 +173,7 @@ class TestMutations(GraphQLTestCase):
         ]
 
         response = self.query(
-            UPDATE_EXPERIMENT_DOCUMENTATION_LINKS_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -327,18 +184,6 @@ class TestMutations(GraphQLTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        result = content["data"]["updateExperiment"]
-        self.assertEqual(
-            result["nimbusExperiment"],
-            {
-                "id": experiment.id,
-                "status": experiment.status.upper(),
-                "name": experiment.name,
-                "slug": experiment.slug,
-                "documentationLinks": documentation_links,
-            },
-        )
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         experiment_links = experiment.documentation_links.all()
@@ -358,7 +203,7 @@ class TestMutations(GraphQLTestCase):
         )
         branch_count = experiment.branches.count()
         response = self.query(
-            UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -373,7 +218,6 @@ class TestMutations(GraphQLTestCase):
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]
         self.assertEqual(result["message"], "success")
-        self.assertEqual(result["status"], 200)
 
         experiment = NimbusExperiment.objects.first()
         self.assertEqual(experiment.branches.count(), branch_count)
@@ -386,7 +230,7 @@ class TestMutations(GraphQLTestCase):
         expected_feature_config = experiment.feature_config
 
         response = self.query(
-            UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -401,7 +245,6 @@ class TestMutations(GraphQLTestCase):
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]
         self.assertEqual(result["message"], "success")
-        self.assertEqual(result["status"], 200)
 
         experiment = NimbusExperiment.objects.first()
         self.assertEqual(experiment.feature_config, expected_feature_config)
@@ -414,7 +257,7 @@ class TestMutations(GraphQLTestCase):
         reference_branch = {"name": "control", "description": "a control", "ratio": 1}
         treatment_branches = [{"name": "treatment1", "description": "desc1", "ratio": 1}]
         response = self.query(
-            UPDATE_EXPERIMENT_BRANCHES_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -426,20 +269,7 @@ class TestMutations(GraphQLTestCase):
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        result = content["data"]["updateExperiment"]
-        self.assertEqual(
-            result["nimbusExperiment"],
-            {
-                "id": experiment.id,
-                "featureConfig": {"name": feature.name},
-                "status": experiment.status.upper(),
-                "name": experiment.name,
-                "slug": experiment.slug,
-                "referenceBranch": reference_branch,
-                "treatmentBranches": treatment_branches,
-            },
-        )
+
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertEqual(experiment.feature_config, feature)
         self.assertEqual(experiment.branches.count(), 2)
@@ -455,7 +285,7 @@ class TestMutations(GraphQLTestCase):
         # The NimbusExperimentFactory always creates a single feature config.
         self.assertEqual(NimbusFeatureConfig.objects.count(), 1)
         response = self.query(
-            UPDATE_EXPERIMENT_BRANCHES_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -481,7 +311,7 @@ class TestMutations(GraphQLTestCase):
             status=NimbusExperiment.Status.DRAFT, probe_sets=[]
         )
         response = self.query(
-            UPDATE_EXPERIMENT_PROBESETS_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -492,20 +322,7 @@ class TestMutations(GraphQLTestCase):
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        result = content["data"]["updateExperiment"]
-        self.assertEqual(
-            result["nimbusExperiment"],
-            {
-                "id": experiment.id,
-                "primaryProbeSets": [
-                    {"slug": str(probe_set.slug)} for probe_set in probe_sets[:2]
-                ],
-                "secondaryProbeSets": [
-                    {"slug": str(probe_set.slug)} for probe_set in probe_sets[2:]
-                ],
-            },
-        )
+
         experiment = NimbusExperiment.objects.get(slug=experiment.slug)
         self.assertEqual(set(experiment.probe_sets.all()), set(probe_sets))
         # These must be compared as lists to ensure ordering is retained.
@@ -518,7 +335,7 @@ class TestMutations(GraphQLTestCase):
             status=NimbusExperiment.Status.DRAFT, probe_sets=[]
         )
         response = self.query(
-            UPDATE_EXPERIMENT_PROBESETS_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -553,8 +370,8 @@ class TestMutations(GraphQLTestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
         )
-        response = self.query(
-            UPDATE_EXPERIMENT_AUDIENCE_MUTATION,
+        self.query(
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -571,21 +388,7 @@ class TestMutations(GraphQLTestCase):
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        content = json.loads(response.content)
-        result = content["data"]["updateExperiment"]
-        self.assertEqual(
-            result["nimbusExperiment"],
-            {
-                "id": experiment.id,
-                "channel": NimbusConstants.Channel.BETA.name,
-                "firefoxMinVersion": NimbusConstants.Version.FIREFOX_83.name,
-                "populationPercent": "10.0000",
-                "proposedDuration": 42,
-                "proposedEnrollment": 120,
-                "targetingConfigSlug": NimbusConstants.TargetingConfig.ALL_ENGLISH.name,
-                "totalEnrolledClients": 100,
-            },
-        )
+
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA.value)
         self.assertEqual(
@@ -613,7 +416,7 @@ class TestMutations(GraphQLTestCase):
             total_enrolled_clients=0,
         )
         response = self.query(
-            UPDATE_EXPERIMENT_AUDIENCE_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -640,7 +443,7 @@ class TestMutations(GraphQLTestCase):
             status=NimbusExperiment.Status.DRAFT,
         )
         response = self.query(
-            UPDATE_EXPERIMENT_STATUS_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -650,15 +453,7 @@ class TestMutations(GraphQLTestCase):
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        result = content["data"]["updateExperiment"]
-        self.assertEqual(
-            result["nimbusExperiment"],
-            {
-                "id": experiment.id,
-                "status": NimbusExperiment.Status.REVIEW.name,
-            },
-        )
+
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.status, NimbusExperiment.Status.REVIEW)
 
@@ -668,7 +463,7 @@ class TestMutations(GraphQLTestCase):
             status=NimbusExperiment.Status.ACCEPTED,
         )
         response = self.query(
-            UPDATE_EXPERIMENT_STATUS_MUTATION,
+            UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
@@ -704,16 +499,6 @@ class TestMutations(GraphQLTestCase):
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200, response.content)
-
-        content = json.loads(response.content)
-        result = content["data"]["endExperiment"]
-        self.assertEqual(
-            result["nimbusExperiment"],
-            {
-                "id": experiment.id,
-                "isEndRequested": True,
-            },
-        )
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.is_end_requested, True)

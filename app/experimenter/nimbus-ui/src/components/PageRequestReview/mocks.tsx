@@ -4,7 +4,7 @@
 
 import React from "react";
 import PageRequestReview from ".";
-import { UPDATE_EXPERIMENT_STATUS_MUTATION } from "../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { MockConfigContext } from "../../hooks";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
@@ -14,7 +14,7 @@ export const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 export function createMutationMock(id: number) {
   return mockExperimentMutation(
-    UPDATE_EXPERIMENT_STATUS_MUTATION,
+    UPDATE_EXPERIMENT_MUTATION,
     {
       id,
       status: NimbusExperimentStatus.REVIEW,
