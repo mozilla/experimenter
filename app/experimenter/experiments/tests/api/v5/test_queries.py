@@ -237,17 +237,18 @@ class TestNimbusQuery(GraphQLTestCase):
         experiment = content["data"]["experimentBySlug"]
         self.assertIsNone(experiment)
 
-    def test_experiment_targeting_config_targeting(self):
+    def test_experiment_jexl_targeting_expression(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            application=NimbusExperiment.Application.DESKTOP,
         )
         response = self.query(
             """
             query experimentBySlug($slug: String!) {
                 experimentBySlug(slug: $slug) {
-                    targetingConfigTargeting
+                    jexlTargetingExpression
                 }
             }
             """,
@@ -257,24 +258,20 @@ class TestNimbusQuery(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
-        expected_targeting_config = NimbusExperiment.TARGETING_CONFIGS[
-            experiment.targeting_config_slug
-        ]
-        self.assertEqual(
-            experiment_data["targetingConfigTargeting"],
-            expected_targeting_config.targeting,
-        )
+        self.assertEqual(experiment_data["jexlTargetingExpression"], experiment.targeting)
 
-    def test_experiment_no_targeting_config_targeting(self):
+    def test_experiment_no_jexl_targeting_expression(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT, targeting_config_slug=""
+            NimbusExperiment.Status.DRAFT,
+            targeting_config_slug="",
+            application=NimbusExperiment.Application.FENIX,
         )
         response = self.query(
             """
             query experimentBySlug($slug: String!) {
                 experimentBySlug(slug: $slug) {
-                    targetingConfigTargeting
+                    jexlTargetingExpression
                 }
             }
             """,
@@ -285,8 +282,8 @@ class TestNimbusQuery(GraphQLTestCase):
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
-            experiment_data["targetingConfigTargeting"],
-            "",
+            experiment_data["jexlTargetingExpression"],
+            None,
         )
 
     def test_nimbus_config(self):

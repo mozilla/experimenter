@@ -110,11 +110,11 @@ describe("TableAudience", () => {
       render(<Subject {...{ experiment }} />);
       expect(
         screen.getByTestId("experiment-target-expression"),
-      ).toHaveTextContent(experiment.targetingConfigTargeting!);
+      ).toHaveTextContent(experiment.jexlTargetingExpression!);
     });
-    it("when targetingConfigTargeting is empty", () => {
+    it("when jexlTargetingExpression is empty", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        targetingConfigTargeting: "",
+        jexlTargetingExpression: "",
       });
       render(<Subject {...{ experiment }} />);
       expect(

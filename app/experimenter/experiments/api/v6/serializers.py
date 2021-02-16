@@ -65,7 +65,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     bucketConfig = NimbusBucketRangeSerializer(source="bucket_range")
     probeSets = serializers.SerializerMethodField()
     branches = NimbusBranchSerializer(many=True)
-    targeting = serializers.SerializerMethodField()
     startDate = serializers.DateTimeField(source="start_date")
     endDate = serializers.DateTimeField(source="end_date")
     proposedDuration = serializers.ReadOnlyField(source="proposed_duration")
@@ -131,33 +130,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     def get_referenceBranch(self, obj):
         if obj.reference_branch:
             return obj.reference_branch.slug
-
-    def get_targeting(self, obj):
-        exprs = []
-
-        if obj.is_desktop_experiment:
-            if obj.channel:
-                exprs.append(
-                    NimbusExperiment.TARGETING_CHANNEL.format(channel=obj.channel)
-                )
-            if obj.firefox_min_version:
-                exprs.append(
-                    NimbusExperiment.TARGETING_VERSION.format(
-                        version=obj.firefox_min_version
-                    )
-                )
-
-        if obj.targeting_config:
-            exprs.append(obj.targeting_config.targeting.format(experiment=obj))
-
-        # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
-        if obj.is_desktop_experiment:
-            exprs.append("'app.shield.optoutstudies.enabled'|preferenceValue")
-
-        if len(exprs) == 0:
-            return None
-
-        return " && ".join(exprs)
 
     def get_featureIds(self, obj):
         if obj.feature_config:

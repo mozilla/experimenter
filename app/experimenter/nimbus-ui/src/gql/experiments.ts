@@ -176,7 +176,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       channel
       firefoxMinVersion
       targetingConfigSlug
-      targetingConfigTargeting
+      jexlTargetingExpression
 
       populationPercent
       totalEnrolledClients

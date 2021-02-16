@@ -341,7 +341,7 @@ export function mockExperimentQuery<
       channel: "NIGHTLY",
       firefoxMinVersion: "FIREFOX_83",
       targetingConfigSlug: "US_ONLY",
-      targetingConfigTargeting: "localeLanguageCode == 'en' && region == 'US'",
+      jexlTargetingExpression: "localeLanguageCode == 'en' && region == 'US'",
       populationPercent: "40",
       totalEnrolledClients: 68000,
       proposedEnrollment: 1,
