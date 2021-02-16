@@ -231,6 +231,17 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["targeting"], experiment.targeting)
+        check_schema("experiments/NimbusExperiment", serializer.data)
+
+    def test_serializer_outputs_empty_targeting(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.ACCEPTED,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.FENIX,
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertTrue("targeting" not in serializer.data)
+        check_schema("experiments/NimbusExperiment", serializer.data)
 
 
 class TestNimbusProbeSetSerializer(TestCase):
