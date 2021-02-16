@@ -221,7 +221,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
         check_schema("experiments/NimbusExperiment", serializer.data)
 
-    def test_serializer_outputs_targeting_for_experiment_without_channels(self):
+    def test_serializer_outputs_targeting(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
@@ -229,79 +229,18 @@ class TestNimbusExperimentSerializer(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
-
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(
-            serializer.data["targeting"],
-            (
-                "version|versionCompare('83.!') >= 0 "
-                "&& localeLanguageCode == 'en' "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
-            ),
-        )
+        self.assertEqual(serializer.data["targeting"], experiment.targeting)
         check_schema("experiments/NimbusExperiment", serializer.data)
 
-    def test_serializer_outputs_expected_targeting_for_mobile(self):
+    def test_serializer_outputs_empty_targeting(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
-            application=NimbusExperiment.Application.FENIX,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-        )
-
-        serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(serializer.data["targeting"], "localeLanguageCode == 'en'")
-        check_schema("experiments/NimbusExperiment", serializer.data)
-
-    def test_serializer_outputs_empty_targeting_for_mobile_without_targeting(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
-
         serializer = NimbusExperimentSerializer(experiment)
         self.assertTrue("targeting" not in serializer.data)
-        check_schema("experiments/NimbusExperiment", serializer.data)
-
-    def test_serializer_outputs_targeting_for_experiment_without_firefox_min_version(
-        self,
-    ):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
-            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
-            application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.NIGHTLY,
-        )
-
-        serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(
-            serializer.data["targeting"],
-            (
-                'browserSettings.update.channel == "nightly" '
-                "&& localeLanguageCode == 'en' "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
-            ),
-        )
-        check_schema("experiments/NimbusExperiment", serializer.data)
-
-    def test_serializer_outputs_targeting_without_channel_version_targeting(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
-            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-        )
-        serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(
-            serializer.data["targeting"],
-            "'app.shield.optoutstudies.enabled'|preferenceValue",
-        )
         check_schema("experiments/NimbusExperiment", serializer.data)
 
 

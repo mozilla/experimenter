@@ -65,14 +65,14 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
             </td>
           </tr>
         )}
-        {experiment.targetingConfigTargeting !== "" && (
+        {experiment.jexlTargetingExpression !== "" && (
           <tr>
             <th>Full targeting expression</th>
             <td
               data-testid="experiment-target-expression"
               className="text-monospace"
             >
-              {experiment.targetingConfigTargeting}
+              {experiment.jexlTargetingExpression}
             </td>
           </tr>
         )}
