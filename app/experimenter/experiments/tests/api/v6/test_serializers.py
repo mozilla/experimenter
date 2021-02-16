@@ -240,7 +240,7 @@ class TestNimbusExperimentSerializer(TestCase):
             application=NimbusExperiment.Application.FENIX,
         )
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertTrue("targeting" not in serializer.data)
+        self.assertEqual(serializer.data["targeting"], "true")
         check_schema("experiments/NimbusExperiment", serializer.data)
 
 

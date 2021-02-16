@@ -60,7 +60,7 @@ class TestNimbusExperiment(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
 
-        self.assertEqual(experiment.targeting, None)
+        self.assertEqual(experiment.targeting, "true")
 
     def test_targeting_without_firefox_min_version(
         self,

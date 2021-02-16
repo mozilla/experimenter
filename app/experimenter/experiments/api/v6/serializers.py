@@ -98,17 +98,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "featureIds",
         )
 
-    def to_representation(self, instance):
-        representation = super(NimbusExperimentSerializer, self).to_representation(
-            instance
-        )
-
-        # issue #4542: remove targeting altogether, if it's None
-        if representation["targeting"] is None:
-            representation.pop("targeting")
-
-        return representation
-
     def get_application(self, obj):
         return self.get_appId(obj)
 
