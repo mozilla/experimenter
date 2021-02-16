@@ -230,10 +230,7 @@ class TestNimbusExperimentSerializer(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(
-            serializer.data["targeting"],
-            experiment.targeting
-        )
+        self.assertEqual(serializer.data["targeting"], experiment.targeting)
 
 
 class TestNimbusProbeSetSerializer(TestCase):
