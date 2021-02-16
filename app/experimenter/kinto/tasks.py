@@ -48,6 +48,8 @@ def nimbus_push_experiment_to_kinto(experiment_id):
         experiment.status = NimbusExperiment.Status.ACCEPTED
         experiment.save()
 
+        generate_nimbus_changelog(experiment, get_kinto_user())
+
         logger.info(f"{experiment} pushed to Kinto")
         metrics.incr("push_experiment_to_kinto.completed")
     except Exception as e:
