@@ -18,7 +18,9 @@ from experimenter.kinto.tests.mixins import MockKintoClientMixin
 
 
 class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
-    def test_push_experiment_to_kinto_sends_desktop_experiment_data(self):
+    def test_push_experiment_to_kinto_sends_desktop_experiment_data_and_sets_accepted(
+        self,
+    ):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.REVIEW,
             application=NimbusExperiment.Application.DESKTOP,
@@ -33,6 +35,15 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.KINTO_BUCKET,
             if_not_exists=True,
+        )
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.ACCEPTED)
+        self.assertTrue(
+            experiment.changes.filter(
+                old_status=NimbusExperiment.Status.REVIEW,
+                new_status=NimbusExperiment.Status.ACCEPTED,
+            ).exists()
         )
 
     def test_push_experiment_to_kinto_sends_fenix_experiment_data(self):
