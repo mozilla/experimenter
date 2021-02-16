@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import Select from "react-select";
@@ -27,8 +27,7 @@ type FormMetricsProps = {
   isServerValid: boolean;
   submitErrors: Record<string, string[]>;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-  onSave: (data: Record<string, any>, reset: Function) => void;
-  onNext: (ev: React.FormEvent) => void;
+  onSave: (data: Record<string, any>, next: boolean) => void;
 };
 
 type ProbeSet =
@@ -53,7 +52,6 @@ const FormMetrics = ({
   submitErrors,
   setSubmitErrors,
   onSave,
-  onNext,
 }: FormMetricsProps) => {
   const { probeSets } = useConfig();
 
@@ -104,7 +102,6 @@ const FormMetrics = ({
     isValid,
     isDirtyUnsaved,
     handleSubmit,
-    reset,
     isSubmitted,
   } = useCommonForm<MetricsFieldName>(
     defaultValues,
@@ -118,29 +115,34 @@ const FormMetrics = ({
     shouldWarnOnExit(isDirtyUnsaved);
   }, [shouldWarnOnExit, isDirtyUnsaved]);
 
-  const handleSubmitAfterValidation = useCallback(() => {
-    if (isLoading) return;
-    onSave(
-      {
-        primaryProbeSetSlugs,
-        secondaryProbeSetSlugs,
-      },
-      reset,
-    );
-  }, [isLoading, onSave, reset, primaryProbeSetSlugs, secondaryProbeSetSlugs]);
-
-  const handleNext = useCallback(
-    (ev: React.FormEvent) => {
-      ev.preventDefault();
-      onNext!(ev);
-    },
-    [onNext],
+  const [handleSave, handleSaveNext] = useMemo(
+    () =>
+      [false, true].map((next) =>
+        handleSubmit(
+          () =>
+            !isLoading &&
+            onSave(
+              {
+                primaryProbeSetSlugs,
+                secondaryProbeSetSlugs,
+              },
+              next,
+            ),
+        ),
+      ),
+    [
+      isLoading,
+      onSave,
+      handleSubmit,
+      primaryProbeSetSlugs,
+      secondaryProbeSetSlugs,
+    ],
   );
 
   return (
     <Form
       noValidate
-      onSubmit={handleSubmit(handleSubmitAfterValidation)}
+      onSubmit={handleSave}
       validated={isSubmitted && isValid}
       data-testid="FormMetrics"
     >
@@ -208,23 +210,22 @@ const FormMetrics = ({
       </Form.Group>
 
       <div className="d-flex flex-row-reverse bd-highlight">
-        {onNext && (
-          <div className="p-2">
-            <button
-              onClick={handleNext}
-              className="btn btn-secondary"
-              disabled={isLoading}
-              data-sb-kind="pages/EditMetrics"
-            >
-              Next
-            </button>
-          </div>
-        )}
+        <div className="p-2">
+          <button
+            onClick={handleSaveNext}
+            data-testid="next-button"
+            className="btn btn-secondary"
+            disabled={isLoading}
+            data-sb-kind="pages/EditMetrics"
+          >
+            Save and Continue
+          </button>
+        </div>
         <div className="p-2">
           <button
             data-testid="submit-button"
             type="submit"
-            onClick={handleSubmit(handleSubmitAfterValidation)}
+            onClick={handleSave}
             className="btn btn-primary"
             disabled={isLoading}
             data-sb-kind="pages/EditMetrics"

@@ -122,7 +122,6 @@ export const SubjectBranches = ({
   experiment = MOCK_EXPERIMENT,
   featureConfig = MOCK_CONFIG.featureConfig,
   onSave = () => {},
-  onNext = () => {},
   saveOnInitialRender = false,
 }: Partial<React.ComponentProps<typeof FormBranches>> & {
   saveOnInitialRender?: boolean;
@@ -145,7 +144,6 @@ export const SubjectBranches = ({
           experiment,
           featureConfig,
           onSave,
-          onNext,
         }}
       />
     </div>

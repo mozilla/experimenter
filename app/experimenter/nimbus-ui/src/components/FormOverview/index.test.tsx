@@ -33,16 +33,6 @@ describe("FormOverview", () => {
     expect(onCancel).toHaveBeenCalled();
   });
 
-  it("calls onNext when next clicked", async () => {
-    const { experiment } = mockExperimentQuery("boo");
-    const onNext = jest.fn();
-    render(<Subject {...{ onNext, experiment }} />);
-
-    const nextButton = screen.getByText("Next");
-    await act(async () => void fireEvent.click(nextButton));
-    expect(onNext).toHaveBeenCalled();
-  });
-
   it("renders initial documentation links", async () => {
     const { experiment } = mockExperimentQuery("boo", {
       documentationLinks: [
@@ -163,7 +153,7 @@ describe("FormOverview", () => {
     const onSubmit = jest.fn();
     render(<Subject {...{ onSubmit }} />);
 
-    const submitButton = screen.getByText("Next");
+    const submitButton = screen.getByTestId("submit-button");
     await act(async () => fillOutNewForm(expected));
     await act(async () => void fireEvent.click(submitButton));
 
@@ -199,9 +189,9 @@ describe("FormOverview", () => {
     ).toBeNull();
   });
 
-  it("with existing experiment data, asserts field values before allowing submit and next", async () => {
+  it("with existing experiment, checks fields and allows saving data", async () => {
     const { experiment } = mockExperimentQuery("boo");
-
+    const onSubmit = jest.fn();
     const expected = {
       name: experiment.name,
       hypothesis: experiment.hypothesis as string,
@@ -210,35 +200,34 @@ describe("FormOverview", () => {
       documentationLinks: experiment.documentationLinks as Record<string, any>,
     };
 
-    const onSubmit = jest.fn();
-    render(<Subject {...{ onSubmit, experiment, onNext: jest.fn() }} />);
-    const submitButton = screen.getByText("Save");
-    const nextButton = screen.getByText("Next");
+    render(<Subject {...{ onSubmit, experiment }} />);
+    const saveButton = screen.getByTestId("submit-button");
+    const nextButton = screen.getByTestId("next-button");
     const nameField = screen.getByLabelText("Public name");
 
-    expect(nextButton).toBeEnabled();
+    checkExistingForm(expected);
 
-    await act(async () => checkExistingForm(expected));
-
-    await act(async () => {
-      fireEvent.change(nameField, { target: { value: "" } });
-      fireEvent.blur(nameField);
-    });
+    fireEvent.change(nameField, { target: { value: "" } });
+    fireEvent.blur(nameField);
 
     // Update the name in the form and expected data
-    const newName = "Name THIS";
-    expected.name = newName;
-    await act(async () => {
-      fireEvent.change(nameField, {
-        target: { value: newName },
-      });
-      fireEvent.blur(nameField);
+    expected.name = "Let's Get Sentimental";
+    fireEvent.change(nameField, {
+      target: { value: expected.name },
     });
-    expect(submitButton).toBeEnabled();
+    fireEvent.blur(nameField);
 
-    await act(async () => void fireEvent.click(submitButton));
-    expect(onSubmit).toHaveBeenCalled();
-    expect(onSubmit.mock.calls[0][0]).toEqual(expected);
+    await act(async () => {
+      fireEvent.click(saveButton);
+      fireEvent.click(nextButton);
+    });
+    expect(onSubmit).toHaveBeenCalledTimes(2);
+    expect(onSubmit.mock.calls).toEqual([
+      // Save button just saves
+      [expected, false],
+      // Next button advances to next page
+      [expected, true],
+    ]);
   });
 
   it("with missing public description, still allows submit", async () => {
@@ -247,7 +236,7 @@ describe("FormOverview", () => {
     const onSubmit = jest.fn();
     render(<Subject {...{ onSubmit, experiment }} />);
     const descriptionField = screen.getByLabelText("Public description");
-    const submitButton = screen.getByText("Save");
+    const submitButton = screen.getByTestId("submit-button");
 
     await act(async () => {
       fireEvent.change(descriptionField, { target: { value: "" } });
@@ -273,7 +262,7 @@ describe("FormOverview", () => {
 
     const onSubmit = jest.fn();
     render(<Subject {...{ experiment, onSubmit }} />);
-    const submitButton = screen.getByText("Save");
+    const submitButton = screen.getByTestId("submit-button");
     const addButton = screen.getByText("+ Add Link");
 
     // Assert that the initial documentation link sets are rendered

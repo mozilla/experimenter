@@ -27,10 +27,13 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   const [isServerValid, setIsServerValid] = useState(true);
 
   const onSave = useCallback(
-    async ({
-      primaryProbeSetSlugs,
-      secondaryProbeSetSlugs,
-    }: Record<string, string[]>) => {
+    async (
+      {
+        primaryProbeSetSlugs,
+        secondaryProbeSetSlugs,
+      }: Record<string, string[]>,
+      next: boolean,
+    ) => {
       try {
         const nimbusExperimentId = currentExperiment.current!.id;
         const result = await updateExperimentProbeSets({
@@ -57,6 +60,10 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
           setSubmitErrors({});
           // In practice this should be defined by the time we get here
           refetchReview.current!();
+
+          if (next) {
+            navigate("audience");
+          }
         }
       } catch (error) {
         setSubmitErrors({ "*": SUBMIT_ERROR });
@@ -64,10 +71,6 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
     },
     [updateExperimentProbeSets, currentExperiment],
   );
-
-  const onNext = useCallback(() => {
-    navigate("audience");
-  }, []);
 
   return (
     <AppLayoutWithExperiment
@@ -102,7 +105,6 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
                 submitErrors,
                 setSubmitErrors,
                 onSave,
-                onNext,
               }}
             />
           </>

@@ -13,7 +13,6 @@ export const Subject = ({
   submitErrors = {},
   onSubmit = () => {},
   onCancel,
-  onNext,
   experiment,
 }: Partial<React.ComponentProps<typeof FormOverview>>) => {
   const [submitErrorsDefault, setSubmitErrors] = useState<Record<string, any>>(
@@ -30,7 +29,6 @@ export const Subject = ({
           setSubmitErrors,
           onSubmit,
           onCancel,
-          onNext,
           experiment,
         }}
       />

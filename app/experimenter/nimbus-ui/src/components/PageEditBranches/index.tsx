@@ -39,6 +39,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
       }: FormBranchesSaveState,
       setSubmitErrors,
       clearSubmitErrors,
+      next: boolean,
     ) => {
       try {
         // issue #3954: Need to parse string IDs into numbers
@@ -64,16 +65,16 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
           return void setSubmitErrors(message);
         }
         clearSubmitErrors();
+
+        if (next) {
+          navigate("metrics");
+        }
       } catch (error) {
         setSubmitErrors({ "*": [error.message] });
       }
     },
     [updateExperimentBranches],
   );
-
-  const onFormNext = useCallback(() => {
-    navigate("metrics");
-  }, []);
 
   return (
     <AppLayoutWithExperiment
@@ -104,7 +105,6 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
                 featureConfig,
                 isLoading: loading,
                 onSave: onFormSave,
-                onNext: onFormNext,
               }}
             />
           </>
