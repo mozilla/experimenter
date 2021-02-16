@@ -14,7 +14,7 @@ import {
 import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditMetrics from ".";
-import { UPDATE_EXPERIMENT_PROBESETS_MUTATION } from "../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { BASE_PATH, EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
@@ -77,7 +77,7 @@ describe("PageEditMetrics", () => {
     };
 
     mutationMock = mockExperimentMutation(
-      UPDATE_EXPERIMENT_PROBESETS_MUTATION,
+      UPDATE_EXPERIMENT_MUTATION,
       mockSubmitData,
       "updateExperiment",
       mockResponse,

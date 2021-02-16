@@ -28,19 +28,16 @@ storiesOf("pages/Results/TableHighlights", module)
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
-          id: "1",
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
         {
           __typename: "NimbusProbeSetType",
-          id: "2",
           slug: "feature_b",
           name: "Feature B",
         },
         {
           __typename: "NimbusProbeSetType",
-          id: "3",
           slug: "feature_c",
           name: "Feature C",
         },

@@ -14,7 +14,7 @@ import {
 import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditOverview from ".";
-import { UPDATE_EXPERIMENT_OVERVIEW_MUTATION } from "../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { BASE_PATH, SUBMIT_ERROR } from "../../lib/constants";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
@@ -62,7 +62,7 @@ describe("PageEditOverview", () => {
       riskMitigationLink: experiment.riskMitigationLink!,
     };
     mutationMock = mockExperimentMutation(
-      UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
+      UPDATE_EXPERIMENT_MUTATION,
       { ...mockSubmitData, id: experiment.id },
       "updateExperiment",
       {

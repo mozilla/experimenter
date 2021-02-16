@@ -8,82 +8,17 @@ export const CREATE_EXPERIMENT_MUTATION = gql`
   mutation createExperiment($input: ExperimentInput!) {
     createExperiment(input: $input) {
       message
-      status
       nimbusExperiment {
-        name
         slug
-        hypothesis
-        application
       }
     }
   }
 `;
 
-export const UPDATE_EXPERIMENT_OVERVIEW_MUTATION = gql`
-  mutation updateExperimentOverview($input: ExperimentInput!) {
+export const UPDATE_EXPERIMENT_MUTATION = gql`
+  mutation updateExperiment($input: ExperimentInput!) {
     updateExperiment(input: $input) {
       message
-      status
-      nimbusExperiment {
-        name
-        hypothesis
-        publicDescription
-      }
-    }
-  }
-`;
-
-export const UPDATE_EXPERIMENT_STATUS_MUTATION = gql`
-  mutation updateExperimentStatus($input: ExperimentInput!) {
-    updateExperiment(input: $input) {
-      message
-      status
-      nimbusExperiment {
-        status
-      }
-    }
-  }
-`;
-
-export const UPDATE_EXPERIMENT_BRANCHES_MUTATION = gql`
-  mutation updateExperimentBranches($input: ExperimentInput!) {
-    updateExperiment(input: $input) {
-      message
-      status
-      nimbusExperiment {
-        id
-        featureConfig {
-          name
-        }
-        referenceBranch {
-          name
-          description
-          ratio
-        }
-        treatmentBranches {
-          name
-          description
-          ratio
-        }
-      }
-    }
-  }
-`;
-
-export const UPDATE_EXPERIMENT_PROBESETS_MUTATION = gql`
-  mutation updateExperimentProbeSets($input: ExperimentInput!) {
-    updateExperiment(input: $input) {
-      nimbusExperiment {
-        id
-        primaryProbeSets {
-          slug
-        }
-        secondaryProbeSets {
-          slug
-        }
-      }
-      message
-      status
     }
   }
 `;
@@ -92,26 +27,6 @@ export const END_EXPERIMENT_MUTATION = gql`
   mutation endExperiment($input: ExperimentIdInput!) {
     endExperiment(input: $input) {
       message
-      status
-    }
-  }
-`;
-
-export const UPDATE_EXPERIMENT_AUDIENCE_MUTATION = gql`
-  mutation updateExperimentAudience($input: ExperimentInput!) {
-    updateExperiment(input: $input) {
-      message
-      status
-      nimbusExperiment {
-        id
-        totalEnrolledClients
-        channel
-        firefoxMinVersion
-        populationPercent
-        proposedDuration
-        proposedEnrollment
-        targetingConfigSlug
-      }
     }
   }
 `;
@@ -162,13 +77,11 @@ export const GET_EXPERIMENT_QUERY = gql`
       }
 
       primaryProbeSets {
-        id
         slug
         name
       }
 
       secondaryProbeSets {
-        id
         slug
         name
       }
