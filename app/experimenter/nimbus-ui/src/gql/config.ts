@@ -29,18 +29,8 @@ export const GET_CONFIG_QUERY = gql`
         value
       }
       probeSets {
-        id
         name
         slug
-        probes {
-          id
-          kind
-          name
-          eventCategory
-          eventMethod
-          eventObject
-          eventValue
-        }
       }
       targetingConfigSlug {
         label

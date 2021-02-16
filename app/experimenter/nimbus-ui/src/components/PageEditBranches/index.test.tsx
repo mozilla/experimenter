@@ -13,7 +13,7 @@ import {
 import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
-import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { BASE_PATH, EXTERNAL_URLS } from "../../lib/constants";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
@@ -23,10 +23,7 @@ import {
   NimbusExperimentStatus,
   NimbusFeatureConfigApplication,
 } from "../../types/globalTypes";
-import {
-  updateExperimentBranches_updateExperiment,
-  updateExperimentBranches_updateExperiment_nimbusExperiment,
-} from "../../types/updateExperimentBranches";
+import { updateExperiment_updateExperiment } from "../../types/updateExperiment";
 import FormBranches from "./FormBranches";
 import { FormBranchesSaveState } from "./FormBranches/reducer";
 import { extractUpdateBranch } from "./FormBranches/reducer/update";
@@ -150,7 +147,7 @@ describe("PageEditBranches", () => {
     setMockUpdateState(experiment);
     const mockMutation = mockUpdateExperimentBranchesMutation(
       { ...mockUpdateState, id: 1 },
-      { experiment },
+      {},
     );
     render(<Subject mocks={[mock, mockMutation, mock]} />);
     await waitFor(() => {
@@ -169,7 +166,7 @@ describe("PageEditBranches", () => {
 
     const mockMutation = mockUpdateExperimentBranchesMutation(
       { ...mockUpdateState, id: 1 },
-      { experiment },
+      {},
     );
     // @ts-ignore - intentionally breaking this type for error handling
     delete mockMutation.result.data.updateExperiment;
@@ -195,7 +192,7 @@ describe("PageEditBranches", () => {
 
     const mockMutation = mockUpdateExperimentBranchesMutation(
       { ...mockUpdateState, id: 1 },
-      { experiment },
+      {},
     );
 
     mockMutation.result.data.updateExperiment.message = {
@@ -298,24 +295,18 @@ jest.mock("./FormBranches", () => ({
 export const mockUpdateExperimentBranchesMutation = (
   input: Partial<ExperimentInput>,
   {
-    status = 200,
     message = "success",
-    experiment,
   }: {
-    status?: number;
     message?: string | Record<string, any>;
-    experiment: updateExperimentBranches_updateExperiment_nimbusExperiment;
   },
 ) => {
-  const updateExperiment: updateExperimentBranches_updateExperiment = {
+  const updateExperiment: updateExperiment_updateExperiment = {
     __typename: "UpdateExperiment",
-    status,
     message,
-    nimbusExperiment: experiment,
   };
   return {
     request: {
-      query: UPDATE_EXPERIMENT_BRANCHES_MUTATION,
+      query: UPDATE_EXPERIMENT_MUTATION,
       variables: {
         input,
       },

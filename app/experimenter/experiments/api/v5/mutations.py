@@ -30,14 +30,12 @@ def handle_with_serializer(cls, serializer):
     return cls(
         nimbus_experiment=obj,
         message=msg,
-        status=200,
     )
 
 
 class CreateExperiment(graphene.Mutation):
     nimbus_experiment = graphene.Field(NimbusExperimentType)
     message = ObjectField()
-    status = graphene.Int()
 
     class Arguments:
         input = ExperimentInput(required=True)
@@ -53,7 +51,6 @@ class CreateExperiment(graphene.Mutation):
 class UpdateExperiment(graphene.Mutation):
     nimbus_experiment = graphene.Field(NimbusExperimentType)
     message = ObjectField()
-    status = graphene.Int()
 
     class Arguments:
         input = ExperimentInput(required=True)
@@ -70,9 +67,7 @@ class UpdateExperiment(graphene.Mutation):
 
 
 class EndExperiment(graphene.Mutation):
-    nimbus_experiment = graphene.Field(NimbusExperimentType)
     message = ObjectField()
-    status = graphene.Int()
 
     class Arguments:
         input = ExperimentIdInput(required=True)
@@ -85,20 +80,15 @@ class EndExperiment(graphene.Mutation):
             experiment.is_end_requested = True
             experiment.save()
             generate_nimbus_changelog(experiment, info.context.user)
-            obj = experiment
             msg = "success"
         else:
-            obj = None
-            status = experiment.status
             msg = (
-                f"Nimbus Experiment has status '{status}', but can only "
+                f"Nimbus Experiment has status '{experiment.status}', but can only "
                 "be ended when set to 'Live'."
             )
 
         return cls(
-            nimbus_experiment=obj,
             message=msg,
-            status=200,
         )
 
 

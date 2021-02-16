@@ -6,7 +6,7 @@ import { useMutation } from "@apollo/client";
 import { RouteComponentProps } from "@reach/router";
 import React, { useCallback, useRef, useState } from "react";
 import Alert from "react-bootstrap/Alert";
-import { UPDATE_EXPERIMENT_STATUS_MUTATION } from "../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Check } from "../../images/check.svg";
 import { SUBMIT_ERROR } from "../../lib/constants";
@@ -16,7 +16,7 @@ import {
   ExperimentInput,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
-import { updateExperimentStatus_updateExperiment as UpdateExperimentStatus } from "../../types/updateExperimentStatus";
+import { updateExperiment_updateExperiment as UpdateExperimentStatus } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import Summary from "../Summary";
 import FormLaunchDraftToPreview from "./FormLaunchDraftToPreview";
@@ -48,7 +48,7 @@ const PageRequestReview = ({
   const [submitForReview, { loading: submitForReviewLoading }] = useMutation<
     { updateExperiment: UpdateExperimentStatus },
     { input: ExperimentInput }
-  >(UPDATE_EXPERIMENT_STATUS_MUTATION);
+  >(UPDATE_EXPERIMENT_MUTATION);
   const { featureFlags } = useConfig();
 
   /* istanbul ignore next until EXP-866 final */
