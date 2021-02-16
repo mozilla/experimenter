@@ -41,7 +41,7 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
-    def test_serializer_outputs_expected_targeting_for_mobile(self):
+    def test_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create(
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
@@ -51,7 +51,7 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(experiment.targeting, "localeLanguageCode == 'en'")
 
-    def test_serializer_outputs_empty_targeting_for_mobile_without_targeting(self):
+    def test_empty_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
@@ -62,7 +62,7 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(experiment.targeting, None)
 
-    def test_serializer_outputs_targeting_for_experiment_without_firefox_min_version(
+    def test_targeting_without_firefox_min_version(
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_status(
@@ -82,7 +82,7 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
-    def test_serializer_outputs_targeting_without_channel_version_targeting(self):
+    def test_targeting_without_channel_version(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
