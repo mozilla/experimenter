@@ -25,7 +25,7 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
   } = useConfig();
 
   return (
-    <Table striped bordered data-testid="table-summary" className="mb-4">
+    <Table bordered data-testid="table-summary" className="mb-4">
       <tbody>
         <tr>
           <th className="w-33">Slug</th>
