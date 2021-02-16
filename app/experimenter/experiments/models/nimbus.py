@@ -97,6 +97,36 @@ class NimbusExperiment(NimbusConstants, models.Model):
     def is_fenix_experiment(self):
         return self.application == self.Application.FENIX
 
+    # This is the full JEXL expression processed by clients
+    @property
+    def targeting(self):
+        expressions = []
+
+        if self.is_desktop_experiment:
+            if self.channel:
+                expressions.append(
+                    'browserSettings.update.channel == "{channel}"'.format(
+                        channel=self.channel
+                    )
+                )
+            if self.firefox_min_version:
+                expressions.append(
+                    "version|versionCompare('{version}') >= 0".format(
+                        version=self.firefox_min_version
+                    )
+                )
+        if self.targeting_config:
+            expressions.append(self.targeting_config.targeting)
+
+        # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
+        if self.is_desktop_experiment:
+            expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
+
+        if len(expressions) == 0:
+            return None
+
+        return " && ".join(expressions)
+
     @property
     def targeting_config(self):
         if self.targeting_config_slug:

@@ -187,7 +187,7 @@ type NimbusExperimentType {
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType
   treatmentBranches: [NimbusBranchType]
-  targetingConfigTargeting: String
+  jexlTargetingExpression: String
   primaryProbeSets: [NimbusProbeSetType]
   secondaryProbeSets: [NimbusProbeSetType]
   readyForReview: NimbusReadyForReviewType

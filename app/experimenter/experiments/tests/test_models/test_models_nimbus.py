@@ -24,21 +24,75 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(str(experiment), experiment.name)
 
-    def test_targeting_config_not_set(self):
+    def test_targeting_for_experiment_without_channels(self):
         experiment = NimbusExperimentFactory.create(
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
-        self.assertIsNone(experiment.targeting_config)
 
-    def test_targeting_config_set(self):
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "version|versionCompare('83.!') >= 0 "
+                "&& localeLanguageCode == 'en' "
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+            ),
+        )
+
+    def test_serializer_outputs_expected_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create(
-            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        self.assertEqual(experiment.targeting, "localeLanguageCode == 'en'")
+
+    def test_serializer_outputs_empty_targeting_for_mobile_without_targeting(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.ACCEPTED,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        self.assertEqual(experiment.targeting, None)
+
+    def test_serializer_outputs_targeting_for_experiment_without_firefox_min_version(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.ACCEPTED,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NIGHTLY,
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            (
+                'browserSettings.update.channel == "nightly" '
+                "&& localeLanguageCode == 'en' "
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+            ),
+        )
+
+    def test_serializer_outputs_targeting_without_channel_version_targeting(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.ACCEPTED,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
         self.assertEqual(
-            experiment.targeting_config,
-            NimbusExperiment.TARGETING_CONFIGS[
-                NimbusExperiment.TargetingConfig.ALL_ENGLISH
-            ],
+            experiment.targeting,
+            "'app.shield.optoutstudies.enabled'|preferenceValue",
         )
 
     def test_start_date_returns_None_for_not_started_experiment(self):
