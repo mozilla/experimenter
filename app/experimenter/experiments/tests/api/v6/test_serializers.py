@@ -221,6 +221,19 @@ class TestNimbusExperimentSerializer(TestCase):
 
         check_schema("experiments/NimbusExperiment", serializer.data)
 
+    def test_serializer_outputs_targeting(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.ACCEPTED,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(
+            serializer.data["targeting"],
+            experiment.targeting
+        )
 
 class TestNimbusProbeSetSerializer(TestCase):
     def test_outputs_expected_schema(self):
