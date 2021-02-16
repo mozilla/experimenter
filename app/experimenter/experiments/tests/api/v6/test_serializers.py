@@ -235,6 +235,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment.targeting
         )
 
+
 class TestNimbusProbeSetSerializer(TestCase):
     def test_outputs_expected_schema(self):
         probeset = NimbusProbeSetFactory()
