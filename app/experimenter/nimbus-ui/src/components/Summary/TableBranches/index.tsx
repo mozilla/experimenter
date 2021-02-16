@@ -48,13 +48,15 @@ const TableBranch = ({
   branch: Branch;
 }) => {
   return (
-    <Table striped bordered data-testid="table-branch" className="mb-4">
-      <tbody>
+    <Table bordered data-testid="table-branch" className="mb-4">
+      <thead className="thead-light">
         <tr>
           <th colSpan={2} data-testid="branch-name">
             {name ? name : <NotSet />}
           </th>
         </tr>
+      </thead>
+      <tbody>
         <tr>
           <th className="w-33">Slug</th>
           <td data-testid="branch-slug">{slug ? slug : <NotSet />}</td>
