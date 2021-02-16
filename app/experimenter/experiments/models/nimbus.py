@@ -122,8 +122,9 @@ class NimbusExperiment(NimbusConstants, models.Model):
         if self.is_desktop_experiment:
             expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
 
+        #  If there is no targeting defined all clients should match, so we return "true"
         if len(expressions) == 0:
-            return None
+            return "true"
 
         return " && ".join(expressions)
 
