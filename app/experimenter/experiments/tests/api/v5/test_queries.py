@@ -283,7 +283,7 @@ class TestNimbusQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
             experiment_data["jexlTargetingExpression"],
-            None,
+            "true",
         )
 
     def test_nimbus_config(self):
