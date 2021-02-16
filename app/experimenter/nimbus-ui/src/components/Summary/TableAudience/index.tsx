@@ -19,7 +19,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
   const { firefoxMinVersion, channel, targetingConfigSlug } = useConfig();
 
   return (
-    <Table striped bordered data-testid="table-audience" className="mb-4">
+    <Table bordered data-testid="table-audience" className="mb-4">
       <tbody>
         <tr>
           <th className="w-33">Channel</th>
