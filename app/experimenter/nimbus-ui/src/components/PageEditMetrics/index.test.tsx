@@ -159,14 +159,8 @@ describe("PageEditMetrics", () => {
 
   it("handles form submission", async () => {
     render(<Subject mocks={[mock, mutationMock]} />);
-
-    let submitButton: HTMLButtonElement;
-    await waitFor(() => {
-      submitButton = screen.getByTestId("submit") as HTMLButtonElement;
-    });
-    await act(async () => {
-      fireEvent.click(submitButton);
-    });
+    await screen.findByTestId("PageEditMetrics");
+    await act(async () => void fireEvent.click(screen.getByTestId("submit")));
     expect(mockSubmit).toHaveBeenCalled();
   });
 
@@ -216,8 +210,10 @@ describe("PageEditMetrics", () => {
   });
 
   it("handles form next button", async () => {
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() => fireEvent.click(screen.getByTestId("next")));
+    render(<Subject mocks={[mock, mutationMock]} />);
+    await screen.findByTestId("PageEditMetrics");
+    await act(async () => void fireEvent.click(screen.getByTestId("next")));
+    expect(mockSubmit).toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith("audience");
   });
 });
@@ -229,11 +225,12 @@ jest.mock("./FormMetrics", () => ({
     const handleSubmit = (ev: React.FormEvent) => {
       ev.preventDefault();
       mockSubmit();
-      props.onSave(mockSubmitData, jest.fn());
+      props.onSave(mockSubmitData, false);
     };
     const handleNext = (ev: React.FormEvent) => {
       ev.preventDefault();
-      props.onNext && props.onNext(ev);
+      mockSubmit();
+      props.onSave(mockSubmitData, true);
     };
     return (
       <div data-testid="FormMetrics">

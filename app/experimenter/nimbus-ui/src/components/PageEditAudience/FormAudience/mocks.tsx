@@ -19,7 +19,6 @@ export const Subject = ({
   isLoading = false,
   isServerValid = true,
   onSubmit = () => {},
-  onNext = () => {},
 }: {
   config?: getConfig_nimbusConfig;
 } & Partial<React.ComponentProps<typeof FormAudience>>) => {
@@ -38,7 +37,6 @@ export const Subject = ({
             isLoading,
             isServerValid,
             onSubmit,
-            onNext,
           }}
         />
       </MockedCache>

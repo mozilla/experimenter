@@ -11,7 +11,6 @@ export const Subject = ({
   isServerValid = true,
   submitErrors = {},
   onSave = () => {},
-  onNext = () => {},
   experiment = mockExperimentQuery("boo").experiment,
 }: Partial<React.ComponentProps<typeof FormMetrics>>) => {
   const [submitErrorsDefault, setSubmitErrors] = useState<Record<string, any>>(
@@ -26,7 +25,6 @@ export const Subject = ({
           isServerValid,
           setSubmitErrors,
           onSave,
-          onNext,
           experiment,
         }}
       />

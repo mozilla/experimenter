@@ -31,10 +31,7 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
   }, []);
 
   const onFormSubmit = useCallback(
-    async (
-      { name, hypothesis, application }: Record<string, any>,
-      resetForm: Function,
-    ) => {
+    async ({ name, hypothesis, application }: Record<string, any>) => {
       try {
         const result = await createExperiment({
           variables: { input: { name, hypothesis, application } },
@@ -51,7 +48,6 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
           setIsServerValid(true);
           setSubmitErrors({});
         }
-        resetForm();
         navigate(`${nimbusExperiment!.slug}/edit/overview`);
       } catch (error) {
         setSubmitErrors({ "*": `${SUBMIT_ERROR}` });

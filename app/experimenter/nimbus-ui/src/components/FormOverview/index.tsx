@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -35,9 +35,8 @@ type FormOverviewProps = {
   submitErrors: SubmitErrors;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   experiment?: getExperiment["experimentBySlug"];
-  onSubmit: (data: Record<string, any>, reset: Function) => void;
+  onSubmit: (data: Record<string, any>, next: boolean) => void;
   onCancel?: (ev: React.FormEvent) => void;
-  onNext?: (ev: React.FormEvent) => void;
 };
 
 export const DOCUMENTATION_LINKS_TOOLTIP =
@@ -63,7 +62,6 @@ const FormOverview = ({
   experiment,
   onSubmit,
   onCancel,
-  onNext,
 }: FormOverviewProps) => {
   const { application, hypothesisDefault } = useConfig();
 
@@ -81,7 +79,6 @@ const FormOverview = ({
     isValid,
     isDirtyUnsaved,
     handleSubmit,
-    reset,
     isSubmitted,
     errors,
     touched,
@@ -106,13 +103,17 @@ const FormOverview = ({
     shouldWarnOnExit(isDirtyUnsaved);
   }, [shouldWarnOnExit, isDirtyUnsaved]);
 
-  const handleSubmitAfterValidation = useCallback(
-    (data: Record<string, any>) => {
-      if (isLoading) return;
-      data = stripInvalidDocumentationLinks(data);
-      onSubmit(data, reset);
-    },
-    [isLoading, onSubmit, reset],
+  type DefaultValues = typeof defaultValues;
+  const [handleSave, handleSaveNext] = useMemo(
+    () =>
+      [false, true].map((next) =>
+        handleSubmit(
+          (dataIn: DefaultValues) =>
+            !isLoading &&
+            onSubmit(stripInvalidDocumentationLinks(dataIn), next),
+        ),
+      ),
+    [isLoading, onSubmit, handleSubmit],
   );
 
   const handleCancel = useCallback(
@@ -123,19 +124,11 @@ const FormOverview = ({
     [onCancel],
   );
 
-  const handleNext = useCallback(
-    (ev: React.FormEvent) => {
-      ev.preventDefault();
-      onNext!(ev);
-    },
-    [onNext],
-  );
-
   return (
     <FormProvider {...formMethods}>
       <Form
         noValidate
-        onSubmit={handleSubmit(handleSubmitAfterValidation)}
+        onSubmit={handleSave}
         validated={isSubmitted && isValid}
         data-testid="FormOverview"
       >
@@ -308,15 +301,16 @@ const FormOverview = ({
         )}
 
         <div className="d-flex flex-row-reverse bd-highlight">
-          {!!experiment && onNext && (
+          {!!experiment && (
             <div className="p-2">
               <button
-                onClick={handleNext}
+                data-testid="next-button"
+                onClick={handleSaveNext}
                 className="btn btn-secondary"
                 disabled={isLoading}
                 data-sb-kind="pages/EditBranches"
               >
-                Next
+                Save and Continue
               </button>
             </div>
           )}
@@ -324,7 +318,7 @@ const FormOverview = ({
             <button
               data-testid="submit-button"
               type="submit"
-              onClick={handleSubmit(handleSubmitAfterValidation)}
+              onClick={handleSave}
               className="btn btn-primary"
               disabled={isLoading}
               data-sb-kind="pages/EditOverview"
