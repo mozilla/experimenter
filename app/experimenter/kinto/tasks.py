@@ -167,6 +167,46 @@ def nimbus_check_experiments_are_live():
 
 
 @app.task
+@metrics.timer_decorator("check_experiments_are_paused")
+def nimbus_check_experiments_are_paused():
+    """
+    A scheduled task that checks the kinto collection for any experiment slugs that are
+    marked as enrollment paused in the collection but not in the database, and update them
+    in the database accordingly.
+    """
+    metrics.incr("check_experiments_are_paused.started")
+
+    for application, collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.items():
+        kinto_client = KintoClient(collection)
+
+        live_experiments = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
+            application=application,
+            is_paused=False,
+        )
+
+        records = {r["id"]: r for r in kinto_client.get_main_records()}
+
+        for experiment in live_experiments:
+            if records[experiment.slug]["isEnrollmentPaused"]:
+                nimbus_send_experiment_ending_email(experiment)
+                logger.info(
+                    f"{experiment} is_paused is being updated to True".format(
+                        experiment=experiment
+                    )
+                )
+
+                experiment.is_paused = True
+                experiment.save()
+
+                generate_nimbus_changelog(experiment, get_kinto_user())
+
+                logger.info(f"{experiment} is_paused is set to True")
+
+    metrics.incr("check_experiments_are_paused.completed")
+
+
+@app.task
 @metrics.timer_decorator("check_experiments_are_complete")
 def nimbus_check_experiments_are_complete():
     """
@@ -186,10 +226,8 @@ def nimbus_check_experiments_are_complete():
 
         records = kinto_client.get_main_records()
         record_ids = [r.get("id") for r in records]
-        print("found record ids", record_ids)
 
         for experiment in live_experiments:
-            print("checking", experiment)
             if (
                 experiment.should_end
                 and not experiment.emails.filter(
@@ -238,3 +276,33 @@ def nimbus_end_experiment_in_kinto(experiment_id):
         metrics.incr("end_experiment_in_kinto.failed")
         logger.info(f"Deleting experiment id {experiment_id} from Kinto failed: {e}")
         raise e
+
+
+@metrics.timer_decorator("nimbus_update_paused_experiments_in_kinto")
+def nimbus_update_paused_experiments_in_kinto():
+    """
+    A scheduled task that checks for experiments that should be paused
+    but are not paused in the kinto collection and marks them as paused
+    and updates the record in the collection.
+    """
+    metrics.incr("nimbus_update_paused_experiments_in_kinto.started")
+
+    for application, collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.items():
+        kinto_client = KintoClient(collection)
+        records = {r["id"]: r for r in kinto_client.get_main_records()}
+
+        live_experiments = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
+            application=application,
+        )
+
+        for experiment in live_experiments:
+            experiment_record = records[experiment.slug]
+            if experiment.should_pause and not experiment_record["isEnrollmentPaused"]:
+                updated_record = experiment_record.copy()
+                updated_record["isEnrollmentPaused"] = True
+
+                kinto_client.update_record(updated_record)
+                logger.info(f"{experiment} is being paused")
+
+    metrics.incr("nimbus_update_paused_experiments_in_kinto.completed")

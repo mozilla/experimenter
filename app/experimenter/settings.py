@@ -325,8 +325,16 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_live",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
+    "nimbus_check_experiments_are_paused": {
+        "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_paused",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
     "nimbus_check_experiments_are_complete": {
         "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_complete",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
+    "nimbus_update_paused_experiments_in_kinto": {
+        "task": "experimenter.kinto.tasks.nimbus_update_paused_experiments_in_kinto",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
 }
@@ -395,7 +403,7 @@ FEATURE_ANALYSIS = config("FEATURE_ANALYSIS", default=False, cast=bool)
 KINTO_HOST = config("KINTO_HOST")
 KINTO_USER = config("KINTO_USER")
 KINTO_PASS = config("KINTO_PASS")
-KINTO_BUCKET = "main-workspace"
+KINTO_BUCKET_WORKSPACE = "main-workspace"
 KINTO_BUCKET_MAIN = "main"
 KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
