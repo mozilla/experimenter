@@ -89,22 +89,12 @@ describe("FormAudience", () => {
     }
   });
 
-  it("calls onNext when next button is clicked", async () => {
-    const onNext = jest.fn();
-    render(<Subject {...{ onNext }} />);
-    await waitFor(() => {
-      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByTestId("next-button"));
-    expect(onNext).toHaveBeenCalled();
-  });
-
   it("disables next button when experiment is not ready for review", async () => {
-    const onNext = jest.fn();
+    const onSubmit = jest.fn();
     render(
       <Subject
         {...{
-          onNext,
+          onSubmit,
           experiment: {
             ...MOCK_EXPERIMENT,
             readyForReview: {
@@ -116,29 +106,16 @@ describe("FormAudience", () => {
         }}
       />,
     );
-    await waitFor(() => {
-      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
-    });
+    await screen.findByTestId("FormAudience");
     const nextButton = screen.getByTestId("next-button");
     expect(nextButton).toBeDisabled();
     fireEvent.click(nextButton);
-    expect(onNext).not.toHaveBeenCalled();
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it("calls onSubmit when save button is clicked", async () => {
+  it("calls onSubmit when save and next buttons are clicked", async () => {
     const onSubmit = jest.fn();
-    render(<Subject {...{ onSubmit }} />);
-    await waitFor(() => {
-      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
-    });
-    const submitButton = screen.getByTestId("submit-button");
-    expect(submitButton).toHaveTextContent("Save");
-    await act(async () => {
-      fireEvent.click(submitButton);
-    });
-    expect(onSubmit).toHaveBeenCalled();
-    const [[submitData]] = onSubmit.mock.calls;
-    expect(submitData).toEqual({
+    const expected = {
       channel: MOCK_EXPERIMENT.channel,
       firefoxMinVersion: MOCK_EXPERIMENT.firefoxMinVersion,
       targetingConfigSlug: MOCK_EXPERIMENT.targetingConfigSlug,
@@ -146,7 +123,23 @@ describe("FormAudience", () => {
       totalEnrolledClients: "" + MOCK_EXPERIMENT.totalEnrolledClients,
       proposedEnrollment: "" + MOCK_EXPERIMENT.proposedEnrollment,
       proposedDuration: "" + MOCK_EXPERIMENT.proposedDuration,
+    };
+    render(<Subject {...{ onSubmit }} />);
+    await screen.findByTestId("FormAudience");
+    const submitButton = screen.getByTestId("submit-button");
+    const nextButton = screen.getByTestId("next-button");
+
+    await act(async () => {
+      fireEvent.click(submitButton);
+      fireEvent.click(nextButton);
     });
+    expect(onSubmit).toHaveBeenCalledTimes(2);
+    expect(onSubmit.mock.calls).toEqual([
+      // Save button just saves
+      [expected, false],
+      // Next button advances to next page
+      [expected, true],
+    ]);
   });
 
   it("does not have any required modified fields", async () => {

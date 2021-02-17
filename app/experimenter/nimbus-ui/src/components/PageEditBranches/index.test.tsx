@@ -132,13 +132,18 @@ describe("PageEditBranches", () => {
     }
   });
 
-  it("handles onNext from FormBranches", async () => {
-    const { mock } = mockExperimentQuery("demo-slug");
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByTestId("next-button"));
+  it("handles onSave with next from FormBranches", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
+    setMockUpdateState(experiment);
+    const mockMutation = mockUpdateExperimentBranchesMutation(
+      { ...mockUpdateState, id: 1 },
+      {},
+    );
+    render(<Subject mocks={[mock, mockMutation]} />);
+    await screen.findByTestId("PageEditBranches");
+    await act(
+      async () => void fireEvent.click(screen.getByTestId("next-button")),
+    );
     expect(navigate).toHaveBeenCalledWith("metrics");
   });
 
@@ -150,13 +155,10 @@ describe("PageEditBranches", () => {
       {},
     );
     render(<Subject mocks={[mock, mockMutation, mock]} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
-    });
-    await act(async () => {
-      const saveButton = screen.getByTestId("save-button");
-      fireEvent.click(saveButton);
-    });
+    await screen.findByTestId("PageEditBranches");
+    await act(
+      async () => void fireEvent.click(screen.getByTestId("save-button")),
+    );
     expect(mockSetSubmitErrors).not.toHaveBeenCalled();
   });
 
@@ -260,7 +262,6 @@ jest.mock("./FormBranches", () => ({
     experiment,
     featureConfig,
     onSave,
-    onNext,
   }: React.ComponentProps<typeof FormBranches>) => {
     return (
       <div data-testid="FormBranches">
@@ -275,14 +276,29 @@ jest.mock("./FormBranches", () => ({
             )}
           </ul>
         )}
-        <button data-testid="next-button" onClick={() => onNext()}>
-          Next
+        <button
+          data-testid="next-button"
+          onClick={() =>
+            onSave(
+              mockUpdateState,
+              mockSetSubmitErrors,
+              mockClearSubmitErrors,
+              true,
+            )
+          }
+        >
+          Save and Continue
         </button>
         <button
           data-testid="save-button"
           type="submit"
           onClick={() =>
-            onSave(mockUpdateState, mockSetSubmitErrors, mockClearSubmitErrors)
+            onSave(
+              mockUpdateState,
+              mockSetSubmitErrors,
+              mockClearSubmitErrors,
+              false,
+            )
           }
         >
           <span>Save</span>

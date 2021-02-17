@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback } from "react";
+import React, { useMemo } from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
-import { useCommonForm } from "../../../hooks";
-import { useConfig } from "../../../hooks/useConfig";
+import ReactTooltip from "react-tooltip";
+import { useCommonForm, useConfig } from "../../../hooks";
 import { EXTERNAL_URLS, NUMBER_FIELD } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import InlineErrorIcon from "../../InlineErrorIcon";
@@ -21,8 +21,7 @@ type FormAudienceProps = {
   isMissingField: (fieldName: string) => boolean;
   isServerValid: boolean;
   isLoading: boolean;
-  onSubmit: (data: Record<string, any>, reset: Function) => void;
-  onNext?: (ev: React.FormEvent) => void;
+  onSubmit: (data: Record<string, any>, next: boolean) => void;
 };
 
 type AudienceFieldName = typeof audienceFieldNames[number];
@@ -45,7 +44,6 @@ export const FormAudience = ({
   isServerValid,
   isLoading,
   onSubmit,
-  onNext,
 }: FormAudienceProps) => {
   const config = useConfig();
 
@@ -64,7 +62,6 @@ export const FormAudience = ({
     formControlAttrs,
     isValid,
     handleSubmit,
-    reset,
     isSubmitted,
   } = useCommonForm<AudienceFieldName>(
     defaultValues,
@@ -74,29 +71,23 @@ export const FormAudience = ({
   );
 
   type DefaultValues = typeof defaultValues;
-
-  const handleSubmitAfterValidation = useCallback(
-    (dataIn: DefaultValues) => {
-      if (isLoading) return;
-      onSubmit(dataIn, reset);
-    },
-    [isLoading, onSubmit, reset],
+  const [handleSave, handleSaveNext] = useMemo(
+    () =>
+      [false, true].map((next) =>
+        handleSubmit(
+          (dataIn: DefaultValues) => !isLoading && onSubmit(dataIn, next),
+        ),
+      ),
+    [isLoading, onSubmit, handleSubmit],
   );
 
-  const handleNext = useCallback(
-    (ev: React.FormEvent) => {
-      ev.preventDefault();
-      onNext!(ev);
-    },
-    [onNext],
-  );
-
-  const isNextDisabled = isLoading || !experiment?.readyForReview?.ready;
+  const notReadyForReview = !experiment?.readyForReview?.ready;
+  const isNextDisabled = isLoading || notReadyForReview;
 
   return (
     <Form
       noValidate
-      onSubmit={handleSubmit(handleSubmitAfterValidation)}
+      onSubmit={handleSave}
       validated={isSubmitted && isValid}
       data-testid="FormAudience"
     >
@@ -275,20 +266,25 @@ export const FormAudience = ({
       <div className="d-flex flex-row-reverse bd-highlight">
         <div className="p-2">
           <button
-            onClick={handleNext}
+            onClick={handleSaveNext}
             className="btn btn-secondary"
             disabled={isNextDisabled}
             data-testid="next-button"
             data-sb-kind="pages/RequestReview"
+            data-tip={
+              notReadyForReview &&
+              "Required fields must be completed before proceeding to review."
+            }
           >
-            Next
+            Save and Continue
           </button>
+          {notReadyForReview && <ReactTooltip />}
         </div>
         <div className="p-2">
           <button
             data-testid="submit-button"
             type="submit"
-            onClick={handleSubmit(handleSubmitAfterValidation)}
+            onClick={handleSave}
             className="btn btn-primary"
             disabled={isLoading}
             data-sb-kind="pages/EditOverview"

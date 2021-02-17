@@ -7,7 +7,7 @@ import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
-import { FormProvider, SubmitHandler } from "react-hook-form";
+import { FormProvider } from "react-hook-form";
 import { useExitWarning, useForm } from "../../../hooks";
 import { IsDirtyUnsaved } from "../../../hooks/useCommonForm/useCommonFormMethods";
 import {
@@ -27,8 +27,8 @@ type FormBranchesProps = {
     state: FormBranchesSaveState,
     setSubmitErrors: Function,
     clearSubmitErrors: Function,
+    next: boolean,
   ) => void;
-  onNext: () => void;
 };
 
 export const FormBranches = ({
@@ -36,7 +36,6 @@ export const FormBranches = ({
   experiment,
   featureConfig,
   onSave,
-  onNext,
 }: FormBranchesProps) => {
   const reviewErrors =
     typeof experiment?.readyForReview?.message !== "string"
@@ -132,21 +131,22 @@ export const FormBranches = ({
     dispatch({ type: "setFeatureConfig", value });
   };
 
-  const handleSubmitWhenValid: SubmitHandler<any> = async (formData) => {
-    try {
-      commitFormData();
-      onSave(extractSaveState(formData), setSubmitErrors, clearSubmitErrors);
-    } catch (error) {
-      setSubmitErrors({ "*": [error.message] });
-    }
-  };
-
-  const handleNextClick = (
-    ev: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => {
-    ev.preventDefault();
-    onNext();
-  };
+  type DefaultValues = typeof defaultValues;
+  const [handleSave, handleSaveNext] = [false, true].map((next) =>
+    handleSubmit((dataIn: DefaultValues) => {
+      try {
+        commitFormData();
+        onSave(
+          extractSaveState(dataIn),
+          setSubmitErrors,
+          clearSubmitErrors,
+          next,
+        );
+      } catch (error) {
+        setSubmitErrors({ "*": [error.message] });
+      }
+    }),
+  );
 
   const commonBranchProps = {
     equalRatio,
@@ -166,7 +166,7 @@ export const FormBranches = ({
         data-testid="FormBranches"
         className="border-top my-3"
         noValidate
-        onSubmit={handleSubmit(handleSubmitWhenValid)}
+        onSubmit={handleSave}
       >
         {globalErrors?.map((err, idx) => (
           <Alert
@@ -254,9 +254,9 @@ export const FormBranches = ({
               data-testid="next-button"
               className="btn btn-secondary"
               disabled={isNextDisabled}
-              onClick={handleNextClick}
+              onClick={handleSaveNext}
             >
-              Next
+              Save and Continue
             </button>
           </div>
           <div className="p-2">
@@ -265,7 +265,7 @@ export const FormBranches = ({
               type="submit"
               className="btn btn-primary"
               disabled={isSaveDisabled}
-              onClick={handleSubmit(handleSubmitWhenValid)}
+              onClick={handleSave}
             >
               <span>{isLoading ? "Saving" : "Save"}</span>
             </button>
