@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.conf import settings
@@ -374,3 +375,35 @@ class TestNimbusQuery(GraphQLTestCase):
         self.assertEqual(
             config["maxPrimaryProbeSets"], NimbusExperiment.MAX_PRIMARY_PROBE_SETS
         )
+
+    def test_paused_experiment_returns_date(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            is_paused=True,
+            proposed_enrollment=7,
+        )
+        live_change = experiment.changes.get(
+            old_status=NimbusExperiment.Status.ACCEPTED,
+            new_status=NimbusExperiment.Status.LIVE,
+        )
+        live_change.changed_on = datetime.datetime(2021, 1, 1)
+        live_change.save()
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    isEnrollmentPaused
+                    enrollmentEndDate
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["isEnrollmentPaused"], True)
+        self.assertEqual(experiment_data["enrollmentEndDate"], "2021-01-08")
