@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+import mock
 from django.test import TestCase
 from django.utils.text import slugify
 from parameterized import parameterized
@@ -733,6 +734,13 @@ class TestNimbusExperimentSerializer(TestCase):
         super().setUp()
         self.user = UserFactory()
 
+        mock_preview_task_patcher = mock.patch(
+            "experimenter.experiments.api.v5.serializers."
+            "nimbus_synchronize_preview_experiments_in_kinto"
+        )
+        self.mock_preview_task = mock_preview_task_patcher.start()
+        self.addCleanup(mock_preview_task_patcher.stop)
+
     def test_required_fields_for_creating_experiment(self):
         data = {
             "name": "",
@@ -1097,6 +1105,38 @@ class TestNimbusExperimentSerializer(TestCase):
 
         self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
         self.assertEqual(experiment.bucket_range.count, 5000)
+
+    def test_set_status_to_preview_invokes_kinto_task(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT, population_percent=Decimal("50.0")
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={"status": NimbusExperiment.Status.PREVIEW},
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
+        self.mock_preview_task.delay.assert_called()
+
+    def test_set_status_to_draft_doesnt_invoke_kinto_task(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT, population_percent=Decimal("50.0")
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={"status": NimbusExperiment.Status.DRAFT},
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.mock_preview_task.delay.assert_not_called()
 
 
 class TestNimbusReadyForReviewSerializer(TestCase):

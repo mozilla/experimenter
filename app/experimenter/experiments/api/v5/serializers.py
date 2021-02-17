@@ -14,6 +14,7 @@ from experimenter.experiments.models.nimbus import (
     NimbusFeatureConfig,
     NimbusProbeSet,
 )
+from experimenter.kinto.tasks import nimbus_synchronize_preview_experiments_in_kinto
 
 
 class NimbusBranchSerializer(serializers.ModelSerializer):
@@ -382,6 +383,12 @@ class NimbusExperimentSerializer(
             "total_enrolled_clients",
         ]
 
+    def __init__(self, instance=None, data=None, **kwargs):
+        self.should_call_preview_task = (
+            data.get("status") == NimbusExperiment.Status.PREVIEW
+        )
+        super().__init__(instance=instance, data=data, **kwargs)
+
     def validate_name(self, name):
         if not (self.instance or name):
             raise serializers.ValidationError("Name is required to create an experiment")
@@ -427,6 +434,9 @@ class NimbusExperimentSerializer(
 
             if experiment.should_allocate_bucket_range:
                 experiment.allocate_bucket_range()
+
+            if self.should_call_preview_task:
+                nimbus_synchronize_preview_experiments_in_kinto.delay()
 
             generate_nimbus_changelog(experiment, self.context["user"])
 
