@@ -132,6 +132,8 @@ class NimbusExperimentType(DjangoObjectType):
     monitoring_dashboard_url = graphene.String()
     start_date = graphene.DateTime()
     end_date = graphene.DateTime()
+    is_enrollment_paused = graphene.Boolean()
+    enrollment_end_date = graphene.DateTime()
 
     class Meta:
         model = NimbusExperiment
@@ -157,3 +159,9 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_jexl_targeting_expression(self, info):
         return self.targeting
+
+    def resolve_is_enrollment_paused(self, info):
+        return self.is_paused
+
+    def resolve_enrollment_end_date(self, info):
+        return self.proposed_enrollment_end_date

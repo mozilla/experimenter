@@ -192,6 +192,8 @@ type NimbusExperimentType {
   monitoringDashboardUrl: String
   startDate: DateTime
   endDate: DateTime
+  isEnrollmentPaused: Boolean
+  enrollmentEndDate: DateTime
 }
 
 enum NimbusFeatureConfigApplication {
