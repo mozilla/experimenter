@@ -9,7 +9,7 @@ REVIEW_USER = REVIEW_PASS = "review"
 EXPERIMENTER_USER = os.environ["KINTO_USER"]
 EXPERIMENTER_PASS = os.environ["KINTO_PASS"]
 KINTO_HOST = os.environ["KINTO_HOST"]
-KINTO_BUCKET = "main-workspace"
+KINTO_BUCKET_WORKSPACE = "main-workspace"
 KINTO_BUCKET_MAIN = "main"
 KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
@@ -31,10 +31,10 @@ create_user(EXPERIMENTER_USER, EXPERIMENTER_PASS)
 
 client = kinto_http.Client(server_url=KINTO_HOST, auth=(ADMIN_USER, ADMIN_PASS))
 
-print(f">>>> Creating kinto bucket: {KINTO_BUCKET}")
+print(f">>>> Creating kinto bucket: {KINTO_BUCKET_WORKSPACE}")
 print(
     client.create_bucket(
-        id=KINTO_BUCKET,
+        id=KINTO_BUCKET_WORKSPACE,
         permissions={"read": ["system.Everyone"]},
         if_not_exists=True,
     )
@@ -49,7 +49,7 @@ for collection in [
     print(
         client.create_group(
             id=f"{collection}-editors",
-            bucket=KINTO_BUCKET,
+            bucket=KINTO_BUCKET_WORKSPACE,
             data={"members": [f"account:{EXPERIMENTER_USER}"]},
             if_not_exists=True,
         )
@@ -59,7 +59,7 @@ for collection in [
     print(
         client.create_group(
             id=f"{collection}-reviewers",
-            bucket=KINTO_BUCKET,
+            bucket=KINTO_BUCKET_WORKSPACE,
             data={"members": [f"account:{REVIEW_USER}"]},
             if_not_exists=True,
         )
@@ -69,12 +69,18 @@ for collection in [
     print(
         client.create_collection(
             id=collection,
-            bucket=KINTO_BUCKET,
+            bucket=KINTO_BUCKET_WORKSPACE,
             permissions={
                 "read": ["system.Everyone"],
                 "write": [
-                    (f"/buckets/{KINTO_BUCKET}/groups/" f"{collection}-editors"),
-                    (f"/buckets/{KINTO_BUCKET}/groups/" f"{collection}-reviewers"),
+                    (
+                        f"/buckets/{KINTO_BUCKET_WORKSPACE}/groups/"
+                        f"{collection}-editors"
+                    ),
+                    (
+                        f"/buckets/{KINTO_BUCKET_WORKSPACE}/groups/"
+                        f"{collection}-reviewers"
+                    ),
                 ],
             },
             if_not_exists=True,
