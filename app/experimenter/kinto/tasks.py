@@ -35,7 +35,7 @@ def nimbus_push_experiment_to_kinto(experiment_id):
 
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.info(f"Pushing {experiment} to Kinto")
+        logger.info(f"Pushing {experiment.slug} to Kinto")
 
         kinto_client = KintoClient(
             NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
@@ -43,18 +43,18 @@ def nimbus_push_experiment_to_kinto(experiment_id):
 
         data = NimbusExperimentSerializer(experiment).data
 
-        kinto_client.push_to_kinto(data)
+        kinto_client.create_record(data)
 
         experiment.status = NimbusExperiment.Status.ACCEPTED
         experiment.save()
 
         generate_nimbus_changelog(experiment, get_kinto_user())
 
-        logger.info(f"{experiment} pushed to Kinto")
+        logger.info(f"{experiment.slug} pushed to Kinto")
         metrics.incr("push_experiment_to_kinto.completed")
     except Exception as e:
         metrics.incr("push_experiment_to_kinto.failed")
-        logger.info(f"Pushing experiment id {experiment_id} to Kinto failed: {e}")
+        logger.info(f"Pushing experiment {experiment.slug} to Kinto failed: {e}")
         raise e
 
 
@@ -161,7 +161,7 @@ def nimbus_check_experiments_are_live():
 
                 generate_nimbus_changelog(experiment, get_kinto_user())
 
-                logger.info(f"{experiment} status is set to Live")
+                logger.info(f"{experiment.slug} status is set to Live")
 
     metrics.incr("check_experiments_are_live.completed")
 
@@ -191,7 +191,7 @@ def nimbus_check_experiments_are_paused():
             if records[experiment.slug]["isEnrollmentPaused"]:
                 nimbus_send_experiment_ending_email(experiment)
                 logger.info(
-                    f"{experiment} is_paused is being updated to True".format(
+                    f"{experiment.slug} is_paused is being updated to True".format(
                         experiment=experiment
                     )
                 )
@@ -201,7 +201,7 @@ def nimbus_check_experiments_are_paused():
 
                 generate_nimbus_changelog(experiment, get_kinto_user())
 
-                logger.info(f"{experiment} is_paused is set to True")
+                logger.info(f"{experiment.slug} is_paused is set to True")
 
     metrics.incr("check_experiments_are_paused.completed")
 
@@ -238,7 +238,7 @@ def nimbus_check_experiments_are_complete():
 
             if experiment.slug not in record_ids:
                 logger.info(
-                    f"{experiment} status is being updated to complete".format(
+                    f"{experiment.slug} status is being updated to complete".format(
                         experiment=experiment
                     )
                 )
@@ -248,7 +248,7 @@ def nimbus_check_experiments_are_complete():
 
                 generate_nimbus_changelog(experiment, get_kinto_user())
 
-                logger.info(f"{experiment} status is set to Complete")
+                logger.info(f"{experiment.slug} status is set to Complete")
 
     metrics.incr("check_experiments_are_complete.completed")
 
@@ -265,16 +265,16 @@ def nimbus_end_experiment_in_kinto(experiment_id):
 
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.info(f"Deleting {experiment} from Kinto")
+        logger.info(f"Deleting {experiment.slug} from Kinto")
         kinto_client = KintoClient(
             NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
         )
-        kinto_client.delete_from_kinto(experiment.slug)
-        logger.info(f"{experiment} deleted from Kinto")
+        kinto_client.delete_record(experiment.slug)
+        logger.info(f"{experiment.slug} deleted from Kinto")
         metrics.incr("end_experiment_in_kinto.completed")
     except Exception as e:
         metrics.incr("end_experiment_in_kinto.failed")
-        logger.info(f"Deleting experiment id {experiment_id} from Kinto failed: {e}")
+        logger.info(f"Deleting experiment id {experiment.slug} from Kinto failed: {e}")
         raise e
 
 
@@ -303,6 +303,45 @@ def nimbus_update_paused_experiments_in_kinto():
                 updated_record["isEnrollmentPaused"] = True
 
                 kinto_client.update_record(updated_record)
-                logger.info(f"{experiment} is being paused")
+                logger.info(f"{experiment.slug} is being paused")
 
     metrics.incr("nimbus_update_paused_experiments_in_kinto.completed")
+
+
+@metrics.timer_decorator("nimbus_synchronize_preview_experiments_in_kinto")
+def nimbus_synchronize_preview_experiments_in_kinto():
+    """
+    A scheduled task that pushes any experiments with status PREVIEW to the preview
+    collection and removes any experiments not with status PREVIEW from the preview
+    collection.
+    """
+    metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.started")
+
+    kinto_client = KintoClient(settings.KINTO_COLLECTION_NIMBUS_PREVIEW, review=False)
+
+    try:
+        published_preview_slugs = [e["id"] for e in kinto_client.get_main_records()]
+
+        should_publish_experiments = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.PREVIEW
+        ).exclude(slug__in=published_preview_slugs)
+
+        for experiment in should_publish_experiments:
+            data = NimbusExperimentSerializer(experiment).data
+            kinto_client.create_record(data)
+            logger.info(f"{experiment.slug} is being pushed to preview")
+
+        should_unpublish_experiments = NimbusExperiment.objects.filter(
+            slug__in=published_preview_slugs
+        ).exclude(status=NimbusExperiment.Status.PREVIEW)
+
+        for experiment in should_unpublish_experiments:
+            kinto_client.delete_record(experiment.slug)
+            logger.info(f"{experiment.slug} is being removed from preview")
+
+        metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.completed")
+
+    except Exception as e:
+        metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.failed")
+        logger.info(f"Synchronizing preview experiments failed: {e}")
+        raise e

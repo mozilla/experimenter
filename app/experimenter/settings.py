@@ -337,6 +337,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.kinto.tasks.nimbus_update_paused_experiments_in_kinto",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
+    "nimbus_synchronize_preview_experiments_in_kinto": {
+        "task": "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_kinto",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
 }
 
 # Recipe Configuration
@@ -407,6 +411,7 @@ KINTO_BUCKET_WORKSPACE = "main-workspace"
 KINTO_BUCKET_MAIN = "main"
 KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
+KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
 
 
 # Jetstream GCS Bucket data
