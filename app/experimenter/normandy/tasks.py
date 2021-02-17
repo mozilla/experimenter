@@ -192,9 +192,10 @@ def update_population_percent(experiment, recipe_data, filter_objects):
     ):
 
         decimal.getcontext().prec = 5
+        bucket_total = bucket_sample.get("total", experiment.BUCKET_TOTAL)
         percent_decimal = (
             decimal.Decimal(bucket_sample["count"])
-            / decimal.Decimal(bucket_sample["total"])
+            / decimal.Decimal(bucket_total)
             * decimal.Decimal(100)
         )
 

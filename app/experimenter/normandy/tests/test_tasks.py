@@ -353,7 +353,6 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
                         "count": 300,
                         "namespace": "first-run",
                         "start": 9700,
-                        "total": 10000,
                         "type": "namespaceSample",
                     }
                 ],
