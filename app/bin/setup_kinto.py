@@ -13,6 +13,7 @@ KINTO_BUCKET_WORKSPACE = "main-workspace"
 KINTO_BUCKET_MAIN = "main"
 KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
+KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
 
 
 def create_user(user, passw):
@@ -44,6 +45,7 @@ print(
 for collection in [
     KINTO_COLLECTION_NIMBUS_DESKTOP,
     KINTO_COLLECTION_NIMBUS_MOBILE,
+    KINTO_COLLECTION_NIMBUS_PREVIEW,
 ]:
     print(">>>> Creating kinto group: editors")
     print(

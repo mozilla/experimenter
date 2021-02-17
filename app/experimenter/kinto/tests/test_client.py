@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.test import TestCase
+from parameterized import parameterized
 
 from experimenter.kinto.client import (
     KINTO_REVIEW_STATUS,
     KINTO_ROLLBACK_STATUS,
+    KINTO_SIGN_STATUS,
     KintoClient,
 )
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
@@ -15,8 +17,15 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         self.collection = "test-collection"
         self.client = KintoClient(self.collection)
 
-    def test_push_to_kinto_sends_data_updates_collection(self):
-        self.client.push_to_kinto({"test": "data"})
+    @parameterized.expand(
+        [
+            [False, KINTO_SIGN_STATUS],
+            [True, KINTO_REVIEW_STATUS],
+        ]
+    )
+    def test_create_record_creates_record_patches_collection(self, review, status):
+        client = KintoClient(self.collection, review=review)
+        client.create_record({"test": "data"})
 
         self.mock_kinto_client_creator.assert_called_with(
             server_url=settings.KINTO_HOST,
@@ -32,7 +41,61 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=self.collection,
-            data={"status": KINTO_REVIEW_STATUS},
+            data={"status": status},
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+    @parameterized.expand(
+        [
+            [False, KINTO_SIGN_STATUS],
+            [True, KINTO_REVIEW_STATUS],
+        ]
+    )
+    def test_update_record_updates_record_patches_collection(self, review, status):
+        client = KintoClient(self.collection, review=review)
+
+        data = {"id": "my-record", "field": "value"}
+        client.update_record(data)
+
+        self.mock_kinto_client.update_record.assert_called_with(
+            data=data,
+            collection=self.collection,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            if_match='"0"',
+        )
+
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=self.collection,
+            data={"status": status},
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+    @parameterized.expand(
+        [
+            [False, KINTO_SIGN_STATUS],
+            [True, KINTO_REVIEW_STATUS],
+        ]
+    )
+    def test_delete_record_deletes_record_patches_collection(self, review, status):
+        client = KintoClient(self.collection, review=review)
+
+        record_id = "abc-123"
+        client.delete_record(record_id)
+
+        self.mock_kinto_client_creator.assert_called_with(
+            server_url=settings.KINTO_HOST,
+            auth=(settings.KINTO_USER, settings.KINTO_PASS),
+        )
+
+        self.mock_kinto_client.delete_record.assert_called_with(
+            id=record_id,
+            collection=self.collection,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=self.collection,
+            data={"status": status},
             bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
 
@@ -85,44 +148,4 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         ]
         self.assertEqual(
             self.client.get_rejected_record(), "bug-9999-rapid-test-release-55"
-        )
-
-    def test_delete_from_kinto_sends_id_updates_collection(self):
-        expected_id = "abc-123"
-
-        self.client.delete_from_kinto(expected_id)
-
-        self.mock_kinto_client_creator.assert_called_with(
-            server_url=settings.KINTO_HOST,
-            auth=(settings.KINTO_USER, settings.KINTO_PASS),
-        )
-
-        self.mock_kinto_client.delete_record.assert_called_with(
-            id=expected_id,
-            collection=self.collection,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-        )
-
-        self.mock_kinto_client.patch_collection.assert_called_with(
-            id=self.collection,
-            data={"status": KINTO_REVIEW_STATUS},
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-        )
-
-    def test_update_record_updates_collection_and_sets_review_status(self):
-        data = {"id": "my-record", "field": "value"}
-
-        self.client.update_record(data)
-
-        self.mock_kinto_client.update_record.assert_called_with(
-            data=data,
-            collection=self.collection,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-            if_match='"0"',
-        )
-
-        self.mock_kinto_client.patch_collection.assert_called_with(
-            id=self.collection,
-            data={"status": KINTO_REVIEW_STATUS},
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
