@@ -44,6 +44,28 @@ storiesOf("components/Summary", module)
     });
     return <Subject {...{ experiment }} />;
   })
+  .add("enrollment active", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+      isEnrollmentPaused: false,
+    });
+    return <Subject {...{ experiment }} />;
+  })
+  .add("enrollment ended", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+      enrollmentEndDate: new Date().toISOString(),
+    });
+    return <Subject {...{ experiment }} />;
+  })
+  .add("enrollment ended + end requested", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+      isEndRequested: true,
+      enrollmentEndDate: new Date().toISOString(),
+    });
+    return <Subject {...{ experiment }} />;
+  })
   .add("no branches", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
       referenceBranch: null,
