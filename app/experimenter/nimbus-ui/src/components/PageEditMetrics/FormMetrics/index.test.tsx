@@ -25,22 +25,17 @@ describe("FormMetrics", () => {
     );
   });
 
-  it("calls onNext when next clicked", async () => {
-    const onNext = jest.fn();
-    render(<Subject {...{ onNext }} />);
-
-    const nextButton = screen.getByText("Next");
-    await act(async () => void fireEvent.click(nextButton));
-    expect(onNext).toHaveBeenCalled();
-  });
-
-  it("calls onSave when save clicked", async () => {
+  it("calls onSave when save and next buttons are clicked", async () => {
     const onSave = jest.fn();
     render(<Subject {...{ onSave }} />);
 
-    const saveButton = screen.getByText("Save");
-    await act(async () => void fireEvent.click(saveButton));
-    expect(onSave).toHaveBeenCalled();
+    const submitButton = screen.getByTestId("submit-button");
+    const nextButton = screen.getByTestId("next-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+      fireEvent.click(nextButton);
+    });
+    expect(onSave).toHaveBeenCalledTimes(2);
   });
 
   it("disables save when loading", async () => {

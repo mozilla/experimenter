@@ -26,15 +26,18 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
   const [isServerValid, setIsServerValid] = useState(true);
 
   const onFormSubmit = useCallback(
-    async ({
-      channel,
-      firefoxMinVersion,
-      targetingConfigSlug,
-      populationPercent,
-      totalEnrolledClients,
-      proposedEnrollment,
-      proposedDuration,
-    }: Record<string, any>) => {
+    async (
+      {
+        channel,
+        firefoxMinVersion,
+        targetingConfigSlug,
+        populationPercent,
+        totalEnrolledClients,
+        proposedEnrollment,
+        proposedDuration,
+      }: Record<string, any>,
+      next: boolean,
+    ) => {
       try {
         // issue #3954: Need to parse string IDs into numbers
         const nimbusExperimentId = currentExperiment.current!.id;
@@ -67,6 +70,10 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
           setSubmitErrors({});
           // In practice this should be defined by the time we get here
           refetchReview.current!();
+
+          if (next) {
+            navigate("../request-review");
+          }
         }
       } catch (error) {
         setSubmitErrors({ "*": SUBMIT_ERROR });
@@ -74,10 +81,6 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
     },
     [updateExperimentAudience, currentExperiment],
   );
-
-  const onFormNext = useCallback(() => {
-    navigate("../request-review");
-  }, []);
 
   return (
     <AppLayoutWithExperiment
@@ -101,7 +104,6 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
               isServerValid,
               isLoading: loading,
               onSubmit: onFormSubmit,
-              onNext: onFormNext,
             }}
           />
         );

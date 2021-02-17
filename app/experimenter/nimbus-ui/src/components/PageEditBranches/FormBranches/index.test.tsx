@@ -118,13 +118,6 @@ describe("FormBranches", () => {
     });
   });
 
-  it("calls onNext when next button clicked", () => {
-    const onNext = jest.fn();
-    render(<SubjectBranches {...{ onNext }} />);
-    fireEvent.click(screen.getByTestId("next-button"));
-    expect(onNext).toHaveBeenCalled();
-  });
-
   it("sets all branch ratios to 1 when equal ratio checkbox enabled", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);

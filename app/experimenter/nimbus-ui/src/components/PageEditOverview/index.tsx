@@ -28,13 +28,16 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
   const [isServerValid, setIsServerValid] = useState(true);
 
   const onFormSubmit = useCallback(
-    async ({
-      name,
-      hypothesis,
-      riskMitigationLink,
-      publicDescription,
-      documentationLinks,
-    }: Record<string, any>) => {
+    async (
+      {
+        name,
+        hypothesis,
+        riskMitigationLink,
+        publicDescription,
+        documentationLinks,
+      }: Record<string, any>,
+      next: boolean,
+    ) => {
       try {
         const result = await updateExperimentOverview({
           variables: {
@@ -63,6 +66,10 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
           setSubmitErrors({});
           // In practice this should be defined by the time we get here
           refetchReview.current!();
+
+          if (next) {
+            navigate(`branches`);
+          }
         }
       } catch (error) {
         setSubmitErrors({ "*": SUBMIT_ERROR });
@@ -70,10 +77,6 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
     },
     [updateExperimentOverview, currentExperiment],
   );
-
-  const onFormNext = useCallback(() => {
-    navigate(`branches`);
-  }, []);
 
   return (
     <AppLayoutWithExperiment
@@ -97,7 +100,6 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
               submitErrors,
               setSubmitErrors,
               onSubmit: onFormSubmit,
-              onNext: onFormNext,
             }}
           />
         );
