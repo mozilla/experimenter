@@ -584,3 +584,36 @@ class TestNimbusUpdatePausedExperimentsInKinto(MockKintoClientMixin, TestCase):
 
         self.mock_kinto_client.update_record.assert_not_called()
         self.mock_kinto_client.patch_collection.assert_not_called()
+
+
+class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestCase):
+    def test_publishes_preview_experiments_and_unpublishes_non_preview_experiments(self):
+        should_publish_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.PREVIEW
+        )
+        should_unpublish_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
+
+        self.setup_kinto_get_main_records([should_unpublish_experiment.slug])
+
+        tasks.nimbus_synchronize_preview_experiments_in_kinto()
+
+        data = NimbusExperimentSerializer(should_publish_experiment).data
+
+        self.mock_kinto_client.create_record.assert_called_with(
+            data=data,
+            collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            if_not_exists=True,
+        )
+        self.mock_kinto_client.delete_record.assert_called_with(
+            id=should_unpublish_experiment.slug,
+            collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+    def test_reraises_exception(self):
+        self.mock_kinto_client.create_record.side_effect = Exception
+        with self.assertRaises(Exception):
+            tasks.nimbus_synchronize_preview_experiments_in_kinto()
