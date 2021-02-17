@@ -273,6 +273,39 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.bucket_range.count, 2000)
         self.assertEqual(experiment.bucket_range.isolation_group.name, experiment.slug)
 
+    def test_proposed_enrollment_end_date_without_start_date_is_None(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
+        self.assertIsNone(experiment.proposed_enrollment_end_date)
+
+    def test_proposed_enrollment_end_date_with_start_date_returns_date(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE, proposed_enrollment=10
+        )
+        self.assertEqual(
+            experiment.proposed_enrollment_end_date,
+            datetime.date.today() + datetime.timedelta(days=10),
+        )
+
+    def test_should_pause_false_before_enrollment_end(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE, proposed_enrollment=10
+        )
+        self.assertFalse(experiment.should_pause)
+
+    def test_should_pause_true_after_enrollment_end(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE, proposed_enrollment=10
+        )
+        launch_change = experiment.changes.get(
+            old_status=NimbusExperiment.Status.ACCEPTED,
+            new_status=NimbusExperiment.Status.LIVE,
+        )
+        launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
+        launch_change.save()
+        self.assertTrue(experiment.should_pause)
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):

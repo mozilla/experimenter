@@ -26,14 +26,14 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         self.mock_kinto_client.create_record.assert_called_with(
             data={"test": "data"},
             collection=self.collection,
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
             if_not_exists=True,
         )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=self.collection,
             data={"status": KINTO_REVIEW_STATUS},
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
 
     def test_rollback_changes_patches_collection(self):
@@ -47,7 +47,7 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=self.collection,
             data={"status": KINTO_ROLLBACK_STATUS},
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
 
     def test_returns_true_for_pending_review(self):
@@ -100,11 +100,29 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         self.mock_kinto_client.delete_record.assert_called_with(
             id=expected_id,
             collection=self.collection,
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=self.collection,
             data={"status": KINTO_REVIEW_STATUS},
-            bucket=settings.KINTO_BUCKET,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+    def test_update_record_updates_collection_and_sets_review_status(self):
+        data = {"id": "my-record", "field": "value"}
+
+        self.client.update_record(data)
+
+        self.mock_kinto_client.update_record.assert_called_with(
+            data=data,
+            collection=self.collection,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            if_match='"0"',
+        )
+
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=self.collection,
+            data={"status": KINTO_REVIEW_STATUS},
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
         )
