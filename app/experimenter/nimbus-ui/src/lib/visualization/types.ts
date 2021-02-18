@@ -7,11 +7,23 @@ export interface AnalysisData {
   weekly: { [branch: string]: BranchDescription } | null;
   overall: { [branch: string]: BranchDescription } | null;
   show_analysis: boolean;
+  metadata?: Metadata;
   other_metrics?: { [metric: string]: string };
 }
 
 export type AnalysisDataOverall = Exclude<AnalysisData["overall"], null>;
 export type AnalysisDataWeekly = Exclude<AnalysisData["weekly"], null>;
+
+export interface Metadata {
+  metrics: { [metric: string]: MetadataPoint };
+  probesets: { [probeset: string]: MetadataPoint };
+}
+
+export interface MetadataPoint {
+  description: string;
+  friendly_name: string;
+  bigger_is_better: boolean;
+}
 
 export interface AnalysisPoint {
   metric: string;

@@ -86,3 +86,7 @@ $sizes: (
   width: 18px;
   height: 18px;
 }
+
+.__react_component_tooltip > p:last-child {
+  margin-bottom: 0;
+}

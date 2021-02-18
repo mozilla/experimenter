@@ -19,7 +19,7 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           results={mockAnalysis()}
           probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-          probeSetName={experiment.secondaryProbeSets![0]!.name}
+          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -37,7 +37,7 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           results={mockAnalysis()}
           probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-          probeSetName={experiment.secondaryProbeSets![0]!.name}
+          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -58,7 +58,7 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           results={mockAnalysis()}
           probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-          probeSetName={experiment.secondaryProbeSets![0]!.name}
+          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -75,7 +75,7 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           results={mockAnalysis()}
           probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-          probeSetName={experiment.secondaryProbeSets![0]!.name}
+          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -96,12 +96,28 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           results={mockAnalysis()}
           probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-          probeSetName={experiment.secondaryProbeSets![0]!.name}
+          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,
     );
 
     expect(screen.queryAllByText("0.02 to 0.08")).toHaveLength(2);
+  });
+
+  it("uses the friendly name from the metadata", () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableMetricSecondary
+          results={mockAnalysis()}
+          probeSetSlug="feature_d"
+          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
+          isDefault={false}
+        />
+      </RouterSlugProvider>,
+    );
+
+    expect(screen.queryByText("Feature D Friendly Name")).toBeInTheDocument();
   });
 });

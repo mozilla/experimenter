@@ -84,17 +84,17 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
                   key={probeSet!.slug}
                   results={analysis}
                   probeSetSlug={probeSet!.slug}
-                  probeSetName={probeSet!.name}
+                  probeSetDefaultName={probeSet!.name}
                   isDefault={false}
                 />
               ))}
             {analysis?.other_metrics &&
-              Object.keys(analysis.other_metrics).map((metric) => (
+              Object.keys(analysis.other_metrics).map((metric: string) => (
                 <TableMetricSecondary
                   key={metric}
                   results={analysis}
                   probeSetSlug={metric}
-                  probeSetName={analysis!.other_metrics![metric]}
+                  probeSetDefaultName={analysis!.other_metrics![metric]}
                 />
               ))}
           </div>
