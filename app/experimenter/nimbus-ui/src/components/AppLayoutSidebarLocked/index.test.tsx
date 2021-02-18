@@ -51,6 +51,7 @@ const Subject = ({
               daily: [],
               weekly: {},
               overall: mockAnalysis().overall,
+              metadata: mockAnalysis().metadata,
               other_metrics: mockAnalysis().other_metrics,
             }
           : undefined,
@@ -134,7 +135,7 @@ describe("AppLayoutSidebarLocked", () => {
         "Overview",
         "Results Summary",
         "Default Metrics",
-        "Feature D",
+        "Feature D Friendly Name",
       ].forEach((item) => {
         expect(screen.getByText(item)).toBeInTheDocument();
       });

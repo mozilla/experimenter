@@ -1,4 +1,5 @@
 import json
+import os
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -37,12 +38,14 @@ class Statistic:
 
 BRANCH_DATA = "branch_data"
 PRIMARY_METRIC_SUFFIX = "_ever_used"
+STATISTICS_FOLDER = "statistics"
+METADATA_FOLDER = "metadata"
 
 
-def load_data_from_gcs(filename):
+def load_data_from_gcs(path):
     return (
-        json.loads(default_storage.open(filename).read())
-        if default_storage.exists(filename)
+        json.loads(default_storage.open(path).read())
+        if default_storage.exists(path)
         else None
     )
 
@@ -192,7 +195,6 @@ def generate_results_object(data, experiment, window="overall"):
                 results[branch][BRANCH_DATA][metric].update(
                     {"significance": compute_significance(lower, upper)}
                 )
-
             data_point = {
                 "lower": lower,
                 "upper": upper,
@@ -215,9 +217,15 @@ def generate_results_object(data, experiment, window="overall"):
 
 
 def get_data(slug, window):
-    filename = f"""statistics_{slug}_{window}.json"""
-    data = load_data_from_gcs(filename)
-    return data
+    filename = f"statistics_{slug}_{window}.json"
+    path = os.path.join(STATISTICS_FOLDER, filename)
+    return load_data_from_gcs(path)
+
+
+def get_metadata(slug):
+    filename = f"metadata_{slug}.json"
+    path = os.path.join(METADATA_FOLDER, filename)
+    return load_data_from_gcs(path)
 
 
 @api_view()
@@ -225,9 +233,12 @@ def analysis_results_view(request, slug):
     windows = ["daily", "weekly", "overall"]
     experiment = get_object_or_404(NimbusExperiment.objects.filter(slug=slug))
     raw_data = {}
-    experiment_data = {"show_analysis": settings.FEATURE_ANALYSIS}
 
     recipe_slug = experiment.slug.replace("-", "_")
+    experiment_data = {
+        "show_analysis": settings.FEATURE_ANALYSIS,
+        "metadata": get_metadata(recipe_slug),
+    }
 
     for window in windows:
         data = raw_data[window] = get_data(recipe_slug, window)
