@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import ReactMarkdown from "react-markdown";
+import ReactTooltip from "react-tooltip";
+import { ReactComponent as Info } from "../../../images/info.svg";
 import {
   DISPLAY_TYPE,
   METRIC_TYPE,
@@ -23,7 +26,7 @@ type SecondaryMetricStatistic = {
 type TableMetricSecondaryProps = {
   results: AnalysisData;
   probeSetSlug: string;
-  probeSetName: string;
+  probeSetDefaultName: string;
   isDefault?: boolean;
 };
 
@@ -44,10 +47,11 @@ const TableMetricSecondary = ({
     daily: [],
     weekly: {},
     overall: {},
+    metadata: { metrics: {}, probesets: {} },
     show_analysis: false,
   },
   probeSetSlug,
-  probeSetName,
+  probeSetDefaultName,
   isDefault = true,
 }: TableMetricSecondaryProps) => {
   const secondaryMetricStatistics = getStatistics(probeSetSlug);
@@ -56,11 +60,39 @@ const TableMetricSecondary = ({
     : METRIC_TYPE.USER_SELECTED_SECONDARY;
 
   const overallResults = results?.overall!;
+  const probeSetName =
+    results.metadata?.metrics[probeSetSlug]?.friendly_name ||
+    probeSetDefaultName;
+  const probeSetDescription =
+    results.metadata?.metrics[probeSetSlug]?.description || undefined;
 
   return (
     <div data-testid="table-metric-secondary" className="mb-5">
       <h2 className="h5 mb-3" id={probeSetSlug}>
-        <div>{probeSetName}</div>
+        <div>
+          <div className="d-inline-block">
+            {probeSetName}{" "}
+            {probeSetDescription && (
+              <>
+                <Info
+                  data-tip
+                  data-for={probeSetSlug}
+                  className="align-baseline"
+                />
+                <ReactTooltip
+                  id={probeSetSlug}
+                  multiline
+                  clickable
+                  className="w-25"
+                  delayHide={200}
+                  effect="solid"
+                >
+                  <ReactMarkdown source={probeSetDescription!} />
+                </ReactTooltip>
+              </>
+            )}
+          </div>
+        </div>
         <div
           className={`badge ${secondaryType.badge}`}
           data-tip={secondaryType.tooltip}

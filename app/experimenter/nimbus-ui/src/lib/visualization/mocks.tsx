@@ -7,6 +7,28 @@ export const MOCK_UNAVAILABLE_ANALYSIS = {
   daily: null,
   weekly: null,
   overall: null,
+  metadata: {
+    metrics: {},
+    probesets: {},
+  },
+};
+
+export const MOCK_METADATA = {
+  metrics: {
+    feature_b: {
+      bigger_is_better: true,
+      description:
+        "This is a metric description. It's made by a data scientist at the creation time of the metric [I'm a link](https://www.example.com)",
+      friendly_name: "Feature B",
+    },
+    feature_d: {
+      bigger_is_better: true,
+      description:
+        "This is a metric description. It's made by a data scientist at the creation time of the metric [I'm a link](https://www.example.com)",
+      friendly_name: "Feature D Friendly Name",
+    },
+  },
+  probesets: {},
 };
 
 export const CONTROL_NEUTRAL = {
@@ -204,9 +226,8 @@ export const weeklyMockAnalysis = (modifications = {}) =>
 export const mockAnalysis = (modifications = {}) =>
   Object.assign(
     {
-      other_metrics: {
-        feature_d: "Feature D",
-      },
+      other_metrics: { feature_d: "Feature D" },
+      metadata: MOCK_METADATA,
       show_analysis: true,
       daily: [],
       weekly: weeklyMockAnalysis(),
@@ -907,9 +928,8 @@ export const mockAnalysis = (modifications = {}) =>
 export const mockIncompleteAnalysis = (modifications = {}) =>
   Object.assign(
     {
-      other_metrics: {
-        feature_d: "Feature D",
-      },
+      other_metrics: { feature_d: "Feature D" },
+      metadata: MOCK_METADATA,
       show_analysis: true,
       daily: [],
       weekly: {},
