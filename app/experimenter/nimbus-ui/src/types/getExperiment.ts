@@ -99,6 +99,8 @@ export interface getExperiment_experimentBySlug {
   endDate: DateTime | null;
   riskMitigationLink: string;
   documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
+  isEnrollmentPaused: boolean | null;
+  enrollmentEndDate: DateTime | null;
 }
 
 export interface getExperiment {
