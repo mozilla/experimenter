@@ -1,4 +1,3 @@
-/* istanbul ignore file until EXP-866 final */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -33,7 +32,7 @@ const FormLaunchPreviewToReview = ({
         <div className="d-flex bd-highlight">
           <div className="py-2">
             <button
-              data-testid="submit-button"
+              data-testid="launch-preview-to-review"
               type="button"
               className="mr-3 btn btn-primary"
               disabled={isLoading || !allBoxesChecked}
@@ -42,7 +41,7 @@ const FormLaunchPreviewToReview = ({
               Request Launch
             </button>
             <button
-              data-testid="submit-button"
+              data-testid="launch-preview-to-draft"
               type="button"
               className="btn btn-secondary"
               disabled={isLoading}

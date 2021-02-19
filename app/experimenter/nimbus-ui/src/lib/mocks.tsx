@@ -423,6 +423,10 @@ export function mockDirectoryExperiments(
       endDate: null,
     },
     {
+      status: NimbusExperimentStatus.PREVIEW,
+      endDate: null,
+    },
+    {
       status: NimbusExperimentStatus.REVIEW,
       endDate: null,
     },

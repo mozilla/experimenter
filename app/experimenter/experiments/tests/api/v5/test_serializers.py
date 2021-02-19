@@ -996,44 +996,26 @@ class TestNimbusExperimentSerializer(TestCase):
         else:
             self.assertNotIn("population_percent", serializer.errors)
 
-    def test_status_update_draft_to_review(self):
-        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
+    @parameterized.expand(
+        [
+            [NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.PREVIEW],
+            [NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.REVIEW],
+            [NimbusExperiment.Status.PREVIEW, NimbusExperiment.Status.DRAFT],
+            [NimbusExperiment.Status.PREVIEW, NimbusExperiment.Status.REVIEW],
+        ]
+    )
+    def test_valid_status_update(self, from_status, to_status):
+        experiment = NimbusExperimentFactory(status=from_status)
         serializer = NimbusExperimentSerializer(
             experiment,
-            data={"status": NimbusExperiment.Status.REVIEW},
+            data={"status": to_status},
             context={"user": self.user},
         )
         self.assertEqual(experiment.changes.count(), 0)
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 1)
-        self.assertEqual(experiment.status, NimbusExperiment.Status.REVIEW)
-
-    def test_status_update_draft_to_preview(self):
-        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            data={"status": NimbusExperiment.Status.PREVIEW},
-            context={"user": self.user},
-        )
-        self.assertEqual(experiment.changes.count(), 0)
-        self.assertTrue(serializer.is_valid())
-        experiment = serializer.save()
-        self.assertEqual(experiment.changes.count(), 1)
-        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
-
-    def test_status_update_preview_to_draft(self):
-        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.PREVIEW)
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            data={"status": NimbusExperiment.Status.DRAFT},
-            context={"user": self.user},
-        )
-        self.assertEqual(experiment.changes.count(), 0)
-        self.assertTrue(serializer.is_valid())
-        experiment = serializer.save()
-        self.assertEqual(experiment.changes.count(), 1)
-        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.status, to_status)
 
     def test_status_with_invalid_target_status(self):
         experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
@@ -1106,23 +1088,29 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
         self.assertEqual(experiment.bucket_range.count, 5000)
 
-    def test_set_status_to_preview_invokes_kinto_task(self):
+    @parameterized.expand(
+        [
+            [NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.PREVIEW],
+            [NimbusExperiment.Status.PREVIEW, NimbusExperiment.Status.DRAFT],
+        ]
+    )
+    def test_preview_draft_transition_invokes_kinto_task(self, from_status, to_status):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT, population_percent=Decimal("50.0")
+            from_status, population_percent=Decimal("50.0")
         )
 
         serializer = NimbusExperimentSerializer(
             experiment,
-            data={"status": NimbusExperiment.Status.PREVIEW},
+            data={"status": to_status},
             context={"user": self.user},
         )
         self.assertTrue(serializer.is_valid())
 
         experiment = serializer.save()
-        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
-        self.mock_preview_task.delay.assert_called()
+        self.assertEqual(experiment.status, to_status)
+        self.mock_preview_task.apply_async.assert_called_with(countdown=5)
 
-    def test_set_status_to_draft_doesnt_invoke_kinto_task(self):
+    def test_set_status_already_draft_doesnt_invoke_kinto_task(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT, population_percent=Decimal("50.0")
         )
@@ -1136,7 +1124,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
         experiment = serializer.save()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
-        self.mock_preview_task.delay.assert_not_called()
+        self.mock_preview_task.apply_async.assert_not_called()
 
 
 class TestNimbusReadyForReviewSerializer(TestCase):
