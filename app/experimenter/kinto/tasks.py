@@ -308,6 +308,7 @@ def nimbus_update_paused_experiments_in_kinto():
     metrics.incr("nimbus_update_paused_experiments_in_kinto.completed")
 
 
+@app.task
 @metrics.timer_decorator("nimbus_synchronize_preview_experiments_in_kinto")
 def nimbus_synchronize_preview_experiments_in_kinto():
     """

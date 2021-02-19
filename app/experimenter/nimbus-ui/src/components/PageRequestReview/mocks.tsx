@@ -5,43 +5,37 @@
 import React from "react";
 import PageRequestReview from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { MockConfigContext } from "../../hooks";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 export const { mock, experiment } = mockExperimentQuery("demo-slug");
 
-export function createMutationMock(id: number) {
+export function createMutationMock(
+  id: number,
+  status = NimbusExperimentStatus.REVIEW,
+) {
   return mockExperimentMutation(
     UPDATE_EXPERIMENT_MUTATION,
     {
       id,
-      status: NimbusExperimentStatus.REVIEW,
+      status,
     },
     "updateExperiment",
     {
       experiment: {
-        status: NimbusExperimentStatus.REVIEW,
+        status,
       },
     },
   );
 }
 
-export const SubjectEXP866 = ({
-  mocks = [mock],
-  ...pageProps
+export const Subject = ({
+  mocks = [mock, createMutationMock(experiment.id!)],
 }: {
   mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
-} & Partial<React.ComponentProps<typeof PageRequestReview>>) => (
-  <MockConfigContext.Provider value={{ featureFlags: { exp866Preview: true } }}>
-    <RouterSlugProvider mocks={mocks}>
-      <PageRequestReview
-        {...{
-          polling: false,
-          ...pageProps,
-        }}
-      />
-    </RouterSlugProvider>
-  </MockConfigContext.Provider>
+}) => (
+  <RouterSlugProvider {...{ mocks }}>
+    <PageRequestReview polling={false} />
+  </RouterSlugProvider>
 );
