@@ -446,7 +446,7 @@ class NimbusExperimentSerializer(
                 experiment.allocate_bucket_range()
 
             if self.should_call_preview_task:
-                nimbus_synchronize_preview_experiments_in_kinto.delay()
+                nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
 
             generate_nimbus_changelog(experiment, self.context["user"])
 

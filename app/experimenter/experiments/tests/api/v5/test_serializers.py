@@ -1108,7 +1108,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
         experiment = serializer.save()
         self.assertEqual(experiment.status, to_status)
-        self.mock_preview_task.delay.assert_called()
+        self.mock_preview_task.apply_async.assert_called_with(countdown=5)
 
     def test_set_status_already_draft_doesnt_invoke_kinto_task(self):
         experiment = NimbusExperimentFactory.create_with_status(
@@ -1124,7 +1124,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
         experiment = serializer.save()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
-        self.mock_preview_task.delay.assert_not_called()
+        self.mock_preview_task.apply_async.assert_not_called()
 
 
 class TestNimbusReadyForReviewSerializer(TestCase):
