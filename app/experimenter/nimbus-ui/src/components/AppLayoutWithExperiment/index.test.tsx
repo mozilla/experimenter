@@ -2,15 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { navigate } from "@reach/router";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import AppLayoutWithExperiment, { POLL_INTERVAL } from ".";
+import AppLayoutWithExperiment, { POLL_INTERVAL, RedirectCheck } from ".";
 import { BASE_PATH } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 jest.useFakeTimers();
+
+jest.mock("@reach/router", () => ({
+  ...jest.requireActual("@reach/router"),
+  navigate: jest.fn(),
+}));
 
 describe("AppLayoutWithExperiment", () => {
   it("renders as expected", async () => {
@@ -113,6 +119,32 @@ describe("AppLayoutWithExperiment", () => {
         ).toHaveTextContent("Draft");
       });
     });
+
+    it("can redirect you somewhere else", async () => {
+      const { mock, experiment } = mockExperimentQuery("demo-slug", {
+        status: NimbusExperimentStatus.REVIEW,
+      });
+
+      render(
+        <Subject
+          mocks={[mock]}
+          redirect={({ status }) => {
+            if (status.review) {
+              return "request-review";
+            }
+          }}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(navigate).toHaveBeenCalledWith(
+          `${BASE_PATH}/${experiment.slug}/request-review`,
+          {
+            replace: true,
+          },
+        );
+      });
+    });
   });
 
   // TODO: EXP-733 some sort of after test cleanup, can't add tests after without errors
@@ -127,17 +159,19 @@ const Subject = ({
   polling = false,
   sidebar = true,
   withTitle = true,
+  redirect = () => {},
 }: {
   mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
   polling?: boolean;
   sidebar?: boolean;
   withTitle?: boolean;
+  redirect?: (check: RedirectCheck) => void;
 }) => (
   <RouterSlugProvider {...{ mocks }}>
     <AppLayoutWithExperiment
       title={withTitle ? "Howdy!" : undefined}
       testId="AppLayoutWithExperiment"
-      {...{ polling, sidebar }}
+      {...{ polling, sidebar, redirect }}
     >
       {({ experiment }) => <p data-testid="child">{experiment.slug}</p>}
     </AppLayoutWithExperiment>
