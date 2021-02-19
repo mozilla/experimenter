@@ -110,6 +110,9 @@ export const GET_EXPERIMENT_QUERY = gql`
         title
         link
       }
+
+      isEnrollmentPaused
+      enrollmentEndDate
     }
   }
 `;

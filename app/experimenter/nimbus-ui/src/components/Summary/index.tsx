@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import Badge from "react-bootstrap/Badge";
 import { ReactComponent as ExternalIcon } from "../../images/external.svg";
 import { getStatus } from "../../lib/experiment";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
@@ -29,9 +30,13 @@ const Summary = ({ experiment }: SummaryProps) => {
 
   return (
     <div data-testid="summary">
-      <h2 className="h5 mb-3">Timeline</h2>
+      <h2 className="h5 mb-3">
+        Timeline
+        {status.live && <StatusPills {...{ experiment }} />}
+      </h2>
+
       <SummaryTimeline {...{ experiment }} />
-      {status.live && <EndExperiment {...{ experiment, status }} />}
+      {status.live && <EndExperiment {...{ experiment }} />}
 
       <hr />
 
@@ -75,3 +80,39 @@ export const displayConfigLabelOrNotSet = (
 };
 
 export default Summary;
+
+const StatusPills = ({
+  experiment,
+}: {
+  experiment: getExperiment_experimentBySlug;
+}) => (
+  <>
+    {experiment.isEndRequested && (
+      <StatusPill
+        testId="pill-end-requested"
+        label="Experiment End Requested"
+      />
+    )}
+    {experiment.isEnrollmentPaused === false && (
+      <StatusPill
+        testId="pill-enrolling-active"
+        label="Enrolling Users in Progress"
+      />
+    )}
+    {experiment.isEnrollmentPaused && experiment.enrollmentEndDate && (
+      <StatusPill
+        testId="pill-enrolling-complete"
+        label="Enrollment Complete"
+      />
+    )}
+  </>
+);
+
+const StatusPill = ({ label, testId }: { label: string; testId: string }) => (
+  <Badge
+    className="ml-2 border rounded-pill px-2 bg-white border-primary text-primary font-weight-normal"
+    data-testid={testId}
+  >
+    {label}
+  </Badge>
+);
