@@ -10,7 +10,6 @@ import { ExperimentIdInput } from "./globalTypes";
 // ====================================================
 
 export interface endExperiment_endExperiment {
-  __typename: "EndExperiment";
   message: ObjectField | null;
 }
 

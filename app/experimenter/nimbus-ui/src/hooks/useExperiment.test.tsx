@@ -81,7 +81,6 @@ describe("hooks/useExperiment", () => {
 
         const { mock } = mockExperimentQuery("howdy", {
           readyForReview: {
-            __typename: "NimbusReadyForReviewType",
             ready: false,
             message: readyMessage,
           },
@@ -123,7 +122,6 @@ describe("hooks/useExperiment", () => {
       it("returns correct review info when not missing any details", async () => {
         const { mock } = mockExperimentQuery("howdy", {
           readyForReview: {
-            __typename: "NimbusReadyForReviewType",
             ready: true,
             message: {},
           },

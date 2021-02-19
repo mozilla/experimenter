@@ -172,7 +172,6 @@ describe("FormBranches", () => {
           experiment: {
             ...MOCK_EXPERIMENT,
             referenceBranch: {
-              __typename: "NimbusBranchType",
               name: "",
               slug: "",
               description: "",
@@ -385,7 +384,6 @@ describe("FormBranches", () => {
           experiment: {
             ...MOCK_EXPERIMENT,
             readyForReview: {
-              __typename: "NimbusReadyForReviewType",
               ready: false,
               message: expectedReviewErrors,
             },
@@ -426,7 +424,6 @@ describe("FormBranches", () => {
           experiment: {
             ...MOCK_EXPERIMENT,
             readyForReview: {
-              __typename: "NimbusReadyForReviewType",
               ready: false,
               message: "unexpected error",
             },
