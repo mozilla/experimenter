@@ -27,6 +27,16 @@ type AppLayoutWithExperimentChildrenProps = {
   analysis?: AnalysisData;
 };
 
+export type RedirectCheck = {
+  status: StatusCheck;
+  review?: {
+    ready: boolean;
+    invalidPages: string[];
+  };
+  analysis?: AnalysisData;
+  analysisError?: Error;
+};
+
 type AppLayoutWithExperimentProps = {
   children: (
     props: AppLayoutWithExperimentChildrenProps,
@@ -43,15 +53,7 @@ type AppLayoutWithExperimentProps = {
     review,
     analysis,
     analysisError,
-  }: {
-    status: StatusCheck;
-    review?: {
-      ready: boolean;
-      invalidPages: string[];
-    };
-    analysis?: AnalysisData;
-    analysisError?: Error;
-  }) => string | void;
+  }: RedirectCheck) => string | void;
 } & RouteComponentProps;
 
 export const POLL_INTERVAL = 30000;
