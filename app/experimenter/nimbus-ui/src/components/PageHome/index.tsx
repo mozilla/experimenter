@@ -33,13 +33,16 @@ export const Body = () => {
     return <div>No experiments found.</div>;
   }
 
-  const { live, complete, review, draft } = sortByStatus(data.experiments);
+  const { live, complete, preview, review, draft } = sortByStatus(
+    data.experiments,
+  );
   return (
     <Tabs defaultActiveKey="active">
       <Tab eventKey="active" title="Active">
         <div className="mt-4">
           <DirectoryLiveTable title="Live Experiments" experiments={live} />
           <DirectoryTable title="In Review" experiments={review} />
+          <DirectoryTable title="In Preview" experiments={preview} />
         </div>
       </Tab>
       <Tab eventKey="completed" title="Completed">

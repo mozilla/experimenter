@@ -12,12 +12,10 @@ import {
 } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
-import PageRequestReview from ".";
 import { BASE_PATH } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
-import { createMutationMock } from "./mocks";
+import { createMutationMock, Subject } from "./mocks";
 
 jest.mock("@reach/router", () => ({
   ...jest.requireActual("@reach/router"),
@@ -44,16 +42,9 @@ describe("PageRequestReview", () => {
   it("renders as expected", async () => {
     const { mock } = mockExperimentQuery("demo-slug");
     render(<Subject mocks={[mock]} />);
-    let submitButton: HTMLButtonElement;
-    await waitFor(() => {
-      expect(screen.getByTestId("PageRequestReview")).toBeInTheDocument();
-      submitButton = screen.getByText("Launch") as HTMLButtonElement;
-    });
+    await screen.findByTestId("PageRequestReview");
+    await screen.findByTestId("start-launch-draft-to-review");
     expect(screen.getByTestId("table-summary")).toBeInTheDocument();
-    await checkRequiredBoxes();
-    expect(submitButton!).toBeEnabled();
-    await checkRequiredBoxes();
-    expect(submitButton!).toBeDisabled();
   });
 
   it("redirects to the first edit page containing missing fields if the experiment status is draft and its not ready for review", async () => {
@@ -127,22 +118,74 @@ describe("PageRequestReview", () => {
     });
   });
 
-  it("can submit for review", async () => {
+  it("indicates status in review", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.REVIEW,
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(screen.getByTestId("in-review-label")).toBeInTheDocument(),
+    );
+  });
+
+  it("handles Launch to Preview from Draft as expected", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.DRAFT,
+    });
+    const mutationMock = createMutationMock(
+      experiment.id!,
+      NimbusExperimentStatus.PREVIEW,
+    );
+    render(<Subject mocks={[mock, mutationMock]} />);
+    const launchButton = (await screen.findByTestId(
+      "launch-draft-to-preview",
+    )) as HTMLButtonElement;
+    await act(async () => void fireEvent.click(launchButton));
+  });
+
+  it("handles Launch without Preview from Draft as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
     const mutationMock = createMutationMock(experiment.id!);
-
     render(<Subject mocks={[mock, mutationMock]} />);
-    let submitButton: HTMLButtonElement;
-    await waitFor(
-      () => (submitButton = screen.getByText("Launch") as HTMLButtonElement),
+    await launchFromDraftToReview();
+  });
+
+  it("handles Launch to Preview after reconsidering Launch to Review from Draft", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.DRAFT,
+    });
+    const mutationMock = createMutationMock(
+      experiment.id!,
+      NimbusExperimentStatus.PREVIEW,
     );
-    await checkRequiredBoxes();
-    await act(async () => void fireEvent.click(submitButton));
-    await waitFor(() =>
-      expect(screen.getByTestId("in-review-label")).toBeInTheDocument(),
+    render(<Subject mocks={[mock, mutationMock]} />);
+
+    const startButton = (await screen.findByTestId(
+      "start-launch-draft-to-review",
+    )) as HTMLButtonElement;
+    await act(async () => void fireEvent.click(startButton));
+
+    const launchButton = (await screen.findByTestId(
+      "launch-to-preview-instead",
+    )) as HTMLButtonElement;
+    await act(async () => void fireEvent.click(launchButton));
+  });
+
+  it("handles Back to Draft from Preview", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.PREVIEW,
+    });
+    const mutationMock = createMutationMock(
+      experiment.id!,
+      NimbusExperimentStatus.DRAFT,
     );
+    render(<Subject mocks={[mock, mutationMock]} />);
+    const launchButton = (await screen.findByTestId(
+      "launch-preview-to-draft",
+    )) as HTMLButtonElement;
+    await act(async () => void fireEvent.click(launchButton));
   });
 
   it("handles submission with bad server data", async () => {
@@ -153,12 +196,7 @@ describe("PageRequestReview", () => {
     // @ts-ignore - intentionally breaking this type for error handling
     delete mutationMock.result.data.updateExperiment;
     render(<Subject mocks={[mock, mutationMock]} />);
-    let submitButton: HTMLButtonElement;
-    await waitFor(
-      () => (submitButton = screen.getByText("Launch") as HTMLButtonElement),
-    );
-    await checkRequiredBoxes();
-    await act(async () => void fireEvent.click(submitButton));
+    await launchFromDraftToReview();
     await waitFor(() =>
       expect(screen.getByTestId("submit-error")).toBeInTheDocument(),
     );
@@ -171,12 +209,7 @@ describe("PageRequestReview", () => {
     const mutationMock = createMutationMock(experiment.id!);
     mutationMock.result.errors = [new Error("Boo")];
     render(<Subject mocks={[mock, mutationMock]} />);
-    let submitButton: HTMLButtonElement;
-    await waitFor(
-      () => (submitButton = screen.getByText("Launch") as HTMLButtonElement),
-    );
-    await checkRequiredBoxes();
-    await act(async () => void fireEvent.click(submitButton));
+    await launchFromDraftToReview();
     await waitFor(() =>
       expect(screen.getByTestId("submit-error")).toBeInTheDocument(),
     );
@@ -187,18 +220,12 @@ describe("PageRequestReview", () => {
       status: NimbusExperimentStatus.DRAFT,
     });
     const mutationMock = createMutationMock(experiment.id!);
-    const errorMessage =
-      "Nimbus Experiments can only transition from DRAFT to REVIEW.";
+    const errorMessage = "Something went very wrong.";
     mutationMock.result.data.updateExperiment.message = {
       status: [errorMessage],
     };
     render(<Subject mocks={[mock, mutationMock]} />);
-    let submitButton: HTMLButtonElement;
-    await waitFor(
-      () => (submitButton = screen.getByText("Launch") as HTMLButtonElement),
-    );
-    await checkRequiredBoxes();
-    await act(async () => void fireEvent.click(submitButton));
+    await launchFromDraftToReview();
     await waitFor(() => {
       expect(screen.getByTestId("submit-error")).toBeInTheDocument();
       expect(screen.getByTestId("submit-error")).toHaveTextContent(
@@ -206,6 +233,22 @@ describe("PageRequestReview", () => {
       );
     });
   });
+
+  async function launchFromDraftToReview() {
+    const startButton = (await screen.findByTestId(
+      "start-launch-draft-to-review",
+    )) as HTMLButtonElement;
+
+    await act(async () => void fireEvent.click(startButton));
+
+    const submitButton = await screen.findByTestId("launch-draft-to-review");
+
+    expect(submitButton!).toBeDisabled();
+    await checkRequiredBoxes();
+    expect(submitButton!).toBeEnabled();
+
+    await act(async () => void fireEvent.click(submitButton));
+  }
 
   it("will not allow submitting if already in review", async () => {
     const { mock } = mockExperimentQuery("demo-slug", {
@@ -217,13 +260,3 @@ describe("PageRequestReview", () => {
     );
   });
 });
-
-const Subject = ({
-  mocks = [],
-}: {
-  mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
-}) => (
-  <RouterSlugProvider {...{ mocks }}>
-    <PageRequestReview />
-  </RouterSlugProvider>
-);

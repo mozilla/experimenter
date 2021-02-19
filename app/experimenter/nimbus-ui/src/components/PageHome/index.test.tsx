@@ -33,9 +33,9 @@ describe("PageHome", () => {
     await renderAndWaitForLoaded([]);
     expect(screen.queryByText("No experiments found.")).toBeInTheDocument();
   });
-  it("displays four Directory Tables (one for each status type)", async () => {
+  it("displays five Directory Tables (one for each status type)", async () => {
     await renderAndWaitForLoaded();
-    expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(4);
+    expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(5);
   });
 });
 
