@@ -92,7 +92,6 @@ describe("TableMetricPrimary", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
-          __typename: "NimbusProbeSetType",
           slug: "feature_b",
           name: "Feature B",
         },
@@ -120,7 +119,6 @@ describe("TableMetricPrimary", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
-          __typename: "NimbusProbeSetType",
           slug: "feature_c",
           name: "Feature C",
         },

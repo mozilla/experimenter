@@ -25,24 +25,20 @@ storiesOf("components/Summary/TableSummary", module)
       featureConfig: MOCK_CONFIG.featureConfig![1],
       primaryProbeSets: [
         {
-          __typename: "NimbusProbeSetType",
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
         {
-          __typename: "NimbusProbeSetType",
           slug: "feature_C",
           name: "Feature C",
         },
       ],
       secondaryProbeSets: [
         {
-          __typename: "NimbusProbeSetType",
           slug: "feature_b",
           name: "Feature B",
         },
         {
-          __typename: "NimbusProbeSetType",
           slug: "feature_d",
           name: "Feature D",
         },

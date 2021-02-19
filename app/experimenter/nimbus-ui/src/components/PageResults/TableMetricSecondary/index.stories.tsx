@@ -15,7 +15,6 @@ storiesOf("pages/Results/TableMetricSecondary", module)
     const { experiment } = mockExperimentQuery("demo-slug", {
       secondaryProbeSets: [
         {
-          __typename: "NimbusProbeSetType",
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
@@ -46,7 +45,6 @@ storiesOf("pages/Results/TableMetricSecondary", module)
     const { experiment } = mockExperimentQuery("demo-slug", {
       secondaryProbeSets: [
         {
-          __typename: "NimbusProbeSetType",
           slug: "feature_c",
           name: "Feature C",
         },

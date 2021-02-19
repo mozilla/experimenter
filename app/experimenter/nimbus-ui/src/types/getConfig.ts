@@ -10,19 +10,16 @@ import { NimbusFeatureConfigApplication } from "./globalTypes";
 // ====================================================
 
 export interface getConfig_nimbusConfig_application {
-  __typename: "NimbusLabelValueType";
   label: string | null;
   value: string | null;
 }
 
 export interface getConfig_nimbusConfig_channel {
-  __typename: "NimbusLabelValueType";
   label: string | null;
   value: string | null;
 }
 
 export interface getConfig_nimbusConfig_featureConfig {
-  __typename: "NimbusFeatureConfigType";
   id: string;
   name: string;
   slug: string;
@@ -33,31 +30,26 @@ export interface getConfig_nimbusConfig_featureConfig {
 }
 
 export interface getConfig_nimbusConfig_firefoxMinVersion {
-  __typename: "NimbusLabelValueType";
   label: string | null;
   value: string | null;
 }
 
 export interface getConfig_nimbusConfig_probeSets {
-  __typename: "NimbusProbeSetType";
   name: string;
   slug: string;
 }
 
 export interface getConfig_nimbusConfig_targetingConfigSlug {
-  __typename: "NimbusLabelValueType";
   label: string | null;
   value: string | null;
 }
 
 export interface getConfig_nimbusConfig_documentationLink {
-  __typename: "NimbusLabelValueType";
   label: string | null;
   value: string | null;
 }
 
 export interface getConfig_nimbusConfig {
-  __typename: "NimbusConfigurationType";
   application: (getConfig_nimbusConfig_application | null)[] | null;
   channel: (getConfig_nimbusConfig_channel | null)[] | null;
   featureConfig: (getConfig_nimbusConfig_featureConfig | null)[] | null;

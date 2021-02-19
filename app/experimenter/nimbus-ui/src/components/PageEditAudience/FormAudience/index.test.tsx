@@ -98,7 +98,6 @@ describe("FormAudience", () => {
           experiment: {
             ...MOCK_EXPERIMENT,
             readyForReview: {
-              __typename: "NimbusReadyForReviewType",
               ready: false,
               message: "Test",
             },
@@ -208,7 +207,6 @@ describe("FormAudience", () => {
           experiment: {
             ...MOCK_EXPERIMENT,
             readyForReview: {
-              __typename: "NimbusReadyForReviewType",
               ready: false,
               message: {
                 population_percent: ["This field may not be null."],
@@ -244,21 +242,18 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) => {
         ...MOCK_CONFIG,
         targetingConfigSlug: [
           {
-            __typename: "NimbusLabelValueType",
             label: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
             value: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
           },
         ],
         firefoxMinVersion: [
           {
-            __typename: "NimbusLabelValueType",
             label: NimbusExperimentFirefoxMinVersion.NO_VERSION,
             value: NimbusExperimentFirefoxMinVersion.NO_VERSION,
           },
         ],
         channel: [
           {
-            __typename: "NimbusLabelValueType",
             label: NimbusExperimentChannel.NO_CHANNEL,
             value: NimbusExperimentChannel.NO_CHANNEL,
           },

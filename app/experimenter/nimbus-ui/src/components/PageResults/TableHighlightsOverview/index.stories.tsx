@@ -27,17 +27,14 @@ storiesOf("pages/Results/TableHighlightsOverview", module)
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
-          __typename: "NimbusProbeSetType",
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
         {
-          __typename: "NimbusProbeSetType",
           slug: "feature_b",
           name: "Feature B",
         },
         {
-          __typename: "NimbusProbeSetType",
           slug: "feature_c",
           name: "Feature C",
         },

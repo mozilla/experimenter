@@ -136,7 +136,6 @@ storiesOf("pages/EditBranches/FormBranches", module)
         ...MOCK_EXPERIMENT,
         featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
         readyForReview: {
-          __typename: "NimbusReadyForReviewType",
           ready: false,
           message: {
             reference_branch: ["Description may not be blank"],
