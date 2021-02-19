@@ -7,22 +7,25 @@ import React, { useCallback, useState } from "react";
 import { Alert, Button } from "react-bootstrap";
 import { END_EXPERIMENT_MUTATION } from "../../../gql/experiments";
 import { SUBMIT_ERROR } from "../../../lib/constants";
-import { getStatus } from "../../../lib/experiment";
 import { endExperiment_endExperiment as EndExperimentResult } from "../../../types/endExperiment";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { ExperimentIdInput } from "../../../types/globalTypes";
+import {
+  ExperimentIdInput,
+  NimbusExperimentStatus,
+} from "../../../types/globalTypes";
 
 const EndExperiment = ({
   experiment,
-  status,
 }: {
   experiment: getExperiment_experimentBySlug;
-  status: ReturnType<typeof getStatus>;
 }) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showEndConfirmation, setShowEndConfirmation] = useState(false);
   const [endRequested, setEndRequested] = useState(false);
-  const isEnding = status.ending || endRequested;
+  const isEnding =
+    (experiment.status === NimbusExperimentStatus.LIVE &&
+      experiment.isEndRequested) ||
+    endRequested;
 
   const [endExperiment, { loading: endExperimentLoading }] = useMutation<
     { endExperiment: EndExperimentResult },

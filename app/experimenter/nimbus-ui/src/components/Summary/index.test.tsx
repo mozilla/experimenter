@@ -28,7 +28,35 @@ describe("Summary", () => {
       status: NimbusExperimentStatus.LIVE,
     });
     render(<Subject {...{ experiment }} />);
-    expect(screen.queryByTestId("experiment-end")).toBeInTheDocument();
+    await screen.findByTestId("experiment-end");
+  });
+
+  it("renders end experiment badge if end is requested", async () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+      isEndRequested: true,
+    });
+    render(<Subject {...{ experiment }} />);
+    await screen.findByTestId("pill-end-requested");
+  });
+
+  it("renders end experiment badge if enrollment is not paused", async () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+      isEnrollmentPaused: false,
+    });
+    render(<Subject {...{ experiment }} />);
+    await screen.findByTestId("pill-enrolling-active");
+  });
+
+  it("renders end experiment badge if enrollment is not paused", async () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+      isEnrollmentPaused: true,
+      enrollmentEndDate: new Date().toISOString(),
+    });
+    render(<Subject {...{ experiment }} />);
+    await screen.findByTestId("pill-enrolling-complete");
   });
 
   it("renders as expected with no defined branches", () => {

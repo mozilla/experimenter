@@ -330,6 +330,8 @@ export function mockExperimentQuery<
           link: "https://bingo.bongo",
         },
       ],
+      isEnrollmentPaused: true,
+      enrollmentEndDate: null,
     },
     modifications,
   );
