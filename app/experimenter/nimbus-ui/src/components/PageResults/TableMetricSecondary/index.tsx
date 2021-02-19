@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import ReactMarkdown from "react-markdown";
-import ReactTooltip from "react-tooltip";
 import { ReactComponent as Info } from "../../../images/info.svg";
 import {
   DISPLAY_TYPE,
@@ -15,6 +13,7 @@ import {
 import { AnalysisData } from "../../../lib/visualization/types";
 import GraphsWeekly from "../GraphsWeekly";
 import TableVisualizationRow from "../TableVisualizationRow";
+import TooltipWithMarkdown from "../TooltipWithMarkdown";
 
 type SecondaryMetricStatistic = {
   name: string;
@@ -79,16 +78,10 @@ const TableMetricSecondary = ({
                   data-for={probeSetSlug}
                   className="align-baseline"
                 />
-                <ReactTooltip
-                  id={probeSetSlug}
-                  multiline
-                  clickable
-                  className="w-25"
-                  delayHide={200}
-                  effect="solid"
-                >
-                  <ReactMarkdown source={probeSetDescription!} />
-                </ReactTooltip>
+                <TooltipWithMarkdown
+                  tooltipId={probeSetSlug}
+                  markdown={probeSetDescription}
+                />
               </>
             )}
           </div>
