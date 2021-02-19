@@ -71,7 +71,6 @@ Would be analyzed and the corresponding types generated would look like this:
 
 ```ts
 export interface GetExperimentOverviews_experiments {
-  __typename: "NimbusExperimentType";
   name: string;
   slug: string;
   hypothesis: string | null;
@@ -362,7 +361,7 @@ const mkSimulatedQueries = ({
 const Subject = ({ simulatedQueries = mkSimulatedQueries() }) => {
   const mockLink = new SimulatedMockLink(simulatedQueries, false);
   return (
-    <MockedProvider link={mockLink} addTypename={false}>
+    <MockedProvider link={mockLink}>
       <PageNew />
     </MockedProvider>
   );

@@ -10,12 +10,10 @@ import { NimbusExperimentStatus, NimbusExperimentApplication, NimbusFeatureConfi
 // ====================================================
 
 export interface getExperiment_experimentBySlug_owner {
-  __typename: "NimbusExperimentOwner";
   email: string;
 }
 
 export interface getExperiment_experimentBySlug_referenceBranch {
-  __typename: "NimbusBranchType";
   name: string;
   slug: string;
   description: string;
@@ -25,7 +23,6 @@ export interface getExperiment_experimentBySlug_referenceBranch {
 }
 
 export interface getExperiment_experimentBySlug_treatmentBranches {
-  __typename: "NimbusBranchType";
   name: string;
   slug: string;
   description: string;
@@ -35,7 +32,6 @@ export interface getExperiment_experimentBySlug_treatmentBranches {
 }
 
 export interface getExperiment_experimentBySlug_featureConfig {
-  __typename: "NimbusFeatureConfigType";
   id: string;
   slug: string;
   name: string;
@@ -46,31 +42,26 @@ export interface getExperiment_experimentBySlug_featureConfig {
 }
 
 export interface getExperiment_experimentBySlug_primaryProbeSets {
-  __typename: "NimbusProbeSetType";
   slug: string;
   name: string;
 }
 
 export interface getExperiment_experimentBySlug_secondaryProbeSets {
-  __typename: "NimbusProbeSetType";
   slug: string;
   name: string;
 }
 
 export interface getExperiment_experimentBySlug_readyForReview {
-  __typename: "NimbusReadyForReviewType";
   ready: boolean | null;
   message: ObjectField | null;
 }
 
 export interface getExperiment_experimentBySlug_documentationLinks {
-  __typename: "NimbusDocumentationLinkType";
   title: NimbusDocumentationLinkTitle;
   link: string;
 }
 
 export interface getExperiment_experimentBySlug {
-  __typename: "NimbusExperimentType";
   id: number | null;
   name: string;
   slug: string;

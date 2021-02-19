@@ -36,7 +36,6 @@ storiesOf("components/Summary/TableBranches", module)
         ...MOCK_EXPERIMENT,
         treatmentBranches: [
           {
-            __typename: "NimbusBranchType",
             name: "",
             slug: "",
             description: "",

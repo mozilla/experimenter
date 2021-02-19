@@ -15,7 +15,6 @@ import { FormBranchesState } from "./reducer/state";
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
   treatmentBranches: [
     {
-      __typename: "NimbusBranchType",
       name: "Managed zero tolerance projection",
       slug: "managed-zero-tolerance-projection",
       description: "Next ask then he in degree order.",
@@ -24,7 +23,6 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       featureEnabled: false,
     },
     {
-      __typename: "NimbusBranchType",
       name: "Salt way link",
       slug: "salt-way-link",
       description: "Flame the dark true.",

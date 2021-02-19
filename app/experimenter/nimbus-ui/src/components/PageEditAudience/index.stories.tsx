@@ -18,7 +18,6 @@ const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
   proposedEnrollment: 0,
   proposedDuration: 0,
   readyForReview: {
-    __typename: "NimbusReadyForReviewType",
     ready: false,
     message: {
       proposed_duration: ["This field may not be null."],

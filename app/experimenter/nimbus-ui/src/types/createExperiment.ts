@@ -10,12 +10,10 @@ import { ExperimentInput } from "./globalTypes";
 // ====================================================
 
 export interface createExperiment_createExperiment_nimbusExperiment {
-  __typename: "NimbusExperimentType";
   slug: string;
 }
 
 export interface createExperiment_createExperiment {
-  __typename: "CreateExperiment";
   message: ObjectField | null;
   nimbusExperiment: createExperiment_createExperiment_nimbusExperiment | null;
 }

@@ -46,7 +46,7 @@ const mkSimulatedQueries = ({
 const Subject = ({ simulatedQueries = mkSimulatedQueries() }) => {
   const mockLink = new SimulatedMockLink(simulatedQueries, false);
   return (
-    <MockedCache link={mockLink} addTypename={false}>
+    <MockedCache link={mockLink}>
       <PageNew />
     </MockedCache>
   );

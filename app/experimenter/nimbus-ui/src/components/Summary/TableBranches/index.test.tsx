@@ -80,7 +80,6 @@ describe("TableBranches", () => {
           ...MOCK_EXPERIMENT,
           treatmentBranches: [
             {
-              __typename: "NimbusBranchType",
               ...expected,
               featureEnabled: true,
             },
@@ -113,7 +112,6 @@ describe("TableBranches", () => {
           ...MOCK_EXPERIMENT,
           treatmentBranches: [
             {
-              __typename: "NimbusBranchType",
               name: "",
               slug: "",
               description: "",
