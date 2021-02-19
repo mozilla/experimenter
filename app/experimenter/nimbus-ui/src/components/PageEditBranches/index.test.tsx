@@ -14,13 +14,12 @@ import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { BASE_PATH, EXTERNAL_URLS } from "../../lib/constants";
+import { EXTERNAL_URLS } from "../../lib/constants";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   ExperimentInput,
-  NimbusExperimentStatus,
   NimbusFeatureConfigApplication,
 } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment } from "../../types/updateExperiment";
@@ -40,67 +39,6 @@ describe("PageEditBranches", () => {
   beforeEach(() => {
     mockSetSubmitErrors.mockClear();
     mockClearSubmitErrors.mockClear();
-  });
-
-  it("redirects to the review page if the experiment status is review", async () => {
-    const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.REVIEW,
-    });
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
-        `${BASE_PATH}/${experiment.slug}/request-review`,
-        {
-          replace: true,
-        },
-      );
-    });
-  });
-
-  it("redirects to the review page if the experiment status is preview", async () => {
-    const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      // @ts-ignore EXP-879 mock value until backend API & types are updated
-      status: NimbusExperimentStatus.PREVIEW,
-    });
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
-        `${BASE_PATH}/${experiment.slug}/request-review`,
-        {
-          replace: true,
-        },
-      );
-    });
-  });
-
-  it("redirects to the design page if the experiment status is live", async () => {
-    const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.LIVE,
-    });
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
-        `${BASE_PATH}/${experiment.slug}/design`,
-        {
-          replace: true,
-        },
-      );
-    });
-  });
-
-  it("redirects to the design page if the experiment status is complete", async () => {
-    const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.COMPLETE,
-    });
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
-        `${BASE_PATH}/${experiment.slug}/design`,
-        {
-          replace: true,
-        },
-      );
-    });
   });
 
   it("renders as expected with experiment data", async () => {

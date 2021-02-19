@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { RedirectCheck } from "../components/AppLayoutWithExperiment";
 import { getAllExperiments_experiments } from "../types/getAllExperiments";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
 import { NimbusExperimentStatus } from "../types/globalTypes";
@@ -39,7 +40,7 @@ export function getStatus(
 
 export type StatusCheck = ReturnType<typeof getStatus>;
 
-export function editCommonRedirects({ status }: { status: StatusCheck }) {
+export function editCommonRedirects({ status }: RedirectCheck) {
   if (status.review || status.preview) {
     return "request-review";
   }

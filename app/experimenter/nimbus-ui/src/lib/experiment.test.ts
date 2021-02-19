@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { NimbusExperimentStatus } from "../types/globalTypes";
-import { getStatus } from "./experiment";
+import { editCommonRedirects, getStatus } from "./experiment";
 import { mockExperimentQuery } from "./mocks";
 
 const { experiment } = mockExperimentQuery("boo");
@@ -29,5 +29,24 @@ describe("getStatus", () => {
     expect(getStatus(experiment).complete).toBeTruthy();
     expect(getStatus(experiment).released).toBeTruthy();
     expect(getStatus(experiment).locked).toBeTruthy();
+  });
+});
+
+describe("editCommonRedirects", () => {
+  const mockedCall = (status: NimbusExperimentStatus) => {
+    const { experiment } = mockExperimentQuery("boo", { status });
+    return editCommonRedirects({ status: getStatus(experiment) });
+  };
+
+  it("returns 'request-review' if the experiment is in review or preview", () => {
+    expect(mockedCall(NimbusExperimentStatus.REVIEW)).toEqual("request-review");
+    // @ts-ignore until backend API & types are updated
+    expect(mockedCall("PREVIEW")).toEqual("request-review");
+  });
+
+  it("returns 'design' if the experiment is in a locked state", () => {
+    expect(mockedCall(NimbusExperimentStatus.LIVE)).toEqual("design");
+    expect(mockedCall(NimbusExperimentStatus.COMPLETE)).toEqual("design");
+    expect(mockedCall(NimbusExperimentStatus.ACCEPTED)).toEqual("design");
   });
 });
