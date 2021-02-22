@@ -191,7 +191,7 @@ type NimbusExperimentType {
   readyForReview: NimbusReadyForReviewType
   monitoringDashboardUrl: String
   startDate: DateTime
-  endDate: DateTime
+  computedEndDate: DateTime
   isEnrollmentPaused: Boolean
   enrollmentEndDate: DateTime
 }

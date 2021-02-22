@@ -20,7 +20,7 @@ storiesOf("components/HeaderExperiment", module)
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
-        endDate={experiment.endDate}
+        computedEndDate={experiment.computedEndDate}
         status={mockGetStatus(experiment.status)}
       />
     </AppLayout>
@@ -31,7 +31,7 @@ storiesOf("components/HeaderExperiment", module)
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
-        endDate={experiment.endDate}
+        computedEndDate={experiment.computedEndDate}
         status={mockGetStatus(NimbusExperimentStatus.REVIEW)}
       />
     </AppLayout>
@@ -42,7 +42,7 @@ storiesOf("components/HeaderExperiment", module)
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
-        endDate={null}
+        computedEndDate={null}
         status={mockGetStatus(NimbusExperimentStatus.LIVE)}
       />
     </AppLayout>
@@ -53,7 +53,7 @@ storiesOf("components/HeaderExperiment", module)
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
-        endDate={experiment.endDate}
+        computedEndDate={experiment.computedEndDate}
         status={mockGetStatus(NimbusExperimentStatus.COMPLETE)}
       />
     </AppLayout>
@@ -64,7 +64,7 @@ storiesOf("components/HeaderExperiment", module)
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
-        endDate={experiment.endDate}
+        computedEndDate={experiment.computedEndDate}
         status={mockGetStatus(NimbusExperimentStatus.COMPLETE)}
       />
     </AppLayout>
@@ -78,7 +78,7 @@ storiesOf("components/HeaderExperiment/Summary View", module)
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
-        endDate={experiment.endDate}
+        computedEndDate={experiment.computedEndDate}
         status={mockGetStatus(NimbusExperimentStatus.DRAFT)}
         summaryView
       />
@@ -90,7 +90,7 @@ storiesOf("components/HeaderExperiment/Summary View", module)
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
-        endDate={experiment.endDate}
+        computedEndDate={experiment.computedEndDate}
         status={mockGetStatus(NimbusExperimentStatus.REVIEW)}
         summaryView
       />
@@ -102,7 +102,7 @@ storiesOf("components/HeaderExperiment/Summary View", module)
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
-        endDate={experiment.endDate}
+        computedEndDate={experiment.computedEndDate}
         status={mockGetStatus(NimbusExperimentStatus.LIVE)}
         summaryView
       />
