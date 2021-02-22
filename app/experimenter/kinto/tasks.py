@@ -278,6 +278,7 @@ def nimbus_end_experiment_in_kinto(experiment_id):
         raise e
 
 
+@app.task
 @metrics.timer_decorator("nimbus_update_paused_experiments_in_kinto")
 def nimbus_update_paused_experiments_in_kinto():
     """
