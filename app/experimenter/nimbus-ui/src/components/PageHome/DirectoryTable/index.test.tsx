@@ -12,11 +12,7 @@ import DirectoryTable, {
   DirectoryDraftsTable,
   DirectoryLiveTable,
 } from ".";
-import {
-  getProposedEndDate,
-  getProposedEnrollmentRange,
-  humanDate,
-} from "../../../lib/dateUtils";
+import { getProposedEnrollmentRange, humanDate } from "../../../lib/dateUtils";
 import { mockSingleDirectoryExperiment } from "../../../lib/mocks";
 
 const experiment = mockSingleDirectoryExperiment();
@@ -180,7 +176,7 @@ describe("DirectoryLiveTable", () => {
       experiment.owner!.username,
       experiment.featureConfig!.name,
       getProposedEnrollmentRange(experiment) as string,
-      getProposedEndDate(experiment) as string,
+      humanDate(experiment.computedEndDate!),
       "Grafana",
     ]);
   });
@@ -204,7 +200,7 @@ describe("DirectoryCompleteTable", () => {
       experiment.owner!.username,
       experiment.featureConfig!.name,
       humanDate(experiment.startDate!),
-      humanDate(experiment.endDate!),
+      humanDate(experiment.computedEndDate!),
       "Results",
     ]);
   });

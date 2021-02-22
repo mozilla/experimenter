@@ -25,7 +25,7 @@ export interface getAllExperiments_experiments {
   startDate: DateTime | null;
   proposedDuration: number;
   proposedEnrollment: number;
-  endDate: DateTime | null;
+  computedEndDate: DateTime | null;
   status: NimbusExperimentStatus | null;
   isEndRequested: boolean;
   monitoringDashboardUrl: string | null;

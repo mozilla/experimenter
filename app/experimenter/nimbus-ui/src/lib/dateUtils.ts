@@ -49,21 +49,6 @@ export function stringDateSubtract(dateA: string, dateB: string): string {
 }
 
 /**
- *  Renders an end date based on proposedDuration (e.g. Dec 2),
- *  or a number of days (e.g. "5 days") if startDate is not set.
- */
-export function getProposedEndDate(
-  experiment: getExperiment_experimentBySlug | getAllExperiments_experiments,
-): string {
-  const { startDate, proposedDuration } = experiment;
-  if (startDate) {
-    return humanDate(addDaysToDate(startDate, proposedDuration));
-  } else {
-    return pluralize(proposedDuration, "day");
-  }
-}
-
-/**
  *  Renders period of enrollment depend on what's available
  *  If startDate is set, it will return a range of dates
  *      e.g. Dec 2 - Dec 4

@@ -294,7 +294,7 @@ export function mockExperiment<
         message: {},
       },
       startDate: new Date().toISOString(),
-      endDate: new Date(Date.now() + 12096e5).toISOString(),
+      computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
       riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
       documentationLinks: [
         {
@@ -412,7 +412,7 @@ export function mockSingleDirectoryExperiment(
     proposedEnrollment: 7,
     proposedDuration: 28,
     startDate: fiveDaysAgo.toISOString(),
-    endDate: new Date(Date.now() + 12096e5).toISOString(),
+    computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
     isEndRequested: false,
     ...overrides,
   };
@@ -423,30 +423,30 @@ export function mockDirectoryExperiments(
     {
       status: NimbusExperimentStatus.DRAFT,
       startDate: null,
-      endDate: null,
+      computedEndDate: null,
     },
     {
       status: NimbusExperimentStatus.PREVIEW,
-      endDate: null,
+      computedEndDate: null,
     },
     {
       status: NimbusExperimentStatus.REVIEW,
-      endDate: null,
+      computedEndDate: null,
     },
     {
       status: NimbusExperimentStatus.REVIEW,
     },
     {
       status: NimbusExperimentStatus.LIVE,
-      endDate: null,
+      computedEndDate: null,
     },
     {
       status: NimbusExperimentStatus.LIVE,
-      endDate: null,
+      computedEndDate: null,
     },
     {
       status: NimbusExperimentStatus.LIVE,
-      endDate: null,
+      computedEndDate: null,
     },
     {
       status: NimbusExperimentStatus.COMPLETE,

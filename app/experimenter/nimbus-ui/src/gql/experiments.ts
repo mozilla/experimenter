@@ -102,7 +102,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       }
 
       startDate
-      endDate
+      computedEndDate
 
       riskMitigationLink
 
@@ -128,7 +128,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       startDate
       proposedDuration
       proposedEnrollment
-      endDate
+      computedEndDate
       status
       isEndRequested
       monitoringDashboardUrl

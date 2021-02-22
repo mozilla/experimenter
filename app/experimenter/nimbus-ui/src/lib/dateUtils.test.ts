@@ -4,7 +4,6 @@
 
 import {
   addDaysToDate,
-  getProposedEndDate,
   getProposedEnrollmentRange,
   humanDate,
 } from "./dateUtils";
@@ -36,36 +35,6 @@ describe("addDaysToDate", () => {
 describe("addDaysToDate", () => {
   it("should add days to a date and return a date string", () => {
     expect(addDaysToDate(FAKE_DATE, 2)).toEqual("Mon Dec 14 2020");
-  });
-});
-
-describe("getProposedEndDate", () => {
-  it("should render a proposed end date if startDate and proposedDuration are set", () => {
-    const actual = getProposedEndDate(
-      expFactory({
-        startDate: FAKE_DATE,
-        proposedDuration: 2,
-      }),
-    );
-    expect(actual).toBe("Dec 14, 2020");
-  });
-  it("should render a duration if no startDate is set", () => {
-    const actual = getProposedEndDate(
-      expFactory({
-        startDate: null,
-        proposedDuration: 4,
-      }),
-    );
-    expect(actual).toBe("4 days");
-  });
-  it("should render '1 day' (not plural) for duration = 1", () => {
-    const actual = getProposedEndDate(
-      expFactory({
-        startDate: null,
-        proposedDuration: 1,
-      }),
-    );
-    expect(actual).toBe("1 day");
   });
 });
 

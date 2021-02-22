@@ -287,6 +287,55 @@ class TestNimbusQuery(GraphQLTestCase):
             "true",
         )
 
+    def test_experiment_computed_end_date_proposed(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            proposed_duration=10,
+        )
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    computedEndDate
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["computedEndDate"],
+            experiment.proposed_end_date.isoformat(),
+        )
+
+    def test_experiment_computed_end_date_actual(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.COMPLETE,
+        )
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    computedEndDate
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["computedEndDate"],
+            experiment.end_date.isoformat(),
+        )
+
     def test_nimbus_config(self):
         user_email = "user@example.com"
         # Create some probes and feature configs

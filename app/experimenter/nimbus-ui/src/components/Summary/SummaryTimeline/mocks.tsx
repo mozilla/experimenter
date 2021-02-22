@@ -9,20 +9,20 @@ import { NimbusExperimentStatus } from "../../../types/globalTypes";
 
 export const Subject = ({
   startDate = "2020-11-28T14:52:44.704811+00:00",
-  endDate = "2020-12-08T14:52:44.704811+00:00",
+  computedEndDate = "2020-12-08T14:52:44.704811+00:00",
   proposedDuration = 10,
   proposedEnrollment = 1,
   status = NimbusExperimentStatus.DRAFT,
 }: {
   startDate?: string;
-  endDate?: string;
+  computedEndDate?: string;
   proposedDuration?: number;
   proposedEnrollment?: number;
   status?: NimbusExperimentStatus;
 }) => {
   const { experiment } = mockExperimentQuery("something-vague", {
     startDate,
-    endDate,
+    computedEndDate,
     proposedDuration,
     proposedEnrollment,
     status,

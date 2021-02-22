@@ -22,7 +22,7 @@ const assertStatusLink = async (
       name={experiment.name}
       slug={experiment.slug}
       startDate={experiment.startDate}
-      endDate={experiment.endDate}
+      computedEndDate={experiment.computedEndDate}
       status={mockGetStatus(experiment.status)}
       summaryView
     />,
@@ -41,7 +41,7 @@ describe("HeaderExperiment", () => {
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
-        endDate={experiment.endDate}
+        computedEndDate={experiment.computedEndDate}
         status={mockGetStatus(experiment.status)}
       />,
     );
@@ -65,7 +65,7 @@ describe("HeaderExperiment", () => {
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
-        endDate={experiment.endDate}
+        computedEndDate={experiment.computedEndDate}
         status={mockGetStatus(experiment.status)}
       />,
     );
@@ -76,7 +76,7 @@ describe("HeaderExperiment", () => {
       humanDate(experiment.startDate!),
     );
     expect(screen.getByTestId("header-dates")).toHaveTextContent(
-      humanDate(experiment.endDate!),
+      humanDate(experiment.computedEndDate!),
     );
   });
 
@@ -88,7 +88,7 @@ describe("HeaderExperiment", () => {
           name={experiment.name}
           slug={experiment.slug}
           startDate={experiment.startDate}
-          endDate={experiment.endDate}
+          computedEndDate={experiment.computedEndDate}
           status={mockGetStatus(experiment.status)}
           summaryView
         />,
