@@ -190,6 +190,10 @@ class NimbusExperiment(NimbusConstants, models.Model):
             ).date()
 
     @property
+    def computed_end_date(self):
+        return self.end_date or self.proposed_end_date
+
+    @property
     def should_pause(self):
         if self.proposed_enrollment_end_date:
             return datetime.date.today() >= self.proposed_enrollment_end_date

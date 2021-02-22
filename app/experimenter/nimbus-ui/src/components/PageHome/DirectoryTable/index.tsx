@@ -4,11 +4,7 @@
 
 import { Link } from "@reach/router";
 import React from "react";
-import {
-  getProposedEndDate,
-  getProposedEnrollmentRange,
-  humanDate,
-} from "../../../lib/dateUtils";
+import { getProposedEnrollmentRange, humanDate } from "../../../lib/dateUtils";
 import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
 import LinkExternal from "../../LinkExternal";
 import NotSet from "../../NotSet";
@@ -161,7 +157,7 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
         label: "Ending",
         component: (experiment) => (
           <td data-testid="directory-table-cell">
-            {getProposedEndDate(experiment)}
+            {humanDate(experiment.computedEndDate!)}
           </td>
         ),
       },
@@ -201,7 +197,7 @@ export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
       },
       {
         label: "Ended",
-        component: ({ endDate: d }) => (
+        component: ({ computedEndDate: d }) => (
           <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
         ),
       },

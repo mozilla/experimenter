@@ -87,7 +87,7 @@ export interface getExperiment_experimentBySlug {
   proposedDuration: number;
   readyForReview: getExperiment_experimentBySlug_readyForReview | null;
   startDate: DateTime | null;
-  endDate: DateTime | null;
+  computedEndDate: DateTime | null;
   riskMitigationLink: string;
   documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
   isEnrollmentPaused: boolean | null;
