@@ -135,7 +135,7 @@ const AppLayoutWithExperiment = ({
   const {
     name,
     startDate,
-    endDate,
+    computedEndDate,
     primaryProbeSets,
     secondaryProbeSets,
   } = experiment;
@@ -164,7 +164,7 @@ const AppLayoutWithExperiment = ({
             slug,
             name,
             startDate,
-            endDate,
+            computedEndDate,
             status,
             summaryView,
           }}

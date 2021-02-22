@@ -23,7 +23,7 @@ const SummaryTimeline = ({
         {...{
           status,
           startDate: experiment.startDate,
-          endDate: experiment.endDate,
+          computedEndDate: experiment.computedEndDate,
         }}
       />
 
@@ -31,7 +31,7 @@ const SummaryTimeline = ({
         {...{
           status,
           startDate: experiment.startDate,
-          endDate: experiment.endDate,
+          computedEndDate: experiment.computedEndDate,
         }}
       />
 
@@ -48,14 +48,14 @@ const SummaryTimeline = ({
 const StartEnd = ({
   status,
   startDate,
-  endDate,
+  computedEndDate,
 }: {
   status: StatusCheck;
   startDate: string | null;
-  endDate: string | null;
+  computedEndDate: string | null;
 }) => (
   <div className="d-flex">
-    {status.draft || status.review || status.accepted ? (
+    {status.draft || status.review || status.preview || status.accepted ? (
       <span className="flex-fill" data-testid="label-not-launched">
         Not yet launched
       </span>
@@ -64,9 +64,9 @@ const StartEnd = ({
         <span className="flex-fill" data-testid="label-start-date">
           {humanDate(startDate!)}
         </span>
-        {endDate && (
+        {computedEndDate && (
           <span className="flex-fill text-right" data-testid="label-end-date">
-            {humanDate(endDate!)}
+            {humanDate(computedEndDate!)}
           </span>
         )}
       </>
@@ -77,11 +77,11 @@ const StartEnd = ({
 const Progress = ({
   status,
   startDate,
-  endDate,
+  computedEndDate,
 }: {
   status: StatusCheck;
   startDate: string | null;
-  endDate: string | null;
+  computedEndDate: string | null;
 }) => {
   const props: React.ComponentProps<typeof ProgressBar> = {
     style: { height: 5 },
@@ -98,8 +98,8 @@ const Progress = ({
       striped: true,
       animated: true,
       min: Date.parse(startDate!),
-      max: Date.parse(endDate!),
-      now: Math.min(Date.now(), Date.parse(endDate!)),
+      max: Date.parse(computedEndDate!),
+      now: Math.min(Date.now(), Date.parse(computedEndDate!)),
     });
   }
 

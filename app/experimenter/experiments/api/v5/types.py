@@ -131,7 +131,7 @@ class NimbusExperimentType(DjangoObjectType):
     ready_for_review = graphene.Field(NimbusReadyForReviewType)
     monitoring_dashboard_url = graphene.String()
     start_date = graphene.DateTime()
-    end_date = graphene.DateTime()
+    computed_end_date = graphene.DateTime()
     is_enrollment_paused = graphene.Boolean()
     enrollment_end_date = graphene.DateTime()
 

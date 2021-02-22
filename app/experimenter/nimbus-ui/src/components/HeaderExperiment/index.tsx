@@ -16,14 +16,14 @@ import "./index.scss";
 
 type HeaderExperimentProps = Pick<
   getExperiment_experimentBySlug,
-  "name" | "slug" | "startDate" | "endDate"
+  "name" | "slug" | "startDate" | "computedEndDate"
 > & { status: StatusCheck; summaryView?: boolean };
 
 const HeaderExperiment = ({
   name,
   slug,
   startDate = "",
-  endDate = "",
+  computedEndDate = "",
   status,
   summaryView = false,
 }: HeaderExperimentProps) => (
@@ -105,10 +105,12 @@ const HeaderExperiment = ({
       {(status.live || status.complete) && (
         <div className="text-right col mt-2" data-testid="header-dates">
           <span className="font-weight-bold">{humanDate(startDate!)}</span> to{" "}
-          {endDate ? (
+          {computedEndDate ? (
             <>
-              <span className="font-weight-bold">{humanDate(endDate!)}</span> (
-              {stringDateSubtract(endDate!, startDate!)})
+              <span className="font-weight-bold">
+                {humanDate(computedEndDate!)}
+              </span>{" "}
+              ({stringDateSubtract(computedEndDate!, startDate!)})
             </>
           ) : (
             <span className="font-weight-bold">Present</span>
