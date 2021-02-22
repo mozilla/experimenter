@@ -24,7 +24,7 @@ ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint
 ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint-fix
 TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
 JS_TEST_CORE = yarn workspace @experimenter/core test
-JS_TEST_NIMBUS_UI = CI=yes yarn workspace @experimenter/nimbus-ui test
+JS_TEST_NIMBUS_UI = CI=yes yarn workspace @experimenter/nimbus-ui test:cov
 NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-ui/test_schema.graphql&&diff experimenter/nimbus-ui/test_schema.graphql experimenter/nimbus-ui/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
 NIMBUS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/nimbus-ui/schema.graphql&&yarn workspace @experimenter/nimbus-ui generate-types
 FLAKE8 = flake8 .
