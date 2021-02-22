@@ -169,11 +169,7 @@ const AppLayoutWithExperiment = ({
             summaryView,
           }}
         />
-        {title && (
-          <h2 className="mt-3 mb-4 h4" data-testid="page-title">
-            {title}
-          </h2>
-        )}
+        {title && <h2 className="mt-3 mb-4 h4">{title}</h2>}
         <div className="my-4">{children({ experiment, review, analysis })}</div>
       </section>
     </Layout>
