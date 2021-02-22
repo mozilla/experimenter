@@ -6,7 +6,8 @@
   "scripts": {
     "start": "SKIP_PREFLIGHT_CHECK=true rescripts start",
     "build": "SKIP_PREFLIGHT_CHECK=true rescripts build",
-    "test": "SKIP_PREFLIGHT_CHECK=true rescripts test --coverage",
+    "test": "SKIP_PREFLIGHT_CHECK=true rescripts test",
+    "test:cov": "yarn test --coverage",
     "lint": "yarn lint:eslint && yarn lint:tsc && yarn lint:styles",
     "lint-fix": "yarn lint:eslint --fix && yarn lint:styles --fix",
     "lint:eslint": "eslint --color --max-warnings 0 --ext=.ts,.tsx .",

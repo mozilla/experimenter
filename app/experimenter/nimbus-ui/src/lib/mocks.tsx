@@ -232,23 +232,17 @@ export class SimulatedMockLink extends ApolloLink {
   }
 }
 
-export function mockExperimentQuery<
+export function mockExperiment<
   T extends getExperiment["experimentBySlug"] = getExperiment_experimentBySlug
->(
-  slug: string,
-  modifications: Partial<getExperiment["experimentBySlug"]> = {},
-): {
-  mock: MockedResponse<Record<string, any>>;
-  experiment: T;
-} {
-  let experiment: getExperiment["experimentBySlug"] = Object.assign(
+>(modifications: Partial<getExperiment["experimentBySlug"]> = {}): T {
+  return Object.assign(
     {
       id: 1,
       owner: {
         email: "example@mozilla.com",
       },
       name: "Open-architected background installation",
-      slug,
+      slug: "open-architected-background-installation",
       status: "DRAFT",
       isEndRequested: false,
       monitoringDashboardUrl: "https://grafana.telemetry.mozilla.org",
@@ -312,11 +306,20 @@ export function mockExperimentQuery<
       enrollmentEndDate: null,
     },
     modifications,
-  );
+  ) as T;
+}
 
-  if (modifications === null) {
-    experiment = null;
-  }
+export function mockExperimentQuery<
+  T extends getExperiment["experimentBySlug"] = getExperiment_experimentBySlug
+>(
+  slug = "foo",
+  modifications: Partial<getExperiment["experimentBySlug"]> = {},
+): {
+  mock: MockedResponse<Record<string, any>>;
+  experiment: T;
+} {
+  const experiment =
+    modifications === null ? null : mockExperiment({ slug, ...modifications });
 
   return {
     mock: {
