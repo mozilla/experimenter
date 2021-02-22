@@ -259,6 +259,13 @@ yarn test -t="renders as expected"
 
 # See a full code coverage report
 yarn test --watchAll=false
+
+# Our tests require 100% line coverage, which can be checked with
+yarn test:cov
+
+# Or, if you want to test and get coverage for a specific test
+# This excludes Storybook stories while running coverage on a specific component
+yarn test:cov --collectCoverageFrom='./src/components/LinkExternal/*[!.stories].tsx' LinkExternal
 ```
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
