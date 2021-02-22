@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { MockedResponse } from "@apollo/client/testing";
 import { navigate } from "@reach/router";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
@@ -11,113 +12,78 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
-jest.useFakeTimers();
-
-jest.mock("@reach/router", () => ({
-  ...jest.requireActual("@reach/router"),
-  navigate: jest.fn(),
-}));
-
 describe("AppLayoutWithExperiment", () => {
-  it("renders as expected", async () => {
+  it("renders as expected with default props", async () => {
     const { mock } = mockExperimentQuery("demo-slug");
     render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("AppLayoutWithExperiment")).toBeInTheDocument();
-      expect(screen.getByTestId("page-title")).toBeInTheDocument();
-      expect(screen.getByTestId("page-title")).toHaveTextContent("Howdy!");
-      expect(screen.getByTestId("child")).toBeInTheDocument();
-      expect(screen.getByTestId("header-experiment")).toBeInTheDocument();
-      expect(screen.getByTestId("nav-sidebar")).toBeInTheDocument();
-    });
+    await screen.findByTestId("AppLayoutWithExperiment");
+    await screen.findByTestId("nav-sidebar");
   });
 
-  it("can render without a title", async () => {
+  it("can render a page title", async () => {
     const { mock } = mockExperimentQuery("demo-slug");
-    render(<Subject mocks={[mock]} withTitle={false} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("AppLayoutWithExperiment")).toBeInTheDocument();
-      expect(screen.queryByTestId("page-title")).not.toBeInTheDocument();
-    });
+    const title = "Howdy partner";
+    render(<Subject mocks={[mock]} {...{ title }} />);
+    await screen.findByRole("heading", { name: title });
   });
 
-  it("does not render the sidebar if prop is set to false", async () => {
+  it("can render without a sidebar", async () => {
     const { mock } = mockExperimentQuery("demo-slug");
     render(<Subject mocks={[mock]} sidebar={false} />);
-    await waitFor(() => {
-      expect(screen.queryByTestId("nav-sidebar")).not.toBeInTheDocument();
-    });
+    await waitFor(() =>
+      expect(screen.queryByTestId("nav-sidebar")).not.toBeInTheDocument(),
+    );
   });
 
-  it("renders not found screen", async () => {
-    const { mock: notFoundMock } = mockExperimentQuery("demo-slug", null);
-    render(<Subject mocks={[notFoundMock]} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("not-found")).toBeInTheDocument();
-    });
+  it("renders loading screen to start", async () => {
+    render(<Subject />);
+    await screen.findByText("Loading...");
+  });
+
+  it("renders not found if an experiment isn't found", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", null);
+    render(<Subject mocks={[mock]} />);
+    await screen.findByRole("heading", { name: "Experiment Not Found" });
   });
 
   describe("polling", () => {
-    const { mock } = mockExperimentQuery("demo-slug");
+    const { mock: initialMock } = mockExperimentQuery("demo-slug");
     const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.REVIEW,
     });
 
     it("polls useExperiment when the prop is passed in", async () => {
-      render(<Subject mocks={[mock, updatedMock]} polling />);
-      await waitFor(() => {
-        expect(
-          screen.getByTestId("header-experiment-status-active"),
-        ).toHaveTextContent("Draft");
-      });
-
+      render(<Subject mocks={[initialMock, updatedMock]} polling />);
+      await screen.findByText("Draft", { selector: ".text-primary" });
       jest.advanceTimersByTime(POLL_INTERVAL);
-      await waitFor(() => {
-        expect(
-          screen.getByTestId("header-experiment-status-active"),
-        ).toHaveTextContent("Review");
-      });
+      await screen.findByText("Review", { selector: ".text-primary" });
     });
 
     it("does not poll useExperiment when the prop is not passed in", async () => {
-      render(<Subject mocks={[mock, updatedMock]} />);
-      await waitFor(() => {
-        expect(
-          screen.getByTestId("header-experiment-status-active"),
-        ).toHaveTextContent("Draft");
-      });
-
+      render(<Subject mocks={[initialMock, updatedMock]} />);
+      await screen.findByText("Draft", { selector: ".text-primary" });
       jest.advanceTimersByTime(POLL_INTERVAL);
-      await waitFor(() => {
-        expect(
-          screen.getByTestId("header-experiment-status-active"),
-        ).toHaveTextContent("Draft");
-      });
+      // Review would be the next state, so ensure Draft is still "primary"
+      await screen.findByText("Draft", { selector: ".text-primary" });
     });
 
-    it("stops polling useExperiment when the prop is passed in and the user navigates to a page without polling", async () => {
+    it("stops polling when the user navigates to a page without it", async () => {
       const {
         history: { navigate },
-      } = renderWithRouter(<Subject mocks={[mock, updatedMock]} polling />, {
-        route: "/demo-slug",
-      });
+      } = renderWithRouter(
+        <Subject mocks={[initialMock, updatedMock]} polling />,
+        {
+          route: "/demo-slug",
+        },
+      );
 
-      await waitFor(() => {
-        expect(
-          screen.getByTestId("header-experiment-status-active"),
-        ).toHaveTextContent("Draft");
-      });
-
+      await screen.findByText("Draft", { selector: ".text-primary" });
       window.history.pushState({}, "", `${BASE_PATH}/demo-slug/edit/overview`);
       await act(() => navigate("/demo-slug/edit/overview"));
 
       jest.advanceTimersByTime(POLL_INTERVAL);
-      // updatedMock should not be hit
-      await waitFor(() => {
-        expect(
-          screen.getByTestId("header-experiment-status-active"),
-        ).toHaveTextContent("Draft");
-      });
+      // Review would be the next state, so ensure Draft is still "primary"
+      await screen.findByText("Draft", { selector: ".text-primary" });
     });
 
     it("can redirect you somewhere else", async () => {
@@ -146,34 +112,34 @@ describe("AppLayoutWithExperiment", () => {
       });
     });
   });
-
-  // TODO: EXP-733 some sort of after test cleanup, can't add tests after without errors
-  it("renders loading screen", () => {
-    render(<Subject />);
-    expect(screen.getByTestId("page-loading")).toBeInTheDocument();
-  });
 });
+
+jest.useFakeTimers();
+
+jest.mock("@reach/router", () => ({
+  ...jest.requireActual("@reach/router"),
+  navigate: jest.fn(),
+}));
 
 const Subject = ({
   mocks = [],
-  polling = false,
-  sidebar = true,
-  withTitle = true,
-  redirect = () => {},
+  polling,
+  sidebar,
+  title,
+  redirect,
 }: {
-  mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
+  mocks?: MockedResponse[];
   polling?: boolean;
   sidebar?: boolean;
-  withTitle?: boolean;
+  title?: string;
   redirect?: (check: RedirectCheck) => void;
 }) => (
   <RouterSlugProvider {...{ mocks }}>
     <AppLayoutWithExperiment
-      title={withTitle ? "Howdy!" : undefined}
       testId="AppLayoutWithExperiment"
-      {...{ polling, sidebar, redirect }}
+      {...{ title, polling, sidebar, redirect }}
     >
-      {({ experiment }) => <p data-testid="child">{experiment.slug}</p>}
+      {({ experiment }) => <p>{experiment.slug}</p>}
     </AppLayoutWithExperiment>
   </RouterSlugProvider>
 );
