@@ -20,7 +20,7 @@ describe("TableResults", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
           primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
         />
       </RouterSlugProvider>,
     );
@@ -42,7 +42,7 @@ describe("TableResults", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
           primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
         />
       </RouterSlugProvider>,
     );
@@ -57,7 +57,7 @@ describe("TableResults", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
           primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
         />
       </RouterSlugProvider>,
     );
@@ -72,7 +72,7 @@ describe("TableResults", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
           primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockIncompleteAnalysis().overall}
+          results={mockIncompleteAnalysis()}
         />
       </RouterSlugProvider>,
     );
