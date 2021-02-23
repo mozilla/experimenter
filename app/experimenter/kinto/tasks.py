@@ -290,6 +290,13 @@ def nimbus_update_paused_experiments_in_kinto():
 
     for application, collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.items():
         kinto_client = KintoClient(collection)
+
+        if kinto_client.has_pending_review():
+            metrics.incr(
+                f"nimbus_update_paused_experiments_in_kinto.{collection}_pending_review"
+            )
+            continue
+
         records = {r["id"]: r for r in kinto_client.get_main_records()}
 
         live_experiments = NimbusExperiment.objects.filter(
