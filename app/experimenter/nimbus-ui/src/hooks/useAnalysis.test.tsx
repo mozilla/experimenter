@@ -2,40 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, render } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react-hooks";
 import fetchMock from "jest-fetch-mock";
-import React from "react";
-import { useAnalysis } from "./useAnalysis";
+import { useAnalysis } from ".";
 
 describe("hooks/useVisualization", () => {
-  describe("useVisualization", () => {
-    let hook: ReturnType<typeof useAnalysis>;
+  it("fetches from the visualization endpoint and returns data", async () => {
+    fetchMock.enableMocks();
 
-    const TestHook = () => {
-      hook = useAnalysis();
-      return <p>Algonquin Provincial Park</p>;
-    };
+    const slug = "hungry";
+    const data = { burrito: "Crunchwrap Supreme®" };
+    fetchMock.mockResponseOnce(JSON.stringify(data));
 
-    it("fetches from the visualization endpoint and returns data", async () => {
-      fetchMock.enableMocks();
+    const { result } = renderHook(() => useAnalysis());
+    await act(async () => void result.current.execute([slug]));
 
-      const slug = "hungry";
-      const data = { burrito: "Crunchwrap Supreme®" };
-      fetchMock.mockResponseOnce(JSON.stringify(data));
-
-      render(<TestHook />);
-
-      await act(async () => void hook.execute([slug]));
-
-      expect(fetch).toHaveBeenCalledWith(`/api/v3/visualization/${slug}/`, {
-        headers: { "Content-Type": "application/json" },
-        method: "GET",
-      });
-
-      expect(hook.result).toEqual(data);
-      expect(hook.loading).toBeFalsy();
-
-      fetchMock.disableMocks();
+    expect(fetch).toHaveBeenCalledWith(`/api/v3/visualization/${slug}/`, {
+      headers: { "Content-Type": "application/json" },
+      method: "GET",
     });
+
+    expect(result.current.result).toEqual(data);
+    expect(result.current.loading).toBeFalsy();
+
+    fetchMock.disableMocks();
   });
 });
