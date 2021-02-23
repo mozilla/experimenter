@@ -17,7 +17,6 @@ const PageSummary: React.FunctionComponent<PageRequestReviewProps> = ({
   <AppLayoutWithExperiment
     testId="PageSummary"
     sidebar={false}
-    summaryView
     {...{ polling }}
   >
     {({ experiment }) => <Summary {...{ experiment }} />}
