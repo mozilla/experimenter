@@ -520,6 +520,7 @@ class TestNimbusUpdatePausedExperimentsInKinto(MockKintoClientMixin, TestCase):
             NimbusExperiment.Status.LIVE, proposed_enrollment=10
         )
 
+        self.setup_kinto_no_pending_review()
         self.setup_kinto_get_main_records([experiment.slug])
 
         tasks.nimbus_update_paused_experiments_in_kinto()
@@ -545,6 +546,8 @@ class TestNimbusUpdatePausedExperimentsInKinto(MockKintoClientMixin, TestCase):
         self.mock_kinto_client.get_records.return_value = [
             {"id": experiment.slug, "isEnrollmentPaused": False}
         ]
+
+        self.setup_kinto_no_pending_review()
 
         tasks.nimbus_update_paused_experiments_in_kinto()
 
@@ -579,6 +582,32 @@ class TestNimbusUpdatePausedExperimentsInKinto(MockKintoClientMixin, TestCase):
         self.mock_kinto_client.get_records.return_value = [
             {"id": experiment.slug, "isEnrollmentPaused": True}
         ]
+
+        self.setup_kinto_no_pending_review()
+
+        tasks.nimbus_update_paused_experiments_in_kinto()
+
+        self.mock_kinto_client.update_record.assert_not_called()
+        self.mock_kinto_client.patch_collection.assert_not_called()
+
+    def test_doesnt_update_if_pending_review(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            proposed_enrollment=10,
+        )
+        launch_change = experiment.changes.get(
+            old_status=NimbusExperiment.Status.ACCEPTED,
+            new_status=NimbusExperiment.Status.LIVE,
+        )
+        launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
+        launch_change.save()
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": False}
+        ]
+
+        self.setup_kinto_pending_review()
 
         tasks.nimbus_update_paused_experiments_in_kinto()
 
