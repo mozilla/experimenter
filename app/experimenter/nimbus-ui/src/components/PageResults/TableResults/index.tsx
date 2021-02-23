@@ -9,14 +9,15 @@ import {
   RESULTS_METRICS_LIST,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
+import { AnalysisData } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
+import TooltipWithMarkdown from "../TooltipWithMarkdown";
 
 type TableResultsProps = {
   primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
-  results: AnalysisDataOverall;
+  results: AnalysisData;
 };
 
 const getResultMetrics = (
@@ -38,9 +39,16 @@ const getResultMetrics = (
 
 const TableResults = ({
   primaryProbeSets,
-  results = {},
+  results = {
+    daily: [],
+    weekly: {},
+    overall: {},
+    metadata: { metrics: {}, probesets: {} },
+    show_analysis: false,
+  },
 }: TableResultsProps) => {
   const resultsMetricsList = getResultMetrics(primaryProbeSets);
+  const overallResults = results?.overall!;
 
   return (
     <table
@@ -52,15 +60,23 @@ const TableResults = ({
           <th scope="col" className="border-bottom-0 bg-light" />
           {resultsMetricsList.map((metric, index) => {
             const badgeClass = `badge ${metric.type?.badge}`;
+            const probeSetDescription =
+              results.metadata?.metrics[metric.value]?.description ||
+              metric.tooltip;
+
             return (
               <th
                 key={`${metric.type}-${index}`}
                 scope="col"
                 className="border-bottom-0 align-middle bg-light"
               >
-                <h3 className="h6 mb-0" data-tip={metric.tooltip}>
+                <h3 className="h6 mb-0" data-tip data-for={metric.value}>
                   {metric.name}
                 </h3>
+                <TooltipWithMarkdown
+                  tooltipId={metric.value}
+                  markdown={probeSetDescription}
+                />
                 {metric.type && (
                   <span className={badgeClass} data-tip={metric.type.tooltip}>
                     {metric.type.label}
@@ -72,7 +88,7 @@ const TableResults = ({
         </tr>
       </thead>
       <tbody>
-        {Object.keys(results).map((branch) => {
+        {Object.keys(overallResults).map((branch) => {
           return (
             <tr key={branch}>
               <th className="align-middle" scope="row">
@@ -83,13 +99,13 @@ const TableResults = ({
                 const displayType = getTableDisplayType(
                   metricKey,
                   TABLE_LABEL.RESULTS,
-                  results[branch]["is_control"],
+                  overallResults[branch]["is_control"],
                 );
                 return (
                   <TableVisualizationRow
                     key={`${displayType}-${metricKey}`}
                     metricName={metric.name}
-                    results={results[branch]}
+                    results={overallResults[branch]}
                     tableLabel={TABLE_LABEL.RESULTS}
                     {...{ metricKey }}
                     {...{ displayType }}

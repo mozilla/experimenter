@@ -27,6 +27,12 @@ export const MOCK_METADATA = {
         "This is a metric description. It's made by a data scientist at the creation time of the metric [I'm a link](https://www.example.com)",
       friendly_name: "Feature D Friendly Name",
     },
+    search_count: {
+      bigger_is_better: true,
+      description:
+        "This is a metric description for search. It's made by a data scientist at the creation time of the metric [Link](https://www.example.com)",
+      friendly_name: "Search Count",
+    },
   },
   probesets: {},
 };
@@ -105,6 +111,10 @@ export const TREATMENT_NEUTRAL = {
   },
   significance: "neutral",
 };
+
+export const TREATMENT_NEGATIVE = Object.assign({}, TREATMENT_NEUTRAL, {
+  significance: "negative",
+});
 
 export const weeklyMockAnalysis = (modifications = {}) =>
   Object.assign(
@@ -491,7 +501,7 @@ export const mockAnalysis = (modifications = {}) =>
           },
         },
         treatment: {
-          is_control: true,
+          is_control: false,
           branch_data: {
             identity: {
               absolute: {
@@ -514,76 +524,8 @@ export const mockAnalysis = (modifications = {}) =>
               },
               percent: 55,
             },
-            search_count: {
-              absolute: {
-                first: {
-                  point: 25.456361412643364,
-                  lower: 18.998951440573688,
-                  upper: 33.54929175463715,
-                },
-                all: [
-                  {
-                    point: 25.456361412643364,
-                    lower: 18.998951440573688,
-                    upper: 33.54929175463715,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: 5.075852767646001,
-                  upper: -5.63685604594333,
-                  lower: -15.289651027022447,
-                },
-                all: [
-                  {
-                    point: 5.075852767646001,
-                    upper: -5.63685604594333,
-                    lower: -15.289651027022447,
-                  },
-                ],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-              significance: "negative",
-            },
-            retained: {
-              absolute: {
-                first: {
-                  point: 0.6421568627450981,
-                  lower: 0.5752946065083696,
-                  upper: 0.7063786618426765,
-                },
-                all: [
-                  {
-                    point: 0.6421568627450981,
-                    lower: 0.5752946065083696,
-                    upper: 0.7063786618426765,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: 0.032060163779913255,
-                  lower: -0.06502380421429996,
-                  upper: 0.12483606976999304,
-                },
-                all: [
-                  {
-                    point: 0.032060163779913255,
-                    lower: -0.06502380421429996,
-                    upper: 0.12483606976999304,
-                  },
-                ],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-              significance: "neutral",
-            },
+            search_count: TREATMENT_NEGATIVE,
+            retained: TREATMENT_NEUTRAL,
             picture_in_picture_ever_used: {
               absolute: {
                 first: {
@@ -1193,7 +1135,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
           },
         },
         treatment: {
-          is_control: true,
+          is_control: false,
           branch_data: {
             identity: {
               absolute: {

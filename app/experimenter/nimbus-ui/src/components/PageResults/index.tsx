@@ -56,7 +56,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
           <p>{experiment.hypothesis}</p>
           <TableHighlights
             primaryProbeSets={experiment.primaryProbeSets!}
-            results={analysis?.overall!}
+            results={analysis!}
           />
           <TableHighlightsOverview
             {...{ experiment }}
@@ -68,7 +68,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
           </h2>
           <TableResults
             primaryProbeSets={experiment.primaryProbeSets!}
-            results={analysis?.overall!}
+            results={analysis!}
           />
           <div>
             {experiment.primaryProbeSets?.map((probeSet) => (

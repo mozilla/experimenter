@@ -12,14 +12,14 @@ import {
   SEGMENT_TIPS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
+import { AnalysisData } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type TableHighlightsProps = {
   primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
-  results: AnalysisDataOverall;
+  results: AnalysisData;
 };
 
 const getHighlightMetrics = (
@@ -40,16 +40,23 @@ const getHighlightMetrics = (
 
 const TableHighlights = ({
   primaryProbeSets,
-  results = {},
+  results = {
+    daily: [],
+    weekly: {},
+    overall: {},
+    metadata: { metrics: {}, probesets: {} },
+    show_analysis: false,
+  },
 }: TableHighlightsProps) => {
   const highlightMetricsList = getHighlightMetrics(primaryProbeSets);
+  const overallResults = results?.overall!;
 
   return (
     <table data-testid="table-highlights" className="table mt-4 mb-0">
       <tbody>
-        {Object.keys(results).map((branch) => {
+        {Object.keys(overallResults).map((branch) => {
           const userCountMetric =
-            results[branch]["branch_data"][METRIC.USER_COUNT];
+            overallResults[branch]["branch_data"][METRIC.USER_COUNT];
           const participantCount =
             userCountMetric[BRANCH_COMPARISON.ABSOLUTE]["first"]["point"];
           return (
@@ -65,25 +72,34 @@ const TableHighlights = ({
                 <span className="align-middle">All Users&nbsp;</span>
                 <Info data-tip={SEGMENT_TIPS.ALL_USERS} />
               </td>
-              <td className="pt-3 px-3 pb-0">
-                {highlightMetricsList.map((metric) => {
-                  const metricKey = metric.value;
-                  const displayType = getTableDisplayType(
-                    metricKey,
-                    TABLE_LABEL.HIGHLIGHTS,
-                    results[branch]["is_control"],
-                  );
-                  return (
-                    <TableVisualizationRow
-                      key={`${displayType}-${metricKey}`}
-                      metricName={metric.name}
-                      results={results[branch]}
-                      tableLabel={TABLE_LABEL.HIGHLIGHTS}
-                      {...{ metricKey, displayType }}
-                    />
-                  );
-                })}
-              </td>
+              {overallResults[branch]["is_control"] ? (
+                <td className="p-1 p-lg-3 align-middle">
+                  <div className="font-italic align-middle">---baseline---</div>
+                </td>
+              ) : (
+                <td className="pt-3 px-3">
+                  {highlightMetricsList.map((metric) => {
+                    const metricKey = metric.value;
+                    const displayType = getTableDisplayType(
+                      metricKey,
+                      TABLE_LABEL.HIGHLIGHTS,
+                      overallResults[branch]["is_control"],
+                    );
+                    const tooltip =
+                      results.metadata?.metrics[metricKey]?.description ||
+                      metric.tooltip;
+                    return (
+                      <TableVisualizationRow
+                        key={`${displayType}-${metricKey}`}
+                        metricName={metric.name}
+                        results={overallResults[branch]}
+                        tableLabel={TABLE_LABEL.HIGHLIGHTS}
+                        {...{ metricKey, displayType, tooltip }}
+                      />
+                    );
+                  })}
+                </td>
+              )}
             </tr>
           );
         })}
