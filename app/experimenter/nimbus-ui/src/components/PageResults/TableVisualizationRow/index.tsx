@@ -12,6 +12,7 @@ import {
 } from "../../../lib/visualization/constants";
 import { BranchDescription } from "../../../lib/visualization/types";
 import ConfidenceInterval from "../ConfidenceInterval";
+import TooltipWithMarkdown from "../TooltipWithMarkdown";
 import { ReactComponent as SignificanceNegative } from "./significance-negative.svg";
 import { ReactComponent as SignificanceNeutral } from "./significance-neutral.svg";
 import { ReactComponent as SignificancePositive } from "./significance-positive.svg";
@@ -38,11 +39,13 @@ const showSignificanceField = (
   interval: string,
   name: string,
   tableLabel: string,
+  tooltip: string,
 ) => {
   let significanceIcon,
     changeText = "";
   // Attributes set to 'undefined' don't render in the DOM
   const className = significance ? `${significance}-significance` : undefined;
+  const tooltipId = `${name}_tooltip`;
   switch (significance) {
     case SIGNIFICANCE.POSITIVE:
       significanceIcon = (
@@ -72,9 +75,15 @@ const showSignificanceField = (
   if (tableLabel === TABLE_LABEL.HIGHLIGHTS) {
     return (
       <>
-        <p {...{ className }} data-testid={className}>
-          {significanceIcon}&nbsp;{name} {changeText} {intervalText}
-        </p>
+        <div {...{ className }} data-testid={className}>
+          {significanceIcon}&nbsp;
+          <span data-tip data-for={tooltipId}>
+            {name}
+          </span>
+          &nbsp;
+          <TooltipWithMarkdown markdown={tooltip} {...{ tooltipId }} />
+          {changeText} {intervalText}
+        </div>
         <ReactTooltip />
       </>
     );
@@ -129,9 +138,16 @@ const countField = (
   significance: string | undefined,
   metricName: string,
   tableLabel: string,
+  tooltip: string,
 ) => {
   const interval = `${lower.toFixed(2)} to ${upper.toFixed(2)}`;
-  return showSignificanceField(significance, interval, metricName, tableLabel);
+  return showSignificanceField(
+    significance,
+    interval,
+    metricName,
+    tableLabel,
+    tooltip,
+  );
 };
 
 const percentField = (
@@ -140,11 +156,18 @@ const percentField = (
   significance: string | undefined,
   metricName: string,
   tableLabel: string,
+  tooltip: string,
 ) => {
   const interval = `${Math.round(lower * 1000) / 10}% to ${
     Math.round(upper * 1000) / 10
   }%`;
-  return showSignificanceField(significance, interval, metricName, tableLabel);
+  return showSignificanceField(
+    significance,
+    interval,
+    metricName,
+    tableLabel,
+    tooltip,
+  );
 };
 
 const TableVisualizationRow: React.FC<{
@@ -154,6 +177,7 @@ const TableVisualizationRow: React.FC<{
   metricName?: string;
   displayType?: DISPLAY_TYPE;
   branchComparison?: string;
+  tooltip?: string;
 }> = ({
   metricKey,
   results,
@@ -161,6 +185,7 @@ const TableVisualizationRow: React.FC<{
   metricName = "",
   displayType,
   branchComparison,
+  tooltip = "",
 }) => {
   const { branch_data, is_control } = results;
   const metricData = branch_data[metricKey];
@@ -170,7 +195,8 @@ const TableVisualizationRow: React.FC<{
     metricKey === METRIC.RETENTION ? GENERAL_TIPS.MISSING_RETENTION : "";
   let className = "text-danger";
   if (metricData) {
-    className = tooltipText = "";
+    className = "";
+    tooltipText = tooltip;
     const percent = branch_data[METRIC.USER_COUNT]["percent"];
     const userCountMetric =
       branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["first"][
@@ -191,7 +217,14 @@ const TableVisualizationRow: React.FC<{
         field = populationField(point, percent);
         break;
       case DISPLAY_TYPE.COUNT:
-        field = countField(lower, upper, significance, metricName, tableLabel);
+        field = countField(
+          lower,
+          upper,
+          significance,
+          metricName,
+          tableLabel,
+          tooltipText,
+        );
         break;
       case DISPLAY_TYPE.PERCENT:
       case DISPLAY_TYPE.CONVERSION_RATE:
@@ -201,6 +234,7 @@ const TableVisualizationRow: React.FC<{
           significance,
           metricName,
           tableLabel,
+          tooltipText,
         );
         break;
       case DISPLAY_TYPE.CONVERSION_COUNT:
@@ -213,7 +247,7 @@ const TableVisualizationRow: React.FC<{
   }
 
   return tableLabel === TABLE_LABEL.HIGHLIGHTS ? (
-    <div key={metricKey} {...{ className }} data-tip={tooltipText}>
+    <div key={metricKey} className={`${className} py-2`}>
       {field}
     </div>
   ) : (

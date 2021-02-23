@@ -19,7 +19,7 @@ describe("TableHighlights", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlights
           primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
         />
       </RouterSlugProvider>,
     );
@@ -38,7 +38,7 @@ describe("TableHighlights", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlights
           primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
         />
       </RouterSlugProvider>,
     );
@@ -53,7 +53,7 @@ describe("TableHighlights", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlights
           primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
         />
       </RouterSlugProvider>,
     );

@@ -18,7 +18,7 @@ storiesOf("pages/Results/TableResults", module)
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
           primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
         />
       </RouterSlugProvider>
     );
@@ -44,7 +44,7 @@ storiesOf("pages/Results/TableResults", module)
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
           primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
         />
       </RouterSlugProvider>
     );
