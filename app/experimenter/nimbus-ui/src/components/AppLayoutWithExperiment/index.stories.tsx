@@ -13,20 +13,9 @@ const { mock } = mockExperimentQuery("demo-slug");
 
 storiesOf("components/AppLayoutWithExperiment", module)
   .addDecorator(withLinks)
-  .add("default, with sidebar", () => (
+  .add("default", () => (
     <RouterSlugProvider mocks={[mock]}>
       <AppLayoutWithExperiment title="Howdy!" testId="AppLayoutWithExperiment">
-        {({ experiment }) => <p>{experiment.name}</p>}
-      </AppLayoutWithExperiment>
-    </RouterSlugProvider>
-  ))
-  .add("without sidebar", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <AppLayoutWithExperiment
-        title="Howdy!"
-        testId="AppLayoutWithExperiment"
-        sidebar={false}
-      >
         {({ experiment }) => <p>{experiment.name}</p>}
       </AppLayoutWithExperiment>
     </RouterSlugProvider>

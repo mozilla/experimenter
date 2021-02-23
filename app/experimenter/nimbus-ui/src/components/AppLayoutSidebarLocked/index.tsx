@@ -5,8 +5,8 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
 import Scrollspy from "react-scrollspy";
+import { ReactComponent as Airplane } from "../../images/airplane.svg";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
-import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
 import { StatusCheck } from "../../lib/experiment";
 import { AnalysisData, MetadataPoint } from "../../lib/visualization/types";
 import { analysisAvailable } from "../../lib/visualization/utils";
@@ -125,9 +125,9 @@ export const AppLayoutSidebarLocked = ({
         >
           <nav
             data-testid="nav-sidebar"
-            className="navbar fixed-top col-xl-2 col-lg-3 col-md-3"
+            className="navbar fixed-top col-xl-2 col-lg-3 col-md-3 px-4 py-3"
           >
-            <Nav className="flex-column font-weight-semibold" as="ul">
+            <Nav className="flex-column font-weight-semibold mx-2" as="ul">
               <LinkNav
                 storiesOf="pages/Home"
                 className="mb-3 small font-weight-bold"
@@ -137,12 +137,12 @@ export const AppLayoutSidebarLocked = ({
                 Experiments
               </LinkNav>
               <LinkNav
-                route={`${slug}/design`}
-                storiesOf={"pages/Design"}
-                testid={"nav-design"}
+                route={slug}
+                storiesOf={"pages/Summary"}
+                testid={"nav-summary"}
               >
-                <Clipboard className="sidebar-icon" />
-                Design
+                <Airplane className="sidebar-icon" />
+                Summary
               </LinkNav>
               {analysisAvailable(analysis) ? (
                 <>
