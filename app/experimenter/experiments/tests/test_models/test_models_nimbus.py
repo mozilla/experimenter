@@ -242,6 +242,7 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             [False, NimbusExperiment.Status.DRAFT],
+            [True, NimbusExperiment.Status.PREVIEW],
             [True, NimbusExperiment.Status.REVIEW],
             [False, NimbusExperiment.Status.ACCEPTED],
             [False, NimbusExperiment.Status.LIVE],
