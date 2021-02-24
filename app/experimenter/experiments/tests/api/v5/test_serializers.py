@@ -1069,7 +1069,13 @@ class TestNimbusExperimentSerializer(TestCase):
             serializer.errors,
         )
 
-    def test_status_to_review_generates_bucket_allocation(self):
+    @parameterized.expand(
+        [
+            [NimbusExperiment.Status.REVIEW],
+            [NimbusExperiment.Status.PREVIEW],
+        ]
+    )
+    def test_status_generates_bucket_allocation(self, to_status):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT, population_percent=Decimal("50.0")
         )
@@ -1078,7 +1084,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
         serializer = NimbusExperimentSerializer(
             experiment,
-            data={"status": NimbusExperiment.Status.REVIEW},
+            data={"status": to_status},
             context={"user": self.user},
         )
         self.assertTrue(serializer.is_valid())
