@@ -128,6 +128,14 @@ describe("PageRequestReview", () => {
     );
   });
 
+  it("indicates status in preview", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.PREVIEW,
+    });
+    render(<Subject mocks={[mock]} />);
+    await screen.findByTestId("in-preview-label");
+  });
+
   it("handles Launch to Preview from Draft as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
