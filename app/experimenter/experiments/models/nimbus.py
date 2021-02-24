@@ -228,7 +228,10 @@ class NimbusExperiment(NimbusConstants, models.Model):
 
     @property
     def should_allocate_bucket_range(self):
-        return self.status in [NimbusExperiment.Status.REVIEW]
+        return self.status in [
+            NimbusExperiment.Status.PREVIEW,
+            NimbusExperiment.Status.REVIEW,
+        ]
 
     def allocate_bucket_range(self):
         existing_bucket_range = NimbusBucketRange.objects.filter(experiment=self)
