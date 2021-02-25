@@ -64,7 +64,7 @@ describe("FormAudience", () => {
         expect(screen.getByTestId("submit-error")).toHaveTextContent(error);
       } else {
         expect(
-          container.querySelector(`.invalid-feedback[data-for=${fieldName}`),
+          container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
         ).toHaveTextContent(error);
       }
     }
@@ -166,6 +166,32 @@ describe("FormAudience", () => {
     );
   });
 
+  it("requires positive numbers in numeric fields (EXP-956)", async () => {
+    const onSubmit = jest.fn();
+    const { container } = render(<Subject {...{ onSubmit }} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    for (const fieldName of [
+      "populationPercent",
+      "totalEnrolledClients",
+      "proposedEnrollment",
+      "proposedDuration",
+    ]) {
+      await act(async () => {
+        const field = screen.getByTestId(fieldName);
+        fireEvent.click(field);
+        fireEvent.change(field, { target: { value: "-123" } });
+        fireEvent.blur(field);
+      });
+
+      expect(
+        container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
+      ).toHaveTextContent(FIELD_MESSAGES.POSITIVE_NUMBER);
+    }
+  });
+
   it("does not have any required modified fields", async () => {
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -212,8 +238,8 @@ describe("FormAudience", () => {
       });
 
       expect(
-        container.querySelector(`.invalid-feedback[data-for=${fieldName}`),
-      ).toHaveTextContent(FIELD_MESSAGES.NUMBER);
+        container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
+      ).toHaveTextContent(FIELD_MESSAGES.POSITIVE_NUMBER);
     }
   });
 
