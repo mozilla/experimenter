@@ -4,6 +4,8 @@
 import React, { useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
 import vegaEmbed, { VisualizationSpec } from "vega-embed";
+import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
+import { ReactComponent as ExpandPlus } from "../../../images/plus.svg";
 import {
   BRANCH_COMPARISON,
   BRANCH_COMPARISON_TITLE,
@@ -14,8 +16,6 @@ import {
   BranchDescription,
   FormattedAnalysisPoint,
 } from "../../../lib/visualization/types";
-import { ReactComponent as CollapseMinus } from "./minus.svg";
-import { ReactComponent as ExpandPlus } from "./plus.svg";
 
 const getGraphID = (outcomeSlug: string, branchComparison: string) =>
   `${outcomeSlug}_${branchComparison}_graph`;

@@ -170,6 +170,7 @@ describe("DirectoryLiveTable", () => {
       "Enrolling",
       "Ending",
       "Monitoring",
+      "Results",
     ]);
     expectTableCells("directory-table-cell", [
       experiment.name,
@@ -178,6 +179,7 @@ describe("DirectoryLiveTable", () => {
       getProposedEnrollmentRange(experiment) as string,
       humanDate(experiment.computedEndDate!),
       "Grafana",
+      "Results",
     ]);
   });
 });

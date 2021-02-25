@@ -10,7 +10,10 @@ import {
   TABLE_LABEL,
   VARIANT_TYPE,
 } from "../../../lib/visualization/constants";
-import { BranchDescription } from "../../../lib/visualization/types";
+import {
+  BranchDescription,
+  FormattedAnalysisPoint,
+} from "../../../lib/visualization/types";
 import ConfidenceInterval from "../ConfidenceInterval";
 import TooltipWithMarkdown from "../TooltipWithMarkdown";
 import { ReactComponent as SignificanceNegative } from "./significance-negative.svg";
@@ -114,12 +117,9 @@ const conversionChangeField = (
   upper: number,
   significance: string | undefined,
 ) => {
-  if (!lower || !upper || !significance) {
-    return <div className="font-italic">---baseline---</div>;
-  }
-
   lower = Math.round(lower * 1000) / 10;
   upper = Math.round(upper * 1000) / 10;
+  significance = significance || SIGNIFICANCE.NEUTRAL;
   return <ConfidenceInterval {...{ upper, lower, significance }} />;
 };
 
@@ -170,6 +170,16 @@ const percentField = (
   );
 };
 
+const formattedAnalysisPointComparator = (
+  a: FormattedAnalysisPoint,
+  b: FormattedAnalysisPoint,
+) => {
+  if (!a.window_index || !b.window_index) {
+    return 0;
+  }
+  return a.window_index - b.window_index;
+};
+
 const TableVisualizationRow: React.FC<{
   metricKey: string;
   results: BranchDescription;
@@ -189,6 +199,7 @@ const TableVisualizationRow: React.FC<{
 }) => {
   const { branch_data, is_control } = results;
   const metricData = branch_data[metricKey];
+  const fieldList = [];
 
   let field = <>{metricName} is not available</>;
   let tooltipText =
@@ -197,67 +208,93 @@ const TableVisualizationRow: React.FC<{
   if (metricData) {
     className = "";
     tooltipText = tooltip;
+    field = <div className="font-italic">---baseline---</div>;
     const percent = branch_data[METRIC.USER_COUNT]["percent"];
-    const userCountMetric =
-      branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["first"][
-        "point"
-      ];
-
     const branchType = is_control ? VARIANT_TYPE.CONTROL : VARIANT_TYPE.VARIANT;
     branchComparison =
       branchComparison || dataTypeMapping[tableLabel][branchType];
 
-    const { lower, upper, point, count } = metricData[branchComparison][
-      "first"
-    ];
+    const userCountsList =
+      branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["all"];
+    const metricDataList = metricData[branchComparison]["all"];
     const significance = metricData["significance"];
 
-    switch (displayType) {
-      case DISPLAY_TYPE.POPULATION:
-        field = populationField(point, percent);
-        break;
-      case DISPLAY_TYPE.COUNT:
-        field = countField(
-          lower,
-          upper,
-          significance,
-          metricName,
-          tableLabel,
-          tooltipText,
-        );
-        break;
-      case DISPLAY_TYPE.PERCENT:
-      case DISPLAY_TYPE.CONVERSION_RATE:
-        field = percentField(
-          lower,
-          upper,
-          significance,
-          metricName,
-          tableLabel,
-          tooltipText,
-        );
-        break;
-      case DISPLAY_TYPE.CONVERSION_COUNT:
-        field = conversionCountField(count, userCountMetric);
-        break;
-      case DISPLAY_TYPE.CONVERSION_CHANGE:
-        field = conversionChangeField(lower, upper, significance);
-        break;
-    }
+    userCountsList.sort(formattedAnalysisPointComparator);
+    metricDataList.sort(formattedAnalysisPointComparator);
+
+    metricDataList.forEach((dataPoint: FormattedAnalysisPoint, i: number) => {
+      const { lower, upper, point, count } = dataPoint;
+      const userCountMetric = userCountsList[i]["point"];
+
+      switch (displayType) {
+        case DISPLAY_TYPE.POPULATION:
+          field = populationField(point!, percent);
+          break;
+        case DISPLAY_TYPE.COUNT:
+          field = countField(
+            lower!,
+            upper!,
+            significance,
+            metricName,
+            tableLabel,
+            tooltipText,
+          );
+          break;
+        case DISPLAY_TYPE.PERCENT:
+        case DISPLAY_TYPE.CONVERSION_RATE:
+          field = percentField(
+            lower!,
+            upper!,
+            significance,
+            metricName,
+            tableLabel,
+            tooltipText,
+          );
+          break;
+        case DISPLAY_TYPE.CONVERSION_COUNT:
+          field = conversionCountField(count!, userCountMetric);
+          break;
+        case DISPLAY_TYPE.CONVERSION_CHANGE:
+          field = conversionChangeField(lower!, upper!, significance);
+          break;
+      }
+      fieldList.push({ field, tooltipText, className });
+    });
+  }
+  /**
+   * If fieldList is still empty then we either had no metric
+   * data at all, or no metric data for the specific branchComparison requested.
+   *
+   * The former happens when there is not enough data for retention, for example.
+   * The latter happens when we try to look at uplift for control and this should
+   * fall back to "baseline".
+   *
+   * In either case, we need to push the current values below to be displayed.
+   **/
+  if (fieldList.length === 0) {
+    fieldList.push({ field, tooltipText, className });
   }
 
-  return tableLabel === TABLE_LABEL.HIGHLIGHTS ? (
-    <div key={metricKey} className={`${className} py-2`}>
-      {field}
-    </div>
-  ) : (
-    <td
-      key={metricKey}
-      className={`align-middle ${className}`}
-      data-tip={tooltipText}
-    >
-      <div>{field}</div>
-    </td>
+  return (
+    <>
+      {fieldList.map((fieldData, index) => {
+        const { field, tooltipText, className } = fieldData;
+
+        return tableLabel === TABLE_LABEL.HIGHLIGHTS ? (
+          <div key={metricKey} className={`${className} py-2`}>
+            {field}
+          </div>
+        ) : (
+          <td
+            key={`${index}-${displayType}-${metricKey}-${tableLabel}`}
+            className={`align-middle ${className}`}
+            data-tip={tooltipText}
+          >
+            <div>{field}</div>
+          </td>
+        );
+      })}
+    </>
   );
 };
 

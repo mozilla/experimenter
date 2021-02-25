@@ -165,6 +165,7 @@ export const AppLayoutSidebarLocked = ({
                     {Object.keys(secondaryMetrics).length &&
                       getSidebarItems(secondaryMetrics, "Secondary Metrics")}
                     {otherMetrics &&
+                      analysis?.overall &&
                       getSidebarItems(otherMetrics, "Default Metrics")}
                   </Scrollspy>
                 </>
