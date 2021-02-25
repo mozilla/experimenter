@@ -9,7 +9,11 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig } from "../../../hooks";
-import { EXTERNAL_URLS, NUMBER_FIELD } from "../../../lib/constants";
+import {
+  EXTERNAL_URLS,
+  NUMBER_FIELD,
+  POSITIVE_NUMBER_WITH_COMMAS_FIELD,
+} from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import InlineErrorIcon from "../../InlineErrorIcon";
 import LinkExternal from "../../LinkExternal";
@@ -200,9 +204,10 @@ export const FormAudience = ({
           >
             <Form.Label>Expected number of clients</Form.Label>
             <Form.Control
-              {...formControlAttrs("totalEnrolledClients", NUMBER_FIELD)}
-              type="number"
-              min="0"
+              {...formControlAttrs(
+                "totalEnrolledClients",
+                POSITIVE_NUMBER_WITH_COMMAS_FIELD,
+              )}
             />
             <FormErrors name="totalEnrolledClients" />
           </Form.Group>
