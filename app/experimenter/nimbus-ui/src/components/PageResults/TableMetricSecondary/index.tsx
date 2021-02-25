@@ -132,10 +132,12 @@ const TableMetricSecondary = ({
           })}
         </tbody>
       </table>
-      <GraphsWeekly
-        weeklyResults={results?.weekly!}
-        {...{ probeSetSlug, probeSetName }}
-      />
+      {results?.weekly && (
+        <GraphsWeekly
+          weeklyResults={results.weekly}
+          {...{ probeSetSlug, probeSetName }}
+        />
+      )}
     </div>
   );
 };
