@@ -1,0 +1,10 @@
+@import "~bootstrap/scss/bootstrap";
+
+.edit-divider::before {
+  @extend .w-100, .d-block, .position-absolute;
+  content: "";
+  height: 1px;
+  background: #dee2e6;
+  top: 50%;
+  transform: translateY(-50%);
+}

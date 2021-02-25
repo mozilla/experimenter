@@ -8,15 +8,17 @@ import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
+import { ReactComponent as Airplane } from "../../images/airplane.svg";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
-import { ReactComponent as Cog } from "../../images/cog.svg";
 import { BASE_PATH } from "../../lib/constants";
 import { StatusCheck } from "../../lib/experiment";
 import { DisabledItem } from "../DisabledItem";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as AlertCircle } from "./alert-circle.svg";
 import { ReactComponent as ChartArrow } from "./chart-arrow.svg";
+import { ReactComponent as Cog } from "./cog.svg";
+import "./index.scss";
 import { ReactComponent as Layers } from "./layers.svg";
 import { ReactComponent as Person } from "./person.svg";
 
@@ -60,6 +62,7 @@ export const AppLayoutWithSidebar = ({
   review,
 }: AppLayoutWithSidebarProps) => {
   const { slug } = useParams();
+  const reviewOrPreview = status?.review || status?.preview;
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
@@ -71,7 +74,7 @@ export const AppLayoutWithSidebar = ({
           className="bg-light pt-2 border-right shadow-sm"
         >
           <nav data-testid="nav-sidebar" className="navbar">
-            <Nav className="flex-column font-weight-semibold" as="ul">
+            <Nav className="flex-column font-weight-semibold w-100" as="ul">
               <LinkNav
                 storiesOf="pages/Home"
                 className="mb-3 small font-weight-bold"
@@ -80,13 +83,34 @@ export const AppLayoutWithSidebar = ({
                 <ChevronLeft className="ml-n1" width="18" height="18" />
                 Experiments
               </LinkNav>
+
+              <LinkNav
+                route={`${slug}`}
+                storiesOf={"pages/Summary"}
+                testid={"nav-summary"}
+              >
+                <Airplane className="sidebar-icon" />
+                Summary
+              </LinkNav>
+
+              <p className="edit-divider position-relative small mb-2 mt-3">
+                <span className="position-relative bg-light pl-1 pr-2 text-muted">
+                  Edit Experiment
+                </span>
+              </p>
+
               {editPages.map((page, idx) => (
                 <LinkNav
                   key={`sidebar-${page.name}-${idx}`}
                   route={`${slug}/edit/${page.slug}`}
                   storiesOf={`pages/Edit${page.name}`}
                   testid={`nav-edit-${page.slug}`}
-                  disabled={status?.review}
+                  title={
+                    reviewOrPreview
+                      ? "Experiments cannot be edited while in Review or Preview"
+                      : undefined
+                  }
+                  disabled={reviewOrPreview}
                 >
                   {page.icon}
                   {page.name}
@@ -100,7 +124,7 @@ export const AppLayoutWithSidebar = ({
                   )}
                 </LinkNav>
               ))}
-              {!review || review.ready || status?.review ? (
+              {!review || review.ready || reviewOrPreview ? (
                 <LinkNav
                   route={`${slug}/request-review`}
                   storiesOf="pages/RequestReview"
