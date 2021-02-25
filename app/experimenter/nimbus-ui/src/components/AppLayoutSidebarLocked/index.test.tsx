@@ -18,6 +18,7 @@ import {
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const { mock } = mockExperimentQuery("my-special-slug/design");
+const navLinkSelector = ".navbar a";
 
 const Subject = ({
   status = NimbusExperimentStatus.COMPLETE,
@@ -66,36 +67,29 @@ const Subject = ({
 
 describe("AppLayoutSidebarLocked", () => {
   describe("navigation links", () => {
-    it("when live, hides edit and review links, displays design link and disabled results item", () => {
+    it("when live, hides edit and review links, displays summary link and disabled results item", () => {
       render(<Subject status={NimbusExperimentStatus.LIVE} />);
       [
-        "edit-overview",
-        "edit-branches",
-        "edit-metrics",
-        "edit-audience",
-        "edit-request-review",
-      ].forEach((slug) => {
-        expect(screen.queryByTestId(`nav-${slug}`)).not.toBeInTheDocument();
+        "Overview",
+        "Branches",
+        "Metrics",
+        "Audience",
+        "Review & Launch",
+      ].forEach((text) => {
+        expect(
+          screen.queryByText(text, { selector: navLinkSelector }),
+        ).not.toBeInTheDocument();
       });
 
-      expect(screen.queryByTestId("nav-design")).toBeInTheDocument();
-      expect(screen.queryByTestId("nav-design")).toHaveAttribute(
+      const navSummary = screen.getByText("Summary", {
+        selector: navLinkSelector,
+      });
+      expect(navSummary).toHaveAttribute(
         "href",
-        `${BASE_PATH}/my-special-slug/design`,
+        `${BASE_PATH}/my-special-slug`,
       );
-      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
-      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
-        "Experiment results not yet ready",
-      );
-    });
 
-    it("when accepted, displays design link and disabled results item", () => {
-      render(<Subject status={NimbusExperimentStatus.ACCEPTED} />);
-
-      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
-      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
-        "Waiting for experiment to launch",
-      );
+      screen.getByText("Experiment results not yet ready");
     });
 
     it("when complete and analysis results fetch errors", () => {
@@ -115,17 +109,19 @@ describe("AppLayoutSidebarLocked", () => {
         RESULTS_LOADING_TEXT,
       );
     });
-
-    it("when complete and has analysis results displays design and results items", () => {
+    it("when complete and has analysis results displays summary and results items", () => {
       render(<Subject withAnalysis />);
 
-      ["design", "results"].forEach((slug) => {
-        expect(screen.queryByTestId(`nav-${slug}`)).toBeInTheDocument();
-        expect(screen.queryByTestId(`nav-${slug}`)).toHaveAttribute(
+      for (const [label, path] of [
+        ["Summary", ""],
+        ["Results", "/results"],
+      ]) {
+        const link = screen.queryByText(label, { selector: navLinkSelector });
+        expect(link).toHaveAttribute(
           "href",
-          `${BASE_PATH}/my-special-slug/${slug}`,
+          `${BASE_PATH}/my-special-slug${path}`,
         );
-      });
+      }
     });
 
     it("shows correct sidebar items for 'other metrics'", () => {

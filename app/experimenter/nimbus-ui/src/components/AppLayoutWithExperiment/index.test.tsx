@@ -27,14 +27,6 @@ describe("AppLayoutWithExperiment", () => {
     await screen.findByRole("heading", { name: title });
   });
 
-  it("can render without a sidebar", async () => {
-    const { mock } = mockExperimentQuery("demo-slug");
-    render(<Subject mocks={[mock]} sidebar={false} />);
-    await waitFor(() =>
-      expect(screen.queryByTestId("nav-sidebar")).not.toBeInTheDocument(),
-    );
-  });
-
   it("renders loading screen to start", async () => {
     render(<Subject />);
     await screen.findByText("Loading...");
@@ -124,20 +116,18 @@ jest.mock("@reach/router", () => ({
 const Subject = ({
   mocks = [],
   polling,
-  sidebar,
   title,
   redirect,
 }: {
   mocks?: MockedResponse[];
   polling?: boolean;
-  sidebar?: boolean;
   title?: string;
   redirect?: (check: RedirectCheck) => void;
 }) => (
   <RouterSlugProvider {...{ mocks }}>
     <AppLayoutWithExperiment
       testId="AppLayoutWithExperiment"
-      {...{ title, polling, sidebar, redirect }}
+      {...{ title, polling, redirect }}
     >
       {({ experiment }) => <p>{experiment.slug}</p>}
     </AppLayoutWithExperiment>

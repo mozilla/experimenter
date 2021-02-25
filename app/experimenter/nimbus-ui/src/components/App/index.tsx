@@ -6,7 +6,6 @@ import { useQuery } from "@apollo/client";
 import { Redirect, RouteComponentProps, Router } from "@reach/router";
 import React from "react";
 import { GET_CONFIG_QUERY } from "../../gql/config";
-import PageDesign from "../PageDesign";
 import PageEditAudience from "../PageEditAudience";
 import PageEditBranches from "../PageEditBranches";
 import PageEditMetrics from "../PageEditMetrics";
@@ -44,7 +43,6 @@ const App = ({ basepath }: { basepath: string }) => {
         <PageEditAudience path="audience" />
       </Root>
       <PageRequestReview path=":slug/request-review" />
-      <PageDesign path=":slug/design" />
       <PageResults path=":slug/results" />
     </Router>
   );

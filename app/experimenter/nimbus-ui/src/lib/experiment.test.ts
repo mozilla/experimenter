@@ -22,7 +22,6 @@ describe("getStatus", () => {
 
     experiment.status = NimbusExperimentStatus.PREVIEW;
     expect(getStatus(experiment).preview).toBeTruthy();
-    expect(getStatus(experiment).locked).toBeTruthy();
 
     experiment.status = NimbusExperimentStatus.LIVE;
     expect(getStatus(experiment).live).toBeTruthy();
@@ -44,13 +43,14 @@ describe("editCommonRedirects", () => {
 
   it("returns 'request-review' if the experiment is in review or preview", () => {
     expect(mockedCall(NimbusExperimentStatus.REVIEW)).toEqual("request-review");
-    // @ts-ignore until backend API & types are updated
-    expect(mockedCall("PREVIEW")).toEqual("request-review");
+    expect(mockedCall(NimbusExperimentStatus.PREVIEW)).toEqual(
+      "request-review",
+    );
   });
 
-  it("returns 'design' if the experiment is in a locked state", () => {
-    expect(mockedCall(NimbusExperimentStatus.LIVE)).toEqual("design");
-    expect(mockedCall(NimbusExperimentStatus.COMPLETE)).toEqual("design");
-    expect(mockedCall(NimbusExperimentStatus.ACCEPTED)).toEqual("design");
+  it("returns '' (root) if the experiment is in a locked state", () => {
+    expect(mockedCall(NimbusExperimentStatus.LIVE)).toEqual("");
+    expect(mockedCall(NimbusExperimentStatus.COMPLETE)).toEqual("");
+    expect(mockedCall(NimbusExperimentStatus.ACCEPTED)).toEqual("");
   });
 });

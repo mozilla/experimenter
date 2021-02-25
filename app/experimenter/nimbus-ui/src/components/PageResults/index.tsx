@@ -25,7 +25,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
       }
 
       if (analysisUnavailable(analysis)) {
-        return "design";
+        // Return to the experiment root/summary page
+        return "";
       }
     }}
   >

@@ -98,7 +98,8 @@ const PageRequestReview = ({
         }
 
         if (status.released) {
-          return "design";
+          // Return to the experiment root/summary page
+          return "";
         }
       }}
     >

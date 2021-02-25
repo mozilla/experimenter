@@ -93,22 +93,22 @@ describe("PageResults", () => {
     expect(redirectPath).toEqual("edit/overview");
   });
 
-  it("redirects to the design page if the visualization flag is set to false", async () => {
+  it("redirects to the summary page if the visualization flag is set to false", async () => {
     mockAnalysisData = mockAnalysis({ show_analysis: false });
     mockExperiment = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.COMPLETE,
     }).experiment;
     render(<Subject />);
-    expect(redirectPath).toEqual("design");
+    expect(redirectPath).toEqual("");
   });
 
-  it("redirects to the design page if the visualization results are not ready", async () => {
+  it("redirects to the summary page if the visualization results are not ready", async () => {
     mockAnalysisData = MOCK_UNAVAILABLE_ANALYSIS;
     mockExperiment = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.COMPLETE,
     }).experiment;
     render(<Subject />);
-    expect(redirectPath).toEqual("design");
+    expect(redirectPath).toEqual("");
   });
 });
 
