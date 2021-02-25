@@ -64,7 +64,7 @@ const otherMetricsToFriendlyName = (
   Object.keys(otherMetrics).map(
     (metric) =>
       (newMap[metric] =
-        metricsMetaData[metric]!.friendly_name || otherMetrics[metric]),
+        metricsMetaData[metric]?.friendly_name || otherMetrics[metric]),
   );
   return newMap;
 };
