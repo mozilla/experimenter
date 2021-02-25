@@ -119,7 +119,7 @@ describe("FormAudience", () => {
       firefoxMinVersion: MOCK_EXPERIMENT.firefoxMinVersion,
       targetingConfigSlug: MOCK_EXPERIMENT.targetingConfigSlug,
       populationPercent: "" + MOCK_EXPERIMENT.populationPercent,
-      totalEnrolledClients: "" + MOCK_EXPERIMENT.totalEnrolledClients,
+      totalEnrolledClients: MOCK_EXPERIMENT.totalEnrolledClients,
       proposedEnrollment: "" + MOCK_EXPERIMENT.proposedEnrollment,
       proposedDuration: "" + MOCK_EXPERIMENT.proposedDuration,
     };
@@ -139,6 +139,31 @@ describe("FormAudience", () => {
       // Next button advances to next page
       [expected, true],
     ]);
+  });
+
+  it("accepts commas in the expected number of clients field (EXP-761)", async () => {
+    const enteredValue = "123,456,789";
+    const expectedValue = 123456789;
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await screen.findByTestId("FormAudience");
+    await act(async () => {
+      const field = screen.getByTestId("totalEnrolledClients");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: enteredValue } });
+      fireEvent.blur(field);
+    });
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].totalEnrolledClients).toEqual(
+      expectedValue,
+    );
   });
 
   it("does not have any required modified fields", async () => {
@@ -234,7 +259,7 @@ describe("FormAudience", () => {
   });
 });
 
-const renderSubjectWithDefaultValues = (onSubmit = () => {}) => {
+const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
   render(
     <Subject
       {...{ onSubmit }}
@@ -270,4 +295,3 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) => {
       }}
     />,
   );
-};

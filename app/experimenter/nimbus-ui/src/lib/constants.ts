@@ -40,6 +40,11 @@ export const NUMBER_FIELD = {
   validate: (value) => (!!value && !isNaN(value)) || FIELD_MESSAGES.NUMBER,
 } as RegisterOptions;
 
+export const POSITIVE_NUMBER_WITH_COMMAS_FIELD = {
+  setValueAs: (value) => parseFloat(("" + value).trim().replace(/[^\d+]/g, "")),
+  validate: (value) => (!isNaN(value) && value >= 0) || FIELD_MESSAGES.NUMBER,
+} as RegisterOptions;
+
 export const URL_FIELD = {
   pattern: {
     value: /^(http|https):\/\/[^ "]+$/,
