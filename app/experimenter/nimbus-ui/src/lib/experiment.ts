@@ -24,12 +24,8 @@ export function getStatus(
     NimbusExperimentStatus.COMPLETE,
   ].includes(status!);
 
-  // The experiment's fields generally cannot be updated (preview, accepted, live, or complete)
-  const locked =
-    released ||
-    [NimbusExperimentStatus.PREVIEW, NimbusExperimentStatus.ACCEPTED].includes(
-      status!,
-    );
+  // The experiment's fields generally cannot be updated (accepted, live, or complete)
+  const locked = released || NimbusExperimentStatus.ACCEPTED === status!;
 
   return {
     draft: status === NimbusExperimentStatus.DRAFT,
@@ -46,12 +42,17 @@ export function getStatus(
 
 export type StatusCheck = ReturnType<typeof getStatus>;
 
+// Common redirects used on all Edit page components
 export function editCommonRedirects({ status }: RedirectCheck) {
+  // If experiment is in review or preview, it can't be edit,
+  // but it's also not locked, so send you to the review page
   if (status.review || status.preview) {
     return "request-review";
   }
 
+  // If experiment is locked (like in review, complete),
+  // send you to the summary page (slug root)
   if (status.locked) {
-    return "design";
+    return "";
   }
 }

@@ -88,33 +88,27 @@ describe("PageRequestReview", () => {
     });
   });
 
-  it("redirects to the design page if the experiment status is live", async () => {
+  it("redirects to the summary page if the experiment status is live", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.LIVE,
     });
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
-        `${BASE_PATH}/${experiment.slug}/design`,
-        {
-          replace: true,
-        },
-      );
+      expect(navigate).toHaveBeenCalledWith(`${BASE_PATH}/${experiment.slug}`, {
+        replace: true,
+      });
     });
   });
 
-  it("redirects to the design page if the experiment status is complete", async () => {
+  it("redirects to the summary page if the experiment status is complete", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.COMPLETE,
     });
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
-        `${BASE_PATH}/${experiment.slug}/design`,
-        {
-          replace: true,
-        },
-      );
+      expect(navigate).toHaveBeenCalledWith(`${BASE_PATH}/${experiment.slug}`, {
+        replace: true,
+      });
     });
   });
 

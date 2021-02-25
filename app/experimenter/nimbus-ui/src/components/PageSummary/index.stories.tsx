@@ -8,13 +8,37 @@ import React from "react";
 import PageSummary from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-
-const { mock } = mockExperimentQuery("demo-slug");
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 storiesOf("pages/Summary", module)
   .addDecorator(withLinks)
-  .add("basic", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <PageSummary polling={false} />
-    </RouterSlugProvider>
-  ));
+  .add("with draft experiment", () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.DRAFT,
+    });
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <PageSummary polling={false} />
+      </RouterSlugProvider>
+    );
+  })
+  .add("with preview experiment", () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.PREVIEW,
+    });
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <PageSummary polling={false} />
+      </RouterSlugProvider>
+    );
+  })
+  .add("with live experiment", () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+    });
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <PageSummary polling={false} />
+      </RouterSlugProvider>
+    );
+  });

@@ -13,7 +13,6 @@ import {
   getExperiment_experimentBySlug_primaryProbeSets,
   getExperiment_experimentBySlug_secondaryProbeSets,
 } from "../../types/getExperiment";
-import AppLayout from "../AppLayout";
 import AppLayoutSidebarLocked from "../AppLayoutSidebarLocked";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 import Head from "../Head";
@@ -44,10 +43,8 @@ type AppLayoutWithExperimentProps = {
   testId: string;
   title?: string;
   polling?: boolean;
-  sidebar?: boolean;
   analysisRequired?: boolean; // the page and sidebar need analysis data
   analysisRequiredInSidebar?: boolean; // only the sidebar needs analysis data
-  summaryView?: boolean;
   redirect?: ({
     status,
     review,
@@ -62,11 +59,9 @@ const AppLayoutWithExperiment = ({
   children,
   testId,
   title,
-  sidebar = true,
   polling = false,
   analysisRequired = false,
   analysisRequiredInSidebar = false,
-  summaryView = false,
   redirect,
 }: AppLayoutWithExperimentProps) => {
   const { slug } = useParams();
@@ -92,13 +87,16 @@ const AppLayoutWithExperiment = ({
   // If the redirect prop function is supplied let's call it with
   // experiment status, review, and analysis details. If it returns
   // a string we know to redirect to it as a path.
-  let redirectPath: string | undefined, getRedirect: string | void;
+  let redirectPath: string | undefined, redirectResult: string | void;
   if (
     !loading &&
     redirect &&
-    (getRedirect = redirect!({ status, review, analysis }))
+    (redirectResult = redirect!({ status, review, analysis })) != null
   ) {
-    redirectPath = `${BASE_PATH}/${slug}/${getRedirect}`;
+    redirectResult = redirectResult.length
+      ? `/${redirectResult}`
+      : redirectResult;
+    redirectPath = `${BASE_PATH}/${slug}${redirectResult}`;
   }
 
   useEffect(() => {
@@ -143,7 +141,6 @@ const AppLayoutWithExperiment = ({
   return (
     <Layout
       {...{
-        sidebar,
         children,
         review,
         analysis,
@@ -166,7 +163,6 @@ const AppLayoutWithExperiment = ({
             startDate,
             computedEndDate,
             status,
-            summaryView,
           }}
         />
         {title && <h2 className="mt-3 mb-4 h4">{title}</h2>}
@@ -177,7 +173,6 @@ const AppLayoutWithExperiment = ({
 };
 
 type LayoutProps = {
-  sidebar: boolean;
   children: React.ReactElement;
   status: StatusCheck;
   review: ExperimentReview;
@@ -193,7 +188,6 @@ type LayoutProps = {
 };
 
 const Layout = ({
-  sidebar,
   children,
   review,
   status,
@@ -203,27 +197,23 @@ const Layout = ({
   primaryProbeSets,
   secondaryProbeSets,
 }: LayoutProps) =>
-  sidebar ? (
-    status?.locked ? (
-      <AppLayoutSidebarLocked
-        {...{
-          status,
-          analysis,
-          analysisLoadingInSidebar,
-          analysisError,
-          primaryProbeSets,
-          secondaryProbeSets,
-        }}
-      >
-        {children}
-      </AppLayoutSidebarLocked>
-    ) : (
-      <AppLayoutWithSidebar {...{ status, review }}>
-        {children}
-      </AppLayoutWithSidebar>
-    )
+  status?.locked ? (
+    <AppLayoutSidebarLocked
+      {...{
+        status,
+        analysis,
+        analysisLoadingInSidebar,
+        analysisError,
+        primaryProbeSets,
+        secondaryProbeSets,
+      }}
+    >
+      {children}
+    </AppLayoutSidebarLocked>
   ) : (
-    <AppLayout>{children}</AppLayout>
+    <AppLayoutWithSidebar {...{ status, review }}>
+      {children}
+    </AppLayoutWithSidebar>
   );
 
 export default AppLayoutWithExperiment;

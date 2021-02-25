@@ -16,6 +16,7 @@ type LinkNavProps = {
   testid?: string;
   className?: string;
   textColor?: string;
+  title?: string;
 };
 
 export const LinkNav = ({
@@ -26,6 +27,7 @@ export const LinkNav = ({
   testid = "nav-home",
   className,
   textColor,
+  title,
 }: LinkNavProps) => {
   const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
   // an alternative to reach-router's `isCurrent` with identical
@@ -44,12 +46,13 @@ export const LinkNav = ({
         <span
           className={classNames(textColor, "d-flex align-items-center")}
           data-testid={testid}
+          {...{ title }}
         >
           {children}
         </span>
       ) : (
         <Link
-          {...{ to }}
+          {...{ to, title }}
           data-sb-kind={storiesOf}
           className={classNames(textColor, "d-flex align-items-center")}
           data-testid={testid}
