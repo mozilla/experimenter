@@ -11,7 +11,7 @@ import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig } from "../../../hooks";
 import {
   EXTERNAL_URLS,
-  NUMBER_FIELD,
+  POSITIVE_NUMBER_FIELD,
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
 } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
@@ -183,7 +183,10 @@ export const FormAudience = ({
             </Form.Label>
             <InputGroup>
               <Form.Control
-                {...formControlAttrs("populationPercent", NUMBER_FIELD)}
+                {...formControlAttrs(
+                  "populationPercent",
+                  POSITIVE_NUMBER_FIELD,
+                )}
                 aria-describedby="populationPercent-unit"
                 type="number"
                 min="0"
@@ -226,7 +229,10 @@ export const FormAudience = ({
             </Form.Label>
             <InputGroup>
               <Form.Control
-                {...formControlAttrs("proposedEnrollment", NUMBER_FIELD)}
+                {...formControlAttrs(
+                  "proposedEnrollment",
+                  POSITIVE_NUMBER_FIELD,
+                )}
                 type="number"
                 min="0"
                 aria-describedby="proposedEnrollment-unit"
@@ -252,7 +258,7 @@ export const FormAudience = ({
             </Form.Label>
             <InputGroup className="mb-3">
               <Form.Control
-                {...formControlAttrs("proposedDuration", NUMBER_FIELD)}
+                {...formControlAttrs("proposedDuration", POSITIVE_NUMBER_FIELD)}
                 type="number"
                 min="0"
                 aria-describedby="proposedDuration-unit"
