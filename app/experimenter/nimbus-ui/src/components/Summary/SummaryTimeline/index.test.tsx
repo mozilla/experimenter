@@ -57,12 +57,14 @@ describe("SummaryTimeline", () => {
     expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();
   });
 
-  it("renders with missing details", () => {
+  it("renders 0 days properly", () => {
     render(<Subject proposedDuration={0} proposedEnrollment={0} />);
 
-    expect(screen.queryByTestId("label-duration-not-set")).toBeInTheDocument();
-    expect(
-      screen.queryByTestId("label-enrollment-not-set"),
-    ).toBeInTheDocument();
+    expect(screen.queryByTestId("label-duration-days")).toHaveTextContent(
+      "0 days",
+    );
+    expect(screen.queryByTestId("label-enrollment-days")).toHaveTextContent(
+      "0 days",
+    );
   });
 });

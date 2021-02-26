@@ -457,11 +457,12 @@ class NimbusReadyForReviewSerializer(
     NimbusStatusRestrictionMixin, serializers.ModelSerializer
 ):
     public_description = serializers.CharField(required=True)
-    proposed_duration = serializers.IntegerField(required=True)
-    proposed_enrollment = serializers.IntegerField(required=True)
+    proposed_duration = serializers.IntegerField(required=True, min_value=1)
+    proposed_enrollment = serializers.IntegerField(required=True, min_value=1)
     population_percent = serializers.DecimalField(
         7, 4, min_value=0.0001, max_value=100.0, required=True
     )
+    total_enrolled_clients = serializers.IntegerField(required=True, min_value=1)
     firefox_min_version = serializers.ChoiceField(
         NimbusExperiment.Version.choices, required=True
     )
