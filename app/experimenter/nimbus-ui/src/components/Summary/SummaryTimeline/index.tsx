@@ -115,13 +115,13 @@ const Duration = ({
 }) => (
   <span>
     Total duration:{" "}
-    {duration ? (
+    {duration !== null ? (
       <b data-testid="label-duration-days">{pluralize(duration, "day")}</b>
     ) : (
       <NotSet data-testid="label-duration-not-set" />
     )}{" "}
     / Enrollment:{" "}
-    {enrollment ? (
+    {enrollment !== null ? (
       <b data-testid="label-enrollment-days">{pluralize(enrollment, "day")}</b>
     ) : (
       <NotSet data-testid="label-enrollment-not-set" />
