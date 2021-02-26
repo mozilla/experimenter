@@ -254,6 +254,7 @@ describe("FormAudience", () => {
     expect(
       screen.queryByTestId("missing-population-percent"),
     ).toBeInTheDocument();
+    expect(screen.queryByTestId("missing-clients")).toBeInTheDocument();
     expect(screen.queryByTestId("missing-enrollment")).toBeInTheDocument();
     expect(screen.queryByTestId("missing-duration")).toBeInTheDocument();
   });
