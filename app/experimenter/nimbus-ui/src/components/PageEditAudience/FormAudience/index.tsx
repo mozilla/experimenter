@@ -205,7 +205,15 @@ export const FormAudience = ({
             className="mx-5"
             controlId="totalEnrolledClients"
           >
-            <Form.Label>Expected number of clients</Form.Label>
+            <Form.Label>
+              Expected number of clients
+              {isMissingField("total_enrolled_clients") && (
+                <InlineErrorIcon
+                  name="clients"
+                  message="Expected number of clients must be a number greater than zero"
+                />
+              )}
+            </Form.Label>
             <Form.Control
               {...formControlAttrs(
                 "totalEnrolledClients",
@@ -223,7 +231,7 @@ export const FormAudience = ({
               {isMissingField("proposed_enrollment") && (
                 <InlineErrorIcon
                   name="enrollment"
-                  message="Proposed enrollment cannot be blank"
+                  message="Proposed enrollment must be a number greater than zero"
                 />
               )}
             </Form.Label>
@@ -252,7 +260,7 @@ export const FormAudience = ({
               {isMissingField("proposed_duration") && (
                 <InlineErrorIcon
                   name="duration"
-                  message="Proposed duration cannot be blank"
+                  message="Proposed duration must be a number greater than zero"
                 />
               )}
             </Form.Label>
