@@ -23,7 +23,7 @@ import FormMetrics from "./FormMetrics";
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 jest.mock("@reach/router", () => ({
-  ...jest.requireActual("@reach/router"),
+  ...(jest.requireActual("@reach/router") as any),
   navigate: jest.fn(),
 }));
 
