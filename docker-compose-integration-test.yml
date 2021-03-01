@@ -2,7 +2,7 @@ version: "3"
 
 services:
   firefox:
-    image: b4handjr/selenium-firefox:python3-latest
+    image: b4handjr/selenium-firefox:python3-release-latest
     env_file: .env
     environment:
       - MOZ_HEADLESS
