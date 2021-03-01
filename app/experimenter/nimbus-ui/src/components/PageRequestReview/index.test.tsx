@@ -18,7 +18,7 @@ import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { createMutationMock, Subject } from "./mocks";
 
 jest.mock("@reach/router", () => ({
-  ...jest.requireActual("@reach/router"),
+  ...(jest.requireActual("@reach/router") as any),
   navigate: jest.fn(),
 }));
 
