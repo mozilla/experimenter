@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_filter_expressions_with_matching_firefox_versions(base_url, selenium):
     selenium.get("about:blank")
     with open("utils/filter_expression.js") as js:
