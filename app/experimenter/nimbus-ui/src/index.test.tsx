@@ -79,7 +79,7 @@ describe("index", () => {
 
 // Mock out these components - for testing, we only care that they're used
 jest.mock("react", () => ({
-  ...jest.requireActual("react"),
+  ...(jest.requireActual("react") as any),
   StrictMode: mockComponent("StrictMode"),
 }));
 
@@ -89,7 +89,7 @@ jest.mock("./components/AppErrorBoundary", () => ({
 }));
 
 jest.mock("@apollo/client", () => ({
-  ...jest.requireActual("@apollo/client"),
+  ...(jest.requireActual("@apollo/client") as any),
   ApolloProvider: mockComponent("ApolloProvider"),
 }));
 

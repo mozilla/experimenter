@@ -129,7 +129,7 @@ const Subject = ({
 };
 
 jest.mock("@reach/router", () => ({
-  ...jest.requireActual("@reach/router"),
+  ...(jest.requireActual("@reach/router") as any),
   navigate: jest.fn(),
 }));
 
