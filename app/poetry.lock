@@ -582,7 +582,7 @@ grpc = ["grpcio (>=1.8.2,<2.0dev)"]
 
 [[package]]
 name = "google-cloud-storage"
-version = "1.36.0"
+version = "1.36.1"
 description = "Google Cloud Storage API client library"
 category = "main"
 optional = false
@@ -1551,7 +1551,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "ba715ac4697713240d301307d0710cfdf9ebe2054fc5985bdaa90d3d46328a69"
+content-hash = "d3c39ecf0f576d0bc33967a1c34030d3c1b930ab1191704f1f3fbfc72dcae54f"
 
 [metadata.files]
 aiohttp = [
@@ -1845,8 +1845,8 @@ google-cloud-core = [
     {file = "google_cloud_core-1.4.1-py2.py3-none-any.whl", hash = "sha256:4c9e457fcfc026fdde2e492228f04417d4c717fb0f29f070122fb0ab89e34ebd"},
 ]
 google-cloud-storage = [
-    {file = "google-cloud-storage-1.36.0.tar.gz", hash = "sha256:9517e26cadb4e52fcd11e83cd1b4051e72351a2e518078102ad2f1b9f4d704bc"},
-    {file = "google_cloud_storage-1.36.0-py2.py3-none-any.whl", hash = "sha256:0880af3c8706a52785ee2c6dc6856e33aa8bf951083b145a889137344a7201ad"},
+    {file = "google-cloud-storage-1.36.1.tar.gz", hash = "sha256:b63f31f3ec51797fce682ef4f6b7323f8b99e9ca0b21092801b1b8d25017f58a"},
+    {file = "google_cloud_storage-1.36.1-py2.py3-none-any.whl", hash = "sha256:e3227abe57122370df02f00b8a6d78da6d41a0df4e6864b7f65a3a4ae673a8a7"},
 ]
 google-crc32c = [
     {file = "google-crc32c-1.0.0.tar.gz", hash = "sha256:9439b960b6ecd847557675d130fc3626d762bf535da595c20a6949a705fb3eae"},
