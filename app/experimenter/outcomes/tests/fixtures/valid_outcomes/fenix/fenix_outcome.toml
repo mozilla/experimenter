@@ -1,0 +1,5 @@
+friendly_name = 'Fenix config'
+description = 'Fenix config used for testing'
+
+[metrics.uri_count.statistics.bootstrap_mean]
+[metrics.uri_count.statistics.deciles]

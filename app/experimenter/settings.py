@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "experimenter.normandy",
     "experimenter.notifications",
     "experimenter.openidc",
+    "experimenter.outcomes",
     "experimenter.projects",
 ]
 
@@ -420,3 +421,9 @@ GS_PROJECT_ID = "experiments-analysis"
 GS_BUCKET_NAME = "mozanalysis"
 
 NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").version
+
+
+# Jetstream config paths
+JETSTREAM_CONFIG_OUTCOMES_PATH = os.path.join(
+    BASE_DIR, "outcomes", "jetstream-config", "outcomes"
+)
