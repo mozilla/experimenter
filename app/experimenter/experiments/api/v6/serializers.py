@@ -102,9 +102,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         return self.get_appId(obj)
 
     def get_appName(self, obj):
-        if obj.is_desktop_experiment:
-            return obj.FIREFOX_DESKTOP_APP_NAME
-        return str(obj.application)
+        return NimbusExperiment.APPLICATION_APP_NAME[obj.application]
 
     def get_appId(self, obj):
         if obj.is_fenix_experiment:

@@ -50,13 +50,17 @@ nginx/cert.pem: nginx/key.pem
 secretkey:
 	openssl rand -hex 24
 
-build_dev:
+jetstream_config:
+	git submodule init
+	git submodule update
+
+build_dev: jetstream_config
 	docker build --target dev -f app/Dockerfile -t app:dev app/
 
-build_test:
+build_test: jetstream_config
 	docker build --target test -f app/Dockerfile -t app:test app/
 
-build_prod:
+build_prod: jetstream_config
 	docker build --target deploy -f app/Dockerfile -t app:deploy app/
 
 test_build: build_test
