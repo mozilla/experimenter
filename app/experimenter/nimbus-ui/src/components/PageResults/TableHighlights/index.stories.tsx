@@ -19,6 +19,7 @@ storiesOf("pages/Results/TableHighlights", module)
         <TableHighlights
           primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis()}
+          {...{ experiment }}
         />
       </RouterSlugProvider>
     );
@@ -45,6 +46,7 @@ storiesOf("pages/Results/TableHighlights", module)
         <TableHighlights
           primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis()}
+          {...{ experiment }}
         />
       </RouterSlugProvider>
     );

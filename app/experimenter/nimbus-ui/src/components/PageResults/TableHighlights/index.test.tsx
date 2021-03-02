@@ -12,25 +12,37 @@ import { mockAnalysis } from "../../../lib/visualization/mocks";
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 describe("TableHighlights", () => {
-  it("has participants for all users shown for each variant", () => {
-    const EXPECTED_LABELS = ["participants", "All Users"];
-
+  it("has participants shown for each variant", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlights
           primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis()}
+          {...{ experiment }}
         />
       </RouterSlugProvider>,
     );
 
-    EXPECTED_LABELS.forEach((label) => {
-      expect(
-        screen.getAllByText(label, {
-          exact: false,
-        }),
-      ).toHaveLength(2);
-    });
+    expect(
+      screen.getAllByText("participants", {
+        exact: false,
+      }),
+    ).toHaveLength(2);
+  });
+
+  it("has an expected branch description", () => {
+    const branchDescription = experiment.referenceBranch!.description;
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableHighlights
+          primaryProbeSets={experiment.primaryProbeSets!}
+          results={mockAnalysis()}
+          {...{ experiment }}
+        />
+      </RouterSlugProvider>,
+    );
+
+    expect(screen.getByText(branchDescription)).toBeInTheDocument();
   });
 
   it("has correctly labelled result significance", async () => {
@@ -39,6 +51,7 @@ describe("TableHighlights", () => {
         <TableHighlights
           primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis()}
+          {...{ experiment }}
         />
       </RouterSlugProvider>,
     );
@@ -54,6 +67,7 @@ describe("TableHighlights", () => {
         <TableHighlights
           primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis()}
+          {...{ experiment }}
         />
       </RouterSlugProvider>,
     );
