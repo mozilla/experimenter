@@ -95,6 +95,13 @@ class NimbusConstants(object):
 
     FIREFOX_DESKTOP_APP_NAME = "firefox_desktop"
 
+    APPLICATION_APP_NAME = {
+        Application.DESKTOP: FIREFOX_DESKTOP_APP_NAME,
+        Application.FENIX: Application.FENIX,
+    }
+
+    APP_NAME_APPLICATION = {v: k for k, v in APPLICATION_APP_NAME.items()}
+
     KINTO_APPLICATION_COLLECTION = {
         Application.DESKTOP: settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
         Application.FENIX: settings.KINTO_COLLECTION_NIMBUS_MOBILE,
