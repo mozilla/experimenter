@@ -3,24 +3,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { ReactComponent as Info } from "../../../images/info.svg";
 import {
   BRANCH_COMPARISON,
   HIGHLIGHTS_METRICS_LIST,
   METRIC,
   METRICS_TIPS,
-  SEGMENT_TIPS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import { AnalysisData } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
-import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
+import {
+  getExperiment_experimentBySlug,
+  getExperiment_experimentBySlug_primaryProbeSets,
+  getExperiment_experimentBySlug_referenceBranch,
+  getExperiment_experimentBySlug_treatmentBranches,
+} from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type TableHighlightsProps = {
   primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
   results: AnalysisData;
+  experiment: getExperiment_experimentBySlug;
 };
+
+type Branch =
+  | getExperiment_experimentBySlug_referenceBranch
+  | getExperiment_experimentBySlug_treatmentBranches;
 
 const getHighlightMetrics = (
   probeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[],
@@ -38,6 +46,23 @@ const getHighlightMetrics = (
   return highlightMetricsList;
 };
 
+const getBranchDescriptions = (
+  control: Branch | null,
+  treatments: (Branch | null)[] | null,
+) => {
+  const branches = [control, ...(treatments || [])].filter(
+    (branch): branch is Branch => branch !== null,
+  );
+
+  return branches.reduce(
+    (descriptionsMap: { [branchSlug: string]: string }, branch: Branch) => {
+      descriptionsMap[branch!.slug] = branch?.description;
+      return descriptionsMap;
+    },
+    {},
+  );
+};
+
 const TableHighlights = ({
   primaryProbeSets,
   results = {
@@ -47,8 +72,13 @@ const TableHighlights = ({
     metadata: { metrics: {}, probesets: {} },
     show_analysis: false,
   },
+  experiment,
 }: TableHighlightsProps) => {
   const highlightMetricsList = getHighlightMetrics(primaryProbeSets);
+  const branchDescriptions = getBranchDescriptions(
+    experiment.referenceBranch,
+    experiment.treatmentBranches,
+  );
   const overallResults = results?.overall!;
 
   return (
@@ -68,9 +98,8 @@ const TableHighlights = ({
                   %)
                 </p>
               </th>
-              <td className="p-1 p-lg-3 align-middle">
-                <span className="align-middle">All Users&nbsp;</span>
-                <Info data-tip={SEGMENT_TIPS.ALL_USERS} />
+              <td className="p-1 p-lg-3 col-md-4 align-middle">
+                {branchDescriptions[branch]}
               </td>
               {overallResults[branch]["is_control"] ? (
                 <td className="p-1 p-lg-3 align-middle">

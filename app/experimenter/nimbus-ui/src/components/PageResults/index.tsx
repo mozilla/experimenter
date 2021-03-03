@@ -58,6 +58,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
           <TableHighlights
             primaryProbeSets={experiment.primaryProbeSets!}
             results={analysis!}
+            {...{ experiment }}
           />
           <TableHighlightsOverview
             {...{ experiment }}
