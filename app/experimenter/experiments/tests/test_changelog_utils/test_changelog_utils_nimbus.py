@@ -76,7 +76,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                     "description": feature_config.description,
                     "application": feature_config.application,
                     "owner_email": feature_config.owner_email,
-                    "schema": None,
+                    "schema": feature_config.schema,
                 },
                 "firefox_min_version": experiment.firefox_min_version,
                 "hypothesis": experiment.hypothesis,
