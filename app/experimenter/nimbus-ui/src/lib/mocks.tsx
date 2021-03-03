@@ -252,7 +252,7 @@ export function mockExperiment<
         "Official approach present industry strategy dream piece.",
       referenceBranch: {
         name: "User-centric mobile solution",
-        slug: "user-centric-mobile-solution",
+        slug: "control",
         description: "Behind almost radio result personal none future current.",
         ratio: 1,
         featureValue: '{"environmental-fact": "really-citizen"}',
@@ -262,7 +262,7 @@ export function mockExperiment<
       treatmentBranches: [
         {
           name: "Managed zero tolerance projection",
-          slug: "managed-zero-tolerance-projection",
+          slug: "treatment",
           description: "Next ask then he in degree order.",
           ratio: 1,
           featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
