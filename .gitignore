@@ -71,9 +71,14 @@ target/
 # Environment file
 .env
 .envrc
-
-.vscode/
 .psql_history
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
 # Hosted assets
 app/experimenter/media/
