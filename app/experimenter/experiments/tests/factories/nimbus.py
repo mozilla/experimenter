@@ -207,6 +207,19 @@ class NimbusBucketRangeFactory(factory.django.DjangoModelFactory):
         model = NimbusBucketRange
 
 
+FAKER_JSON_SCHEMA = """\
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Fake schema that matches NimbusBranchFactory feature_value factory",
+    "type": "object",
+    "patternProperties": {
+        "^.*$": { "type": "string" }
+    },
+    "additionalProperties": false
+}
+"""
+
+
 class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(
@@ -217,6 +230,14 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.Application)).value
     )
     owner_email = factory.LazyAttribute(lambda o: faker.email())
+    schema = factory.LazyAttribute(
+        lambda o: faker.random_element(
+            elements=(
+                None,
+                FAKER_JSON_SCHEMA,
+            )
+        )
+    )
 
     class Meta:
         model = NimbusFeatureConfig
