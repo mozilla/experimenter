@@ -90,7 +90,7 @@ jobs:
           name: Deploy to latest
           command: |
             ./scripts/store_git_info.sh
-            docker build --target deploy -f app/Dockerfile -t app:deploy app/
+            make build_prod
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker tag app:deploy ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:latest
