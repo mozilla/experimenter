@@ -37,6 +37,8 @@ input ExperimentInput {
   treatmentBranches: [TreatmentBranchType]
   primaryProbeSetSlugs: [String]
   secondaryProbeSetSlugs: [String]
+  primaryOutcomes: [String]
+  secondaryOutcomes: [String]
   channel: NimbusExperimentChannel
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion
   populationPercent: String
@@ -73,6 +75,7 @@ type NimbusConfigurationType {
   featureConfig: [NimbusFeatureConfigType]
   firefoxMinVersion: [NimbusLabelValueType]
   probeSets: [NimbusProbeSetType]
+  outcomes: [NimbusOutcomeType]
   targetingConfigSlug: [NimbusLabelValueType]
   hypothesisDefault: String
   maxPrimaryProbeSets: Int
@@ -179,6 +182,8 @@ type NimbusExperimentType {
   channel: NimbusExperimentChannel
   projects: [ProjectType!]!
   hypothesis: String!
+  primaryOutcomes: [String]
+  secondaryOutcomes: [String]
   featureConfig: NimbusFeatureConfigType
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
   referenceBranch: NimbusBranchType
@@ -229,6 +234,13 @@ type NimbusIsolationGroupType {
 type NimbusLabelValueType {
   label: String
   value: String
+}
+
+type NimbusOutcomeType {
+  friendlyName: String
+  slug: String
+  application: NimbusExperimentApplication
+  description: String
 }
 
 enum NimbusProbeKind {

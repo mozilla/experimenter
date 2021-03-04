@@ -11,6 +11,8 @@ from experimenter.experiments.tests.factories.nimbus import (
     NimbusFeatureConfigFactory,
     NimbusProbeSetFactory,
 )
+from experimenter.outcomes import Outcomes
+from experimenter.outcomes.tests import mock_valid_outcomes
 
 CREATE_EXPERIMENT_MUTATION = """\
 mutation($input: ExperimentInput!) {
@@ -42,9 +44,13 @@ mutation ($input: ExperimentIdInput!){
 """
 
 
+@mock_valid_outcomes
 class TestMutations(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
     maxDiff = None
+
+    def setUp(self):
+        Outcomes.clear_cache()
 
     def test_create_experiment(self):
         user_email = "user@example.com"
@@ -354,6 +360,72 @@ class TestMutations(GraphQLTestCase):
                 "primary_probe_set_slugs": [
                     "Object with slug=my-lovely-slug does not exist."
                 ]
+            },
+        )
+
+    def test_update_experiment_outcomes(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+        outcomes = [
+            o.slug for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
+        ]
+        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
+        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_PROBE_SETS :]
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "primaryOutcomes": primary_outcomes,
+                    "secondaryOutcomes": secondary_outcomes,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        experiment = NimbusExperiment.objects.get(slug=experiment.slug)
+        self.assertEqual(experiment.primary_outcomes, primary_outcomes)
+        self.assertEqual(experiment.secondary_outcomes, secondary_outcomes)
+
+    def test_update_experiment_outcomes_error(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "primaryOutcomes": ["invalid-outcome"],
+                    "secondaryOutcomes": ["invalid-outcome"],
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(
+            result["message"],
+            {
+                "primary_outcomes": [
+                    "Invalid choices for primary outcomes: {'invalid-outcome'}"
+                ],
+                "secondary_outcomes": [
+                    "Invalid choices for secondary outcomes: {'invalid-outcome'}"
+                ],
             },
         )
 

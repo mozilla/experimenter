@@ -61,7 +61,7 @@ class Outcomes:
         return cls._outcomes
 
     @classmethod
-    def by_app_id(cls, application):
+    def by_application(cls, application):
         return [o for o in cls.all() if o.application == application]
 
 

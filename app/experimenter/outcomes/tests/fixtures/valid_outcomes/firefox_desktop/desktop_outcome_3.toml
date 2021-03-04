@@ -1,0 +1,19 @@
+friendly_name = 'Desktop config 3'
+description = 'Firefox desktop config used for testing'
+
+[metrics.urlbar_amazon_search_count]
+select_expression = """
+SUM(CASE
+        WHEN source = 'alias' and engine like 'amazon%' then sap
+        WHEN source = 'urlbar' and engine like 'amazon%' then sap
+        WHEN source = 'urlbar-searchmode' and engine like 'amazon%' then sap
+        else 0 end)"""
+data_source = "search_clients_daily"
+[metrics.urlbar_amazon_search_count.statistics.bootstrap_mean]
+[metrics.urlbar_amazon_search_count.statistics.deciles]
+
+[metrics.total_amazon_search_count]
+select_expression = "SUM(CASE WHEN engine like 'amazon%' then sap else 0 end)"
+data_source = "search_clients_daily"
+[metrics.total_amazon_search_count.statistics.bootstrap_mean]
+[metrics.total_amazon_search_count.statistics.deciles]
