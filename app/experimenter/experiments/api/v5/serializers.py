@@ -15,6 +15,7 @@ from experimenter.experiments.models.nimbus import (
     NimbusProbeSet,
 )
 from experimenter.kinto.tasks import nimbus_synchronize_preview_experiments_in_kinto
+from experimenter.outcomes import Outcomes
 
 
 class NimbusBranchSerializer(serializers.ModelSerializer):
@@ -343,19 +344,23 @@ class NimbusExperimentSerializer(
         allow_null=True,
         required=False,
     )
-
     primary_probe_set_slugs = serializers.SlugRelatedField(
         many=True,
         queryset=NimbusProbeSet.objects.all(),
         required=False,
         slug_field="slug",
     )
-
     secondary_probe_set_slugs = serializers.SlugRelatedField(
         many=True,
         queryset=NimbusProbeSet.objects.all(),
         required=False,
         slug_field="slug",
+    )
+    primary_outcomes = serializers.ListField(
+        child=serializers.CharField(), required=False
+    )
+    secondary_outcomes = serializers.ListField(
+        child=serializers.CharField(), required=False
     )
     population_percent = serializers.DecimalField(
         7, 4, min_value=0.0, max_value=100.0, required=False
@@ -377,6 +382,8 @@ class NimbusExperimentSerializer(
             "treatment_branches",
             "primary_probe_set_slugs",
             "secondary_probe_set_slugs",
+            "primary_outcomes",
+            "secondary_outcomes",
             "channel",
             "firefox_min_version",
             "population_percent",
@@ -428,6 +435,55 @@ class NimbusExperimentSerializer(
                 "Please describe the hypothesis of your experiment."
             )
         return hypothesis
+
+    def validate_primary_outcomes(self, value):
+        value_set = set(value)
+
+        if len(value) > NimbusExperiment.MAX_PRIMARY_PROBE_SETS:
+            raise serializers.ValidationError(
+                "Exceeded maximum primary outcome limit of "
+                f"{NimbusExperiment.MAX_PRIMARY_PROBE_SETS}."
+            )
+
+        valid_outcomes = set(
+            [o.slug for o in Outcomes.by_application(self.instance.application)]
+        )
+
+        if valid_outcomes.intersection(value_set) != value_set:
+            invalid_outcomes = value_set - valid_outcomes
+            raise serializers.ValidationError(
+                f"Invalid choices for primary outcomes: {invalid_outcomes}"
+            )
+
+        return value
+
+    def validate_secondary_outcomes(self, value):
+        value_set = set(value)
+        valid_outcomes = set(
+            [o.slug for o in Outcomes.by_application(self.instance.application)]
+        )
+
+        if valid_outcomes.intersection(value_set) != value_set:
+            invalid_outcomes = value_set - valid_outcomes
+            raise serializers.ValidationError(
+                f"Invalid choices for secondary outcomes: {invalid_outcomes}"
+            )
+
+        return value
+
+    def validate(self, data):
+        data = super().validate(data)
+        primary_outcomes = set(data.get("primary_outcomes", []))
+        secondary_outcomes = set(data.get("secondary_outcomes", []))
+        if primary_outcomes.intersection(secondary_outcomes):
+            raise serializers.ValidationError(
+                {
+                    "primary_outcomes": (
+                        "Primary outcomes cannot overlap with secondary outcomes."
+                    )
+                }
+            )
+        return data
 
     def create(self, validated_data):
         validated_data.update(
@@ -482,6 +538,12 @@ class NimbusReadyForReviewSerializer(
     feature_config = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
         allow_null=True,
+    )
+    primary_outcomes = serializers.ListField(
+        child=serializers.CharField(), required=False
+    )
+    secondary_outcomes = serializers.ListField(
+        child=serializers.CharField(), required=False
     )
 
     class Meta:

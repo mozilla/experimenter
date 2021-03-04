@@ -1,3 +1,4 @@
 [flake8]
 exclude=migrations,settings*,.tox,node_modules
 max-line-length = 90
+ignore = E203, W503

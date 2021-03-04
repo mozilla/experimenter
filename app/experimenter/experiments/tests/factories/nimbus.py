@@ -24,6 +24,7 @@ from experimenter.experiments.models import (
 )
 from experimenter.experiments.models.nimbus import NimbusChangeLog
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.outcomes import Outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 
 faker = FakerFactory.create()
@@ -62,6 +63,12 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     )
     targeting_config_slug = factory.LazyAttribute(
         lambda o: random.choice(list(NimbusExperiment.TargetingConfig)).value
+    )
+    primary_outcomes = factory.LazyAttribute(
+        lambda o: [oc.slug for oc in Outcomes.all()[:2]]
+    )
+    primary_outcomes = factory.LazyAttribute(
+        lambda o: [oc.slug for oc in Outcomes.all()[2:]]
     )
 
     class Meta:

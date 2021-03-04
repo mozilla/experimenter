@@ -103,6 +103,8 @@ export interface ExperimentInput {
   treatmentBranches?: (TreatmentBranchType | null)[] | null;
   primaryProbeSetSlugs?: (string | null)[] | null;
   secondaryProbeSetSlugs?: (string | null)[] | null;
+  primaryOutcomes?: (string | null)[] | null;
+  secondaryOutcomes?: (string | null)[] | null;
   channel?: NimbusExperimentChannel | null;
   firefoxMinVersion?: NimbusExperimentFirefoxMinVersion | null;
   populationPercent?: string | null;

@@ -1,4 +1,4 @@
-friendly_name = 'Desktop config'
+friendly_name = 'Desktop config 2'
 description = 'Firefox desktop config used for testing'
 
 [metrics.urlbar_amazon_search_count]
