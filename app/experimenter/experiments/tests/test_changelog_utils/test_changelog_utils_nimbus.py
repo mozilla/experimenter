@@ -11,11 +11,17 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.outcomes import Outcomes
+from experimenter.outcomes.tests import mock_valid_outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 
 
+@mock_valid_outcomes
 class TestNimbusExperimentChangeLogSerializer(TestCase):
     maxDiff = None
+
+    def setUp(self):
+        Outcomes.clear_cache()
 
     def test_outputs_expected_schema_for_empty_experiment(self):
         owner = UserFactory.create()
@@ -38,6 +44,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "owner": owner.email,
                 "population_percent": "0.0000",
                 "probe_sets": [],
+                "primary_outcomes": [],
+                "secondary_outcomes": [],
                 "projects": [],
                 "proposed_duration": NimbusExperiment.DEFAULT_PROPOSED_DURATION,
                 "proposed_enrollment": NimbusExperiment.DEFAULT_PROPOSED_ENROLLMENT,
@@ -54,6 +62,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         probe_set = NimbusProbeSetFactory.create()
         feature_config = NimbusFeatureConfigFactory.create()
         project = ProjectFactory.create()
+        primary_outcome = Outcomes.by_application(application)[0].slug
+        secondary_outcome = Outcomes.by_application(application)[1].slug
 
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.COMPLETE,
@@ -61,6 +71,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             probe_sets=[probe_set],
             feature_config=feature_config,
             projects=[project],
+            primary_outcomes=[primary_outcome],
+            secondary_outcomes=[secondary_outcome],
         )
         data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
         branches_data = [dict(b) for b in data.pop("branches")]
@@ -87,6 +99,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "owner": experiment.owner.email,
                 "population_percent": str(experiment.population_percent),
                 "probe_sets": [probe_set.slug],
+                "primary_outcomes": [primary_outcome],
+                "secondary_outcomes": [secondary_outcome],
                 "projects": [project.slug],
                 "proposed_duration": experiment.proposed_duration,
                 "proposed_enrollment": experiment.proposed_enrollment,

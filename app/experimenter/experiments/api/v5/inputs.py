@@ -53,6 +53,8 @@ class ExperimentInput(graphene.InputObjectType):
     treatment_branches = graphene.List(TreatmentBranchType)
     primary_probe_set_slugs = graphene.List(graphene.String)
     secondary_probe_set_slugs = graphene.List(graphene.String)
+    primary_outcomes = graphene.List(graphene.String)
+    secondary_outcomes = graphene.List(graphene.String)
     channel = NimbusExperimentChannel()
     firefox_min_version = NimbusExperimentFirefoxMinVersion()
     population_percent = graphene.String()
