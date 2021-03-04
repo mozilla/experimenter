@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -61,6 +62,8 @@ class NimbusExperiment(NimbusConstants, models.Model):
     probe_sets = models.ManyToManyField(
         "NimbusProbeSet", through="NimbusExperimentProbeSets"
     )
+    primary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
+    secondary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
     feature_config = models.ForeignKey(
         "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
     )

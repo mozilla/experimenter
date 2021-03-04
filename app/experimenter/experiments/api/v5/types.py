@@ -99,6 +99,13 @@ class NimbusProbeSetType(DjangoObjectType):
         model = NimbusProbeSet
 
 
+class NimbusOutcomeType(graphene.ObjectType):
+    friendly_name = graphene.String()
+    slug = graphene.String()
+    application = NimbusExperimentApplication()
+    description = graphene.String()
+
+
 class NimbusLabelValueType(graphene.ObjectType):
     label = graphene.String()
     value = graphene.String()
@@ -128,6 +135,8 @@ class NimbusExperimentType(DjangoObjectType):
     jexl_targeting_expression = graphene.String()
     primary_probe_sets = graphene.List(NimbusProbeSetType)
     secondary_probe_sets = graphene.List(NimbusProbeSetType)
+    primary_outcomes = graphene.List(graphene.String)
+    secondary_outcomes = graphene.List(graphene.String)
     ready_for_review = graphene.Field(NimbusReadyForReviewType)
     monitoring_dashboard_url = graphene.String()
     start_date = graphene.DateTime()

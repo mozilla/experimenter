@@ -12,6 +12,7 @@ from experimenter.experiments.tests.factories.nimbus import (
     NimbusFeatureConfigFactory,
     NimbusProbeSetFactory,
 )
+from experimenter.outcomes import Outcomes
 
 
 class TestNimbusQuery(GraphQLTestCase):
@@ -368,6 +369,12 @@ class TestNimbusQuery(GraphQLTestCase):
                         id
                         name
                     }
+                    outcomes {
+                        friendlyName
+                        slug
+                        application
+                        description
+                    }
                     targetingConfigSlug {
                         label
                         value
@@ -408,6 +415,17 @@ class TestNimbusQuery(GraphQLTestCase):
             self.assertEqual(config_probe_set["id"], str(probe_set.id))
             self.assertEqual(config_probe_set["name"], probe_set.name)
 
+        for outcome in Outcomes.all():
+            self.assertIn(
+                {
+                    "friendlyName": outcome.friendly_name,
+                    "slug": outcome.slug,
+                    "application": outcome.application.name,
+                    "description": outcome.description,
+                },
+                config["outcomes"],
+            )
+
         for feature_config in feature_configs:
             config_feature_config = next(
                 filter(
@@ -420,6 +438,7 @@ class TestNimbusQuery(GraphQLTestCase):
             self.assertEqual(
                 config_feature_config["description"], feature_config.description
             )
+
         self.assertEqual(config["hypothesisDefault"], NimbusExperiment.HYPOTHESIS_DEFAULT)
         self.assertEqual(
             config["maxPrimaryProbeSets"], NimbusExperiment.MAX_PRIMARY_PROBE_SETS

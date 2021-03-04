@@ -4,6 +4,7 @@ from experimenter.experiments.api.v5.types import (
     NimbusExperimentType,
     NimbusFeatureConfigType,
     NimbusLabelValueType,
+    NimbusOutcomeType,
     NimbusProbeSetType,
 )
 from experimenter.experiments.models.nimbus import (
@@ -11,6 +12,7 @@ from experimenter.experiments.models.nimbus import (
     NimbusFeatureConfig,
     NimbusProbeSet,
 )
+from experimenter.outcomes import Outcomes
 
 
 class ApplicationChannel(graphene.ObjectType):
@@ -24,6 +26,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     feature_config = graphene.List(NimbusFeatureConfigType)
     firefox_min_version = graphene.List(NimbusLabelValueType)
     probe_sets = graphene.List(NimbusProbeSetType)
+    outcomes = graphene.List(NimbusOutcomeType)
     targeting_config_slug = graphene.List(NimbusLabelValueType)
     hypothesis_default = graphene.String()
     max_primary_probe_sets = graphene.Int()
@@ -52,6 +55,9 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_probe_sets(root, info):
         return NimbusProbeSet.objects.all()
+
+    def resolve_outcomes(root, info):
+        return Outcomes.all()
 
     def resolve_targeting_config_slug(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.TargetingConfig)

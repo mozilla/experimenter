@@ -23,6 +23,8 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.outcomes import Outcomes
+from experimenter.outcomes.tests import mock_valid_outcomes
 
 BASIC_JSON_SCHEMA = """\
 {
@@ -625,7 +627,11 @@ class TestNimbusExperimentBranchMixin(TestCase):
         )
 
 
+@mock_valid_outcomes
 class TestNimbusExperimentProbeSetMixin(TestCase):
+    def setUp(self):
+        Outcomes.clear_cache()
+
     def test_serializer_updates_probe_sets_on_experiment(self):
         user = UserFactory()
         experiment = NimbusExperimentFactory(probe_sets=[])
@@ -727,11 +733,13 @@ class TestNimbusExperimentProbeSetMixin(TestCase):
         self.assertEqual(experiment.name, "new name")
 
 
+@mock_valid_outcomes
 class TestNimbusExperimentSerializer(TestCase):
     maxDiff = None
 
     def setUp(self):
         super().setUp()
+        Outcomes.clear_cache()
         self.user = UserFactory()
 
         mock_preview_task_patcher = mock.patch(
@@ -770,6 +778,8 @@ class TestNimbusExperimentSerializer(TestCase):
             "treatment_branches": [],
             "primary_probe_set_slugs": [],
             "secondary_probe_set_slugs": [],
+            "primary_outcomes": [],
+            "secondary_outcomes": [],
             "channel": NimbusExperiment.Channel.NO_CHANNEL,
             "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
             "population_percent": "0.0",
@@ -796,6 +806,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.treatment_branches, [])
         self.assertEqual(experiment.primary_probe_sets.count(), 0)
         self.assertEqual(experiment.secondary_probe_sets.count(), 0)
+        self.assertEqual(experiment.primary_outcomes, [])
+        self.assertEqual(experiment.secondary_outcomes, [])
         self.assertEqual(experiment.channel, NimbusExperiment.Channel.NO_CHANNEL)
         self.assertEqual(
             experiment.firefox_min_version, NimbusExperiment.Version.NO_VERSION
@@ -1131,6 +1143,128 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = serializer.save()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.mock_preview_task.apply_async.assert_not_called()
+
+    def test_serializer_updates_outcomes_on_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        outcomes = [
+            o.slug for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
+        ]
+        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
+        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_PROBE_SETS :]
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "primary_outcomes": primary_outcomes,
+                "secondary_outcomes": secondary_outcomes,
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.primary_outcomes, primary_outcomes)
+        self.assertEqual(experiment.secondary_outcomes, secondary_outcomes)
+
+    def test_serializer_rejects_invalid_outcome_slugs(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "primary_outcomes": ["invalid-slug"],
+                "secondary_outcomes": ["invalid-slug"],
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("primary_outcomes", serializer.errors)
+        self.assertIn("secondary_outcomes", serializer.errors)
+
+    def test_serializer_rejects_outcomes_for_wrong_application(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        outcomes = [
+            o.slug for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
+        ]
+        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
+        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_PROBE_SETS :]
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "primary_outcomes": primary_outcomes,
+                "secondary_outcomes": secondary_outcomes,
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("primary_outcomes", serializer.errors)
+        self.assertIn("secondary_outcomes", serializer.errors)
+
+    def test_serializer_rejects_duplicate_outcomes(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        outcomes = [
+            o.slug
+            for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)[
+                : NimbusExperiment.MAX_PRIMARY_PROBE_SETS
+            ]
+        ]
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "primary_outcomes": outcomes,
+                "secondary_outcomes": outcomes,
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("primary_outcomes", serializer.errors)
+
+    def test_serializer_rejects_too_many_primary_outcomes(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        outcomes = [
+            o.slug for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
+        ]
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "primary_outcomes": outcomes,
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("primary_outcomes", serializer.errors)
 
 
 class TestNimbusReadyForReviewSerializer(TestCase):
