@@ -17,7 +17,7 @@ storiesOf("pages/Results/TableResults", module)
     return (
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
+          primaryOutcomes={experiment.primaryOutcomes!}
           results={mockAnalysis()}
         />
       </RouterSlugProvider>
@@ -25,7 +25,7 @@ storiesOf("pages/Results/TableResults", module)
   })
   .add("with multiple primary probe sets", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      primaryProbeSets: [
+      primaryOutcomes: [
         {
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
@@ -43,7 +43,7 @@ storiesOf("pages/Results/TableResults", module)
     return (
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
+          primaryOutcomes={experiment.primaryOutcomes!}
           results={mockAnalysis()}
         />
       </RouterSlugProvider>

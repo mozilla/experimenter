@@ -11,10 +11,6 @@ import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockAnalysis } from "../../lib/visualization/mocks";
 import { AnalysisData } from "../../lib/visualization/types";
-import {
-  getExperiment_experimentBySlug_primaryProbeSets,
-  getExperiment_experimentBySlug_secondaryProbeSets,
-} from "../../types/getExperiment";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const { mock } = mockExperimentQuery("my-special-slug/design");
@@ -25,20 +21,16 @@ const Subject = ({
   withAnalysis = false,
   analysisError,
   analysisLoadingInSidebar = false,
-  primaryProbeSets = null,
-  secondaryProbeSets = null,
+  primaryOutcomes = null,
+  secondaryOutcomes = null,
 }: RouteComponentProps & {
   status?: NimbusExperimentStatus;
   withAnalysis?: boolean;
   analysis?: AnalysisData;
   analysisError?: boolean;
   analysisLoadingInSidebar?: boolean;
-  primaryProbeSets?:
-    | (getExperiment_experimentBySlug_primaryProbeSets | null)[]
-    | null;
-  secondaryProbeSets?:
-    | (getExperiment_experimentBySlug_secondaryProbeSets | null)[]
-    | null;
+  primaryOutcomes?: (string | null)[] | null;
+  secondaryOutcomes?: (string | null)[] | null;
 }) => (
   <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
     <AppLayoutSidebarLocked
@@ -56,8 +48,8 @@ const Subject = ({
               other_metrics: mockAnalysis().other_metrics,
             }
           : undefined,
-        primaryProbeSets,
-        secondaryProbeSets,
+        primaryOutcomes,
+        secondaryOutcomes,
       }}
     >
       <p data-testid="test-child">Hello, world!</p>
@@ -141,8 +133,8 @@ describe("AppLayoutSidebarLocked", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(
         <Subject
-          primaryProbeSets={experiment.primaryProbeSets}
-          secondaryProbeSets={experiment.secondaryProbeSets}
+          primaryOutcomes={experiment.primaryOutcomes}
+          secondaryOutcomes={experiment.secondaryOutcomes}
           withAnalysis
         />,
       );

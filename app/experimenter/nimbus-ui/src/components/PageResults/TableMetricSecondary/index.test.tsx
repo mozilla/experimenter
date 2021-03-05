@@ -18,8 +18,8 @@ describe("TableMetricSecondary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
-          probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
+          probeSetSlug={experiment.secondaryOutcomes![0]!.slug}
+          probeSetDefaultName={experiment.secondaryOutcomes![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -36,8 +36,8 @@ describe("TableMetricSecondary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
-          probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
+          probeSetSlug={experiment.secondaryOutcomes![0]!.slug}
+          probeSetDefaultName={experiment.secondaryOutcomes![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -57,8 +57,8 @@ describe("TableMetricSecondary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
-          probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
+          probeSetSlug={experiment.secondaryOutcomes![0]!.slug}
+          probeSetDefaultName={experiment.secondaryOutcomes![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -74,8 +74,8 @@ describe("TableMetricSecondary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
-          probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
+          probeSetSlug={experiment.secondaryOutcomes![0]!.slug}
+          probeSetDefaultName={experiment.secondaryOutcomes![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -95,8 +95,8 @@ describe("TableMetricSecondary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
-          probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
+          probeSetSlug={experiment.secondaryOutcomes![0]!.slug}
+          probeSetDefaultName={experiment.secondaryOutcomes![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -112,7 +112,7 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           results={mockAnalysis()}
           probeSetSlug="feature_d"
-          probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
+          probeSetDefaultName={experiment.secondaryOutcomes![0]!.name}
           isDefault={false}
         />
       </RouterSlugProvider>,

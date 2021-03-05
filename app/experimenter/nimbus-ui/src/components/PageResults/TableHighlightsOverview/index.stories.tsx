@@ -25,7 +25,7 @@ storiesOf("pages/Results/TableHighlightsOverview", module)
   })
   .add("with multiple primary probe sets", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      primaryProbeSets: [
+      primaryOutcomes: [
         {
           slug: "picture_in_picture",
           name: "Picture-in-Picture",

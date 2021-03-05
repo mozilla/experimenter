@@ -8,11 +8,6 @@ import { ExperimentReview, useAnalysis, useExperiment } from "../../hooks";
 import { BASE_PATH } from "../../lib/constants";
 import { getStatus, StatusCheck } from "../../lib/experiment";
 import { AnalysisData } from "../../lib/visualization/types";
-import {
-  getExperiment_experimentBySlug,
-  getExperiment_experimentBySlug_primaryProbeSets,
-  getExperiment_experimentBySlug_secondaryProbeSets,
-} from "../../types/getExperiment";
 import AppLayoutSidebarLocked from "../AppLayoutSidebarLocked";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 import Head from "../Head";
@@ -134,8 +129,8 @@ const AppLayoutWithExperiment = ({
     name,
     startDate,
     computedEndDate,
-    primaryProbeSets,
-    secondaryProbeSets,
+    primaryOutcomes,
+    secondaryOutcomes,
   } = experiment;
 
   return (
@@ -147,8 +142,8 @@ const AppLayoutWithExperiment = ({
         analysisLoadingInSidebar,
         analysisError,
         status,
-        primaryProbeSets,
-        secondaryProbeSets,
+        primaryOutcomes,
+        secondaryOutcomes,
       }}
     >
       <section data-testid={testId}>
@@ -179,12 +174,8 @@ type LayoutProps = {
   analysis?: AnalysisData;
   analysisLoadingInSidebar: boolean;
   analysisError?: Error;
-  primaryProbeSets:
-    | (getExperiment_experimentBySlug_primaryProbeSets | null)[]
-    | null;
-  secondaryProbeSets:
-    | (getExperiment_experimentBySlug_secondaryProbeSets | null)[]
-    | null;
+  primaryOutcomes: (string | null)[] | null;
+  secondaryOutcomes: (string | null)[] | null;
 };
 
 const Layout = ({
@@ -194,8 +185,8 @@ const Layout = ({
   analysis,
   analysisLoadingInSidebar,
   analysisError,
-  primaryProbeSets,
-  secondaryProbeSets,
+  primaryOutcomes,
+  secondaryOutcomes,
 }: LayoutProps) =>
   status?.locked ? (
     <AppLayoutSidebarLocked
@@ -204,8 +195,8 @@ const Layout = ({
         analysis,
         analysisLoadingInSidebar,
         analysisError,
-        primaryProbeSets,
-        secondaryProbeSets,
+        primaryOutcomes,
+        secondaryOutcomes,
       }}
     >
       {children}

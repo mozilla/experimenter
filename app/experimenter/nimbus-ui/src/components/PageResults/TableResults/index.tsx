@@ -11,24 +11,21 @@ import {
 } from "../../../lib/visualization/constants";
 import { AnalysisData } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
-import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 import TooltipWithMarkdown from "../TooltipWithMarkdown";
 
 type TableResultsProps = {
-  primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
+  primaryOutcomes: (string | null)[] | null;
   results: AnalysisData;
 };
 
-const getResultMetrics = (
-  probeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[],
-) => {
+const getResultMetrics = (outcomes: (string | null)[] | null) => {
   // Make a copy of `RESULTS_METRICS_LIST` since we modify it.
   const resultsMetricsList = [...RESULTS_METRICS_LIST];
-  probeSets.forEach((probeSet) => {
+  outcomes.forEach((outcome) => {
     resultsMetricsList.unshift({
-      value: `${probeSet!.slug}_ever_used`,
-      name: `${probeSet!.name} Conversion`,
+      value: `${outcome}_ever_used`,
+      name: `${outcome} Conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
       type: METRIC_TYPE.PRIMARY,
     });
@@ -38,7 +35,7 @@ const getResultMetrics = (
 };
 
 const TableResults = ({
-  primaryProbeSets,
+  primaryOutcomes,
   results = {
     daily: [],
     weekly: {},
@@ -47,7 +44,7 @@ const TableResults = ({
     show_analysis: false,
   },
 }: TableResultsProps) => {
-  const resultsMetricsList = getResultMetrics(primaryProbeSets);
+  const resultsMetricsList = getResultMetrics(primaryOutcomes);
   const overallResults = results?.overall!;
 
   return (

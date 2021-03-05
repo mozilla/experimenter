@@ -42,7 +42,7 @@ describe("TableSummary", () => {
     });
     it("with multiple probe sets", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        primaryProbeSets: [
+        primaryOutcomes: [
           {
             slug: "picture_in_picture",
             name: "Picture-in-Picture",
@@ -60,7 +60,7 @@ describe("TableSummary", () => {
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        primaryProbeSets: [],
+        primaryOutcomes: [],
       });
       render(<Subject {...{ experiment }} />);
       expect(
@@ -79,7 +79,7 @@ describe("TableSummary", () => {
     });
     it("with multiple probe sets", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        secondaryProbeSets: [
+        secondaryOutcomes: [
           {
             slug: "picture_in_picture",
             name: "Picture-in-Picture",
@@ -97,7 +97,7 @@ describe("TableSummary", () => {
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        secondaryProbeSets: [],
+        secondaryOutcomes: [],
       });
       render(<Subject {...{ experiment }} />);
       expect(

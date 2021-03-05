@@ -19,7 +19,7 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
+          primaryOutcomes={experiment.primaryOutcomes!}
           results={mockAnalysis()}
         />
       </RouterSlugProvider>,
@@ -41,7 +41,7 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
+          primaryOutcomes={experiment.primaryOutcomes!}
           results={mockAnalysis()}
         />
       </RouterSlugProvider>,
@@ -56,7 +56,7 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
+          primaryOutcomes={experiment.primaryOutcomes!}
           results={mockAnalysis()}
         />
       </RouterSlugProvider>,
@@ -71,7 +71,7 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
+          primaryOutcomes={experiment.primaryOutcomes!}
           results={mockIncompleteAnalysis()}
         />
       </RouterSlugProvider>,

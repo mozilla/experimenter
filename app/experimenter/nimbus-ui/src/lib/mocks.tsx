@@ -269,13 +269,13 @@ export function mockExperiment<
           featureEnabled: true,
         },
       ],
-      primaryProbeSets: [
+      primaryOutcomes: [
         {
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
       ],
-      secondaryProbeSets: [
+      secondaryOutcomes: [
         {
           slug: "feature_b",
           name: "Feature B",

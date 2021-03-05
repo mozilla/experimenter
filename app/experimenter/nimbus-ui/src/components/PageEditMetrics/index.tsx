@@ -28,10 +28,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
 
   const onSave = useCallback(
     async (
-      {
-        primaryProbeSetSlugs,
-        secondaryProbeSetSlugs,
-      }: Record<string, string[]>,
+      { primaryOutcomes, secondaryOutcomes }: Record<string, string[]>,
       next: boolean,
     ) => {
       try {
@@ -40,8 +37,8 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
           variables: {
             input: {
               id: nimbusExperimentId,
-              primaryProbeSetSlugs,
-              secondaryProbeSetSlugs,
+              primaryOutcomes,
+              secondaryOutcomes,
             },
           },
         });

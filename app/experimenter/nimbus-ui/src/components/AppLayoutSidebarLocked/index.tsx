@@ -12,8 +12,8 @@ import { StatusCheck } from "../../lib/experiment";
 import { AnalysisData, MetadataPoint } from "../../lib/visualization/types";
 import { analysisAvailable } from "../../lib/visualization/utils";
 import {
-  getExperiment_experimentBySlug_primaryProbeSets,
-  getExperiment_experimentBySlug_secondaryProbeSets,
+  getExperiment_experimentBySlug_primaryOutcomes,
+  getExperiment_experimentBySlug_secondaryOutcomes,
 } from "../../types/getExperiment";
 import { DisabledItem } from "../DisabledItem";
 import LinkExternal from "../LinkExternal";
@@ -44,17 +44,18 @@ const getSidebarItems = (
   return sidebarItems;
 };
 
+// TODO: fix this
 const probesetToMapping = (
   probesets:
-    | (getExperiment_experimentBySlug_primaryProbeSets | null)[]
-    | (getExperiment_experimentBySlug_secondaryProbeSets | null)[],
+    | (getExperiment_experimentBySlug_primaryOutcomes | null)[]
+    | (getExperiment_experimentBySlug_secondaryOutcomes | null)[],
 ) => {
   const newMap: { [key: string]: string } = {};
   probesets.map(
     (
       probeset:
-        | (getExperiment_experimentBySlug_primaryProbeSets | null)
-        | (getExperiment_experimentBySlug_secondaryProbeSets | null),
+        | (getExperiment_experimentBySlug_primaryOutcomes | null)
+        | (getExperiment_experimentBySlug_secondaryOutcomes | null),
     ) => (newMap[probeset!.slug] = probeset!.name),
   );
   return newMap;
@@ -80,11 +81,11 @@ type AppLayoutSidebarLockedProps = {
   analysis?: AnalysisData;
   analysisLoadingInSidebar?: boolean;
   analysisError?: Error;
-  primaryProbeSets:
-    | (getExperiment_experimentBySlug_primaryProbeSets | null)[]
+  primaryOutcomes:
+    | (getExperiment_experimentBySlug_primaryOutcomes | null)[]
     | null;
-  secondaryProbeSets:
-    | (getExperiment_experimentBySlug_secondaryProbeSets | null)[]
+  secondaryOutcomes:
+    | (getExperiment_experimentBySlug_secondaryOutcomes | null)[]
     | null;
 } & RouteComponentProps;
 
@@ -95,12 +96,12 @@ export const AppLayoutSidebarLocked = ({
   analysis,
   analysisLoadingInSidebar = false,
   analysisError,
-  primaryProbeSets,
-  secondaryProbeSets,
+  primaryOutcomes,
+  secondaryOutcomes,
 }: AppLayoutSidebarLockedProps) => {
   const { slug } = useParams();
-  const primaryMetrics = probesetToMapping(primaryProbeSets || []);
-  const secondaryMetrics = probesetToMapping(secondaryProbeSets || []);
+  const primaryMetrics = probesetToMapping(primaryOutcomes || []);
+  const secondaryMetrics = probesetToMapping(secondaryOutcomes || []);
   const otherMetrics = otherMetricsToFriendlyName(
     analysis?.other_metrics || {},
     analysis?.metadata?.metrics || {},

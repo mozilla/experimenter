@@ -14,14 +14,13 @@ import { AnalysisData } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import {
   getExperiment_experimentBySlug,
-  getExperiment_experimentBySlug_primaryProbeSets,
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type TableHighlightsProps = {
-  primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
+  primaryOutcomes: (string | null)[] | null;
   results: AnalysisData;
   experiment: getExperiment_experimentBySlug;
 };
@@ -30,15 +29,13 @@ type Branch =
   | getExperiment_experimentBySlug_referenceBranch
   | getExperiment_experimentBySlug_treatmentBranches;
 
-const getHighlightMetrics = (
-  probeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[],
-) => {
+const getHighlightMetrics = (outcomes: (string | null)[] | null) => {
   // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
   const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
-  probeSets.forEach((probeSet) => {
+  outcomes?.forEach((outcome) => {
     highlightMetricsList.unshift({
-      value: `${probeSet!.slug}_ever_used`,
-      name: `${probeSet!.name} conversion`,
+      value: `${outcome!}_ever_used`,
+      name: `${outcome!} conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
     });
   });
@@ -64,7 +61,7 @@ const getBranchDescriptions = (
 };
 
 const TableHighlights = ({
-  primaryProbeSets,
+  primaryOutcomes,
   results = {
     daily: [],
     weekly: {},
@@ -74,7 +71,7 @@ const TableHighlights = ({
   },
   experiment,
 }: TableHighlightsProps) => {
-  const highlightMetricsList = getHighlightMetrics(primaryProbeSets);
+  const highlightMetricsList = getHighlightMetrics(primaryOutcomes);
   const branchDescriptions = getBranchDescriptions(
     experiment.referenceBranch,
     experiment.treatmentBranches,

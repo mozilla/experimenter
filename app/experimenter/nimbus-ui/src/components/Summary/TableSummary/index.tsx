@@ -109,22 +109,22 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
             </td>
           </tr>
         )}
-        {experiment.primaryProbeSets?.length !== 0 && (
+        {experiment.primaryOutcomes?.length !== 0 && (
           <tr>
             <th>Primary probe sets</th>
             <td data-testid="experiment-probe-primary">
               {experiment
-                .primaryProbeSets!.map((probeSet) => probeSet?.name)
+                .primaryOutcomes!.map((probeSet) => probeSet?.name)
                 .join(", ")}
             </td>
           </tr>
         )}
-        {experiment.secondaryProbeSets?.length !== 0 && (
+        {experiment.secondaryOutcomes?.length !== 0 && (
           <tr>
             <th>Secondary probe sets</th>
             <td data-testid="experiment-probe-secondary">
               {experiment
-                .secondaryProbeSets!.map((probeSet) => probeSet?.name)
+                .secondaryOutcomes!.map((probeSet) => probeSet?.name)
                 .join(", ")}
             </td>
           </tr>

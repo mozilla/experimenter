@@ -56,22 +56,14 @@ describe("PageEditMetrics", () => {
   beforeEach(() => {
     mockSubmitData = {
       id: experiment.id!,
-      primaryProbeSetSlugs: experiment.primaryProbeSets!.map((p) => p!.slug),
-      secondaryProbeSetSlugs: experiment.secondaryProbeSets!.map(
-        (p) => p!.slug,
-      ),
+      primaryOutcomes: experiment.primaryOutcomes!,
+      secondaryOutcomes: experiment.secondaryOutcomes!,
     };
     const mockResponse = {
       experiment: {
         id: experiment.id,
-        primaryProbeSets: experiment.primaryProbeSets!.map((p) => ({
-          slug: p?.slug,
-          name: p?.name,
-        })),
-        secondaryProbeSets: experiment.secondaryProbeSets!.map((p) => ({
-          slug: p?.slug,
-          name: p?.name,
-        })),
+        primaryOutcomes: experiment.primaryOutcomes!,
+        secondaryOutcomes: experiment.secondaryOutcomes!,
       },
     };
 
@@ -135,7 +127,7 @@ describe("PageEditMetrics", () => {
 
   it("handles server validation error", async () => {
     mutationMock.result.data.updateExperiment.message = {
-      primaryProbeSets: ["Bad probe sets"],
+      primaryOutcomes: ["Bad probe sets"],
     };
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;

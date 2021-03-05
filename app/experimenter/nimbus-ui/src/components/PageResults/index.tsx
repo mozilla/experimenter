@@ -56,7 +56,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
           <h3 className="h6">Hypothesis</h3>
           <p>{experiment.hypothesis}</p>
           <TableHighlights
-            primaryProbeSets={experiment.primaryProbeSets!}
+            primaryOutcomes={experiment.primaryOutcomes!}
             results={analysis!}
             {...{ experiment }}
           />
@@ -69,11 +69,11 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
             Results Summary
           </h2>
           <TableResults
-            primaryProbeSets={experiment.primaryProbeSets!}
+            primaryOutcomes={experiment.primaryOutcomes!}
             results={analysis!}
           />
           <div>
-            {experiment.primaryProbeSets?.map((probeSet) => (
+            {experiment.primaryOutcomes?.map((probeSet) => (
               <TableMetricPrimary
                 key={probeSet?.slug}
                 results={analysis?.overall!}
@@ -81,7 +81,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
               />
             ))}
             {analysis &&
-              experiment.secondaryProbeSets?.map((probeSet) => (
+              experiment.secondaryOutcomes?.map((probeSet) => (
                 <TableMetricSecondary
                   key={probeSet!.slug}
                   results={analysis}

@@ -40,8 +40,8 @@ const TableHighlightsOverview = ({
           </td>
           <td>
             <h3 className="h6">Probe Sets</h3>
-            {experiment.primaryProbeSets?.length
-              ? experiment.primaryProbeSets.map((probeSet) => (
+            {experiment.primaryOutcomes?.length
+              ? experiment.primaryOutcomes.map((probeSet) => (
                   <div key={probeSet?.name}>{probeSet?.name}</div>
                 ))
               : ""}

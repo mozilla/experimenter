@@ -23,7 +23,7 @@ storiesOf("components/Summary/TableSummary", module)
   .add("filled out with multiple probe sets", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
       featureConfig: MOCK_CONFIG.featureConfig![1],
-      primaryProbeSets: [
+      primaryOutcomes: [
         {
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
@@ -33,7 +33,7 @@ storiesOf("components/Summary/TableSummary", module)
           name: "Feature C",
         },
       ],
-      secondaryProbeSets: [
+      secondaryOutcomes: [
         {
           slug: "feature_b",
           name: "Feature B",
@@ -52,8 +52,8 @@ storiesOf("components/Summary/TableSummary", module)
   })
   .add("only required fields filled out", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      primaryProbeSets: [],
-      secondaryProbeSets: [],
+      primaryOutcomes: [],
+      secondaryOutcomes: [],
       documentationLinks: [],
     });
     return (
@@ -64,8 +64,8 @@ storiesOf("components/Summary/TableSummary", module)
   })
   .add("missing required fields", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      primaryProbeSets: [],
-      secondaryProbeSets: [],
+      primaryOutcomes: [],
+      secondaryOutcomes: [],
       publicDescription: "",
       riskMitigationLink: "",
       documentationLinks: [],
