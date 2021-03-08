@@ -311,7 +311,7 @@ test = ["pytest (>=3.6.0,!=3.9.0,!=3.9.1,!=3.9.2)", "pretend", "iso8601", "pytz"
 
 [[package]]
 name = "datadog"
-version = "0.40.0"
+version = "0.40.1"
 description = "The Datadog Python library"
 category = "main"
 optional = false
@@ -1551,7 +1551,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "a239ca9baad145b6c484561b5689e0c8d13ad834246f665a69966668f0cbd023"
+content-hash = "804e18c068f84b32256192762e858b802416e51b3b9149f806ccf636672374fa"
 
 [metadata.files]
 aiohttp = [
@@ -1767,8 +1767,8 @@ cryptography = [
     {file = "cryptography-3.1.1.tar.gz", hash = "sha256:9d9fc6a16357965d282dd4ab6531013935425d0dc4950df2e0cf2a1b1ac1017d"},
 ]
 datadog = [
-    {file = "datadog-0.40.0-py2.py3-none-any.whl", hash = "sha256:6104a24890eee4e09c45a64f617f5076f6ef9e4e53ba3f251ee9e76afe5cfe48"},
-    {file = "datadog-0.40.0.tar.gz", hash = "sha256:4bbd66a02bbcf9cd03ba05194d605a64c9efb7aed90d5e69c6ec42655c3c01a4"},
+    {file = "datadog-0.40.1-py2.py3-none-any.whl", hash = "sha256:2144e3c41ce15dae1d7db728f95b7494082f23c5f9de02e48f37b3fc204892d6"},
+    {file = "datadog-0.40.1.tar.gz", hash = "sha256:438c1dde5462e68c5c792b7b4a1d87a0ddd970af3db31b3cf15980eed0c44311"},
 ]
 decorator = [
     {file = "decorator-4.4.2-py2.py3-none-any.whl", hash = "sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760"},
