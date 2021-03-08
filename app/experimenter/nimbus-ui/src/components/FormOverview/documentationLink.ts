@@ -23,9 +23,11 @@ export function useDocumentationLinks(
   control: UseFormMethods["control"],
   setValue: UseFormMethods["setValue"],
 ) {
-  const { fields: documentationLinks, append, remove } = useFieldArray<
-    AnnotatedDocumentationLink
-  >({
+  const {
+    fields: documentationLinks,
+    append,
+    remove,
+  } = useFieldArray<AnnotatedDocumentationLink>({
     control,
     name: "documentationLinks",
   });
