@@ -39,9 +39,10 @@ export const FormDocumentationLink = ({
 }: FormDocumentationLinkProps) => {
   const { documentationLink: documentationLinkOptions } = useConfig();
 
-  const { FormErrors, formControlAttrs } = useCommonNestedForm<
-    DocumentationLinkFieldName
-  >(
+  const {
+    FormErrors,
+    formControlAttrs,
+  } = useCommonNestedForm<DocumentationLinkFieldName>(
     {
       title: documentationLink.title,
       link: documentationLink.link,

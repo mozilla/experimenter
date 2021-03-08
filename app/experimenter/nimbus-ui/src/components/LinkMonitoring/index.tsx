@@ -6,10 +6,9 @@ import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import LinkExternal from "../LinkExternal";
 
-export const LinkMonitoring: React.FC<Pick<
-  getExperiment_experimentBySlug,
-  "monitoringDashboardUrl"
->> = ({ monitoringDashboardUrl }) => (
+export const LinkMonitoring: React.FC<
+  Pick<getExperiment_experimentBySlug, "monitoringDashboardUrl">
+> = ({ monitoringDashboardUrl }) => (
   <>
     <h3 className="h5 mb-3" id="monitoring">
       Monitoring
