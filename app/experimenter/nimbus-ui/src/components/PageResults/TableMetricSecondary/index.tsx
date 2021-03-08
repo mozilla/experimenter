@@ -24,8 +24,8 @@ type SecondaryMetricStatistic = {
 
 type TableMetricSecondaryProps = {
   results: AnalysisData;
-  probeSetSlug: string;
-  probeSetDefaultName: string;
+  outcomeSlug: string;
+  outcomeDefaultName: string;
   isDefault?: boolean;
 };
 
@@ -46,41 +46,40 @@ const TableMetricSecondary = ({
     daily: [],
     weekly: {},
     overall: {},
-    metadata: { metrics: {}, probesets: {} },
+    metadata: { metrics: {}, outcomes: {} },
     show_analysis: false,
   },
-  probeSetSlug,
-  probeSetDefaultName,
+  outcomeSlug,
+  outcomeDefaultName,
   isDefault = true,
 }: TableMetricSecondaryProps) => {
-  const secondaryMetricStatistics = getStatistics(probeSetSlug);
+  const secondaryMetricStatistics = getStatistics(outcomeSlug);
   const secondaryType = isDefault
     ? METRIC_TYPE.DEFAULT_SECONDARY
     : METRIC_TYPE.USER_SELECTED_SECONDARY;
 
   const overallResults = results?.overall!;
-  const probeSetName =
-    results.metadata?.metrics[probeSetSlug]?.friendly_name ||
-    probeSetDefaultName;
-  const probeSetDescription =
-    results.metadata?.metrics[probeSetSlug]?.description || undefined;
+  const outcomeName =
+    results.metadata?.metrics[outcomeSlug]?.friendly_name || outcomeDefaultName;
+  const outcomeDescription =
+    results.metadata?.metrics[outcomeSlug]?.description || undefined;
 
   return (
     <div data-testid="table-metric-secondary" className="mb-5">
-      <h2 className="h5 mb-3" id={probeSetSlug}>
+      <h2 className="h5 mb-3" id={outcomeSlug}>
         <div>
           <div className="d-inline-block">
-            {probeSetName}{" "}
-            {probeSetDescription && (
+            {outcomeName}{" "}
+            {outcomeDescription && (
               <>
                 <Info
                   data-tip
-                  data-for={probeSetSlug}
+                  data-for={outcomeSlug}
                   className="align-baseline"
                 />
                 <TooltipWithMarkdown
-                  tooltipId={probeSetSlug}
-                  markdown={probeSetDescription}
+                  tooltipId={outcomeSlug}
+                  markdown={outcomeDescription}
                 />
               </>
             )}
@@ -122,7 +121,7 @@ const TableMetricSecondary = ({
                       key={`${displayType}-${value}`}
                       results={overallResults[branch]}
                       tableLabel={TABLE_LABEL.SECONDARY_METRICS}
-                      metricKey={probeSetSlug}
+                      metricKey={outcomeSlug}
                       {...{ displayType, branchComparison }}
                     />
                   ),
@@ -135,7 +134,7 @@ const TableMetricSecondary = ({
       {results?.weekly && (
         <GraphsWeekly
           weeklyResults={results.weekly}
-          {...{ probeSetSlug, probeSetName }}
+          {...{ outcomeSlug, outcomeName }}
         />
       )}
     </div>

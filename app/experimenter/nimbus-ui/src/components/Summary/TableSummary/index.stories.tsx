@@ -20,29 +20,11 @@ storiesOf("components/Summary/TableSummary", module)
       </Subject>
     );
   })
-  .add("filled out with multiple probe sets", () => {
+  .add("filled out with multiple outcomes", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
       featureConfig: MOCK_CONFIG.featureConfig![1],
-      primaryOutcomes: [
-        {
-          slug: "picture_in_picture",
-          name: "Picture-in-Picture",
-        },
-        {
-          slug: "feature_C",
-          name: "Feature C",
-        },
-      ],
-      secondaryOutcomes: [
-        {
-          slug: "feature_b",
-          name: "Feature B",
-        },
-        {
-          slug: "feature_d",
-          name: "Feature D",
-        },
-      ],
+      primaryOutcomes: ["picture_in_picture", "feature_C"],
+      secondaryOutcomes: ["feature_b", "feature_d"],
     });
     return (
       <Subject>

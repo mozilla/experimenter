@@ -10,14 +10,14 @@ import { EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
 import { editCommonRedirects } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
-import { updateExperiment_updateExperiment as UpdateExperimentProbeSetsResult } from "../../types/updateExperiment";
+import { updateExperiment_updateExperiment as UpdateExperimentOutcomesResult } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
 import FormMetrics from "./FormMetrics";
 
 const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
-  const [updateExperimentProbeSets, { loading }] = useMutation<
-    { updateExperiment: UpdateExperimentProbeSetsResult },
+  const [updateExperimentOutcomes, { loading }] = useMutation<
+    { updateExperiment: UpdateExperimentOutcomesResult },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_MUTATION);
 
@@ -33,7 +33,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
     ) => {
       try {
         const nimbusExperimentId = currentExperiment.current!.id;
-        const result = await updateExperimentProbeSets({
+        const result = await updateExperimentOutcomes({
           variables: {
             input: {
               id: nimbusExperimentId,
@@ -66,7 +66,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
         setSubmitErrors({ "*": SUBMIT_ERROR });
       }
     },
-    [updateExperimentProbeSets, currentExperiment],
+    [updateExperimentOutcomes, currentExperiment],
   );
 
   return (

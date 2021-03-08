@@ -15,11 +15,11 @@ describe("FormMetrics", () => {
       expect(screen.getByTestId("FormMetrics")).toBeInTheDocument(),
     );
 
-    expect(screen.getByTestId("tooltip-primary-probe-sets")).toHaveAttribute(
+    expect(screen.getByTestId("tooltip-primary-outcomes")).toHaveAttribute(
       "data-tip",
       PRIMARY_OUTCOMES_TOOLTIP,
     );
-    expect(screen.getByTestId("tooltip-secondary-probe-sets")).toHaveAttribute(
+    expect(screen.getByTestId("tooltip-secondary-outcomes")).toHaveAttribute(
       "data-tip",
       SECONDARY_OUTCOMES_TOOLTIP,
     );
@@ -63,36 +63,36 @@ describe("FormMetrics", () => {
     expect(submitButton).toHaveTextContent("Saving");
   });
 
-  it("displays saved primary probe sets", async () => {
+  it("displays saved primary outcomes", async () => {
     const { experiment } = mockExperimentQuery("boo", {
       primaryOutcomes: [MOCK_CONFIG.probeSets![0]],
     });
 
     render(<Subject {...{ experiment }} />);
 
-    const primaryOutcomes = screen.getByTestId("primary-probe-sets");
+    const primaryOutcomes = screen.getByTestId("primary-outcomes");
     expect(primaryOutcomes).toHaveTextContent("Probe Set A");
   });
 
-  it("displays saved secondary probe sets", async () => {
+  it("displays saved secondary outcomes", async () => {
     const { experiment } = mockExperimentQuery("boo", {
       secondaryOutcomes: [MOCK_CONFIG.probeSets![0]],
     });
     render(<Subject {...{ experiment }} />);
 
-    const secondaryOutcomes = screen.getByTestId("secondary-probe-sets");
+    const secondaryOutcomes = screen.getByTestId("secondary-outcomes");
     expect(secondaryOutcomes).toHaveTextContent("Probe Set A");
   });
 
-  it("selects a primary probe set and excludes it from secondary probe sets", async () => {
+  it("selects a primary outcome and excludes it from secondary outcomes", async () => {
     const { experiment } = mockExperimentQuery("boo", {
       primaryOutcomes: [],
       secondaryOutcomes: [],
     });
 
     render(<Subject {...{ experiment }} />);
-    const primaryOutcomes = screen.getByTestId("primary-probe-sets");
-    const secondaryOutcomes = screen.getByTestId("secondary-probe-sets");
+    const primaryOutcomes = screen.getByTestId("primary-outcomes");
+    const secondaryOutcomes = screen.getByTestId("secondary-outcomes");
 
     fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
     await act(async () => {
@@ -116,7 +116,7 @@ describe("FormMetrics", () => {
     });
   });
 
-  it("selects a secondary probe set and excludes it from primary probe sets", async () => {
+  it("selects a secondary outcome and excludes it from primary outcomes", async () => {
     const { experiment } = mockExperimentQuery("boo", {
       primaryOutcomes: [],
       secondaryOutcomes: [],
@@ -124,8 +124,8 @@ describe("FormMetrics", () => {
 
     render(<Subject {...{ experiment }} />);
 
-    const primaryOutcomes = screen.getByTestId("primary-probe-sets");
-    const secondaryOutcomes = screen.getByTestId("secondary-probe-sets");
+    const primaryOutcomes = screen.getByTestId("primary-outcomes");
+    const secondaryOutcomes = screen.getByTestId("secondary-outcomes");
 
     fireEvent.keyDown(secondaryOutcomes.children[1], { key: "ArrowDown" });
     await act(async () => {
@@ -149,7 +149,7 @@ describe("FormMetrics", () => {
     });
   });
 
-  it("allows maximum 2 primary probe sets", async () => {
+  it("allows maximum 2 primary outcomes", async () => {
     const { experiment } = mockExperimentQuery("boo", {
       primaryOutcomes: [],
       secondaryOutcomes: [],
@@ -157,7 +157,7 @@ describe("FormMetrics", () => {
 
     render(<Subject {...{ experiment }} />);
 
-    const primaryOutcomes = screen.getByTestId("primary-probe-sets");
+    const primaryOutcomes = screen.getByTestId("primary-outcomes");
 
     fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
     fireEvent.click(screen.getByText("Probe Set A"));

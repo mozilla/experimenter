@@ -16,7 +16,12 @@ type TableHighlightsOverviewProps = {
 const TableHighlightsOverview = ({
   experiment,
 }: TableHighlightsOverviewProps) => {
-  const { firefoxMinVersion, channel, targetingConfigSlug } = useConfig();
+  const {
+    firefoxMinVersion,
+    channel,
+    targetingConfigSlug,
+    outcomes: configOutcomes,
+  } = useConfig();
 
   return (
     <table
@@ -41,9 +46,14 @@ const TableHighlightsOverview = ({
           <td>
             <h3 className="h6">Probe Sets</h3>
             {experiment.primaryOutcomes?.length
-              ? experiment.primaryOutcomes.map((probeSet) => (
-                  <div key={probeSet?.name}>{probeSet?.name}</div>
-                ))
+              ? experiment.primaryOutcomes.map((slug) => {
+                  const outcome = configOutcomes!.find((set) => {
+                    return set?.slug === slug;
+                  });
+                  return (
+                    <div key={outcome?.slug!}>{outcome?.friendlyName}</div>
+                  );
+                })
               : ""}
           </td>
           <td>

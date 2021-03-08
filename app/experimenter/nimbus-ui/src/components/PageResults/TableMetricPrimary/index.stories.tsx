@@ -13,52 +13,37 @@ storiesOf("pages/Results/TableMetricPrimary", module)
   .addDecorator(withLinks)
   .add("with positive primary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      primaryOutcomes: [
-        {
-          slug: "picture_in_picture",
-          name: "Picture-in-Picture",
-        },
-      ],
+      primaryOutcomes: ["picture_in_picture"],
     });
 
     return (
       <TableMetricPrimary
         results={mockAnalysis().overall}
-        probeSet={experiment.primaryOutcomes![0]!}
+        outcome={experiment.primaryOutcomes![0]!}
       />
     );
   })
   .add("with negative primary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      primaryOutcomes: [
-        {
-          slug: "feature_b",
-          name: "Feature B",
-        },
-      ],
+      primaryOutcomes: ["feature_b"],
     });
 
     return (
       <TableMetricPrimary
         results={mockAnalysis().overall}
-        probeSet={experiment.primaryOutcomes![0]!}
+        outcome={experiment.primaryOutcomes![0]!}
       />
     );
   })
   .add("with neutral primary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      primaryOutcomes: [
-        {
-          slug: "feature_c",
-          name: "Feature C",
-        },
-      ],
+      primaryOutcomes: ["feature_c"],
     });
 
     return (
       <TableMetricPrimary
         results={mockAnalysis().overall}
-        probeSet={experiment.primaryOutcomes![0]!}
+        outcome={experiment.primaryOutcomes![0]!}
       />
     );
   });

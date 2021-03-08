@@ -22,7 +22,7 @@ type TableResultsProps = {
 const getResultMetrics = (outcomes: (string | null)[] | null) => {
   // Make a copy of `RESULTS_METRICS_LIST` since we modify it.
   const resultsMetricsList = [...RESULTS_METRICS_LIST];
-  outcomes.forEach((outcome) => {
+  outcomes?.forEach((outcome) => {
     resultsMetricsList.unshift({
       value: `${outcome}_ever_used`,
       name: `${outcome} Conversion`,
@@ -40,7 +40,7 @@ const TableResults = ({
     daily: [],
     weekly: {},
     overall: {},
-    metadata: { metrics: {}, probesets: {} },
+    metadata: { metrics: {}, outcomes: {} },
     show_analysis: false,
   },
 }: TableResultsProps) => {
@@ -57,7 +57,7 @@ const TableResults = ({
           <th scope="col" className="border-bottom-0 bg-light" />
           {resultsMetricsList.map((metric, index) => {
             const badgeClass = `badge ${metric.type?.badge}`;
-            const probeSetDescription =
+            const outcomeDescription =
               results.metadata?.metrics[metric.value]?.description ||
               metric.tooltip;
 
@@ -72,7 +72,7 @@ const TableResults = ({
                 </h3>
                 <TooltipWithMarkdown
                   tooltipId={metric.value}
-                  markdown={probeSetDescription}
+                  markdown={outcomeDescription}
                 />
                 {metric.type && (
                   <span className={badgeClass} data-tip={metric.type.tooltip}>

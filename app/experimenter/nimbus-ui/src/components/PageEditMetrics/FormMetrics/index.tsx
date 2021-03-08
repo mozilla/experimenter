@@ -10,11 +10,12 @@ import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig, useExitWarning } from "../../../hooks";
 import { SelectOption } from "../../../hooks/useCommonForm/useCommonFormMethods";
 import { ReactComponent as Info } from "../../../images/info.svg";
+import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
 import { getExperiment } from "../../../types/getExperiment";
 
 export const metricsFieldNames = [
-  "primaryOutcomes",
-  "secondaryOutcomes",
+  "primaryOutcomeSlugs",
+  "secondaryOutcomeSlugs",
 ] as const;
 
 type FormMetricsProps = {
@@ -27,9 +28,6 @@ type FormMetricsProps = {
 };
 
 type MetricsFieldName = typeof metricsFieldNames[number];
-
-type Outcome = string | null;
-type Outcomes = Outcome[] | null;
 
 export const PRIMARY_OUTCOMES_TOOLTIP =
   "Specific metrics you’d like to impact in your experiment, which will be part of the analysis.";
@@ -44,44 +42,52 @@ const FormMetrics = ({
   setSubmitErrors,
   onSave,
 }: FormMetricsProps) => {
-  const { outcomes } = useConfig();
+  const { outcomes: configOutcomes } = useConfig();
 
-  // We must alter primary outcome options when a secondary outcome is selected
+  // We must alter primary outcome options when a secondary set is selected
   // to exclude the set from primary outcome options and vice versa
-  const [primaryOutcomes, setPrimaryOutcomes] = useState<Outcomes>(
-    experiment?.primaryOutcomes! || [],
+  const [primaryOutcomeSlugs, setPrimaryOutcomeSlugs] = useState<string[]>(
+    experiment!.primaryOutcomes as string[],
   );
-  const [secondaryOutcomes, setSecondaryOutcomes] = useState<Outcomes>(
-    experiment?.secondaryOutcomes! || [],
+  const [secondaryOutcomeSlugs, setSecondaryOutcomeSlugs] = useState<string[]>(
+    experiment!.secondaryOutcomes as string[],
   );
 
-  const outcomesOption = (outcome: Outcome) => ({
-    label: outcome,
-    value: outcome,
+  const outcomeOption = (outcome: getConfig_nimbusConfig_outcomes) => ({
+    label: outcome.friendlyName!,
+    value: outcome.slug!,
   });
 
-  const primaryOutcomesOptions: SelectOption[] = [];
-  const secondaryOutcomesOptions: SelectOption[] = [];
+  const primaryOutcomeOptions: SelectOption[] = [];
+  const secondaryOutcomeOptions: SelectOption[] = [];
 
-  // Get primary/secondary options from server-supplied array of probe sets
-  outcomes?.forEach((outcome) => {
-    if (!secondaryOutcomes?.includes(outcome!.friendlyName)) {
-      primaryOutcomesOptions.push(outcomesOption(outcome!));
+  // Get primary/secondary options from server-supplied array of outcomes
+  configOutcomes?.forEach((outcome) => {
+    if (!secondaryOutcomeSlugs.includes(outcome!.slug as string)) {
+      primaryOutcomeOptions.push(outcomeOption(outcome!));
     }
-    if (!primaryOutcomes?.includes(outcome!.slug)) {
-      secondaryOutcomesOptions.push(outcomesOption(outcome!));
+    if (!primaryOutcomeSlugs.includes(outcome!.slug as string)) {
+      secondaryOutcomeOptions.push(outcomeOption(outcome!));
     }
   });
 
   const defaultValues = {
-    primaryOutcomes:
-      experiment?.primaryOutcomes?.map((probeSet) =>
-        outcomesOption(probeSet!),
-      ) || "",
-    secondaryOutcomes:
-      experiment?.secondaryOutcomes?.map((probeSet) =>
-        outcomesOption(probeSet!),
-      ) || "",
+    primaryOutcomeSlugs:
+      experiment?.primaryOutcomes?.map((slug) => {
+        const configOutcome = configOutcomes!.find((set) => {
+          return set?.slug === slug;
+        });
+
+        return outcomeOption(configOutcome!);
+      }) || "",
+    secondaryOutcomeSlugs:
+      experiment?.secondaryOutcomes?.map((slug) => {
+        const configOutcome = configOutcomes!.find((set) => {
+          return set?.slug === slug;
+        });
+
+        return outcomeOption(configOutcome!);
+      }) || "",
   };
 
   const {
@@ -111,14 +117,20 @@ const FormMetrics = ({
             !isLoading &&
             onSave(
               {
-                primaryOutcomes,
-                secondaryOutcomes,
+                primaryOutcomeSlugs,
+                secondaryOutcomeSlugs,
               },
               next,
             ),
         ),
       ),
-    [isLoading, onSave, handleSubmit, primaryOutcomes, secondaryOutcomes],
+    [
+      isLoading,
+      onSave,
+      handleSubmit,
+      primaryOutcomeSlugs,
+      secondaryOutcomeSlugs,
+    ],
   );
 
   return (
@@ -134,12 +146,15 @@ const FormMetrics = ({
         </Alert>
       )}
 
-      <Form.Group controlId="primaryOutcomes" data-testid="primary-probe-sets">
+      <Form.Group
+        controlId="primaryOutcomeSlugs"
+        data-testid="primary-outcomes"
+      >
         <Form.Label>
-          Primary Probe sets{" "}
+          Primary Outcomes{" "}
           <Info
             data-tip={PRIMARY_OUTCOMES_TOOLTIP}
-            data-testid="tooltip-primary-probe-sets"
+            data-testid="tooltip-primary-outcomes"
             width="20"
             height="20"
             className="ml-1"
@@ -148,26 +163,26 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
-          {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
-          options={primaryOutcomesOptions}
-          isOptionDisabled={() => primaryOutcomes.length >= 2}
+          {...formSelectAttrs("primaryOutcomeSlugs", setPrimaryOutcomeSlugs)}
+          options={primaryOutcomeOptions}
+          isOptionDisabled={() => primaryOutcomeSlugs.length >= 2}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
-          experiment. You may select up to 2 primary probe sets.
+          experiment. You may select up to 2 primary outcomes.
         </Form.Text>
-        <FormErrors name="primaryOutcomes" />
+        <FormErrors name="primaryOutcomeSlugs" />
       </Form.Group>
 
       <Form.Group
-        controlId="secondaryOutcomes"
-        data-testid="secondary-probe-sets"
+        controlId="secondaryOutcomeSlugs"
+        data-testid="secondary-outcomes"
       >
         <Form.Label>
-          Secondary Probe sets{" "}
+          Secondary Outcomes{" "}
           <Info
             data-tip={SECONDARY_OUTCOMES_TOOLTIP}
-            data-testid="tooltip-secondary-probe-sets"
+            data-testid="tooltip-secondary-outcomes"
             width="20"
             height="20"
             className="ml-1"
@@ -175,14 +190,17 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
-          {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
-          options={secondaryOutcomesOptions}
+          {...formSelectAttrs(
+            "secondaryOutcomeSlugs",
+            setSecondaryOutcomeSlugs,
+          )}
+          options={secondaryOutcomeOptions}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment.
         </Form.Text>
-        <FormErrors name="secondaryOutcomes" />
+        <FormErrors name="secondaryOutcomeSlugs" />
       </Form.Group>
 
       <div className="d-flex flex-row-reverse bd-highlight">

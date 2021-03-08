@@ -8,6 +8,7 @@ import { ExperimentReview, useAnalysis, useExperiment } from "../../hooks";
 import { BASE_PATH } from "../../lib/constants";
 import { getStatus, StatusCheck } from "../../lib/experiment";
 import { AnalysisData } from "../../lib/visualization/types";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import AppLayoutSidebarLocked from "../AppLayoutSidebarLocked";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 import Head from "../Head";

@@ -80,7 +80,7 @@ describe("hooks/useCommonForm", () => {
         <MetricsSubject {...{ submitErrors, experiment }} />,
       );
 
-      const primaryOutcomes = screen.getByTestId("primary-probe-sets");
+      const primaryOutcomes = screen.getByTestId("primary-outcomes");
       const errorFeedback = screen.getByText(submitErrors.primary_outcomes[0]);
       expect(errorFeedback).toBeInTheDocument();
       expect(

@@ -32,26 +32,17 @@ describe("TableSummary", () => {
     );
   });
 
-  describe("renders 'Primary probe sets' row as expected", () => {
-    it("with one probe set", () => {
+  describe("renders 'Primary outcomes' row as expected", () => {
+    it("with one outcome", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
         "Picture-in-Picture",
       );
     });
-    it("with multiple probe sets", () => {
+    it("with multiple outcomes", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        primaryOutcomes: [
-          {
-            slug: "picture_in_picture",
-            name: "Picture-in-Picture",
-          },
-          {
-            slug: "feature_c",
-            name: "Feature C",
-          },
-        ],
+        primaryOutcomes: ["picture_in_picture", "feature_c"],
       });
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
@@ -69,26 +60,17 @@ describe("TableSummary", () => {
     });
   });
 
-  describe("renders 'Secondary probe sets' row as expected", () => {
-    it("with one probe set", () => {
+  describe("renders 'Secondary outcomes' row as expected", () => {
+    it("with one outcome", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
       expect(
         screen.getByTestId("experiment-probe-secondary"),
       ).toHaveTextContent("Feature B");
     });
-    it("with multiple probe sets", () => {
+    it("with multiple outcomes", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        secondaryOutcomes: [
-          {
-            slug: "picture_in_picture",
-            name: "Picture-in-Picture",
-          },
-          {
-            slug: "feature_b",
-            name: "Feature B",
-          },
-        ],
+        secondaryOutcomes: ["picture_in_picture", "feature_b"],
       });
       render(<Subject {...{ experiment }} />);
       expect(

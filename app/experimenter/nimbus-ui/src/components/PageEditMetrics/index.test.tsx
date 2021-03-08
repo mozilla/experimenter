@@ -27,7 +27,7 @@ jest.mock("@reach/router", () => ({
   navigate: jest.fn(),
 }));
 
-let mockSubmitData: Record<string, number | string[]> = {};
+let mockSubmitData: { [key: string]: (string | null)[] | number } = {};
 const mockSubmit = jest.fn();
 
 describe("PageEditMetrics", () => {
@@ -127,7 +127,7 @@ describe("PageEditMetrics", () => {
 
   it("handles server validation error", async () => {
     mutationMock.result.data.updateExperiment.message = {
-      primaryOutcomes: ["Bad probe sets"],
+      primaryOutcomes: ["Bad outcomes"],
     };
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;

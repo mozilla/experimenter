@@ -34,6 +34,7 @@ import {
 import {
   ExperimentInput,
   NimbusDocumentationLinkTitle,
+  NimbusExperimentApplication,
   NimbusExperimentStatus,
   NimbusFeatureConfigApplication,
 } from "../types/globalTypes";
@@ -100,18 +101,24 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "FIREFOX_83",
     },
   ],
-  probeSets: [
+  outcomes: [
     {
-      name: "Probe Set A",
-      slug: "probe-set-a",
+      friendlyName: "Outcome A",
+      slug: "outcome-a",
+      application: NimbusExperimentApplication.DESKTOP,
+      description: "foo",
     },
     {
-      name: "Probe Set B",
-      slug: "probe-set-b",
+      friendlyName: "Outcome B",
+      slug: "outcome-b",
+      application: NimbusExperimentApplication.FENIX,
+      description: "bar",
     },
     {
-      name: "Probe Set C",
-      slug: "probe-set-c",
+      friendlyName: "Outcome C",
+      slug: "outcome-c",
+      application: NimbusExperimentApplication.DESKTOP,
+      description: "baz",
     },
   ],
   targetingConfigSlug: [
@@ -269,18 +276,8 @@ export function mockExperiment<
           featureEnabled: true,
         },
       ],
-      primaryOutcomes: [
-        {
-          slug: "picture_in_picture",
-          name: "Picture-in-Picture",
-        },
-      ],
-      secondaryOutcomes: [
-        {
-          slug: "feature_b",
-          name: "Feature B",
-        },
-      ],
+      primaryOutcomes: ["picture_in_picture"],
+      secondaryOutcomes: ["feature_b"],
       channel: "NIGHTLY",
       firefoxMinVersion: "FIREFOX_83",
       targetingConfigSlug: "US_ONLY",

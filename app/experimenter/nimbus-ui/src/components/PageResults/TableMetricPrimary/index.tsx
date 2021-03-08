@@ -9,6 +9,7 @@ import {
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import { AnalysisDataOverall } from "../../../lib/visualization/types";
+import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type PrimaryMetricStatistic = {
@@ -20,7 +21,7 @@ type PrimaryMetricStatistic = {
 
 type TableMetricPrimaryProps = {
   results: AnalysisDataOverall;
-  outcome: string | null;
+  outcome: getConfig_nimbusConfig_outcomes;
 };
 
 const getStatistics = (slug: string): Array<PrimaryMetricStatistic> => {
@@ -41,13 +42,13 @@ const TableMetricPrimary = ({
   results = {},
   outcome,
 }: TableMetricPrimaryProps) => {
-  const primaryMetricStatistics = getStatistics(outcome!);
-  const metricKey = `${outcome}_ever_used`;
+  const primaryMetricStatistics = getStatistics(outcome.slug!);
+  const metricKey = `${outcome.slug}_ever_used`;
 
   return (
     <div data-testid="table-metric-primary" className="mb-5">
-      <h2 className="h5 mb-3" id={outcome!}>
-        {outcome}
+      <h2 className="h5 mb-3" id={outcome.slug!}>
+        {outcome.friendlyName}
       </h2>
       <table className="table-visualization-center">
         <thead>

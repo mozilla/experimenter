@@ -13,19 +13,14 @@ storiesOf("pages/Results/TableMetricSecondary", module)
   .addDecorator(withLinks)
   .add("with positive secondary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      secondaryOutcomes: [
-        {
-          slug: "picture_in_picture",
-          name: "Picture-in-Picture",
-        },
-      ],
+      secondaryOutcomes: ["picture_in_picture"],
     });
 
     return (
       <TableMetricSecondary
         results={mockAnalysis()}
-        probeSetSlug={experiment.secondaryOutcomes![0]!.slug}
-        probeSetDefaultName={experiment.secondaryOutcomes![0]!.name}
+        outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
+        outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
         isDefault={false}
       />
     );
@@ -35,27 +30,22 @@ storiesOf("pages/Results/TableMetricSecondary", module)
     return (
       <TableMetricSecondary
         results={mockAnalysis()}
-        probeSetSlug={experiment.secondaryOutcomes![0]!.slug}
-        probeSetDefaultName={experiment.secondaryOutcomes![0]!.name}
+        outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
+        outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
         isDefault={false}
       />
     );
   })
   .add("with neutral secondary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      secondaryOutcomes: [
-        {
-          slug: "feature_c",
-          name: "Feature C",
-        },
-      ],
+      secondaryOutcomes: ["feature_c"],
     });
 
     return (
       <TableMetricSecondary
         results={mockAnalysis()}
-        probeSetSlug={experiment.secondaryOutcomes![0]!.slug}
-        probeSetDefaultName={experiment.secondaryOutcomes![0]!.name}
+        outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
+        outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
         isDefault={false}
       />
     );

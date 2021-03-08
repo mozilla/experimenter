@@ -44,7 +44,7 @@ describe("TableHighlightsOverview", () => {
     expect(screen.getByText("Us Only")).toBeInTheDocument();
   });
 
-  it("has the expected probe sets", async () => {
+  it("has the expected outcomes", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlightsOverview

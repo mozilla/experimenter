@@ -6,15 +6,13 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
 import Scrollspy from "react-scrollspy";
+import { useConfig } from "../../hooks";
 import { ReactComponent as Airplane } from "../../images/airplane.svg";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { StatusCheck } from "../../lib/experiment";
 import { AnalysisData, MetadataPoint } from "../../lib/visualization/types";
 import { analysisAvailable } from "../../lib/visualization/utils";
-import {
-  getExperiment_experimentBySlug_primaryOutcomes,
-  getExperiment_experimentBySlug_secondaryOutcomes,
-} from "../../types/getExperiment";
+import { getConfig_nimbusConfig_outcomes } from "../../types/getConfig";
 import { DisabledItem } from "../DisabledItem";
 import LinkExternal from "../LinkExternal";
 import { LinkNav } from "../LinkNav";
@@ -44,21 +42,21 @@ const getSidebarItems = (
   return sidebarItems;
 };
 
-// TODO: fix this
-const probesetToMapping = (
-  probesets:
-    | (getExperiment_experimentBySlug_primaryOutcomes | null)[]
-    | (getExperiment_experimentBySlug_secondaryOutcomes | null)[],
+const outcomeToMapping = (
+  outcomeSlugs: (string | null)[],
+  configOutcomes: (getConfig_nimbusConfig_outcomes | null)[] | null,
 ) => {
-  const newMap: { [key: string]: string } = {};
-  probesets.map(
-    (
-      probeset:
-        | (getExperiment_experimentBySlug_primaryOutcomes | null)
-        | (getExperiment_experimentBySlug_secondaryOutcomes | null),
-    ) => (newMap[probeset!.slug] = probeset!.name),
-  );
-  return newMap;
+  return outcomeSlugs.reduce((acc: { [key: string]: string }, slug) => {
+    const configOutcome = configOutcomes?.find((set) => {
+      return set?.slug === slug;
+    });
+
+    if (configOutcome) {
+      acc[slug as string] = configOutcome.friendlyName!;
+    }
+
+    return acc;
+  }, {});
 };
 
 const otherMetricsToFriendlyName = (
@@ -81,12 +79,8 @@ type AppLayoutSidebarLockedProps = {
   analysis?: AnalysisData;
   analysisLoadingInSidebar?: boolean;
   analysisError?: Error;
-  primaryOutcomes:
-    | (getExperiment_experimentBySlug_primaryOutcomes | null)[]
-    | null;
-  secondaryOutcomes:
-    | (getExperiment_experimentBySlug_secondaryOutcomes | null)[]
-    | null;
+  primaryOutcomes: (string | null)[] | null;
+  secondaryOutcomes: (string | null)[] | null;
 } & RouteComponentProps;
 
 export const AppLayoutSidebarLocked = ({
@@ -100,8 +94,9 @@ export const AppLayoutSidebarLocked = ({
   secondaryOutcomes,
 }: AppLayoutSidebarLockedProps) => {
   const { slug } = useParams();
-  const primaryMetrics = probesetToMapping(primaryOutcomes || []);
-  const secondaryMetrics = probesetToMapping(secondaryOutcomes || []);
+  const { outcomes } = useConfig();
+  const primaryMetrics = outcomeToMapping(primaryOutcomes || [], outcomes);
+  const secondaryMetrics = outcomeToMapping(secondaryOutcomes || [], outcomes);
   const otherMetrics = otherMetricsToFriendlyName(
     analysis?.other_metrics || {},
     analysis?.metadata?.metrics || {},

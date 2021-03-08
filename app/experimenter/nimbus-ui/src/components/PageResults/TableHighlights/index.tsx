@@ -66,7 +66,7 @@ const TableHighlights = ({
     daily: [],
     weekly: {},
     overall: {},
-    metadata: { metrics: {}, probesets: {} },
+    metadata: { metrics: {}, outcomes: {} },
     show_analysis: false,
   },
   experiment,
