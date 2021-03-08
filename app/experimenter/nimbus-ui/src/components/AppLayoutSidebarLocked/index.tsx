@@ -1,4 +1,5 @@
 import { RouteComponentProps, useParams } from "@reach/router";
+import classnames from "classnames";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -20,22 +21,25 @@ import { LinkNav } from "../LinkNav";
 import { ReactComponent as BarChart } from "./bar-chart.svg";
 
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
+const baseLinkClass = "d-block inherit-color mb-2";
 
 const getSidebarItems = (
   metrics: { [metric: string]: string },
   title: string,
 ) => {
   const sidebarItems = Object.keys(metrics).map((sidebarKey) => (
-    <div key={sidebarKey} className="ml-3">
-      <a href={`#${sidebarKey}`} className="inherit-color">
-        {metrics[sidebarKey]}
-      </a>
-    </div>
+    <a
+      href={`#${sidebarKey}`}
+      key={sidebarKey}
+      className={classnames(baseLinkClass, "font-weight-normal ml-3")}
+    >
+      {metrics[sidebarKey]}
+    </a>
   ));
   sidebarItems.unshift(
-    <h6 key={title} className="font-weight-bold mt-3">
+    <p key={title} className="mb-2">
       {title}
-    </h6>,
+    </p>,
   );
   return sidebarItems;
 };
@@ -127,7 +131,10 @@ export const AppLayoutSidebarLocked = ({
             data-testid="nav-sidebar"
             className="navbar fixed-top col-xl-2 col-lg-3 col-md-3 px-4 py-3"
           >
-            <Nav className="flex-column font-weight-semibold mx-2" as="ul">
+            <Nav
+              className="flex-column font-weight-semibold mx-2 w-100"
+              as="ul"
+            >
               <LinkNav
                 storiesOf="pages/Home"
                 className="mb-3 small font-weight-bold"
@@ -156,24 +163,18 @@ export const AppLayoutSidebarLocked = ({
                   </LinkNav>
                   <Scrollspy
                     items={sidebarKeys}
-                    className="text-dark"
-                    currentClassName="font-weight-bold text-primary"
+                    className="text-dark mt-2"
+                    currentClassName="text-primary"
                   >
-                    <div>
-                      <a href="#monitoring" className="inherit-color">
-                        Monitoring
-                      </a>
-                    </div>
-                    <div>
-                      <a href="#overview" className="inherit-color">
-                        Overview
-                      </a>
-                    </div>
-                    <div>
-                      <a href="#results-summary" className="inherit-color">
-                        Results Summary
-                      </a>
-                    </div>
+                    <a href="#monitoring" className={baseLinkClass}>
+                      Monitoring
+                    </a>
+                    <a href="#overview" className={baseLinkClass}>
+                      Overview
+                    </a>
+                    <a href="#results-summary" className={baseLinkClass}>
+                      Results Summary
+                    </a>
                     {Object.keys(primaryMetrics).length &&
                       getSidebarItems(primaryMetrics, "Primary Metrics")}
                     {Object.keys(secondaryMetrics).length &&
