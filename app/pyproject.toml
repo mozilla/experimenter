@@ -53,7 +53,7 @@ isort = "5.7.0"
 google-cloud-storage = "1.36.1"
 django-storages = "1.11.1"
 graphene-django = "^2.15.0"
-mozilla-nimbus-shared = "^1.3.2"
+mozilla-nimbus-shared = "^1.4.0"
 toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
