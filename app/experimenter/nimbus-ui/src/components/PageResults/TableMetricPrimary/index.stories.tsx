@@ -6,8 +6,7 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableMetricPrimary from ".";
-import { useOutcomes } from "../../../hooks";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 storiesOf("pages/Results/TableMetricPrimary", module)
@@ -16,7 +15,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
     const { experiment } = mockExperimentQuery("demo-slug", {
       primaryOutcomes: ["picture_in_picture"],
     });
-    const { primaryOutcomes } = useOutcomes(experiment);
+    const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
       <TableMetricPrimary
@@ -29,7 +28,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
     const { experiment } = mockExperimentQuery("demo-slug", {
       primaryOutcomes: ["feature_b"],
     });
-    const { primaryOutcomes } = useOutcomes(experiment);
+    const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
       <TableMetricPrimary
@@ -42,7 +41,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
     const { experiment } = mockExperimentQuery("demo-slug", {
       primaryOutcomes: ["feature_c"],
     });
-    const { primaryOutcomes } = useOutcomes(experiment);
+    const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
       <TableMetricPrimary

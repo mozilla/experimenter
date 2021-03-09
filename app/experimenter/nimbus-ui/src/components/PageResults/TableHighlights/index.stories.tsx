@@ -16,11 +16,7 @@ storiesOf("pages/Results/TableHighlights", module)
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights
-          primaryOutcomes={experiment.primaryOutcomes!}
-          results={mockAnalysis()}
-          {...{ experiment }}
-        />
+        <TableHighlights results={mockAnalysis()} {...{ experiment }} />
       </RouterSlugProvider>
     );
   })
@@ -30,11 +26,7 @@ storiesOf("pages/Results/TableHighlights", module)
     });
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights
-          primaryOutcomes={experiment.primaryOutcomes!}
-          results={mockAnalysis()}
-          {...{ experiment }}
-        />
+        <TableHighlights results={mockAnalysis()} {...{ experiment }} />
       </RouterSlugProvider>
     );
   });

@@ -59,11 +59,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             </p>
             <h3 className="h6">Hypothesis</h3>
             <p>{experiment.hypothesis}</p>
-            <TableHighlights
-              primaryOutcomes={experiment.primaryOutcomes!}
-              results={analysis!}
-              {...{ experiment }}
-            />
+            <TableHighlights results={analysis!} {...{ experiment }} />
             <TableHighlightsOverview
               {...{ experiment }}
               results={analysis?.overall!}

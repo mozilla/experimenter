@@ -15,11 +15,7 @@ describe("TableHighlights", () => {
   it("has participants shown for each variant", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights
-          primaryOutcomes={experiment.primaryOutcomes!}
-          results={mockAnalysis()}
-          {...{ experiment }}
-        />
+        <TableHighlights results={mockAnalysis()} {...{ experiment }} />
       </RouterSlugProvider>,
     );
 
@@ -34,11 +30,7 @@ describe("TableHighlights", () => {
     const branchDescription = experiment.referenceBranch!.description;
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights
-          primaryOutcomes={experiment.primaryOutcomes!}
-          results={mockAnalysis()}
-          {...{ experiment }}
-        />
+        <TableHighlights results={mockAnalysis()} {...{ experiment }} />
       </RouterSlugProvider>,
     );
 
@@ -48,11 +40,7 @@ describe("TableHighlights", () => {
   it("has correctly labelled result significance", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights
-          primaryOutcomes={experiment.primaryOutcomes!}
-          results={mockAnalysis()}
-          {...{ experiment }}
-        />
+        <TableHighlights results={mockAnalysis()} {...{ experiment }} />
       </RouterSlugProvider>,
     );
 
@@ -64,11 +52,7 @@ describe("TableHighlights", () => {
   it("has the expected control and treatment labels", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights
-          primaryOutcomes={experiment.primaryOutcomes!}
-          results={mockAnalysis()}
-          {...{ experiment }}
-        />
+        <TableHighlights results={mockAnalysis()} {...{ experiment }} />
       </RouterSlugProvider>,
     );
 

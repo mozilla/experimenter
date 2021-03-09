@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { useOutcomes } from "../../../hooks";
 import {
   BRANCH_COMPARISON,
   HIGHLIGHTS_METRICS_LIST,
@@ -20,7 +21,6 @@ import {
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type TableHighlightsProps = {
-  primaryOutcomes: OutcomeSlugs;
   results: AnalysisData;
   experiment: getExperiment_experimentBySlug;
 };
@@ -29,13 +29,13 @@ type Branch =
   | getExperiment_experimentBySlug_referenceBranch
   | getExperiment_experimentBySlug_treatmentBranches;
 
-const getHighlightMetrics = (outcomes: OutcomeSlugs | null) => {
+const getHighlightMetrics = (outcomes: OutcomesList) => {
   // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
   const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
   outcomes?.forEach((outcome) => {
     highlightMetricsList.unshift({
-      value: `${outcome!}_ever_used`,
-      name: `${outcome!} conversion`,
+      value: `${outcome.slug}_ever_used`,
+      name: `${outcome.friendlyName} conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
     });
   });
@@ -61,7 +61,6 @@ const getBranchDescriptions = (
 };
 
 const TableHighlights = ({
-  primaryOutcomes,
   results = {
     daily: [],
     weekly: {},
@@ -71,6 +70,7 @@ const TableHighlights = ({
   },
   experiment,
 }: TableHighlightsProps) => {
+  const { primaryOutcomes } = useOutcomes(experiment);
   const highlightMetricsList = getHighlightMetrics(primaryOutcomes);
   const branchDescriptions = getBranchDescriptions(
     experiment.referenceBranch,
