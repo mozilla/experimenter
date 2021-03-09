@@ -74,10 +74,12 @@ const FormMetrics = ({
   });
 
   const defaultValues = {
-    primaryOutcomeSlugs:
-      primaryOutcomes.map((outcome) => outcomeOption(outcome)) || "",
-    secondaryOutcomeSlugs:
-      secondaryOutcomes.map((outcome) => outcomeOption(outcome)) || "",
+    primaryOutcomeSlugs: primaryOutcomes.map((outcome) =>
+      outcomeOption(outcome),
+    ),
+    secondaryOutcomeSlugs: secondaryOutcomes.map((outcome) =>
+      outcomeOption(outcome),
+    ),
   };
 
   const {
@@ -102,17 +104,17 @@ const FormMetrics = ({
   const [handleSave, handleSaveNext] = useMemo(
     () =>
       [false, true].map((next) =>
-        handleSubmit(
-          () =>
-            !isLoading &&
+        handleSubmit(() => {
+          console.log("hey?", primaryOutcomeSlugs, secondaryOutcomeSlugs);
+          !isLoading &&
             onSave(
               {
                 primaryOutcomeSlugs,
                 secondaryOutcomeSlugs,
               },
               next,
-            ),
-        ),
+            );
+        }),
       ),
     [
       isLoading,
