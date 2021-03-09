@@ -88,7 +88,7 @@ describe("hooks/useCommonForm", () => {
       ).toHaveClass("is-invalid border border-danger rounded");
 
       fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
-      fireEvent.click(screen.getByText("Probe Set A"));
+      fireEvent.click(screen.getByText("Picture-in-Picture"));
       expect(errorFeedback).not.toBeInTheDocument();
     });
   });

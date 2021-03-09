@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { useOutcomes } from "../../../hooks";
 import {
   METRICS_TIPS,
   METRIC_TYPE,
@@ -11,21 +12,22 @@ import {
 } from "../../../lib/visualization/constants";
 import { AnalysisData } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
+import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 import TooltipWithMarkdown from "../TooltipWithMarkdown";
 
 type TableResultsProps = {
-  primaryOutcomes: OutcomeSlugs;
+  experiment: getExperiment_experimentBySlug;
   results: AnalysisData;
 };
 
-const getResultMetrics = (outcomes: OutcomeSlugs) => {
+const getResultMetrics = (outcomes: OutcomesList) => {
   // Make a copy of `RESULTS_METRICS_LIST` since we modify it.
   const resultsMetricsList = [...RESULTS_METRICS_LIST];
   outcomes?.forEach((outcome) => {
     resultsMetricsList.unshift({
-      value: `${outcome}_ever_used`,
-      name: `${outcome} Conversion`,
+      value: `${outcome.slug}_ever_used`,
+      name: `${outcome.friendlyName} Conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
       type: METRIC_TYPE.PRIMARY,
     });
@@ -35,7 +37,7 @@ const getResultMetrics = (outcomes: OutcomeSlugs) => {
 };
 
 const TableResults = ({
-  primaryOutcomes,
+  experiment,
   results = {
     daily: [],
     weekly: {},
@@ -44,6 +46,7 @@ const TableResults = ({
     show_analysis: false,
   },
 }: TableResultsProps) => {
+  const { primaryOutcomes } = useOutcomes(experiment);
   const resultsMetricsList = getResultMetrics(primaryOutcomes);
   const overallResults = results?.overall!;
 

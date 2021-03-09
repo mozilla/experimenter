@@ -72,10 +72,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             <h2 className="h5 mb-3" id="results-summary">
               Results Summary
             </h2>
-            <TableResults
-              primaryOutcomes={experiment.primaryOutcomes!}
-              results={analysis!}
-            />
+            <TableResults {...{ experiment }} results={analysis!} />
             <div>
               {experiment.primaryOutcomes?.map((slug) => {
                 const outcome = configOutcomes!.find((set) => {

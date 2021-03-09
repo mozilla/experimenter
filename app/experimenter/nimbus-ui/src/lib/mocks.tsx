@@ -103,20 +103,20 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   ],
   outcomes: [
     {
-      friendlyName: "Outcome A",
-      slug: "outcome-a",
+      friendlyName: "Picture-in-Picture",
+      slug: "picture_in_picture",
       application: NimbusExperimentApplication.DESKTOP,
       description: "foo",
     },
     {
-      friendlyName: "Outcome B",
-      slug: "outcome-b",
+      friendlyName: "Feature B",
+      slug: "feature_b",
       application: NimbusExperimentApplication.FENIX,
       description: "bar",
     },
     {
-      friendlyName: "Outcome C",
-      slug: "outcome-c",
+      friendlyName: "Feature C",
+      slug: "feature_c",
       application: NimbusExperimentApplication.DESKTOP,
       description: "baz",
     },
@@ -468,5 +468,27 @@ export function mockDirectoryExperimentsQuery(
     result: {
       data: experiments.length ? { experiments } : null,
     },
+  };
+}
+
+// Basically the same as useOutcomes, but uses the mocked config values
+export function mockOutcomeSets(
+  experiment: getExperiment_experimentBySlug,
+): { primaryOutcomes: OutcomesList; secondaryOutcomes: OutcomesList } {
+  const { outcomes } = MOCK_CONFIG;
+
+  const pairOutcomes = (slugs: OutcomeSlugs) => {
+    if (!slugs || !outcomes) {
+      return [];
+    }
+
+    return slugs
+      .map((slug) => outcomes!.find((outcome) => outcome!.slug === slug))
+      .filter((outcome) => outcome != null);
+  };
+
+  return {
+    primaryOutcomes: pairOutcomes(experiment.primaryOutcomes),
+    secondaryOutcomes: pairOutcomes(experiment.secondaryOutcomes),
   };
 }

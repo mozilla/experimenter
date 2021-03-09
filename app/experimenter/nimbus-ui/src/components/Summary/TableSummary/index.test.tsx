@@ -36,18 +36,18 @@ describe("TableSummary", () => {
     it("with one outcome", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
-      expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
-        "Picture-in-Picture",
-      );
+      expect(
+        screen.getByTestId("experiment-outcome-primary"),
+      ).toHaveTextContent("Picture-in-Picture");
     });
     it("with multiple outcomes", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         primaryOutcomes: ["picture_in_picture", "feature_c"],
       });
       render(<Subject {...{ experiment }} />);
-      expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
-        "Picture-in-Picture, Feature C",
-      );
+      expect(
+        screen.getByTestId("experiment-outcome-primary"),
+      ).toHaveTextContent("Picture-in-Picture, Feature C");
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
@@ -55,7 +55,7 @@ describe("TableSummary", () => {
       });
       render(<Subject {...{ experiment }} />);
       expect(
-        screen.queryByTestId("experiment-probe-primary"),
+        screen.queryByTestId("experiment-outcome-primary"),
       ).not.toBeInTheDocument();
     });
   });
@@ -65,7 +65,7 @@ describe("TableSummary", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
       expect(
-        screen.getByTestId("experiment-probe-secondary"),
+        screen.getByTestId("experiment-outcome-secondary"),
       ).toHaveTextContent("Feature B");
     });
     it("with multiple outcomes", () => {
@@ -74,7 +74,7 @@ describe("TableSummary", () => {
       });
       render(<Subject {...{ experiment }} />);
       expect(
-        screen.getByTestId("experiment-probe-secondary"),
+        screen.getByTestId("experiment-outcome-secondary"),
       ).toHaveTextContent("Picture-in-Picture, Feature B");
     });
     it("when not set", () => {
@@ -83,7 +83,7 @@ describe("TableSummary", () => {
       });
       render(<Subject {...{ experiment }} />);
       expect(
-        screen.queryByTestId("experiment-probe-secondary"),
+        screen.queryByTestId("experiment-outcome-secondary"),
       ).not.toBeInTheDocument();
     });
 

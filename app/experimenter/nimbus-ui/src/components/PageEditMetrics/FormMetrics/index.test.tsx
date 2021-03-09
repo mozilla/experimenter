@@ -2,11 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import React from "react";
 import { PRIMARY_OUTCOMES_TOOLTIP, SECONDARY_OUTCOMES_TOOLTIP } from ".";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
 import { Subject } from "./mocks";
+
+const outcomeNames = MOCK_CONFIG.outcomes!.map(
+  (outcome) => outcome!.friendlyName,
+) as string[];
 
 describe("FormMetrics", () => {
   it("renders as expected", async () => {
@@ -64,24 +74,24 @@ describe("FormMetrics", () => {
   });
 
   it("displays saved primary outcomes", async () => {
-    const { experiment } = mockExperimentQuery("boo", {
-      primaryOutcomes: [MOCK_CONFIG.probeSets![0]],
-    });
+    const { experiment } = mockExperimentQuery("boo");
 
     render(<Subject {...{ experiment }} />);
 
     const primaryOutcomes = screen.getByTestId("primary-outcomes");
-    expect(primaryOutcomes).toHaveTextContent("Probe Set A");
+    expect(primaryOutcomes).toHaveTextContent(
+      MOCK_CONFIG.outcomes![0]!.friendlyName!,
+    );
   });
 
   it("displays saved secondary outcomes", async () => {
-    const { experiment } = mockExperimentQuery("boo", {
-      secondaryOutcomes: [MOCK_CONFIG.probeSets![0]],
-    });
+    const { experiment } = mockExperimentQuery("boo");
     render(<Subject {...{ experiment }} />);
 
     const secondaryOutcomes = screen.getByTestId("secondary-outcomes");
-    expect(secondaryOutcomes).toHaveTextContent("Probe Set A");
+    expect(secondaryOutcomes).toHaveTextContent(
+      MOCK_CONFIG.outcomes![1]!.friendlyName!,
+    );
   });
 
   it("selects a primary outcome and excludes it from secondary outcomes", async () => {
@@ -95,24 +105,24 @@ describe("FormMetrics", () => {
     const secondaryOutcomes = screen.getByTestId("secondary-outcomes");
 
     fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
-    await act(async () => {
-      expect(primaryOutcomes).toHaveTextContent("Probe Set A");
-      expect(primaryOutcomes).toHaveTextContent("Probe Set B");
-      expect(primaryOutcomes).toHaveTextContent("Probe Set C");
+    await waitFor(async () => {
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[0]);
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[1]);
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[2]);
     });
 
-    fireEvent.click(screen.getByText("Probe Set A"));
-    await act(async () => {
-      expect(primaryOutcomes).toHaveTextContent("Probe Set A");
-      expect(primaryOutcomes).not.toHaveTextContent("Probe Set B");
-      expect(primaryOutcomes).not.toHaveTextContent("Probe Set C");
+    fireEvent.click(screen.getByText(outcomeNames[0]));
+    await waitFor(async () => {
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[0]);
+      expect(primaryOutcomes).not.toHaveTextContent(outcomeNames[1]);
+      expect(primaryOutcomes).not.toHaveTextContent(outcomeNames[2]);
     });
 
     fireEvent.keyDown(secondaryOutcomes.children[1], { key: "ArrowDown" });
-    await act(async () => {
-      expect(secondaryOutcomes).not.toHaveTextContent("Probe Set A");
-      expect(secondaryOutcomes).toHaveTextContent("Probe Set B");
-      expect(secondaryOutcomes).toHaveTextContent("Probe Set C");
+    await waitFor(async () => {
+      expect(secondaryOutcomes).not.toHaveTextContent(outcomeNames[0]);
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[1]);
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[2]);
     });
   });
 
@@ -128,24 +138,24 @@ describe("FormMetrics", () => {
     const secondaryOutcomes = screen.getByTestId("secondary-outcomes");
 
     fireEvent.keyDown(secondaryOutcomes.children[1], { key: "ArrowDown" });
-    await act(async () => {
-      expect(secondaryOutcomes).toHaveTextContent("Probe Set A");
-      expect(secondaryOutcomes).toHaveTextContent("Probe Set B");
-      expect(secondaryOutcomes).toHaveTextContent("Probe Set C");
+    await waitFor(async () => {
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[0]);
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[1]);
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[2]);
     });
 
-    fireEvent.click(screen.getByText("Probe Set A"));
-    await act(async () => {
-      expect(secondaryOutcomes).toHaveTextContent("Probe Set A");
-      expect(secondaryOutcomes).not.toHaveTextContent("Probe Set B");
-      expect(secondaryOutcomes).not.toHaveTextContent("Probe Set C");
+    fireEvent.click(screen.getByText(outcomeNames[0]));
+    await waitFor(async () => {
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[0]);
+      expect(secondaryOutcomes).not.toHaveTextContent(outcomeNames[1]);
+      expect(secondaryOutcomes).not.toHaveTextContent(outcomeNames[2]);
     });
 
     fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
-    await act(async () => {
-      expect(primaryOutcomes).not.toHaveTextContent("Probe Set A");
-      expect(primaryOutcomes).toHaveTextContent("Probe Set B");
-      expect(primaryOutcomes).toHaveTextContent("Probe Set C");
+    await waitFor(async () => {
+      expect(primaryOutcomes).not.toHaveTextContent(outcomeNames[0]);
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[1]);
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[2]);
     });
   });
 
@@ -160,19 +170,19 @@ describe("FormMetrics", () => {
     const primaryOutcomes = screen.getByTestId("primary-outcomes");
 
     fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
-    fireEvent.click(screen.getByText("Probe Set A"));
+    fireEvent.click(screen.getByText(outcomeNames[0]));
 
     fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
-    fireEvent.click(screen.getByText("Probe Set B"));
+    fireEvent.click(screen.getByText(outcomeNames[1]));
 
     fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
-    fireEvent.click(screen.getByText("Probe Set C"));
+    fireEvent.click(screen.getByText(outcomeNames[2]));
     fireEvent.keyDown(primaryOutcomes.children[1], { key: "Escape" });
 
-    await act(async () => {
-      expect(primaryOutcomes).toHaveTextContent("Probe Set A");
-      expect(primaryOutcomes).toHaveTextContent("Probe Set B");
-      expect(primaryOutcomes).not.toHaveTextContent("Probe Set C");
+    await waitFor(async () => {
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[0]);
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[1]);
+      expect(primaryOutcomes).not.toHaveTextContent(outcomeNames[2]);
     });
   });
 });

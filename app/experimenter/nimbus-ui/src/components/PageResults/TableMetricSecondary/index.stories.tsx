@@ -6,7 +6,7 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableMetricSecondary from ".";
-import { useOutcomes } from "../../../hooks/useOutcomes";
+import { useOutcomes } from "../../../hooks";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 

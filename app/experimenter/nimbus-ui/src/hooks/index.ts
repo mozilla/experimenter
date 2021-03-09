@@ -9,3 +9,4 @@ export * from "./useCommonForm/useForm";
 export * from "./useConfig";
 export * from "./useExitWarning";
 export * from "./useExperiment";
+export * from "./useOutcomes";

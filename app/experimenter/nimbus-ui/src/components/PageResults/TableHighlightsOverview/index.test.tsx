@@ -13,7 +13,7 @@ const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 describe("TableHighlightsOverview", () => {
   it("has the correct headings", async () => {
-    const EXPECTED_HEADINGS = ["Targeting", "Probe Sets", "Owner"];
+    const EXPECTED_HEADINGS = ["Targeting", "Outcomes", "Owner"];
 
     render(
       <RouterSlugProvider mocks={[mock]}>

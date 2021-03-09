@@ -7,16 +7,20 @@ import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import Select from "react-select";
 import ReactTooltip from "react-tooltip";
-import { useCommonForm, useConfig, useExitWarning } from "../../../hooks";
+import {
+  useCommonForm,
+  useConfig,
+  useExitWarning,
+  useOutcomes,
+} from "../../../hooks";
 import { SelectOption } from "../../../hooks/useCommonForm/useCommonFormMethods";
-import { useOutcomes } from "../../../hooks/useOutcomes";
 import { ReactComponent as Info } from "../../../images/info.svg";
 import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
 import { getExperiment } from "../../../types/getExperiment";
 
 export const metricsFieldNames = [
-  "primaryOutcomeSlugs",
-  "secondaryOutcomeSlugs",
+  "primaryOutcomes",
+  "secondaryOutcomes",
 ] as const;
 
 type FormMetricsProps = {
@@ -44,14 +48,14 @@ const FormMetrics = ({
   onSave,
 }: FormMetricsProps) => {
   const { outcomes: configOutcomes } = useConfig();
-  const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment!);
+  const defaultOutcomes = useOutcomes(experiment!);
 
   // We must alter primary outcome options when a secondary set is selected
   // to exclude the set from primary outcome options and vice versa
-  const [primaryOutcomeSlugs, setPrimaryOutcomeSlugs] = useState<string[]>(
+  const [primaryOutcomes, setPrimaryOutcomes] = useState<string[]>(
     experiment!.primaryOutcomes as string[],
   );
-  const [secondaryOutcomeSlugs, setSecondaryOutcomeSlugs] = useState<string[]>(
+  const [secondaryOutcomes, setSecondaryOutcomes] = useState<string[]>(
     experiment!.secondaryOutcomes as string[],
   );
 
@@ -65,19 +69,19 @@ const FormMetrics = ({
 
   // Get primary/secondary options from server-supplied array of outcomes
   configOutcomes?.forEach((outcome) => {
-    if (!secondaryOutcomeSlugs.includes(outcome!.slug as string)) {
+    if (!secondaryOutcomes.includes(outcome!.slug as string)) {
       primaryOutcomeOptions.push(outcomeOption(outcome!));
     }
-    if (!primaryOutcomeSlugs.includes(outcome!.slug as string)) {
+    if (!primaryOutcomes.includes(outcome!.slug as string)) {
       secondaryOutcomeOptions.push(outcomeOption(outcome!));
     }
   });
 
   const defaultValues = {
-    primaryOutcomeSlugs: primaryOutcomes.map((outcome) =>
+    primaryOutcomes: defaultOutcomes.primaryOutcomes.map((outcome) =>
       outcomeOption(outcome),
     ),
-    secondaryOutcomeSlugs: secondaryOutcomes.map((outcome) =>
+    secondaryOutcomes: defaultOutcomes.secondaryOutcomes.map((outcome) =>
       outcomeOption(outcome),
     ),
   };
@@ -104,25 +108,19 @@ const FormMetrics = ({
   const [handleSave, handleSaveNext] = useMemo(
     () =>
       [false, true].map((next) =>
-        handleSubmit(() => {
-          console.log("hey?", primaryOutcomeSlugs, secondaryOutcomeSlugs);
-          !isLoading &&
+        handleSubmit(
+          () =>
+            !isLoading &&
             onSave(
               {
-                primaryOutcomeSlugs,
-                secondaryOutcomeSlugs,
+                primaryOutcomes,
+                secondaryOutcomes,
               },
               next,
-            );
-        }),
+            ),
+        ),
       ),
-    [
-      isLoading,
-      onSave,
-      handleSubmit,
-      primaryOutcomeSlugs,
-      secondaryOutcomeSlugs,
-    ],
+    [isLoading, onSave, handleSubmit, primaryOutcomes, secondaryOutcomes],
   );
 
   return (
@@ -138,10 +136,7 @@ const FormMetrics = ({
         </Alert>
       )}
 
-      <Form.Group
-        controlId="primaryOutcomeSlugs"
-        data-testid="primary-outcomes"
-      >
+      <Form.Group controlId="primaryOutcomes" data-testid="primary-outcomes">
         <Form.Label>
           Primary Outcomes{" "}
           <Info
@@ -155,19 +150,19 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
-          {...formSelectAttrs("primaryOutcomeSlugs", setPrimaryOutcomeSlugs)}
+          {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
-          isOptionDisabled={() => primaryOutcomeSlugs.length >= 2}
+          isOptionDisabled={() => primaryOutcomes.length >= 2}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment. You may select up to 2 primary outcomes.
         </Form.Text>
-        <FormErrors name="primaryOutcomeSlugs" />
+        <FormErrors name="primaryOutcomes" />
       </Form.Group>
 
       <Form.Group
-        controlId="secondaryOutcomeSlugs"
+        controlId="secondaryOutcomes"
         data-testid="secondary-outcomes"
       >
         <Form.Label>
@@ -182,17 +177,14 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
-          {...formSelectAttrs(
-            "secondaryOutcomeSlugs",
-            setSecondaryOutcomeSlugs,
-          )}
+          {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment.
         </Form.Text>
-        <FormErrors name="secondaryOutcomeSlugs" />
+        <FormErrors name="secondaryOutcomes" />
       </Form.Group>
 
       <div className="d-flex flex-row-reverse bd-highlight">

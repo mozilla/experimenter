@@ -5,8 +5,7 @@
 import React from "react";
 import { Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
-import { useConfig } from "../../../hooks";
-import { useOutcomes } from "../../../hooks/useOutcomes";
+import { useConfig, useOutcomes } from "../../../hooks";
 import { ReactComponent as ExternalIcon } from "../../../images/external.svg";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import LinkExternal from "../../LinkExternal";
@@ -114,7 +113,7 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
         {primaryOutcomes.length > 0 && (
           <tr>
             <th>Primary outcomes</th>
-            <td data-testid="experiment-probe-primary">
+            <td data-testid="experiment-outcome-primary">
               {primaryOutcomes
                 .map((outcome) => outcome?.friendlyName)
                 .join(", ")}
@@ -124,7 +123,7 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
         {secondaryOutcomes.length > 0 && (
           <tr>
             <th>Secondary outcomes</th>
-            <td data-testid="experiment-probe-secondary">
+            <td data-testid="experiment-outcome-secondary">
               {secondaryOutcomes
                 .map((outcome) => outcome?.friendlyName)
                 .join(", ")}

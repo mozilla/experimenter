@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { useConfig } from "../../../hooks";
+import { useConfig, useOutcomes } from "../../../hooks";
 import { getConfigLabel } from "../../../lib/getConfigLabel";
 import { AnalysisDataOverall } from "../../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
@@ -16,12 +16,8 @@ type TableHighlightsOverviewProps = {
 const TableHighlightsOverview = ({
   experiment,
 }: TableHighlightsOverviewProps) => {
-  const {
-    firefoxMinVersion,
-    channel,
-    targetingConfigSlug,
-    outcomes: configOutcomes,
-  } = useConfig();
+  const { firefoxMinVersion, channel, targetingConfigSlug } = useConfig();
+  const { primaryOutcomes } = useOutcomes(experiment);
 
   return (
     <table
@@ -44,17 +40,11 @@ const TableHighlightsOverview = ({
             </div>
           </td>
           <td>
-            <h3 className="h6">Probe Sets</h3>
-            {experiment.primaryOutcomes?.length
-              ? experiment.primaryOutcomes.map((slug) => {
-                  const outcome = configOutcomes!.find((set) => {
-                    return set?.slug === slug;
-                  });
-                  return (
-                    <div key={outcome?.slug!}>{outcome?.friendlyName}</div>
-                  );
-                })
-              : ""}
+            <h3 className="h6">Outcomes</h3>
+            {primaryOutcomes.length > 0 &&
+              primaryOutcomes.map((outcome) => (
+                <div key={outcome.slug!}>{outcome?.friendlyName}</div>
+              ))}
           </td>
           <td>
             <h3 className="h6">Owner</h3>
