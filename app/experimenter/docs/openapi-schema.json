@@ -2966,6 +2966,10 @@
               "count"
             ]
           },
+          "outcomes": {
+            "type": "string",
+            "readOnly": true
+          },
           "probeSets": {
             "type": "string",
             "readOnly": true

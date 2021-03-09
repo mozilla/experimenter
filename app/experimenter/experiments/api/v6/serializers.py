@@ -64,6 +64,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     isEnrollmentPaused = serializers.ReadOnlyField(source="is_paused")
     bucketConfig = NimbusBucketRangeSerializer(source="bucket_range")
     probeSets = serializers.SerializerMethodField()
+    outcomes = serializers.SerializerMethodField()
     branches = NimbusBranchSerializer(many=True)
     startDate = serializers.DateTimeField(source="start_date")
     endDate = serializers.DateTimeField(source="end_date")
@@ -87,6 +88,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "userFacingDescription",
             "isEnrollmentPaused",
             "bucketConfig",
+            "outcomes",
             "probeSets",
             "branches",
             "targeting",
@@ -113,6 +115,17 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
 
     def get_probeSets(self, obj):
         return list(obj.probe_sets.all().order_by("slug").values_list("slug", flat=True))
+
+    def get_outcomes(self, obj):
+        prioritized_outcomes = (
+            ("primary", obj.primary_outcomes),
+            ("secondary", obj.secondary_outcomes),
+        )
+        return [
+            {"slug": slug, "priority": priority}
+            for (priority, outcomes) in prioritized_outcomes
+            for slug in outcomes
+        ]
 
     def get_referenceBranch(self, obj):
         if obj.reference_branch:

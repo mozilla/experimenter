@@ -29,6 +29,8 @@ class TestNimbusExperimentSerializer(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             channel=NimbusExperiment.Channel.NIGHTLY,
             probe_sets=[probe_set],
+            primary_outcomes=["foo", "bar", "baz"],
+            secondary_outcomes=["quux", "xyzzy"],
         )
 
         serializer = NimbusExperimentSerializer(experiment)
@@ -63,6 +65,13 @@ class TestNimbusExperimentSerializer(TestCase):
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,
                 "probeSets": [probe_set.slug],
+                "outcomes": [
+                    {"priority": "primary", "slug": "foo"},
+                    {"priority": "primary", "slug": "bar"},
+                    {"priority": "primary", "slug": "baz"},
+                    {"priority": "secondary", "slug": "quux"},
+                    {"priority": "secondary", "slug": "xyzzy"},
+                ],
                 "featureIds": [experiment.feature_config.slug],
             },
         )
