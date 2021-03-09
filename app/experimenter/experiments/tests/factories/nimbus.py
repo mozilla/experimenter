@@ -67,7 +67,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     primary_outcomes = factory.LazyAttribute(
         lambda o: [oc.slug for oc in Outcomes.all()[:2]]
     )
-    primary_outcomes = factory.LazyAttribute(
+    secondary_outcomes = factory.LazyAttribute(
         lambda o: [oc.slug for oc in Outcomes.all()[2:]]
     )
 
