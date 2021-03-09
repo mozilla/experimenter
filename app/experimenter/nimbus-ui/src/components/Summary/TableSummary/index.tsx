@@ -6,6 +6,7 @@ import React from "react";
 import { Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig } from "../../../hooks";
+import { useOutcomes } from "../../../hooks/useOutcomes";
 import { ReactComponent as ExternalIcon } from "../../../images/external.svg";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import LinkExternal from "../../LinkExternal";
@@ -23,6 +24,7 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
     application,
     documentationLink: configDocumentationLinks,
   } = useConfig();
+  const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
   return (
     <Table bordered data-testid="table-summary" className="mb-4">
@@ -109,22 +111,22 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
             </td>
           </tr>
         )}
-        {experiment.primaryOutcomes?.length !== 0 && (
+        {primaryOutcomes.length > 0 && (
           <tr>
             <th>Primary outcomes</th>
             <td data-testid="experiment-probe-primary">
-              {experiment
-                .primaryOutcomes!.map((outcome) => outcome?.name)
+              {primaryOutcomes
+                .map((outcome) => outcome?.friendlyName)
                 .join(", ")}
             </td>
           </tr>
         )}
-        {experiment.secondaryOutcomes?.length !== 0 && (
+        {secondaryOutcomes.length > 0 && (
           <tr>
             <th>Secondary outcomes</th>
             <td data-testid="experiment-probe-secondary">
-              {experiment
-                .secondaryOutcomes!.map((outcome) => outcome?.name)
+              {secondaryOutcomes
+                .map((outcome) => outcome?.friendlyName)
                 .join(", ")}
             </td>
           </tr>

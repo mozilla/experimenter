@@ -15,11 +15,11 @@ import TableVisualizationRow from "../TableVisualizationRow";
 import TooltipWithMarkdown from "../TooltipWithMarkdown";
 
 type TableResultsProps = {
-  primaryOutcomes: (string | null)[] | null;
+  primaryOutcomes: OutcomeSlugs;
   results: AnalysisData;
 };
 
-const getResultMetrics = (outcomes: (string | null)[] | null) => {
+const getResultMetrics = (outcomes: OutcomeSlugs) => {
   // Make a copy of `RESULTS_METRICS_LIST` since we modify it.
   const resultsMetricsList = [...RESULTS_METRICS_LIST];
   outcomes?.forEach((outcome) => {

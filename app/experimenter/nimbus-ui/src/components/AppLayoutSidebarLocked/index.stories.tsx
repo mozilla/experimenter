@@ -21,8 +21,7 @@ storiesOf("components/AppLayoutSidebarLocked", module)
         status={mockGetStatus(NimbusExperimentStatus.LIVE)}
         analysisError={undefined}
         analysisLoadingInSidebar
-        primaryOutcomes={null}
-        secondaryOutcomes={null}
+        {...{ experiment }}
       >
         <p>App contents go here</p>
       </AppLayoutSidebarLocked>
@@ -33,8 +32,7 @@ storiesOf("components/AppLayoutSidebarLocked", module)
       <AppLayoutSidebarLocked
         status={mockGetStatus(NimbusExperimentStatus.LIVE)}
         analysisError={new Error("Boop")}
-        primaryOutcomes={null}
-        secondaryOutcomes={null}
+        {...{ experiment }}
       >
         <p>App contents go here</p>
       </AppLayoutSidebarLocked>
@@ -52,8 +50,7 @@ storiesOf("components/AppLayoutSidebarLocked", module)
           overall: {},
           other_metrics: mockAnalysis().other_metrics,
         }}
-        primaryOutcomes={experiment.primaryOutcomes}
-        secondaryOutcomes={experiment.secondaryOutcomes}
+        {...{ experiment }}
       >
         <p>App contents go here</p>
       </AppLayoutSidebarLocked>

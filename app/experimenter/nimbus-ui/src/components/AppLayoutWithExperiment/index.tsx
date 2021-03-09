@@ -126,13 +126,7 @@ const AppLayoutWithExperiment = ({
     return <PageExperimentNotFound {...{ slug }} />;
   }
 
-  const {
-    name,
-    startDate,
-    computedEndDate,
-    primaryOutcomes,
-    secondaryOutcomes,
-  } = experiment;
+  const { name, startDate, computedEndDate } = experiment;
 
   return (
     <Layout
@@ -143,8 +137,7 @@ const AppLayoutWithExperiment = ({
         analysisLoadingInSidebar,
         analysisError,
         status,
-        primaryOutcomes,
-        secondaryOutcomes,
+        experiment,
       }}
     >
       <section data-testid={testId}>
@@ -175,8 +168,7 @@ type LayoutProps = {
   analysis?: AnalysisData;
   analysisLoadingInSidebar: boolean;
   analysisError?: Error;
-  primaryOutcomes: (string | null)[] | null;
-  secondaryOutcomes: (string | null)[] | null;
+  experiment: getExperiment_experimentBySlug;
 };
 
 const Layout = ({
@@ -186,8 +178,7 @@ const Layout = ({
   analysis,
   analysisLoadingInSidebar,
   analysisError,
-  primaryOutcomes,
-  secondaryOutcomes,
+  experiment,
 }: LayoutProps) =>
   status?.locked ? (
     <AppLayoutSidebarLocked
@@ -196,8 +187,7 @@ const Layout = ({
         analysis,
         analysisLoadingInSidebar,
         analysisError,
-        primaryOutcomes,
-        secondaryOutcomes,
+        experiment,
       }}
     >
       {children}

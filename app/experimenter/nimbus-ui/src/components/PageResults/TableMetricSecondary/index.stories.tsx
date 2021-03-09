@@ -6,6 +6,7 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableMetricSecondary from ".";
+import { useOutcomes } from "../../../hooks/useOutcomes";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 
@@ -15,23 +16,26 @@ storiesOf("pages/Results/TableMetricSecondary", module)
     const { experiment } = mockExperimentQuery("demo-slug", {
       secondaryOutcomes: ["picture_in_picture"],
     });
+    const { secondaryOutcomes } = useOutcomes(experiment);
 
     return (
       <TableMetricSecondary
         results={mockAnalysis()}
-        outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
-        outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
+        outcomeSlug={secondaryOutcomes![0]!.slug!}
+        outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         isDefault={false}
       />
     );
   })
   .add("with negative secondary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug");
+    const { secondaryOutcomes } = useOutcomes(experiment);
+
     return (
       <TableMetricSecondary
         results={mockAnalysis()}
-        outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
-        outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
+        outcomeSlug={secondaryOutcomes![0]!.slug!}
+        outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         isDefault={false}
       />
     );
@@ -40,12 +44,13 @@ storiesOf("pages/Results/TableMetricSecondary", module)
     const { experiment } = mockExperimentQuery("demo-slug", {
       secondaryOutcomes: ["feature_c"],
     });
+    const { secondaryOutcomes } = useOutcomes(experiment);
 
     return (
       <TableMetricSecondary
         results={mockAnalysis()}
-        outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
-        outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
+        outcomeSlug={secondaryOutcomes![0]!.slug!}
+        outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         isDefault={false}
       />
     );

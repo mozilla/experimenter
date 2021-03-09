@@ -5,6 +5,7 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import TableMetricSecondary from ".";
+import { useOutcomes } from "../../../hooks/useOutcomes";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
@@ -13,13 +14,14 @@ describe("TableMetricSecondary", () => {
   it("has the correct headings", () => {
     const EXPECTED_HEADINGS = ["Count", "Relative Improvement"];
     const { mock, experiment } = mockExperimentQuery("demo-slug");
+    const { secondaryOutcomes } = useOutcomes(experiment);
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
-          outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
-          outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
+          outcomeSlug={secondaryOutcomes![0]!.slug!}
+          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -32,12 +34,14 @@ describe("TableMetricSecondary", () => {
 
   it("has correctly labelled result significance", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
+    const { secondaryOutcomes } = useOutcomes(experiment);
+
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
-          outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
-          outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
+          outcomeSlug={secondaryOutcomes![0]!.slug!}
+          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -53,12 +57,14 @@ describe("TableMetricSecondary", () => {
 
   it("has the expected control and treatment labels", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
+    const { secondaryOutcomes } = useOutcomes(experiment);
+
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
-          outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
-          outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
+          outcomeSlug={secondaryOutcomes![0]!.slug!}
+          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -70,12 +76,14 @@ describe("TableMetricSecondary", () => {
 
   it("shows the negative improvement bar", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
+    const { secondaryOutcomes } = useOutcomes(experiment);
+
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
-          outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
-          outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
+          outcomeSlug={secondaryOutcomes![0]!.slug!}
+          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -91,12 +99,14 @@ describe("TableMetricSecondary", () => {
 
   it("shows expected count values", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
+    const { secondaryOutcomes } = useOutcomes(experiment);
+
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
-          outcomeSlug={experiment.secondaryOutcomes![0]!.slug}
-          outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
+          outcomeSlug={secondaryOutcomes![0]!.slug!}
+          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
         />
       </RouterSlugProvider>,
@@ -107,12 +117,14 @@ describe("TableMetricSecondary", () => {
 
   it("uses the friendly name from the metadata", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
+    const { secondaryOutcomes } = useOutcomes(experiment);
+
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis()}
           outcomeSlug="feature_d"
-          outcomeDefaultName={experiment.secondaryOutcomes![0]!.name}
+          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
         />
       </RouterSlugProvider>,

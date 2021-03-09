@@ -6,13 +6,13 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
 import Scrollspy from "react-scrollspy";
-import { useConfig } from "../../hooks";
+import { useOutcomes } from "../../hooks/useOutcomes";
 import { ReactComponent as Airplane } from "../../images/airplane.svg";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { StatusCheck } from "../../lib/experiment";
 import { AnalysisData, MetadataPoint } from "../../lib/visualization/types";
 import { analysisAvailable } from "../../lib/visualization/utils";
-import { getConfig_nimbusConfig_outcomes } from "../../types/getConfig";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { DisabledItem } from "../DisabledItem";
 import LinkExternal from "../LinkExternal";
 import { LinkNav } from "../LinkNav";
@@ -42,19 +42,9 @@ const getSidebarItems = (
   return sidebarItems;
 };
 
-const outcomeToMapping = (
-  outcomeSlugs: (string | null)[],
-  configOutcomes: (getConfig_nimbusConfig_outcomes | null)[] | null,
-) => {
-  return outcomeSlugs.reduce((acc: { [key: string]: string }, slug) => {
-    const configOutcome = configOutcomes?.find((set) => {
-      return set?.slug === slug;
-    });
-
-    if (configOutcome) {
-      acc[slug as string] = configOutcome.friendlyName!;
-    }
-
+const outcomeToMapping = (outcomes: OutcomesList) => {
+  return outcomes.reduce((acc: { [key: string]: string }, outcome) => {
+    acc[outcome?.slug as string] = outcome?.friendlyName!;
     return acc;
   }, {});
 };
@@ -79,8 +69,7 @@ type AppLayoutSidebarLockedProps = {
   analysis?: AnalysisData;
   analysisLoadingInSidebar?: boolean;
   analysisError?: Error;
-  primaryOutcomes: (string | null)[] | null;
-  secondaryOutcomes: (string | null)[] | null;
+  experiment: getExperiment_experimentBySlug;
 } & RouteComponentProps;
 
 export const AppLayoutSidebarLocked = ({
@@ -90,13 +79,12 @@ export const AppLayoutSidebarLocked = ({
   analysis,
   analysisLoadingInSidebar = false,
   analysisError,
-  primaryOutcomes,
-  secondaryOutcomes,
+  experiment,
 }: AppLayoutSidebarLockedProps) => {
   const { slug } = useParams();
-  const { outcomes } = useConfig();
-  const primaryMetrics = outcomeToMapping(primaryOutcomes || [], outcomes);
-  const secondaryMetrics = outcomeToMapping(secondaryOutcomes || [], outcomes);
+  const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
+  const primaryMetrics = outcomeToMapping(primaryOutcomes);
+  const secondaryMetrics = outcomeToMapping(secondaryOutcomes);
   const otherMetrics = otherMetricsToFriendlyName(
     analysis?.other_metrics || {},
     analysis?.metadata?.metrics || {},

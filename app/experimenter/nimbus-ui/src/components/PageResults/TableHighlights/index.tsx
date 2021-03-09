@@ -20,7 +20,7 @@ import {
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type TableHighlightsProps = {
-  primaryOutcomes: (string | null)[] | null;
+  primaryOutcomes: OutcomeSlugs;
   results: AnalysisData;
   experiment: getExperiment_experimentBySlug;
 };
@@ -29,7 +29,7 @@ type Branch =
   | getExperiment_experimentBySlug_referenceBranch
   | getExperiment_experimentBySlug_treatmentBranches;
 
-const getHighlightMetrics = (outcomes: (string | null)[] | null) => {
+const getHighlightMetrics = (outcomes: OutcomeSlugs | null) => {
   // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
   const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
   outcomes?.forEach((outcome) => {

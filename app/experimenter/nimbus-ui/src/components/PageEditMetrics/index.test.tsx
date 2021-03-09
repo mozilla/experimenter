@@ -27,7 +27,7 @@ jest.mock("@reach/router", () => ({
   navigate: jest.fn(),
 }));
 
-let mockSubmitData: { [key: string]: (string | null)[] | number } = {};
+let mockSubmitData: { [key: string]: OutcomeSlugs | number } = {};
 const mockSubmit = jest.fn();
 
 describe("PageEditMetrics", () => {

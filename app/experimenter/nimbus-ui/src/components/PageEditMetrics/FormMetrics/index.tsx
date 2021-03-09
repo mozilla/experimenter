@@ -9,6 +9,7 @@ import Select from "react-select";
 import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig, useExitWarning } from "../../../hooks";
 import { SelectOption } from "../../../hooks/useCommonForm/useCommonFormMethods";
+import { useOutcomes } from "../../../hooks/useOutcomes";
 import { ReactComponent as Info } from "../../../images/info.svg";
 import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
 import { getExperiment } from "../../../types/getExperiment";
@@ -43,6 +44,7 @@ const FormMetrics = ({
   onSave,
 }: FormMetricsProps) => {
   const { outcomes: configOutcomes } = useConfig();
+  const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment!);
 
   // We must alter primary outcome options when a secondary set is selected
   // to exclude the set from primary outcome options and vice versa
@@ -73,21 +75,9 @@ const FormMetrics = ({
 
   const defaultValues = {
     primaryOutcomeSlugs:
-      experiment?.primaryOutcomes?.map((slug) => {
-        const configOutcome = configOutcomes!.find((set) => {
-          return set?.slug === slug;
-        });
-
-        return outcomeOption(configOutcome!);
-      }) || "",
+      primaryOutcomes.map((outcome) => outcomeOption(outcome)) || "",
     secondaryOutcomeSlugs:
-      experiment?.secondaryOutcomes?.map((slug) => {
-        const configOutcome = configOutcomes!.find((set) => {
-          return set?.slug === slug;
-        });
-
-        return outcomeOption(configOutcome!);
-      }) || "",
+      secondaryOutcomes.map((outcome) => outcomeOption(outcome)) || "",
   };
 
   const {
