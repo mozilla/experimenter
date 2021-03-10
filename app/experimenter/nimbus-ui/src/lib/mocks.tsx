@@ -112,7 +112,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       friendlyName: "Feature B",
       slug: "feature_b",
-      application: NimbusExperimentApplication.FENIX,
+      application: NimbusExperimentApplication.DESKTOP,
       description: "bar",
     },
     {
@@ -120,6 +120,12 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       slug: "feature_c",
       application: NimbusExperimentApplication.DESKTOP,
       description: "baz",
+    },
+    {
+      friendlyName: "Feature D",
+      slug: "feature_d",
+      application: NimbusExperimentApplication.FENIX,
+      description: "blah",
     },
   ],
   targetingConfigSlug: [
