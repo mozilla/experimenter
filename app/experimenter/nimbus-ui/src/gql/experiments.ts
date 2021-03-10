@@ -76,15 +76,8 @@ export const GET_EXPERIMENT_QUERY = gql`
         schema
       }
 
-      primaryProbeSets {
-        slug
-        name
-      }
-
-      secondaryProbeSets {
-        slug
-        name
-      }
+      primaryOutcomes
+      secondaryOutcomes
 
       channel
       firefoxMinVersion

@@ -32,76 +32,58 @@ describe("TableSummary", () => {
     );
   });
 
-  describe("renders 'Primary probe sets' row as expected", () => {
-    it("with one probe set", () => {
+  describe("renders 'Primary outcomes' row as expected", () => {
+    it("with one outcome", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
-      expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
-        "Picture-in-Picture",
-      );
+      expect(
+        screen.getByTestId("experiment-outcome-primary"),
+      ).toHaveTextContent("Picture-in-Picture");
     });
-    it("with multiple probe sets", () => {
+    it("with multiple outcomes", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        primaryProbeSets: [
-          {
-            slug: "picture_in_picture",
-            name: "Picture-in-Picture",
-          },
-          {
-            slug: "feature_c",
-            name: "Feature C",
-          },
-        ],
-      });
-      render(<Subject {...{ experiment }} />);
-      expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
-        "Picture-in-Picture, Feature C",
-      );
-    });
-    it("when not set", () => {
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        primaryProbeSets: [],
+        primaryOutcomes: ["picture_in_picture", "feature_c"],
       });
       render(<Subject {...{ experiment }} />);
       expect(
-        screen.queryByTestId("experiment-probe-primary"),
+        screen.getByTestId("experiment-outcome-primary"),
+      ).toHaveTextContent("Picture-in-Picture, Feature C");
+    });
+    it("when not set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        primaryOutcomes: [],
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.queryByTestId("experiment-outcome-primary"),
       ).not.toBeInTheDocument();
     });
   });
 
-  describe("renders 'Secondary probe sets' row as expected", () => {
-    it("with one probe set", () => {
+  describe("renders 'Secondary outcomes' row as expected", () => {
+    it("with one outcome", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
       expect(
-        screen.getByTestId("experiment-probe-secondary"),
+        screen.getByTestId("experiment-outcome-secondary"),
       ).toHaveTextContent("Feature B");
     });
-    it("with multiple probe sets", () => {
+    it("with multiple outcomes", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        secondaryProbeSets: [
-          {
-            slug: "picture_in_picture",
-            name: "Picture-in-Picture",
-          },
-          {
-            slug: "feature_b",
-            name: "Feature B",
-          },
-        ],
+        secondaryOutcomes: ["picture_in_picture", "feature_b"],
       });
       render(<Subject {...{ experiment }} />);
       expect(
-        screen.getByTestId("experiment-probe-secondary"),
+        screen.getByTestId("experiment-outcome-secondary"),
       ).toHaveTextContent("Picture-in-Picture, Feature B");
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        secondaryProbeSets: [],
+        secondaryOutcomes: [],
       });
       render(<Subject {...{ experiment }} />);
       expect(
-        screen.queryByTestId("experiment-probe-secondary"),
+        screen.queryByTestId("experiment-outcome-secondary"),
       ).not.toBeInTheDocument();
     });
 

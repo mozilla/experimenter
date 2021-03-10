@@ -9,7 +9,7 @@ export const MOCK_UNAVAILABLE_ANALYSIS = {
   overall: null,
   metadata: {
     metrics: {},
-    probesets: {},
+    outcomes: {},
   },
 };
 
@@ -34,7 +34,7 @@ export const MOCK_METADATA = {
       friendly_name: "Search Count",
     },
   },
-  probesets: {},
+  outcomes: {},
 };
 
 export const CONTROL_NEUTRAL = {
@@ -472,7 +472,7 @@ export const mockAnalysis = (modifications = {}) =>
                 all: [],
               },
             },
-            probeset_d: {
+            outcome_d: {
               absolute: {
                 first: {
                   point: 0.05,
@@ -810,7 +810,7 @@ export const mockAnalysis = (modifications = {}) =>
               },
               significance: "positive",
             },
-            probeset_d: {
+            outcome_d: {
               absolute: {
                 first: {
                   point: 0.049019607843137254,
@@ -1106,7 +1106,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                 all: [],
               },
             },
-            probeset_d: {
+            outcome_d: {
               absolute: {
                 first: {
                   point: 0.05,
@@ -1522,7 +1522,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
               },
               significance: "positive",
             },
-            probeset_d: {
+            outcome_d: {
               absolute: {
                 first: {
                   point: 0.049019607843137254,

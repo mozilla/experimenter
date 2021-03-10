@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusFeatureConfigApplication } from "./globalTypes";
+import { NimbusFeatureConfigApplication, NimbusExperimentApplication } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getConfig
@@ -34,9 +34,11 @@ export interface getConfig_nimbusConfig_firefoxMinVersion {
   value: string | null;
 }
 
-export interface getConfig_nimbusConfig_probeSets {
-  name: string;
-  slug: string;
+export interface getConfig_nimbusConfig_outcomes {
+  friendlyName: string | null;
+  slug: string | null;
+  application: NimbusExperimentApplication | null;
+  description: string | null;
 }
 
 export interface getConfig_nimbusConfig_targetingConfigSlug {
@@ -54,7 +56,7 @@ export interface getConfig_nimbusConfig {
   channel: (getConfig_nimbusConfig_channel | null)[] | null;
   featureConfig: (getConfig_nimbusConfig_featureConfig | null)[] | null;
   firefoxMinVersion: (getConfig_nimbusConfig_firefoxMinVersion | null)[] | null;
-  probeSets: (getConfig_nimbusConfig_probeSets | null)[] | null;
+  outcomes: (getConfig_nimbusConfig_outcomes | null)[] | null;
   targetingConfigSlug: (getConfig_nimbusConfig_targetingConfigSlug | null)[] | null;
   hypothesisDefault: string | null;
   documentationLink: (getConfig_nimbusConfig_documentationLink | null)[] | null;

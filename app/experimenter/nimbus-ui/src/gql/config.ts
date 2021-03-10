@@ -28,9 +28,11 @@ export const GET_CONFIG_QUERY = gql`
         label
         value
       }
-      probeSets {
-        name
+      outcomes {
+        friendlyName
         slug
+        application
+        description
       }
       targetingConfigSlug {
         label

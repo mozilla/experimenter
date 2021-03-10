@@ -9,7 +9,7 @@ import {
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import { AnalysisDataOverall } from "../../../lib/visualization/types";
-import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
+import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type PrimaryMetricStatistic = {
@@ -21,16 +21,16 @@ type PrimaryMetricStatistic = {
 
 type TableMetricPrimaryProps = {
   results: AnalysisDataOverall;
-  probeSet: getExperiment_experimentBySlug_primaryProbeSets;
+  outcome: getConfig_nimbusConfig_outcomes;
 };
 
 const getStatistics = (slug: string): Array<PrimaryMetricStatistic> => {
-  const probesetMetricID = `${slug}_ever_used`;
+  const outcomeMetricID = `${slug}_ever_used`;
 
   // Make a copy of `PRIMARY_METRIC_COLUMNS` since we modify it.
   const primaryMetricStatisticsList = PRIMARY_METRIC_COLUMNS.map(
     (statistic: PrimaryMetricStatistic) => {
-      statistic["value"] = probesetMetricID;
+      statistic["value"] = outcomeMetricID;
       return statistic;
     },
   );
@@ -40,15 +40,15 @@ const getStatistics = (slug: string): Array<PrimaryMetricStatistic> => {
 
 const TableMetricPrimary = ({
   results = {},
-  probeSet,
+  outcome,
 }: TableMetricPrimaryProps) => {
-  const primaryMetricStatistics = getStatistics(probeSet!.slug);
-  const metricKey = `${probeSet.slug}_ever_used`;
+  const primaryMetricStatistics = getStatistics(outcome.slug!);
+  const metricKey = `${outcome.slug}_ever_used`;
 
   return (
     <div data-testid="table-metric-primary" className="mb-5">
-      <h2 className="h5 mb-3" id={probeSet.slug}>
-        {probeSet.name}
+      <h2 className="h5 mb-3" id={outcome.slug!}>
+        {outcome.friendlyName}
       </h2>
       <table className="table-visualization-center">
         <thead>

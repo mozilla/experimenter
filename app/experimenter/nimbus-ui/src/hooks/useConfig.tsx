@@ -21,7 +21,7 @@ export const MockConfigContext = createContext<MockConfig>(undefined);
  *
  * Example:
  *
- * const { channel, probeSets } = useConfig();
+ * const { channel, outcomes } = useConfig();
  */
 
 export function useConfig(): Config {
