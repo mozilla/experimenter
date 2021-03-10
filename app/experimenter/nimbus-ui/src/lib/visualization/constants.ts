@@ -34,6 +34,8 @@ export const BADGE_TIPS = {
 export const GENERAL_TIPS = {
   MISSING_RETENTION:
     "Retention is only available after at least 1 week of data post enrollment",
+  EARLY_RESULTS:
+    "WARNING: Experiment is not complete. Do not end the experiment early based on these results without consulting a Data Scientist.",
 };
 
 export enum VARIANT_TYPE {

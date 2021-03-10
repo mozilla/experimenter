@@ -176,6 +176,16 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
           </td>
         ),
       },
+      {
+        label: "Results",
+        component: ({ slug }) => (
+          <td data-testid="directory-table-cell">
+            <Link to={`${slug}/results`} data-sb-kind="pages/Results">
+              Results
+            </Link>
+          </td>
+        ),
+      },
     ]}
   />
 );

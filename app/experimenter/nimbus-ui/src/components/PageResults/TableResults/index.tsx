@@ -52,10 +52,7 @@ const TableResults = ({
   const overallResults = results?.overall!;
 
   return (
-    <table
-      className="table-visualization-center mb-5"
-      data-testid="table-results"
-    >
+    <table className="table-visualization-center" data-testid="table-results">
       <thead>
         <tr>
           <th scope="col" className="border-bottom-0 bg-light" />
