@@ -8,10 +8,7 @@ from graphene_django.utils.testing import GraphQLTestCase
 
 from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.experiments.tests.factories.nimbus import (
-    NimbusFeatureConfigFactory,
-    NimbusProbeSetFactory,
-)
+from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.outcomes import Outcomes
 
 
@@ -339,9 +336,7 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_nimbus_config(self):
         user_email = "user@example.com"
-        # Create some probes and feature configs
         feature_configs = NimbusFeatureConfigFactory.create_batch(10)
-        probe_sets = NimbusProbeSetFactory.create_batch(10)
 
         response = self.query(
             """
@@ -365,10 +360,6 @@ class TestNimbusQuery(GraphQLTestCase):
                         id
                         description
                     }
-                    probeSets {
-                        id
-                        name
-                    }
                     outcomes {
                         friendlyName
                         slug
@@ -384,7 +375,7 @@ class TestNimbusQuery(GraphQLTestCase):
                         value
                     }
                     hypothesisDefault
-                    maxPrimaryProbeSets
+                    maxPrimaryOutcomes
                 }
             }
             """,
@@ -406,14 +397,6 @@ class TestNimbusQuery(GraphQLTestCase):
         assertChoices(config["targetingConfigSlug"], NimbusExperiment.TargetingConfig)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
         self.assertEqual(len(config["featureConfig"]), 10)
-        self.assertEqual(len(config["probeSets"]), 10)
-
-        for probe_set in probe_sets:
-            config_probe_set = next(
-                filter(lambda p: p["id"] == str(probe_set.id), config["probeSets"])
-            )
-            self.assertEqual(config_probe_set["id"], str(probe_set.id))
-            self.assertEqual(config_probe_set["name"], probe_set.name)
 
         for outcome in Outcomes.all():
             self.assertIn(
@@ -441,7 +424,7 @@ class TestNimbusQuery(GraphQLTestCase):
 
         self.assertEqual(config["hypothesisDefault"], NimbusExperiment.HYPOTHESIS_DEFAULT)
         self.assertEqual(
-            config["maxPrimaryProbeSets"], NimbusExperiment.MAX_PRIMARY_PROBE_SETS
+            config["maxPrimaryOutcomes"], NimbusExperiment.MAX_PRIMARY_OUTCOMES
         )
 
     def test_paused_experiment_returns_date(self):

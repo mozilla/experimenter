@@ -59,9 +59,6 @@ class NimbusExperiment(NimbusConstants, models.Model):
     )
     projects = models.ManyToManyField(Project, blank=True)
     hypothesis = models.TextField(default=NimbusConstants.HYPOTHESIS_DEFAULT)
-    probe_sets = models.ManyToManyField(
-        "NimbusProbeSet", through="NimbusExperimentProbeSets"
-    )
     primary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
     secondary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
     feature_config = models.ForeignKey(
@@ -145,22 +142,6 @@ class NimbusExperiment(NimbusConstants, models.Model):
         if self.reference_branch:
             branches = branches.exclude(id=self.reference_branch.id)
         return list(branches)
-
-    @property
-    def primary_probe_sets(self):
-        return (
-            self.probe_sets.filter(nimbusexperimentprobesets__is_primary=True)
-            .order_by("id")
-            .all()
-        )
-
-    @property
-    def secondary_probe_sets(self):
-        return (
-            self.probe_sets.filter(nimbusexperimentprobesets__is_primary=False)
-            .order_by("id")
-            .all()
-        )
 
     @property
     def start_date(self):
@@ -403,51 +384,6 @@ class NimbusFeatureConfig(models.Model):
 
     def __str__(self):  # pragma: no cover
         return self.name
-
-
-class NimbusProbe(models.Model):
-    kind = models.CharField(max_length=255, choices=NimbusConstants.ProbeKind.choices)
-    name = models.CharField(max_length=255, unique=True, null=False)
-    event_category = models.CharField(max_length=255)
-    event_method = models.CharField(max_length=255, blank=True, null=True)
-    event_object = models.CharField(max_length=255, blank=True, null=True)
-    event_value = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        verbose_name = "Nimbus Probe"
-        verbose_name_plural = "Nimbus Probes"
-
-    def __str__(self):  # pragma: no cover
-        return self.name
-
-
-class NimbusProbeSet(models.Model):
-    name = models.CharField(max_length=255, unique=True, null=False)
-    slug = models.SlugField(
-        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, null=False
-    )
-    probes = models.ManyToManyField(NimbusProbe)
-
-    class Meta:
-        verbose_name = "Nimbus Probe Set"
-        verbose_name_plural = "Nimbus Probe Sets"
-
-    def __str__(self):  # pragma: no cover
-        return self.name
-
-
-class NimbusExperimentProbeSets(models.Model):
-    experiment = models.ForeignKey(
-        NimbusExperiment,
-        on_delete=models.CASCADE,
-    )
-    probe_set = models.ForeignKey(NimbusProbeSet, on_delete=models.CASCADE)
-    is_primary = models.BooleanField(null=False)
-
-    class Meta:
-        verbose_name = "Nimbus Experiment Probe Set"
-        verbose_name_plural = "Nimbus Experiment Probe Sets"
-        unique_together = ["experiment", "probe_set"]
 
 
 class NimbusChangeLog(models.Model):

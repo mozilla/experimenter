@@ -19,7 +19,6 @@ from experimenter.experiments.models.nimbus import (
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
-    NimbusProbeSetFactory,
 )
 from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
@@ -628,112 +627,6 @@ class TestNimbusExperimentBranchMixin(TestCase):
 
 
 @mock_valid_outcomes
-class TestNimbusExperimentProbeSetMixin(TestCase):
-    def setUp(self):
-        Outcomes.clear_cache()
-
-    def test_serializer_updates_probe_sets_on_experiment(self):
-        user = UserFactory()
-        experiment = NimbusExperimentFactory(probe_sets=[])
-        primary_probe_set_slugs = [
-            NimbusProbeSetFactory().slug
-            for i in range(NimbusExperiment.MAX_PRIMARY_PROBE_SETS)
-        ]
-        secondary_probe_set_slugs = [NimbusProbeSetFactory().slug for i in range(3)]
-
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            {
-                "primary_probe_set_slugs": primary_probe_set_slugs,
-                "secondary_probe_set_slugs": secondary_probe_set_slugs,
-            },
-            context={"user": user},
-        )
-
-        self.assertEqual(experiment.changes.count(), 0)
-        self.assertTrue(serializer.is_valid())
-        experiment = serializer.save()
-        self.assertEqual(experiment.changes.count(), 1)
-
-        self.assertEqual(
-            set(primary_probe_set_slugs) | set(secondary_probe_set_slugs),
-            set(experiment.probe_sets.all().values_list("slug", flat=True)),
-        )
-        self.assertEqual(
-            set([p.slug for p in experiment.primary_probe_sets]),
-            set(primary_probe_set_slugs),
-        )
-        self.assertEqual(
-            set([p.slug for p in experiment.secondary_probe_sets]),
-            set(secondary_probe_set_slugs),
-        )
-
-    def test_serializer_rejects_duplicate_probes(self):
-        user = UserFactory()
-        experiment = NimbusExperimentFactory(probe_sets=[])
-        probe_sets = [NimbusProbeSetFactory() for i in range(3)]
-
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            {
-                "primary_probe_set_slugs": [
-                    p.slug for p in probe_sets[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
-                ],
-                "secondary_probe_set_slugs": [p.slug for p in probe_sets],
-            },
-            context={"user": user},
-        )
-
-        self.assertEqual(experiment.changes.count(), 0)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(experiment.changes.count(), 0)
-        self.assertEqual(
-            serializer.errors["primary_probe_set_slugs"][0],
-            "Primary probe sets cannot overlap with secondary probe sets.",
-        )
-
-    def test_serializer_rejects_too_many_primary_probe_sets(self):
-        user = UserFactory()
-        experiment = NimbusExperimentFactory(probe_sets=[])
-        probe_sets = [NimbusProbeSetFactory() for i in range(3)]
-
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            {
-                "primary_probe_set_slugs": [p.slug for p in probe_sets],
-                "secondary_probe_set_slugs": [],
-            },
-            context={"user": user},
-        )
-
-        self.assertEqual(experiment.changes.count(), 0)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(experiment.changes.count(), 0)
-        self.assertIn(
-            "Exceeded maximum primary probe set limit of",
-            serializer.errors["primary_probe_set_slugs"][0],
-        )
-
-    def test_does_not_delete_probesets_when_other_fields_specified(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
-        )
-        probesets_count = experiment.probe_sets.count()
-
-        serializer = NimbusExperimentSerializer(
-            instance=experiment,
-            data={"name": "new name"},
-            context={"user": UserFactory()},
-        )
-        self.assertTrue(serializer.is_valid())
-        serializer.save()
-
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.probe_sets.count(), probesets_count)
-        self.assertEqual(experiment.name, "new name")
-
-
-@mock_valid_outcomes
 class TestNimbusExperimentSerializer(TestCase):
     maxDiff = None
 
@@ -776,8 +669,6 @@ class TestNimbusExperimentSerializer(TestCase):
             "public_description": "",
             "feature_config": None,
             "treatment_branches": [],
-            "primary_probe_set_slugs": [],
-            "secondary_probe_set_slugs": [],
             "primary_outcomes": [],
             "secondary_outcomes": [],
             "channel": NimbusExperiment.Channel.NO_CHANNEL,
@@ -804,8 +695,6 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.public_description, "")
         self.assertEqual(experiment.feature_config, None)
         self.assertEqual(experiment.treatment_branches, [])
-        self.assertEqual(experiment.primary_probe_sets.count(), 0)
-        self.assertEqual(experiment.secondary_probe_sets.count(), 0)
         self.assertEqual(experiment.primary_outcomes, [])
         self.assertEqual(experiment.secondary_outcomes, [])
         self.assertEqual(experiment.channel, NimbusExperiment.Channel.NO_CHANNEL)
@@ -1155,8 +1044,8 @@ class TestNimbusExperimentSerializer(TestCase):
         outcomes = [
             o.slug for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
         ]
-        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
-        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_PROBE_SETS :]
+        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_OUTCOMES]
+        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_OUTCOMES :]
 
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1203,8 +1092,8 @@ class TestNimbusExperimentSerializer(TestCase):
         outcomes = [
             o.slug for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
         ]
-        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
-        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_PROBE_SETS :]
+        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_OUTCOMES]
+        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_OUTCOMES :]
 
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1229,7 +1118,7 @@ class TestNimbusExperimentSerializer(TestCase):
         outcomes = [
             o.slug
             for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)[
-                : NimbusExperiment.MAX_PRIMARY_PROBE_SETS
+                : NimbusExperiment.MAX_PRIMARY_OUTCOMES
             ]
         ]
 

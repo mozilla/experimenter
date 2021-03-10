@@ -154,10 +154,6 @@ class NimbusConstants(object):
         FIREFOX_99 = "99.!"
         FIREFOX_100 = "100.!"
 
-    class ProbeKind(models.TextChoices):
-        EVENT = "event"
-        SCALAR = "scalar"
-
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
 
@@ -212,7 +208,7 @@ We believe this because we have observed <this> via <data source, UR, survey>.
 Optional - We believe this outcome will <describe impact> on <core metric>
     """  # noqa
 
-    MAX_PRIMARY_PROBE_SETS = 2
+    MAX_PRIMARY_OUTCOMES = 2
     DEFAULT_PROPOSED_DURATION = 28
     DEFAULT_PROPOSED_ENROLLMENT = 7
 

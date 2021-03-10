@@ -1395,63 +1395,6 @@
         ]
       }
     },
-    "/api/v6/probesets/": {
-      "get": {
-        "operationId": "listNimbusProbeSets",
-        "description": "",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/NimbusProbeSet"
-                  }
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "Nimbus: Public"
-        ]
-      }
-    },
-    "/api/v6/probesets/{slug}/": {
-      "get": {
-        "operationId": "retrieveNimbusProbeSet",
-        "description": "",
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NimbusProbeSet"
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "Nimbus: Public"
-        ]
-      }
-    },
     "/api/v2/experiments/{slug}/intent-to-ship-email": {
       "put": {
         "operationId": "updateExperiment",
@@ -2966,11 +2909,12 @@
               "count"
             ]
           },
-          "outcomes": {
-            "type": "string",
-            "readOnly": true
-          },
           "probeSets": {
+            "type": "string",
+            "readOnly": true,
+            "default": []
+          },
+          "outcomes": {
             "type": "string",
             "readOnly": true
           },
@@ -3034,68 +2978,6 @@
           "branches",
           "startDate",
           "endDate"
-        ]
-      },
-      "NimbusProbeSet": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 255
-          },
-          "slug": {
-            "type": "string",
-            "maxLength": 80,
-            "pattern": "^[-a-zA-Z0-9_]+$"
-          },
-          "probes": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "kind": {
-                  "enum": [
-                    "event",
-                    "scalar"
-                  ],
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string",
-                  "maxLength": 255
-                },
-                "event_category": {
-                  "type": "string",
-                  "maxLength": 255
-                },
-                "event_method": {
-                  "type": "string",
-                  "nullable": true,
-                  "maxLength": 255
-                },
-                "event_object": {
-                  "type": "string",
-                  "nullable": true,
-                  "maxLength": 255
-                },
-                "event_value": {
-                  "type": "string",
-                  "nullable": true,
-                  "maxLength": 255
-                }
-              },
-              "required": [
-                "kind",
-                "name",
-                "event_category"
-              ]
-            }
-          }
-        },
-        "required": [
-          "name",
-          "slug",
-          "probes"
         ]
       },
       "ExperimentClone": {

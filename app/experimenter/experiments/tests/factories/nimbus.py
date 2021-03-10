@@ -19,8 +19,6 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
-    NimbusProbe,
-    NimbusProbeSet,
 )
 from experimenter.experiments.models.nimbus import NimbusChangeLog
 from experimenter.openidc.tests.factories import UserFactory
@@ -73,26 +71,6 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusExperiment
-
-    @factory.post_generation
-    def probe_sets(self, create, extracted, **kwargs):
-        is_primary = kwargs.pop("is_primary", True)
-        if not create:
-            # Simple build, do nothing.
-            return
-
-        if isinstance(extracted, Iterable):
-            # A list of groups were passed in, use them
-            for probe_set in extracted:
-                self.probe_sets.add(
-                    probe_set, through_defaults={"is_primary": is_primary}
-                )
-        else:
-            for i in range(3):
-                self.probe_sets.add(
-                    NimbusProbeSetFactory.create(),
-                    through_defaults={"is_primary": is_primary},
-                )
 
     @factory.post_generation
     def projects(self, create, extracted, **kwargs):
@@ -248,45 +226,6 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusFeatureConfig
-
-
-class NimbusProbeFactory(factory.django.DjangoModelFactory):
-    kind = factory.LazyAttribute(
-        lambda o: random.choice(list(NimbusConstants.ProbeKind)).value
-    )
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    event_category = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))
-    event_method = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))
-    event_object = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))
-    event_value = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))
-
-    class Meta:
-        model = NimbusProbe
-
-
-class NimbusProbeSetFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    slug = factory.LazyAttribute(
-        lambda o: slugify(o.name)[: NimbusConstants.MAX_SLUG_LEN]
-    )
-
-    class Meta:
-        model = NimbusProbeSet
-
-    @factory.post_generation
-    def probes(self, create, extracted, **kwargs):
-        if not create:
-            # Simple build, do nothing.
-            return
-
-        if not extracted:
-            for i in range(3):
-                self.probes.add(NimbusProbeFactory.create())
-
-        if extracted:
-            # A list of groups were passed in, use them
-            for probe in extracted:
-                self.probes.add(probe)
 
 
 class NimbusChangeLogFactory(factory.django.DjangoModelFactory):
