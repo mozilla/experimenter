@@ -5,7 +5,7 @@
 import React from "react";
 import { Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
-import { useConfig } from "../../../hooks";
+import { useConfig, useOutcomes } from "../../../hooks";
 import { ReactComponent as ExternalIcon } from "../../../images/external.svg";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import LinkExternal from "../../LinkExternal";
@@ -23,6 +23,7 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
     application,
     documentationLink: configDocumentationLinks,
   } = useConfig();
+  const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
   return (
     <Table bordered data-testid="table-summary" className="mb-4">
@@ -109,22 +110,22 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
             </td>
           </tr>
         )}
-        {experiment.primaryProbeSets?.length !== 0 && (
+        {primaryOutcomes.length > 0 && (
           <tr>
-            <th>Primary probe sets</th>
-            <td data-testid="experiment-probe-primary">
-              {experiment
-                .primaryProbeSets!.map((probeSet) => probeSet?.name)
+            <th>Primary outcomes</th>
+            <td data-testid="experiment-outcome-primary">
+              {primaryOutcomes
+                .map((outcome) => outcome?.friendlyName)
                 .join(", ")}
             </td>
           </tr>
         )}
-        {experiment.secondaryProbeSets?.length !== 0 && (
+        {secondaryOutcomes.length > 0 && (
           <tr>
-            <th>Secondary probe sets</th>
-            <td data-testid="experiment-probe-secondary">
-              {experiment
-                .secondaryProbeSets!.map((probeSet) => probeSet?.name)
+            <th>Secondary outcomes</th>
+            <td data-testid="experiment-outcome-secondary">
+              {secondaryOutcomes
+                .map((outcome) => outcome?.friendlyName)
                 .join(", ")}
             </td>
           </tr>

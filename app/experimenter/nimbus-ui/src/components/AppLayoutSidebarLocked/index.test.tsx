@@ -11,13 +11,12 @@ import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockAnalysis } from "../../lib/visualization/mocks";
 import { AnalysisData } from "../../lib/visualization/types";
-import {
-  getExperiment_experimentBySlug_primaryProbeSets,
-  getExperiment_experimentBySlug_secondaryProbeSets,
-} from "../../types/getExperiment";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
-const { mock } = mockExperimentQuery("my-special-slug/design");
+const { mock, experiment: defaultExperiment } = mockExperimentQuery(
+  "my-special-slug/design",
+);
 const navLinkSelector = ".navbar a";
 
 const Subject = ({
@@ -25,20 +24,14 @@ const Subject = ({
   withAnalysis = false,
   analysisError,
   analysisLoadingInSidebar = false,
-  primaryProbeSets = null,
-  secondaryProbeSets = null,
+  experiment = defaultExperiment,
 }: RouteComponentProps & {
   status?: NimbusExperimentStatus;
   withAnalysis?: boolean;
   analysis?: AnalysisData;
   analysisError?: boolean;
   analysisLoadingInSidebar?: boolean;
-  primaryProbeSets?:
-    | (getExperiment_experimentBySlug_primaryProbeSets | null)[]
-    | null;
-  secondaryProbeSets?:
-    | (getExperiment_experimentBySlug_secondaryProbeSets | null)[]
-    | null;
+  experiment?: getExperiment_experimentBySlug;
 }) => (
   <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
     <AppLayoutSidebarLocked
@@ -56,8 +49,7 @@ const Subject = ({
               other_metrics: mockAnalysis().other_metrics,
             }
           : undefined,
-        primaryProbeSets,
-        secondaryProbeSets,
+        experiment,
       }}
     >
       <p data-testid="test-child">Hello, world!</p>
@@ -139,13 +131,7 @@ describe("AppLayoutSidebarLocked", () => {
 
     it("when complete has expected results page items in side bar", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
-      render(
-        <Subject
-          primaryProbeSets={experiment.primaryProbeSets}
-          secondaryProbeSets={experiment.secondaryProbeSets}
-          withAnalysis
-        />,
-      );
+      render(<Subject withAnalysis {...{ experiment }} />);
       [
         "Monitoring",
         "Overview",
