@@ -7,12 +7,7 @@ import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import Select from "react-select";
 import ReactTooltip from "react-tooltip";
-import {
-  useCommonForm,
-  useConfig,
-  useExitWarning,
-  useOutcomes,
-} from "../../../hooks";
+import { useCommonForm, useExitWarning, useOutcomes } from "../../../hooks";
 import { SelectOption } from "../../../hooks/useCommonForm/useCommonFormMethods";
 import { ReactComponent as Info } from "../../../images/info.svg";
 import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
@@ -47,8 +42,11 @@ const FormMetrics = ({
   setSubmitErrors,
   onSave,
 }: FormMetricsProps) => {
-  const { outcomes: configOutcomes } = useConfig();
-  const defaultOutcomes = useOutcomes(experiment!);
+  const {
+    primaryOutcomes: defaultPrimary,
+    secondaryOutcomes: defaultSecondary,
+    available: availableOutcomes,
+  } = useOutcomes(experiment!);
 
   // We must alter primary outcome options when a secondary set is selected
   // to exclude the set from primary outcome options and vice versa
@@ -68,7 +66,7 @@ const FormMetrics = ({
   const secondaryOutcomeOptions: SelectOption[] = [];
 
   // Get primary/secondary options from server-supplied array of outcomes
-  configOutcomes?.forEach((outcome) => {
+  availableOutcomes?.forEach((outcome) => {
     if (!secondaryOutcomes.includes(outcome!.slug as string)) {
       primaryOutcomeOptions.push(outcomeOption(outcome!));
     }
@@ -78,10 +76,8 @@ const FormMetrics = ({
   });
 
   const defaultValues = {
-    primaryOutcomes: defaultOutcomes.primaryOutcomes.map((outcome) =>
-      outcomeOption(outcome!),
-    ),
-    secondaryOutcomes: defaultOutcomes.secondaryOutcomes.map((outcome) =>
+    primaryOutcomes: defaultPrimary.map((outcome) => outcomeOption(outcome!)),
+    secondaryOutcomes: defaultSecondary.map((outcome) =>
       outcomeOption(outcome!),
     ),
   };
