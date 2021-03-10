@@ -149,6 +149,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       label: "Engineering Ticket (Bugzilla/Jira/Github)",
     },
   ],
+  maxPrimaryOutcomes: 2,
 };
 
 // Disabling this rule for now because we'll eventually

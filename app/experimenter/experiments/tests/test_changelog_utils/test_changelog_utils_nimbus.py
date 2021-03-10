@@ -5,10 +5,7 @@ from experimenter.experiments.changelog_utils import (
     generate_nimbus_changelog,
 )
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.tests.factories import (
-    NimbusExperimentFactory,
-    NimbusProbeSetFactory,
-)
+from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
@@ -43,7 +40,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "name": "",
                 "owner": owner.email,
                 "population_percent": "0.0000",
-                "probe_sets": [],
                 "primary_outcomes": [],
                 "secondary_outcomes": [],
                 "projects": [],
@@ -59,7 +55,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
 
     def test_outputs_expected_schema_for_complete_experiment(self):
         application = NimbusExperiment.Application.DESKTOP
-        probe_set = NimbusProbeSetFactory.create()
         feature_config = NimbusFeatureConfigFactory.create()
         project = ProjectFactory.create()
         primary_outcome = Outcomes.by_application(application)[0].slug
@@ -68,7 +63,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.COMPLETE,
             application=application,
-            probe_sets=[probe_set],
             feature_config=feature_config,
             projects=[project],
             primary_outcomes=[primary_outcome],
@@ -98,7 +92,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "name": experiment.name,
                 "owner": experiment.owner.email,
                 "population_percent": str(experiment.population_percent),
-                "probe_sets": [probe_set.slug],
                 "primary_outcomes": [primary_outcome],
                 "secondary_outcomes": [secondary_outcome],
                 "projects": [project.slug],

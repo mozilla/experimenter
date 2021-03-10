@@ -7,8 +7,6 @@ from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBucketRange,
     NimbusExperiment,
-    NimbusProbe,
-    NimbusProbeSet,
 )
 
 
@@ -63,7 +61,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     isEnrollmentPaused = serializers.ReadOnlyField(source="is_paused")
     bucketConfig = NimbusBucketRangeSerializer(source="bucket_range")
-    probeSets = serializers.SerializerMethodField()
+    probeSets = serializers.ReadOnlyField(default=[])
     outcomes = serializers.SerializerMethodField()
     branches = NimbusBranchSerializer(many=True)
     startDate = serializers.DateTimeField(source="start_date")
@@ -88,8 +86,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "userFacingDescription",
             "isEnrollmentPaused",
             "bucketConfig",
-            "outcomes",
             "probeSets",
+            "outcomes",
             "branches",
             "targeting",
             "startDate",
@@ -113,9 +111,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             return ""
         return str(obj.application)
 
-    def get_probeSets(self, obj):
-        return list(obj.probe_sets.all().order_by("slug").values_list("slug", flat=True))
-
     def get_outcomes(self, obj):
         prioritized_outcomes = (
             ("primary", obj.primary_outcomes),
@@ -135,24 +130,3 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         if obj.feature_config:
             return [obj.feature_config.slug]
         return []
-
-
-class NimbusProbeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = NimbusProbe
-        fields = (
-            "kind",
-            "name",
-            "event_category",
-            "event_method",
-            "event_object",
-            "event_value",
-        )
-
-
-class NimbusProbeSetSerializer(serializers.ModelSerializer):
-    probes = NimbusProbeSerializer(many=True)
-
-    class Meta:
-        model = NimbusProbeSet
-        fields = ("name", "slug", "probes")

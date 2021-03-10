@@ -12,7 +12,6 @@ from experimenter.experiments.models.nimbus import (
     NimbusBranch,
     NimbusDocumentationLink,
     NimbusFeatureConfig,
-    NimbusProbeSet,
 )
 from experimenter.kinto.tasks import nimbus_synchronize_preview_experiments_in_kinto
 from experimenter.outcomes import Outcomes
@@ -176,63 +175,6 @@ class NimbusExperimentBranchMixin:
         return experiment
 
 
-class NimbusExperimentProbeSetMixin:
-    def validate_primary_probe_set_slugs(self, value):
-        if len(value) > NimbusExperiment.MAX_PRIMARY_PROBE_SETS:
-            raise serializers.ValidationError(
-                "Exceeded maximum primary probe set limit of "
-                f"{NimbusExperiment.MAX_PRIMARY_PROBE_SETS}."
-            )
-        return value
-
-    def validate(self, data):
-        """Validate the probe sets don't overlap and have no more than the max
-        number of primary probesets.
-
-        Note that the default DRF validation ensures all the probe id's are valid and
-        it will not save overlapping probesets. It does not however throw an error with
-        overlapping probesets, so that is checked explicitly here.
-
-        """
-        data = super().validate(data)
-        primary_probe_set_slugs = set(data.get("primary_probe_set_slugs", []))
-        secondary_probe_set_slugs = set(data.get("secondary_probe_set_slugs", []))
-        if primary_probe_set_slugs.intersection(secondary_probe_set_slugs):
-            raise serializers.ValidationError(
-                {
-                    "primary_probe_set_slugs": (
-                        "Primary probe sets cannot overlap with secondary probe sets."
-                    )
-                }
-            )
-        return data
-
-    def update(self, experiment, data):
-        with transaction.atomic():
-            if set(data.keys()).intersection(
-                {"primary_probe_set_slugs", "secondary_probe_set_slugs"}
-            ):
-                experiment.probe_sets.clear()
-
-            primary_probe_set_slugs = data.pop("primary_probe_set_slugs", [])
-            secondary_probe_set_slugs = data.pop("secondary_probe_set_slugs", [])
-            experiment = super().update(experiment, data)
-
-            if primary_probe_set_slugs:
-                for probe_set in primary_probe_set_slugs:
-                    experiment.probe_sets.add(
-                        probe_set, through_defaults={"is_primary": True}
-                    )
-
-            if secondary_probe_set_slugs:
-                for probe_set in secondary_probe_set_slugs:
-                    experiment.probe_sets.add(
-                        probe_set, through_defaults={"is_primary": False}
-                    )
-
-        return experiment
-
-
 class NimbusStatusRestrictionMixin:
     ALLOWS_STATUS_CHANGE_ONLY = (NimbusExperiment.Status.PREVIEW,)
     ALLOWS_UPDATE = (NimbusExperiment.Status.DRAFT,)
@@ -316,7 +258,6 @@ class NimbusExperimentDocumentationLinkMixin:
 class NimbusExperimentSerializer(
     NimbusExperimentBranchMixin,
     NimbusExperimentDocumentationLinkMixin,
-    NimbusExperimentProbeSetMixin,
     NimbusStatusRestrictionMixin,
     serializers.ModelSerializer,
 ):
@@ -344,18 +285,6 @@ class NimbusExperimentSerializer(
         allow_null=True,
         required=False,
     )
-    primary_probe_set_slugs = serializers.SlugRelatedField(
-        many=True,
-        queryset=NimbusProbeSet.objects.all(),
-        required=False,
-        slug_field="slug",
-    )
-    secondary_probe_set_slugs = serializers.SlugRelatedField(
-        many=True,
-        queryset=NimbusProbeSet.objects.all(),
-        required=False,
-        slug_field="slug",
-    )
     primary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
     )
@@ -380,8 +309,6 @@ class NimbusExperimentSerializer(
             "feature_config",
             "reference_branch",
             "treatment_branches",
-            "primary_probe_set_slugs",
-            "secondary_probe_set_slugs",
             "primary_outcomes",
             "secondary_outcomes",
             "channel",
@@ -439,10 +366,10 @@ class NimbusExperimentSerializer(
     def validate_primary_outcomes(self, value):
         value_set = set(value)
 
-        if len(value) > NimbusExperiment.MAX_PRIMARY_PROBE_SETS:
+        if len(value) > NimbusExperiment.MAX_PRIMARY_OUTCOMES:
             raise serializers.ValidationError(
                 "Exceeded maximum primary outcome limit of "
-                f"{NimbusExperiment.MAX_PRIMARY_PROBE_SETS}."
+                f"{NimbusExperiment.MAX_PRIMARY_OUTCOMES}."
             )
 
         valid_outcomes = set(

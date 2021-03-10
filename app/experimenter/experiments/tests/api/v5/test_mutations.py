@@ -9,7 +9,6 @@ from experimenter.experiments.models.nimbus import NimbusExperiment, NimbusFeatu
 from experimenter.experiments.tests.factories.nimbus import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
-    NimbusProbeSetFactory,
 )
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
@@ -310,59 +309,6 @@ class TestMutations(GraphQLTestCase):
             {"feature_config": ['Invalid pk "2" - object does not exist.']},
         )
 
-    def test_update_experiment_probe_sets(self):
-        user_email = "user@example.com"
-        probe_sets = [NimbusProbeSetFactory() for i in range(3)]
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT, probe_sets=[]
-        )
-        response = self.query(
-            UPDATE_EXPERIMENT_MUTATION,
-            variables={
-                "input": {
-                    "id": experiment.id,
-                    "primaryProbeSetSlugs": [p.slug for p in probe_sets[:2]],
-                    "secondaryProbeSetSlugs": [p.slug for p in probe_sets[2:]],
-                }
-            },
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-
-        experiment = NimbusExperiment.objects.get(slug=experiment.slug)
-        self.assertEqual(set(experiment.probe_sets.all()), set(probe_sets))
-        # These must be compared as lists to ensure ordering is retained.
-        self.assertEqual(list(experiment.primary_probe_sets), probe_sets[:2])
-        self.assertEqual(list(experiment.secondary_probe_sets), probe_sets[2:])
-
-    def test_update_experiment_probe_sets_error(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT, probe_sets=[]
-        )
-        response = self.query(
-            UPDATE_EXPERIMENT_MUTATION,
-            variables={
-                "input": {
-                    "id": experiment.id,
-                    "primaryProbeSetSlugs": ["my-lovely-slug"],
-                    "secondaryProbeSetSlugs": [],
-                }
-            },
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        result = content["data"]["updateExperiment"]
-        self.assertEqual(
-            result["message"],
-            {
-                "primary_probe_set_slugs": [
-                    "Object with slug=my-lovely-slug does not exist."
-                ]
-            },
-        )
-
     def test_update_experiment_outcomes(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(
@@ -374,8 +320,8 @@ class TestMutations(GraphQLTestCase):
         outcomes = [
             o.slug for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
         ]
-        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
-        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_PROBE_SETS :]
+        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_OUTCOMES]
+        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_OUTCOMES :]
 
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,

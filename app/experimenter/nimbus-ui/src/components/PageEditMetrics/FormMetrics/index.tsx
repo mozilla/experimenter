@@ -7,7 +7,12 @@ import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import Select from "react-select";
 import ReactTooltip from "react-tooltip";
-import { useCommonForm, useExitWarning, useOutcomes } from "../../../hooks";
+import {
+  useCommonForm,
+  useConfig,
+  useExitWarning,
+  useOutcomes,
+} from "../../../hooks";
 import { SelectOption } from "../../../hooks/useCommonForm/useCommonFormMethods";
 import { ReactComponent as Info } from "../../../images/info.svg";
 import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
@@ -47,6 +52,7 @@ const FormMetrics = ({
     secondaryOutcomes: defaultSecondary,
     available: availableOutcomes,
   } = useOutcomes(experiment!);
+  const { maxPrimaryOutcomes } = useConfig();
 
   // We must alter primary outcome options when a secondary set is selected
   // to exclude the set from primary outcome options and vice versa
@@ -148,7 +154,7 @@ const FormMetrics = ({
           isMulti
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
-          isOptionDisabled={() => primaryOutcomes.length >= 2}
+          isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this

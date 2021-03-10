@@ -7,10 +7,7 @@ from django.urls import reverse
 from parameterized import parameterized
 
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.tests.factories import (
-    NimbusExperimentFactory,
-    NimbusProbeSetFactory,
-)
+from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.visualization.tests.api.constants import TestConstants
 
 
@@ -29,9 +26,9 @@ class TestVisualizationView(TestCase):
         user_email = "user@example.com"
 
         mock_exists.return_value = False
-        probe_set = NimbusProbeSetFactory.create()
+        primary_outcome = "outcome"
         experiment = NimbusExperimentFactory.create_with_status(
-            target_status=status, probe_sets=[probe_set]
+            target_status=status, primary_outcomes=[primary_outcome]
         )
 
         response = self.client.get(
@@ -52,8 +49,8 @@ class TestVisualizationView(TestCase):
             json_data,
         )
 
-    def add_probe_set_data(
-        self, data, formatted_data_with_pop, formatted_data_without_pop, primary_probe_set
+    def add_outcome_data(
+        self, data, formatted_data_with_pop, formatted_data_without_pop, primary_outcome
     ):
         range_data = {
             "point": 4,
@@ -61,7 +58,7 @@ class TestVisualizationView(TestCase):
             "lower": 2,
         }
         branches = ["control", "variant"]
-        primary_metric = f"{primary_probe_set.slug}_ever_used"
+        primary_metric = f"{primary_outcome}_ever_used"
 
         for branch in branches:
             formatted_data_with_pop[branch]["branch_data"][primary_metric] = {
@@ -92,16 +89,16 @@ class TestVisualizationView(TestCase):
                 }
             )
 
-    def add_all_probe_set_data(
+    def add_all_outcome_data(
         self,
         data,
         formatted_data_with_pop,
         formatted_data_without_pop,
-        primary_probe_sets,
+        primary_outcomes,
     ):
-        for probe_set in primary_probe_sets:
-            self.add_probe_set_data(
-                data, formatted_data_with_pop, formatted_data_without_pop, probe_set
+        for primary_outcome in primary_outcomes:
+            self.add_outcome_data(
+                data, formatted_data_with_pop, formatted_data_without_pop, primary_outcome
             )
 
     @parameterized.expand(
@@ -144,21 +141,19 @@ class TestVisualizationView(TestCase):
 
         mock_open.side_effect = open_file
         mock_exists.return_value = True
-        primary_probe_set = NimbusProbeSetFactory.create()
+        primary_outcome = "primary_outcome"
+        secondary_outcome = "secondary_outcome"
         experiment = NimbusExperimentFactory.create_with_status(
-            target_status=status, probe_sets=[primary_probe_set]
+            target_status=status,
+            primary_outcomes=[primary_outcome],
+            secondary_outcomes=[secondary_outcome],
         )
 
-        experiment.probe_sets.add(
-            NimbusProbeSetFactory.create(),
-            through_defaults={"is_primary": False},
-        )
-
-        self.add_all_probe_set_data(
+        self.add_all_outcome_data(
             DATA_WITHOUT_POPULATION_PERCENTAGE,
             FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
             FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
-            experiment.primary_probe_sets,
+            experiment.primary_outcomes,
         )
 
         response = self.client.get(

@@ -5,13 +5,8 @@ from experimenter.experiments.api.v5.types import (
     NimbusFeatureConfigType,
     NimbusLabelValueType,
     NimbusOutcomeType,
-    NimbusProbeSetType,
 )
-from experimenter.experiments.models.nimbus import (
-    NimbusExperiment,
-    NimbusFeatureConfig,
-    NimbusProbeSet,
-)
+from experimenter.experiments.models.nimbus import NimbusExperiment, NimbusFeatureConfig
 from experimenter.outcomes import Outcomes
 
 
@@ -25,11 +20,10 @@ class NimbusConfigurationType(graphene.ObjectType):
     channel = graphene.List(NimbusLabelValueType)
     feature_config = graphene.List(NimbusFeatureConfigType)
     firefox_min_version = graphene.List(NimbusLabelValueType)
-    probe_sets = graphene.List(NimbusProbeSetType)
     outcomes = graphene.List(NimbusOutcomeType)
     targeting_config_slug = graphene.List(NimbusLabelValueType)
     hypothesis_default = graphene.String()
-    max_primary_probe_sets = graphene.Int()
+    max_primary_outcomes = graphene.Int()
     documentation_link = graphene.List(NimbusLabelValueType)
 
     def _text_choices_to_label_value_list(root, text_choices):
@@ -53,9 +47,6 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_firefox_min_version(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Version)
 
-    def resolve_probe_sets(root, info):
-        return NimbusProbeSet.objects.all()
-
     def resolve_outcomes(root, info):
         return Outcomes.all()
 
@@ -65,8 +56,8 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_hypothesis_default(root, info):
         return NimbusExperiment.HYPOTHESIS_DEFAULT
 
-    def resolve_max_primary_probe_sets(root, info):
-        return NimbusExperiment.MAX_PRIMARY_PROBE_SETS
+    def resolve_max_primary_outcomes(root, info):
+        return NimbusExperiment.MAX_PRIMARY_OUTCOMES
 
     def resolve_documentation_link(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.DocumentationLink)
