@@ -4,6 +4,7 @@
 
 import React from "react";
 import { useOutcomes } from "../../../hooks";
+import { OutcomesList } from "../../../lib/types";
 import {
   METRICS_TIPS,
   METRIC_TYPE,
@@ -26,8 +27,8 @@ const getResultMetrics = (outcomes: OutcomesList) => {
   const resultsMetricsList = [...RESULTS_METRICS_LIST];
   outcomes?.forEach((outcome) => {
     resultsMetricsList.unshift({
-      value: `${outcome.slug}_ever_used`,
-      name: `${outcome.friendlyName} Conversion`,
+      value: `${outcome!.slug}_ever_used`,
+      name: `${outcome!.friendlyName} Conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
       type: METRIC_TYPE.PRIMARY,
     });

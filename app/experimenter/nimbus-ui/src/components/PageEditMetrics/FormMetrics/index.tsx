@@ -79,10 +79,10 @@ const FormMetrics = ({
 
   const defaultValues = {
     primaryOutcomes: defaultOutcomes.primaryOutcomes.map((outcome) =>
-      outcomeOption(outcome),
+      outcomeOption(outcome!),
     ),
     secondaryOutcomes: defaultOutcomes.secondaryOutcomes.map((outcome) =>
-      outcomeOption(outcome),
+      outcomeOption(outcome!),
     ),
   };
 

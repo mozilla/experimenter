@@ -6,7 +6,3 @@
 
 type DateTime = string;
 type ObjectField = Record<string, any> | string;
-
-type OutcomeSlugs = (string | null)[] | null;
-type Outcome = getConfig_nimbusConfig_outcomes | null | undefined;
-type OutcomesList = Outcome[];

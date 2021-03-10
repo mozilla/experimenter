@@ -38,7 +38,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
         // For testing - users will be redirected if the analysis is unavailable
         // before reaching this return, but tests reach this return and
         // analysis.overall is expected to be an object (EXP-800)
-        if (analysisUnavailable(analysis)) return <></>;
+        if (analysisUnavailable(analysis)) return;
 
         const slugUnderscored = experiment.slug.replace(/-/g, "_");
         return (

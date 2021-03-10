@@ -18,6 +18,7 @@ import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
+import { OutcomeSlugs } from "../../lib/types";
 import FormMetrics from "./FormMetrics";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");

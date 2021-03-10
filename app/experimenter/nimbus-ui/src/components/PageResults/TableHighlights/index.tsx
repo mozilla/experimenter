@@ -4,6 +4,7 @@
 
 import React from "react";
 import { useOutcomes } from "../../../hooks";
+import { OutcomesList } from "../../../lib/types";
 import {
   BRANCH_COMPARISON,
   HIGHLIGHTS_METRICS_LIST,
@@ -34,8 +35,8 @@ const getHighlightMetrics = (outcomes: OutcomesList) => {
   const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
   outcomes?.forEach((outcome) => {
     highlightMetricsList.unshift({
-      value: `${outcome.slug}_ever_used`,
-      name: `${outcome.friendlyName} conversion`,
+      value: `${outcome!.slug}_ever_used`,
+      name: `${outcome!.friendlyName} conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
     });
   });

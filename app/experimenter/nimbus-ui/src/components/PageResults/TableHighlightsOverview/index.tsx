@@ -43,7 +43,7 @@ const TableHighlightsOverview = ({
             <h3 className="h6">Outcomes</h3>
             {primaryOutcomes.length > 0 &&
               primaryOutcomes.map((outcome) => (
-                <div key={outcome.slug!}>{outcome?.friendlyName}</div>
+                <div key={outcome!.slug!}>{outcome?.friendlyName}</div>
               ))}
           </td>
           <td>

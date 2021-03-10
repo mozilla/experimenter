@@ -10,6 +10,7 @@ import { useOutcomes } from "../../hooks";
 import { ReactComponent as Airplane } from "../../images/airplane.svg";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { StatusCheck } from "../../lib/experiment";
+import { OutcomesList } from "../../lib/types";
 import { AnalysisData, MetadataPoint } from "../../lib/visualization/types";
 import { analysisAvailable } from "../../lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";

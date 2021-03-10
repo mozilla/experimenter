@@ -39,6 +39,7 @@ import {
   NimbusFeatureConfigApplication,
 } from "../types/globalTypes";
 import { getStatus } from "./experiment";
+import { OutcomesList, OutcomeSlugs } from "./types";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;
