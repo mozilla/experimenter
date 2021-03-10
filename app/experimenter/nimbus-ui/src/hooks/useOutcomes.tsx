@@ -8,7 +8,11 @@ import { useConfig } from "./useConfig";
 
 export function useOutcomes(
   experiment: getExperiment_experimentBySlug,
-): { primaryOutcomes: OutcomesList; secondaryOutcomes: OutcomesList } {
+): {
+  primaryOutcomes: OutcomesList;
+  secondaryOutcomes: OutcomesList;
+  available: OutcomesList;
+} {
   const { outcomes } = useConfig();
 
   const pairOutcomes = (slugs: OutcomeSlugs) => {
@@ -21,8 +25,14 @@ export function useOutcomes(
       .filter((outcome) => outcome != null);
   };
 
+  const available =
+    outcomes?.filter(
+      (outcome) => outcome?.application === experiment.application,
+    ) || [];
+
   return {
     primaryOutcomes: pairOutcomes(experiment.primaryOutcomes),
     secondaryOutcomes: pairOutcomes(experiment.secondaryOutcomes),
+    available,
   };
 }

@@ -10,7 +10,9 @@ import {
   MockedCache,
   mockExperimentQuery,
   mockOutcomeSets,
+  MOCK_CONFIG,
 } from "../lib/mocks";
+import { NimbusExperimentApplication } from "../types/globalTypes";
 
 describe("hooks/useOutcomes", () => {
   it("matches experiment outcome slugs to available configuration outcomes", () => {
@@ -55,6 +57,30 @@ describe("hooks/useOutcomes", () => {
 
     expect(result.current.primaryOutcomes).toStrictEqual([]);
     expect(result.current.secondaryOutcomes).toStrictEqual([]);
+  });
+
+  it("returns an array of outcomes that are eligible for that experiment based on application", () => {
+    const { mock, experiment } = mockExperimentQuery("howdy", {
+      application: NimbusExperimentApplication.FENIX,
+    });
+    const { result } = renderHook(() => useOutcomes(experiment), {
+      wrapper,
+      initialProps: { mocks: [mock] },
+    });
+
+    expect(result.current.available).not.toContain(
+      expect.arrayContaining(
+        MOCK_CONFIG.outcomes!.filter(
+          (outcome) =>
+            outcome?.application === NimbusExperimentApplication.DESKTOP,
+        ),
+      ),
+    );
+    expect(result.current.available).toEqual(
+      MOCK_CONFIG.outcomes!.filter(
+        (outcome) => outcome?.application === NimbusExperimentApplication.FENIX,
+      ),
+    );
   });
 });
 
