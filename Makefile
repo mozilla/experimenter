@@ -52,7 +52,7 @@ secretkey:
 
 jetstream_config:
 	git submodule init
-	git submodule update
+	git submodule update --remote
 
 build_dev: jetstream_config
 	docker build --target dev -f app/Dockerfile -t app:dev app/
