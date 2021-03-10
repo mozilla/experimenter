@@ -5,15 +5,9 @@ from django.test import TestCase
 from mozilla_nimbus_shared import check_schema
 from parameterized import parameterized
 
-from experimenter.experiments.api.v6.serializers import (
-    NimbusExperimentSerializer,
-    NimbusProbeSetSerializer,
-)
+from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.tests.factories import (
-    NimbusExperimentFactory,
-    NimbusProbeSetFactory,
-)
+from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.experiments.tests.factories.nimbus import NimbusBranchFactory
 
 
@@ -21,14 +15,12 @@ class TestNimbusExperimentSerializer(TestCase):
     maxDiff = None
 
     def test_serializer_outputs_expected_schema_with_feature(self):
-        probe_set = NimbusProbeSetFactory.create()
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.COMPLETE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             channel=NimbusExperiment.Channel.NIGHTLY,
-            probe_sets=[probe_set],
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
         )
@@ -64,7 +56,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 ),
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,
-                "probeSets": [probe_set.slug],
+                "probeSets": [],
                 "outcomes": [
                     {"priority": "primary", "slug": "foo"},
                     {"priority": "primary", "slug": "bar"},
@@ -251,32 +243,3 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["targeting"], "true")
         check_schema("experiments/NimbusExperiment", serializer.data)
-
-
-class TestNimbusProbeSetSerializer(TestCase):
-    def test_outputs_expected_schema(self):
-        probeset = NimbusProbeSetFactory()
-
-        probeset_data = dict(NimbusProbeSetSerializer(probeset).data)
-        probes_data = [dict(p) for p in probeset_data.pop("probes")]
-
-        self.assertEqual(
-            probeset_data,
-            {
-                "name": probeset.name,
-                "slug": probeset.slug,
-            },
-        )
-        self.assertEqual(len(probes_data), probeset.probes.count())
-        for probe in probeset.probes.all():
-            self.assertIn(
-                {
-                    "name": probe.name,
-                    "kind": probe.kind,
-                    "event_category": probe.event_category,
-                    "event_method": probe.event_method,
-                    "event_object": probe.event_object,
-                    "event_value": probe.event_value,
-                },
-                probes_data,
-            )

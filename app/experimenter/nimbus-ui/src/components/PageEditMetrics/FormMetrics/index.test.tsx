@@ -159,7 +159,7 @@ describe("FormMetrics", () => {
     });
   });
 
-  it("allows maximum 2 primary outcomes", async () => {
+  it("allows maximum primary outcomes", async () => {
     const { experiment } = mockExperimentQuery("boo", {
       primaryOutcomes: [],
       secondaryOutcomes: [],

@@ -6,10 +6,7 @@ from experimenter.experiments.models import (
     NimbusChangeLog,
     NimbusDocumentationLink,
     NimbusExperiment,
-    NimbusExperimentProbeSets,
     NimbusFeatureConfig,
-    NimbusProbe,
-    NimbusProbeSet,
 )
 
 
@@ -57,16 +54,10 @@ class NimbusExperimentAdminForm(forms.ModelForm):
         exclude = ("id",)
 
 
-class NimbusProbeSetInlineAdmin(admin.TabularInline):
-    model = NimbusExperimentProbeSets
-    extra = 0
-
-
 class NimbusExperimentAdmin(admin.ModelAdmin):
     inlines = (
         NimbusDocumentationLinkInlineAdmin,
         NimbusBranchInlineAdmin,
-        NimbusProbeSetInlineAdmin,
         NimbusExperimentChangeLogInlineAdmin,
     )
     list_display = ("name", "status", "application", "channel", "firefox_min_version")
@@ -82,5 +73,3 @@ class NimbusFeatureConfigAdmin(admin.ModelAdmin):
 admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
 admin.site.register(NimbusFeatureConfig, NimbusFeatureConfigAdmin)
 admin.site.register(NimbusDocumentationLink)
-admin.site.register(NimbusProbe)
-admin.site.register(NimbusProbeSet)
