@@ -5,6 +5,7 @@
 import { RouteComponentProps } from "@reach/router";
 import React from "react";
 import { useConfig } from "../../hooks";
+import { HIGHLIGHTS_METRICS_LIST } from "../../lib/visualization/constants";
 import { analysisUnavailable } from "../../lib/visualization/utils";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
@@ -14,6 +15,7 @@ import TableHighlightsOverview from "./TableHighlightsOverview";
 import TableMetricPrimary from "./TableMetricPrimary";
 import TableMetricSecondary from "./TableMetricSecondary";
 import TableResults from "./TableResults";
+import TableResultsWeekly from "./TableResultsWeekly";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { outcomes: configOutcomes } = useConfig();
@@ -59,16 +61,29 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             </p>
             <h3 className="h6">Hypothesis</h3>
             <p>{experiment.hypothesis}</p>
-            <TableHighlights results={analysis!} {...{ experiment }} />
+            {analysis?.overall && (
+              <TableHighlights results={analysis!} {...{ experiment }} />
+            )}
             <TableHighlightsOverview
               {...{ experiment }}
               results={analysis?.overall!}
             />
 
-            <h2 className="h5 mb-3" id="results-summary">
-              Results Summary
-            </h2>
-            <TableResults {...{ experiment }} results={analysis!} />
+            <div id="results-summary">
+              <h2 className="h5 mb-3">Results Summary</h2>
+              {analysis?.overall && (
+                <TableResults {...{ experiment }} results={analysis!} />
+              )}
+
+              {analysis?.weekly && (
+                <TableResultsWeekly
+                  weeklyResults={analysis.weekly}
+                  hasOverallResults={!!analysis?.overall}
+                  metricsList={HIGHLIGHTS_METRICS_LIST}
+                />
+              )}
+            </div>
+
             <div>
               {experiment.primaryOutcomes?.map((slug) => {
                 const outcome = configOutcomes!.find((set) => {
