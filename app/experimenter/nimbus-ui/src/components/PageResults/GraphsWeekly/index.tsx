@@ -17,8 +17,8 @@ import {
 import { ReactComponent as CollapseMinus } from "./minus.svg";
 import { ReactComponent as ExpandPlus } from "./plus.svg";
 
-const getGraphID = (probeSetSlug: string, branchComparison: string) =>
-  `${probeSetSlug}_${branchComparison}_graph`;
+const getGraphID = (outcomeSlug: string, branchComparison: string) =>
+  `${outcomeSlug}_${branchComparison}_graph`;
 
 /**
  * We should only graph if there are at least 2 weeks of data
@@ -28,17 +28,17 @@ const getGraphID = (probeSetSlug: string, branchComparison: string) =>
  * isn't enough data
  */
 const getMergedBranchData = (
-  probeSetSlug: string,
+  outcomeSlug: string,
   weeklyResults: { [branch: string]: BranchDescription },
 ) => {
   const mergedBranchData: { [graphID: string]: FormattedAnalysisPoint[] } = {};
   let maxWeeks = 0;
   Object.keys(weeklyResults).forEach((branch: string) => {
-    if (probeSetSlug in weeklyResults[branch].branch_data) {
+    if (outcomeSlug in weeklyResults[branch].branch_data) {
       Object.values(BRANCH_COMPARISON).forEach((branchComparison) => {
-        const graphID = getGraphID(probeSetSlug, branchComparison);
+        const graphID = getGraphID(outcomeSlug, branchComparison);
         const branchData =
-          weeklyResults[branch].branch_data[probeSetSlug][branchComparison].all;
+          weeklyResults[branch].branch_data[outcomeSlug][branchComparison].all;
         branchData.forEach((dataPoint: FormattedAnalysisPoint) => {
           dataPoint["branch"] = branch;
           const weekIndex: number =
@@ -57,16 +57,16 @@ const getMergedBranchData = (
 };
 
 const embedGraphs = (
-  probeSetSlug: string,
-  probeSetName: string,
+  outcomeSlug: string,
+  outcomeName: string,
   mergedBranchData: { [graphID: string]: FormattedAnalysisPoint[] },
 ) => {
   let branchComparisonKey: keyof typeof BRANCH_COMPARISON;
   for (branchComparisonKey in BRANCH_COMPARISON) {
     const branchComparison = BRANCH_COMPARISON[branchComparisonKey];
-    const graphID = getGraphID(probeSetSlug, branchComparison);
+    const graphID = getGraphID(outcomeSlug, branchComparison);
     const branchComparisonTitle = BRANCH_COMPARISON_TITLE[branchComparisonKey];
-    const title = `Mean ${probeSetName} Per User (${branchComparisonTitle})`;
+    const title = `Mean ${outcomeName} Per User (${branchComparisonTitle})`;
     const mergedBranchComparisonData =
       graphID in mergedBranchData ? mergedBranchData[graphID] : [];
 
@@ -82,17 +82,17 @@ const embedGraphs = (
 
 type GraphsWeeklyProps = {
   weeklyResults: AnalysisDataWeekly;
-  probeSetSlug: string;
-  probeSetName: string;
+  outcomeSlug: string;
+  outcomeName: string;
 };
 
 const GraphsWeekly = ({
   weeklyResults = {},
-  probeSetSlug,
-  probeSetName,
+  outcomeSlug,
+  outcomeName,
 }: GraphsWeeklyProps) => {
-  const mergedBranchData = getMergedBranchData(probeSetSlug, weeklyResults);
-  embedGraphs(probeSetSlug, probeSetName, mergedBranchData);
+  const mergedBranchData = getMergedBranchData(outcomeSlug, weeklyResults);
+  embedGraphs(outcomeSlug, outcomeName, mergedBranchData);
 
   const [open, setOpen] = useState(false);
   const graphsVisibleClass = !open ? "d-none" : "";
@@ -115,10 +115,10 @@ const GraphsWeekly = ({
           </span>
           <Collapse in={open}>
             <div id="graphs">
-              <div id={`${probeSetSlug}_absolute_graph`} className="w-100" />
-              <div id={`${probeSetSlug}_difference_graph`} className="w-100" />
+              <div id={`${outcomeSlug}_absolute_graph`} className="w-100" />
+              <div id={`${outcomeSlug}_difference_graph`} className="w-100" />
               <div
-                id={`${probeSetSlug}_relative_uplift_graph`}
+                id={`${outcomeSlug}_relative_uplift_graph`}
                 className="w-100"
               />
             </div>

@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { useOutcomes } from "../../../hooks";
+import { OutcomesList } from "../../../lib/types";
 import {
   METRICS_TIPS,
   METRIC_TYPE,
@@ -11,24 +13,22 @@ import {
 } from "../../../lib/visualization/constants";
 import { AnalysisData } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
-import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
+import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 import TooltipWithMarkdown from "../TooltipWithMarkdown";
 
 type TableResultsProps = {
-  primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
+  experiment: getExperiment_experimentBySlug;
   results: AnalysisData;
 };
 
-const getResultMetrics = (
-  probeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[],
-) => {
+const getResultMetrics = (outcomes: OutcomesList) => {
   // Make a copy of `RESULTS_METRICS_LIST` since we modify it.
   const resultsMetricsList = [...RESULTS_METRICS_LIST];
-  probeSets.forEach((probeSet) => {
+  outcomes?.forEach((outcome) => {
     resultsMetricsList.unshift({
-      value: `${probeSet!.slug}_ever_used`,
-      name: `${probeSet!.name} Conversion`,
+      value: `${outcome!.slug}_ever_used`,
+      name: `${outcome!.friendlyName} Conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
       type: METRIC_TYPE.PRIMARY,
     });
@@ -38,16 +38,17 @@ const getResultMetrics = (
 };
 
 const TableResults = ({
-  primaryProbeSets,
+  experiment,
   results = {
     daily: [],
     weekly: {},
     overall: {},
-    metadata: { metrics: {}, probesets: {} },
+    metadata: { metrics: {}, outcomes: {} },
     show_analysis: false,
   },
 }: TableResultsProps) => {
-  const resultsMetricsList = getResultMetrics(primaryProbeSets);
+  const { primaryOutcomes } = useOutcomes(experiment);
+  const resultsMetricsList = getResultMetrics(primaryOutcomes);
   const overallResults = results?.overall!;
 
   return (
@@ -60,7 +61,7 @@ const TableResults = ({
           <th scope="col" className="border-bottom-0 bg-light" />
           {resultsMetricsList.map((metric, index) => {
             const badgeClass = `badge ${metric.type?.badge}`;
-            const probeSetDescription =
+            const outcomeDescription =
               results.metadata?.metrics[metric.value]?.description ||
               metric.tooltip;
 
@@ -75,7 +76,7 @@ const TableResults = ({
                 </h3>
                 <TooltipWithMarkdown
                   tooltipId={metric.value}
-                  markdown={probeSetDescription}
+                  markdown={outcomeDescription}
                 />
                 {metric.type && (
                   <span className={badgeClass} data-tip={metric.type.tooltip}>

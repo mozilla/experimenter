@@ -18,8 +18,8 @@ storiesOf("pages/EditMetrics/FormMetrics", module)
     <Subject
       submitErrors={{
         "*": ["Big bad server thing broke!"],
-        primary_probe_set_slugs: ["You primary probed the wrong bear."],
-        secondary_probe_set_slugs: ["You secondary probed the wrong bear."],
+        primary_outcomes: ["Your primary outcomes stink."],
+        secondary_outcomes: ["Your secondary outcomes stink."],
       }}
       {...{ onSave, onNext }}
     />

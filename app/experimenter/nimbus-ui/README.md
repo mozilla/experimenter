@@ -19,9 +19,9 @@ Usage is simple:
 ```ts
 import useConfig from "./hooks/useConfig";
 
-// channels and probesets come from GraphQL, sentry_dsn
+// channels and outcomes come from GraphQL, sentry_dsn
 // comes from initial template-rendered config
-const { channels, probeSets, sentry_dsn } = useConfig();
+const { channels, outcomes, sentry_dsn } = useConfig();
 ```
 
 The query for GraphQL config is performed inside the `<App>` component, which makes it immediately available (no need to check for loading) in any child components.

@@ -12,40 +12,21 @@ import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 storiesOf("pages/Results/TableResults", module)
   .addDecorator(withLinks)
-  .add("basic, with one primary probe set", () => {
+  .add("basic, with one primary outcome", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis()}
-        />
+        <TableResults {...{ experiment }} results={mockAnalysis()} />
       </RouterSlugProvider>
     );
   })
-  .add("with multiple primary probe sets", () => {
+  .add("with multiple primary outcomes", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      primaryProbeSets: [
-        {
-          slug: "picture_in_picture",
-          name: "Picture-in-Picture",
-        },
-        {
-          slug: "feature_b",
-          name: "Feature B",
-        },
-        {
-          slug: "feature_c",
-          name: "Feature C",
-        },
-      ],
+      primaryOutcomes: ["picture_in_picture", "feature_b", "feature_c"],
     });
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis()}
-        />
+        <TableResults {...{ experiment }} results={mockAnalysis()} />
       </RouterSlugProvider>
     );
   });

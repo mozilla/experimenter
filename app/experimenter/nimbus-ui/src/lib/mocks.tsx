@@ -34,10 +34,12 @@ import {
 import {
   ExperimentInput,
   NimbusDocumentationLinkTitle,
+  NimbusExperimentApplication,
   NimbusExperimentStatus,
   NimbusFeatureConfigApplication,
 } from "../types/globalTypes";
 import { getStatus } from "./experiment";
+import { OutcomesList, OutcomeSlugs } from "./types";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;
@@ -100,18 +102,24 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "FIREFOX_83",
     },
   ],
-  probeSets: [
+  outcomes: [
     {
-      name: "Probe Set A",
-      slug: "probe-set-a",
+      friendlyName: "Picture-in-Picture",
+      slug: "picture_in_picture",
+      application: NimbusExperimentApplication.DESKTOP,
+      description: "foo",
     },
     {
-      name: "Probe Set B",
-      slug: "probe-set-b",
+      friendlyName: "Feature B",
+      slug: "feature_b",
+      application: NimbusExperimentApplication.FENIX,
+      description: "bar",
     },
     {
-      name: "Probe Set C",
-      slug: "probe-set-c",
+      friendlyName: "Feature C",
+      slug: "feature_c",
+      application: NimbusExperimentApplication.DESKTOP,
+      description: "baz",
     },
   ],
   targetingConfigSlug: [
@@ -269,18 +277,8 @@ export function mockExperiment<
           featureEnabled: true,
         },
       ],
-      primaryProbeSets: [
-        {
-          slug: "picture_in_picture",
-          name: "Picture-in-Picture",
-        },
-      ],
-      secondaryProbeSets: [
-        {
-          slug: "feature_b",
-          name: "Feature B",
-        },
-      ],
+      primaryOutcomes: ["picture_in_picture"],
+      secondaryOutcomes: ["feature_b"],
       channel: "NIGHTLY",
       firefoxMinVersion: "FIREFOX_83",
       targetingConfigSlug: "US_ONLY",
@@ -471,5 +469,27 @@ export function mockDirectoryExperimentsQuery(
     result: {
       data: experiments.length ? { experiments } : null,
     },
+  };
+}
+
+// Basically the same as useOutcomes, but uses the mocked config values
+export function mockOutcomeSets(
+  experiment: getExperiment_experimentBySlug,
+): { primaryOutcomes: OutcomesList; secondaryOutcomes: OutcomesList } {
+  const { outcomes } = MOCK_CONFIG;
+
+  const pairOutcomes = (slugs: OutcomeSlugs) => {
+    if (!slugs || !outcomes) {
+      return [];
+    }
+
+    return slugs
+      .map((slug) => outcomes!.find((outcome) => outcome!.slug === slug))
+      .filter((outcome) => outcome != null);
+  };
+
+  return {
+    primaryOutcomes: pairOutcomes(experiment.primaryOutcomes),
+    secondaryOutcomes: pairOutcomes(experiment.secondaryOutcomes),
   };
 }

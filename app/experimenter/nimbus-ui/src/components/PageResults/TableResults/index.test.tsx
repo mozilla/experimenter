@@ -18,10 +18,7 @@ describe("TableResults", () => {
   it("renders correct headings", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis()}
-        />
+        <TableResults {...{ experiment }} results={mockAnalysis()} />
       </RouterSlugProvider>,
     );
     const EXPECTED_HEADINGS = [
@@ -40,10 +37,7 @@ describe("TableResults", () => {
   it("renders the expected variant and user count", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis()}
-        />
+        <TableResults {...{ experiment }} results={mockAnalysis()} />
       </RouterSlugProvider>,
     );
 
@@ -55,10 +49,7 @@ describe("TableResults", () => {
   it("renders correctly labelled result significance", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockAnalysis()}
-        />
+        <TableResults {...{ experiment }} results={mockAnalysis()} />
       </RouterSlugProvider>,
     );
 
@@ -70,10 +61,7 @@ describe("TableResults", () => {
   it("renders missing retention with warning", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults
-          primaryProbeSets={experiment.primaryProbeSets!}
-          results={mockIncompleteAnalysis()}
-        />
+        <TableResults {...{ experiment }} results={mockIncompleteAnalysis()} />
       </RouterSlugProvider>,
     );
 

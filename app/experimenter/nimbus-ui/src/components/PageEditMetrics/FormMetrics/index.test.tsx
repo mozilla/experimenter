@@ -2,11 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import React from "react";
-import { PRIMARY_PROBE_SETS_TOOLTIP, SECONDARY_PROBE_SETS_TOOLTIP } from ".";
+import { PRIMARY_OUTCOMES_TOOLTIP, SECONDARY_OUTCOMES_TOOLTIP } from ".";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
 import { Subject } from "./mocks";
+
+const outcomeNames = MOCK_CONFIG.outcomes!.map(
+  (outcome) => outcome!.friendlyName,
+) as string[];
 
 describe("FormMetrics", () => {
   it("renders as expected", async () => {
@@ -15,13 +25,13 @@ describe("FormMetrics", () => {
       expect(screen.getByTestId("FormMetrics")).toBeInTheDocument(),
     );
 
-    expect(screen.getByTestId("tooltip-primary-probe-sets")).toHaveAttribute(
+    expect(screen.getByTestId("tooltip-primary-outcomes")).toHaveAttribute(
       "data-tip",
-      PRIMARY_PROBE_SETS_TOOLTIP,
+      PRIMARY_OUTCOMES_TOOLTIP,
     );
-    expect(screen.getByTestId("tooltip-secondary-probe-sets")).toHaveAttribute(
+    expect(screen.getByTestId("tooltip-secondary-outcomes")).toHaveAttribute(
       "data-tip",
-      SECONDARY_PROBE_SETS_TOOLTIP,
+      SECONDARY_OUTCOMES_TOOLTIP,
     );
   });
 
@@ -63,116 +73,116 @@ describe("FormMetrics", () => {
     expect(submitButton).toHaveTextContent("Saving");
   });
 
-  it("displays saved primary probe sets", async () => {
-    const { experiment } = mockExperimentQuery("boo", {
-      primaryProbeSets: [MOCK_CONFIG.probeSets![0]],
-    });
+  it("displays saved primary outcomes", async () => {
+    const { experiment } = mockExperimentQuery("boo");
 
     render(<Subject {...{ experiment }} />);
 
-    const primaryProbeSets = screen.getByTestId("primary-probe-sets");
-    expect(primaryProbeSets).toHaveTextContent("Probe Set A");
+    const primaryOutcomes = screen.getByTestId("primary-outcomes");
+    expect(primaryOutcomes).toHaveTextContent(
+      MOCK_CONFIG.outcomes![0]!.friendlyName!,
+    );
   });
 
-  it("displays saved secondary probe sets", async () => {
-    const { experiment } = mockExperimentQuery("boo", {
-      secondaryProbeSets: [MOCK_CONFIG.probeSets![0]],
-    });
+  it("displays saved secondary outcomes", async () => {
+    const { experiment } = mockExperimentQuery("boo");
     render(<Subject {...{ experiment }} />);
 
-    const secondaryProbeSets = screen.getByTestId("secondary-probe-sets");
-    expect(secondaryProbeSets).toHaveTextContent("Probe Set A");
+    const secondaryOutcomes = screen.getByTestId("secondary-outcomes");
+    expect(secondaryOutcomes).toHaveTextContent(
+      MOCK_CONFIG.outcomes![1]!.friendlyName!,
+    );
   });
 
-  it("selects a primary probe set and excludes it from secondary probe sets", async () => {
+  it("selects a primary outcome and excludes it from secondary outcomes", async () => {
     const { experiment } = mockExperimentQuery("boo", {
-      primaryProbeSets: [],
-      secondaryProbeSets: [],
+      primaryOutcomes: [],
+      secondaryOutcomes: [],
     });
 
     render(<Subject {...{ experiment }} />);
-    const primaryProbeSets = screen.getByTestId("primary-probe-sets");
-    const secondaryProbeSets = screen.getByTestId("secondary-probe-sets");
+    const primaryOutcomes = screen.getByTestId("primary-outcomes");
+    const secondaryOutcomes = screen.getByTestId("secondary-outcomes");
 
-    fireEvent.keyDown(primaryProbeSets.children[1], { key: "ArrowDown" });
-    await act(async () => {
-      expect(primaryProbeSets).toHaveTextContent("Probe Set A");
-      expect(primaryProbeSets).toHaveTextContent("Probe Set B");
-      expect(primaryProbeSets).toHaveTextContent("Probe Set C");
+    fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
+    await waitFor(async () => {
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[0]);
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[1]);
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[2]);
     });
 
-    fireEvent.click(screen.getByText("Probe Set A"));
-    await act(async () => {
-      expect(primaryProbeSets).toHaveTextContent("Probe Set A");
-      expect(primaryProbeSets).not.toHaveTextContent("Probe Set B");
-      expect(primaryProbeSets).not.toHaveTextContent("Probe Set C");
+    fireEvent.click(screen.getByText(outcomeNames[0]));
+    await waitFor(async () => {
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[0]);
+      expect(primaryOutcomes).not.toHaveTextContent(outcomeNames[1]);
+      expect(primaryOutcomes).not.toHaveTextContent(outcomeNames[2]);
     });
 
-    fireEvent.keyDown(secondaryProbeSets.children[1], { key: "ArrowDown" });
-    await act(async () => {
-      expect(secondaryProbeSets).not.toHaveTextContent("Probe Set A");
-      expect(secondaryProbeSets).toHaveTextContent("Probe Set B");
-      expect(secondaryProbeSets).toHaveTextContent("Probe Set C");
-    });
-  });
-
-  it("selects a secondary probe set and excludes it from primary probe sets", async () => {
-    const { experiment } = mockExperimentQuery("boo", {
-      primaryProbeSets: [],
-      secondaryProbeSets: [],
-    });
-
-    render(<Subject {...{ experiment }} />);
-
-    const primaryProbeSets = screen.getByTestId("primary-probe-sets");
-    const secondaryProbeSets = screen.getByTestId("secondary-probe-sets");
-
-    fireEvent.keyDown(secondaryProbeSets.children[1], { key: "ArrowDown" });
-    await act(async () => {
-      expect(secondaryProbeSets).toHaveTextContent("Probe Set A");
-      expect(secondaryProbeSets).toHaveTextContent("Probe Set B");
-      expect(secondaryProbeSets).toHaveTextContent("Probe Set C");
-    });
-
-    fireEvent.click(screen.getByText("Probe Set A"));
-    await act(async () => {
-      expect(secondaryProbeSets).toHaveTextContent("Probe Set A");
-      expect(secondaryProbeSets).not.toHaveTextContent("Probe Set B");
-      expect(secondaryProbeSets).not.toHaveTextContent("Probe Set C");
-    });
-
-    fireEvent.keyDown(primaryProbeSets.children[1], { key: "ArrowDown" });
-    await act(async () => {
-      expect(primaryProbeSets).not.toHaveTextContent("Probe Set A");
-      expect(primaryProbeSets).toHaveTextContent("Probe Set B");
-      expect(primaryProbeSets).toHaveTextContent("Probe Set C");
+    fireEvent.keyDown(secondaryOutcomes.children[1], { key: "ArrowDown" });
+    await waitFor(async () => {
+      expect(secondaryOutcomes).not.toHaveTextContent(outcomeNames[0]);
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[1]);
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[2]);
     });
   });
 
-  it("allows maximum 2 primary probe sets", async () => {
+  it("selects a secondary outcome and excludes it from primary outcomes", async () => {
     const { experiment } = mockExperimentQuery("boo", {
-      primaryProbeSets: [],
-      secondaryProbeSets: [],
+      primaryOutcomes: [],
+      secondaryOutcomes: [],
     });
 
     render(<Subject {...{ experiment }} />);
 
-    const primaryProbeSets = screen.getByTestId("primary-probe-sets");
+    const primaryOutcomes = screen.getByTestId("primary-outcomes");
+    const secondaryOutcomes = screen.getByTestId("secondary-outcomes");
 
-    fireEvent.keyDown(primaryProbeSets.children[1], { key: "ArrowDown" });
-    fireEvent.click(screen.getByText("Probe Set A"));
+    fireEvent.keyDown(secondaryOutcomes.children[1], { key: "ArrowDown" });
+    await waitFor(async () => {
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[0]);
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[1]);
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[2]);
+    });
 
-    fireEvent.keyDown(primaryProbeSets.children[1], { key: "ArrowDown" });
-    fireEvent.click(screen.getByText("Probe Set B"));
+    fireEvent.click(screen.getByText(outcomeNames[0]));
+    await waitFor(async () => {
+      expect(secondaryOutcomes).toHaveTextContent(outcomeNames[0]);
+      expect(secondaryOutcomes).not.toHaveTextContent(outcomeNames[1]);
+      expect(secondaryOutcomes).not.toHaveTextContent(outcomeNames[2]);
+    });
 
-    fireEvent.keyDown(primaryProbeSets.children[1], { key: "ArrowDown" });
-    fireEvent.click(screen.getByText("Probe Set C"));
-    fireEvent.keyDown(primaryProbeSets.children[1], { key: "Escape" });
+    fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
+    await waitFor(async () => {
+      expect(primaryOutcomes).not.toHaveTextContent(outcomeNames[0]);
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[1]);
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[2]);
+    });
+  });
 
-    await act(async () => {
-      expect(primaryProbeSets).toHaveTextContent("Probe Set A");
-      expect(primaryProbeSets).toHaveTextContent("Probe Set B");
-      expect(primaryProbeSets).not.toHaveTextContent("Probe Set C");
+  it("allows maximum 2 primary outcomes", async () => {
+    const { experiment } = mockExperimentQuery("boo", {
+      primaryOutcomes: [],
+      secondaryOutcomes: [],
+    });
+
+    render(<Subject {...{ experiment }} />);
+
+    const primaryOutcomes = screen.getByTestId("primary-outcomes");
+
+    fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
+    fireEvent.click(screen.getByText(outcomeNames[0]));
+
+    fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
+    fireEvent.click(screen.getByText(outcomeNames[1]));
+
+    fireEvent.keyDown(primaryOutcomes.children[1], { key: "ArrowDown" });
+    fireEvent.click(screen.getByText(outcomeNames[2]));
+    fireEvent.keyDown(primaryOutcomes.children[1], { key: "Escape" });
+
+    await waitFor(async () => {
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[0]);
+      expect(primaryOutcomes).toHaveTextContent(outcomeNames[1]);
+      expect(primaryOutcomes).not.toHaveTextContent(outcomeNames[2]);
     });
   });
 });

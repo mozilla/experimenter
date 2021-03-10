@@ -5,7 +5,7 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import TableMetricPrimary from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 
@@ -17,12 +17,13 @@ describe("TableMetricPrimary", () => {
       "Relative Improvement",
     ];
     const { mock, experiment } = mockExperimentQuery("demo-slug");
+    const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={experiment.primaryProbeSets![0]!}
+          outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -34,12 +35,13 @@ describe("TableMetricPrimary", () => {
 
   it("has correctly labelled result significance", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
+    const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={experiment.primaryProbeSets![0]!}
+          outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -54,12 +56,13 @@ describe("TableMetricPrimary", () => {
 
   it("has the expected control and treatment labels", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
+    const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={experiment.primaryProbeSets![0]!}
+          outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -70,12 +73,13 @@ describe("TableMetricPrimary", () => {
 
   it("shows the positive improvement bar", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
+    const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={experiment.primaryProbeSets![0]!}
+          outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -90,19 +94,15 @@ describe("TableMetricPrimary", () => {
 
   it("shows the negative improvement bar", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      primaryProbeSets: [
-        {
-          slug: "feature_b",
-          name: "Feature B",
-        },
-      ],
+      primaryOutcomes: ["feature_b"],
     });
+    const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={experiment.primaryProbeSets![0]!}
+          outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -117,19 +117,15 @@ describe("TableMetricPrimary", () => {
 
   it("shows the neutral improvement bar", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      primaryProbeSets: [
-        {
-          slug: "feature_c",
-          name: "Feature C",
-        },
-      ],
+      primaryOutcomes: ["feature_c"],
     });
+    const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={experiment.primaryProbeSets![0]!}
+          outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
     );

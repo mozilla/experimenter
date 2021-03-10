@@ -14,8 +14,8 @@ storiesOf("pages/Results/GraphsWeekly", module)
     return (
       <GraphsWeekly
         weeklyResults={mockAnalysis().weekly}
-        probeSetSlug="feature_d"
-        probeSetName="Feature D"
+        outcomeSlug="feature_d"
+        outcomeName="Feature D"
       />
     );
   });

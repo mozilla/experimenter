@@ -6,56 +6,50 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableMetricSecondary from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 storiesOf("pages/Results/TableMetricSecondary", module)
   .addDecorator(withLinks)
   .add("with positive secondary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      secondaryProbeSets: [
-        {
-          slug: "picture_in_picture",
-          name: "Picture-in-Picture",
-        },
-      ],
+      secondaryOutcomes: ["picture_in_picture"],
     });
+    const { secondaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
       <TableMetricSecondary
         results={mockAnalysis()}
-        probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-        probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
+        outcomeSlug={secondaryOutcomes![0]!.slug!}
+        outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         isDefault={false}
       />
     );
   })
   .add("with negative secondary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug");
+    const { secondaryOutcomes } = mockOutcomeSets(experiment);
+
     return (
       <TableMetricSecondary
         results={mockAnalysis()}
-        probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-        probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
+        outcomeSlug={secondaryOutcomes![0]!.slug!}
+        outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         isDefault={false}
       />
     );
   })
   .add("with neutral secondary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      secondaryProbeSets: [
-        {
-          slug: "feature_c",
-          name: "Feature C",
-        },
-      ],
+      secondaryOutcomes: ["feature_c"],
     });
+    const { secondaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
       <TableMetricSecondary
         results={mockAnalysis()}
-        probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
-        probeSetDefaultName={experiment.secondaryProbeSets![0]!.name}
+        outcomeSlug={secondaryOutcomes![0]!.slug!}
+        outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         isDefault={false}
       />
     );

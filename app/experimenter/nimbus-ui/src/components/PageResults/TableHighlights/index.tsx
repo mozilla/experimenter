@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { useOutcomes } from "../../../hooks";
+import { OutcomesList } from "../../../lib/types";
 import {
   BRANCH_COMPARISON,
   HIGHLIGHTS_METRICS_LIST,
@@ -14,14 +16,12 @@ import { AnalysisData } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import {
   getExperiment_experimentBySlug,
-  getExperiment_experimentBySlug_primaryProbeSets,
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type TableHighlightsProps = {
-  primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
   results: AnalysisData;
   experiment: getExperiment_experimentBySlug;
 };
@@ -30,15 +30,13 @@ type Branch =
   | getExperiment_experimentBySlug_referenceBranch
   | getExperiment_experimentBySlug_treatmentBranches;
 
-const getHighlightMetrics = (
-  probeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[],
-) => {
+const getHighlightMetrics = (outcomes: OutcomesList) => {
   // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
   const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
-  probeSets.forEach((probeSet) => {
+  outcomes?.forEach((outcome) => {
     highlightMetricsList.unshift({
-      value: `${probeSet!.slug}_ever_used`,
-      name: `${probeSet!.name} conversion`,
+      value: `${outcome!.slug}_ever_used`,
+      name: `${outcome!.friendlyName} conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
     });
   });
@@ -64,17 +62,17 @@ const getBranchDescriptions = (
 };
 
 const TableHighlights = ({
-  primaryProbeSets,
   results = {
     daily: [],
     weekly: {},
     overall: {},
-    metadata: { metrics: {}, probesets: {} },
+    metadata: { metrics: {}, outcomes: {} },
     show_analysis: false,
   },
   experiment,
 }: TableHighlightsProps) => {
-  const highlightMetricsList = getHighlightMetrics(primaryProbeSets);
+  const { primaryOutcomes } = useOutcomes(experiment);
+  const highlightMetricsList = getHighlightMetrics(primaryOutcomes);
   const branchDescriptions = getBranchDescriptions(
     experiment.referenceBranch,
     experiment.treatmentBranches,
