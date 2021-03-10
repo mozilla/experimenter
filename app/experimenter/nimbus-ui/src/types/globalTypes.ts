@@ -101,8 +101,6 @@ export interface ExperimentInput {
   documentationLinks?: (DocumentationLinkType | null)[] | null;
   referenceBranch?: ReferenceBranchType | null;
   treatmentBranches?: (TreatmentBranchType | null)[] | null;
-  primaryProbeSetSlugs?: (string | null)[] | null;
-  secondaryProbeSetSlugs?: (string | null)[] | null;
   primaryOutcomes?: (string | null)[] | null;
   secondaryOutcomes?: (string | null)[] | null;
   channel?: NimbusExperimentChannel | null;

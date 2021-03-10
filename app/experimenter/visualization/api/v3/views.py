@@ -50,7 +50,7 @@ def load_data_from_gcs(path):
     )
 
 
-def get_results_metrics_map(primary_probe_sets, secondary_probe_sets):
+def get_results_metrics_map(primary_outcomes, secondary_outcomes):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
     RESULTS_METRICS_MAP = {
@@ -60,13 +60,13 @@ def get_results_metrics_map(primary_probe_sets, secondary_probe_sets):
         Metric.USER_COUNT: set([Statistic.COUNT, Statistic.PERCENT]),
     }
     primary_metrics_set = set()
-    for probe_set in primary_probe_sets:
-        probe_set_id = f"{probe_set.slug}{PRIMARY_METRIC_SUFFIX}"
-        RESULTS_METRICS_MAP[probe_set_id] = set([Statistic.BINOMIAL])
-        primary_metrics_set.add(probe_set_id)
+    for outcome_slug in primary_outcomes:
+        metric_id = f"{outcome_slug}{PRIMARY_METRIC_SUFFIX}"
+        RESULTS_METRICS_MAP[metric_id] = set([Statistic.BINOMIAL])
+        primary_metrics_set.add(metric_id)
 
-    for probe_set in secondary_probe_sets:
-        RESULTS_METRICS_MAP[probe_set.slug] = set([Statistic.MEAN])
+    for outcome_slug in secondary_outcomes:
+        RESULTS_METRICS_MAP[outcome_slug] = set([Statistic.MEAN])
 
     return RESULTS_METRICS_MAP, primary_metrics_set
 
@@ -153,7 +153,7 @@ def generate_results_object(data, experiment, window="overall"):
     results = {}
 
     result_metrics, primary_metrics_set = get_results_metrics_map(
-        experiment.primary_probe_sets, experiment.secondary_probe_sets
+        experiment.primary_outcomes, experiment.secondary_outcomes
     )
     for row in data:
         branch = row.get("branch")

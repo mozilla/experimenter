@@ -12,8 +12,6 @@ from experimenter.experiments.models.nimbus import (
     NimbusExperiment,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
-    NimbusProbe,
-    NimbusProbeSet,
 )
 from experimenter.projects.models import Project
 
@@ -89,16 +87,6 @@ class NimbusBucketRangeType(DjangoObjectType):
         exclude = ("id", "experiment")
 
 
-class NimbusProbeType(DjangoObjectType):
-    class Meta:
-        model = NimbusProbe
-
-
-class NimbusProbeSetType(DjangoObjectType):
-    class Meta:
-        model = NimbusProbeSet
-
-
 class NimbusOutcomeType(graphene.ObjectType):
     friendly_name = graphene.String()
     slug = graphene.String()
@@ -133,8 +121,6 @@ class NimbusExperimentType(DjangoObjectType):
     treatment_branches = graphene.List(NimbusBranchType)
     targeting_config_slug = NimbusExperimentTargetingConfigSlug()
     jexl_targeting_expression = graphene.String()
-    primary_probe_sets = graphene.List(NimbusProbeSetType)
-    secondary_probe_sets = graphene.List(NimbusProbeSetType)
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)
     ready_for_review = graphene.Field(NimbusReadyForReviewType)
@@ -146,7 +132,7 @@ class NimbusExperimentType(DjangoObjectType):
 
     class Meta:
         model = NimbusExperiment
-        exclude = ("branches", "probe_sets")
+        exclude = ("branches",)
 
     def resolve_reference_branch(self, info):
         if self.reference_branch:

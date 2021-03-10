@@ -6,7 +6,6 @@ from experimenter.experiments.models import (
     NimbusChangeLog,
     NimbusExperiment,
     NimbusFeatureConfig,
-    NimbusProbeSet,
 )
 from experimenter.projects.models import Project
 
@@ -26,9 +25,6 @@ class NimbusBranchChangeLogSerializer(serializers.ModelSerializer):
 class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
     reference_branch = NimbusBranchChangeLogSerializer()
     branches = NimbusBranchChangeLogSerializer(many=True)
-    probe_sets = serializers.SlugRelatedField(
-        many=True, queryset=NimbusProbeSet.objects.all(), slug_field="slug"
-    )
     feature_config = NimbusFeatureConfigChangeLogSerializer()
     owner = serializers.SlugRelatedField(
         queryset=get_user_model().objects.all(), slug_field="email"

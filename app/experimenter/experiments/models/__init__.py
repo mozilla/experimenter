@@ -22,9 +22,6 @@ from experimenter.experiments.models.nimbus import (  # noqa: F401
     NimbusDocumentationLink,
     NimbusEmail,
     NimbusExperiment,
-    NimbusExperimentProbeSets,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
-    NimbusProbe,
-    NimbusProbeSet,
 )

@@ -51,8 +51,6 @@ class ExperimentInput(graphene.InputObjectType):
     documentation_links = graphene.List(DocumentationLinkType)
     reference_branch = graphene.Field(ReferenceBranchType)
     treatment_branches = graphene.List(TreatmentBranchType)
-    primary_probe_set_slugs = graphene.List(graphene.String)
-    secondary_probe_set_slugs = graphene.List(graphene.String)
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)
     channel = NimbusExperimentChannel()
