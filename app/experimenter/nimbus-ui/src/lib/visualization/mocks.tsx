@@ -116,117 +116,157 @@ export const TREATMENT_NEGATIVE = Object.assign({}, TREATMENT_NEUTRAL, {
   significance: "negative",
 });
 
+export const WEEKLY_CONTROL = {
+  absolute: {
+    first: {
+      point: 0.05,
+      lower: 0.024357271316207685,
+      upper: 0.08411463700173483,
+      window_index: 1,
+    },
+    all: [
+      {
+        point: 0.05,
+        lower: 0.024357271316207685,
+        upper: 0.08411463700173483,
+        window_index: 1,
+      },
+      {
+        point: 0.05,
+        lower: 0.024357271316207685,
+        upper: 0.08411463700173483,
+        window_index: 2,
+      },
+    ],
+  },
+  difference: {
+    first: {},
+    all: [],
+  },
+  relative_uplift: {
+    first: {},
+    all: [],
+  },
+};
+
+export const WEEKLY_TREATMENT = {
+  absolute: {
+    first: {
+      point: 0.049019607843137254,
+      lower: 0.023872203557007872,
+      upper: 0.08249069209461024,
+      count: 10,
+      window_index: 1,
+    },
+    all: [
+      {
+        point: 0.049019607843137254,
+        lower: 0.023872203557007872,
+        upper: 0.08249069209461024,
+        count: 10,
+        window_index: 1,
+      },
+      {
+        point: 0.06019607843137254,
+        lower: 0.023872203557007872,
+        upper: 0.08249069209461024,
+        count: 10,
+        window_index: 2,
+      },
+    ],
+  },
+  difference: {
+    first: {
+      point: -0.0006569487628876534,
+      upper: 0.04316381736512019,
+      lower: 0.04175095963994029,
+      window_index: 1,
+    },
+    all: [
+      {
+        point: -0.0006569487628876534,
+        upper: 0.04316381736512019,
+        lower: -0.04175095963994029,
+        window_index: 1,
+      },
+      {
+        point: -0.0006569487628876534,
+        upper: 0.04316381736512019,
+        lower: -0.04175095963994029,
+        window_index: 2,
+      },
+    ],
+  },
+  relative_uplift: {
+    first: {
+      lower: -0.455210299676828,
+      upper: 0.5104985718410426,
+      point: -0.06233954570562385,
+      window_index: 1,
+    },
+    all: [
+      {
+        lower: -0.455210299676828,
+        upper: 0.5104985718410426,
+        point: -0.06233954570562385,
+        window_index: 1,
+      },
+      {
+        lower: -0.455210299676828,
+        upper: 0.5104985718410426,
+        point: -0.06233954570562385,
+        window_index: 2,
+      },
+    ],
+  },
+};
+
+const WEEKLY_IDENTITY = {
+  absolute: {
+    all: [
+      {
+        point: 198,
+      },
+      {
+        point: 198,
+      },
+    ],
+    first: {
+      point: 198,
+    },
+  },
+  difference: {
+    first: {},
+    all: [],
+  },
+  relative_uplift: {
+    first: {},
+    all: [],
+  },
+  percent: 50,
+};
+
 export const weeklyMockAnalysis = (modifications = {}) =>
   Object.assign(
     {
       control: {
         is_control: true,
         branch_data: {
-          feature_d: {
-            absolute: {
-              first: {
-                point: 0.05,
-                lower: 0.024357271316207685,
-                upper: 0.08411463700173483,
-                window_index: 1,
-              },
-              all: [
-                {
-                  point: 0.05,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
-                  window_index: 1,
-                },
-                {
-                  point: 0.05,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
-                  window_index: 2,
-                },
-              ],
-            },
-            difference: {
-              first: {},
-              all: [],
-            },
-            relative_uplift: {
-              first: {},
-              all: [],
-            },
-          },
+          identity: WEEKLY_IDENTITY,
+          feature_d: WEEKLY_CONTROL,
+          retained: WEEKLY_CONTROL,
+          search_count: WEEKLY_CONTROL,
+          days_of_use: WEEKLY_CONTROL,
         },
       },
       treatment: {
         is_control: false,
         branch_data: {
-          feature_d: {
-            absolute: {
-              first: {
-                point: 0.049019607843137254,
-                lower: 0.023872203557007872,
-                upper: 0.08249069209461024,
-                window_index: 1,
-              },
-              all: [
-                {
-                  point: 0.049019607843137254,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
-                  window_index: 1,
-                },
-                {
-                  point: 0.06019607843137254,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
-                  window_index: 2,
-                },
-              ],
-            },
-            difference: {
-              first: {
-                point: -0.0006569487628876534,
-                upper: 0.04316381736512019,
-                lower: 0.04175095963994029,
-                window_index: 1,
-              },
-              all: [
-                {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: -0.04175095963994029,
-                  window_index: 1,
-                },
-                {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: -0.04175095963994029,
-                  window_index: 2,
-                },
-              ],
-            },
-            relative_uplift: {
-              first: {
-                lower: -0.455210299676828,
-                upper: 0.5104985718410426,
-                point: -0.06233954570562385,
-                window_index: 1,
-              },
-              all: [
-                {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                  window_index: 1,
-                },
-                {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                  window_index: 2,
-                },
-              ],
-            },
-          },
+          identity: WEEKLY_IDENTITY,
+          feature_d: WEEKLY_TREATMENT,
+          retained: WEEKLY_TREATMENT,
+          search_count: WEEKLY_TREATMENT,
+          days_of_use: WEEKLY_TREATMENT,
         },
       },
     },
