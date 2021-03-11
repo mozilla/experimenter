@@ -68,7 +68,10 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
         featureEnabled: false,
-        featureValue: "this is a default value",
+        featureValue: JSON.stringify({
+          newNewtabExperienceEnabled: false,
+          customizationMenuEnabled: false,
+        }),
       }}
     />
   ))
@@ -79,7 +82,10 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
         featureEnabled: true,
-        featureValue: "this is a default value",
+        featureValue: JSON.stringify({
+          newNewtabExperienceEnabled: true,
+          customizationMenuEnabled: true,
+        }),
       }}
     />
   ));

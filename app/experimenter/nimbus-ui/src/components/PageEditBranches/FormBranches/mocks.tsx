@@ -13,13 +13,27 @@ import { formBranchesActionReducer } from "./reducer/actions";
 import { FormBranchesState } from "./reducer/state";
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
+  referenceBranch: {
+    name: "User-centric mobile solution",
+    slug: "control",
+    description: "Behind almost radio result personal none future current.",
+    ratio: 1,
+    featureValue: JSON.stringify({
+      newNewtabExperienceEnabled: false,
+      customizationMenuEnabled: false,
+    }),
+    featureEnabled: true,
+  },
   treatmentBranches: [
     {
       name: "Managed zero tolerance projection",
       slug: "managed-zero-tolerance-projection",
       description: "Next ask then he in degree order.",
       ratio: 1,
-      featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
+      featureValue: JSON.stringify({
+        newNewtabExperienceEnabled: false,
+        customizationMenuEnabled: true,
+      }),
       featureEnabled: false,
     },
     {
@@ -27,7 +41,10 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       slug: "salt-way-link",
       description: "Flame the dark true.",
       ratio: 2,
-      featureValue: '{"frosted-wake": "simple-hesitation"}',
+      featureValue: JSON.stringify({
+        newNewtabExperienceEnabled: true,
+        customizationMenuEnabled: false,
+      }),
       featureEnabled: true,
     },
   ],
@@ -148,7 +165,13 @@ export const SubjectBranches = ({
   );
 };
 
-export const MOCK_BRANCH = MOCK_EXPERIMENT.treatmentBranches![0]!;
+export const MOCK_BRANCH = {
+  ...MOCK_EXPERIMENT.treatmentBranches![0]!,
+  featureValue: JSON.stringify({
+    newNewtabExerienceEnabled: false,
+    customizationMenuEnabled: true,
+  }),
+};
 export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {
   key: "branch-1",
   isValid: true,
@@ -157,4 +180,44 @@ export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {
   ...MOCK_BRANCH,
 };
 export const MOCK_FEATURE_CONFIG = MOCK_CONFIG.featureConfig![0]!;
-export const MOCK_FEATURE_CONFIG_WITH_SCHEMA = MOCK_CONFIG.featureConfig![1]!;
+export const MOCK_FEATURE_CONFIG_WITH_SCHEMA = {
+  ...MOCK_CONFIG.featureConfig![1]!,
+  schema: `{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "New Tab Schema",
+    "examples": [
+        {
+            "newNewtabExperienceEnabled": true,
+            "customizationMenuEnabled": true
+        }
+    ],
+    "required": [
+        "newNewtabExperienceEnabled",
+        "customizationMenuEnabled"
+    ],
+    "properties": {
+        "newNewtabExperienceEnabled": {
+            "$id": "#/properties/newNewtabExperienceEnabled",
+            "type": "boolean",
+            "title": "newNewtabExperienceEnabled",
+            "description": "Is the new UI enabled?",
+            "default": false,
+            "examples": [
+                true
+            ]
+        },
+        "customizationMenuEnabled": {
+            "$id": "#/properties/customizationMenuEnabled",
+            "type": "boolean",
+            "title": "customizationMenuEnabled",
+            "description": "Is the customization menu enabled?",
+            "default": false,
+            "examples": [
+                true
+            ]
+        }
+    },
+    "additionalProperties": false
+  }`,
+};

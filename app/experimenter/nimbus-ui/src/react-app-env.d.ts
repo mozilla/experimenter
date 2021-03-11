@@ -6,3 +6,5 @@
 
 type DateTime = string;
 type ObjectField = Record<string, any> | string;
+
+declare module '@json-editor/json-editor';

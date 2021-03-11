@@ -200,7 +200,7 @@ FAKER_JSON_SCHEMA = """\
     "patternProperties": {
         "^.*$": { "type": "string" }
     },
-    "additionalProperties": false
+    "additionalProperties": true
 }
 """
 
