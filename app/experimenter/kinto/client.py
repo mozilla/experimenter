@@ -15,6 +15,15 @@ class KintoClient:
             auth=(settings.KINTO_USER, settings.KINTO_PASS),
         )
         self.review = review
+        self.collection_data = None
+
+    def _fetch_collection_data(self):
+        self.collection_data = (
+            self.collection_data
+            or self.kinto_http_client.get_collection(
+                id=self.collection, bucket=settings.KINTO_BUCKET_WORKSPACE
+            )["data"]
+        )
 
     def _patch_collection(self):
         if self.review:
@@ -57,18 +66,13 @@ class KintoClient:
         self._patch_collection()
 
     def has_pending_review(self):
-        collection = self.kinto_http_client.get_collection(
-            id=self.collection, bucket=settings.KINTO_BUCKET_WORKSPACE
-        )
-        return collection["data"]["status"] == KINTO_REVIEW_STATUS
+        self._fetch_collection_data()
+        return self.collection_data["status"] == KINTO_REVIEW_STATUS
 
     def get_rejected_collection_data(self):
-        collection = self.kinto_http_client.get_collection(
-            id=self.collection, bucket=settings.KINTO_BUCKET_WORKSPACE
-        )
-
-        if collection["data"]["status"] == KINTO_REJECTED_STATUS:
-            return collection["data"]
+        self._fetch_collection_data()
+        if self.collection_data["status"] == KINTO_REJECTED_STATUS:
+            return self.collection_data
 
     def get_rejected_record(self):
         main_records = self.kinto_http_client.get_records(
