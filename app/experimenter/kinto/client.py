@@ -69,6 +69,10 @@ class KintoClient:
         self._fetch_collection_data()
         return self.collection_data["status"] == KINTO_REVIEW_STATUS
 
+    def has_rejection(self):
+        self._fetch_collection_data()
+        return self.collection_data["status"] == KINTO_REJECTED_STATUS
+
     def get_rejected_collection_data(self):
         self._fetch_collection_data()
         if self.collection_data["status"] == KINTO_REJECTED_STATUS:

@@ -78,54 +78,43 @@ def nimbus_check_kinto_push_queue():
     for application, collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.items():
         kinto_client = KintoClient(collection)
 
-        rejected_collection_data = kinto_client.get_rejected_collection_data()
-        if rejected_collection_data:
-            rejected_slug = kinto_client.get_rejected_record()
-            experiment = NimbusExperiment.objects.get(slug=rejected_slug)
-            if (
-                experiment.status == NimbusExperiment.Status.LIVE
-                and experiment.is_end_requested
-            ):
-                experiment.is_end_requested = False
-            else:
-                experiment.status = NimbusExperiment.Status.DRAFT
-
-            experiment.save()
-
-            generate_nimbus_changelog(
-                experiment,
-                get_kinto_user(),
-                message=f'Rejected: {rejected_collection_data["last_reviewer_comment"]}',
-            )
-
-            kinto_client.rollback_changes()
-
         if kinto_client.has_pending_review():
-            metrics.incr(f"check_kinto_push_queue.{collection}_pending_review")
             return
 
-        queued_experiments = NimbusExperiment.objects.filter(
-            status=NimbusExperiment.Status.REVIEW, application=application
-        )
-        end_requested_experiments = NimbusExperiment.objects.filter(
-            status=NimbusExperiment.Status.LIVE,
-            application=application,
-            is_end_requested=True,
-        )
-        if queued_experiments.exists():
-            nimbus_push_experiment_to_kinto.delay(queued_experiments.first().id)
-            metrics.incr(
-                f"check_kinto_push_queue.{collection}_queued_experiment_selected"
-            )
-        elif end_requested_experiments.exists():
-            nimbus_end_experiment_in_kinto.delay(end_requested_experiments.first().id)
-            metrics.incr(
-                f"check_kinto_push_queue.{collection}_end_requested_experiment_deleted"
-            )
-        else:
-            metrics.incr(f"check_kinto_push_queue.{collection}_no_experiments_queued")
+        if kinto_client.has_rejection():
+            handle_rejection(kinto_client)
+
+        if queued_launch_experiment := NimbusExperiment.objects.launch_queue(
+            application
+        ).first():
+            nimbus_push_experiment_to_kinto.delay(queued_launch_experiment.id)
+        elif queued_end_experiment := NimbusExperiment.objects.end_queue(
+            application
+        ).first():
+            nimbus_end_experiment_in_kinto.delay(queued_end_experiment.id)
 
     metrics.incr("check_kinto_push_queue.completed")
+
+
+def handle_rejection(kinto_client):
+    rejected_slug = kinto_client.get_rejected_record()
+    collection_data = kinto_client.get_rejected_collection_data()
+    experiment = NimbusExperiment.objects.get(slug=rejected_slug)
+
+    if experiment.status == NimbusExperiment.Status.LIVE and experiment.is_end_requested:
+        experiment.is_end_requested = False
+    else:
+        experiment.status = NimbusExperiment.Status.DRAFT
+
+    experiment.save()
+
+    generate_nimbus_changelog(
+        experiment,
+        get_kinto_user(),
+        message=f'Rejected: {collection_data["last_reviewer_comment"]}',
+    )
+
+    kinto_client.rollback_changes()
 
 
 @app.task

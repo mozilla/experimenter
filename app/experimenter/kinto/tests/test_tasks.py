@@ -226,6 +226,59 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         self.assertFalse(latest_change.experiment_data["is_end_requested"])
         self.assertEqual(latest_change.message, f"Rejected: {rejection_message}")
 
+    def test_check_can_rejection_and_still_push_changes(self):
+        experiment1 = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            is_end_requested=True,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment2 = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.REVIEW,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.mock_kinto_client.get_collection.side_effect = [
+            # Desktop responses
+            {
+                "data": {
+                    "status": KINTO_REJECTED_STATUS,
+                    "last_reviewer_comment": "can't end this yet",
+                }
+            },
+            {"data": {"status": "anything"}},
+            # Fenix responses
+            {"data": {"status": "anything"}},
+            {"data": {"status": "anything"}},
+        ]
+        self.mock_kinto_client.get_records.side_effect = [
+            # Desktop responses
+            [{"id": "another-experiment"}],
+            [
+                {"id": "another-experiment"},
+                {"id": experiment1.slug},
+            ],
+            # Fenix responses
+            [],
+            [],
+        ]
+        tasks.nimbus_check_kinto_push_queue()
+
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            data={"status": KINTO_ROLLBACK_STATUS},
+        )
+
+        self.assertTrue(
+            NimbusExperiment.objects.filter(
+                id=experiment1.id,
+                status=NimbusExperiment.Status.LIVE,
+                is_end_requested=False,
+            ).exists()
+        )
+
+        self.mock_push_task.assert_called_with(experiment2.id)
+
     def test_check_experiment_with_end_requested_and_no_kinto_pending_ends_experiment(
         self,
     ):
