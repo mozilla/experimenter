@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import { JSONEditor } from "@json-editor/json-editor";
+import React, { useCallback, useRef } from "react";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
-import { FieldError } from "react-hook-form";
+import { FieldError, useFormContext } from "react-hook-form";
 import { useCommonNestedForm } from "../../../hooks";
 import { ReactComponent as DeleteIcon } from "../../../images/x.svg";
 import { NUMBER_FIELD, REQUIRED_FIELD } from "../../../lib/constants";
@@ -79,6 +80,7 @@ export const FormBranch = ({
     errors,
     touched,
   );
+  const { setValue } = useFormContext();
 
   const featureEnabled = watch(`${fieldNamePrefix}.featureEnabled`);
 
@@ -95,6 +97,48 @@ export const FormBranch = ({
   };
 
   const handleRemoveClick = () => onRemove && onRemove();
+
+  const jsonEditor = useRef<any>();
+  const setupJsonEditor = useCallback(
+    (node: HTMLElement | null) => {
+      if (jsonEditor.current) jsonEditor.current.destroy();
+      if (
+        node !== null &&
+        experimentFeatureConfig !== null &&
+        !!experimentFeatureConfig.schema
+      ) {
+        let startval = null;
+        try {
+          startval = JSON.parse(defaultValues.featureValue);
+        } catch (err) {
+          startval = {};
+        }
+
+        let schema = null;
+        try {
+          schema = JSON.parse(experimentFeatureConfig.schema);
+        } catch (err) {
+          schema = null;
+        }
+
+        if (schema) {
+          const editor = new JSONEditor(node, {
+            theme: "bootstrap4",
+            schema,
+            startval,
+          });
+          editor.on("change", () => {
+            setValue(
+              `${fieldNamePrefix}.featureValue`,
+              JSON.stringify(editor.getValue()),
+            );
+          });
+          jsonEditor.current = editor;
+        }
+      }
+    },
+    [defaultValues, experimentFeatureConfig, setValue, fieldNamePrefix],
+  );
 
   return (
     <div
@@ -254,10 +298,10 @@ export const FormBranch = ({
                 {/* TODO: EXP-732 Maybe do some JSON schema validation here client-side? */}
                 <Form.Control
                   {...formControlAttrs("featureValue")}
-                  as="textarea"
-                  rows={4}
+                  type="hidden"
                 />
                 <FormErrors name="featureValue" />
+                <div ref={setupJsonEditor} className="json-editor"></div>
               </Form.Group>
             </Form.Row>
           ) : (
