@@ -51,8 +51,8 @@ secretkey:
 	openssl rand -hex 24
 
 jetstream_config:
-	git submodule init
-	git submodule update --remote
+	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip https://github.com/mozilla/jetstream-config/archive/main.zip
+	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/jetstream-config.zip
 
 build_dev: jetstream_config
 	docker build --target dev -f app/Dockerfile -t app:dev app/
