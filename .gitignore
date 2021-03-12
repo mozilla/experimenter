@@ -98,3 +98,6 @@ app/coverage_html_report/
 node_modules
 
 google-credentials.json
+
+# Jetstream config
+app/experimenter/outcomes/jetstream-config*

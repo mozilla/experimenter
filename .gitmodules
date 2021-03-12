@@ -1,4 +1,0 @@
-[submodule "app/experimenter/outcomes/jetstream-config"]
-	path = app/experimenter/outcomes/jetstream-config
-	url = git@github.com:mozilla/jetstream-config.git
-	branch = main
