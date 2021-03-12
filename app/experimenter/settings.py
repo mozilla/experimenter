@@ -423,5 +423,5 @@ NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").
 
 # Jetstream config paths
 JETSTREAM_CONFIG_OUTCOMES_PATH = os.path.join(
-    BASE_DIR, "outcomes", "jetstream-config", "outcomes"
+    BASE_DIR, "outcomes", "jetstream-config-main", "outcomes"
 )
