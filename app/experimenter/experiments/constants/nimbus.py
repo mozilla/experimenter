@@ -183,13 +183,16 @@ class NimbusConstants(object):
 
     class TargetingConfig(models.TextChoices):
         NO_TARGETING = ""
-        ALL_ENGLISH = TARGETING_ALL_ENGLISH.slug
-        US_ONLY = TARGETING_US_ONLY.slug
-        TARGETING_FIRST_RUN = TARGETING_FIRST_RUN.slug
+        ALL_ENGLISH = TARGETING_ALL_ENGLISH.slug, TARGETING_ALL_ENGLISH.name
+        US_ONLY = TARGETING_US_ONLY.slug, TARGETING_US_ONLY.name
+        TARGETING_FIRST_RUN = TARGETING_FIRST_RUN.slug, TARGETING_FIRST_RUN.name
         TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = (
             TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug
+        ), TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.name
+        TARGETING_HOMEPAGE_GOOGLE = (
+            TARGETING_HOMEPAGE_GOOGLE.slug,
+            TARGETING_HOMEPAGE_GOOGLE.name,
         )
-        TARGETING_HOMEPAGE_GOOGLE = TARGETING_HOMEPAGE_GOOGLE.slug
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
