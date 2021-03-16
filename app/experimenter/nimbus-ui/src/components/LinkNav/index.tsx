@@ -25,7 +25,7 @@ export const LinkNav = ({
   disabled = false,
   storiesOf,
   testid = "nav-home",
-  className,
+  className = "mx-1 my-2",
   textColor,
   title,
 }: LinkNavProps) => {
@@ -41,7 +41,7 @@ export const LinkNav = ({
   textColor = disabled ? "text-muted" : textColor;
 
   return (
-    <Nav.Item as="li" className={classNames("mx-1 my-2", className)}>
+    <Nav.Item as="li" {...{ className }}>
       {disabled ? (
         <span
           className={classNames(textColor, "d-flex align-items-center")}
