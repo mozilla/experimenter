@@ -82,49 +82,51 @@ class TestConstants:
             "control": {
                 "is_control": False,
                 "branch_data": {
-                    "identity": {
-                        "absolute": {
-                            "first": {
-                                "lower": 10,
-                                "point": 12,
-                                "upper": 13,
-                                "window_index": "1",
-                            },
-                            "all": [
-                                {
+                    "other": {
+                        "identity": {
+                            "absolute": {
+                                "first": {
                                     "lower": 10,
                                     "point": 12,
                                     "upper": 13,
                                     "window_index": "1",
-                                }
-                            ],
+                                },
+                                "all": [
+                                    {
+                                        "lower": 10,
+                                        "point": 12,
+                                        "upper": 13,
+                                        "window_index": "1",
+                                    }
+                                ],
+                            },
+                            "difference": {"all": [], "first": {}},
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {"overall": {}, "weekly": {}},
                         },
-                        "difference": {"all": [], "first": {}},
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {"overall": {}, "weekly": {}},
-                    },
-                    "retained": {
-                        "absolute": {"all": [], "first": {}},
-                        "difference": {
-                            "all": [
-                                {
+                        "retained": {
+                            "absolute": {"all": [], "first": {}},
+                            "difference": {
+                                "all": [
+                                    {
+                                        "point": 12,
+                                        "upper": 13,
+                                        "lower": -5,
+                                        "window_index": "1",
+                                    }
+                                ],
+                                "first": {
                                     "point": 12,
                                     "upper": 13,
                                     "lower": -5,
                                     "window_index": "1",
-                                }
-                            ],
-                            "first": {
-                                "point": 12,
-                                "upper": 13,
-                                "lower": -5,
-                                "window_index": "1",
+                                },
                             },
-                        },
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {
-                            "overall": {},
-                            "weekly": {"1": Significance.NEUTRAL},
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {
+                                "overall": {},
+                                "weekly": {"1": Significance.NEUTRAL},
+                            },
                         },
                     },
                 },
@@ -132,115 +134,119 @@ class TestConstants:
             "variant": {
                 "is_control": False,
                 "branch_data": {
-                    "identity": {
-                        "absolute": {
-                            "first": {
-                                "lower": 10,
-                                "point": 12,
-                                "upper": 13,
-                                "window_index": "1",
-                            },
-                            "all": [
-                                {
+                    "other": {
+                        "identity": {
+                            "absolute": {
+                                "first": {
                                     "lower": 10,
                                     "point": 12,
                                     "upper": 13,
                                     "window_index": "1",
-                                }
-                            ],
-                        },
-                        "difference": {"all": [], "first": {}},
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {"overall": {}, "weekly": {}},
-                    },
-                    "search_count": {
-                        "absolute": {"all": [], "first": {}},
-                        "difference": {
-                            "first": {
-                                "lower": 10,
-                                "point": 12,
-                                "upper": 13,
-                                "window_index": "1",
+                                },
+                                "all": [
+                                    {
+                                        "lower": 10,
+                                        "point": 12,
+                                        "upper": 13,
+                                        "window_index": "1",
+                                    }
+                                ],
                             },
-                            "all": [
-                                {
+                            "difference": {"all": [], "first": {}},
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {"overall": {}, "weekly": {}},
+                        },
+                        "some_count": {
+                            "absolute": {
+                                "first": {
                                     "lower": 10,
                                     "point": 12,
                                     "upper": 13,
                                     "window_index": "1",
-                                }
-                            ],
-                        },
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {
-                            "overall": {},
-                            "weekly": {"1": Significance.POSITIVE},
-                        },
-                    },
-                    "some_count": {
-                        "absolute": {
-                            "first": {
-                                "lower": 10,
-                                "point": 12,
-                                "upper": 13,
-                                "window_index": "1",
+                                },
+                                "all": [
+                                    {
+                                        "lower": 10,
+                                        "point": 12,
+                                        "upper": 13,
+                                        "window_index": "1",
+                                    }
+                                ],
                             },
-                            "all": [
-                                {
+                            "difference": {"all": [], "first": {}},
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {"overall": {}, "weekly": {}},
+                        },
+                        "another_count": {
+                            "absolute": {
+                                "first": {
                                     "lower": 10,
                                     "point": 12,
                                     "upper": 13,
                                     "window_index": "1",
-                                }
-                            ],
-                        },
-                        "difference": {"all": [], "first": {}},
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {"overall": {}, "weekly": {}},
-                    },
-                    "another_count": {
-                        "absolute": {
-                            "first": {
-                                "lower": 10,
-                                "point": 12,
-                                "upper": 13,
-                                "window_index": "1",
+                                },
+                                "all": [
+                                    {
+                                        "lower": 10,
+                                        "point": 12,
+                                        "upper": 13,
+                                        "window_index": "1",
+                                    }
+                                ],
                             },
-                            "all": [
-                                {
-                                    "lower": 10,
-                                    "point": 12,
-                                    "upper": 13,
-                                    "window_index": "1",
-                                }
-                            ],
+                            "difference": {"all": [], "first": {}},
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {"overall": {}, "weekly": {}},
                         },
-                        "difference": {"all": [], "first": {}},
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {"overall": {}, "weekly": {}},
-                    },
-                    "retained": {
-                        "absolute": {"all": [], "first": {}},
-                        "difference": {
-                            "first": {
-                                "point": -2,
-                                "upper": -1,
-                                "lower": -5,
-                                "window_index": "1",
-                            },
-                            "all": [
-                                {
+                        "retained": {
+                            "absolute": {"all": [], "first": {}},
+                            "difference": {
+                                "first": {
                                     "point": -2,
                                     "upper": -1,
                                     "lower": -5,
                                     "window_index": "1",
-                                }
-                            ],
+                                },
+                                "all": [
+                                    {
+                                        "point": -2,
+                                        "upper": -1,
+                                        "lower": -5,
+                                        "window_index": "1",
+                                    }
+                                ],
+                            },
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {
+                                "overall": {},
+                                "weekly": {"1": Significance.NEGATIVE},
+                            },
                         },
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {
-                            "overall": {},
-                            "weekly": {"1": Significance.NEGATIVE},
+                    },
+                    "search_metrics": {
+                        "search_count": {
+                            "absolute": {"all": [], "first": {}},
+                            "difference": {
+                                "first": {
+                                    "lower": 10,
+                                    "point": 12,
+                                    "upper": 13,
+                                    "window_index": "1",
+                                },
+                                "all": [
+                                    {
+                                        "lower": 10,
+                                        "point": 12,
+                                        "upper": 13,
+                                        "window_index": "1",
+                                    }
+                                ],
+                            },
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {
+                                "overall": {},
+                                "weekly": {"1": Significance.POSITIVE},
+                            },
                         },
                     },
                 },
@@ -251,41 +257,43 @@ class TestConstants:
             "control": {
                 "is_control": False,
                 "branch_data": {
-                    "identity": {
-                        "absolute": {
-                            "first": {"lower": 10, "point": 12, "upper": 13},
-                            "all": [{"lower": 10, "point": 12, "upper": 13}],
-                        },
-                        "difference": {"all": [], "first": {}},
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {"overall": {}, "weekly": {}},
-                        "percent": 50,
-                    },
-                    "retained": {
-                        "absolute": {"all": [], "first": {}},
-                        "difference": {
-                            "all": [
-                                {
-                                    "point": 12,
-                                    "upper": 13,
-                                    "lower": -5,
-                                },
-                                {
-                                    "point": 12,
-                                    "upper": 13,
-                                    "lower": -5,
-                                },
-                            ],
-                            "first": {
-                                "point": 12,
-                                "upper": 13,
-                                "lower": -5,
+                    "other": {
+                        "identity": {
+                            "absolute": {
+                                "first": {"lower": 10, "point": 12, "upper": 13},
+                                "all": [{"lower": 10, "point": 12, "upper": 13}],
                             },
+                            "difference": {"all": [], "first": {}},
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {"overall": {}, "weekly": {}},
+                            "percent": 50,
                         },
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {
-                            "overall": {"1": Significance.NEUTRAL},
-                            "weekly": {},
+                        "retained": {
+                            "absolute": {"all": [], "first": {}},
+                            "difference": {
+                                "all": [
+                                    {
+                                        "point": 12,
+                                        "upper": 13,
+                                        "lower": -5,
+                                    },
+                                    {
+                                        "point": 12,
+                                        "upper": 13,
+                                        "lower": -5,
+                                    },
+                                ],
+                                "first": {
+                                    "point": 12,
+                                    "upper": 13,
+                                    "lower": -5,
+                                },
+                            },
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {
+                                "overall": {"1": Significance.NEUTRAL},
+                                "weekly": {},
+                            },
                         },
                     },
                 },
@@ -293,71 +301,75 @@ class TestConstants:
             "variant": {
                 "is_control": False,
                 "branch_data": {
-                    "identity": {
-                        "absolute": {
-                            "first": {"lower": 10, "point": 12, "upper": 13},
-                            "all": [{"lower": 10, "point": 12, "upper": 13}],
-                        },
-                        "difference": {"all": [], "first": {}},
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {"overall": {}, "weekly": {}},
-                        "percent": 50,
-                    },
-                    "search_count": {
-                        "absolute": {"all": [], "first": {}},
-                        "difference": {
-                            "first": {"lower": 10, "point": 12, "upper": 13},
-                            "all": [{"lower": 10, "point": 12, "upper": 13}],
-                        },
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {
-                            "overall": {"1": Significance.POSITIVE},
-                            "weekly": {},
-                        },
-                    },
-                    "some_count": {
-                        "absolute": {
-                            "first": {"lower": 10, "point": 12, "upper": 13},
-                            "all": [{"lower": 10, "point": 12, "upper": 13}],
-                        },
-                        "difference": {"all": [], "first": {}},
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {"overall": {}, "weekly": {}},
-                    },
-                    "another_count": {
-                        "absolute": {
-                            "first": {"lower": 10, "point": 12, "upper": 13},
-                            "all": [{"lower": 10, "point": 12, "upper": 13}],
-                        },
-                        "difference": {"all": [], "first": {}},
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {"overall": {}, "weekly": {}},
-                    },
-                    "retained": {
-                        "absolute": {"all": [], "first": {}},
-                        "difference": {
-                            "first": {
-                                "point": -2,
-                                "upper": -1,
-                                "lower": -5,
+                    "other": {
+                        "identity": {
+                            "absolute": {
+                                "first": {"lower": 10, "point": 12, "upper": 13},
+                                "all": [{"lower": 10, "point": 12, "upper": 13}],
                             },
-                            "all": [
-                                {
-                                    "point": -2,
-                                    "upper": -1,
-                                    "lower": -5,
-                                },
-                                {
-                                    "point": -2,
-                                    "upper": -1,
-                                    "lower": -5,
-                                },
-                            ],
+                            "difference": {"all": [], "first": {}},
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {"overall": {}, "weekly": {}},
+                            "percent": 50,
                         },
-                        "relative_uplift": {"all": [], "first": {}},
-                        "significance": {
-                            "overall": {"1": Significance.NEGATIVE},
-                            "weekly": {},
+                        "some_count": {
+                            "absolute": {
+                                "first": {"lower": 10, "point": 12, "upper": 13},
+                                "all": [{"lower": 10, "point": 12, "upper": 13}],
+                            },
+                            "difference": {"all": [], "first": {}},
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {"overall": {}, "weekly": {}},
+                        },
+                        "another_count": {
+                            "absolute": {
+                                "first": {"lower": 10, "point": 12, "upper": 13},
+                                "all": [{"lower": 10, "point": 12, "upper": 13}],
+                            },
+                            "difference": {"all": [], "first": {}},
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {"overall": {}, "weekly": {}},
+                        },
+                        "retained": {
+                            "absolute": {"all": [], "first": {}},
+                            "difference": {
+                                "first": {
+                                    "point": -2,
+                                    "upper": -1,
+                                    "lower": -5,
+                                },
+                                "all": [
+                                    {
+                                        "point": -2,
+                                        "upper": -1,
+                                        "lower": -5,
+                                    },
+                                    {
+                                        "point": -2,
+                                        "upper": -1,
+                                        "lower": -5,
+                                    },
+                                ],
+                            },
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {
+                                "overall": {"1": Significance.NEGATIVE},
+                                "weekly": {},
+                            },
+                        },
+                    },
+                    "search_metrics": {
+                        "search_count": {
+                            "absolute": {"all": [], "first": {}},
+                            "difference": {
+                                "first": {"lower": 10, "point": 12, "upper": 13},
+                                "all": [{"lower": 10, "point": 12, "upper": 13}],
+                            },
+                            "relative_uplift": {"all": [], "first": {}},
+                            "significance": {
+                                "overall": {"1": Significance.POSITIVE},
+                                "weekly": {},
+                            },
                         },
                     },
                 },
