@@ -174,6 +174,55 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             ).exists()
         )
 
+    def test_check_with_reject_review_doesnt_draft_non_accepted(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            is_end_requested=False,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.mock_kinto_client.get_collection.side_effect = [
+            # Desktop responses
+            {
+                "data": {
+                    "status": KINTO_REJECTED_STATUS,
+                    "last_reviewer_comment": "it's no good",
+                }
+            },
+            {"data": {"status": "anything"}},
+            # Fenix responses
+            {"data": {"status": "anything"}},
+            {"data": {"status": "anything"}},
+        ]
+        self.mock_kinto_client.get_records.side_effect = [
+            # Desktop responses
+            [{"id": "another-experiment"}],
+            [
+                {"id": "another-experiment"},
+                {"id": experiment.slug},
+            ],
+            # Fenix responses
+            [],
+            [],
+        ]
+        tasks.nimbus_check_kinto_push_queue()
+
+        # It still rolls back
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            data={"status": KINTO_ROLLBACK_STATUS},
+        )
+
+        # But it does not revert to draft
+        self.assertFalse(
+            experiment.changes.filter(
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=NimbusExperiment.Status.LIVE,
+                new_status=NimbusExperiment.Status.DRAFT,
+            ).exists()
+        )
+
     def test_check_live_end_requested_with_reject_review(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.LIVE,
