@@ -50,7 +50,7 @@ def load_data_from_gcs(path):
     )
 
 
-def get_results_metrics_map(primary_outcomes, secondary_outcomes):
+def get_results_metrics_map(data, primary_outcomes, secondary_outcomes):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
     RESULTS_METRICS_MAP = {
@@ -68,7 +68,45 @@ def get_results_metrics_map(primary_outcomes, secondary_outcomes):
     for outcome_slug in secondary_outcomes:
         RESULTS_METRICS_MAP[outcome_slug] = set([Statistic.MEAN])
 
-    return RESULTS_METRICS_MAP, primary_metrics_set
+    other_metrics_map, other_metrics = get_other_metrics_names_and_map(
+        data, RESULTS_METRICS_MAP
+    )
+    RESULTS_METRICS_MAP.update(other_metrics_map)
+
+    return RESULTS_METRICS_MAP, primary_metrics_set, other_metrics
+
+
+def get_other_metrics_names_and_map(data, RESULTS_METRICS_MAP):
+    # These are metrics sent from Jetstream that are not explicitly chosen
+    # by users to be either primary or secondary
+    other_metrics_names = {}
+    other_metrics_map = {}
+
+    # This is an ordered list of priorities of stats to graph
+    priority_stats = [Statistic.MEAN, Statistic.BINOMIAL]
+    other_data = [
+        data_point
+        for data_point in data
+        if data_point["metric"] not in RESULTS_METRICS_MAP
+    ]
+    for row in other_data:
+        metric = row.get("metric")
+        statistic = row.get("statistic")
+
+        if statistic in priority_stats:
+            metric_title = " ".join([word.title() for word in metric.split("_")])
+            other_metrics_names[metric] = metric_title
+
+            if metric not in other_metrics_map or priority_stats.index(
+                statistic
+            ) < priority_stats.index(other_metrics_map[metric]):
+                other_metrics_map[metric] = statistic
+
+    # Turn other_metrics_map into the format needed
+    # by get_result_metrics_map()
+    other_metrics_map = {k: set([v]) for k, v in other_metrics_map.items()}
+
+    return other_metrics_map, other_metrics_names
 
 
 def append_population_percentages(data):
@@ -147,13 +185,10 @@ def process_data_for_consumption(overall_data, weekly_data, experiment):
 
 
 def generate_results_object(data, experiment, window="overall"):
-    # These are metrics sent from Jetstream that are not explicitly chosen
-    # by users to be either primary or secondary
-    other_metrics = {}
     results = {}
 
-    result_metrics, primary_metrics_set = get_results_metrics_map(
-        experiment.primary_outcomes, experiment.secondary_outcomes
+    result_metrics, primary_metrics_set, other_metrics = get_results_metrics_map(
+        data, experiment.primary_outcomes, experiment.secondary_outcomes
     )
     for row in data:
         branch = row.get("branch")
@@ -164,11 +199,7 @@ def generate_results_object(data, experiment, window="overall"):
         statistic = row.get("statistic")
         window_index = row.get("window_index")
 
-        if (
-            metric in result_metrics
-            and statistic in result_metrics[metric]
-            or statistic == Statistic.MEAN
-        ):
+        if metric in result_metrics and statistic in result_metrics[metric]:
             results[branch] = results.get(
                 branch,
                 {
@@ -208,10 +239,6 @@ def generate_results_object(data, experiment, window="overall"):
                 results_at_comparison["first"] = data_point
 
             results[branch][BRANCH_DATA][metric][comparison]["all"].append(data_point)
-
-            if metric not in result_metrics and window == "overall":
-                metric_title = " ".join([word.title() for word in metric.split("_")])
-                other_metrics[metric] = metric_title
 
     return results, primary_metrics_set, other_metrics
 
