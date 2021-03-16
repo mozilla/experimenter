@@ -3,7 +3,7 @@ jobs:
   build:
     machine:
       docker_layer_caching: true
-      image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
+      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
     resource_class: large
     working_directory: ~/experimenter
     steps:
@@ -22,7 +22,7 @@ jobs:
   check:
     machine:
       docker_layer_caching: true
-      image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
+      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
     resource_class: large
     working_directory: ~/experimenter
     steps:
@@ -40,7 +40,7 @@ jobs:
   publish_storybooks:
     machine:
       docker_layer_caching: true
-      image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
+      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
     resource_class: medium
     working_directory: ~/experimenter
     steps:
@@ -60,7 +60,7 @@ jobs:
   integration:
     machine:
       docker_layer_caching: true
-      image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
+      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
     resource_class: xlarge
     working_directory: ~/experimenter
     steps:
@@ -83,7 +83,7 @@ jobs:
     working_directory: ~/experimenter
     machine:
       docker_layer_caching: true
-      image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
+      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
     steps:
       - checkout
       - deploy:
