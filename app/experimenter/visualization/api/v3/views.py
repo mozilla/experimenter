@@ -162,7 +162,9 @@ def generate_results_object(data, experiment, window="overall"):
         upper = row.get("upper")
         point = row.get("point")
         statistic = row.get("statistic")
-        window_index = row.get("window_index")
+
+        # For "overall" data, set window_index to 1 for uniformity
+        window_index = 1 if window == "overall" else row.get("window_index")
 
         if (
             metric in result_metrics
@@ -183,6 +185,7 @@ def generate_results_object(data, experiment, window="overall"):
                     BranchComparison.ABSOLUTE: {"all": [], "first": {}},
                     BranchComparison.DIFFERENCE: {"all": [], "first": {}},
                     BranchComparison.UPLIFT: {"all": [], "first": {}},
+                    "significance": {"overall": {}, "weekly": {}},
                 },
             )
 
@@ -192,9 +195,10 @@ def generate_results_object(data, experiment, window="overall"):
 
             comparison = row.get("comparison", BranchComparison.ABSOLUTE)
             if comparison == BranchComparison.DIFFERENCE and lower and upper:
-                results[branch][BRANCH_DATA][metric].update(
-                    {"significance": compute_significance(lower, upper)}
-                )
+                results[branch][BRANCH_DATA][metric]["significance"][window][
+                    window_index
+                ] = compute_significance(lower, upper)
+
             data_point = {
                 "lower": lower,
                 "upper": upper,

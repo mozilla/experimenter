@@ -109,11 +109,11 @@ export const TREATMENT_NEUTRAL = {
       },
     ],
   },
-  significance: "neutral",
+  significance: { overall: { "1": "neutral" }, weekly: {} },
 };
 
 export const TREATMENT_NEGATIVE = Object.assign({}, TREATMENT_NEUTRAL, {
-  significance: "negative",
+  significance: { overall: { "1": "negative" }, weekly: {} },
 });
 
 export const WEEKLY_CONTROL = {
@@ -219,6 +219,7 @@ export const WEEKLY_TREATMENT = {
       },
     ],
   },
+  significance: { overall: {}, weekly: { "1": "negative" } },
 };
 
 const WEEKLY_IDENTITY = {
@@ -611,7 +612,7 @@ export const mockAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "positive",
+              significance: { overall: { "1": "positive" }, weekly: {} },
             },
             picture_in_picture: {
               absolute: {
@@ -658,7 +659,7 @@ export const mockAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "positive",
+              significance: { overall: { "1": "positive" }, weekly: {} },
             },
             feature_b_ever_used: {
               absolute: {
@@ -705,7 +706,7 @@ export const mockAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "negative",
+              significance: { overall: { "1": "negative" }, weekly: {} },
             },
             feature_b: {
               absolute: {
@@ -752,7 +753,7 @@ export const mockAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "negative",
+              significance: { overall: { "1": "negative" }, weekly: {} },
             },
             feature_c_ever_used: {
               absolute: {
@@ -799,7 +800,7 @@ export const mockAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "neutral",
+              significance: { overall: { "1": "neutral" }, weekly: {} },
             },
             feature_c: TREATMENT_NEUTRAL,
             days_of_use: TREATMENT_NEUTRAL,
@@ -848,7 +849,7 @@ export const mockAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "positive",
+              significance: { overall: { "1": "positive" }, weekly: {} },
             },
             outcome_d: {
               absolute: {
@@ -895,7 +896,7 @@ export const mockAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "positive",
+              significance: { overall: { "1": "positive" }, weekly: {} },
             },
           },
         },
@@ -1231,7 +1232,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                 first: {},
                 all: [],
               },
-              significance: "negative",
+              significance: { overall: { "1": "negative" }, weekly: {} },
             },
             picture_in_picture_ever_used: {
               absolute: {
@@ -1278,7 +1279,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "positive",
+              significance: { overall: { "1": "positive" }, weekly: {} },
             },
             picture_in_picture: {
               absolute: {
@@ -1325,7 +1326,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "positive",
+              significance: { overall: { "1": "positive" }, weekly: {} },
             },
             feature_b_ever_used: {
               absolute: {
@@ -1372,7 +1373,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "negative",
+              significance: { overall: { "1": "negative" }, weekly: {} },
             },
             feature_b: {
               absolute: {
@@ -1419,7 +1420,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "negative",
+              significance: { overall: { "1": "negative" }, weekly: {} },
             },
             feature_c_ever_used: {
               absolute: {
@@ -1466,7 +1467,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "neutral",
+              significance: { overall: { "1": "neutral" }, weekly: {} },
             },
             feature_c: {
               absolute: {
@@ -1513,7 +1514,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "neutral",
+              significance: { overall: { "1": "neutral" }, weekly: {} },
             },
             feature_d: {
               absolute: {
@@ -1560,7 +1561,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "positive",
+              significance: { overall: { "1": "positive" }, weekly: {} },
             },
             outcome_d: {
               absolute: {
@@ -1607,7 +1608,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                   },
                 ],
               },
-              significance: "positive",
+              significance: { overall: { "1": "positive" }, weekly: {} },
             },
           },
         },

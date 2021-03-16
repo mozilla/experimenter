@@ -91,6 +91,7 @@ const TableWeekly = ({
                 tableLabel={TABLE_LABEL.RESULTS}
                 {...{ metricKey }}
                 {...{ displayType }}
+                window="weekly"
               />
             </tr>
           );

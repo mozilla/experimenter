@@ -68,6 +68,7 @@ class TestVisualizationView(TestCase):
                 },
                 "difference": {"all": [], "first": {}},
                 "relative_uplift": {"all": [], "first": {}},
+                "significance": {"overall": {}, "weekly": {}},
             }
             formatted_data_without_pop[branch]["branch_data"][primary_metric] = {
                 "absolute": {
@@ -76,6 +77,7 @@ class TestVisualizationView(TestCase):
                 },
                 "difference": {"all": [], "first": {}},
                 "relative_uplift": {"all": [], "first": {}},
+                "significance": {"overall": {}, "weekly": {}},
             }
             data.append(
                 {

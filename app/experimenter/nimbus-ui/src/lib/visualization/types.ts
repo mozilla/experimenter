@@ -65,7 +65,7 @@ export interface BranchDescription {
         all: FormattedAnalysisPoint[];
       };
       percent?: number;
-      significance?: string;
+      significance?: { [window: string]: { [window_index: string]: string } };
     };
   };
 }
