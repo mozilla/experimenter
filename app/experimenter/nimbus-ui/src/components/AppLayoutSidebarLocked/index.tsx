@@ -1,5 +1,4 @@
 import { RouteComponentProps, useParams } from "@reach/router";
-import classnames from "classnames";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -20,25 +19,31 @@ import { LinkNav } from "../LinkNav";
 import { ReactComponent as BarChart } from "./bar-chart.svg";
 
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
-const baseLinkClass = "d-block inherit-color mb-2";
+
+const commonScrollspyLinkProps = {
+  storiesOf: "pages/Results",
+  textColor: "inherit-color",
+};
 
 const getSidebarItems = (
+  slug: string,
   metrics: { [metric: string]: string },
   title: string,
 ) => {
   const sidebarItems = Object.keys(metrics).map((sidebarKey) => (
-    <a
-      href={`#${sidebarKey}`}
+    <LinkNav
       key={sidebarKey}
-      className={classnames(baseLinkClass, "font-weight-normal ml-3")}
+      route={`${slug}/results#${sidebarKey}`}
+      className="pl-3 font-weight-normal"
+      {...commonScrollspyLinkProps}
     >
       {metrics[sidebarKey]}
-    </a>
+    </LinkNav>
   ));
   sidebarItems.unshift(
-    <p key={title} className="mb-2">
+    <li key={title} className="mb-2">
       {title}
-    </p>,
+    </li>,
   );
   return sidebarItems;
 };
@@ -130,8 +135,8 @@ export const AppLayoutSidebarLocked = ({
               </LinkNav>
               <LinkNav
                 route={slug}
-                storiesOf={"pages/Summary"}
-                testid={"nav-summary"}
+                storiesOf="pages/Summary"
+                testid="nav-summary"
               >
                 <Airplane className="sidebar-icon" />
                 Summary
@@ -140,33 +145,46 @@ export const AppLayoutSidebarLocked = ({
                 <>
                   <LinkNav
                     route={`${slug}/results`}
-                    storiesOf={"pages/Results"}
-                    testid={"nav-results"}
+                    storiesOf="pages/Results"
+                    testid="nav-results"
                   >
                     <BarChart className="sidebar-icon" />
                     Results
                   </LinkNav>
                   <Scrollspy
                     items={sidebarKeys}
-                    className="text-dark mt-2"
+                    className="text-dark list-unstyled pl-4"
                     currentClassName="text-primary"
                   >
-                    <a href="#monitoring" className={baseLinkClass}>
+                    <LinkNav
+                      route={`${slug}/results#monitoring`}
+                      {...commonScrollspyLinkProps}
+                    >
                       Monitoring
-                    </a>
-                    <a href="#overview" className={baseLinkClass}>
+                    </LinkNav>
+                    <LinkNav
+                      route={`${slug}/results#overview`}
+                      {...commonScrollspyLinkProps}
+                    >
                       Overview
-                    </a>
-                    <a href="#results-summary" className={baseLinkClass}>
+                    </LinkNav>
+                    <LinkNav
+                      route={`${slug}/results#results-summary`}
+                      {...commonScrollspyLinkProps}
+                    >
                       Results Summary
-                    </a>
+                    </LinkNav>
                     {Object.keys(primaryMetrics).length &&
-                      getSidebarItems(primaryMetrics, "Primary Metrics")}
+                      getSidebarItems(slug, primaryMetrics, "Primary Metrics")}
                     {Object.keys(secondaryMetrics).length &&
-                      getSidebarItems(secondaryMetrics, "Secondary Metrics")}
+                      getSidebarItems(
+                        slug,
+                        secondaryMetrics,
+                        "Secondary Metrics",
+                      )}
                     {otherMetrics &&
                       analysis?.overall &&
-                      getSidebarItems(otherMetrics, "Default Metrics")}
+                      getSidebarItems(slug, otherMetrics, "Default Metrics")}
                   </Scrollspy>
                 </>
               ) : (
