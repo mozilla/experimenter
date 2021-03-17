@@ -15,6 +15,11 @@ import {
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
 } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import {
+  NimbusExperimentChannel,
+  NimbusExperimentFirefoxMinVersion,
+  NimbusExperimentTargetingConfigSlug,
+} from "../../../types/globalTypes";
 import InlineErrorIcon from "../../InlineErrorIcon";
 import LinkExternal from "../../LinkExternal";
 
@@ -75,11 +80,25 @@ export const FormAudience = ({
   );
 
   type DefaultValues = typeof defaultValues;
+
+  const applyDefaults = (data: DefaultValues): DefaultValues => {
+    return {
+      ...data,
+      channel: data.channel || NimbusExperimentChannel.NO_CHANNEL,
+      firefoxMinVersion:
+        data.firefoxMinVersion || NimbusExperimentFirefoxMinVersion.NO_VERSION,
+      targetingConfigSlug:
+        data.targetingConfigSlug ||
+        NimbusExperimentTargetingConfigSlug.NO_TARGETING,
+    };
+  };
+
   const [handleSave, handleSaveNext] = useMemo(
     () =>
       [false, true].map((next) =>
         handleSubmit(
-          (dataIn: DefaultValues) => !isLoading && onSubmit(dataIn, next),
+          (dataIn: DefaultValues) =>
+            !isLoading && onSubmit(applyDefaults(dataIn), next),
         ),
       ),
     [isLoading, onSubmit, handleSubmit],

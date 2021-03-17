@@ -192,6 +192,28 @@ describe("FormAudience", () => {
     }
   });
 
+  it("does not require a selection for channel, ff min version, targeting config (EXP-957)", async () => {
+    const onSubmit = jest.fn();
+    render(<Subject {...{ onSubmit }} />);
+    await screen.findByTestId("FormAudience");
+
+    for (const label of ["Channel", "Min Version", "Advanced Targeting"]) {
+      const field = screen.getByLabelText(label);
+      fireEvent.change(field, { target: { value: "" } });
+    }
+
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const expectedValues = expect.objectContaining({
+      channel: "NO_CHANNEL",
+      firefoxMinVersion: "NO_VERSION",
+      targetingConfigSlug: "NO_TARGETING",
+    });
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith(expectedValues, false),
+    );
+  });
+
   it("does not have any required modified fields", async () => {
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
