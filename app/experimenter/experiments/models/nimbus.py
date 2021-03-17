@@ -16,6 +16,18 @@ from experimenter.experiments.constants import NimbusConstants
 from experimenter.projects.models import Project
 
 
+class NimbusExperimentManager(models.Manager):
+    def launch_queue(self, application):
+        return self.filter(status=NimbusExperiment.Status.REVIEW, application=application)
+
+    def end_queue(self, application):
+        return self.filter(
+            status=NimbusExperiment.Status.LIVE,
+            application=application,
+            is_end_requested=True,
+        )
+
+
 class NimbusExperiment(NimbusConstants, models.Model):
     owner = models.ForeignKey(
         get_user_model(),
@@ -72,6 +84,8 @@ class NimbusExperiment(NimbusConstants, models.Model):
     reference_branch = models.OneToOneField(
         "NimbusBranch", blank=True, null=True, on_delete=models.CASCADE
     )
+
+    objects = NimbusExperimentManager()
 
     class Meta:
         verbose_name = "Nimbus Experiment"
