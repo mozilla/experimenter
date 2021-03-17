@@ -70,6 +70,53 @@ class TestNimbusExperimentManager(TestCase):
             [experiment1],
         )
 
+    def test_pause_queue_returns_experiments_that_should_pause_by_application(self):
+        def rewind_launch(experiment):
+            launch_change = experiment.changes.get(
+                old_status=NimbusExperiment.Status.ACCEPTED,
+                new_status=NimbusExperiment.Status.LIVE,
+            )
+            launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(
+                days=11
+            )
+            launch_change.save()
+
+        # Should end, with the correct application
+        experiment1 = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            is_paused=False,
+            proposed_enrollment=10,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        rewind_launch(experiment1)
+        # Should end, but wrong application
+        experiment2 = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            proposed_enrollment=10,
+            application=NimbusExperiment.Application.FENIX,
+        )
+        rewind_launch(experiment2)
+        # Should end, but already paused
+        experiment3 = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            is_paused=True,
+            proposed_enrollment=10,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        rewind_launch(experiment3)
+        # Correct application, but should not end
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            proposed_enrollment=10,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.pause_queue(NimbusExperiment.Application.DESKTOP)
+            ),
+            [experiment1],
+        )
+
 
 class TestNimbusExperiment(TestCase):
     def test_str(self):

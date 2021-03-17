@@ -92,6 +92,10 @@ def nimbus_check_kinto_push_queue():
             application
         ).first():
             nimbus_end_experiment_in_kinto.delay(queued_end_experiment.id)
+        elif queued_pause_experiment := NimbusExperiment.objects.pause_queue(
+            application
+        ).first():
+            nimbus_pause_experiment_in_kinto.delay(queued_pause_experiment.id)
 
     metrics.incr("check_kinto_push_queue.completed")
 
@@ -268,41 +272,31 @@ def nimbus_end_experiment_in_kinto(experiment_id):
 
 
 @app.task
-@metrics.timer_decorator("nimbus_update_paused_experiments_in_kinto")
-def nimbus_update_paused_experiments_in_kinto():
+@metrics.timer_decorator("pause_experiment_in_kinto")
+def nimbus_pause_experiment_in_kinto(experiment_id):
     """
-    A scheduled task that checks for experiments that should be paused
-    but are not paused in the kinto collection and marks them as paused
-    and updates the record in the collection.
+    An invoked task that given a single experiment id, marks it as paused
+    and updates the record. If it fails for any reason, log the error and
+    reraise it so it will be forwarded to sentry.
     """
-    metrics.incr("nimbus_update_paused_experiments_in_kinto.started")
+    metrics.incr("pause_experiment_in_kinto.started")
 
-    for application, collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.items():
-        kinto_client = KintoClient(collection)
-
-        if kinto_client.has_pending_review():
-            metrics.incr(
-                f"nimbus_update_paused_experiments_in_kinto.{collection}_pending_review"
-            )
-            continue
-
-        records = {r["id"]: r for r in kinto_client.get_main_records()}
-
-        live_experiments = NimbusExperiment.objects.filter(
-            status=NimbusExperiment.Status.LIVE,
-            application=application,
+    try:
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        logger.info(f"Deleting {experiment.slug} from Kinto")
+        kinto_client = KintoClient(
+            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
         )
-
-        for experiment in live_experiments:
-            experiment_record = records[experiment.slug]
-            if experiment.should_pause and not experiment_record["isEnrollmentPaused"]:
-                updated_record = experiment_record.copy()
-                updated_record["isEnrollmentPaused"] = True
-
-                kinto_client.update_record(updated_record)
-                logger.info(f"{experiment.slug} is being paused")
-
-    metrics.incr("nimbus_update_paused_experiments_in_kinto.completed")
+        records = {r["id"]: r for r in kinto_client.get_main_records()}
+        record = records[experiment.slug]
+        record["isEnrollmentPaused"] = True
+        kinto_client.update_record(record)
+        logger.info(f"{experiment.slug} paused in Kinto")
+        metrics.incr("pause_experiment_in_kinto.completed")
+    except Exception as e:
+        metrics.incr("pause_experiment_in_kinto.failed")
+        logger.info(f"Pausing experiment id {experiment.slug} in Kinto failed: {e}")
+        raise e
 
 
 @app.task
