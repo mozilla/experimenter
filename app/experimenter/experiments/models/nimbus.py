@@ -20,6 +20,16 @@ class NimbusExperimentManager(models.Manager):
     def launch_queue(self, application):
         return self.filter(status=NimbusExperiment.Status.REVIEW, application=application)
 
+    def pause_queue(self, application):
+        return self.filter(
+            status=NimbusExperiment.Status.LIVE,
+            is_paused=False,
+            application=application,
+            id__in=[
+                experiment.id for experiment in self.all() if experiment.should_pause
+            ],
+        )
+
     def end_queue(self, application):
         return self.filter(
             status=NimbusExperiment.Status.LIVE,
