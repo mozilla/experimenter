@@ -243,6 +243,8 @@ Any change in remote settings requires two accounts:
 
 Any of the accounts above can be used for any of those two roles, but your local Experimenter will be configured to make its changes through the `experimenter` account, so that account can't also be used to approve/reject those changes, hence the existence of the `review` account.
 
+For more detailed information on the Remote Settings integration please see the [Kinto module documentation](app/experimenter/kinto/README.md).
+
 ## Frontend
 
 Experimenter has two front-end UIs:
