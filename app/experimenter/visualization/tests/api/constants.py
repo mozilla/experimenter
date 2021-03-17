@@ -217,6 +217,7 @@ class TestConstants:
                         },
                         "difference": {"all": [], "first": {}},
                         "relative_uplift": {"all": [], "first": {}},
+                        "significance": {"overall": {}, "weekly": {}},
                     },
                     "retained": {
                         "absolute": {"all": [], "first": {}},
@@ -330,6 +331,7 @@ class TestConstants:
                         },
                         "difference": {"all": [], "first": {}},
                         "relative_uplift": {"all": [], "first": {}},
+                        "significance": {"overall": {}, "weekly": {}},
                     },
                     "retained": {
                         "absolute": {"all": [], "first": {}},
