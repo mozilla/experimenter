@@ -24,11 +24,19 @@ class TestConstants:
                 "branch": "variant",
             },
         }
-        VARIANT_DATA_DEFAULT_METRIC_ROW = {
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = {
             **DATA_IDENTITY_ROW,
             **{
                 "metric": "some_count",
                 "statistic": "mean",
+                "branch": "variant",
+            },
+        }
+        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = {
+            **DATA_IDENTITY_ROW,
+            **{
+                "metric": "another_count",
+                "statistic": "binomial",
                 "branch": "variant",
             },
         }
@@ -63,7 +71,8 @@ class TestConstants:
         DATA_WITHOUT_POPULATION_PERCENTAGE = [
             CONTROL_DATA_ROW,
             VARIANT_DATA_ROW,
-            VARIANT_DATA_DEFAULT_METRIC_ROW,
+            VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN,
+            VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL,
             VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW,
             VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW,
             CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW,
@@ -180,6 +189,26 @@ class TestConstants:
                         "difference": {"all": [], "first": {}},
                         "relative_uplift": {"all": [], "first": {}},
                     },
+                    "another_count": {
+                        "absolute": {
+                            "first": {
+                                "lower": 10,
+                                "point": 12,
+                                "upper": 13,
+                                "window_index": "1",
+                            },
+                            "all": [
+                                {
+                                    "lower": 10,
+                                    "point": 12,
+                                    "upper": 13,
+                                    "window_index": "1",
+                                }
+                            ],
+                        },
+                        "difference": {"all": [], "first": {}},
+                        "relative_uplift": {"all": [], "first": {}},
+                    },
                     "retained": {
                         "absolute": {"all": [], "first": {}},
                         "difference": {
@@ -266,6 +295,14 @@ class TestConstants:
                         "significance": Significance.POSITIVE,
                     },
                     "some_count": {
+                        "absolute": {
+                            "first": {"lower": 10, "point": 12, "upper": 13},
+                            "all": [{"lower": 10, "point": 12, "upper": 13}],
+                        },
+                        "difference": {"all": [], "first": {}},
+                        "relative_uplift": {"all": [], "first": {}},
+                    },
+                    "another_count": {
                         "absolute": {
                             "first": {"lower": 10, "point": 12, "upper": 13},
                             "all": [{"lower": 10, "point": 12, "upper": 13}],
