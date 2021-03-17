@@ -19,6 +19,58 @@ from experimenter.experiments.tests.factories import (
 from experimenter.openidc.tests.factories import UserFactory
 
 
+class TestNimbusExperimentManager(TestCase):
+    def test_launch_queue_returns_queued_experiments_with_correct_application(self):
+        experiment1 = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.REVIEW,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.REVIEW,
+            application=NimbusExperiment.Application.FENIX,
+        )
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.launch_queue(
+                    NimbusExperiment.Application.DESKTOP
+                )
+            ),
+            [experiment1],
+        )
+
+    def test_end_queue_returns_ending_experiments_with_correct_application(self):
+        experiment1 = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            is_end_requested=True,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            is_end_requested=True,
+            application=NimbusExperiment.Application.FENIX,
+        )
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            is_end_requested=False,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.REVIEW,
+            is_end_requested=True,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        self.assertEqual(
+            list(
+                NimbusExperiment.objects.end_queue(NimbusExperiment.Application.DESKTOP)
+            ),
+            [experiment1],
+        )
+
+
 class TestNimbusExperiment(TestCase):
     def test_str(self):
         experiment = NimbusExperimentFactory.create(slug="experiment-slug")
