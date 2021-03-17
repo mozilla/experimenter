@@ -322,7 +322,6 @@ const SelectOptions = ({
   options: null | (null | { label: null | string; value: null | string })[];
 }) => (
   <>
-    <option value="">Select...</option>
     {options?.map(
       (item, idx) =>
         item && (
