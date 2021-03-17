@@ -188,6 +188,7 @@ const TableVisualizationRow: React.FC<{
   displayType?: DISPLAY_TYPE;
   branchComparison?: string;
   tooltip?: string;
+  window?: string;
 }> = ({
   metricKey,
   results,
@@ -196,6 +197,7 @@ const TableVisualizationRow: React.FC<{
   displayType,
   branchComparison,
   tooltip = "",
+  window = "overall",
 }) => {
   const { branch_data, is_control } = results;
   const metricData = branch_data[metricKey];
@@ -217,7 +219,6 @@ const TableVisualizationRow: React.FC<{
     const userCountsList =
       branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["all"];
     const metricDataList = metricData[branchComparison]["all"];
-    const significance = metricData["significance"];
 
     userCountsList.sort(formattedAnalysisPointComparator);
     metricDataList.sort(formattedAnalysisPointComparator);
@@ -225,6 +226,7 @@ const TableVisualizationRow: React.FC<{
     metricDataList.forEach((dataPoint: FormattedAnalysisPoint, i: number) => {
       const { lower, upper, point, count } = dataPoint;
       const userCountMetric = userCountsList[i]["point"];
+      const significance = metricData["significance"]?.[window][i + 1];
 
       switch (displayType) {
         case DISPLAY_TYPE.POPULATION:
