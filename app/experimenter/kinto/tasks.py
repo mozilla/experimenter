@@ -101,12 +101,16 @@ def handle_rejection(kinto_client):
     collection_data = kinto_client.get_rejected_collection_data()
     experiment = NimbusExperiment.objects.get(slug=rejected_slug)
 
+    has_changes = False
     if experiment.status == NimbusExperiment.Status.LIVE and experiment.is_end_requested:
         experiment.is_end_requested = False
-    else:
+        has_changes = True
+    elif experiment.status == NimbusExperiment.Status.ACCEPTED:
         experiment.status = NimbusExperiment.Status.DRAFT
+        has_changes = True
 
-    experiment.save()
+    if has_changes:
+        experiment.save()
 
     generate_nimbus_changelog(
         experiment,
