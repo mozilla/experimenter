@@ -6,6 +6,8 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 ## Important Links
 
+Check out the [🌩 **Nimbus Documentation Hub**](https://mozilla.github.io/experimenter-docs/) or go to [the repository](https://github.com/mozilla/experimenter-docs/) that house those docs.
+
 | Link            | Prod                                                  | Staging                                                            | Local Dev (Default)                           |
 | --------------- | ----------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------- |
 | Legacy Home     | [experimenter.services.mozilla.com][legacy_home_prod] | [stage.experimenter.nonprod.dataops.mozgcp.net][legacy_home_stage] | https://localhost                             |
