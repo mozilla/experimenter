@@ -13,7 +13,12 @@ import { NimbusExperimentStatus } from "../../types/globalTypes";
 import FormApproveConfirm from "./FormApproveConfirm";
 import FormApproveOrRejectLaunch from "./FormApproveOrRejectLaunch";
 import FormRejectReason from "./FormRejectReason";
-import { mock, Subject } from "./mocks";
+import {
+  mock,
+  Subject,
+  SubjectDraftStatusOperations,
+  SubjectEXP1055,
+} from "./mocks";
 
 storiesOf("pages/RequestReview", module)
   .addDecorator(withLinks)
@@ -43,6 +48,173 @@ storiesOf("pages/RequestReview", module)
       <PageRequestReview polling={false} />
     </RouterSlugProvider>
   ));
+
+storiesOf("pages/RequestReview/EXP-1055", module)
+  .addDecorator(withLinks)
+  .add("review not requested", () => <SubjectEXP1055 />)
+  .add("review requested, user has reviewer role", () => (
+    <SubjectEXP1055
+      {...{
+        isLaunchRequested: true,
+        currentUserCanApprove: true,
+        currentUser: "abc@mozilla.com",
+        launchRequestedByUsername: "def@mozilla.com",
+      }}
+    />
+  ))
+  .add(
+    "review approved in experimenter, not yet approved in remote settings, user has reviewer role",
+    () => (
+      <SubjectEXP1055
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: true,
+          currentUserCanApprove: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "def@mozilla.com",
+        }}
+      />
+    ),
+  )
+  .add("review requested, user does not have reviewer role", () => (
+    <SubjectEXP1055
+      {...{ isLaunchRequested: true, currentUserCanApprove: false }}
+    />
+  ))
+  .add(
+    "review requested, user has reviewer role, but user requested this review",
+    () => (
+      <SubjectEXP1055
+        {...{
+          isLaunchRequested: true,
+          currentUserCanApprove: false,
+          currentUser: "abc@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
+        }}
+      />
+    ),
+  )
+  .add(
+    "review approved in experimenter, not yet approved in remote settings, user does not have reviewer role",
+    () => (
+      <SubjectEXP1055
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: true,
+          currentUserCanApprove: false,
+        }}
+      />
+    ),
+  )
+  .add(
+    "review approved in experimenter, not yet approved in remote settings, user has reviewer role, but user requested this review",
+    () => (
+      <SubjectEXP1055
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: true,
+          currentUserCanApprove: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
+        }}
+      />
+    ),
+  );
+
+const SubjectDraftStatusOperationsWithActions = ({
+  rejectExperimentLaunch = action("rejectExperimentLaunch"),
+  approveExperimentLaunch = action("approveExperimentLaunch"),
+  confirmExperimentLaunchApproval = action("confirmExperimentLaunchApproval"),
+  onLaunchClicked = action("onLaunchClicked"),
+  onLaunchToPreviewClicked = action("onLaunchToPreviewClicked"),
+  ...props
+}: React.ComponentProps<typeof SubjectDraftStatusOperations>) => (
+  <SubjectDraftStatusOperations
+    {...{
+      rejectExperimentLaunch,
+      approveExperimentLaunch,
+      confirmExperimentLaunchApproval,
+      onLaunchClicked,
+      onLaunchToPreviewClicked,
+      ...props,
+    }}
+  />
+);
+
+storiesOf("pages/RequestReview/EXP-1055/DraftStatusOperations", module)
+  .addDecorator(withLinks)
+  .addDecorator((story) => <div className="p-5">{story()}</div>)
+  .add("review not requested", () => (
+    <SubjectDraftStatusOperationsWithActions />
+  ))
+  .add("review requested, user has reviewer role", () => (
+    <SubjectDraftStatusOperationsWithActions
+      {...{
+        isLaunchRequested: true,
+        currentUserCanApprove: true,
+        currentUsername: "abc@mozilla.com",
+        launchRequestedByUsername: "def@mozilla.com",
+      }}
+    />
+  ))
+  .add(
+    "review approved in experimenter, not yet approved in remote settings, user has reviewer role",
+    () => (
+      <SubjectDraftStatusOperationsWithActions
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: true,
+          currentUserCanApprove: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "def@mozilla.com",
+        }}
+      />
+    ),
+  )
+  .add("review requested, user does not have reviewer role", () => (
+    <SubjectDraftStatusOperationsWithActions
+      {...{ isLaunchRequested: true, currentUserCanApprove: false }}
+    />
+  ))
+  .add(
+    "review requested, user has reviewer role, but user requested this review",
+    () => (
+      <SubjectDraftStatusOperationsWithActions
+        {...{
+          isLaunchRequested: true,
+          currentUserCanApprove: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
+        }}
+      />
+    ),
+  )
+  .add(
+    "review approved in experimenter, not yet approved in remote settings, user does not have reviewer role",
+    () => (
+      <SubjectDraftStatusOperationsWithActions
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: true,
+          currentUserCanApprove: false,
+        }}
+      />
+    ),
+  )
+  .add(
+    "review approved in experimenter, not yet approved in remote settings, user has reviewer role, but user requested this review",
+    () => (
+      <SubjectDraftStatusOperationsWithActions
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: true,
+          currentUserCanApprove: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
+        }}
+      />
+    ),
+  );
 
 storiesOf("pages/RequestReview/EXP-1055/forms", module)
   .addDecorator(withLinks)

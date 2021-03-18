@@ -8,7 +8,7 @@ export function getDefault() {
     sentry_dsn: "",
     version: "",
     featureFlags: {
-      exp866Preview: false,
+      exp1055ReviewFlow: false,
     },
   };
 }
