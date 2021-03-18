@@ -4,9 +4,11 @@
 
 import { useMutation } from "@apollo/client";
 import { RouteComponentProps } from "@reach/router";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import { useConfig } from "../../hooks/useConfig";
+import { useFakeMutation } from "../../hooks/useFakeMutation";
 import { ReactComponent as Check } from "../../images/check.svg";
 import { SUBMIT_ERROR } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
@@ -18,30 +20,63 @@ import {
 import { updateExperiment_updateExperiment as UpdateExperiment } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import Summary from "../Summary";
-import FormLaunchDraftToPreview from "./FormLaunchDraftToPreview";
-import FormLaunchDraftToReview from "./FormLaunchDraftToReview";
+import DraftStatusOperations from "./DraftStatusOperations";
 import FormLaunchPreviewToReview from "./FormLaunchPreviewToReview";
 
 const PageRequestReview = ({
+  /* istanbul ignore next - only used in tests & stories */
   polling = true,
+  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+  isLaunchRequested = false, // new experiment property
+  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+  launchRequestedByUsername = "", // new experiment property
+  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+  currentUsername = "", // new user ID / email property
+  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+  currentUserCanApprove = false, // new user permission property
 }: {
   polling?: boolean;
+  isLaunchRequested?: boolean;
+  launchRequestedByUsername?: string;
+  currentUsername?: string;
+  currentUserCanApprove?: boolean;
 } & RouteComponentProps) => {
+  const { featureFlags } = useConfig();
+
   const [submitError, setSubmitError] = useState<string | null>(null);
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
   const refetchReview = useRef<() => void>();
 
-  const [updateExperiment, { loading }] = useMutation<
+  const [updateExperiment, { loading: updateExperimentLoading }] = useMutation<
     { updateExperiment: UpdateExperiment },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_MUTATION);
 
-  const [showLaunchDraftToReview, setShowLaunchDraftToReview] = useState(false);
+  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+  const [
+    rejectExperimentLaunch,
+    { loading: rejectExperimentLaunchLoading },
+  ] = useFakeMutation();
 
-  const toggleShowLaunchDraftToReview = useCallback(
-    () => setShowLaunchDraftToReview(!showLaunchDraftToReview),
-    [showLaunchDraftToReview, setShowLaunchDraftToReview],
-  );
+  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+  const [
+    approveExperimentLaunch,
+    { loading: approveExperimentLaunchLoading },
+  ] = useFakeMutation();
+
+  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+  const [
+    confirmExperimentLaunchApproval,
+    { loading: confirmExperimentLaunchApprovalLoading },
+  ] = useFakeMutation();
+
+  // TODO: EXP-1062 wrap these new mutations in setSubmitError handling like updateExperiment uses below.
+
+  const isLoading =
+    updateExperimentLoading ||
+    approveExperimentLaunchLoading ||
+    confirmExperimentLaunchApprovalLoading ||
+    rejectExperimentLaunchLoading;
 
   const [
     onLaunchToPreviewClicked,
@@ -77,7 +112,6 @@ const PageRequestReview = ({
           }
 
           refetchReview.current!();
-          setShowLaunchDraftToReview(false);
         } catch (error) {
           setSubmitError(SUBMIT_ERROR);
         }
@@ -115,6 +149,25 @@ const PageRequestReview = ({
                 {submitError}
               </Alert>
             )}
+
+            {status.draft && (
+              <DraftStatusOperations
+                {...{
+                  isLoading,
+                  featureFlags,
+                  isLaunchRequested,
+                  launchRequestedByUsername,
+                  currentUserCanApprove,
+                  currentUsername,
+                  rejectExperimentLaunch,
+                  approveExperimentLaunch,
+                  confirmExperimentLaunchApproval,
+                  onLaunchClicked,
+                  onLaunchToPreviewClicked,
+                }}
+              />
+            )}
+
             {status.review && (
               <Alert
                 data-testid="submit-success"
@@ -127,34 +180,17 @@ const PageRequestReview = ({
                 </p>
               </Alert>
             )}
-            {status.draft &&
-              (showLaunchDraftToReview ? (
-                <FormLaunchDraftToReview
-                  {...{
-                    isLoading: loading,
-                    onSubmit: onLaunchClicked,
-                    onCancel: toggleShowLaunchDraftToReview,
-                    onLaunchToPreview: onLaunchToPreviewClicked,
-                  }}
-                />
-              ) : (
-                <FormLaunchDraftToPreview
-                  {...{
-                    isLoading: loading,
-                    onSubmit: onLaunchToPreviewClicked,
-                    onLaunchWithoutPreview: toggleShowLaunchDraftToReview,
-                  }}
-                />
-              ))}
+
             {status.preview && (
               <FormLaunchPreviewToReview
                 {...{
-                  isLoading: loading,
+                  isLoading: isLoading,
                   onSubmit: onLaunchClicked,
                   onBackToDraft: onBackToDraftClicked,
                 }}
               />
             )}
+
             <Summary {...{ experiment }} />
           </>
         );
