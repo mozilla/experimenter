@@ -1,0 +1,43 @@
+/* istanbul ignore file until EXP-1055 & EXP-1062 done */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import React from "react";
+import Alert from "react-bootstrap/Alert";
+import Form from "react-bootstrap/Form";
+
+const FormApproveConfirm = ({
+  isLoading,
+  onConfirm,
+}: {
+  isLoading: boolean;
+  onConfirm: () => void;
+}) => {
+  return (
+    <Alert variant="warning">
+      <Form className="text-body">
+        <p>
+          <strong>Action required —</strong> You need to deploy this experiment
+          to production on Remote Settings.
+        </p>
+
+        <div className="d-flex bd-highlight">
+          <div>
+            <button
+              data-testid="open-remote-settings"
+              type="button"
+              className="mr-2 btn btn-primary"
+              disabled={isLoading}
+              onClick={onConfirm}
+            >
+              Open Remote Settings
+            </button>
+          </div>
+        </div>
+      </Form>
+    </Alert>
+  );
+};
+
+export default FormApproveConfirm;
