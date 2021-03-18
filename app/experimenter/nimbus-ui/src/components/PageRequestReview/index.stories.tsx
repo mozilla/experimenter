@@ -13,10 +13,12 @@ import { NimbusExperimentStatus } from "../../types/globalTypes";
 import FormApproveConfirm from "./FormApproveConfirm";
 import FormApproveOrRejectLaunch from "./FormApproveOrRejectLaunch";
 import FormRejectReason from "./FormRejectReason";
-import { mock, Subject } from "./mocks";
-import FormApproveConfirm from "./FormApproveConfirm";
-import FormApproveOrRejectLaunch from "./FormApproveOrRejectLaunch";
-import FormRejectReason from "./FormRejectReason";
+import {
+  mock,
+  Subject,
+  SubjectDraftStatusOperations,
+  SubjectEXP1055,
+} from "./mocks";
 
 storiesOf("pages/RequestReview", module)
   .addDecorator(withLinks)
@@ -46,6 +48,71 @@ storiesOf("pages/RequestReview", module)
       <PageRequestReview polling={false} />
     </RouterSlugProvider>
   ));
+
+storiesOf("pages/RequestReview/EXP-1055", module)
+  .addDecorator(withLinks)
+  .add("review not requested", () => <SubjectEXP1055 />)
+  .add("review requested, user can approve", () => (
+    <SubjectEXP1055
+      {...{
+        isLaunchRequested: true,
+        currentUserCanApprove: true,
+        currentUser: "abc@mozilla.com",
+        launchRequestedByUsername: "def@mozilla.com",
+      }}
+    />
+  ))
+  .add("review requested, user not permitted to approve", () => (
+    <SubjectEXP1055
+      {...{ isLaunchRequested: true, currentUserCanApprove: false }}
+    />
+  ))
+  .add(
+    "review requested, user permitted to approve, but user requested launch",
+    () => (
+      <SubjectEXP1055
+        {...{
+          isLaunchRequested: true,
+          currentUserCanApprove: false,
+          currentUser: "abc@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
+        }}
+      />
+    ),
+  );
+
+storiesOf("pages/RequestReview/EXP-1055/DraftStatusOperations", module)
+  .addDecorator(withLinks)
+  .addDecorator((story) => <div className="p-5">{story()}</div>)
+  .add("review not requested", () => <SubjectDraftStatusOperations />)
+  .add("review requested, user can approve", () => (
+    <SubjectDraftStatusOperations
+      {...{
+        isLaunchRequested: true,
+        currentUserCanApprove: true,
+        currentUser: "abc@mozilla.com",
+        launchRequestedByUsername: "def@mozilla.com",
+      }}
+    />
+  ))
+  .add("review requested, user not permitted to approve", () => (
+    <SubjectDraftStatusOperations
+      {...{ isLaunchRequested: true, currentUserCanApprove: false }}
+    />
+  ))
+  .add(
+    "review requested, user permitted to approve, but user requested review",
+    () => (
+      <SubjectDraftStatusOperations
+        {...{
+          isLaunchRequested: true,
+          currentUserCanApprove: false,
+          currentUser: "abc@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
+        }}
+      />
+    ),
+  );
 
 storiesOf("pages/RequestReview/EXP-1055/forms", module)
   .addDecorator(withLinks)
