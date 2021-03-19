@@ -43,13 +43,17 @@ def generate_nimbus_changelog(experiment, changed_by, message=None):
     experiment_data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
 
     old_status = None
+    old_publish_status = None
     if latest_change:
         old_status = latest_change.new_status
+        old_publish_status = latest_change.new_publish_status
 
     NimbusChangeLog.objects.create(
         experiment=experiment,
         old_status=old_status,
+        old_publish_status=old_publish_status,
         new_status=experiment.status,
+        new_publish_status=experiment.publish_status,
         changed_by=changed_by,
         experiment_data=experiment_data,
         message=message,
