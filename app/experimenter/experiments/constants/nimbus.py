@@ -101,6 +101,12 @@ class NimbusConstants(object):
         LIVE = "Live"
         COMPLETE = "Complete"
 
+    class PublishStatus(models.TextChoices):
+        IDLE = "Idle"
+        REVIEW = "Review"
+        APPROVED = "Approved"
+        WAITING = "Waiting"
+
     class Application(models.TextChoices):
         DESKTOP = "firefox-desktop"
         FENIX = "fenix"

@@ -49,6 +49,11 @@ class NimbusExperiment(NimbusConstants, models.Model):
         default=NimbusConstants.Status.DRAFT.value,
         choices=NimbusConstants.Status.choices,
     )
+    publish_status = models.CharField(
+        max_length=255,
+        default=NimbusConstants.PublishStatus.IDLE.value,
+        choices=NimbusConstants.PublishStatus.choices,
+    )
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, unique=True)
     public_description = models.TextField(default="")
@@ -424,7 +429,16 @@ class NimbusChangeLog(models.Model):
     old_status = models.CharField(
         max_length=255, blank=True, null=True, choices=NimbusExperiment.Status.choices
     )
+    old_publish_status = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=NimbusExperiment.PublishStatus.choices,
+    )
     new_status = models.CharField(max_length=255, choices=NimbusExperiment.Status.choices)
+    new_publish_status = models.CharField(
+        max_length=255, choices=NimbusExperiment.PublishStatus.choices
+    )
     message = models.TextField(blank=True, null=True)
     experiment_data = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
 
