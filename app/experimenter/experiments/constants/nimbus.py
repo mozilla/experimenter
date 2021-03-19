@@ -59,10 +59,22 @@ TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
         first_run=TARGETING_FIRST_RUN.targeting
     ),
     desktop_telemetry=(
-        "STARTS_WITH(environment.settings.locale, 'en') "
-        "AND payload.info.profile_subsession_counter = 1"
-        "AND environment.settings.attribution.ua = 'chrome'"
+        "{first_run} AND environment.settings.attribution.ua = 'chrome'"
+    ).format(first_run=TARGETING_FIRST_RUN.desktop_telemetry),
+)
+
+TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
+    name="First start-up users (en) on Windows 10 1903 (build 18362) or newer",
+    slug="first_run_win1903",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Win 18362+ with an en-* locale."
     ),
+    targeting=("{first_run} && os.windowsBuildNumber >= 18362").format(
+        first_run=TARGETING_FIRST_RUN.targeting
+    ),
+    desktop_telemetry=(
+        "{first_run} AND environment.system.os.windows_build_number >= 18362"
+    ).format(first_run=TARGETING_FIRST_RUN.desktop_telemetry),
 )
 
 TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
@@ -178,6 +190,9 @@ class NimbusConstants(object):
         TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug: (
             TARGETING_FIRST_RUN_CHROME_ATTRIBUTION
         ),
+        TARGETING_FIRST_RUN_WINDOWS_1903_NEWER.slug: (
+            TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
+        ),
         TARGETING_HOMEPAGE_GOOGLE.slug: TARGETING_HOMEPAGE_GOOGLE,
     }
 
@@ -189,6 +204,9 @@ class NimbusConstants(object):
         TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = (
             TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug
         ), TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.name
+        TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = (
+            TARGETING_FIRST_RUN_WINDOWS_1903_NEWER.slug
+        ), TARGETING_FIRST_RUN_WINDOWS_1903_NEWER.name
         TARGETING_HOMEPAGE_GOOGLE = (
             TARGETING_HOMEPAGE_GOOGLE.slug,
             TARGETING_HOMEPAGE_GOOGLE.name,
