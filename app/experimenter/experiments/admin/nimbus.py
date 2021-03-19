@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.contrib.postgres.forms import SimpleArrayField
 
 from experimenter.experiments.models import (
     NimbusBranch,
@@ -36,6 +37,16 @@ class NimbusExperimentChangeLogInlineAdmin(admin.TabularInline):
 
 class NimbusExperimentAdminForm(forms.ModelForm):
     channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices)
+    public_description = forms.CharField(required=False, widget=forms.Textarea())
+    firefox_min_version = forms.ChoiceField(
+        choices=NimbusExperiment.Version.choices, required=False
+    )
+    channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices, required=False)
+    primary_outcomes = SimpleArrayField(forms.CharField(), required=False)
+    secondary_outcomes = SimpleArrayField(forms.CharField(), required=False)
+    targeting_config_slug = forms.ChoiceField(
+        choices=NimbusExperiment.TargetingConfig.choices, required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
