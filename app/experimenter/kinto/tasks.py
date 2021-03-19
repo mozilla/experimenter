@@ -62,42 +62,53 @@ def nimbus_push_experiment_to_kinto(experiment_id):
 @metrics.timer_decorator("check_kinto_push_queue")
 def nimbus_check_kinto_push_queue():
     """
+    A scheduled task that passes each application to a new scheduled
+    task for working with kinto
+    """
+    for application in NimbusExperiment.KINTO_APPLICATION_COLLECTION:
+        nimbus_check_kinto_push_queue_by_application.delay(application)
+
+
+@app.task
+@metrics.timer_decorator("check_kinto_push_queue_by_application")
+def nimbus_check_kinto_push_queue_by_application(application):
+    """
     Because kinto has a restriction that it can only have a single pending review, this
     task brokers the queue of all experiments ready to be pushed to kinto and ensures
     that only a single experiment is ever in review.
 
     A scheduled task that
     - Checks the kinto collection for a single rejected experiment from a previous push
-      - If one exists, pull it out of the collection and mark it as rejected
+       - If one exists, pull it out of the collection and mark it as rejected
     - Checks if there is still a pending review and if so, aborts
     - Gets the list of all experiments ready to be pushed to kinto and pushes the first
       one
+    - Checks for experiments that should be paused but are not paused in the kinto
+      collection and marks them as paused and updates the record in the collection.
     """
-    metrics.incr("check_kinto_push_queue.started")
+    collection = NimbusExperiment.KINTO_APPLICATION_COLLECTION.get(application)
+    metrics.incr(f"check_kinto_push_queue_by_{collection}_application.started")
 
-    for application, collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.items():
-        kinto_client = KintoClient(collection)
+    kinto_client = KintoClient(collection)
 
-        if kinto_client.has_pending_review():
-            return
+    if kinto_client.has_pending_review():
+        return
 
-        if kinto_client.has_rejection():
-            handle_rejection(kinto_client)
+    if kinto_client.has_rejection():
+        handle_rejection(kinto_client)
 
-        if queued_launch_experiment := NimbusExperiment.objects.launch_queue(
-            application
-        ).first():
-            nimbus_push_experiment_to_kinto.delay(queued_launch_experiment.id)
-        elif queued_end_experiment := NimbusExperiment.objects.end_queue(
-            application
-        ).first():
-            nimbus_end_experiment_in_kinto.delay(queued_end_experiment.id)
-        elif queued_pause_experiment := NimbusExperiment.objects.pause_queue(
-            application
-        ).first():
-            nimbus_pause_experiment_in_kinto.delay(queued_pause_experiment.id)
+    if queued_launch_experiment := NimbusExperiment.objects.launch_queue(
+        application
+    ).first():
+        nimbus_push_experiment_to_kinto.delay(queued_launch_experiment.id)
+    elif queued_end_experiment := NimbusExperiment.objects.end_queue(application).first():
+        nimbus_end_experiment_in_kinto.delay(queued_end_experiment.id)
+    elif queued_pause_experiment := NimbusExperiment.objects.pause_queue(
+        application
+    ).first():
+        nimbus_pause_experiment_in_kinto.delay(queued_pause_experiment.id)
 
-    metrics.incr("check_kinto_push_queue.completed")
+    metrics.incr(f"check_kinto_push_queue_by_{collection}_application.completed")
 
 
 def handle_rejection(kinto_client):

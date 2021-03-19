@@ -75,6 +75,21 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
 class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
     def setUp(self):
         super().setUp()
+        mock_dispatchee_task_patcher = mock.patch(
+            "experimenter.kinto.tasks.nimbus_check_kinto_push_queue_by_application.delay"
+        )
+        self.mock_dispatchee_task = mock_dispatchee_task_patcher.start()
+        self.addCleanup(mock_dispatchee_task_patcher.stop)
+
+    def test_dispatches_check_push_queue(self):
+        tasks.nimbus_check_kinto_push_queue()
+        for application in NimbusExperiment.KINTO_APPLICATION_COLLECTION:
+            self.mock_dispatchee_task.assert_any_call(application)
+
+
+class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
+    def setUp(self):
+        super().setUp()
         mock_push_task_patcher = mock.patch(
             "experimenter.kinto.tasks.nimbus_push_experiment_to_kinto.delay"
         )
@@ -95,7 +110,9 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
 
     def test_check_with_empty_queue_pushes_nothing(self):
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
         self.mock_push_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
@@ -106,19 +123,26 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             NimbusExperiment.Status.LIVE,
             NimbusExperiment.Status.COMPLETE,
         ]:
-            NimbusExperimentFactory.create(status=status)
+            NimbusExperimentFactory.create(
+                status=status, application=NimbusExperiment.Application.DESKTOP
+            )
 
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
         self.mock_push_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
     def test_check_experiment_with_review_and_kinto_pending_pushes_nothing(self):
         NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.REVIEW,
+            application=NimbusExperiment.Application.DESKTOP,
         )
         self.setup_kinto_pending_review()
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
         self.mock_push_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
@@ -126,12 +150,14 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW
+            NimbusExperiment.Status.REVIEW, application=NimbusExperiment.Application.FENIX
         )
         self.assertEqual(experiment.changes.count(), 2)
 
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.FENIX
+        )
         self.mock_push_task.assert_called_with(experiment.id)
 
     def test_check_with_reject_review(self):
@@ -164,7 +190,9 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             [],
             [],
         ]
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
@@ -211,7 +239,9 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             [],
             [],
         ]
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
 
         # It still rolls back
         self.mock_kinto_client.patch_collection.assert_called_with(
@@ -261,7 +291,9 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             [],
             [],
         ]
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
@@ -316,7 +348,9 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             [],
             [],
         ]
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
@@ -343,7 +377,9 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             is_end_requested=True,
         )
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
         self.mock_end_task.assert_called_with(experiment.id)
 
     def test_check_experiment_pushes_experiment_before_ending_experiment(
@@ -364,7 +400,9 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         )
 
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.FENIX
+        )
         self.mock_push_task.assert_called_with(experiment_1.id)
         self.mock_end_task.assert_not_called()
 
@@ -372,7 +410,9 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         experiment_1.save()
 
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.FENIX
+        )
         self.mock_end_task.assert_called_with(experiment_2.id)
 
     def test_check_experiment_that_should_pause_does_pause(
@@ -392,7 +432,9 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         launch_change.save()
 
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
 
         self.mock_pause_task.assert_called_with(experiment.id)
 
