@@ -4,7 +4,13 @@
 
 import { MockedResponse } from "@apollo/client/testing";
 import { navigate } from "@reach/router";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import React from "react";
 import PageNew from ".";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
@@ -78,11 +84,11 @@ describe("PageNew", () => {
   it("handles experiment form submission with server API error", async () => {
     mutationMock.result.errors = [new Error("an error")];
     render(<Subject mocks={[mutationMock]} />);
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("submit"));
-    });
-    expect(screen.getByTestId("submitErrors")).toHaveTextContent(
-      JSON.stringify({ "*": SUBMIT_ERROR }),
+    fireEvent.click(screen.getByTestId("submit"));
+    await waitFor(() =>
+      expect(screen.getByTestId("submitErrors")).toHaveTextContent(
+        JSON.stringify({ "*": SUBMIT_ERROR }),
+      ),
     );
   });
 
