@@ -5,9 +5,11 @@
 import React from "react";
 import PageRequestReview from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import { MockConfigContext } from "../../hooks";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
+import DraftStatusOperations from "./DraftStatusOperations";
 
 export const { mock, experiment } = mockExperimentQuery("demo-slug");
 
@@ -38,4 +40,57 @@ export const Subject = ({
   <RouterSlugProvider {...{ mocks }}>
     <PageRequestReview polling={false} />
   </RouterSlugProvider>
+);
+
+export const SubjectEXP1055 = ({
+  mocks = [mock, createMutationMock(experiment.id!)],
+  ...pageProps
+}: {
+  mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
+} & React.ComponentProps<typeof PageRequestReview>) => (
+  <MockConfigContext.Provider
+    value={{
+      featureFlags: {
+        exp1055ReviewFlow: true,
+      },
+    }}
+  >
+    <RouterSlugProvider {...{ mocks }}>
+      <PageRequestReview polling={false} {...pageProps} />
+    </RouterSlugProvider>
+  </MockConfigContext.Provider>
+);
+
+export const SubjectDraftStatusOperations = ({
+  isLaunchRequested = false,
+  isLaunchApproved = false,
+  launchRequestedByUsername = "jdoe@mozilla.com",
+  currentUsername = "janed@mozilla.com",
+  currentUserCanApprove = false,
+  rejectExperimentLaunch = () => {},
+  approveExperimentLaunch = () => {},
+  confirmExperimentLaunchApproval = () => {},
+  onLaunchClicked = () => {},
+  onLaunchToPreviewClicked = () => {},
+  ...props
+}: Partial<React.ComponentProps<typeof DraftStatusOperations>>) => (
+  <DraftStatusOperations
+    {...{
+      featureFlags: {
+        exp1055ReviewFlow: true,
+      },
+      isLoading: false,
+      isLaunchRequested,
+      isLaunchApproved,
+      currentUserCanApprove,
+      currentUsername,
+      launchRequestedByUsername,
+      rejectExperimentLaunch,
+      approveExperimentLaunch,
+      confirmExperimentLaunchApproval,
+      onLaunchClicked,
+      onLaunchToPreviewClicked,
+      ...props,
+    }}
+  />
 );
