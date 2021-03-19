@@ -29,6 +29,7 @@ faker = FakerFactory.create()
 
 
 class NimbusExperimentFactory(factory.django.DjangoModelFactory):
+    publish_status = NimbusExperiment.PublishStatus.IDLE
     owner = factory.SubFactory(UserFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(
