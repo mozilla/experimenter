@@ -30,22 +30,23 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "application": "",
                 "branches": [],
                 "channel": NimbusExperiment.Channel.NO_CHANNEL,
-                "reference_branch": None,
                 "feature_config": None,
                 "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
                 "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
-                "risk_mitigation_link": "",
-                "is_paused": False,
                 "is_end_requested": False,
+                "is_paused": False,
                 "name": "",
                 "owner": owner.email,
                 "population_percent": "0.0000",
                 "primary_outcomes": [],
-                "secondary_outcomes": [],
                 "projects": [],
                 "proposed_duration": NimbusExperiment.DEFAULT_PROPOSED_DURATION,
                 "proposed_enrollment": NimbusExperiment.DEFAULT_PROPOSED_ENROLLMENT,
                 "public_description": "",
+                "publish_status": NimbusExperiment.PublishStatus.IDLE.value,
+                "reference_branch": None,
+                "risk_mitigation_link": "",
+                "secondary_outcomes": [],
                 "slug": "",
                 "status": NimbusExperiment.Status.DRAFT.value,
                 "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
@@ -86,18 +87,19 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 },
                 "firefox_min_version": experiment.firefox_min_version,
                 "hypothesis": experiment.hypothesis,
-                "risk_mitigation_link": experiment.risk_mitigation_link,
-                "is_paused": experiment.is_paused,
                 "is_end_requested": experiment.is_end_requested,
+                "is_paused": experiment.is_paused,
                 "name": experiment.name,
                 "owner": experiment.owner.email,
                 "population_percent": str(experiment.population_percent),
                 "primary_outcomes": [primary_outcome],
-                "secondary_outcomes": [secondary_outcome],
                 "projects": [project.slug],
                 "proposed_duration": experiment.proposed_duration,
                 "proposed_enrollment": experiment.proposed_enrollment,
                 "public_description": experiment.public_description,
+                "publish_status": experiment.publish_status,
+                "risk_mitigation_link": experiment.risk_mitigation_link,
+                "secondary_outcomes": [secondary_outcome],
                 "slug": experiment.slug,
                 "status": experiment.status,
                 "targeting_config_slug": experiment.targeting_config_slug,
@@ -147,7 +149,9 @@ class TestGenerateNimbusChangeLog(TestCase):
         self.assertEqual(change.experiment, experiment)
         self.assertEqual(change.changed_by, self.user)
         self.assertEqual(change.old_status, None)
+        self.assertEqual(change.old_publish_status, None)
         self.assertEqual(change.new_status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(change.new_publish_status, NimbusExperiment.PublishStatus.IDLE)
         self.assertEqual(
             change.experiment_data,
             dict(NimbusExperimentChangeLogSerializer(experiment).data),
@@ -160,6 +164,10 @@ class TestGenerateNimbusChangeLog(TestCase):
 
         self.assertEqual(experiment.changes.count(), 1)
 
+        experiment.status = NimbusExperiment.Status.REVIEW
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
         generate_nimbus_changelog(experiment, self.user)
 
         self.assertEqual(experiment.changes.count(), 2)
@@ -169,7 +177,9 @@ class TestGenerateNimbusChangeLog(TestCase):
         self.assertEqual(change.experiment, experiment)
         self.assertEqual(change.changed_by, self.user)
         self.assertEqual(change.old_status, NimbusExperiment.Status.DRAFT)
-        self.assertEqual(change.new_status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(change.old_publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertEqual(change.new_status, NimbusExperiment.Status.REVIEW)
+        self.assertEqual(change.new_publish_status, NimbusExperiment.PublishStatus.REVIEW)
         self.assertEqual(
             change.experiment_data,
             dict(NimbusExperimentChangeLogSerializer(experiment).data),

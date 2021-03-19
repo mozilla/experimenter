@@ -142,6 +142,13 @@ type NimbusExperimentOwner {
   email: String!
 }
 
+enum NimbusExperimentPublishStatus {
+  IDLE
+  REVIEW
+  APPROVED
+  WAITING
+}
+
 enum NimbusExperimentStatus {
   DRAFT
   PREVIEW
@@ -165,6 +172,7 @@ type NimbusExperimentType {
   id: Int
   owner: NimbusExperimentOwner!
   status: NimbusExperimentStatus
+  publishStatus: NimbusExperimentPublishStatus!
   name: String!
   slug: String!
   publicDescription: String!
