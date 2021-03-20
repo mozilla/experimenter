@@ -486,7 +486,7 @@ export const SubjectEXP1234 = ({
 }: Partial<React.ComponentProps<typeof ExampleComponent>>) => (
   <MockConfigContext.Provider value={{
     featureFlags: {
-      exp866Preview: true
+      exp1234Preview: true
     }
   }}>
     <ExampleComponent ...{props} />
