@@ -7,6 +7,7 @@ from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
+from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.models import NimbusExperiment, NimbusIsolationGroup
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
@@ -406,6 +407,52 @@ class TestNimbusExperiment(TestCase):
         launch_change.save()
         self.assertTrue(experiment.should_pause)
 
+    def test_can_review_false_for_requesting_user(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertFalse(experiment.can_review(experiment.owner))
+
+    def test_can_review_true_for_non_requesting_user(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertTrue(experiment.can_review(UserFactory.create()))
+
+    @parameterized.expand(
+        [
+            NimbusExperiment.PublishStatus.IDLE,
+            NimbusExperiment.PublishStatus.APPROVED,
+            NimbusExperiment.PublishStatus.WAITING,
+        ]
+    )
+    def test_can_review_false_for_non_review_publish_status(self, publish_status):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        experiment.publish_status = publish_status
+        experiment.save()
+
+        self.assertFalse(experiment.can_review(UserFactory.create()))
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
@@ -553,6 +600,50 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(
             bucket.isolation_group.application, NimbusExperiment.Application.FENIX
         )
+
+
+class TestNimbusChangeLogManager(TestCase):
+    def test_latest_review_request_returns_none_for_no_review_request(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        self.assertIsNone(experiment.changes.latest_review_request())
+
+    def test_latest_review_request_returns_change_for_idle_to_review(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        change = generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertEqual(experiment.changes.latest_review_request(), change)
+
+    def test_latest_review_request_returns_most_recent_review_request(self):
+        reviewer = UserFactory()
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        experiment.save()
+        generate_nimbus_changelog(experiment, reviewer)
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        second_request = generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertEqual(experiment.changes.latest_review_request(), second_request)
 
 
 class TestNimbusChangeLog(TestCase):

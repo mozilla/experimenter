@@ -135,6 +135,7 @@ class NimbusExperimentType(DjangoObjectType):
     computed_end_date = graphene.DateTime()
     is_enrollment_paused = graphene.Boolean()
     enrollment_end_date = graphene.DateTime()
+    can_review = graphene.Boolean()
 
     class Meta:
         model = NimbusExperiment
@@ -166,3 +167,6 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_enrollment_end_date(self, info):
         return self.proposed_enrollment_end_date
+
+    def resolve_can_review(self, info):
+        return self.can_review(info.context.user)

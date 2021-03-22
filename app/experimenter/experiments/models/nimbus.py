@@ -259,6 +259,12 @@ class NimbusExperiment(NimbusConstants, models.Model):
             ),
         )
 
+    def can_review(self, reviewer):
+        if self.publish_status == NimbusExperiment.PublishStatus.REVIEW:
+            review_request = self.changes.latest_review_request()
+            return review_request and review_request.changed_by != reviewer
+        return False
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
@@ -415,6 +421,18 @@ class NimbusFeatureConfig(models.Model):
         return self.name
 
 
+class NimbusChangeLogManager(models.Manager):
+    def latest_review_request(self):
+        return (
+            self.all()
+            .filter(
+                old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            )
+            .order_by("-changed_on")
+        ).first()
+
+
 class NimbusChangeLog(models.Model):
     def current_datetime():
         return timezone.now()
@@ -441,6 +459,8 @@ class NimbusChangeLog(models.Model):
     )
     message = models.TextField(blank=True, null=True)
     experiment_data = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+
+    objects = NimbusChangeLogManager()
 
     class Meta:
         verbose_name = "Nimbus Experiment Change Log"
