@@ -359,7 +359,7 @@ Django = ">=2.2"
 
 [[package]]
 name = "django-countries"
-version = "7.0"
+version = "7.1"
 description = "Provides a country field for Django models."
 category = "main"
 optional = false
@@ -368,6 +368,7 @@ python-versions = "*"
 [package.extras]
 dev = ["tox", "black", "django", "pytest", "pytest-django", "djangorestframework", "graphene-django"]
 maintainer = ["transifex-client", "zest.releaser", "django"]
+pyuca = ["pyuca"]
 test = ["pytest", "pytest-django", "pytest-cov", "graphene-django"]
 
 [[package]]
@@ -1552,7 +1553,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b902156c733613208ce893a5e86665209be364dd787a8f5333950c9b44f781bd"
+content-hash = "1586a729fb1ead609a53f5434034b8c051d8af9619966ff45efdbd90f02fe427"
 
 [metadata.files]
 aiohttp = [
@@ -1784,8 +1785,8 @@ django-cors-headers = [
     {file = "django_cors_headers-3.7.0-py3-none-any.whl", hash = "sha256:1ac2b1213de75a251e2ba04448da15f99bcfcbe164288ae6b5ff929dc49b372f"},
 ]
 django-countries = [
-    {file = "django-countries-7.0.tar.gz", hash = "sha256:11191d245256b4e46a4715e391ce0b2fa982e968a6a2b4d263cace95ebe448c1"},
-    {file = "django_countries-7.0-py3-none-any.whl", hash = "sha256:936fd0716cec8388f7c50a8e9e11ba1049d926276fb4e7c8cca61716b78edc91"},
+    {file = "django-countries-7.1.tar.gz", hash = "sha256:058e3cd82705ebf8ef680fb623b1da2d47bc03b816a71589a8279d2e5a7a5389"},
+    {file = "django_countries-7.1-py3-none-any.whl", hash = "sha256:94170e99465f7ea504da828c8e64f36d94440a86907fc8ecb56c5336aafae0cd"},
 ]
 django-filter = [
     {file = "django-filter-2.4.0.tar.gz", hash = "sha256:84e9d5bb93f237e451db814ed422a3a625751cbc9968b484ecc74964a8696b06"},
