@@ -23,6 +23,7 @@ class TestNimbusExperimentAdminForm(TestCase):
             data={
                 "owner": experiment.owner,
                 "status": experiment.status,
+                "publish_status": experiment.publish_status,
                 "name": experiment.name,
                 "slug": experiment.slug,
                 "proposed_duration": experiment.proposed_duration,
@@ -44,6 +45,7 @@ class TestNimbusExperimentAdminForm(TestCase):
             data={
                 "owner": experiment.owner,
                 "status": experiment.status,
+                "publish_status": experiment.publish_status,
                 "name": experiment.name,
                 "slug": experiment.slug,
                 "proposed_duration": experiment.proposed_duration,
