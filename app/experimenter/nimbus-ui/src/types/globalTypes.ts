@@ -57,6 +57,13 @@ export enum NimbusExperimentFirefoxMinVersion {
   NO_VERSION = "NO_VERSION",
 }
 
+export enum NimbusExperimentPublishStatus {
+  APPROVED = "APPROVED",
+  IDLE = "IDLE",
+  REVIEW = "REVIEW",
+  WAITING = "WAITING",
+}
+
 export enum NimbusExperimentStatus {
   ACCEPTED = "ACCEPTED",
   COMPLETE = "COMPLETE",
@@ -93,6 +100,7 @@ export interface ExperimentIdInput {
 export interface ExperimentInput {
   id?: number | null;
   status?: NimbusExperimentStatus | null;
+  publishStatus?: NimbusExperimentPublishStatus | null;
   name?: string | null;
   hypothesis?: string | null;
   application?: NimbusExperimentApplication | null;
