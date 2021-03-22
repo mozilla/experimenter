@@ -7,6 +7,7 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import PageRequestReview from ".";
+import { humanDate } from "../../lib/dateUtils";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
@@ -20,11 +21,14 @@ import {
   SubjectEXP1055,
 } from "./mocks";
 
+const mockRejectFeedback = {
+  rejectedByUser: "example@mozilla.com",
+  rejectDate: humanDate("2020-11-28T14:52:44.704811+00:00"),
+  rejectReason: "It's bad. Just start over.",
+};
+
 storiesOf("pages/RequestReview", module)
   .addDecorator(withLinks)
-  .add("draft status", () => {
-    return <Subject />;
-  })
   .add("preview status", () => {
     const { mock } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.PREVIEW,
@@ -51,6 +55,9 @@ storiesOf("pages/RequestReview", module)
 
 storiesOf("pages/RequestReview/EXP-1055", module)
   .addDecorator(withLinks)
+  .add("draft status", () => {
+    return <Subject />;
+  })
   .add("review not requested", () => <SubjectEXP1055 />)
   .add("review requested, user has reviewer role", () => (
     <SubjectEXP1055
@@ -116,6 +123,51 @@ storiesOf("pages/RequestReview/EXP-1055", module)
           currentUserCanApprove: true,
           currentUsername: "abc@mozilla.com",
           launchRequestedByUsername: "abc@mozilla.com",
+        }}
+      />
+    ),
+  )
+  .add(
+    "review rejected in experimenter or remote settings, user has reviewer role, but user has requested this review",
+    () => (
+      <SubjectEXP1055
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: false,
+          currentUserCanApprove: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
+          rejectFeedback: mockRejectFeedback,
+        }}
+      />
+    ),
+  )
+  .add(
+    "review rejected in experimenter or remote settings, user has reviewer role, but user did not request this review",
+    () => (
+      <SubjectEXP1055
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: false,
+          currentUserCanApprove: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "def@mozilla.com",
+          rejectFeedback: mockRejectFeedback,
+        }}
+      />
+    ),
+  )
+  .add(
+    "review rejected in experimenter or remote settings, user does not have reviewer role, but user did not request this review",
+    () => (
+      <SubjectEXP1055
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: false,
+          currentUserCanApprove: false,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "def@mozilla.com",
+          rejectFeedback: mockRejectFeedback,
         }}
       />
     ),
@@ -211,6 +263,51 @@ storiesOf("pages/RequestReview/EXP-1055/DraftStatusOperations", module)
           currentUserCanApprove: true,
           currentUsername: "abc@mozilla.com",
           launchRequestedByUsername: "abc@mozilla.com",
+        }}
+      />
+    ),
+  )
+  .add(
+    "review rejected in experimenter or remote settings, user has reviewer role, but user has requested this review",
+    () => (
+      <SubjectDraftStatusOperationsWithActions
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: false,
+          currentUserCanApprove: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
+          rejectFeedback: mockRejectFeedback,
+        }}
+      />
+    ),
+  )
+  .add(
+    "review rejected in experimenter or remote settings, user has reviewer role, but user did not request this review",
+    () => (
+      <SubjectDraftStatusOperationsWithActions
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: false,
+          currentUserCanApprove: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "def@mozilla.com",
+          rejectFeedback: mockRejectFeedback,
+        }}
+      />
+    ),
+  )
+  .add(
+    "review rejected in experimenter or remote settings, user does not have reviewer role, but user did not request this review",
+    () => (
+      <SubjectDraftStatusOperationsWithActions
+        {...{
+          isLaunchRequested: true,
+          isLaunchApproved: false,
+          currentUserCanApprove: false,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "def@mozilla.com",
+          rejectFeedback: mockRejectFeedback,
         }}
       />
     ),
