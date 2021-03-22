@@ -18,8 +18,17 @@ export enum DraftStatusOperationsState {
   LaunchApprovalPending,
   LaunchApproveOrReject,
   LaunchRejection,
+  LaunchRejected,
+  LaunchRejectedByAnotherUser,
   ApprovalConfirmation,
 }
+
+// Replace with generated type, EXP-1055 & EXP-1062
+type RejectFeedback = {
+  rejectedByUser: string;
+  rejectDate: string;
+  rejectReason: string;
+} | null;
 
 export const DraftStatusOperations = ({
   isLoading,
@@ -29,6 +38,7 @@ export const DraftStatusOperations = ({
   launchRequestedByUsername = "",
   currentUsername = "",
   currentUserCanApprove = false,
+  rejectFeedback,
   rejectExperimentLaunch,
   approveExperimentLaunch,
   confirmExperimentLaunchApproval,
@@ -42,6 +52,7 @@ export const DraftStatusOperations = ({
   launchRequestedByUsername: string;
   currentUsername: string;
   currentUserCanApprove: boolean;
+  rejectFeedback: RejectFeedback;
   rejectExperimentLaunch: (fields: { reason: string }) => void;
   approveExperimentLaunch: () => void;
   confirmExperimentLaunchApproval: () => void;
@@ -49,14 +60,19 @@ export const DraftStatusOperations = ({
   onLaunchToPreviewClicked: () => void;
 }) => {
   let defaultDraftUIState = DraftStatusOperationsState.DraftToPreview;
+  const launchRequestedByCurrentUser =
+    currentUsername === launchRequestedByUsername;
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
   if (featureFlags.exp1055ReviewFlow) {
-    const canApprove =
-      currentUserCanApprove && currentUsername !== launchRequestedByUsername;
+    const canApprove = currentUserCanApprove && !launchRequestedByCurrentUser;
     if (isLaunchApproved) {
       defaultDraftUIState = canApprove
         ? DraftStatusOperationsState.ApprovalConfirmation
         : DraftStatusOperationsState.LaunchApprovalPending;
+    } else if (rejectFeedback) {
+      defaultDraftUIState = launchRequestedByCurrentUser
+        ? DraftStatusOperationsState.LaunchRejected
+        : DraftStatusOperationsState.LaunchRejectedByAnotherUser;
     } else if (isLaunchRequested) {
       defaultDraftUIState = canApprove
         ? DraftStatusOperationsState.LaunchApproveOrReject
@@ -116,6 +132,40 @@ export const DraftStatusOperations = ({
             onCancel: resetDraftUIState,
           }}
         />
+      );
+
+    /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+    case DraftStatusOperationsState.LaunchRejected:
+      return (
+        <Alert variant="warning">
+          <div className="text-body">
+            <p>
+              Your experiment was <strong>Rejected</strong> due to:
+            </p>
+            <p className="mb-0">
+              {rejectFeedback!.rejectedByUser} on {rejectFeedback!.rejectDate}:
+            </p>
+            <p className="bg-white rounded border p-3">
+              {rejectFeedback!.rejectReason}
+            </p>
+          </div>
+        </Alert>
+      );
+
+    /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+    case DraftStatusOperationsState.LaunchRejectedByAnotherUser:
+      return (
+        <Alert variant="warning">
+          <div className="text-body">
+            <p>
+              This experiment was reviewed and <strong>Rejected</strong> by{" "}
+              {rejectFeedback!.rejectedByUser} on {rejectFeedback!.rejectDate}.
+            </p>
+            <p className="mb-0">
+              The experiment owner can make edits and request another review.
+            </p>
+          </div>
+        </Alert>
       );
 
     /* istanbul ignore next until EXP-1055 & EXP-1062 done */

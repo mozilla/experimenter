@@ -23,6 +23,13 @@ import Summary from "../Summary";
 import DraftStatusOperations from "./DraftStatusOperations";
 import FormLaunchPreviewToReview from "./FormLaunchPreviewToReview";
 
+// Replace with generated type, EXP-1055 & EXP-1062
+type RejectFeedback = {
+  rejectedByUser: string;
+  rejectDate: string;
+  rejectReason: string;
+} | null;
+
 const PageRequestReview = ({
   /* istanbul ignore next - only used in tests & stories */
   polling = true,
@@ -36,6 +43,8 @@ const PageRequestReview = ({
   currentUsername = "", // new user ID / email property
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
   currentUserCanApprove = false, // new user permission property
+  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+  rejectFeedback = null,
 }: {
   polling?: boolean;
   // TODO EXP-1062: temporary page-level props, should be replaced by API data for experiment & current user
@@ -44,6 +53,7 @@ const PageRequestReview = ({
   launchRequestedByUsername?: string;
   currentUsername?: string;
   currentUserCanApprove?: boolean;
+  rejectFeedback?: RejectFeedback;
 } & RouteComponentProps) => {
   const { featureFlags } = useConfig();
 
@@ -164,6 +174,7 @@ const PageRequestReview = ({
                   launchRequestedByUsername,
                   currentUserCanApprove,
                   currentUsername,
+                  rejectFeedback,
                   rejectExperimentLaunch,
                   approveExperimentLaunch,
                   confirmExperimentLaunchApproval,
@@ -185,7 +196,6 @@ const PageRequestReview = ({
                 </p>
               </Alert>
             )}
-
             {status.preview && (
               <FormLaunchPreviewToReview
                 {...{
