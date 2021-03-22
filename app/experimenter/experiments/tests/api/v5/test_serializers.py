@@ -10,6 +10,7 @@ from experimenter.experiments.api.v5.serializers import (
     NimbusExperimentSerializer,
     NimbusReadyForReviewSerializer,
 )
+from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.models.nimbus import (
@@ -1154,6 +1155,76 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertIn("primary_outcomes", serializer.errors)
+
+    def test_can_review_for_non_requesting_user(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED.value,
+            },
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+    def test_cant_review_for_requesting_user(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED.value,
+            },
+            context={"user": experiment.owner},
+        )
+
+        self.assertFalse(serializer.is_valid(), serializer.errors)
+        self.assertIn("publish_status", serializer.errors)
+
+    def test_can_update_publish_status_for_non_approved_state(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.IDLE.value,
+            },
+            context={"user": experiment.owner},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
 
 class TestNimbusReadyForReviewSerializer(TestCase):
