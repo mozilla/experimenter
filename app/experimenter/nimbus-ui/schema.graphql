@@ -26,6 +26,7 @@ input ExperimentIdInput {
 input ExperimentInput {
   id: Int
   status: NimbusExperimentStatus
+  publishStatus: NimbusExperimentPublishStatus
   name: String
   hypothesis: String
   application: NimbusExperimentApplication
@@ -172,7 +173,7 @@ type NimbusExperimentType {
   id: Int
   owner: NimbusExperimentOwner!
   status: NimbusExperimentStatus
-  publishStatus: NimbusExperimentPublishStatus!
+  publishStatus: NimbusExperimentPublishStatus
   name: String!
   slug: String!
   publicDescription: String!
