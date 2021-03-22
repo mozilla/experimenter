@@ -204,6 +204,7 @@ type NimbusExperimentType {
   computedEndDate: DateTime
   isEnrollmentPaused: Boolean
   enrollmentEndDate: DateTime
+  canReview: Boolean
 }
 
 enum NimbusFeatureConfigApplication {
