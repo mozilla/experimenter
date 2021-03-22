@@ -48,7 +48,7 @@ def generate_nimbus_changelog(experiment, changed_by, message=None):
         old_status = latest_change.new_status
         old_publish_status = latest_change.new_publish_status
 
-    NimbusChangeLog.objects.create(
+    return NimbusChangeLog.objects.create(
         experiment=experiment,
         old_status=old_status,
         old_publish_status=old_publish_status,

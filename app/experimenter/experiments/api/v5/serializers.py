@@ -337,6 +337,16 @@ class NimbusExperimentSerializer(
         )
         super().__init__(instance=instance, data=data, **kwargs)
 
+    def validate_publish_status(self, publish_status):
+        if (
+            publish_status == NimbusExperiment.PublishStatus.APPROVED
+            and not self.instance.can_review(self.context["user"])
+        ):
+            raise serializers.ValidationError(
+                f'{self.context["user"]} can not review this experiment.'
+            )
+        return publish_status
+
     def validate_name(self, name):
         if not (self.instance or name):
             raise serializers.ValidationError("Name is required to create an experiment")

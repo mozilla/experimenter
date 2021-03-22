@@ -6,6 +6,7 @@ from django.urls import reverse
 from graphene.utils.str_converters import to_snake_case
 from graphene_django.utils.testing import GraphQLTestCase
 
+from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
@@ -357,6 +358,32 @@ class TestNimbusQuery(GraphQLTestCase):
             experiment_data["computedEndDate"],
             experiment.end_date.isoformat(),
         )
+
+    def test_experiment_in_review_can_review(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner)
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    canReview
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertTrue(experiment_data["canReview"])
 
     def test_nimbus_config(self):
         user_email = "user@example.com"
