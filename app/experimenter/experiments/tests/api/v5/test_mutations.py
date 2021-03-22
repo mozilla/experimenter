@@ -502,6 +502,26 @@ class TestMutations(GraphQLTestCase):
             },
         )
 
+    def test_update_experiment_publish_status(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "publishStatus": NimbusExperiment.PublishStatus.REVIEW.name,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
     def test_end_experiment_in_kinto(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(
