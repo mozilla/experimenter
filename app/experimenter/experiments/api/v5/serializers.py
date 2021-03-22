@@ -294,11 +294,15 @@ class NimbusExperimentSerializer(
     population_percent = serializers.DecimalField(
         7, 4, min_value=0.0, max_value=100.0, required=False
     )
+    publish_status = serializers.ChoiceField(
+        choices=NimbusExperiment.PublishStatus.choices, required=False
+    )
 
     class Meta:
         model = NimbusExperiment
         fields = [
             "status",
+            "publish_status",
             "name",
             "slug",
             "risk_mitigation_link",

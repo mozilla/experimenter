@@ -29,6 +29,11 @@ class NimbusExperimentStatus(graphene.Enum):
         enum = NimbusConstants.Status
 
 
+class NimbusExperimentPublishStatus(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.PublishStatus
+
+
 class NimbusExperimentFirefoxMinVersion(graphene.Enum):
     class Meta:
         enum = NimbusConstants.Version
@@ -113,6 +118,7 @@ class NimbusReadyForReviewType(graphene.ObjectType):
 class NimbusExperimentType(DjangoObjectType):
     id = graphene.Int()
     status = NimbusExperimentStatus()
+    publish_status = NimbusExperimentPublishStatus()
     application = NimbusExperimentApplication()
     firefox_min_version = NimbusExperimentFirefoxMinVersion()
     population_percent = graphene.String()

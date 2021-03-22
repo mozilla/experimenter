@@ -5,6 +5,7 @@ from experimenter.experiments.api.v5.types import (
     NimbusExperimentChannel,
     NimbusExperimentDocumentationLink,
     NimbusExperimentFirefoxMinVersion,
+    NimbusExperimentPublishStatus,
     NimbusExperimentStatus,
     NimbusExperimentTargetingConfigSlug,
 )
@@ -42,6 +43,7 @@ class ExperimentIdInput(graphene.InputObjectType):
 class ExperimentInput(graphene.InputObjectType):
     id = graphene.Int()
     status = NimbusExperimentStatus()
+    publish_status = NimbusExperimentPublishStatus()
     name = graphene.String()
     hypothesis = graphene.String()
     application = NimbusExperimentApplication()
