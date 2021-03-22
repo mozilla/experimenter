@@ -7,7 +7,7 @@
     "experimenter/nimbus-ui"
   ],
   "dependencies": {
-    "react-select": "^3.1.1"
+    "react-select": "^4.3.0"
   },
   "devDependencies": {},
   "repository": {
