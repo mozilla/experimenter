@@ -82,7 +82,7 @@ export const AppLayoutSidebarLocked = ({
       <ul className="list-unstyled ml-3">
         <li className="mb-2">{title}</li>
         {Object.keys(metrics).map((sidebarKey) => (
-          <NavLink title={metrics[sidebarKey]} key={sidebarKey} />
+          <NavLink title={metrics[sidebarKey]} key={sidebarKey} {...{sidebarKey}} />
         ))}
       </ul>
     </li>
@@ -100,12 +100,12 @@ export const AppLayoutSidebarLocked = ({
     .concat("default_metrics")
     .concat(Object.keys(otherMetrics || []));
 
-  const NavLink = ({ title }: { title: string }) => (
+  const NavLink = ({ title, sidebarKey="" }: { title: string, sidebarKey: string }) => (
     <>
       {analysisRequired ? (
         <li className="ml-3 mb-2">
           <a
-            href={`#${convertToLinkId(title)}`}
+            href={`#${sidebarKey}`}
             className="font-weight-normal inherit-color"
           >
             {title}
@@ -113,7 +113,7 @@ export const AppLayoutSidebarLocked = ({
         </li>
       ) : (
         <LinkNav
-          route={`${slug}/results#${convertToLinkId(title)}`}
+          route={`${slug}/results#${sidebarKey}`}
           storiesOf="pages/Results"
           textColor="inherit-color"
           className="font-weight-normal"
@@ -127,9 +127,9 @@ export const AppLayoutSidebarLocked = ({
   const ResultsAvailableNav = () => {
     const nav = (
       <>
-        <NavLink title="Monitoring" />
-        <NavLink title="Overview" />
-        <NavLink title="Results Summary" />
+        <NavLink title="Monitoring" sidebarKey="monitoring" />
+        <NavLink title="Overview" sidebarKey="overview"/>
+        <NavLink title="Results Summary" sidebarKey="results_summary"/>
 
         {Object.keys(primaryMetrics).length > 0 &&
           getSidebarItems(primaryMetrics, "Primary Metrics")}
