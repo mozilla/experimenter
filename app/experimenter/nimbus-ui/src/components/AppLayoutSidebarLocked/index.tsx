@@ -20,34 +20,6 @@ import { ReactComponent as BarChart } from "./bar-chart.svg";
 
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
 
-const commonScrollspyLinkProps = {
-  storiesOf: "pages/Results",
-  textColor: "inherit-color",
-};
-
-const getSidebarItems = (
-  slug: string,
-  metrics: { [metric: string]: string },
-  title: string,
-) => {
-  const sidebarItems = Object.keys(metrics).map((sidebarKey) => (
-    <LinkNav
-      key={sidebarKey}
-      route={`${slug}/results#${sidebarKey}`}
-      className="pl-3 font-weight-normal"
-      {...commonScrollspyLinkProps}
-    >
-      {metrics[sidebarKey]}
-    </LinkNav>
-  ));
-  sidebarItems.unshift(
-    <li key={title} className="mb-2">
-      {title}
-    </li>,
-  );
-  return sidebarItems;
-};
-
 const outcomeToMapping = (outcomes: OutcomesList) => {
   return outcomes.reduce((acc: { [key: string]: string }, outcome) => {
     acc[outcome?.slug as string] = outcome?.friendlyName!;
@@ -73,16 +45,22 @@ type AppLayoutSidebarLockedProps = {
   children: React.ReactNode;
   status: StatusCheck;
   analysis?: AnalysisData;
-  analysisLoadingInSidebar?: boolean;
+  analysisRequired: boolean; // the page and sidebar need analysis data
+  analysisLoadingInSidebar?: boolean; // only the sidebar needs analysis data & is loading
   analysisError?: Error;
   experiment: getExperiment_experimentBySlug;
 } & RouteComponentProps;
+
+// All link IDs use snake_case over kebab-case for convenience
+const convertToLinkId = (title: string) =>
+  title.replace(/ /g, "_").toLowerCase();
 
 export const AppLayoutSidebarLocked = ({
   children,
   testid = "AppLayoutSidebarLocked",
   status,
   analysis,
+  analysisRequired,
   analysisLoadingInSidebar = false,
   analysisError,
   experiment,
@@ -96,17 +74,99 @@ export const AppLayoutSidebarLocked = ({
     analysis?.metadata?.metrics || {},
   );
 
+  const getSidebarItems = (
+    metrics: { [metric: string]: string },
+    title: string,
+  ) => (
+    <li key={title} className="mb-2">
+      <ul className="list-unstyled ml-3">
+        <li className="mb-2">{title}</li>
+        {Object.keys(metrics).map((sidebarKey) => (
+          <NavLink title={metrics[sidebarKey]} key={sidebarKey} />
+        ))}
+      </ul>
+    </li>
+  );
+
   const sidebarKeys = [
     "monitoring",
     "overview",
-    "results-summary",
-    "primary-metrics",
+    "results_summary",
+    "primary_metrics",
   ]
     .concat(Object.keys(primaryMetrics || []))
-    .concat("secondary-metrics")
+    .concat("secondary_metrics")
     .concat(Object.keys(secondaryMetrics || []))
-    .concat("default-metrics")
+    .concat("default_metrics")
     .concat(Object.keys(otherMetrics || []));
+
+  const NavLink = ({ title }: { title: string }) => (
+    <>
+      {analysisRequired ? (
+        <li className="ml-3 mb-2">
+          <a
+            href={`#${convertToLinkId(title)}`}
+            className="font-weight-normal inherit-color"
+          >
+            {title}
+          </a>
+        </li>
+      ) : (
+        <LinkNav
+          route={`${slug}/results#${convertToLinkId(title)}`}
+          storiesOf="pages/Results"
+          textColor="inherit-color"
+          className="font-weight-normal"
+        >
+          {title}
+        </LinkNav>
+      )}
+    </>
+  );
+
+  const ResultsAvailableNav = () => {
+    const nav = (
+      <>
+        <NavLink title="Monitoring" />
+        <NavLink title="Overview" />
+        <NavLink title="Results Summary" />
+
+        {Object.keys(primaryMetrics).length > 0 &&
+          getSidebarItems(primaryMetrics, "Primary Metrics")}
+        {Object.keys(secondaryMetrics).length > 0 &&
+          getSidebarItems(secondaryMetrics, "Secondary Metrics")}
+        {otherMetrics &&
+          analysis?.overall &&
+          getSidebarItems(otherMetrics, "Default Metrics")}
+      </>
+    );
+    return (
+      <>
+        <LinkNav
+          route={`${slug}/results`}
+          storiesOf="pages/Results"
+          testid="nav-results"
+        >
+          <BarChart className="sidebar-icon" />
+          Results
+        </LinkNav>
+        <li>
+          {/* We only need Scrollspy when analysis data is required on the page */}
+          {analysisRequired ? (
+            <Scrollspy
+              items={sidebarKeys}
+              className="text-dark list-unstyled ml-4"
+              currentClassName="text-primary"
+            >
+              {nav}
+            </Scrollspy>
+          ) : (
+            <ul className="text-dark list-unstyled ml-4">{nav}</ul>
+          )}
+        </li>
+      </>
+    );
+  };
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
@@ -142,51 +202,7 @@ export const AppLayoutSidebarLocked = ({
                 Summary
               </LinkNav>
               {analysisAvailable(analysis) ? (
-                <>
-                  <LinkNav
-                    route={`${slug}/results`}
-                    storiesOf="pages/Results"
-                    testid="nav-results"
-                  >
-                    <BarChart className="sidebar-icon" />
-                    Results
-                  </LinkNav>
-                  <Scrollspy
-                    items={sidebarKeys}
-                    className="text-dark list-unstyled pl-4"
-                    currentClassName="text-primary"
-                  >
-                    <LinkNav
-                      route={`${slug}/results#monitoring`}
-                      {...commonScrollspyLinkProps}
-                    >
-                      Monitoring
-                    </LinkNav>
-                    <LinkNav
-                      route={`${slug}/results#overview`}
-                      {...commonScrollspyLinkProps}
-                    >
-                      Overview
-                    </LinkNav>
-                    <LinkNav
-                      route={`${slug}/results#results-summary`}
-                      {...commonScrollspyLinkProps}
-                    >
-                      Results Summary
-                    </LinkNav>
-                    {Object.keys(primaryMetrics).length &&
-                      getSidebarItems(slug, primaryMetrics, "Primary Metrics")}
-                    {Object.keys(secondaryMetrics).length &&
-                      getSidebarItems(
-                        slug,
-                        secondaryMetrics,
-                        "Secondary Metrics",
-                      )}
-                    {otherMetrics &&
-                      analysis?.overall &&
-                      getSidebarItems(slug, otherMetrics, "Default Metrics")}
-                  </Scrollspy>
-                </>
+                <ResultsAvailableNav />
               ) : (
                 <DisabledItem name="Results" testId="show-no-results">
                   {status?.accepted ? (
