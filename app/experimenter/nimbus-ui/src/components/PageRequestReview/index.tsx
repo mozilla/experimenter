@@ -45,6 +45,8 @@ const PageRequestReview = ({
   currentUserCanApprove = false, // new user permission property
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
   rejectFeedback = null,
+  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
+  rsRequestTimedOut = false, // either poll server for updates or receive timeout time
 }: {
   polling?: boolean;
   // TODO EXP-1062: temporary page-level props, should be replaced by API data for experiment & current user
@@ -54,6 +56,7 @@ const PageRequestReview = ({
   currentUsername?: string;
   currentUserCanApprove?: boolean;
   rejectFeedback?: RejectFeedback;
+  rsRequestTimedOut?: boolean;
 } & RouteComponentProps) => {
   const { featureFlags } = useConfig();
 
@@ -180,6 +183,7 @@ const PageRequestReview = ({
                   confirmExperimentLaunchApproval,
                   onLaunchClicked,
                   onLaunchToPreviewClicked,
+                  rsRequestTimedOut,
                 }}
               />
             )}

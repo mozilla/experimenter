@@ -39,6 +39,7 @@ export const DraftStatusOperations = ({
   currentUsername = "",
   currentUserCanApprove = false,
   rejectFeedback,
+  rsRequestTimedOut,
   rejectExperimentLaunch,
   approveExperimentLaunch,
   confirmExperimentLaunchApproval,
@@ -53,6 +54,7 @@ export const DraftStatusOperations = ({
   currentUsername: string;
   currentUserCanApprove: boolean;
   rejectFeedback: RejectFeedback;
+  rsRequestTimedOut: boolean;
   rejectExperimentLaunch: (fields: { reason: string }) => void;
   approveExperimentLaunch: () => void;
   confirmExperimentLaunchApproval: () => void;
@@ -103,6 +105,7 @@ export const DraftStatusOperations = ({
         <FormApproveOrRejectLaunch
           {...{
             isLoading,
+            rsRequestTimedOut,
             launchRequestedByUsername,
             onApprove: handleLaunchApprovalClicked,
             onReject: () =>
