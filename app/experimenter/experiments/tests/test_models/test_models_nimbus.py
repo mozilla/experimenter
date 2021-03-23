@@ -645,6 +645,47 @@ class TestNimbusChangeLogManager(TestCase):
 
         self.assertEqual(experiment.changes.latest_review_request(), second_request)
 
+    def test_latest_rejection_returns_none_for_no_rejection(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        self.assertIsNone(experiment.changes.latest_rejection())
+
+    def test_latest_rejection_returns_rejection_for_review_to_idle(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.IDLE,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            rejection = generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertEqual(experiment.changes.latest_rejection(), rejection)
+
+    def test_latest_rejection_returns_rejection_for_waiting_to_idle(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
+            NimbusExperiment.PublishStatus.WAITING,
+            NimbusExperiment.PublishStatus.IDLE,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            rejection = generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertEqual(experiment.changes.latest_rejection(), rejection)
+
 
 class TestNimbusChangeLog(TestCase):
     def test_uses_message_if_set(self):
