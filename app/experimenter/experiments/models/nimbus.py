@@ -450,6 +450,26 @@ class NimbusChangeLogManager(models.Manager):
             .order_by("-changed_on")
         ).first()
 
+    def latest_timeout(self):
+        return (
+            self.all()
+            .filter(
+                Q(
+                    old_status=NimbusExperiment.Status.DRAFT,
+                    new_status=NimbusExperiment.Status.DRAFT,
+                )
+                | Q(
+                    old_status=NimbusExperiment.Status.LIVE,
+                    new_status=NimbusExperiment.Status.LIVE,
+                )
+            )
+            .filter(
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            )
+            .order_by("-changed_on")
+        ).first()
+
 
 class NimbusChangeLog(models.Model):
     def current_datetime():
