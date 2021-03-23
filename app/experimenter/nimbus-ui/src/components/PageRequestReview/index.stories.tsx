@@ -171,6 +171,34 @@ storiesOf("pages/RequestReview/EXP-1055", module)
         }}
       />
     ),
+  )
+  .add(
+    "review approved in experimenter but request timed out in Remote Settings, user has reviewer role",
+    () => (
+      <SubjectEXP1055
+        {...{
+          isLaunchRequested: true,
+          currentUserCanApprove: true,
+          rsRequestTimedOut: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "def@mozilla.com",
+        }}
+      />
+    ),
+  )
+  .add(
+    "review approved in experimenter but request timed out in Remote Settings, user does not have reviewer role",
+    () => (
+      <SubjectEXP1055
+        {...{
+          isLaunchRequested: true,
+          currentUserCanApprove: false,
+          rsRequestTimedOut: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "def@mozilla.com",
+        }}
+      />
+    ),
   );
 
 const SubjectDraftStatusOperationsWithActions = ({
@@ -308,6 +336,34 @@ storiesOf("pages/RequestReview/EXP-1055/DraftStatusOperations", module)
           currentUsername: "abc@mozilla.com",
           launchRequestedByUsername: "def@mozilla.com",
           rejectFeedback: mockRejectFeedback,
+        }}
+      />
+    ),
+  )
+  .add(
+    "review approved in experimenter but request timed out in Remote Settings, user has reviewer role",
+    () => (
+      <SubjectDraftStatusOperationsWithActions
+        {...{
+          isLaunchRequested: true,
+          currentUserCanApprove: true,
+          rsRequestTimedOut: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "def@mozilla.com",
+        }}
+      />
+    ),
+  )
+  .add(
+    "review approved in experimenter but request timed out in Remote Settings, user does not have reviewer role",
+    () => (
+      <SubjectDraftStatusOperationsWithActions
+        {...{
+          isLaunchRequested: true,
+          currentUserCanApprove: false,
+          rsRequestTimedOut: true,
+          currentUsername: "abc@mozilla.com",
+          launchRequestedByUsername: "def@mozilla.com",
         }}
       />
     ),
