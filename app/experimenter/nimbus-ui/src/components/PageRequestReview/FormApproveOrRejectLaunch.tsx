@@ -9,46 +9,58 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 
 const FormApproveOrRejectLaunch = ({
+  rsRequestTimedOut,
   launchRequestedByUsername,
   isLoading,
   onApprove,
   onReject,
 }: {
+  rsRequestTimedOut?: boolean;
   launchRequestedByUsername: string;
   isLoading: boolean;
   onApprove: () => void;
   onReject: () => void;
 }) => {
   return (
-    <Alert variant="warning">
-      <Form className="text-body">
-        <p>
-          <strong>{launchRequestedByUsername}</strong> requested to launch this
-          experiment.
-        </p>
+    <>
+      {rsRequestTimedOut && (
+        <Alert variant="danger">
+          <p className="mb-0">
+            ❌ Your remote settings request has timed out, please approve and
+            launch through Remote Settings again
+          </p>
+        </Alert>
+      )}
+      <Alert variant="warning">
+        <Form className="text-body">
+          <p>
+            <strong>{launchRequestedByUsername}</strong> requested to launch
+            this experiment.
+          </p>
 
-        <div className="d-flex bd-highlight">
-          <div>
-            <Button
-              data-testid="approve-and-launch"
-              className="mr-2 btn btn-success"
-              disabled={isLoading}
-              onClick={onApprove}
-            >
-              Approve and Launch
-            </Button>
-            <Button
-              data-testid="reject-launch"
-              className="btn btn-danger"
-              disabled={isLoading}
-              onClick={onReject}
-            >
-              Reject
-            </Button>
+          <div className="d-flex bd-highlight">
+            <div>
+              <Button
+                data-testid="approve-and-launch"
+                className="mr-2 btn btn-success"
+                disabled={isLoading}
+                onClick={onApprove}
+              >
+                Approve and Launch
+              </Button>
+              <Button
+                data-testid="reject-launch"
+                className="btn btn-danger"
+                disabled={isLoading}
+                onClick={onReject}
+              >
+                Reject
+              </Button>
+            </div>
           </div>
-        </div>
-      </Form>
-    </Alert>
+        </Form>
+      </Alert>
+    </>
   );
 };
 
