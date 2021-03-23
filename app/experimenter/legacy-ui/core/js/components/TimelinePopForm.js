@@ -82,6 +82,7 @@ class TimelinePopForm extends React.PureComponent {
         data: data.set("windows_versions", null),
       }));
     }
+    // istanbul ignore next - react-select upgrade from 3.1.1 to 4.3.0 seems to have dropped this behavior?
     if (selectedOptions == null) {
       selectedOptions = [];
     }
