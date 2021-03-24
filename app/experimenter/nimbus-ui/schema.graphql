@@ -47,6 +47,8 @@ input ExperimentInput {
   totalEnrolledClients: Int
 }
 
+scalar JSONString
+
 type Mutation {
   createExperiment(input: ExperimentInput!): CreateExperiment
   updateExperiment(input: ExperimentInput!): UpdateExperiment
@@ -66,6 +68,50 @@ type NimbusBucketRangeType {
   isolationGroup: NimbusIsolationGroupType!
   start: Int!
   count: Int!
+}
+
+enum NimbusChangeLogNewPublishStatus {
+  IDLE
+  REVIEW
+  APPROVED
+  WAITING
+}
+
+enum NimbusChangeLogNewStatus {
+  DRAFT
+  PREVIEW
+  REVIEW
+  ACCEPTED
+  LIVE
+  COMPLETE
+}
+
+enum NimbusChangeLogOldPublishStatus {
+  IDLE
+  REVIEW
+  APPROVED
+  WAITING
+}
+
+enum NimbusChangeLogOldStatus {
+  DRAFT
+  PREVIEW
+  REVIEW
+  ACCEPTED
+  LIVE
+  COMPLETE
+}
+
+type NimbusChangeLogType {
+  experiment: NimbusExperimentType!
+  changedOn: DateTime!
+  changedBy: NimbusUser!
+  oldStatus: NimbusChangeLogOldStatus
+  oldPublishStatus: NimbusChangeLogOldPublishStatus
+  newStatus: NimbusChangeLogNewStatus!
+  newPublishStatus: NimbusChangeLogNewPublishStatus!
+  message: String
+  experimentData: JSONString
 }
 
 type NimbusConfigurationType {
@@ -135,14 +181,6 @@ enum NimbusExperimentFirefoxMinVersion {
   FIREFOX_100
 }
 
-type NimbusExperimentOwner {
-  id: ID!
-  username: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-}
-
 enum NimbusExperimentPublishStatus {
   IDLE
   REVIEW
@@ -171,7 +209,7 @@ enum NimbusExperimentTargetingConfigSlug {
 
 type NimbusExperimentType {
   id: Int
-  owner: NimbusExperimentOwner!
+  owner: NimbusUser!
   status: NimbusExperimentStatus
   publishStatus: NimbusExperimentPublishStatus
   name: String!
@@ -196,6 +234,7 @@ type NimbusExperimentType {
   referenceBranch: NimbusBranchType
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType
+  changes: [NimbusChangeLogType!]!
   treatmentBranches: [NimbusBranchType]
   jexlTargetingExpression: String
   readyForReview: NimbusReadyForReviewType
@@ -205,6 +244,7 @@ type NimbusExperimentType {
   isEnrollmentPaused: Boolean
   enrollmentEndDate: DateTime
   canReview: Boolean
+  rejection: NimbusChangeLogType
 }
 
 enum NimbusFeatureConfigApplication {
@@ -252,6 +292,14 @@ type NimbusOutcomeType {
 type NimbusReadyForReviewType {
   message: ObjectField
   ready: Boolean
+}
+
+type NimbusUser {
+  id: ID!
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
 }
 
 scalar ObjectField
