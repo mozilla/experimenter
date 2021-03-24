@@ -475,33 +475,6 @@ class TestMutations(GraphQLTestCase):
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.status, NimbusExperiment.Status.REVIEW)
 
-    def test_update_experiment_status_error(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.ACCEPTED,
-        )
-        response = self.query(
-            UPDATE_EXPERIMENT_MUTATION,
-            variables={
-                "input": {
-                    "id": experiment.id,
-                    "status": NimbusExperiment.Status.REVIEW.name,
-                }
-            },
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-        result = content["data"]["updateExperiment"]
-        self.assertEqual(
-            result["message"],
-            {
-                "status": [
-                    "Nimbus Experiment status cannot transition from Accepted to Review."
-                ]
-            },
-        )
-
     def test_update_experiment_publish_status(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(

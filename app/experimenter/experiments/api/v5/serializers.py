@@ -175,61 +175,6 @@ class NimbusExperimentBranchMixin:
         return experiment
 
 
-class NimbusStatusRestrictionMixin:
-    ALLOWS_STATUS_CHANGE_ONLY = (NimbusExperiment.Status.PREVIEW,)
-    ALLOWS_UPDATE = (NimbusExperiment.Status.DRAFT,)
-    VALID_STATUS_TRANSITIONS = {
-        NimbusExperiment.Status.DRAFT: (
-            NimbusExperiment.Status.PREVIEW,
-            NimbusExperiment.Status.REVIEW,
-        ),
-        NimbusExperiment.Status.PREVIEW: (
-            NimbusExperiment.Status.DRAFT,
-            NimbusExperiment.Status.REVIEW,
-        ),
-    }
-
-    def validate(self, data):
-        data = super().validate(data)
-        if self.instance:
-            status = self.instance.status
-            if status in self.ALLOWS_STATUS_CHANGE_ONLY:
-                if set(data.keys()) != {"status"}:
-                    raise serializers.ValidationError(
-                        {
-                            "experiment": [
-                                f"Nimbus Experiment has status '{status}', only "
-                                "status can be changed."
-                            ]
-                        }
-                    )
-            elif status not in self.ALLOWS_UPDATE:
-                required_statuses = ", ".join(self.ALLOWS_UPDATE)
-                raise serializers.ValidationError(
-                    {
-                        "experiment": [
-                            f"Nimbus Experiment has status '{status}', but can only "
-                            f"be changed when set to '{required_statuses}'."
-                        ]
-                    }
-                )
-
-        return data
-
-    def validate_status(self, value):
-        if (
-            self.instance
-            and value != self.instance.status
-            and value not in self.VALID_STATUS_TRANSITIONS.get(self.instance.status, ())
-        ):
-            status = self.instance.status
-            raise serializers.ValidationError(
-                f"Nimbus Experiment status cannot transition from {status} to {value}."
-            )
-
-        return value
-
-
 class NimbusDocumentationLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = NimbusDocumentationLink
@@ -255,10 +200,74 @@ class NimbusExperimentDocumentationLinkMixin:
         return experiment
 
 
+class NimbusStatusValidationMixin:
+    def validate(self, data):
+        data = super().validate(data)
+
+        restrictive_statuses = {
+            "status": NimbusConstants.STATUS_CHANGE_ONLY,
+            "publish_status": NimbusConstants.PUBLISH_STATUS_CHANGE_ONLY,
+        }
+
+        if self.instance:
+            status = self.instance.status
+
+            for status_field, statuses in restrictive_statuses.items():
+                instance_value = getattr(self.instance, status_field)
+                if instance_value in statuses:
+                    if set(data.keys()) == {status_field}:
+                        return data
+                    else:
+                        raise serializers.ValidationError(
+                            {
+                                "experiment": [
+                                    f"Nimbus Experiment has {status_field} "
+                                    f"'{instance_value}', only {status_field} "
+                                    "can be changed."
+                                ]
+                            }
+                        )
+
+            if status not in NimbusConstants.STATUS_ALLOWS_UPDATE:
+                required_statuses = ", ".join(NimbusConstants.STATUS_ALLOWS_UPDATE)
+                raise serializers.ValidationError(
+                    {
+                        "experiment": [
+                            f"Nimbus Experiment has status '{status}', but can only "
+                            f"be changed when set to '{required_statuses}'."
+                        ]
+                    }
+                )
+
+        return data
+
+
+class NimbusStatusTransitionValidator:
+    requires_context = True
+
+    def __init__(self, transitions):
+        self.transitions = transitions
+
+    def __call__(self, value, serializer_field):
+        field_name = serializer_field.source_attrs[-1]
+        instance = getattr(serializer_field.parent, "instance", None)
+
+        if instance and value:
+            instance_value = getattr(instance, field_name)
+
+            if value != instance_value and value not in self.transitions.get(
+                instance_value, ()
+            ):
+                raise serializers.ValidationError(
+                    f"Nimbus Experiment {field_name} cannot transition "
+                    f"from {instance_value} to {value}."
+                )
+
+
 class NimbusExperimentSerializer(
     NimbusExperimentBranchMixin,
+    NimbusStatusValidationMixin,
     NimbusExperimentDocumentationLinkMixin,
-    NimbusStatusRestrictionMixin,
     serializers.ModelSerializer,
 ):
     name = serializers.CharField(
@@ -294,8 +303,23 @@ class NimbusExperimentSerializer(
     population_percent = serializers.DecimalField(
         7, 4, min_value=0.0, max_value=100.0, required=False
     )
+    status = serializers.ChoiceField(
+        choices=NimbusExperiment.Status.choices,
+        required=False,
+        validators=[
+            NimbusStatusTransitionValidator(
+                transitions=NimbusConstants.VALID_STATUS_TRANSITIONS,
+            )
+        ],
+    )
     publish_status = serializers.ChoiceField(
-        choices=NimbusExperiment.PublishStatus.choices, required=False
+        choices=NimbusExperiment.PublishStatus.choices,
+        required=False,
+        validators=[
+            NimbusStatusTransitionValidator(
+                transitions=NimbusConstants.VALID_PUBLISH_STATUS_TRANSITIONS
+            )
+        ],
     )
 
     class Meta:
@@ -450,9 +474,7 @@ class NimbusExperimentSerializer(
             return experiment
 
 
-class NimbusReadyForReviewSerializer(
-    NimbusStatusRestrictionMixin, serializers.ModelSerializer
-):
+class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     public_description = serializers.CharField(required=True)
     proposed_duration = serializers.IntegerField(required=True, min_value=1)
     proposed_enrollment = serializers.IntegerField(required=True, min_value=1)

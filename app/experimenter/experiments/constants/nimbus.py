@@ -101,11 +101,37 @@ class NimbusConstants(object):
         LIVE = "Live"
         COMPLETE = "Complete"
 
+    VALID_STATUS_TRANSITIONS = {
+        Status.DRAFT: (
+            Status.PREVIEW,
+            Status.REVIEW,
+        ),
+        Status.PREVIEW: (
+            Status.DRAFT,
+            Status.REVIEW,
+        ),
+    }
+    STATUS_CHANGE_ONLY = (Status.PREVIEW,)
+    STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
+
     class PublishStatus(models.TextChoices):
         IDLE = "Idle"
         REVIEW = "Review"
         APPROVED = "Approved"
         WAITING = "Waiting"
+
+    VALID_PUBLISH_STATUS_TRANSITIONS = {
+        PublishStatus.IDLE: (PublishStatus.REVIEW,),
+        PublishStatus.REVIEW: (
+            PublishStatus.IDLE,
+            PublishStatus.APPROVED,
+        ),
+    }
+    PUBLISH_STATUS_CHANGE_ONLY = (
+        PublishStatus.REVIEW,
+        PublishStatus.APPROVED,
+        PublishStatus.WAITING,
+    )
 
     class Application(models.TextChoices):
         DESKTOP = "firefox-desktop"
