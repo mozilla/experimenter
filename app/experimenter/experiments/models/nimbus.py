@@ -9,6 +9,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
@@ -426,8 +427,25 @@ class NimbusChangeLogManager(models.Manager):
         return (
             self.all()
             .filter(
+                old_status=NimbusExperiment.Status.DRAFT,
                 old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                new_status=NimbusExperiment.Status.DRAFT,
                 new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            )
+            .order_by("-changed_on")
+        ).first()
+
+    def latest_rejection(self):
+        return (
+            self.all()
+            .filter(
+                Q(old_publish_status=NimbusExperiment.PublishStatus.REVIEW)
+                | Q(old_publish_status=NimbusExperiment.PublishStatus.WAITING),
+            )
+            .filter(
+                old_status=NimbusExperiment.Status.DRAFT,
+                new_status=NimbusExperiment.Status.DRAFT,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             )
             .order_by("-changed_on")
         ).first()

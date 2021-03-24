@@ -8,6 +8,7 @@ from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
     NimbusBucketRange,
+    NimbusChangeLog,
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusFeatureConfig,
@@ -22,6 +23,12 @@ class ObjectField(graphene.Scalar):
     @staticmethod
     def serialize(dt):
         return dt
+
+
+class NimbusUser(DjangoObjectType):
+    class Meta:
+        model = get_user_model()
+        fields = ("id", "username", "first_name", "last_name", "email")
 
 
 class NimbusExperimentStatus(graphene.Enum):
@@ -104,15 +111,15 @@ class NimbusLabelValueType(graphene.ObjectType):
     value = graphene.String()
 
 
-class NimbusExperimentOwner(DjangoObjectType):
-    class Meta:
-        model = get_user_model()
-        fields = ("id", "username", "first_name", "last_name", "email")
-
-
 class NimbusReadyForReviewType(graphene.ObjectType):
     message = ObjectField()
     ready = graphene.Boolean()
+
+
+class NimbusChangeLogType(DjangoObjectType):
+    class Meta:
+        model = NimbusChangeLog
+        exclude = ("id",)
 
 
 class NimbusExperimentType(DjangoObjectType):
@@ -136,6 +143,7 @@ class NimbusExperimentType(DjangoObjectType):
     is_enrollment_paused = graphene.Boolean()
     enrollment_end_date = graphene.DateTime()
     can_review = graphene.Boolean()
+    rejection = graphene.Field(NimbusChangeLogType)
 
     class Meta:
         model = NimbusExperiment
@@ -170,3 +178,6 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_can_review(self, info):
         return self.can_review(info.context.user)
+
+    def resolve_rejection(self, info):
+        return self.changes.latest_rejection()
