@@ -88,7 +88,6 @@ class KintoClient:
         )
 
         main_record_ids = [record["id"] for record in main_records]
-
         workspace_record_ids = [record["id"] for record in workspace_records]
         return list(set(workspace_record_ids) - set(main_record_ids))[0]
 
