@@ -245,6 +245,7 @@ type NimbusExperimentType {
   enrollmentEndDate: DateTime
   canReview: Boolean
   rejection: NimbusChangeLogType
+  timeout: NimbusChangeLogType
 }
 
 enum NimbusFeatureConfigApplication {
