@@ -144,6 +144,7 @@ class NimbusExperimentType(DjangoObjectType):
     enrollment_end_date = graphene.DateTime()
     can_review = graphene.Boolean()
     rejection = graphene.Field(NimbusChangeLogType)
+    timeout = graphene.Field(NimbusChangeLogType)
 
     class Meta:
         model = NimbusExperiment
@@ -181,3 +182,6 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_rejection(self, info):
         return self.changes.latest_rejection()
+
+    def resolve_timeout(self, info):
+        return self.changes.latest_timeout()

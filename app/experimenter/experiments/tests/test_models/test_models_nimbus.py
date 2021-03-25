@@ -453,6 +453,34 @@ class TestNimbusExperiment(TestCase):
 
         self.assertFalse(experiment.can_review(UserFactory.create()))
 
+    @parameterized.expand(
+        [
+            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.LIVE,
+        ]
+    )
+    def test_timeout_changelog_for_timedout_publish_flow(self, experiment_status):
+        experiment = NimbusExperimentFactory.create_with_status(
+            experiment_status,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        )
+
+        # Simulate waiting for approval in remote settings
+        experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        # No timeout at first.
+        self.assertIsNone(experiment.changes.latest_timeout())
+
+        # Next, simulate a timeout.
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        # Timeout should be the latest changelog entry.
+        self.assertEqual(experiment.changes.latest_timeout(), experiment.latest_change())
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
