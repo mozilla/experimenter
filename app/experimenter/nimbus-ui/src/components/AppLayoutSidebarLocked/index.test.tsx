@@ -24,6 +24,7 @@ const Subject = ({
   withAnalysis = false,
   analysisError,
   analysisLoadingInSidebar = false,
+  analysisRequired = true,
   experiment = defaultExperiment,
 }: RouteComponentProps & {
   status?: NimbusExperimentStatus;
@@ -31,6 +32,7 @@ const Subject = ({
   analysis?: AnalysisData;
   analysisError?: boolean;
   analysisLoadingInSidebar?: boolean;
+  analysisRequired?: boolean;
   experiment?: getExperiment_experimentBySlug;
 }) => (
   <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
@@ -38,6 +40,7 @@ const Subject = ({
       {...{
         status: mockGetStatus(status),
         analysisLoadingInSidebar,
+        analysisRequired,
         analysisError: analysisError ? new Error("boop") : undefined,
         analysis: withAnalysis
           ? {
@@ -132,6 +135,24 @@ describe("AppLayoutSidebarLocked", () => {
     it("when complete has expected results page items in side bar", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject withAnalysis {...{ experiment }} />);
+      [
+        "Monitoring",
+        "Overview",
+        "Results Summary",
+        "Primary Metrics",
+        "Picture-in-Picture",
+        "Secondary Metrics",
+        "Feature B",
+      ].forEach((item) => {
+        expect(screen.getByText(item)).toBeInTheDocument();
+      });
+    });
+
+    it("when complete and page does not require full analaysis data, has expected results page items in side bar", () => {
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(
+        <Subject withAnalysis analysisRequired={false} {...{ experiment }} />,
+      );
       [
         "Monitoring",
         "Overview",

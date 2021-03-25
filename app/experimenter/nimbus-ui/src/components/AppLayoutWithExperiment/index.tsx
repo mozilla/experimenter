@@ -133,6 +133,7 @@ const AppLayoutWithExperiment = ({
       {...{
         children,
         review,
+        analysisRequired,
         analysis,
         analysisLoadingInSidebar,
         analysisError,
@@ -166,6 +167,7 @@ type LayoutProps = {
   status: StatusCheck;
   review: ExperimentReview;
   analysis?: AnalysisData;
+  analysisRequired: boolean;
   analysisLoadingInSidebar: boolean;
   analysisError?: Error;
   experiment: getExperiment_experimentBySlug;
@@ -176,6 +178,7 @@ const Layout = ({
   review,
   status,
   analysis,
+  analysisRequired,
   analysisLoadingInSidebar,
   analysisError,
   experiment,
@@ -185,6 +188,7 @@ const Layout = ({
       {...{
         status,
         analysis,
+        analysisRequired,
         analysisLoadingInSidebar,
         analysisError,
         experiment,
