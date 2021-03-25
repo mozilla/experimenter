@@ -23,42 +23,6 @@ def get_kinto_user():
 
 
 @app.task
-@metrics.timer_decorator("push_experiment_to_kinto.timing")
-def nimbus_push_experiment_to_kinto(experiment_id):
-    """
-    An invoked task that given a single experiment id, query it in the db, serialize it,
-    and push its data to the configured collection. If it fails for any reason, log the
-    error and reraise it so it will be forwarded to sentry.
-    """
-
-    metrics.incr("push_experiment_to_kinto.started")
-
-    try:
-        experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.info(f"Pushing {experiment.slug} to Kinto")
-
-        kinto_client = KintoClient(
-            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
-        )
-
-        data = NimbusExperimentSerializer(experiment).data
-
-        kinto_client.create_record(data)
-
-        experiment.status = NimbusExperiment.Status.ACCEPTED
-        experiment.save()
-
-        generate_nimbus_changelog(experiment, get_kinto_user())
-
-        logger.info(f"{experiment.slug} pushed to Kinto")
-        metrics.incr("push_experiment_to_kinto.completed")
-    except Exception as e:
-        metrics.incr("push_experiment_to_kinto.failed")
-        logger.info(f"Pushing experiment {experiment.slug} to Kinto failed: {e}")
-        raise e
-
-
-@app.task
 @metrics.timer_decorator("check_kinto_push_queue")
 def nimbus_check_kinto_push_queue():
     """
@@ -134,6 +98,95 @@ def handle_rejection(kinto_client):
     )
 
     kinto_client.rollback_changes()
+
+
+@app.task
+@metrics.timer_decorator("push_experiment_to_kinto.timing")
+def nimbus_push_experiment_to_kinto(experiment_id):
+    """
+    An invoked task that given a single experiment id, query it in the db, serialize it,
+    and push its data to the configured collection. If it fails for any reason, log the
+    error and reraise it so it will be forwarded to sentry.
+    """
+
+    metrics.incr("push_experiment_to_kinto.started")
+
+    try:
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        logger.info(f"Pushing {experiment.slug} to Kinto")
+
+        kinto_client = KintoClient(
+            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
+        )
+
+        data = NimbusExperimentSerializer(experiment).data
+
+        kinto_client.create_record(data)
+
+        experiment.status = NimbusExperiment.Status.ACCEPTED
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, get_kinto_user())
+
+        logger.info(f"{experiment.slug} pushed to Kinto")
+        metrics.incr("push_experiment_to_kinto.completed")
+    except Exception as e:
+        metrics.incr("push_experiment_to_kinto.failed")
+        logger.info(f"Pushing experiment {experiment.slug} to Kinto failed: {e}")
+        raise e
+
+
+@app.task
+@metrics.timer_decorator("end_experiment_in_kinto")
+def nimbus_end_experiment_in_kinto(experiment_id):
+    """
+    An invoked task that given a single experiment id, delete its data from
+    the configured collection. If it fails for any reason, log the error and
+    reraise it so it will be forwarded to sentry.
+    """
+    metrics.incr("end_experiment_in_kinto.started")
+
+    try:
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        logger.info(f"Deleting {experiment.slug} from Kinto")
+        kinto_client = KintoClient(
+            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
+        )
+        kinto_client.delete_record(experiment.slug)
+        logger.info(f"{experiment.slug} deleted from Kinto")
+        metrics.incr("end_experiment_in_kinto.completed")
+    except Exception as e:
+        metrics.incr("end_experiment_in_kinto.failed")
+        logger.info(f"Deleting experiment id {experiment.slug} from Kinto failed: {e}")
+        raise e
+
+
+@app.task
+@metrics.timer_decorator("pause_experiment_in_kinto")
+def nimbus_pause_experiment_in_kinto(experiment_id):
+    """
+    An invoked task that given a single experiment id, marks it as paused
+    and updates the record. If it fails for any reason, log the error and
+    reraise it so it will be forwarded to sentry.
+    """
+    metrics.incr("pause_experiment_in_kinto.started")
+
+    try:
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        logger.info(f"Deleting {experiment.slug} from Kinto")
+        kinto_client = KintoClient(
+            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
+        )
+        records = {r["id"]: r for r in kinto_client.get_main_records()}
+        record = records[experiment.slug]
+        record["isEnrollmentPaused"] = True
+        kinto_client.update_record(record)
+        logger.info(f"{experiment.slug} paused in Kinto")
+        metrics.incr("pause_experiment_in_kinto.completed")
+    except Exception as e:
+        metrics.incr("pause_experiment_in_kinto.failed")
+        logger.info(f"Pausing experiment id {experiment.slug} in Kinto failed: {e}")
+        raise e
 
 
 @app.task
@@ -259,59 +312,6 @@ def nimbus_check_experiments_are_complete():
                 logger.info(f"{experiment.slug} status is set to Complete")
 
     metrics.incr("check_experiments_are_complete.completed")
-
-
-@app.task
-@metrics.timer_decorator("end_experiment_in_kinto")
-def nimbus_end_experiment_in_kinto(experiment_id):
-    """
-    An invoked task that given a single experiment id, delete its data from
-    the configured collection. If it fails for any reason, log the error and
-    reraise it so it will be forwarded to sentry.
-    """
-    metrics.incr("end_experiment_in_kinto.started")
-
-    try:
-        experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.info(f"Deleting {experiment.slug} from Kinto")
-        kinto_client = KintoClient(
-            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
-        )
-        kinto_client.delete_record(experiment.slug)
-        logger.info(f"{experiment.slug} deleted from Kinto")
-        metrics.incr("end_experiment_in_kinto.completed")
-    except Exception as e:
-        metrics.incr("end_experiment_in_kinto.failed")
-        logger.info(f"Deleting experiment id {experiment.slug} from Kinto failed: {e}")
-        raise e
-
-
-@app.task
-@metrics.timer_decorator("pause_experiment_in_kinto")
-def nimbus_pause_experiment_in_kinto(experiment_id):
-    """
-    An invoked task that given a single experiment id, marks it as paused
-    and updates the record. If it fails for any reason, log the error and
-    reraise it so it will be forwarded to sentry.
-    """
-    metrics.incr("pause_experiment_in_kinto.started")
-
-    try:
-        experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.info(f"Deleting {experiment.slug} from Kinto")
-        kinto_client = KintoClient(
-            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
-        )
-        records = {r["id"]: r for r in kinto_client.get_main_records()}
-        record = records[experiment.slug]
-        record["isEnrollmentPaused"] = True
-        kinto_client.update_record(record)
-        logger.info(f"{experiment.slug} paused in Kinto")
-        metrics.incr("pause_experiment_in_kinto.completed")
-    except Exception as e:
-        metrics.incr("pause_experiment_in_kinto.failed")
-        logger.info(f"Pausing experiment id {experiment.slug} in Kinto failed: {e}")
-        raise e
 
 
 @app.task
