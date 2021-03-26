@@ -210,35 +210,20 @@ class NimbusStatusValidationMixin:
         }
 
         if self.instance:
-            status = self.instance.status
-            check_status_only = True
-
-            for status_field, statuses in restrictive_statuses.items():
-                instance_value = getattr(self.instance, status_field)
-                if instance_value in statuses:
-                    if set(data.keys()) == {status_field}:
-                        check_status_only = False
-                    else:
-                        raise serializers.ValidationError(
-                            {
-                                "experiment": [
-                                    f"Nimbus Experiment has {status_field} "
-                                    f"'{instance_value}', only {status_field} "
-                                    "can be changed."
-                                ]
-                            }
-                        )
-
-            if check_status_only and status not in NimbusConstants.STATUS_ALLOWS_UPDATE:
-                required_statuses = ", ".join(NimbusConstants.STATUS_ALLOWS_UPDATE)
-                raise serializers.ValidationError(
-                    {
-                        "experiment": [
-                            f"Nimbus Experiment has status '{status}', but can only "
-                            f"be changed when set to '{required_statuses}'."
-                        ]
-                    }
-                )
+            for status_field, restricted_statuses in restrictive_statuses.items():
+                current_status = getattr(self.instance, status_field)
+                is_locked = current_status in restricted_statuses
+                is_modifying_other_fields = set(data.keys()) != {status_field}
+                if is_locked and is_modifying_other_fields:
+                    raise serializers.ValidationError(
+                        {
+                            "experiment": [
+                                f"Nimbus Experiment has {status_field} "
+                                f"'{current_status}', only {status_field} "
+                                "can be changed."
+                            ]
+                        }
+                    )
 
         return data
 
