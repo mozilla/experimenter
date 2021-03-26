@@ -205,14 +205,14 @@ class NimbusStatusValidationMixin:
         data = super().validate(data)
 
         restrictive_statuses = {
-            "status": NimbusConstants.STATUS_CHANGE_ONLY,
-            "publish_status": NimbusConstants.PUBLISH_STATUS_CHANGE_ONLY,
+            "status": NimbusConstants.STATUS_ALLOWS_UPDATE,
+            "publish_status": NimbusConstants.PUBLISH_STATUS_ALLOWS_UPDATE,
         }
 
         if self.instance:
             for status_field, restricted_statuses in restrictive_statuses.items():
                 current_status = getattr(self.instance, status_field)
-                is_locked = current_status in restricted_statuses
+                is_locked = current_status not in restricted_statuses
                 is_modifying_other_fields = set(data.keys()) != {status_field}
                 if is_locked and is_modifying_other_fields:
                     raise serializers.ValidationError(

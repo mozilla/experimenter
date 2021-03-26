@@ -111,7 +111,6 @@ class NimbusConstants(object):
             Status.REVIEW,
         ),
     }
-    STATUS_CHANGE_ONLY = (Status.PREVIEW,)
     STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
 
     class PublishStatus(models.TextChoices):
@@ -127,11 +126,7 @@ class NimbusConstants(object):
             PublishStatus.APPROVED,
         ),
     }
-    PUBLISH_STATUS_CHANGE_ONLY = (
-        PublishStatus.REVIEW,
-        PublishStatus.APPROVED,
-        PublishStatus.WAITING,
-    )
+    PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
 
     class Application(models.TextChoices):
         DESKTOP = "firefox-desktop"
