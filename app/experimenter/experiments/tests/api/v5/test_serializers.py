@@ -1369,3 +1369,90 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             serializer.errors["treatment_branches"][1],
             ["Description cannot be blank."],
         )
+
+
+class TestNimbusStatusTransitionValidator(TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory()
+
+    def test_update_experiment_status_error(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.ACCEPTED,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.REVIEW,
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["status"][0],
+            "Nimbus Experiment status cannot transition from Accepted to Review.",
+        )
+
+    def test_update_publish_status_from_approved_to_review_error(self):
+        experiment = NimbusExperimentFactory.create(
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["publish_status"][0],
+            "Nimbus Experiment publish_status cannot transition from Approved to Review.",
+        )
+
+
+class TestNimbusStatusValidationMixin(TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory()
+
+    def test_update_experiment_with_invalid_status_error(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.PREVIEW,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "public_description": "who knows, really",
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["experiment"][0],
+            "Nimbus Experiment has status 'Preview', only status can be changed.",
+        )
+
+    def test_update_experiment_with_invalid_publish_status_error(self):
+        experiment = NimbusExperimentFactory.create(
+            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "public_description": "who knows, really",
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["experiment"][0],
+            (
+                "Nimbus Experiment has publish_status 'Review', only "
+                "publish_status can be changed."
+            ),
+        )
