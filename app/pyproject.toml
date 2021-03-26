@@ -55,6 +55,7 @@ django-storages = "1.11.1"
 graphene-django = "^2.15.0"
 mozilla-nimbus-shared = "^1.4.0"
 toml = "^0.10.2"
+pydantic = "1.8.1"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.18.0"

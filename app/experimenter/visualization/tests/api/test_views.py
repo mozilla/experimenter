@@ -8,6 +8,13 @@ from parameterized import parameterized
 
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.visualization.api.v3.models import (
+    BranchComparisonData,
+    DataPoint,
+    JetstreamDataPoint,
+    MetricData,
+    SignificanceData,
+)
 from experimenter.visualization.tests.api.constants import TestConstants
 
 
@@ -40,68 +47,60 @@ class TestVisualizationView(TestCase):
         json_data = json.loads(response.content)
         self.assertEqual(
             {
-                "daily": None,
-                "weekly": None,
-                "overall": None,
-                "metadata": None,
+                "daily": [],
+                "metadata": [],
+                "weekly": {},
+                "overall": {},
+                "other_metrics": {},
                 "show_analysis": False,
             },
             json_data,
         )
 
-    def add_outcome_data(
-        self, data, formatted_data_with_pop, formatted_data_without_pop, primary_outcome
-    ):
-        range_data = {
-            "point": 4,
-            "upper": 8,
-            "lower": 2,
-        }
-        branches = ["control", "variant"]
+    def get_metric_data(self, data_point):
+        return MetricData(
+            absolute=BranchComparisonData(first=data_point, all=[data_point]),
+            difference=BranchComparisonData(),
+            relative_uplift=BranchComparisonData(),
+            significance=SignificanceData(),
+        ).dict(exclude_none=True)
+
+    def add_outcome_data(self, data, overall_data, weekly_data, primary_outcome):
+        range_data = DataPoint(lower=2, point=4, upper=8)
         primary_metric = f"{primary_outcome}_ever_used"
 
-        for branch in branches:
-            formatted_data_with_pop[branch]["branch_data"][primary_metric] = {
-                "absolute": {
-                    "first": {**range_data, **{"count": 48}},
-                    "all": [{**range_data, **{"count": 48}}],
-                },
-                "difference": {"all": [], "first": {}},
-                "relative_uplift": {"all": [], "first": {}},
-                "significance": {"overall": {}, "weekly": {}},
-            }
-            formatted_data_without_pop[branch]["branch_data"][primary_metric] = {
-                "absolute": {
-                    "first": {**range_data, **{"window_index": "1"}},
-                    "all": [{**range_data, **{"window_index": "1"}}],
-                },
-                "difference": {"all": [], "first": {}},
-                "relative_uplift": {"all": [], "first": {}},
-                "significance": {"overall": {}, "weekly": {}},
-            }
+        for branch in ["control", "variant"]:
+            data_point_overall = range_data.copy()
+            data_point_overall.count = 48.0
+            overall_data[branch]["branch_data"][primary_metric] = self.get_metric_data(
+                data_point_overall
+            )
+
+            data_point_weekly = range_data.copy()
+            data_point_weekly.window_index = "1"
+            weekly_data[branch]["branch_data"][primary_metric] = self.get_metric_data(
+                data_point_weekly
+            )
+
             data.append(
-                {
-                    **range_data,
-                    **{
-                        "metric": primary_metric,
-                        "branch": branch,
-                        "statistic": "binomial",
-                        "window_index": "1",
-                    },
-                }
+                JetstreamDataPoint(
+                    **range_data.dict(exclude_none=True),
+                    metric=primary_metric,
+                    branch=branch,
+                    statistic="binomial",
+                    window_index="1",
+                ).dict(exclude_none=True)
             )
 
     def add_all_outcome_data(
         self,
         data,
-        formatted_data_with_pop,
-        formatted_data_without_pop,
+        overall_data,
+        weekly_data,
         primary_outcomes,
     ):
         for primary_outcome in primary_outcomes:
-            self.add_outcome_data(
-                data, formatted_data_with_pop, formatted_data_without_pop, primary_outcome
-            )
+            self.add_outcome_data(data, overall_data, weekly_data, primary_outcome)
 
     @parameterized.expand(
         [
@@ -115,15 +114,15 @@ class TestVisualizationView(TestCase):
         user_email = "user@example.com"
 
         (
-            DATA_WITHOUT_POPULATION_PERCENTAGE,
-            FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
-            FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
+            DAILY_DATA,
+            WEEKLY_DATA,
+            OVERALL_DATA,
         ) = TestConstants.get_test_data()
 
         FULL_DATA = {
-            "daily": DATA_WITHOUT_POPULATION_PERCENTAGE,
-            "weekly": FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
-            "overall": FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
+            "daily": DAILY_DATA,
+            "weekly": WEEKLY_DATA,
+            "overall": OVERALL_DATA,
             "other_metrics": {
                 "some_count": "Some Count",
                 "another_count": "Another Count",
@@ -139,7 +138,7 @@ class TestVisualizationView(TestCase):
             def read(self):
                 if "metadata" in self.name:
                     return "{}"
-                return json.dumps(DATA_WITHOUT_POPULATION_PERCENTAGE)
+                return json.dumps(DAILY_DATA)
 
         def open_file(filename):
             return File(filename)
@@ -155,9 +154,9 @@ class TestVisualizationView(TestCase):
         )
 
         self.add_all_outcome_data(
-            DATA_WITHOUT_POPULATION_PERCENTAGE,
-            FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
-            FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
+            DAILY_DATA,
+            OVERALL_DATA,
+            WEEKLY_DATA,
             experiment.primary_outcomes,
         )
 
