@@ -211,12 +211,13 @@ class NimbusStatusValidationMixin:
 
         if self.instance:
             status = self.instance.status
+            check_status_only = True
 
             for status_field, statuses in restrictive_statuses.items():
                 instance_value = getattr(self.instance, status_field)
                 if instance_value in statuses:
                     if set(data.keys()) == {status_field}:
-                        return data
+                        check_status_only = False
                     else:
                         raise serializers.ValidationError(
                             {
@@ -228,7 +229,7 @@ class NimbusStatusValidationMixin:
                             }
                         )
 
-            if status not in NimbusConstants.STATUS_ALLOWS_UPDATE:
+            if check_status_only and status not in NimbusConstants.STATUS_ALLOWS_UPDATE:
                 required_statuses = ", ".join(NimbusConstants.STATUS_ALLOWS_UPDATE)
                 raise serializers.ValidationError(
                     {
