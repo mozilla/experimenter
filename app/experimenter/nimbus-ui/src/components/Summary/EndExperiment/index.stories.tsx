@@ -5,7 +5,7 @@
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import EndExperiment from ".";
-import { END_EXPERIMENT_MUTATION } from "../../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../../gql/experiments";
 import { getStatus } from "../../../lib/experiment";
 import {
   MockedCache,
@@ -25,7 +25,7 @@ const Subject = ({ ending = false }: { ending?: boolean }) => {
   });
   const experimentStatus = getStatus(experiment);
   const mutationMock = mockExperimentMutation(
-    END_EXPERIMENT_MUTATION,
+    UPDATE_EXPERIMENT_MUTATION,
     {
       id: experiment.id!,
     },

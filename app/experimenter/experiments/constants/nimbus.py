@@ -188,6 +188,12 @@ class NimbusConstants(object):
     }
     PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
 
+    STATUS_UPDATE_EXEMPT_FIELDS = (
+        "status",
+        "publish_status",
+        "is_end_requested",
+    )
+
     class Application(models.TextChoices):
         DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
         FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.name)

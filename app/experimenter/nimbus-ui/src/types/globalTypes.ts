@@ -162,10 +162,6 @@ export interface DocumentationLinkType {
   link: string;
 }
 
-export interface ExperimentIdInput {
-  id?: number | null;
-}
-
 export interface ExperimentInput {
   id?: number | null;
   status?: NimbusExperimentStatus | null;
@@ -188,6 +184,8 @@ export interface ExperimentInput {
   proposedEnrollment?: string | null;
   targetingConfigSlug?: NimbusExperimentTargetingConfigSlug | null;
   totalEnrolledClients?: number | null;
+  isEndRequested?: boolean | null;
+  changelogMessage?: string | null;
 }
 
 export interface ReferenceBranchType {

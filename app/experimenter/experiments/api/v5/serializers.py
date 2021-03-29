@@ -208,20 +208,23 @@ class NimbusStatusValidationMixin:
             "status": NimbusConstants.STATUS_ALLOWS_UPDATE,
             "publish_status": NimbusConstants.PUBLISH_STATUS_ALLOWS_UPDATE,
         }
-        unlocked_fields = set(restrictive_statuses.keys())
 
         if self.instance:
             for status_field, restricted_statuses in restrictive_statuses.items():
                 current_status = getattr(self.instance, status_field)
                 is_locked = current_status not in restricted_statuses
-                is_modifying_other_fields = not set(data.keys()).issubset(unlocked_fields)
-                if is_locked and is_modifying_other_fields:
+                modifying_fields = set(data.keys()) - set(
+                    NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS
+                )
+                is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
+                if is_locked and is_modifying_locked_fields:
                     raise serializers.ValidationError(
                         {
                             "experiment": [
                                 f"Nimbus Experiment has {status_field} "
-                                f"'{current_status}', only {status_field} "
-                                "can be changed."
+                                f"'{current_status}', only "
+                                f"{NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS} "
+                                f"can be changed, not: {modifying_fields}"
                             ]
                         }
                     )
@@ -333,6 +336,7 @@ class NimbusExperimentSerializer(
             "proposed_enrollment",
             "targeting_config_slug",
             "total_enrolled_clients",
+            "is_end_requested",
         ]
 
     def __init__(self, instance=None, data=None, **kwargs):
@@ -346,6 +350,7 @@ class NimbusExperimentSerializer(
                 and data.get("status") == NimbusExperiment.Status.DRAFT
             )
         )
+        self.changelog_message = data and data.pop("changelog_message", "") or ""
         super().__init__(instance=instance, data=data, **kwargs)
 
     def validate_publish_status(self, publish_status):
@@ -423,6 +428,14 @@ class NimbusExperimentSerializer(
 
         return value
 
+    def validate_is_end_requested(self, value):
+        if self.instance.status != NimbusExperiment.Status.LIVE:
+            raise serializers.ValidationError(
+                f"Nimbus Experiment has status '{self.instance.status}', but can only "
+                "be ended when set to 'Live'.",
+            )
+        return value
+
     def validate(self, data):
         data = super().validate(data)
         primary_outcomes = set(data.get("primary_outcomes", []))
@@ -456,7 +469,9 @@ class NimbusExperimentSerializer(
             if self.should_call_preview_task:
                 nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
 
-            generate_nimbus_changelog(experiment, self.context["user"])
+            generate_nimbus_changelog(
+                experiment, self.context["user"], message=self.changelog_message
+            )
 
             return experiment
 
