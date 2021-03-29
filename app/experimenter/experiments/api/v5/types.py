@@ -143,6 +143,7 @@ class NimbusExperimentType(DjangoObjectType):
     is_enrollment_paused = graphene.Boolean()
     enrollment_end_date = graphene.DateTime()
     can_review = graphene.Boolean()
+    review_request = graphene.Field(NimbusChangeLogType)
     rejection = graphene.Field(NimbusChangeLogType)
     timeout = graphene.Field(NimbusChangeLogType)
 
@@ -179,6 +180,9 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_can_review(self, info):
         return self.can_review(info.context.user)
+
+    def resolve_review_request(self, info):
+        return self.changes.latest_review_request()
 
     def resolve_rejection(self, info):
         return self.changes.latest_rejection()
