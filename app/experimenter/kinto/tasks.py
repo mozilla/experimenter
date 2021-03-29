@@ -55,24 +55,52 @@ def nimbus_check_kinto_push_queue_by_application(application):
 
     kinto_client = KintoClient(collection)
 
+    can_update_collection = True
     if kinto_client.has_pending_review():
-        return
+        logger.info(f"{collection} has pending review")
+        can_update_collection = handle_pending_review(application, kinto_client)
 
     if kinto_client.has_rejection():
+        logger.info(f"{collection} has rejection")
         handle_rejection(kinto_client)
 
-    if queued_launch_experiment := NimbusExperiment.objects.launch_queue(
-        application
-    ).first():
-        nimbus_push_experiment_to_kinto.delay(queued_launch_experiment.id)
-    elif queued_end_experiment := NimbusExperiment.objects.end_queue(application).first():
-        nimbus_end_experiment_in_kinto.delay(queued_end_experiment.id)
-    elif queued_pause_experiment := NimbusExperiment.objects.pause_queue(
-        application
-    ).first():
-        nimbus_pause_experiment_in_kinto.delay(queued_pause_experiment.id)
+    if can_update_collection:
+        if queued_launch_experiment := NimbusExperiment.objects.launch_queue(
+            application
+        ).first():
+            nimbus_push_experiment_to_kinto.delay(queued_launch_experiment.id)
+        elif queued_end_experiment := NimbusExperiment.objects.end_queue(
+            application
+        ).first():
+            nimbus_end_experiment_in_kinto.delay(queued_end_experiment.id)
+        elif queued_pause_experiment := NimbusExperiment.objects.pause_queue(
+            application
+        ).first():
+            nimbus_pause_experiment_in_kinto.delay(queued_pause_experiment.id)
 
     metrics.incr(f"check_kinto_push_queue_by_{collection}_application.completed")
+
+
+def handle_pending_review(application, kinto_client):
+    experiment = NimbusExperiment.objects.get(
+        application=application, publish_status=NimbusExperiment.PublishStatus.WAITING
+    )
+
+    if experiment.has_state(experiment.SHOULD_TIMEOUT):
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        experiment.is_end_requested = False
+        experiment.save()
+
+        generate_nimbus_changelog(
+            experiment,
+            get_kinto_user(),
+            message="Timed Out",
+        )
+
+        kinto_client.rollback_changes()
+        logger.info(f"{experiment} timed out")
+        return True
+    return False
 
 
 def handle_rejection(kinto_client):
@@ -96,6 +124,7 @@ def handle_rejection(kinto_client):
     )
 
     kinto_client.rollback_changes()
+    logger.info(f"{experiment} rejected")
 
 
 @app.task
@@ -148,6 +177,9 @@ def nimbus_end_experiment_in_kinto(experiment_id):
 
         kinto_client = KintoClient(experiment.application_config.collection)
         kinto_client.delete_record(experiment.slug)
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
+        experiment.save()
 
         logger.info(f"{experiment.slug} deleted from Kinto")
         metrics.incr("end_experiment_in_kinto.completed")
@@ -203,7 +235,7 @@ def nimbus_check_experiments_are_live():
         records = kinto_client.get_main_records()
         record_ids = [r.get("id") for r in records]
 
-        for experiment in NimbusExperiment.objects.waiting_queue():
+        for experiment in NimbusExperiment.objects.waiting_to_launch_queue():
             if experiment.slug in record_ids:
                 logger.info(
                     f"{experiment} status is being updated to live".format(
@@ -215,7 +247,9 @@ def nimbus_check_experiments_are_live():
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.save()
 
-                generate_nimbus_changelog(experiment, get_kinto_user())
+                generate_nimbus_changelog(
+                    experiment, get_kinto_user(), message="Experiment is now live!"
+                )
 
                 logger.info(f"{experiment.slug} status is set to Live")
 
