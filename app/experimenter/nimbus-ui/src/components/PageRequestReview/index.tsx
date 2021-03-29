@@ -40,9 +40,7 @@ const PageRequestReview = ({
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
   launchRequestedByUsername = "", // new experiment property
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
-  currentUsername = "", // new user ID / email property
-  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
-  currentUserCanApprove = false, // new user permission property
+  canReview = false, // new user permission property
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
   rejectFeedback = null,
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
@@ -53,8 +51,7 @@ const PageRequestReview = ({
   isLaunchRequested?: boolean;
   isLaunchApproved?: boolean;
   launchRequestedByUsername?: string;
-  currentUsername?: string;
-  currentUserCanApprove?: boolean;
+  canReview?: boolean;
   rejectFeedback?: RejectFeedback;
   rsRequestTimedOut?: boolean;
 } & RouteComponentProps) => {
@@ -175,8 +172,7 @@ const PageRequestReview = ({
                   isLaunchRequested,
                   isLaunchApproved,
                   launchRequestedByUsername,
-                  currentUserCanApprove,
-                  currentUsername,
+                  canReview,
                   rejectFeedback,
                   rejectExperimentLaunch,
                   approveExperimentLaunch,

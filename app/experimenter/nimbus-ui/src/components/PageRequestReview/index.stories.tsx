@@ -63,9 +63,9 @@ storiesOf("pages/RequestReview/EXP-1055", module)
     <SubjectEXP1055
       {...{
         isLaunchRequested: true,
-        currentUserCanApprove: true,
+        canReview: true,
         currentUser: "abc@mozilla.com",
-        launchRequestedByUsername: "def@mozilla.com",
+        launchRequestedByUsername: "abc@mozilla.com",
       }}
     />
   ))
@@ -76,17 +76,14 @@ storiesOf("pages/RequestReview/EXP-1055", module)
         {...{
           isLaunchRequested: true,
           isLaunchApproved: true,
-          currentUserCanApprove: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "def@mozilla.com",
+          canReview: true,
+          launchRequestedByUsername: "abc@mozilla.com",
         }}
       />
     ),
   )
   .add("review requested, user does not have reviewer role", () => (
-    <SubjectEXP1055
-      {...{ isLaunchRequested: true, currentUserCanApprove: false }}
-    />
+    <SubjectEXP1055 {...{ isLaunchRequested: true, canReview: false }} />
   ))
   .add(
     "review requested, user has reviewer role, but user requested this review",
@@ -94,8 +91,7 @@ storiesOf("pages/RequestReview/EXP-1055", module)
       <SubjectEXP1055
         {...{
           isLaunchRequested: true,
-          currentUserCanApprove: false,
-          currentUser: "abc@mozilla.com",
+          canReview: false,
           launchRequestedByUsername: "abc@mozilla.com",
         }}
       />
@@ -108,34 +104,19 @@ storiesOf("pages/RequestReview/EXP-1055", module)
         {...{
           isLaunchRequested: true,
           isLaunchApproved: true,
-          currentUserCanApprove: false,
+          canReview: false,
         }}
       />
     ),
   )
   .add(
-    "review approved in experimenter, not yet approved in remote settings, user has reviewer role, but user requested this review",
-    () => (
-      <SubjectEXP1055
-        {...{
-          isLaunchRequested: true,
-          isLaunchApproved: true,
-          currentUserCanApprove: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "abc@mozilla.com",
-        }}
-      />
-    ),
-  )
-  .add(
-    "review rejected in experimenter or remote settings, user has reviewer role, but user has requested this review",
+    "review rejected in experimenter or remote settings, user has reviewer role",
     () => (
       <SubjectEXP1055
         {...{
           isLaunchRequested: true,
           isLaunchApproved: false,
-          currentUserCanApprove: true,
-          currentUsername: "abc@mozilla.com",
+          canReview: true,
           launchRequestedByUsername: "abc@mozilla.com",
           rejectFeedback: mockRejectFeedback,
         }}
@@ -143,30 +124,14 @@ storiesOf("pages/RequestReview/EXP-1055", module)
     ),
   )
   .add(
-    "review rejected in experimenter or remote settings, user has reviewer role, but user did not request this review",
+    "review rejected in experimenter or remote settings, user does not have reviewer role",
     () => (
       <SubjectEXP1055
         {...{
           isLaunchRequested: true,
           isLaunchApproved: false,
-          currentUserCanApprove: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "def@mozilla.com",
-          rejectFeedback: mockRejectFeedback,
-        }}
-      />
-    ),
-  )
-  .add(
-    "review rejected in experimenter or remote settings, user does not have reviewer role, but user did not request this review",
-    () => (
-      <SubjectEXP1055
-        {...{
-          isLaunchRequested: true,
-          isLaunchApproved: false,
-          currentUserCanApprove: false,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "def@mozilla.com",
+          canReview: false,
+          launchRequestedByUsername: "abc@mozilla.com",
           rejectFeedback: mockRejectFeedback,
         }}
       />
@@ -178,10 +143,9 @@ storiesOf("pages/RequestReview/EXP-1055", module)
       <SubjectEXP1055
         {...{
           isLaunchRequested: true,
-          currentUserCanApprove: true,
+          canReview: true,
           rsRequestTimedOut: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "def@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
         }}
       />
     ),
@@ -192,10 +156,9 @@ storiesOf("pages/RequestReview/EXP-1055", module)
       <SubjectEXP1055
         {...{
           isLaunchRequested: true,
-          currentUserCanApprove: false,
+          canReview: false,
           rsRequestTimedOut: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "def@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
         }}
       />
     ),
@@ -231,9 +194,8 @@ storiesOf("pages/RequestReview/EXP-1055/DraftStatusOperations", module)
     <SubjectDraftStatusOperationsWithActions
       {...{
         isLaunchRequested: true,
-        currentUserCanApprove: true,
-        currentUsername: "abc@mozilla.com",
-        launchRequestedByUsername: "def@mozilla.com",
+        canReview: true,
+        launchRequestedByUsername: "abc@mozilla.com",
       }}
     />
   ))
@@ -244,31 +206,17 @@ storiesOf("pages/RequestReview/EXP-1055/DraftStatusOperations", module)
         {...{
           isLaunchRequested: true,
           isLaunchApproved: true,
-          currentUserCanApprove: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "def@mozilla.com",
+          canReview: true,
+          launchRequestedByUsername: "abc@mozilla.com",
         }}
       />
     ),
   )
   .add("review requested, user does not have reviewer role", () => (
     <SubjectDraftStatusOperationsWithActions
-      {...{ isLaunchRequested: true, currentUserCanApprove: false }}
+      {...{ isLaunchRequested: true, canReview: false }}
     />
   ))
-  .add(
-    "review requested, user has reviewer role, but user requested this review",
-    () => (
-      <SubjectDraftStatusOperationsWithActions
-        {...{
-          isLaunchRequested: true,
-          currentUserCanApprove: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "abc@mozilla.com",
-        }}
-      />
-    ),
-  )
   .add(
     "review approved in experimenter, not yet approved in remote settings, user does not have reviewer role",
     () => (
@@ -276,34 +224,19 @@ storiesOf("pages/RequestReview/EXP-1055/DraftStatusOperations", module)
         {...{
           isLaunchRequested: true,
           isLaunchApproved: true,
-          currentUserCanApprove: false,
+          canReview: false,
         }}
       />
     ),
   )
   .add(
-    "review approved in experimenter, not yet approved in remote settings, user has reviewer role, but user requested this review",
-    () => (
-      <SubjectDraftStatusOperationsWithActions
-        {...{
-          isLaunchRequested: true,
-          isLaunchApproved: true,
-          currentUserCanApprove: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "abc@mozilla.com",
-        }}
-      />
-    ),
-  )
-  .add(
-    "review rejected in experimenter or remote settings, user has reviewer role, but user has requested this review",
+    "review rejected in experimenter or remote settings, user has reviewer role",
     () => (
       <SubjectDraftStatusOperationsWithActions
         {...{
           isLaunchRequested: true,
           isLaunchApproved: false,
-          currentUserCanApprove: true,
-          currentUsername: "abc@mozilla.com",
+          canReview: true,
           launchRequestedByUsername: "abc@mozilla.com",
           rejectFeedback: mockRejectFeedback,
         }}
@@ -311,30 +244,14 @@ storiesOf("pages/RequestReview/EXP-1055/DraftStatusOperations", module)
     ),
   )
   .add(
-    "review rejected in experimenter or remote settings, user has reviewer role, but user did not request this review",
+    "review rejected in experimenter or remote settings, user does not have reviewer role",
     () => (
       <SubjectDraftStatusOperationsWithActions
         {...{
           isLaunchRequested: true,
           isLaunchApproved: false,
-          currentUserCanApprove: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "def@mozilla.com",
-          rejectFeedback: mockRejectFeedback,
-        }}
-      />
-    ),
-  )
-  .add(
-    "review rejected in experimenter or remote settings, user does not have reviewer role, but user did not request this review",
-    () => (
-      <SubjectDraftStatusOperationsWithActions
-        {...{
-          isLaunchRequested: true,
-          isLaunchApproved: false,
-          currentUserCanApprove: false,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "def@mozilla.com",
+          canReview: false,
+          launchRequestedByUsername: "abc@mozilla.com",
           rejectFeedback: mockRejectFeedback,
         }}
       />
@@ -346,10 +263,9 @@ storiesOf("pages/RequestReview/EXP-1055/DraftStatusOperations", module)
       <SubjectDraftStatusOperationsWithActions
         {...{
           isLaunchRequested: true,
-          currentUserCanApprove: true,
+          canReview: true,
           rsRequestTimedOut: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "def@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
         }}
       />
     ),
@@ -360,10 +276,9 @@ storiesOf("pages/RequestReview/EXP-1055/DraftStatusOperations", module)
       <SubjectDraftStatusOperationsWithActions
         {...{
           isLaunchRequested: true,
-          currentUserCanApprove: false,
+          canReview: false,
           rsRequestTimedOut: true,
-          currentUsername: "abc@mozilla.com",
-          launchRequestedByUsername: "def@mozilla.com",
+          launchRequestedByUsername: "abc@mozilla.com",
         }}
       />
     ),
