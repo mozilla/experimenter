@@ -85,14 +85,6 @@ describe("PageResults", () => {
     expect(redirectPath).toEqual("edit/overview");
   });
 
-  it("redirects to the edit overview page if the experiment status is review", async () => {
-    mockExperiment = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.REVIEW,
-    }).experiment;
-    render(<Subject />);
-    expect(redirectPath).toEqual("edit/overview");
-  });
-
   it("redirects to the summary page if the visualization flag is set to false", async () => {
     mockAnalysisData = mockAnalysis({ show_analysis: false });
     mockExperiment = mockExperimentQuery("demo-slug", {

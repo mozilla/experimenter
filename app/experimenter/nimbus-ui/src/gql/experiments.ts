@@ -38,6 +38,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       name
       slug
       status
+      publishStatus
       monitoringDashboardUrl
       isEndRequested
 
@@ -123,6 +124,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       proposedEnrollment
       computedEndDate
       status
+      publishStatus
       isEndRequested
       monitoringDashboardUrl
       featureConfig {

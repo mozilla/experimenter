@@ -23,11 +23,13 @@ from experimenter.openidc.tests.factories import UserFactory
 class TestNimbusExperimentManager(TestCase):
     def test_launch_queue_returns_queued_experiments_with_correct_application(self):
         experiment1 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             application=NimbusExperiment.Application.DESKTOP,
         )
         NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             application=NimbusExperiment.Application.FENIX,
         )
         NimbusExperimentFactory.create_with_status(
@@ -60,7 +62,8 @@ class TestNimbusExperimentManager(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
         NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             is_end_requested=True,
             application=NimbusExperiment.Application.DESKTOP,
         )
@@ -74,7 +77,7 @@ class TestNimbusExperimentManager(TestCase):
     def test_pause_queue_returns_experiments_that_should_pause_by_application(self):
         def rewind_launch(experiment):
             launch_change = experiment.changes.get(
-                old_status=NimbusExperiment.Status.ACCEPTED,
+                old_status=NimbusExperiment.Status.DRAFT,
                 new_status=NimbusExperiment.Status.LIVE,
             )
             launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(
@@ -153,7 +156,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_empty_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.LIVE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
@@ -166,7 +169,7 @@ class TestNimbusExperiment(TestCase):
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.LIVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             application=NimbusExperiment.Application.DESKTOP,
@@ -184,7 +187,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_targeting_without_channel_version(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.LIVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
@@ -211,7 +214,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create()
         start_change = NimbusChangeLogFactory(
             experiment=experiment,
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
         self.assertEqual(experiment.start_date, start_change.changed_on)
@@ -254,7 +257,7 @@ class TestNimbusExperiment(TestCase):
             proposed_duration=10,
         )
         experiment.changes.filter(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
         self.assertTrue(experiment.should_end)
@@ -273,7 +276,7 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
-    def test_monitoring_dashboard_url_returns_url_when_experiment_is_begun(self):
+    def test_monitoring_dashboard_url_returns_url_when_experiment_has_begun(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
             status=NimbusExperiment.Status.LIVE,
@@ -281,7 +284,7 @@ class TestNimbusExperiment(TestCase):
 
         NimbusChangeLogFactory.create(
             experiment=experiment,
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
             changed_on=datetime.date(2019, 5, 1),
         )
@@ -303,7 +306,7 @@ class TestNimbusExperiment(TestCase):
 
         NimbusChangeLogFactory.create(
             experiment=experiment,
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
             changed_on=datetime.date(2019, 5, 1),
         )
@@ -343,14 +346,24 @@ class TestNimbusExperiment(TestCase):
         [
             [False, NimbusExperiment.Status.DRAFT],
             [True, NimbusExperiment.Status.PREVIEW],
-            [True, NimbusExperiment.Status.REVIEW],
-            [False, NimbusExperiment.Status.ACCEPTED],
             [False, NimbusExperiment.Status.LIVE],
             [False, NimbusExperiment.Status.COMPLETE],
         ]
     )
-    def test_should_allocate_buckets(self, expected_value, status):
+    def test_status_should_allocate_buckets(self, expected_value, status):
         experiment = NimbusExperimentFactory(status=status)
+        self.assertEqual(experiment.should_allocate_bucket_range, expected_value)
+
+    @parameterized.expand(
+        [
+            [False, NimbusExperiment.PublishStatus.IDLE],
+            [False, NimbusExperiment.PublishStatus.REVIEW],
+            [True, NimbusExperiment.PublishStatus.APPROVED],
+            [False, NimbusExperiment.PublishStatus.WAITING],
+        ]
+    )
+    def test_publish_status_should_allocate_buckets(self, expected_value, publish_status):
+        experiment = NimbusExperimentFactory(publish_status=publish_status)
         self.assertEqual(experiment.should_allocate_bucket_range, expected_value)
 
     def test_allocate_buckets_generates_bucket_range(self):
@@ -400,7 +413,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperiment.Status.LIVE, proposed_enrollment=10
         )
         launch_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
         launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
@@ -715,7 +728,7 @@ class TestNimbusChangeLog(TestCase):
             changed_by=user,
             changed_on=now,
             old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.REVIEW,
+            new_status=NimbusExperiment.Status.PREVIEW,
             message=None,
         )
-        self.assertEqual(str(changelog), f"Draft > Review by {user.email} on {now}")
+        self.assertEqual(str(changelog), f"Draft > Preview by {user.email} on {now}")

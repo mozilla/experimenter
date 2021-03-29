@@ -62,7 +62,7 @@ export const AppLayoutWithSidebar = ({
   review,
 }: AppLayoutWithSidebarProps) => {
   const { slug } = useParams();
-  const reviewOrPreview = status?.review || status?.preview;
+  const reviewOrPreview = !status?.idle || status?.preview;
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>

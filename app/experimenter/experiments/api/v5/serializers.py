@@ -208,12 +208,13 @@ class NimbusStatusValidationMixin:
             "status": NimbusConstants.STATUS_ALLOWS_UPDATE,
             "publish_status": NimbusConstants.PUBLISH_STATUS_ALLOWS_UPDATE,
         }
+        unlocked_fields = set(restrictive_statuses.keys())
 
         if self.instance:
             for status_field, restricted_statuses in restrictive_statuses.items():
                 current_status = getattr(self.instance, status_field)
                 is_locked = current_status not in restricted_statuses
-                is_modifying_other_fields = set(data.keys()) != {status_field}
+                is_modifying_other_fields = not set(data.keys()).issubset(unlocked_fields)
                 if is_locked and is_modifying_other_fields:
                     raise serializers.ValidationError(
                         {
@@ -348,8 +349,8 @@ class NimbusExperimentSerializer(
         super().__init__(instance=instance, data=data, **kwargs)
 
     def validate_publish_status(self, publish_status):
-        if (
-            publish_status == NimbusExperiment.PublishStatus.APPROVED
+        if publish_status == NimbusExperiment.PublishStatus.APPROVED and (
+            self.instance.publish_status != NimbusExperiment.PublishStatus.IDLE
             and not self.instance.can_review(self.context["user"])
         ):
             raise serializers.ValidationError(
