@@ -244,6 +244,7 @@ type NimbusExperimentType {
   isEnrollmentPaused: Boolean
   enrollmentEndDate: DateTime
   canReview: Boolean
+  reviewRequest: NimbusChangeLogType
   rejection: NimbusChangeLogType
   timeout: NimbusChangeLogType
 }
