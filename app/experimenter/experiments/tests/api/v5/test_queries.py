@@ -449,6 +449,66 @@ class TestNimbusQuery(GraphQLTestCase):
             experiment_data["rejection"]["changedBy"]["email"], experiment.owner.email
         )
 
+    def test_experiment_no_review_request_data(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    reviewRequest {
+                        changedBy {
+                            email
+                        }
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertIsNone(experiment_data["reviewRequest"])
+
+    def test_experiment_with_review_request(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    reviewRequest {
+                        changedBy {
+                            email
+                        }
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["reviewRequest"]["changedBy"]["email"], experiment.owner.email
+        )
+
     def test_experiment_without_timeout_returns_none(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_status(
