@@ -69,7 +69,7 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
 
       <p>
         Before launching an experiment, review the{" "}
-        <LinkExternal href={EXTERNAL_URLS.NIMBUS_MANA_DOC}>
+        <LinkExternal href={EXTERNAL_URLS.TRAINING_AND_PLANNING_DOC}>
           training and planning documentation
         </LinkExternal>
         .
