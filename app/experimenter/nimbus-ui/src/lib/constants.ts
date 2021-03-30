@@ -12,6 +12,8 @@ export const SUBMIT_ERROR =
   "Sorry, an error occurred while submitting. Please try again.";
 
 export const EXTERNAL_URLS = {
+  TRAINING_AND_PLANNING_DOC:
+    "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Onboarding",
   RISK_MITIGATION_TEMPLATE_DOC:
     "https://docs.google.com/document/d/1zfG2g6pYe9aB7ItViQaw8OcOsXXdRUP70zpZoNC2xcA/edit",
   NIMBUS_MANA_DOC: "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus",
