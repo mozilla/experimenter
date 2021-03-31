@@ -29,7 +29,7 @@ def nimbus_check_kinto_push_queue():
     A scheduled task that passes each application to a new scheduled
     task for working with kinto
     """
-    for application in NimbusExperiment.KINTO_APPLICATION_COLLECTION:
+    for application in NimbusExperiment.Application:
         nimbus_check_kinto_push_queue_by_application.delay(application)
 
 
@@ -50,7 +50,7 @@ def nimbus_check_kinto_push_queue_by_application(application):
     - Checks for experiments that should be paused but are not paused in the kinto
       collection and marks them as paused and updates the record in the collection.
     """
-    collection = NimbusExperiment.KINTO_APPLICATION_COLLECTION.get(application)
+    collection = NimbusExperiment.APPLICATION_CONFIGS[application].collection
     metrics.incr(f"check_kinto_push_queue_by_{collection}_application.started")
 
     kinto_client = KintoClient(collection)
@@ -115,9 +115,7 @@ def nimbus_push_experiment_to_kinto(experiment_id):
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         logger.info(f"Pushing {experiment.slug} to Kinto")
 
-        kinto_client = KintoClient(
-            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
-        )
+        kinto_client = KintoClient(experiment.application_config.collection)
 
         data = NimbusExperimentSerializer(experiment).data
 
@@ -149,10 +147,10 @@ def nimbus_end_experiment_in_kinto(experiment_id):
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         logger.info(f"Deleting {experiment.slug} from Kinto")
-        kinto_client = KintoClient(
-            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
-        )
+
+        kinto_client = KintoClient(experiment.application_config.collection)
         kinto_client.delete_record(experiment.slug)
+
         logger.info(f"{experiment.slug} deleted from Kinto")
         metrics.incr("end_experiment_in_kinto.completed")
     except Exception as e:
@@ -174,13 +172,15 @@ def nimbus_pause_experiment_in_kinto(experiment_id):
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         logger.info(f"Deleting {experiment.slug} from Kinto")
-        kinto_client = KintoClient(
-            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
-        )
+
+        kinto_client = KintoClient(experiment.application_config.collection)
+
         records = {r["id"]: r for r in kinto_client.get_main_records()}
         record = records[experiment.slug]
         record["isEnrollmentPaused"] = True
+
         kinto_client.update_record(record)
+
         logger.info(f"{experiment.slug} paused in Kinto")
         metrics.incr("pause_experiment_in_kinto.completed")
     except Exception as e:
@@ -203,8 +203,8 @@ def nimbus_check_experiments_are_live():
         status=NimbusExperiment.Status.ACCEPTED
     )
 
-    for collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.values():
-        kinto_client = KintoClient(collection)
+    for application_config in NimbusExperiment.APPLICATION_CONFIGS.values():
+        kinto_client = KintoClient(application_config.collection)
 
         records = kinto_client.get_main_records()
         record_ids = [r.get("id") for r in records]
@@ -237,12 +237,12 @@ def nimbus_check_experiments_are_paused():
     """
     metrics.incr("check_experiments_are_paused.started")
 
-    for application, collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.items():
-        kinto_client = KintoClient(collection)
+    for application_config in NimbusExperiment.APPLICATION_CONFIGS.values():
+        kinto_client = KintoClient(application_config.collection)
 
         live_experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.LIVE,
-            application=application,
+            application=application_config.slug,
             is_paused=False,
         )
 
@@ -277,12 +277,12 @@ def nimbus_check_experiments_are_complete():
     """
     metrics.incr("check_experiments_are_complete.started")
 
-    for application, collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.items():
-        kinto_client = KintoClient(collection)
+    for application_config in NimbusExperiment.APPLICATION_CONFIGS.values():
+        kinto_client = KintoClient(application_config.collection)
 
         live_experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.LIVE,
-            application=application,
+            application=application_config.slug,
         )
 
         records = kinto_client.get_main_records()

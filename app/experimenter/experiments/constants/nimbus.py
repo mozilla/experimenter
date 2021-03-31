@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict
 
 from django.conf import settings
 from django.db import models
@@ -92,6 +93,64 @@ TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
 )
 
 
+class Channel(models.TextChoices):
+    NO_CHANNEL = ""
+    UNBRANDED = "default"
+    NIGHTLY = "nightly"
+    BETA = "beta"
+    RELEASE = "release"
+
+
+@dataclass
+class ApplicationConfig:
+    name: str
+    slug: str
+    app_name: str
+    channel_app_id: Dict[str, str]
+    default_app_id: str
+    collection: str
+
+
+APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
+    name="Firefox Desktop",
+    slug="firefox-desktop",
+    app_name="firefox_desktop",
+    channel_app_id={
+        Channel.NIGHTLY: "firefox-desktop",
+        Channel.BETA: "firefox-desktop",
+        Channel.RELEASE: "firefox-desktop",
+    },
+    default_app_id="firefox-desktop",
+    collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+)
+
+APPLICATION_CONFIG_FENIX = ApplicationConfig(
+    name="Firefox for Android (Fenix)",
+    slug="fenix",
+    app_name="fenix",
+    channel_app_id={
+        Channel.NIGHTLY: "org.mozilla.fenix",
+        Channel.BETA: "org.mozilla.firefox.beta",
+        Channel.RELEASE: "org.mozilla.firefox",
+    },
+    default_app_id="",
+    collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+)
+
+APPLICATION_CONFIG_IOS = ApplicationConfig(
+    name="Firefox for iOS",
+    slug="ios",
+    app_name="firefox_ios",
+    channel_app_id={
+        Channel.NIGHTLY: "org.mozilla.ios.Fennec",
+        Channel.BETA: "org.mozilla.ios.FirefoxBeta",
+        Channel.RELEASE: "org.mozilla.ios.Firefox",
+    },
+    default_app_id="",
+    collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+)
+
+
 class NimbusConstants(object):
     class Status(models.TextChoices):
         DRAFT = "Draft"
@@ -129,40 +188,17 @@ class NimbusConstants(object):
     PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
 
     class Application(models.TextChoices):
-        DESKTOP = "firefox-desktop"
-        FENIX = "fenix"
+        DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
+        FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.name)
+        IOS = (APPLICATION_CONFIG_IOS.slug, APPLICATION_CONFIG_IOS.name)
 
-    FIREFOX_DESKTOP_APP_NAME = "firefox_desktop"
-
-    APPLICATION_APP_NAME = {
-        Application.DESKTOP: FIREFOX_DESKTOP_APP_NAME,
-        Application.FENIX: Application.FENIX,
+    APPLICATION_CONFIGS = {
+        Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,
+        Application.FENIX: APPLICATION_CONFIG_FENIX,
+        Application.IOS: APPLICATION_CONFIG_IOS,
     }
 
-    APP_NAME_APPLICATION = {v: k for k, v in APPLICATION_APP_NAME.items()}
-
-    KINTO_APPLICATION_COLLECTION = {
-        Application.DESKTOP: settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-        Application.FENIX: settings.KINTO_COLLECTION_NIMBUS_MOBILE,
-    }
-
-    class Channel(models.TextChoices):
-        NO_CHANNEL = ""
-        UNBRANDED = "default"
-        NIGHTLY = "nightly"
-        BETA = "beta"
-        RELEASE = "release"
-
-    class FenixAppId(models.TextChoices):
-        NIGHTLY = "org.mozilla.fenix"
-        BETA = "org.mozilla.firefox.beta"
-        RELEASE = "org.mozilla.firefox"
-
-    CHANNEL_FENIX_APP_ID = {
-        Channel.NIGHTLY: FenixAppId.NIGHTLY,
-        Channel.BETA: FenixAppId.BETA,
-        Channel.RELEASE: FenixAppId.RELEASE,
-    }
+    Channel = Channel
 
     class DocumentationLink(models.TextChoices):
         DS_JIRA = "DS_JIRA", "Data Science Jira Ticket"
@@ -171,6 +207,75 @@ class NimbusConstants(object):
 
     class Version(models.TextChoices):
         NO_VERSION = ""
+        FIREFOX_11 = "11.!"
+        FIREFOX_12 = "12.!"
+        FIREFOX_13 = "13.!"
+        FIREFOX_14 = "14.!"
+        FIREFOX_15 = "15.!"
+        FIREFOX_16 = "16.!"
+        FIREFOX_17 = "17.!"
+        FIREFOX_18 = "18.!"
+        FIREFOX_19 = "19.!"
+        FIREFOX_20 = "20.!"
+        FIREFOX_21 = "21.!"
+        FIREFOX_22 = "22.!"
+        FIREFOX_23 = "23.!"
+        FIREFOX_24 = "24.!"
+        FIREFOX_25 = "25.!"
+        FIREFOX_26 = "26.!"
+        FIREFOX_27 = "27.!"
+        FIREFOX_28 = "28.!"
+        FIREFOX_29 = "29.!"
+        FIREFOX_30 = "30.!"
+        FIREFOX_31 = "31.!"
+        FIREFOX_32 = "32.!"
+        FIREFOX_33 = "33.!"
+        FIREFOX_34 = "34.!"
+        FIREFOX_35 = "35.!"
+        FIREFOX_36 = "36.!"
+        FIREFOX_37 = "37.!"
+        FIREFOX_38 = "38.!"
+        FIREFOX_39 = "39.!"
+        FIREFOX_40 = "40.!"
+        FIREFOX_41 = "41.!"
+        FIREFOX_42 = "42.!"
+        FIREFOX_43 = "43.!"
+        FIREFOX_44 = "44.!"
+        FIREFOX_45 = "45.!"
+        FIREFOX_46 = "46.!"
+        FIREFOX_47 = "47.!"
+        FIREFOX_48 = "48.!"
+        FIREFOX_49 = "49.!"
+        FIREFOX_50 = "50.!"
+        FIREFOX_51 = "51.!"
+        FIREFOX_52 = "52.!"
+        FIREFOX_53 = "53.!"
+        FIREFOX_54 = "54.!"
+        FIREFOX_55 = "55.!"
+        FIREFOX_56 = "56.!"
+        FIREFOX_57 = "57.!"
+        FIREFOX_58 = "58.!"
+        FIREFOX_59 = "59.!"
+        FIREFOX_60 = "60.!"
+        FIREFOX_61 = "61.!"
+        FIREFOX_62 = "62.!"
+        FIREFOX_63 = "63.!"
+        FIREFOX_64 = "64.!"
+        FIREFOX_65 = "65.!"
+        FIREFOX_66 = "66.!"
+        FIREFOX_67 = "67.!"
+        FIREFOX_68 = "68.!"
+        FIREFOX_69 = "69.!"
+        FIREFOX_70 = "70.!"
+        FIREFOX_71 = "71.!"
+        FIREFOX_72 = "72.!"
+        FIREFOX_73 = "73.!"
+        FIREFOX_74 = "74.!"
+        FIREFOX_75 = "75.!"
+        FIREFOX_76 = "76.!"
+        FIREFOX_77 = "77.!"
+        FIREFOX_78 = "78.!"
+        FIREFOX_79 = "79.!"
         FIREFOX_80 = "80.!"
         FIREFOX_81 = "81.!"
         FIREFOX_82 = "82.!"
