@@ -137,7 +137,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
     app_name="fenix",
     channel_app_id={
         Channel.NIGHTLY: "org.mozilla.fenix",
-        Channel.BETA: "org.mozilla.firefox.beta",
+        Channel.BETA: "org.mozilla.firefox_beta",
         Channel.RELEASE: "org.mozilla.firefox",
     },
     default_app_id="",
