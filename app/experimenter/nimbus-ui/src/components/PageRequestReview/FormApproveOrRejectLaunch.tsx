@@ -26,8 +26,11 @@ const FormApproveOrRejectLaunch = ({
       {rsRequestTimedOut && (
         <Alert variant="danger">
           <p className="mb-0">
-            ❌ Your remote settings request has timed out, please approve and
-            launch through Remote Settings again
+            <span role="img" aria-label="red X emoji">
+              ❌
+            </span>{" "}
+            Remote Settings request has timed out, please approve and launch
+            through Remote Settings again
           </p>
         </Alert>
       )}
