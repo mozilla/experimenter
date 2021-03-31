@@ -96,9 +96,11 @@ class TestNimbusExperimentSerializer(TestCase):
 
         check_schema("experiments/NimbusExperiment", serializer.data)
 
-    def test_serializers_with_feature_value_None(self):
+    @parameterized.expand(list(NimbusExperiment.Application))
+    def test_serializers_with_feature_value_None(self, application):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
+            application=application,
             branches=[],
         )
         experiment.reference_branch = NimbusBranchFactory(
