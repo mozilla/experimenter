@@ -494,19 +494,7 @@ class TestNimbusDocumentLink(TestCase):
         self.assertEqual(str(doco_link), f"{doco_link.title} ({doco_link.link})")
 
 
-@parameterized_class(
-    ("application", "randomization_unit"),
-    [
-        [
-            NimbusExperiment.Application.DESKTOP,
-            NimbusExperiment.BucketRandomizationUnit.NORMANDY,
-        ],
-        [
-            NimbusExperiment.Application.FENIX,
-            NimbusExperiment.BucketRandomizationUnit.NIMBUS,
-        ],
-    ],
-)
+@parameterized_class(("application",), [list(NimbusExperiment.Application)])
 class TestNimbusIsolationGroup(TestCase):
     def test_empty_isolation_group_creates_isolation_group_and_bucket_range(self):
         """
@@ -526,7 +514,7 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.isolation_group.total, NimbusExperiment.BUCKET_TOTAL)
         self.assertEqual(
             bucket.isolation_group.randomization_unit,
-            self.randomization_unit,
+            experiment.application_config.randomization_unit,
         )
 
     def test_existing_isolation_group_adds_bucket_range(self):
@@ -548,7 +536,7 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.isolation_group, isolation_group)
         self.assertEqual(
             bucket.isolation_group.randomization_unit,
-            self.randomization_unit,
+            experiment.application_config.randomization_unit,
         )
 
     def test_existing_isolation_group_with_buckets_adds_next_bucket_range(self):
@@ -573,7 +561,7 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.isolation_group, isolation_group)
         self.assertEqual(
             bucket.isolation_group.randomization_unit,
-            self.randomization_unit,
+            experiment.application_config.randomization_unit,
         )
 
     def test_full_isolation_group_creates_next_isolation_group_adds_bucket_range(
@@ -603,7 +591,7 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.isolation_group.instance, isolation_group.instance + 1)
         self.assertEqual(
             bucket.isolation_group.randomization_unit,
-            self.randomization_unit,
+            experiment.application_config.randomization_unit,
         )
 
     def test_existing_isolation_group_with_matching_name_but_not_application_is_filtered(
