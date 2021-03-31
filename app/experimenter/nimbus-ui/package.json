@@ -59,7 +59,7 @@
     "vega-lite": "^4.17.0"
   },
   "devDependencies": {
-    "@rescripts/cli": "^0.0.14",
+    "@rescripts/cli": "^0.0.16",
     "@storybook/addon-actions": "^6.1.17",
     "@storybook/addon-links": "^6.1.15",
     "@storybook/addon-queryparams": "^6.1.17",
