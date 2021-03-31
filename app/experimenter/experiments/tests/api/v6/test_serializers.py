@@ -123,8 +123,8 @@ class TestNimbusExperimentSerializer(TestCase):
             [
                 NimbusExperiment.Application.FENIX,
                 NimbusExperiment.Channel.BETA,
-                "org.mozilla.firefox.beta",
-                "org.mozilla.firefox.beta",
+                "org.mozilla.firefox_beta",
+                "org.mozilla.firefox_beta",
                 "fenix",
             ],
             [
