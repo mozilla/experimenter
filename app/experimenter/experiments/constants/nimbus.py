@@ -101,6 +101,11 @@ class Channel(models.TextChoices):
     RELEASE = "release"
 
 
+class BucketRandomizationUnit(models.TextChoices):
+    NORMANDY = "normandy_id"
+    NIMBUS = "nimbus_id"
+
+
 @dataclass
 class ApplicationConfig:
     name: str
@@ -109,6 +114,7 @@ class ApplicationConfig:
     channel_app_id: Dict[str, str]
     default_app_id: str
     collection: str
+    randomization_unit: str
 
 
 APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
@@ -122,6 +128,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     },
     default_app_id="firefox-desktop",
     collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+    randomization_unit=BucketRandomizationUnit.NORMANDY,
 )
 
 APPLICATION_CONFIG_FENIX = ApplicationConfig(
@@ -135,6 +142,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
     },
     default_app_id="",
     collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
 APPLICATION_CONFIG_IOS = ApplicationConfig(
@@ -148,6 +156,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     },
     default_app_id="",
     collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
 
@@ -300,15 +309,6 @@ class NimbusConstants(object):
 
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
-
-    class BucketRandomizationUnit(models.TextChoices):
-        NORMANDY = "normandy_id"
-        NIMBUS = "nimbus_id"
-
-    APPLICATION_BUCKET_RANDOMIZATION_UNIT = {
-        Application.DESKTOP: BucketRandomizationUnit.NORMANDY,
-        Application.FENIX: BucketRandomizationUnit.NIMBUS,
-    }
 
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
 

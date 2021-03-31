@@ -332,7 +332,7 @@ class NimbusIsolationGroup(models.Model):
 
     @property
     def randomization_unit(self):
-        return NimbusExperiment.APPLICATION_BUCKET_RANDOMIZATION_UNIT[self.application]
+        return NimbusExperiment.APPLICATION_CONFIGS[self.application].randomization_unit
 
     @property
     def namespace(self):
