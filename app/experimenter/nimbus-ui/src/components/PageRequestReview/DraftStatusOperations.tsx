@@ -36,8 +36,7 @@ export const DraftStatusOperations = ({
   isLaunchRequested = false,
   isLaunchApproved = false,
   launchRequestedByUsername = "",
-  currentUsername = "",
-  currentUserCanApprove = false,
+  canReview = false,
   rejectFeedback,
   rsRequestTimedOut,
   rejectExperimentLaunch,
@@ -51,8 +50,7 @@ export const DraftStatusOperations = ({
   isLaunchRequested: boolean;
   isLaunchApproved: boolean;
   launchRequestedByUsername: string;
-  currentUsername: string;
-  currentUserCanApprove: boolean;
+  canReview: boolean;
   rejectFeedback: RejectFeedback;
   rsRequestTimedOut: boolean;
   rejectExperimentLaunch: (fields: { reason: string }) => void;
@@ -62,21 +60,16 @@ export const DraftStatusOperations = ({
   onLaunchToPreviewClicked: () => void;
 }) => {
   let defaultDraftUIState = DraftStatusOperationsState.DraftToPreview;
-  const launchRequestedByCurrentUser =
-    currentUsername === launchRequestedByUsername;
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
   if (featureFlags.exp1055ReviewFlow) {
-    const canApprove = currentUserCanApprove && !launchRequestedByCurrentUser;
     if (isLaunchApproved) {
-      defaultDraftUIState = canApprove
+      defaultDraftUIState = canReview
         ? DraftStatusOperationsState.ApprovalConfirmation
         : DraftStatusOperationsState.LaunchApprovalPending;
     } else if (rejectFeedback) {
-      defaultDraftUIState = launchRequestedByCurrentUser
-        ? DraftStatusOperationsState.LaunchRejected
-        : DraftStatusOperationsState.LaunchRejectedByAnotherUser;
+      defaultDraftUIState = DraftStatusOperationsState.LaunchRejected;
     } else if (isLaunchRequested) {
-      defaultDraftUIState = canApprove
+      defaultDraftUIState = canReview
         ? DraftStatusOperationsState.LaunchApproveOrReject
         : DraftStatusOperationsState.LaunchApprovalPending;
     }
@@ -150,22 +143,6 @@ export const DraftStatusOperations = ({
             </p>
             <p className="bg-white rounded border p-3">
               {rejectFeedback!.rejectReason}
-            </p>
-          </div>
-        </Alert>
-      );
-
-    /* istanbul ignore next until EXP-1055 & EXP-1062 done */
-    case DraftStatusOperationsState.LaunchRejectedByAnotherUser:
-      return (
-        <Alert variant="warning">
-          <div className="text-body">
-            <p>
-              This experiment was reviewed and <strong>Rejected</strong> by{" "}
-              {rejectFeedback!.rejectedByUser} on {rejectFeedback!.rejectDate}.
-            </p>
-            <p className="mb-0">
-              The experiment owner can make edits and request another review.
             </p>
           </div>
         </Alert>
