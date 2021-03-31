@@ -154,6 +154,24 @@ describe("PageRequestReview", () => {
     await launchFromDraftToReview();
   });
 
+  it("handles cancelled Launch to Review as expected", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.DRAFT,
+    });
+    const mutationMock = createMutationMock(experiment.id!);
+    render(<Subject mocks={[mock, mutationMock]} />);
+
+    const startButton = (await screen.findByTestId(
+      "start-launch-draft-to-review",
+    )) as HTMLButtonElement;
+
+    await act(async () => void fireEvent.click(startButton));
+
+    const cancelButton = await screen.findByTestId("cancel");
+    await act(async () => void fireEvent.click(cancelButton));
+    await screen.findByTestId("launch-draft-to-preview");
+  });
+
   it("handles Launch to Preview after reconsidering Launch to Review from Draft", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,

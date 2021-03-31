@@ -7,38 +7,43 @@ import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import { NimbusChangeLogType } from "./temp-types";
 
-const FormApproveOrRejectLaunch = ({
-  rsRequestTimedOut,
-  launchRequestedByUsername,
+const FormApproveOrReject = ({
+  actionDescription,
+  timeoutEvent,
+  reviewRequestEvent,
   isLoading,
   onApprove,
   onReject,
 }: {
-  rsRequestTimedOut?: boolean;
-  launchRequestedByUsername: string;
+  actionDescription: string;
+  timeoutEvent?: NimbusChangeLogType;
+  reviewRequestEvent?: NimbusChangeLogType;
   isLoading: boolean;
   onApprove: () => void;
   onReject: () => void;
 }) => {
+  const ucActionDescription =
+    actionDescription.charAt(0).toUpperCase() + actionDescription.slice(1);
   return (
     <>
-      {rsRequestTimedOut && (
+      {timeoutEvent && (
         <Alert variant="danger">
           <p className="mb-0">
             <span role="img" aria-label="red X emoji">
               ❌
             </span>{" "}
-            Remote Settings request has timed out, please approve and launch
-            through Remote Settings again
+            Remote Settings request has timed out, please approve through Remote
+            Settings again
           </p>
         </Alert>
       )}
       <Alert variant="warning">
         <Form className="text-body">
           <p>
-            <strong>{launchRequestedByUsername}</strong> requested to launch
-            this experiment.
+            <strong>{reviewRequestEvent!.changedBy!.email}</strong> requested to{" "}
+            {actionDescription} this experiment.
           </p>
 
           <div className="d-flex bd-highlight">
@@ -49,7 +54,7 @@ const FormApproveOrRejectLaunch = ({
                 disabled={isLoading}
                 onClick={onApprove}
               >
-                Approve and Launch
+                Approve and {ucActionDescription}
               </Button>
               <Button
                 data-testid="reject-launch"
@@ -67,4 +72,4 @@ const FormApproveOrRejectLaunch = ({
   );
 };
 
-export default FormApproveOrRejectLaunch;
+export default FormApproveOrReject;
