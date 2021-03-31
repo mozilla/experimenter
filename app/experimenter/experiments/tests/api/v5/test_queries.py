@@ -642,9 +642,9 @@ class TestNimbusQuery(GraphQLTestCase):
         for outcome in Outcomes.all():
             self.assertIn(
                 {
-                    "friendlyName": outcome.friendly_name,
                     "slug": outcome.slug,
-                    "application": outcome.application.name,
+                    "friendlyName": outcome.friendly_name,
+                    "application": NimbusExperiment.Application(outcome.application).name,
                     "description": outcome.description,
                 },
                 config["outcomes"],

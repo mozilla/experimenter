@@ -102,14 +102,13 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         return self.get_appId(obj)
 
     def get_appName(self, obj):
-        return NimbusExperiment.APPLICATION_APP_NAME[obj.application]
+        return obj.application_config.app_name
 
     def get_appId(self, obj):
-        if obj.is_fenix_experiment:
-            if obj.channel in NimbusExperiment.CHANNEL_FENIX_APP_ID:
-                return str(NimbusExperiment.CHANNEL_FENIX_APP_ID[obj.channel])
-            return ""
-        return str(obj.application)
+        return (
+            obj.application_config.channel_app_id.get(obj.channel)
+            or obj.application_config.default_app_id
+        )
 
     def get_outcomes(self, obj):
         prioritized_outcomes = (

@@ -123,10 +123,6 @@ class NimbusExperiment(NimbusConstants, models.Model):
     def is_desktop_experiment(self):
         return self.application == self.Application.DESKTOP
 
-    @property
-    def is_fenix_experiment(self):
-        return self.application == self.Application.FENIX
-
     # This is the full JEXL expression processed by clients
     @property
     def targeting(self):
@@ -157,6 +153,11 @@ class NimbusExperiment(NimbusConstants, models.Model):
             return "true"
 
         return " && ".join(expressions)
+
+    @property
+    def application_config(self):
+        if self.application:
+            return self.APPLICATION_CONFIGS[self.application]
 
     @property
     def targeting_config(self):
