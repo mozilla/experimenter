@@ -11,7 +11,6 @@ from experimenter.experiments.constants import NimbusConstants
 @dataclass
 class Outcome:
     application: str
-    app_name: str
     description: str
     friendly_name: str
     slug: str
@@ -24,6 +23,9 @@ class Outcomes:
     def _load_outcomes(cls):
         outcomes = []
 
+        app_name_application_config = {
+            a.app_name: a for a in NimbusConstants.APPLICATION_CONFIGS.values()
+        }
         for app_name in os.listdir(settings.JETSTREAM_CONFIG_OUTCOMES_PATH):
             app_path = os.path.join(settings.JETSTREAM_CONFIG_OUTCOMES_PATH, app_name)
 
@@ -37,10 +39,7 @@ class Outcomes:
 
                         outcomes.append(
                             Outcome(
-                                application=NimbusConstants.APP_NAME_APPLICATION[
-                                    app_name
-                                ],
-                                app_name=app_name,
+                                application=app_name_application_config[app_name].slug,
                                 description=outcome_data["description"],
                                 friendly_name=outcome_data["friendly_name"],
                                 slug=os.path.splitext(outcome_name)[0],

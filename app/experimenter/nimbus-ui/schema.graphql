@@ -140,6 +140,7 @@ type NimbusDocumentationLinkType {
 enum NimbusExperimentApplication {
   DESKTOP
   FENIX
+  IOS
 }
 
 enum NimbusExperimentChannel {
@@ -158,6 +159,75 @@ enum NimbusExperimentDocumentationLink {
 
 enum NimbusExperimentFirefoxMinVersion {
   NO_VERSION
+  FIREFOX_11
+  FIREFOX_12
+  FIREFOX_13
+  FIREFOX_14
+  FIREFOX_15
+  FIREFOX_16
+  FIREFOX_17
+  FIREFOX_18
+  FIREFOX_19
+  FIREFOX_20
+  FIREFOX_21
+  FIREFOX_22
+  FIREFOX_23
+  FIREFOX_24
+  FIREFOX_25
+  FIREFOX_26
+  FIREFOX_27
+  FIREFOX_28
+  FIREFOX_29
+  FIREFOX_30
+  FIREFOX_31
+  FIREFOX_32
+  FIREFOX_33
+  FIREFOX_34
+  FIREFOX_35
+  FIREFOX_36
+  FIREFOX_37
+  FIREFOX_38
+  FIREFOX_39
+  FIREFOX_40
+  FIREFOX_41
+  FIREFOX_42
+  FIREFOX_43
+  FIREFOX_44
+  FIREFOX_45
+  FIREFOX_46
+  FIREFOX_47
+  FIREFOX_48
+  FIREFOX_49
+  FIREFOX_50
+  FIREFOX_51
+  FIREFOX_52
+  FIREFOX_53
+  FIREFOX_54
+  FIREFOX_55
+  FIREFOX_56
+  FIREFOX_57
+  FIREFOX_58
+  FIREFOX_59
+  FIREFOX_60
+  FIREFOX_61
+  FIREFOX_62
+  FIREFOX_63
+  FIREFOX_64
+  FIREFOX_65
+  FIREFOX_66
+  FIREFOX_67
+  FIREFOX_68
+  FIREFOX_69
+  FIREFOX_70
+  FIREFOX_71
+  FIREFOX_72
+  FIREFOX_73
+  FIREFOX_74
+  FIREFOX_75
+  FIREFOX_76
+  FIREFOX_77
+  FIREFOX_78
+  FIREFOX_79
   FIREFOX_80
   FIREFOX_81
   FIREFOX_82
@@ -251,6 +321,7 @@ type NimbusExperimentType {
 enum NimbusFeatureConfigApplication {
   FIREFOX_DESKTOP
   FENIX
+  IOS
 }
 
 type NimbusFeatureConfigType {
@@ -267,6 +338,7 @@ type NimbusFeatureConfigType {
 enum NimbusIsolationGroupApplication {
   FIREFOX_DESKTOP
   FENIX
+  IOS
 }
 
 type NimbusIsolationGroupType {

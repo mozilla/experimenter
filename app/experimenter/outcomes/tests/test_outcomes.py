@@ -17,7 +17,6 @@ class TestOutcomes(TestCase):
         self.assertIn(
             Outcome(
                 application=NimbusConstants.Application.FENIX,
-                app_name="fenix",
                 description="Fenix config used for testing",
                 friendly_name="Fenix config",
                 slug="fenix_outcome",
@@ -28,7 +27,6 @@ class TestOutcomes(TestCase):
             self.assertIn(
                 Outcome(
                     application=NimbusConstants.Application.DESKTOP,
-                    app_name="firefox_desktop",
                     description="Firefox desktop config used for testing",
                     friendly_name=f"Desktop config {i}",
                     slug=f"desktop_outcome_{i}",
@@ -36,14 +34,13 @@ class TestOutcomes(TestCase):
                 outcomes,
             )
 
-    def test_load_outcomes_by_app_id(self):
+    def test_load_outcomes_by_application(self):
         desktop_outcomes = Outcomes.by_application(NimbusConstants.Application.DESKTOP)
         self.assertEqual(len(desktop_outcomes), 3)
         for i in range(1, 4):
             self.assertIn(
                 Outcome(
                     application=NimbusConstants.Application.DESKTOP,
-                    app_name="firefox_desktop",
                     description="Firefox desktop config used for testing",
                     friendly_name=f"Desktop config {i}",
                     slug=f"desktop_outcome_{i}",

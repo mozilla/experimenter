@@ -83,8 +83,8 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
 
     def test_dispatches_check_push_queue(self):
         tasks.nimbus_check_kinto_push_queue()
-        for application in NimbusExperiment.KINTO_APPLICATION_COLLECTION:
-            self.mock_dispatchee_task.assert_any_call(application)
+        for application in NimbusExperiment.Application:
+            self.mock_dispatchee_task.assert_any_call(application.value)
 
 
 class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
