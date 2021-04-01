@@ -13,7 +13,7 @@
   <meta name="viewport"
     content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=2,user-scalable=yes" />
   <title>Mozilla Experimenter</title>
-  {% if not DEBUG %}
+  {% if not USE_YARN_DEV %}
     <link rel="stylesheet" href="{% static 'nimbus/static/css/main.css' %}" />
   {% endif %}
 </head>
@@ -22,7 +22,7 @@
   <noscript>Mozilla Experimenter requires JavaScript to run.</noscript>
   <div id="root" data-config="{{ APP_CONFIG }}"></div>
 
-  {% if DEBUG %}
+  {% if USE_YARN_DEV %}
     <script src="http://localhost:3000/static/js/main.js"></script>
   {% else %}
     <script src="{% static 'nimbus/static/js/main.js' %}"></script>
