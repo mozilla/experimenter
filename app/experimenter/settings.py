@@ -42,6 +42,8 @@ ALLOWED_HOSTS = [HOSTNAME]
 if DEBUG:
     ALLOWED_HOSTS += ["localhost", "nginx"]  # pragma: no cover
 
+USE_YARN_DEV = config("USE_YARN_DEV", default=DEBUG, cast=bool)
+
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
