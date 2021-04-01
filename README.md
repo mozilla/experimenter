@@ -153,76 +153,155 @@ On certain pages an API endpoint is called to receive experiment analysis data f
 
 Experimenter uses [docker](https://www.docker.com/) for all development, testing, and deployment.
 
-The following helpful commands have been provided via a Makefile:
-
-### build
+### Building
+#### make build
 
 Build the application container by executing the [build script](https://github.com/mozilla/experimenter/blob/main/scripts/build.sh)
 
-### compose_build
+#### make compose_build
 
 Build the supporting services (nginx, postgresql) defined in the [compose file](https://github.com/mozilla/experimenter/blob/main/docker-compose.yml)
 
-### up
-
-Start a dev server listening on port 80 using the [Django runserver](https://docs.djangoproject.com/en/1.10/ref/django-admin/#runserver)
-
-### up_db
-
-Start postgresql, redis, autograph, kinto on their respective ports to allow running the Django runserver and yarn watchers locally (non containerized)
-
-### up_django
-
-Start Django runserver, Celery worker, postgresql, redis, autograph, kinto on their respective ports to allow running the yarn watchers locally (non containerized)
-
-### up_detached
-
-Start all containers in the background (not attached to shell)
-
-### check
-
-Run all test and lint suites, this is run in CI on all PRs and deploys
-
-### py_test
-
-Run python tests
-
-### migrate
-
-Apply all django migrations
-
-### load_locales_countries
-
-Populates locales and countries
-
-### load_dummy_experiments
-
-Populates db with dummy experiments
-
-### bash
-
-Start a bash shell inside the container (this lets you interact with the containerized filesystem and run Django management commands)
-
-### ssl
+#### make ssl
 
 Create dummy SSL certs to use the dev server over a locally secure
 connection. This helps test client behaviour with a secure
 connection. This task is run automatically when needed.
 
-### kill
+#### make kill
 
 Stop and delete all docker containers.
 WARNING: this will remove your database and all data. Use this to reset your dev environment.
 
-### refresh
+#### make migrate
 
-Run kill, migrate, load_locales_countries load_dummy_experiments
+Apply all django migrations to the database.  This must be run after removing database volumes before starting a dev instance.
 
-### integration_test
+#### make load_locales_countries
+
+Populates locales and countries in the database from the [Firefox Product Details package](https://pypi.org/project/django-mozilla-product-details/)
+
+#### make load_dummy_experiments
+
+Populates the database with dummy experiments of all types/statuses using the test factories
+
+#### make refresh
+
+Run kill, migrate, load_locales_countries load_dummy_experiments.  Useful for resetting your dev environment when switching branches or after package updates.
+
+### Running a dev instance
+#### make up
+
+Start a dev server listening on port 80 using the [Django runserver](https://docs.djangoproject.com/en/1.10/ref/django-admin/#runserver).  It is useful to run `make refresh` first to ensure your database is up to date with the latest migrations and test data.
+
+#### make up_db
+
+Start postgresql, redis, autograph, kinto on their respective ports to allow running the Django runserver and yarn watchers locally (non containerized)
+
+#### make up_django
+
+Start Django runserver, Celery worker, postgresql, redis, autograph, kinto on their respective ports to allow running the yarn watchers locally (non containerized)
+
+#### make up_detached
+
+Start all containers in the background (not attached to shell).  They can be stopped using `make kill`.
+
+### Running tests and checks
+
+#### make check
+
+Run all test and lint suites, this is run in CI on all PRs and deploys.
+
+#### make py_test
+
+Run only the python test suite.
+
+#### make bash
+
+Start a bash shell inside the container.  This lets you interact with the containerized filesystem and run Django management commands.
+
+##### Helpful Python Tips
+You can run the entire python test suite without coverage using the Django test runner:
+
+```sh
+./manage.py test
+```
+
+For faster performance you can run all tests in parallel:
+
+```sh
+./manage.py test --parallel
+```
+
+You can run only the tests in a certain module by specifying its Python import path:
+
+```sh
+./manage.py test experimenter.experiments.tests.api.v5.test_serializers
+```
+
+For more details on running Django tests refer to the [Django test documentation](https://docs.djangoproject.com/en/3.1/topics/testing/overview/#running-tests)
+
+To debug a test, you can use ipdb by placing this snippet anywhere in your code, such as within a test method or inside some application logic:
+
+```py
+import ipdb
+ipdb.set_trace()
+```
+
+Then invoke the test using its full path:
+
+```sh
+./manage.py experimenter.some_module.tests.some_test_file.SomeTestClass.test_some_thing
+```
+
+And you will enter an interactive iPython shell at the point where you placed the ipdb snippet, allowing you to introspect variables and call methods
+
+For coverage you can use pytest, which will run all the python tests and track their coverage, but it is slower than using the Django test runner:
+
+```sh
+pytest --cov --cov-report term-missing
+```
+
+You can also enter a Python shell to import and interact with code directly, for example:
+
+```sh
+./manage.py shell
+```
+
+And then you can import and execute arbitrary code:
+
+```py
+from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.kinto.tasks import nimbus_push_experiment_to_kinto
+
+experiment = NimbusExperimentFactory.create_with_status(NimbusExperiment.Status.DRAFT, name="Look at me, I'm Mr Experiment")
+nimbus_push_experiment_to_kinto(experiment.id)
+```
+
+##### Helpful Yarn Tips
+You can also interact with the yarn commands, such as checking TypeScript for Nimbus UI:
+
+```sh
+yarn workspace @experimenter/nimbus-ui lint:tsc
+```
+
+Or the test suite for Nimbus UI:
+
+```sh
+yarn workspace @experimenter/nimbus-ui test:cov
+```
+
+For a full reference of all the common commands that can be run inside the container, refer to [this section of the Makefile](https://github.com/mozilla/experimenter/blob/main/Makefile#L16-L38)
+
+
+
+
+#### make integration_test
 
 Run the integration test suite inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
 
-### integration_vnc_up
+#### make integration_vnc_up
 
 Start a linux VM container with VNC available over `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter `tox -c tests/integration/` to run the integration tests and watch them run in a Firefox instance you can watch and interact with.
 
