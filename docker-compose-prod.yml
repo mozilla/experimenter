@@ -6,6 +6,7 @@ services:
     env_file: .env
     environment:
       - DEBUG=True
+      - USE_YARN_DEV=False
     stdin_open: true
     tty: true
     links:
