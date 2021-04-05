@@ -465,7 +465,7 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "status": NimbusExperiment.Status.REVIEW.name,
+                    "status": NimbusExperiment.Status.PREVIEW.name,
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -473,7 +473,7 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.status, NimbusExperiment.Status.REVIEW)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
 
     def test_update_experiment_publish_status(self):
         user_email = "user@example.com"
