@@ -334,7 +334,11 @@ const FormOverview = ({
           </div>
           {onCancel && (
             <div className="p-2">
-              <button onClick={handleCancel} className="btn btn-light" id="cancel-button">
+              <button
+                onClick={handleCancel}
+                className="btn btn-light"
+                id="cancel-button"
+              >
                 Cancel
               </button>
             </div>
