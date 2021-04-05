@@ -137,6 +137,7 @@ const PageRequestReview = ({
     <AppLayoutWithExperiment
       title="Review &amp; Launch"
       testId="PageRequestReview"
+      pageId="PageRequestReview"
       {...{ polling }}
       redirect={({ status, review }) => {
         if (review && status.draft && !review.ready) {

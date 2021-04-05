@@ -12,7 +12,7 @@ type AppLayoutProps = {
 
 export const AppLayout = ({ children, testid = "main" }: AppLayoutProps) => {
   return (
-    <Container fluid as="main" className="h-100 pt-5" data-testid={testid}>
+    <Container fluid as="main" className="h-100 pt-5" data-testid={testid} id={testid + "-page"}>
       <div className="h-100 container-lg mx-auto">{children}</div>
     </Container>
   );

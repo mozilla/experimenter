@@ -36,6 +36,7 @@ type AppLayoutWithExperimentProps = {
   children: (
     props: AppLayoutWithExperimentChildrenProps,
   ) => React.ReactNode | null;
+  pageId?: string;
   testId: string;
   title?: string;
   polling?: boolean;
@@ -54,6 +55,7 @@ export const POLL_INTERVAL = 30000;
 const AppLayoutWithExperiment = ({
   children,
   testId,
+  pageId,
   title,
   polling = false,
   analysisRequired = false,
@@ -141,7 +143,7 @@ const AppLayoutWithExperiment = ({
         experiment,
       }}
     >
-      <section data-testid={testId}>
+      <section data-testid={testId} id={pageId}>
         <Head
           title={title ? `${experiment.name} – ${title}` : experiment.name}
         />
