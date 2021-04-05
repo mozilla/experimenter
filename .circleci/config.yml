@@ -35,7 +35,7 @@ jobs:
       - checkout
       - run:
           name: Run tests and linting
-          command: make check
+          command: make py_test
 
   publish_storybooks:
     machine:
