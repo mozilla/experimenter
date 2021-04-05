@@ -17,7 +17,9 @@ from experimenter.projects.tests.factories import ProjectFactory
 class TestNimbusExperimentChangeLogSerializer(TestCase):
     maxDiff = None
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
         Outcomes.clear_cache()
 
     def test_outputs_expected_schema_for_empty_experiment(self):
