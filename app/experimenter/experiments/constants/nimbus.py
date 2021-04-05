@@ -164,20 +164,12 @@ class NimbusConstants(object):
     class Status(models.TextChoices):
         DRAFT = "Draft"
         PREVIEW = "Preview"
-        REVIEW = "Review"
-        ACCEPTED = "Accepted"
         LIVE = "Live"
         COMPLETE = "Complete"
 
     VALID_STATUS_TRANSITIONS = {
-        Status.DRAFT: (
-            Status.PREVIEW,
-            Status.REVIEW,
-        ),
-        Status.PREVIEW: (
-            Status.DRAFT,
-            Status.REVIEW,
-        ),
+        Status.DRAFT: (Status.PREVIEW,),
+        Status.PREVIEW: (Status.DRAFT,),
     }
     STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
 
