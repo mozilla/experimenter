@@ -9455,10 +9455,10 @@ follow-redirects@^1.0.0:
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.0.tgz#b42e8d93a2a7eea5ed88633676d6597bc8e384db"
   integrity sha512-aq6gF1BEKje4a9i9+5jimNFIpq4Q1WiwBToeRK5NvZBd/TRsmW8BsJfOEGkr76TbOyPVD3OVDN910EcUNtRYEA==
 
-fontsource-fira-sans@3.0.5:
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/fontsource-fira-sans/-/fontsource-fira-sans-3.0.5.tgz#92362046d3e5a4787d674dc01977ff773684f3fc"
-  integrity sha512-LqowFtPxup23alt9yvrMe9IWs01ue3Jfbw63VJm+RPl+mUJQjnwzJZXNHwwZtL3jOheqvCwVy5CJwLVPR27g2g==
+fontsource-fira-sans@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/fontsource-fira-sans/-/fontsource-fira-sans-4.0.0.tgz#98bad402b7b3797871420028657e3ae6663363f8"
+  integrity sha512-kVc8mR+Xr8R6cpwvy37gwxKOwKHuMttWIDtmDBSkRkAaks/hDCwBGQpMC4KcTCkShg2naaRXRypIqXGVPMdw3w==
 
 for-in@^0.1.3:
   version "0.1.8"
