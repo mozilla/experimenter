@@ -19,7 +19,11 @@ from experimenter.projects.models import Project
 
 class NimbusExperimentManager(models.Manager):
     def launch_queue(self, application):
-        return self.filter(status=NimbusExperiment.Status.REVIEW, application=application)
+        return self.filter(
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=application,
+        )
 
     def pause_queue(self, application):
         return self.filter(
@@ -243,10 +247,10 @@ class NimbusExperiment(NimbusConstants, models.Model):
 
     @property
     def should_allocate_bucket_range(self):
-        return self.status in [
-            NimbusExperiment.Status.PREVIEW,
-            NimbusExperiment.Status.REVIEW,
-        ]
+        return self.status == NimbusExperiment.Status.PREVIEW or (
+            self.status == NimbusExperiment.Status.DRAFT
+            and self.publish_status == NimbusExperiment.PublishStatus.APPROVED
+        )
 
     def allocate_bucket_range(self):
         existing_bucket_range = NimbusBucketRange.objects.filter(experiment=self)
