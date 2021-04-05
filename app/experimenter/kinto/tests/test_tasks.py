@@ -18,11 +18,12 @@ from experimenter.kinto.tests.mixins import MockKintoClientMixin
 
 
 class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
-    def test_push_experiment_to_kinto_sends_desktop_experiment_data_and_sets_accepted(
+    def test_push_experiment_to_kinto_sends_desktop_experiment_data_and_sets_waiting(
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -38,11 +39,13 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         )
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.status, NimbusExperiment.Status.ACCEPTED)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.WAITING
+        )
         self.assertTrue(
             experiment.changes.filter(
-                old_status=NimbusExperiment.Status.REVIEW,
-                new_status=NimbusExperiment.Status.ACCEPTED,
+                old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
+                new_publish_status=NimbusExperiment.PublishStatus.WAITING,
             ).exists()
         )
 
@@ -119,12 +122,13 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
     def test_check_experiment_with_no_review_status_pushes_nothing(self):
         for status in [
             NimbusExperiment.Status.DRAFT,
-            NimbusExperiment.Status.ACCEPTED,
             NimbusExperiment.Status.LIVE,
             NimbusExperiment.Status.COMPLETE,
         ]:
             NimbusExperimentFactory.create(
-                status=status, application=NimbusExperiment.Application.DESKTOP
+                status=status,
+                publish_status=NimbusExperiment.PublishStatus.IDLE,
+                application=NimbusExperiment.Application.DESKTOP,
             )
 
         self.setup_kinto_no_pending_review()
@@ -162,7 +166,8 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 
     def test_check_with_reject_review(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -203,8 +208,8 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         self.assertTrue(
             experiment.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.ACCEPTED,
-                new_status=NimbusExperiment.Status.DRAFT,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).exists()
         )
 
@@ -425,7 +430,7 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
         launch_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
         launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
@@ -442,11 +447,13 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
     def test_experiment_updates_when_record_is_in_main(self):
         experiment1 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
         )
 
         experiment2 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
         )
 
         experiment3 = NimbusExperimentFactory.create_with_status(
@@ -465,7 +472,7 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
         self.assertTrue(
             experiment1.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.ACCEPTED,
+                old_status=NimbusExperiment.Status.DRAFT,
                 new_status=NimbusExperiment.Status.LIVE,
             ).exists()
         )
@@ -473,7 +480,7 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
         self.assertFalse(
             experiment2.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.ACCEPTED,
+                old_status=NimbusExperiment.Status.DRAFT,
                 new_status=NimbusExperiment.Status.LIVE,
             ).exists()
         )
@@ -552,7 +559,7 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
             proposed_duration=10,
         )
         experiment.changes.filter(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
 
@@ -693,7 +700,7 @@ class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
         launch_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
         launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)

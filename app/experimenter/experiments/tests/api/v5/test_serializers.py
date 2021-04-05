@@ -98,7 +98,8 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
 
     def test_serializer_returns_error_for_non_unique_slug(self):
         NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             name="non unique slug",
             slug="non-unique-slug",
         )
@@ -747,7 +748,8 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_returns_error_for_non_unique_slug(self):
         NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             name="non unique slug",
             slug="non-unique-slug",
         )
@@ -923,7 +925,7 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
         serializer = NimbusExperimentSerializer(
             experiment,
-            data={"status": NimbusExperiment.Status.ACCEPTED},
+            data={"status": NimbusExperiment.Status.LIVE},
             context={"user": self.user},
         )
         self.assertEqual(experiment.changes.count(), 0)
@@ -932,7 +934,7 @@ class TestNimbusExperimentSerializer(TestCase):
             serializer.errors,
             {
                 "status": [
-                    "Nimbus Experiment status cannot transition from Draft to Accepted."
+                    "Nimbus Experiment status cannot transition from Draft to Live."
                 ]
             },
             serializer.errors,
@@ -1380,19 +1382,19 @@ class TestNimbusStatusTransitionValidator(TestCase):
 
     def test_update_experiment_status_error(self):
         experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.ACCEPTED,
+            status=NimbusExperiment.Status.DRAFT,
         )
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "status": NimbusExperiment.Status.REVIEW,
+                "status": NimbusExperiment.Status.LIVE,
             },
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["status"][0],
-            "Nimbus Experiment status cannot transition from Accepted to Review.",
+            "Nimbus Experiment status cannot transition from Draft to Live.",
         )
 
     def test_update_publish_status_from_approved_to_review_error(self):
