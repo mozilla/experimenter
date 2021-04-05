@@ -74,7 +74,7 @@ class TestNimbusExperimentManager(TestCase):
     def test_pause_queue_returns_experiments_that_should_pause_by_application(self):
         def rewind_launch(experiment):
             launch_change = experiment.changes.get(
-                old_status=NimbusExperiment.Status.ACCEPTED,
+                old_status=NimbusExperiment.Status.DRAFT,
                 new_status=NimbusExperiment.Status.LIVE,
             )
             launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(
@@ -153,7 +153,8 @@ class TestNimbusExperiment(TestCase):
 
     def test_empty_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
@@ -166,7 +167,8 @@ class TestNimbusExperiment(TestCase):
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             application=NimbusExperiment.Application.DESKTOP,
@@ -184,7 +186,8 @@ class TestNimbusExperiment(TestCase):
 
     def test_targeting_without_channel_version(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
@@ -211,8 +214,10 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create()
         start_change = NimbusChangeLogFactory(
             experiment=experiment,
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
+            old_publish_status=NimbusExperiment.PublishStatus.WAITING,
             new_status=NimbusExperiment.Status.LIVE,
+            new_publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
         self.assertEqual(experiment.start_date, start_change.changed_on)
 
@@ -254,7 +259,7 @@ class TestNimbusExperiment(TestCase):
             proposed_duration=10,
         )
         experiment.changes.filter(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
         self.assertTrue(experiment.should_end)
@@ -281,7 +286,7 @@ class TestNimbusExperiment(TestCase):
 
         NimbusChangeLogFactory.create(
             experiment=experiment,
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
             changed_on=datetime.date(2019, 5, 1),
         )
@@ -303,7 +308,7 @@ class TestNimbusExperiment(TestCase):
 
         NimbusChangeLogFactory.create(
             experiment=experiment,
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
             changed_on=datetime.date(2019, 5, 1),
         )
@@ -343,8 +348,6 @@ class TestNimbusExperiment(TestCase):
         [
             [False, NimbusExperiment.Status.DRAFT],
             [True, NimbusExperiment.Status.PREVIEW],
-            [True, NimbusExperiment.Status.REVIEW],
-            [False, NimbusExperiment.Status.ACCEPTED],
             [False, NimbusExperiment.Status.LIVE],
             [False, NimbusExperiment.Status.COMPLETE],
         ]
@@ -400,7 +403,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperiment.Status.LIVE, proposed_enrollment=10
         )
         launch_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
         launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)

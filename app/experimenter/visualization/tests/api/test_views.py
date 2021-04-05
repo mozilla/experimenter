@@ -17,7 +17,7 @@ class TestVisualizationView(TestCase):
 
     @parameterized.expand(
         [
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
             NimbusExperiment.Status.COMPLETE,
         ]
     )
@@ -105,7 +105,7 @@ class TestVisualizationView(TestCase):
 
     @parameterized.expand(
         [
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
             NimbusExperiment.Status.COMPLETE,
         ]
     )
@@ -170,8 +170,7 @@ class TestVisualizationView(TestCase):
         json_data = json.loads(response.content)
         self.assertEqual(FULL_DATA, json_data)
 
-    @parameterized.expand([NimbusExperiment.Status.ACCEPTED])
-    def test_analysis_results_view_no_experiment(self, status):
+    def test_analysis_results_view_no_experiment(self):
         user_email = "user@example.com"
         response = self.client.get(
             reverse("visualization-analysis-data", kwargs={"slug": "fake_experiment"}),

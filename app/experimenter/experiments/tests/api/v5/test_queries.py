@@ -676,7 +676,7 @@ class TestNimbusQuery(GraphQLTestCase):
             proposed_enrollment=7,
         )
         live_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_publish_status=NimbusExperiment.PublishStatus.WAITING,
             new_status=NimbusExperiment.Status.LIVE,
         )
         live_change.changed_on = datetime.datetime(2021, 1, 1)

@@ -99,7 +99,8 @@ class TestNimbusExperimentSerializer(TestCase):
     @parameterized.expand(list(NimbusExperiment.Application))
     def test_serializers_with_feature_value_None(self, application):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             application=application,
             branches=[],
         )
@@ -194,7 +195,8 @@ class TestNimbusExperimentSerializer(TestCase):
         expected_appName,
     ):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             application=application,
             channel=channel,
         )
@@ -207,7 +209,8 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema_without_feature(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             application=NimbusExperiment.Application.DESKTOP,
             feature_config=None,
         )
@@ -226,7 +229,8 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_outputs_targeting(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             application=NimbusExperiment.Application.DESKTOP,
@@ -238,7 +242,8 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_outputs_empty_targeting(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
         )

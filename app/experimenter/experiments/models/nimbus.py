@@ -177,7 +177,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
     @property
     def start_date(self):
         start_changelog = self.changes.filter(
-            old_status=self.Status.ACCEPTED, new_status=self.Status.LIVE
+            old_publish_status=self.PublishStatus.WAITING, new_status=self.Status.LIVE
         )
         if start_changelog.exists():
             return start_changelog.get().changed_on
