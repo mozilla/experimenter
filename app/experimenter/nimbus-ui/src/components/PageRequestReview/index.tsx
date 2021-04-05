@@ -19,8 +19,10 @@ import {
 } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment as UpdateExperiment } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
+import ChangeApprovalOperations from "../ChangeApprovalOperations";
 import Summary from "../Summary";
-import DraftStatusOperations from "./DraftStatusOperations";
+import FormLaunchDraftToPreview from "./FormLaunchDraftToPreview";
+import FormLaunchDraftToReview from "./FormLaunchDraftToReview";
 import FormLaunchPreviewToReview from "./FormLaunchPreviewToReview";
 
 // Replace with generated type, EXP-1055 & EXP-1062
@@ -30,36 +32,32 @@ type RejectFeedback = {
   rejectReason: string;
 } | null;
 
+type PageRequestReviewProps = {
+  polling?: boolean;
+} & RouteComponentProps &
+  Partial<React.ComponentProps<typeof ChangeApprovalOperations>>; // TODO EXP-1143: temporary page-level props, should be replaced by API data for experiment & current user
+
 const PageRequestReview = ({
   /* istanbul ignore next - only used in tests & stories */
   polling = true,
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
-  isLaunchRequested = false, // new experiment property
+  canReview = false,
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
-  isLaunchApproved = false, // new experiment property
+  reviewRequestEvent,
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
-  launchRequestedByUsername = "", // new experiment property
+  approvalEvent,
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
-  canReview = false, // new user permission property
+  rejectionEvent,
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
-  rejectFeedback = null,
-  /* istanbul ignore next until EXP-1055 & EXP-1062 done */
-  rsRequestTimedOut = false, // either poll server for updates or receive timeout time
-}: {
-  polling?: boolean;
-  // TODO EXP-1062: temporary page-level props, should be replaced by API data for experiment & current user
-  isLaunchRequested?: boolean;
-  isLaunchApproved?: boolean;
-  launchRequestedByUsername?: string;
-  canReview?: boolean;
-  rejectFeedback?: RejectFeedback;
-  rsRequestTimedOut?: boolean;
-} & RouteComponentProps) => {
+  timeoutEvent,
+}: PageRequestReviewProps) => {
   const { featureFlags } = useConfig();
 
   const [submitError, setSubmitError] = useState<string | null>(null);
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
   const refetchReview = useRef<() => void>();
+
+  const [showLaunchToReview, setShowLaunchToReview] = useState(false);
 
   const [updateExperiment, { loading: updateExperimentLoading }] = useMutation<
     { updateExperiment: UpdateExperiment },
@@ -80,8 +78,8 @@ const PageRequestReview = ({
 
   /* istanbul ignore next until EXP-1055 & EXP-1062 done */
   const [
-    confirmExperimentLaunchApproval,
-    { loading: confirmExperimentLaunchApprovalLoading },
+    startRemoteSettingsApproval,
+    { loading: startRemoteSettingsApprovalLoading },
   ] = useFakeMutation();
 
   // TODO: EXP-1062 wrap these new mutations in setSubmitError handling like updateExperiment uses below.
@@ -89,7 +87,7 @@ const PageRequestReview = ({
   const isLoading =
     updateExperimentLoading ||
     approveExperimentLaunchLoading ||
-    confirmExperimentLaunchApprovalLoading ||
+    startRemoteSettingsApprovalLoading ||
     rejectExperimentLaunchLoading;
 
   const [
@@ -165,23 +163,40 @@ const PageRequestReview = ({
             )}
 
             {status.draft && (
-              <DraftStatusOperations
+              <ChangeApprovalOperations
                 {...{
-                  isLoading,
+                  actionDescription: "launch",
                   featureFlags,
-                  isLaunchRequested,
-                  isLaunchApproved,
-                  launchRequestedByUsername,
+                  isLoading,
                   canReview,
-                  rejectFeedback,
-                  rejectExperimentLaunch,
-                  approveExperimentLaunch,
-                  confirmExperimentLaunchApproval,
-                  onLaunchClicked,
-                  onLaunchToPreviewClicked,
-                  rsRequestTimedOut,
+                  reviewRequestEvent,
+                  approvalEvent,
+                  rejectionEvent,
+                  timeoutEvent,
+                  rejectChange: rejectExperimentLaunch,
+                  approveChange: approveExperimentLaunch,
+                  startRemoteSettingsApproval,
                 }}
-              />
+              >
+                {showLaunchToReview ? (
+                  <FormLaunchDraftToReview
+                    {...{
+                      isLoading,
+                      onSubmit: onLaunchClicked,
+                      onCancel: () => setShowLaunchToReview(false),
+                      onLaunchToPreview: onLaunchToPreviewClicked,
+                    }}
+                  />
+                ) : (
+                  <FormLaunchDraftToPreview
+                    {...{
+                      isLoading,
+                      onSubmit: onLaunchToPreviewClicked,
+                      onLaunchWithoutPreview: () => setShowLaunchToReview(true),
+                    }}
+                  />
+                )}
+              </ChangeApprovalOperations>
             )}
 
             {status.review && (
