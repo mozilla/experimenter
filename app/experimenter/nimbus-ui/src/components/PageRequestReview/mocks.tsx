@@ -9,7 +9,6 @@ import { MockConfigContext } from "../../hooks";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
-import DraftStatusOperations from "./DraftStatusOperations";
 
 export const { mock, experiment } = mockExperimentQuery("demo-slug");
 
@@ -42,7 +41,7 @@ export const Subject = ({
   </RouterSlugProvider>
 );
 
-export const SubjectEXP1055 = ({
+export const SubjectEXP1143 = ({
   mocks = [mock, createMutationMock(experiment.id!)],
   ...pageProps
 }: {
@@ -59,40 +58,4 @@ export const SubjectEXP1055 = ({
       <PageRequestReview polling={false} {...pageProps} />
     </RouterSlugProvider>
   </MockConfigContext.Provider>
-);
-
-export const SubjectDraftStatusOperations = ({
-  isLaunchRequested = false,
-  isLaunchApproved = false,
-  launchRequestedByUsername = "jdoe@mozilla.com",
-  canReview = false,
-  rejectFeedback = null,
-  rsRequestTimedOut = false,
-  rejectExperimentLaunch = () => {},
-  approveExperimentLaunch = () => {},
-  confirmExperimentLaunchApproval = () => {},
-  onLaunchClicked = () => {},
-  onLaunchToPreviewClicked = () => {},
-  ...props
-}: Partial<React.ComponentProps<typeof DraftStatusOperations>>) => (
-  <DraftStatusOperations
-    {...{
-      featureFlags: {
-        exp1055ReviewFlow: true,
-      },
-      isLoading: false,
-      isLaunchRequested,
-      isLaunchApproved,
-      canReview,
-      launchRequestedByUsername,
-      rejectExperimentLaunch,
-      rejectFeedback,
-      rsRequestTimedOut,
-      approveExperimentLaunch,
-      confirmExperimentLaunchApproval,
-      onLaunchClicked,
-      onLaunchToPreviewClicked,
-      ...props,
-    }}
-  />
 );

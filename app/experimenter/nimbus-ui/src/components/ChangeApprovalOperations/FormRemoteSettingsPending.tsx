@@ -19,8 +19,8 @@ const FormApproveConfirm = ({
     <Alert variant="warning">
       <Form className="text-body">
         <p>
-          <strong>Action required —</strong> You need to deploy this experiment
-          to production on Remote Settings.
+          <strong>Action required —</strong> You need to approve this change in
+          Remote Settings.
         </p>
 
         <div className="d-flex bd-highlight">
