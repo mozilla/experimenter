@@ -16,8 +16,8 @@ jobs:
       - checkout
       - run:
           name: Build docker images
-          command:
-            make test_build
+          command: |
+            make build_prod
 
   check:
     machine:
@@ -35,7 +35,9 @@ jobs:
       - checkout
       - run:
           name: Run tests and linting
-          command: make check
+          command: |
+            cp .env.sample .env
+            make check
 
   publish_storybooks:
     machine:
