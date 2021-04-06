@@ -63,14 +63,8 @@ build_test: jetstream_config
 build_prod: jetstream_config
 	docker build --target deploy -f app/Dockerfile -t app:deploy app/
 
-test_build: build_test
+compose_build_test: kill build_test
 	$(COMPOSE_TEST) build
-
-check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_CORE)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)") ${COLOR_CHECK}'
-
-py_test: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
 
 compose_build: build_dev ssl
 	$(COMPOSE)  build
@@ -97,6 +91,12 @@ static_rm:
 
 kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
+
+check: compose_build_test
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_CORE)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)") ${COLOR_CHECK}'
+
+pytest: compose_build_test
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
 
 up: compose_build
 	$(COMPOSE) up
