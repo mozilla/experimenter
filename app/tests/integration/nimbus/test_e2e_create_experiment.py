@@ -1,3 +1,5 @@
+import random
+
 import pytest
 
 from nimbus.pages.new_experiment import NewExperiment
@@ -9,7 +11,7 @@ def test_create_new_experiment(selenium, base_url):
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_new_button()
-    experiment.public_name = "name here 1w11s2545423d4"
+    experiment.public_name = f"name here {random.randint(0, 100)}"
     experiment.hypothesis = "smart stuff here"
     experiment.application = "DESKTOP"
     # Fill Overview Page
