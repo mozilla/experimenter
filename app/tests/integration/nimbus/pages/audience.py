@@ -31,18 +31,33 @@ class AudiencePage(Base):
         from nimbus.pages.review import ReviewPage
 
         return ReviewPage(self.driver, self.base_url).wait_for_page_to_load()
+    
+    @property
+    def channel(self):
+        return self.find_element(*self._channel_select_locator).text
 
-    def set_channel(self, channel="Nightly"):
+    @channel.setter
+    def channel(self, channel="Nightly"):
         el = self.find_element(*self._channel_select_locator)
         select = Select(el)
         select.select_by_visible_text(channel)
+    
+    @property
+    def min_version(self):
+        return self.find_element(*self._min_version_select_locator).text
 
-    def set_min_version(self,  version=80):
+    @min_version.setter
+    def min_version(self, version=80):
         el = self.find_element(*self._min_version_select_locator)
         select = Select(el)
         select.select_by_value(f"FIREFOX_{version}")
+    
+    @property
+    def targeting(self):
+        return self.find_element(*self._targeting_select_locator).text
 
-    def set_targeting(self, targeting="US_ONLY"):
+    @targeting.setter
+    def targeting(self, targeting="US_ONLY"):
         el = self.find_element(*self._targeting_select_locator)
         select = Select(el)
         select.select_by_value(targeting)

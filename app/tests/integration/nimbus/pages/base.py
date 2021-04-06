@@ -1,4 +1,5 @@
 """Base page."""
+import time
 
 from pypom import Page, Region
 from selenium.webdriver.common.by import By
@@ -24,6 +25,7 @@ class Base(Page):
 
     def save_btn(self):
         self.find_element(*self._save_btn_locator).click()
+        time.sleep(1) 
         
     def next_btn(self):
         pass

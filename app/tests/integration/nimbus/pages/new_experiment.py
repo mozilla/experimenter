@@ -47,8 +47,13 @@ class NewExperiment(Base):
     def hypothesis(self, text=None):
         name = self.find_element(*self._hypothesis_locator)
         name.send_keys(f" {text}")
+    
+    @property
+    def application(self):
+        return self.find_element(*self._application_select_locator).text
 
-    def set_application(self, app="DESKTOP"):
+    @application.setter
+    def application(self, app="DESKTOP"):
         el = self.find_element(*self._application_select_locator)
         select = Select(el)
         select.select_by_value(app)
