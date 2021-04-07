@@ -287,7 +287,7 @@ export const FormAudience = ({
           <button
             onClick={handleSaveNext}
             className="btn btn-secondary"
-            id="save-and-continue-btn"
+            id="save-and-continue-button"
             disabled={isNextDisabled}
             data-testid="next-button"
             data-sb-kind="pages/RequestReview"
@@ -306,7 +306,7 @@ export const FormAudience = ({
             type="submit"
             onClick={handleSave}
             className="btn btn-primary"
-            id="save-btn"
+            id="save-button"
             disabled={isLoading}
             data-sb-kind="pages/EditOverview"
           >

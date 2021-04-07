@@ -87,7 +87,6 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
       title="Audience"
       testId="PageEditAudience"
       redirect={editCommonRedirects}
-      pageId="PageEditAudience"
     >
       {({ experiment, review }) => {
         currentExperiment.current = experiment;

@@ -8,8 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class Base(Page):
 
-    _save_btn_locator = (By.CSS_SELECTOR, "#save-btn")
-    _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue")
+    _save_btn_locator = (By.CSS_SELECTOR, "#save-button")
+    _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
 
     def __init__(self, selenium, base_url, **kwargs):
         super(Base, self).__init__(selenium, base_url, timeout=30, **kwargs)

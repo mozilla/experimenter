@@ -2,7 +2,6 @@ import random
 
 import pytest
 
-from nimbus.pages.new_experiment import NewExperiment
 from nimbus.pages.home import HomePage
 
 

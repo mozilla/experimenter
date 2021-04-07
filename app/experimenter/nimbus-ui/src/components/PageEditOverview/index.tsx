@@ -82,7 +82,6 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
     <AppLayoutWithExperiment
       title="Overview"
       testId="PageEditOverview"
-      pageId="PageEditOverview"
       redirect={editCommonRedirects}
     >
       {({ experiment, review }) => {

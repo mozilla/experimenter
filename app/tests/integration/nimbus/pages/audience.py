@@ -18,7 +18,7 @@ class AudiencePage(Base):
     _enrollment_period_locator = (By.CSS_SELECTOR, "#proposedEnrollment")
     _duration_locator = (By.CSS_SELECTOR, "#proposedDuration")
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditAudience")
-    _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
+    _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))

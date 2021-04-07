@@ -80,7 +80,6 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
     <AppLayoutWithExperiment
       title="Branches"
       testId="PageEditBranches"
-      pageId="PageEditBranches"
       redirect={editCommonRedirects}
     >
       {({ experiment, review }) => {

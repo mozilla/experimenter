@@ -71,7 +71,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
             to="new"
             data-sb-kind="pages/New"
             className="btn btn-primary btn-small ml-2"
-            id="create-new-btn"
+            id="create-new-button"
           >
             Create new
           </Link>

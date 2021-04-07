@@ -307,7 +307,7 @@ const FormOverview = ({
                 data-testid="next-button"
                 onClick={handleSaveNext}
                 className="btn btn-secondary"
-                id="save-and-continue"
+                id="save-and-continue-button"
                 disabled={isLoading}
                 data-sb-kind="pages/EditBranches"
               >

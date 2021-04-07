@@ -74,7 +74,6 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
       title="Metrics"
       testId="PageEditMetrics"
       redirect={editCommonRedirects}
-      pageId="PageEditMetrics"
     >
       {({ experiment, review }) => {
         currentExperiment.current = experiment;

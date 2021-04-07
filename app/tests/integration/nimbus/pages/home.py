@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 class HomePage(Page):
     """Nimbus Home page."""
 
-    _page_wait_locator = (By.CSS_SELECTOR, "#create-new-btn")
+    _page_wait_locator = (By.CSS_SELECTOR, "#create-new-button")
 
     def __init__(self, selenium, base_url, **kwargs):
         super(HomePage, self).__init__(selenium, base_url, timeout=30, **kwargs)

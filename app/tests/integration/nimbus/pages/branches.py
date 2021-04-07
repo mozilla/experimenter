@@ -12,7 +12,7 @@ class BranchesPage(Base):
     _reference_branch_description_locator = (By.CSS_SELECTOR, "#referenceBranch-description")
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditBranches")
-    _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
+    _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))

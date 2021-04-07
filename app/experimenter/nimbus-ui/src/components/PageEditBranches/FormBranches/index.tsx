@@ -253,7 +253,7 @@ export const FormBranches = ({
             <button
               data-testid="next-button"
               className="btn btn-secondary"
-              id="save-and-continue-btn"
+              id="save-and-continue-button"
               disabled={isNextDisabled}
               onClick={handleSaveNext}
             >
@@ -265,7 +265,7 @@ export const FormBranches = ({
               data-testid="save-button"
               type="submit"
               className="btn btn-primary"
-              id="save-btn"
+              id="save-button"
               disabled={isSaveDisabled}
               onClick={handleSave}
             >
