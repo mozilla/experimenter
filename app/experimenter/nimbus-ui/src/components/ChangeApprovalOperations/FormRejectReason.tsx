@@ -1,4 +1,3 @@
-/* istanbul ignore file until EXP-1055 & EXP-1062 done */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -25,6 +24,7 @@ const FormRejectReason = ({
 }) => {
   const isServerValid = true;
   const submitErrors = {};
+  // istanbul ignore next - no submit errors used here
   const setSubmitErrors = () => {};
 
   const defaultValues = {
@@ -37,6 +37,7 @@ const FormRejectReason = ({
     formControlAttrs,
     formMethods,
     handleSubmit,
+    isValid,
   } = useCommonForm<RejectReasonFieldNames>(
     defaultValues,
     isServerValid,
@@ -60,6 +61,7 @@ const FormRejectReason = ({
             <Form.Control
               {...formControlAttrs("reason", REQUIRED_FIELD)}
               as="textarea"
+              data-testid="reject-reason"
               rows={4}
             />
             <FormErrors name="reason" />
@@ -69,7 +71,7 @@ const FormRejectReason = ({
               <Button
                 data-testid="reject-submit"
                 className="mr-2 btn btn-danger"
-                disabled={isLoading}
+                disabled={isLoading || !isValid}
                 onClick={handleSubmitClick}
               >
                 Reject
