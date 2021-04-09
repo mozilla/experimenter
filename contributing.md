@@ -91,6 +91,7 @@ One of the following:
 - **nimbus**: Anything scoped only to Nimbus experiment frontend
 - **legacy**: Anything scoped only to Legacy experiment frontend
 - **visualization**: Anything scoped only to Analysis Visualization
+- **reporting**: Anything scoped to Reporting
 
 #### Description
 
