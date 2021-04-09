@@ -138,6 +138,7 @@ export const FormRemoteSettingsPendingStory = () => (
     {...{
       isLoading: false,
       onConfirm: action("confirm"),
+      actionDescription: "frobulate",
     }}
   />
 );

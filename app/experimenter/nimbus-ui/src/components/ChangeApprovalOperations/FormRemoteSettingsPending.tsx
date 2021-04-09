@@ -10,16 +10,18 @@ import Form from "react-bootstrap/Form";
 const FormApproveConfirm = ({
   isLoading,
   onConfirm,
+  actionDescription,
 }: {
   isLoading: boolean;
   onConfirm: () => void;
+  actionDescription: string;
 }) => {
   return (
-    <Alert variant="warning">
+    <Alert variant="secondary">
       <Form className="text-body">
         <p>
-          <strong>Action required —</strong> You need to approve this change in
-          Remote Settings.
+          <strong>Action required —</strong> Please review this change in Remote
+          Settings to {actionDescription} this experiment
         </p>
 
         <div className="d-flex bd-highlight">

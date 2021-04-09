@@ -33,12 +33,12 @@ const FormApproveOrReject = ({
             <span role="img" aria-label="red X emoji">
               ❌
             </span>{" "}
-            Remote Settings request has timed out, please approve through Remote
-            Settings again
+            Remote Settings request has timed out, please go through the{" "}
+            {actionDescription} request and approval flow again.
           </p>
         </Alert>
       )}
-      <Alert variant="warning">
+      <Alert variant="secondary">
         <Form className="text-body">
           <p>
             <strong>{reviewRequestEvent!.changedBy!.email}</strong> requested to{" "}
