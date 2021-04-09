@@ -1,4 +1,3 @@
-/* istanbul ignore file until EXP-1055 & EXP-1062 done */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -39,8 +38,8 @@ export const ChangeApprovalOperations: React.FC<
   React.PropsWithChildren<ChangeApprovalOperationsProps>
 > = ({
   actionDescription,
-  isLoading = false,
-  canReview = false,
+  isLoading,
+  canReview,
   reviewRequestEvent,
   approvalEvent,
   rejectionEvent,
@@ -78,7 +77,7 @@ export const ChangeApprovalOperations: React.FC<
     case ChangeApprovalOperationsState.ApprovalPending:
       return (
         <Alert
-          data-testid="submit-success"
+          data-testid="approval-pending"
           variant="success"
           className="bg-transparent text-success"
         >
@@ -126,7 +125,7 @@ export const ChangeApprovalOperations: React.FC<
     case ChangeApprovalOperationsState.Rejected:
       return (
         <>
-          <Alert variant="warning">
+          <Alert variant="warning" data-testid="rejection-notice">
             <div className="text-body">
               <p>
                 The request to {actionDescription} this experiment was{" "}

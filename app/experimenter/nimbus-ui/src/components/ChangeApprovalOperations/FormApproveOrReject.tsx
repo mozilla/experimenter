@@ -1,4 +1,3 @@
-/* istanbul ignore file until EXP-1055 & EXP-1062 done */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -29,7 +28,7 @@ const FormApproveOrReject = ({
   return (
     <>
       {timeoutEvent && (
-        <Alert variant="danger">
+        <Alert variant="danger" data-testid="timeout-notice">
           <p className="mb-0">
             <span role="img" aria-label="red X emoji">
               ❌
@@ -49,7 +48,7 @@ const FormApproveOrReject = ({
           <div className="d-flex bd-highlight">
             <div>
               <Button
-                data-testid="approve-and-launch"
+                data-testid="approve-request"
                 className="mr-2 btn btn-success"
                 disabled={isLoading}
                 onClick={onApprove}
@@ -57,7 +56,7 @@ const FormApproveOrReject = ({
                 Approve and {ucActionDescription}
               </Button>
               <Button
-                data-testid="reject-launch"
+                data-testid="reject-request"
                 className="btn btn-danger"
                 disabled={isLoading}
                 onClick={onReject}

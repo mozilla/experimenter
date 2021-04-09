@@ -23,7 +23,7 @@ export const mockChangelog = (
   message,
 });
 
-export const SubjectChangeApprovalOperations = ({
+export const BaseSubject = ({
   actionDescription = "frobulate",
   isLoading = false,
   canReview = false,
@@ -54,7 +54,7 @@ export const SubjectChangeApprovalOperations = ({
       ...props,
     }}
   >
-    <Button data-testid="approve-and-launch" className="mr-2 btn btn-success">
+    <Button data-testid="action-button" className="mr-2 btn btn-success">
       Frobulate experiment
     </Button>
   </ChangeApprovalOperations>
