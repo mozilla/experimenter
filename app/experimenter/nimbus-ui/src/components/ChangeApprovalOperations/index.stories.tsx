@@ -9,15 +9,15 @@ import React from "react";
 import FormApproveOrReject from "./FormApproveOrReject";
 import FormRejectReason from "./FormRejectReason";
 import FormRemoteSettingsPending from "./FormRemoteSettingsPending";
-import { mockChangelog, SubjectChangeApprovalOperations } from "./mocks";
+import { BaseSubject, mockChangelog } from "./mocks";
 
-const SubjectChangeApprovalOperationsWithActions = ({
+const Subject = ({
   rejectChange = action("rejectChange"),
   approveChange = action("approveChange"),
   startRemoteSettingsApproval = action("startRemoteSettingsApproval"),
   ...props
-}: React.ComponentProps<typeof SubjectChangeApprovalOperations>) => (
-  <SubjectChangeApprovalOperations
+}: React.ComponentProps<typeof BaseSubject>) => (
+  <BaseSubject
     {...{
       rejectChange,
       approveChange,
@@ -30,11 +30,9 @@ const SubjectChangeApprovalOperationsWithActions = ({
 storiesOf("components/ChangeApprovalOperations", module)
   .addDecorator(withLinks)
   .addDecorator((story) => <div className="p-5">{story()}</div>)
-  .add("review not requested", () => (
-    <SubjectChangeApprovalOperationsWithActions />
-  ))
+  .add("review not requested", () => <Subject />)
   .add("review requested, user can review", () => (
-    <SubjectChangeApprovalOperationsWithActions
+    <Subject
       {...{
         reviewRequestEvent: mockChangelog(),
         canReview: true,
@@ -42,7 +40,7 @@ storiesOf("components/ChangeApprovalOperations", module)
     />
   ))
   .add("review pending in Remote Rettings, user can review", () => (
-    <SubjectChangeApprovalOperationsWithActions
+    <Subject
       {...{
         reviewRequestEvent: mockChangelog(),
         approvalEvent: mockChangelog("def@mozilla.com"),
@@ -51,7 +49,7 @@ storiesOf("components/ChangeApprovalOperations", module)
     />
   ))
   .add("review timed out in Remote Settings, user can review", () => (
-    <SubjectChangeApprovalOperationsWithActions
+    <Subject
       {...{
         reviewRequestEvent: mockChangelog(),
         approvalEvent: mockChangelog("def@mozilla.com"),
@@ -61,7 +59,7 @@ storiesOf("components/ChangeApprovalOperations", module)
     />
   ))
   .add("review requested, user cannot review", () => (
-    <SubjectChangeApprovalOperationsWithActions
+    <Subject
       {...{
         reviewRequestEvent: mockChangelog(),
         canReview: false,
@@ -69,7 +67,7 @@ storiesOf("components/ChangeApprovalOperations", module)
     />
   ))
   .add("review pending in Remote Settings, user cannot review", () => (
-    <SubjectChangeApprovalOperationsWithActions
+    <Subject
       {...{
         reviewRequestEvent: mockChangelog(),
         approvalEvent: mockChangelog("def@mozilla.com"),
@@ -78,7 +76,7 @@ storiesOf("components/ChangeApprovalOperations", module)
     />
   ))
   .add("review timed out in Remote Settings, user cannot review", () => (
-    <SubjectChangeApprovalOperationsWithActions
+    <Subject
       {...{
         reviewRequestEvent: mockChangelog(),
         approvalEvent: mockChangelog("def@mozilla.com"),
@@ -88,7 +86,7 @@ storiesOf("components/ChangeApprovalOperations", module)
     />
   ))
   .add("review rejected in experimenter or remote settings", () => (
-    <SubjectChangeApprovalOperationsWithActions
+    <Subject
       {...{
         reviewRequestEvent: mockChangelog(),
         approvalEvent: mockChangelog("def@mozilla.com"),
