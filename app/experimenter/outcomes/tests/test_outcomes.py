@@ -8,7 +8,9 @@ from experimenter.outcomes.tests import mock_invalid_outcomes, mock_valid_outcom
 
 @mock_valid_outcomes
 class TestOutcomes(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
         Outcomes.clear_cache()
 
     def test_load_all_outcomes_and_ignore_examples(self):

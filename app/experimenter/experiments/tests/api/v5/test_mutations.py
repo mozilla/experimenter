@@ -48,7 +48,9 @@ class TestMutations(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
     maxDiff = None
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
         Outcomes.clear_cache()
 
     def test_create_experiment(self):

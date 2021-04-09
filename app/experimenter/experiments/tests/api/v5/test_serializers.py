@@ -631,9 +631,13 @@ class TestNimbusExperimentBranchMixin(TestCase):
 class TestNimbusExperimentSerializer(TestCase):
     maxDiff = None
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Outcomes.clear_cache()
+
     def setUp(self):
         super().setUp()
-        Outcomes.clear_cache()
         self.user = UserFactory()
 
         mock_preview_task_patcher = mock.patch(
@@ -1135,6 +1139,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("primary_outcomes", serializer.errors)
 
     def test_serializer_rejects_too_many_primary_outcomes(self):
+        NimbusConstants.MAX_PRIMARY_OUTCOMES = 1
+
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
@@ -1142,14 +1148,14 @@ class TestNimbusExperimentSerializer(TestCase):
             secondary_outcomes=[],
         )
 
-        outcomes = [
-            o.slug for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
-        ]
-
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "primary_outcomes": outcomes,
+                "primary_outcomes": [
+                    "someoutcome",
+                    "someotheroutcome",
+                    "toomanyoutcomes",
+                ],
             },
             context={"user": self.user},
         )
