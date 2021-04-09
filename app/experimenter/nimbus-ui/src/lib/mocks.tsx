@@ -426,6 +426,7 @@ export function mockSingleDirectoryExperiment(
     startDate: fiveDaysAgo.toISOString(),
     computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
     isEndRequested: false,
+    resultsReady: false,
     ...overrides,
   };
 }

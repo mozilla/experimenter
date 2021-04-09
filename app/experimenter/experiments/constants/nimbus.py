@@ -365,3 +365,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     # Serializer validation errors
     ERROR_DUPLICATE_BRANCH_NAME = "Branch names must be unique."
+
+    # Analysis can be computed starting the week after enrollment
+    # completion for "week 1" of the experiment. However, an extra
+    # buffer day is added for Jetstream to compute the results.
+    DAYS_UNTIL_ANALYSIS = 8

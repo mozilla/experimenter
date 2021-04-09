@@ -31,6 +31,7 @@ export interface getAllExperiments_experiments {
   isEndRequested: boolean;
   monitoringDashboardUrl: string | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
+  resultsReady: boolean | null;
 }
 
 export interface getAllExperiments {

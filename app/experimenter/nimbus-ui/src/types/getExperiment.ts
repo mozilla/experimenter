@@ -73,6 +73,7 @@ export interface getExperiment_experimentBySlug {
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug | null;
   jexlTargetingExpression: string | null;
   populationPercent: string | null;
+  resultsReady: boolean | null;
   totalEnrolledClients: number;
   proposedEnrollment: number;
   proposedDuration: number;
