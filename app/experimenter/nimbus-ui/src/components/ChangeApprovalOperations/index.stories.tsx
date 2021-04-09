@@ -4,7 +4,6 @@
 
 import { action } from "@storybook/addon-actions";
 import { withLinks } from "@storybook/addon-links";
-import { storiesOf } from "@storybook/react";
 import React from "react";
 import FormApproveOrReject from "./FormApproveOrReject";
 import FormRejectReason from "./FormRejectReason";
@@ -27,107 +26,118 @@ const Subject = ({
   />
 );
 
-storiesOf("components/ChangeApprovalOperations", module)
-  .addDecorator(withLinks)
-  .addDecorator((story) => <div className="p-5">{story()}</div>)
-  .add("review not requested", () => <Subject />)
-  .add("review requested, user can review", () => (
-    <Subject
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        canReview: true,
-      }}
-    />
-  ))
-  .add("review pending in Remote Rettings, user can review", () => (
-    <Subject
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
-        canReview: true,
-      }}
-    />
-  ))
-  .add("review timed out in Remote Settings, user can review", () => (
-    <Subject
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
-        timeoutEvent: mockChangelog("ghi@mozilla.com"),
-        canReview: true,
-      }}
-    />
-  ))
-  .add("review requested, user cannot review", () => (
-    <Subject
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        canReview: false,
-      }}
-    />
-  ))
-  .add("review pending in Remote Settings, user cannot review", () => (
-    <Subject
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
-        canReview: false,
-      }}
-    />
-  ))
-  .add("review timed out in Remote Settings, user cannot review", () => (
-    <Subject
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
-        timeoutEvent: mockChangelog("ghi@mozilla.com"),
-        canReview: false,
-      }}
-    />
-  ))
-  .add("review rejected in experimenter or remote settings", () => (
-    <Subject
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
-        rejectionEvent: mockChangelog(
-          "ghi@mozilla.com",
-          "It's bad. Just start over.",
-        ),
-        canReview: true,
-      }}
-    />
-  ));
+export default {
+  title: "components/ChangeApprovalOperations",
+  component: Subject,
+  decorators: [
+    withLinks,
+    (story: Function) => <div className="p-5">{story()}</div>,
+  ],
+};
 
-storiesOf("components/ChangeApprovalOperations/forms", module)
-  .addDecorator(withLinks)
-  .addDecorator((story) => <div className="p-5">{story()}</div>)
-  .add("FormApproveOrReject", () => (
-    <FormApproveOrReject
-      {...{
-        actionDescription: "froblulate",
-        isLoading: false,
-        reviewRequestEvent: mockChangelog(),
-        timeoutEvent: mockChangelog("ghi@mozilla.com"),
-        onApprove: action("approve"),
-        onReject: action("reject"),
-      }}
-    />
-  ))
-  .add("FormRejectReason", () => (
-    <FormRejectReason
-      {...{
-        isLoading: false,
-        onSubmit: action("submit"),
-        onCancel: action("cancel"),
-      }}
-    />
-  ))
-  .add("FormRemoteSettingsPending", () => (
-    <FormRemoteSettingsPending
-      {...{
-        isLoading: false,
-        onConfirm: action("confirm"),
-      }}
-    />
-  ));
+export const ReviewNotRequested = () => <Subject />;
+
+export const ReviewRequestedUserCanReview = () => (
+  <Subject
+    {...{
+      reviewRequestEvent: mockChangelog(),
+      canReview: true,
+    }}
+  />
+);
+
+export const ReviewPendingInRemoteSettingsUserCanReview = () => (
+  <Subject
+    {...{
+      reviewRequestEvent: mockChangelog(),
+      approvalEvent: mockChangelog("def@mozilla.com"),
+      canReview: true,
+    }}
+  />
+);
+
+export const ReviewTimedOutInRemoteSettingsUserCanReview = () => (
+  <Subject
+    {...{
+      reviewRequestEvent: mockChangelog(),
+      approvalEvent: mockChangelog("def@mozilla.com"),
+      timeoutEvent: mockChangelog("ghi@mozilla.com"),
+      canReview: true,
+    }}
+  />
+);
+
+export const ReviewRequestedUserCannotReview = () => (
+  <Subject
+    {...{
+      reviewRequestEvent: mockChangelog(),
+      canReview: false,
+    }}
+  />
+);
+
+export const ReviewPendingInRemoteSettingsUserCannotReview = () => (
+  <Subject
+    {...{
+      reviewRequestEvent: mockChangelog(),
+      approvalEvent: mockChangelog("def@mozilla.com"),
+      canReview: false,
+    }}
+  />
+);
+
+export const ReviewTimedOutInRemoteSettingsUserCannotReview = () => (
+  <Subject
+    {...{
+      reviewRequestEvent: mockChangelog(),
+      approvalEvent: mockChangelog("def@mozilla.com"),
+      timeoutEvent: mockChangelog("ghi@mozilla.com"),
+      canReview: false,
+    }}
+  />
+);
+
+export const ReviewRejectedInExperimenterOrRemoteSettings = () => (
+  <Subject
+    {...{
+      reviewRequestEvent: mockChangelog(),
+      approvalEvent: mockChangelog("def@mozilla.com"),
+      rejectionEvent: mockChangelog(
+        "ghi@mozilla.com",
+        "It's bad. Just start over.",
+      ),
+      canReview: true,
+    }}
+  />
+);
+
+export const FormApproveOrRejectStory = () => (
+  <FormApproveOrReject
+    {...{
+      actionDescription: "froblulate",
+      isLoading: false,
+      reviewRequestEvent: mockChangelog(),
+      timeoutEvent: mockChangelog("ghi@mozilla.com"),
+      onApprove: action("approve"),
+      onReject: action("reject"),
+    }}
+  />
+);
+export const FormRejectReasonStory = () => (
+  <FormRejectReason
+    {...{
+      isLoading: false,
+      onSubmit: action("submit"),
+      onCancel: action("cancel"),
+    }}
+  />
+);
+
+export const FormRemoteSettingsPendingStory = () => (
+  <FormRemoteSettingsPending
+    {...{
+      isLoading: false,
+      onConfirm: action("confirm"),
+    }}
+  />
+);
