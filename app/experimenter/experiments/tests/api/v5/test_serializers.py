@@ -925,7 +925,7 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
         serializer = NimbusExperimentSerializer(
             experiment,
-            data={"status": NimbusExperiment.Status.ACCEPTED},
+            data={"status": NimbusExperiment.Status.COMPLETE},
             context={"user": self.user},
         )
         self.assertEqual(experiment.changes.count(), 0)
@@ -934,7 +934,7 @@ class TestNimbusExperimentSerializer(TestCase):
             serializer.errors,
             {
                 "status": [
-                    "Nimbus Experiment status cannot transition from Draft to Accepted."
+                    "Nimbus Experiment status cannot transition from Draft to Complete."
                 ]
             },
             serializer.errors,
