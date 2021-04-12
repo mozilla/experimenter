@@ -80,8 +80,6 @@ enum NimbusChangeLogNewPublishStatus {
 enum NimbusChangeLogNewStatus {
   DRAFT
   PREVIEW
-  REVIEW
-  ACCEPTED
   LIVE
   COMPLETE
 }
@@ -96,8 +94,6 @@ enum NimbusChangeLogOldPublishStatus {
 enum NimbusChangeLogOldStatus {
   DRAFT
   PREVIEW
-  REVIEW
-  ACCEPTED
   LIVE
   COMPLETE
 }
@@ -261,8 +257,6 @@ enum NimbusExperimentPublishStatus {
 enum NimbusExperimentStatus {
   DRAFT
   PREVIEW
-  REVIEW
-  ACCEPTED
   LIVE
   COMPLETE
 }

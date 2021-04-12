@@ -26,7 +26,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
       testId="PageResults"
       analysisRequired
       redirect={({ status, analysis }) => {
-        if (!status?.released) {
+        if (!status?.launched) {
           return "edit/overview";
         }
 

@@ -10,7 +10,10 @@ import { END_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
 import AppLayout from "../AppLayout";
 import { mockChangelog } from "../ChangeApprovalOperations/mocks";
 
@@ -21,7 +24,7 @@ storiesOf("components/Summary", module)
   })
   .add("non-draft status", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.ACCEPTED,
+      publishStatus: NimbusExperimentPublishStatus.WAITING,
     });
     return <Subject {...{ experiment }} />;
   })

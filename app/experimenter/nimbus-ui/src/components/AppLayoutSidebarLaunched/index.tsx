@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { RouteComponentProps, useParams } from "@reach/router";
 import React from "react";
 import Col from "react-bootstrap/Col";
@@ -46,7 +50,7 @@ const otherMetricsToFriendlyName = (
   return newMap;
 };
 
-type AppLayoutSidebarLockedProps = {
+type AppLayoutSidebarLaunchedProps = {
   testid?: string;
   children: React.ReactNode;
   status: StatusCheck;
@@ -57,16 +61,16 @@ type AppLayoutSidebarLockedProps = {
   experiment: getExperiment_experimentBySlug;
 } & RouteComponentProps;
 
-export const AppLayoutSidebarLocked = ({
+export const AppLayoutSidebarLaunched = ({
   children,
-  testid = "AppLayoutSidebarLocked",
+  testid = "AppLayoutSidebarLaunched",
   status,
   analysis,
   analysisRequired,
   analysisLoadingInSidebar = false,
   analysisError,
   experiment,
-}: AppLayoutSidebarLockedProps) => {
+}: AppLayoutSidebarLaunchedProps) => {
   const { slug } = useParams();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
   const primaryMetrics = outcomeToMapping(primaryOutcomes);
@@ -248,7 +252,7 @@ export const AppLayoutSidebarLocked = ({
                 <ResultsAvailableNav />
               ) : (
                 <DisabledItem name="Results" testId="show-no-results">
-                  {status?.accepted ? (
+                  {status.waiting || status.approved ? (
                     "Waiting for experiment to launch"
                   ) : analysisLoadingInSidebar ? (
                     RESULTS_LOADING_TEXT
@@ -277,4 +281,4 @@ export const AppLayoutSidebarLocked = ({
   );
 };
 
-export default AppLayoutSidebarLocked;
+export default AppLayoutSidebarLaunched;

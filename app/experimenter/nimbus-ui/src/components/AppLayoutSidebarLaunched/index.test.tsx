@@ -5,7 +5,7 @@
 import { RouteComponentProps } from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import { AppLayoutSidebarLocked, RESULTS_LOADING_TEXT } from ".";
+import { AppLayoutSidebarLaunched, RESULTS_LOADING_TEXT } from ".";
 import { BASE_PATH } from "../../lib/constants";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
@@ -36,9 +36,9 @@ const Subject = ({
   experiment?: getExperiment_experimentBySlug;
 }) => (
   <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
-    <AppLayoutSidebarLocked
+    <AppLayoutSidebarLaunched
       {...{
-        status: mockGetStatus(status),
+        status: mockGetStatus({ status }),
         analysisLoadingInSidebar,
         analysisRequired,
         analysisError: analysisError ? new Error("boop") : undefined,
@@ -56,11 +56,11 @@ const Subject = ({
       }}
     >
       <p data-testid="test-child">Hello, world!</p>
-    </AppLayoutSidebarLocked>
+    </AppLayoutSidebarLaunched>
   </RouterSlugProvider>
 );
 
-describe("AppLayoutSidebarLocked", () => {
+describe("AppLayoutSidebarLaunched", () => {
   describe("navigation links", () => {
     it("when live, hides edit and review links, displays summary link and disabled results item", () => {
       render(<Subject status={NimbusExperimentStatus.LIVE} />);

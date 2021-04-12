@@ -34,11 +34,13 @@ const HeaderExperiment = ({
     <div className="row">
       <div className="col">
         <p className="header-experiment-status position-relative mt-2 d-inline-block">
-          <StatusPill label="Draft" active={status.draft} />
-          {status.preview && <StatusPill label="Preview" active />}
+          <StatusPill label="Draft" active={status.draft && status.idle} />
+          {status.preview && status.idle && (
+            <StatusPill label="Preview" active />
+          )}
           <StatusPill
             label="Review"
-            active={status.review || status.accepted}
+            active={(status.draft || status.preview) && !status.idle}
           />
           <StatusPill label="Live" active={status.live} />
           <StatusPill

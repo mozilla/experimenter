@@ -18,7 +18,7 @@ describe("HeaderExperiment", () => {
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
-        status={mockGetStatus(experiment.status)}
+        status={mockGetStatus(experiment)}
       />,
     );
     expect(screen.getByTestId("header-experiment-name")).toHaveTextContent(
@@ -42,7 +42,7 @@ describe("HeaderExperiment", () => {
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
-        status={mockGetStatus(experiment.status)}
+        status={mockGetStatus(experiment)}
       />,
     );
     expect(

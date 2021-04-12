@@ -80,16 +80,14 @@ def handle_rejection(kinto_client):
     collection_data = kinto_client.get_rejected_collection_data()
     experiment = NimbusExperiment.objects.get(slug=rejected_slug)
 
-    has_changes = False
     if experiment.status == NimbusExperiment.Status.LIVE and experiment.is_end_requested:
         experiment.is_end_requested = False
-        has_changes = True
-    elif experiment.status == NimbusExperiment.Status.ACCEPTED:
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+    elif experiment.publish_status == NimbusExperiment.PublishStatus.WAITING:
         experiment.status = NimbusExperiment.Status.DRAFT
-        has_changes = True
 
-    if has_changes:
-        experiment.save()
+    experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+    experiment.save()
 
     generate_nimbus_changelog(
         experiment,
@@ -121,7 +119,7 @@ def nimbus_push_experiment_to_kinto(experiment_id):
 
         kinto_client.create_record(data)
 
-        experiment.status = NimbusExperiment.Status.ACCEPTED
+        experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
 
         generate_nimbus_changelog(experiment, get_kinto_user())
@@ -199,17 +197,13 @@ def nimbus_check_experiments_are_live():
     """
     metrics.incr("check_experiments_are_live.started")
 
-    accepted_experiments = NimbusExperiment.objects.filter(
-        status=NimbusExperiment.Status.ACCEPTED
-    )
-
     for application_config in NimbusExperiment.APPLICATION_CONFIGS.values():
         kinto_client = KintoClient(application_config.collection)
 
         records = kinto_client.get_main_records()
         record_ids = [r.get("id") for r in records]
 
-        for experiment in accepted_experiments:
+        for experiment in NimbusExperiment.objects.waiting_queue():
             if experiment.slug in record_ids:
                 logger.info(
                     f"{experiment} status is being updated to live".format(
@@ -218,6 +212,7 @@ def nimbus_check_experiments_are_live():
                 )
 
                 experiment.status = NimbusExperiment.Status.LIVE
+                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.save()
 
                 generate_nimbus_changelog(experiment, get_kinto_user())

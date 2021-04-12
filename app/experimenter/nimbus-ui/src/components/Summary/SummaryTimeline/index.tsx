@@ -55,7 +55,7 @@ const StartEnd = ({
   computedEndDate: string | null;
 }) => (
   <div className="d-flex">
-    {status.draft || status.review || status.preview || status.accepted ? (
+    {status.draft || status.review || status.preview || status.waiting ? (
       <span className="flex-fill" data-testid="label-not-launched">
         Not yet launched
       </span>
@@ -93,7 +93,7 @@ const Progress = ({
       variant: "success",
       now: 100,
     });
-  } else if (status.accepted || status.live) {
+  } else if (status.waiting || status.live) {
     Object.assign(props, {
       striped: true,
       animated: true,
