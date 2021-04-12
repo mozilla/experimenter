@@ -4,9 +4,9 @@
 
 export const MOCK_UNAVAILABLE_ANALYSIS = {
   show_analysis: true,
-  daily: null,
-  weekly: null,
-  overall: null,
+  daily: [],
+  weekly: {},
+  overall: {},
   metadata: {
     metrics: {},
     outcomes: {},
