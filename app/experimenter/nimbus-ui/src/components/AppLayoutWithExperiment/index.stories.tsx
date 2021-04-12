@@ -8,15 +8,68 @@ import React from "react";
 import AppLayoutWithExperiment from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-
-const { mock } = mockExperimentQuery("demo-slug");
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
 
 storiesOf("components/AppLayoutWithExperiment", module)
   .addDecorator(withLinks)
-  .add("default", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <AppLayoutWithExperiment title="Howdy!" testId="AppLayoutWithExperiment">
-        {({ experiment }) => <p>{experiment.name}</p>}
-      </AppLayoutWithExperiment>
-    </RouterSlugProvider>
-  ));
+  .add("status: draft", () => {
+    const { mock } = mockExperimentQuery("demo-slug");
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <AppLayoutWithExperiment
+          title="Howdy!"
+          testId="AppLayoutWithExperiment"
+        >
+          {({ experiment }) => <p>{experiment.name}</p>}
+        </AppLayoutWithExperiment>
+      </RouterSlugProvider>
+    );
+  })
+  .add("status: preview", () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.PREVIEW,
+    });
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <AppLayoutWithExperiment
+          title="Howdy!"
+          testId="AppLayoutWithExperiment"
+        >
+          {({ experiment }) => <p>{experiment.name}</p>}
+        </AppLayoutWithExperiment>
+      </RouterSlugProvider>
+    );
+  })
+  .add('status: launched ("live" or "complete")', () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+    });
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <AppLayoutWithExperiment
+          title="Howdy!"
+          testId="AppLayoutWithExperiment"
+        >
+          {({ experiment }) => <p>{experiment.name}</p>}
+        </AppLayoutWithExperiment>
+      </RouterSlugProvider>
+    );
+  })
+  .add("publish status: review", () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      publishStatus: NimbusExperimentPublishStatus.REVIEW,
+    });
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <AppLayoutWithExperiment
+          title="Howdy!"
+          testId="AppLayoutWithExperiment"
+        >
+          {({ experiment }) => <p>{experiment.name}</p>}
+        </AppLayoutWithExperiment>
+      </RouterSlugProvider>
+    );
+  });

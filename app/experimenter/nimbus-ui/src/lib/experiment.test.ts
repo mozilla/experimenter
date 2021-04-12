@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { NimbusExperimentStatus } from "../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../types/globalTypes";
 import { editCommonRedirects, getStatus } from "./experiment";
 import { mockExperimentQuery } from "./mocks";
 
@@ -13,44 +16,57 @@ describe("getStatus", () => {
     experiment.status = NimbusExperimentStatus.DRAFT;
     expect(getStatus(experiment).draft).toBeTruthy();
 
-    experiment.status = NimbusExperimentStatus.REVIEW;
-    expect(getStatus(experiment).review).toBeTruthy();
-
-    experiment.status = NimbusExperimentStatus.ACCEPTED;
-    expect(getStatus(experiment).accepted).toBeTruthy();
-    expect(getStatus(experiment).locked).toBeTruthy();
-
     experiment.status = NimbusExperimentStatus.PREVIEW;
     expect(getStatus(experiment).preview).toBeTruthy();
 
     experiment.status = NimbusExperimentStatus.LIVE;
     expect(getStatus(experiment).live).toBeTruthy();
-    expect(getStatus(experiment).released).toBeTruthy();
-    expect(getStatus(experiment).locked).toBeTruthy();
+    expect(getStatus(experiment).launched).toBeTruthy();
 
     experiment.status = NimbusExperimentStatus.COMPLETE;
     expect(getStatus(experiment).complete).toBeTruthy();
-    expect(getStatus(experiment).released).toBeTruthy();
-    expect(getStatus(experiment).locked).toBeTruthy();
+    expect(getStatus(experiment).launched).toBeTruthy();
+
+    experiment.publishStatus = NimbusExperimentPublishStatus.IDLE;
+    expect(getStatus(experiment).idle).toBeTruthy();
+
+    experiment.publishStatus = NimbusExperimentPublishStatus.APPROVED;
+    expect(getStatus(experiment).approved).toBeTruthy();
+
+    experiment.publishStatus = NimbusExperimentPublishStatus.REVIEW;
+    expect(getStatus(experiment).review).toBeTruthy();
+
+    experiment.publishStatus = NimbusExperimentPublishStatus.WAITING;
+    expect(getStatus(experiment).waiting).toBeTruthy();
   });
 });
 
 describe("editCommonRedirects", () => {
-  const mockedCall = (status: NimbusExperimentStatus) => {
-    const { experiment } = mockExperimentQuery("boo", { status });
+  const mockedCall = ({
+    status,
+    publishStatus,
+  }: {
+    status?: NimbusExperimentStatus;
+    publishStatus?: NimbusExperimentPublishStatus;
+  }) => {
+    const { experiment } = mockExperimentQuery("boo", {
+      status,
+      publishStatus,
+    });
     return editCommonRedirects({ status: getStatus(experiment) });
   };
 
-  it("returns 'request-review' if the experiment is in review or preview", () => {
-    expect(mockedCall(NimbusExperimentStatus.REVIEW)).toEqual("request-review");
-    expect(mockedCall(NimbusExperimentStatus.PREVIEW)).toEqual(
+  it("returns 'request-review' if the experiment is in a non-idle or preview state", () => {
+    expect(
+      mockedCall({ publishStatus: NimbusExperimentPublishStatus.WAITING }),
+    ).toEqual("request-review");
+    expect(mockedCall({ status: NimbusExperimentStatus.PREVIEW })).toEqual(
       "request-review",
     );
   });
 
-  it("returns '' (root) if the experiment is in a locked state", () => {
-    expect(mockedCall(NimbusExperimentStatus.LIVE)).toEqual("");
-    expect(mockedCall(NimbusExperimentStatus.COMPLETE)).toEqual("");
-    expect(mockedCall(NimbusExperimentStatus.ACCEPTED)).toEqual("");
+  it("returns '' (root) if the experiment is in a launched state", () => {
+    expect(mockedCall({ status: NimbusExperimentStatus.LIVE })).toEqual("");
+    expect(mockedCall({ status: NimbusExperimentStatus.COMPLETE })).toEqual("");
   });
 });

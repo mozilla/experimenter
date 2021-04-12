@@ -166,7 +166,7 @@ class TestGenerateNimbusChangeLog(TestCase):
 
         self.assertEqual(experiment.changes.count(), 1)
 
-        experiment.status = NimbusExperiment.Status.REVIEW
+        experiment.status = NimbusExperiment.Status.PREVIEW
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
 
@@ -180,7 +180,7 @@ class TestGenerateNimbusChangeLog(TestCase):
         self.assertEqual(change.changed_by, self.user)
         self.assertEqual(change.old_status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(change.old_publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.assertEqual(change.new_status, NimbusExperiment.Status.REVIEW)
+        self.assertEqual(change.new_status, NimbusExperiment.Status.PREVIEW)
         self.assertEqual(change.new_publish_status, NimbusExperiment.PublishStatus.REVIEW)
         self.assertEqual(
             change.experiment_data,

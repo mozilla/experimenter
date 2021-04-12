@@ -9,7 +9,7 @@ import { BASE_PATH } from "../../lib/constants";
 import { getStatus, StatusCheck } from "../../lib/experiment";
 import { AnalysisData } from "../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import AppLayoutSidebarLocked from "../AppLayoutSidebarLocked";
+import AppLayoutSidebarLaunched from "../AppLayoutSidebarLaunched";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 import Head from "../Head";
 import HeaderExperiment from "../HeaderExperiment";
@@ -102,7 +102,7 @@ const AppLayoutWithExperiment = ({
   }, [redirectPath]);
 
   useEffect(() => {
-    if (!analysisFetched && !loading && status.locked) {
+    if (!analysisFetched && !loading && status.launched) {
       fetchAnalysis([experiment?.slug]);
     }
   }, [fetchAnalysis, loading, experiment, analysisFetched, status]);
@@ -183,8 +183,8 @@ const Layout = ({
   analysisError,
   experiment,
 }: LayoutProps) =>
-  status?.locked ? (
-    <AppLayoutSidebarLocked
+  status?.launched ? (
+    <AppLayoutSidebarLaunched
       {...{
         status,
         analysis,
@@ -195,7 +195,7 @@ const Layout = ({
       }}
     >
       {children}
-    </AppLayoutSidebarLocked>
+    </AppLayoutSidebarLaunched>
   ) : (
     <AppLayoutWithSidebar {...{ status, review }}>
       {children}

@@ -10,7 +10,7 @@ import AppLayoutWithExperiment, { POLL_INTERVAL, RedirectCheck } from ".";
 import { BASE_PATH } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { NimbusExperimentPublishStatus } from "../../types/globalTypes";
 
 describe("AppLayoutWithExperiment", () => {
   it("renders as expected with default props", async () => {
@@ -41,7 +41,7 @@ describe("AppLayoutWithExperiment", () => {
   describe("polling", () => {
     const { mock: initialMock } = mockExperimentQuery("demo-slug");
     const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.REVIEW,
+      publishStatus: NimbusExperimentPublishStatus.WAITING,
     });
 
     it("polls useExperiment when the prop is passed in", async () => {
@@ -77,31 +77,31 @@ describe("AppLayoutWithExperiment", () => {
       // Review would be the next state, so ensure Draft is still "primary"
       await screen.findByText("Draft", { selector: ".text-primary" });
     });
+  });
 
-    it("can redirect you somewhere else", async () => {
-      const { mock, experiment } = mockExperimentQuery("demo-slug", {
-        status: NimbusExperimentStatus.REVIEW,
-      });
+  it("can redirect you somewhere else", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      publishStatus: NimbusExperimentPublishStatus.REVIEW,
+    });
 
-      render(
-        <Subject
-          mocks={[mock]}
-          redirect={({ status }) => {
-            if (status.review) {
-              return "request-review";
-            }
-          }}
-        />,
+    render(
+      <Subject
+        mocks={[mock]}
+        redirect={({ status }) => {
+          if (status.review) {
+            return "request-review";
+          }
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/request-review`,
+        {
+          replace: true,
+        },
       );
-
-      await waitFor(() => {
-        expect(navigate).toHaveBeenCalledWith(
-          `${BASE_PATH}/${experiment.slug}/request-review`,
-          {
-            replace: true,
-          },
-        );
-      });
     });
   });
 });

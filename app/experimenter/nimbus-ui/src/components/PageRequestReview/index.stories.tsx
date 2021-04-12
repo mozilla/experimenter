@@ -8,7 +8,10 @@ import React from "react";
 import PageRequestReview from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
 import { mockChangelog } from "../ChangeApprovalOperations/mocks";
 import { mock, Subject, SubjectEXP1143 } from "./mocks";
 
@@ -26,15 +29,29 @@ storiesOf("pages/RequestReview", module)
     });
     return <Subject {...{ mocks: [mock] }} />;
   })
+  .add("preview status + approved publish status", () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.PREVIEW,
+      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+    });
+    return <Subject {...{ mocks: [mock] }} />;
+  })
+  .add("preview status + publish status waiting", () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.PREVIEW,
+      publishStatus: NimbusExperimentPublishStatus.WAITING,
+    });
+    return <Subject {...{ mocks: [mock] }} />;
+  })
   .add("review status", () => {
     const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.REVIEW,
+      publishStatus: NimbusExperimentPublishStatus.REVIEW,
     });
     return <Subject {...{ mocks: [mock] }} />;
   })
   .add("non-reviewable", () => {
     const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.ACCEPTED,
+      publishStatus: NimbusExperimentPublishStatus.WAITING,
     });
     return <Subject {...{ mocks: [mock] }} />;
   })

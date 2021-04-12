@@ -5,7 +5,7 @@
 import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
-import AppLayoutSidebarLocked from ".";
+import AppLayoutSidebarLaunched from ".";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockAnalysis } from "../../lib/visualization/mocks";
@@ -13,35 +13,35 @@ import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const { experiment } = mockExperimentQuery("demo-slug");
 
-storiesOf("components/AppLayoutSidebarLocked", module)
+storiesOf("components/AppLayoutSidebarLaunched", module)
   .addDecorator(withLinks)
   .add("analysis results loading", () => (
     <RouterSlugProvider>
-      <AppLayoutSidebarLocked
-        status={mockGetStatus(NimbusExperimentStatus.LIVE)}
+      <AppLayoutSidebarLaunched
+        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
         analysisError={undefined}
         analysisLoadingInSidebar
         {...{ experiment }}
       >
         <p>App contents go here</p>
-      </AppLayoutSidebarLocked>
+      </AppLayoutSidebarLaunched>
     </RouterSlugProvider>
   ))
   .add("analysis results error", () => (
     <RouterSlugProvider>
-      <AppLayoutSidebarLocked
-        status={mockGetStatus(NimbusExperimentStatus.LIVE)}
+      <AppLayoutSidebarLaunched
+        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
         analysisError={new Error("Boop")}
         {...{ experiment }}
       >
         <p>App contents go here</p>
-      </AppLayoutSidebarLocked>
+      </AppLayoutSidebarLaunched>
     </RouterSlugProvider>
   ))
   .add("has analysis results", () => (
     <RouterSlugProvider>
-      <AppLayoutSidebarLocked
-        status={mockGetStatus(NimbusExperimentStatus.COMPLETE)}
+      <AppLayoutSidebarLaunched
+        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
         analysisError={undefined}
         analysis={{
           show_analysis: true,
@@ -53,6 +53,6 @@ storiesOf("components/AppLayoutSidebarLocked", module)
         {...{ experiment }}
       >
         <p>App contents go here</p>
-      </AppLayoutSidebarLocked>
+      </AppLayoutSidebarLaunched>
     </RouterSlugProvider>
   ));

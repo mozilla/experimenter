@@ -4,7 +4,10 @@
 
 import { cleanup, render, screen } from "@testing-library/react";
 import React from "react";
-import { NimbusExperimentStatus } from "../../../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../../types/globalTypes";
 import { Subject } from "./mocks";
 
 const innerBar = () => {
@@ -14,13 +17,13 @@ const innerBar = () => {
 };
 
 describe("SummaryTimeline", () => {
-  it("renders with a draft, in-review, and accepted experiment", () => {
+  it("renders with a draft, in-review, and accepted/waiting experiment", () => {
     [
-      NimbusExperimentStatus.DRAFT,
-      NimbusExperimentStatus.REVIEW,
-      NimbusExperimentStatus.ACCEPTED,
-    ].forEach((status) => {
-      render(<Subject {...{ status }} />);
+      { status: NimbusExperimentStatus.DRAFT },
+      { publishStatus: NimbusExperimentPublishStatus.REVIEW },
+      { publishStatus: NimbusExperimentPublishStatus.WAITING },
+    ].forEach((set) => {
+      render(<Subject {...set} />);
 
       expect(screen.queryByTestId("label-not-launched")).toBeInTheDocument();
       expect(screen.queryByTestId("label-start-date")).not.toBeInTheDocument();

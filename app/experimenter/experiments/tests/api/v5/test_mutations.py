@@ -1,5 +1,6 @@
 import json
 
+import mock
 from django.conf import settings
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
@@ -52,6 +53,14 @@ class TestMutations(GraphQLTestCase):
     def setUpClass(cls):
         super().setUpClass()
         Outcomes.clear_cache()
+
+    def setUp(self):
+        mock_preview_task_patcher = mock.patch(
+            "experimenter.experiments.api.v5.serializers."
+            "nimbus_synchronize_preview_experiments_in_kinto"
+        )
+        self.mock_preview_task = mock_preview_task_patcher.start()
+        self.addCleanup(mock_preview_task_patcher.stop)
 
     def test_create_experiment(self):
         user_email = "user@example.com"
@@ -467,7 +476,7 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "status": NimbusExperiment.Status.REVIEW.name,
+                    "status": NimbusExperiment.Status.PREVIEW.name,
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -475,7 +484,7 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.status, NimbusExperiment.Status.REVIEW)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
 
     def test_update_experiment_publish_status(self):
         user_email = "user@example.com"
