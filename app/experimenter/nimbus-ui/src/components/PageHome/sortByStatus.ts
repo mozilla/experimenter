@@ -18,7 +18,7 @@ function sortByStatus(experiments: getAllExperiments_experiments[] = []) {
         collector.live.push(experiment);
       } else if (status.complete) {
         collector.complete.push(experiment);
-      } else if (status.review || status.accepted) {
+      } else if (status.draft && !status.idle) {
         collector.review.push(experiment);
       } else if (status.preview) {
         collector.preview.push(experiment);

@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatus } from "./globalTypes";
+import { NimbusExperimentStatus, NimbusExperimentPublishStatus } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getAllExperiments
@@ -27,6 +27,7 @@ export interface getAllExperiments_experiments {
   proposedEnrollment: number;
   computedEndDate: DateTime | null;
   status: NimbusExperimentStatus | null;
+  publishStatus: NimbusExperimentPublishStatus | null;
   isEndRequested: boolean;
   monitoringDashboardUrl: string | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;

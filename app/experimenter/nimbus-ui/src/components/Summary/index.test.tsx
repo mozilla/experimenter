@@ -91,12 +91,16 @@ describe("Summary", () => {
         "/api/v6/experiments/demo-slug/",
       );
     });
-    it("renders when status is 'review'", () => {
-      renderWithStatus(NimbusExperimentStatus.REVIEW);
+    it("renders when status is live", () => {
+      renderWithStatus(NimbusExperimentStatus.LIVE);
       expect(screen.queryByTestId("link-json")).toBeInTheDocument();
     });
-    it("renders when status is 'accepted'", () => {
-      renderWithStatus(NimbusExperimentStatus.ACCEPTED);
+    it("renders when status is complete", () => {
+      renderWithStatus(NimbusExperimentStatus.COMPLETE);
+      expect(screen.queryByTestId("link-json")).toBeInTheDocument();
+    });
+    it("renders when status is preview", () => {
+      renderWithStatus(NimbusExperimentStatus.PREVIEW);
       expect(screen.queryByTestId("link-json")).toBeInTheDocument();
     });
     it("does not render in 'draft' status", () => {

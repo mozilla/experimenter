@@ -8,13 +8,16 @@ import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { MockConfigContext } from "../../hooks";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
 
 export const { mock, experiment } = mockExperimentQuery("demo-slug");
 
-export function createMutationMock(
+export function createStatusMutationMock(
   id: number,
-  status = NimbusExperimentStatus.REVIEW,
+  status = NimbusExperimentStatus.DRAFT,
 ) {
   return mockExperimentMutation(
     UPDATE_EXPERIMENT_MUTATION,
@@ -31,8 +34,29 @@ export function createMutationMock(
   );
 }
 
+export function createPublishStatusMutationMock(
+  id: number,
+  publishStatus = NimbusExperimentPublishStatus.APPROVED,
+) {
+  return mockExperimentMutation(
+    UPDATE_EXPERIMENT_MUTATION,
+    {
+      id,
+      publishStatus,
+      status: NimbusExperimentStatus.DRAFT,
+    },
+    "updateExperiment",
+    {
+      experiment: {
+        publishStatus,
+        status: NimbusExperimentStatus.DRAFT,
+      },
+    },
+  );
+}
+
 export const Subject = ({
-  mocks = [mock, createMutationMock(experiment.id!)],
+  mocks = [mock, createStatusMutationMock(experiment.id!)],
 }: {
   mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
 }) => (
@@ -42,7 +66,7 @@ export const Subject = ({
 );
 
 export const SubjectEXP1143 = ({
-  mocks = [mock, createMutationMock(experiment.id!)],
+  mocks = [mock, createStatusMutationMock(experiment.id!)],
   ...pageProps
 }: {
   mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];

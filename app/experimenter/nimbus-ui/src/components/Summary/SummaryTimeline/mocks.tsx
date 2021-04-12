@@ -5,7 +5,10 @@
 import React from "react";
 import SummaryTimeline from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
-import { NimbusExperimentStatus } from "../../../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../../types/globalTypes";
 
 export const Subject = ({
   startDate = "2020-11-28T14:52:44.704811+00:00",
@@ -13,12 +16,14 @@ export const Subject = ({
   proposedDuration = 10,
   proposedEnrollment = 1,
   status = NimbusExperimentStatus.DRAFT,
+  publishStatus = NimbusExperimentPublishStatus.IDLE,
 }: {
   startDate?: string;
   computedEndDate?: string;
   proposedDuration?: number;
   proposedEnrollment?: number;
   status?: NimbusExperimentStatus;
+  publishStatus?: NimbusExperimentPublishStatus;
 }) => {
   const { experiment } = mockExperimentQuery("something-vague", {
     startDate,
@@ -26,6 +31,7 @@ export const Subject = ({
     proposedDuration,
     proposedEnrollment,
     status,
+    publishStatus,
   });
   return <SummaryTimeline {...{ experiment }} />;
 };

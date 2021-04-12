@@ -7,7 +7,10 @@ import { storiesOf } from "@storybook/react";
 import React from "react";
 import HeaderExperiment from ".";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
 import AppLayout from "../AppLayout";
 
 const { experiment } = mockExperimentQuery("demo-slug");
@@ -21,18 +24,31 @@ storiesOf("components/HeaderExperiment", module)
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
-        status={mockGetStatus(experiment.status)}
+        status={mockGetStatus(experiment)}
       />
     </AppLayout>
   ))
-  .add("status: review", () => (
+  .add("status: preview", () => (
     <AppLayout>
       <HeaderExperiment
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
-        status={mockGetStatus(NimbusExperimentStatus.REVIEW)}
+        status={mockGetStatus({ status: NimbusExperimentStatus.PREVIEW })}
+      />
+    </AppLayout>
+  ))
+  .add("publish status: review", () => (
+    <AppLayout>
+      <HeaderExperiment
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        computedEndDate={experiment.computedEndDate}
+        status={mockGetStatus({
+          publishStatus: NimbusExperimentPublishStatus.REVIEW,
+        })}
       />
     </AppLayout>
   ))
@@ -43,7 +59,7 @@ storiesOf("components/HeaderExperiment", module)
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={null}
-        status={mockGetStatus(NimbusExperimentStatus.LIVE)}
+        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
       />
     </AppLayout>
   ))
@@ -54,18 +70,7 @@ storiesOf("components/HeaderExperiment", module)
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
-        status={mockGetStatus(NimbusExperimentStatus.COMPLETE)}
-      />
-    </AppLayout>
-  ))
-  .add("includes dates", () => (
-    <AppLayout>
-      <HeaderExperiment
-        name={experiment.name}
-        slug={experiment.slug}
-        startDate={experiment.startDate}
-        computedEndDate={experiment.computedEndDate}
-        status={mockGetStatus(NimbusExperimentStatus.COMPLETE)}
+        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
       />
     </AppLayout>
   ));

@@ -15,7 +15,7 @@ class TestNimbusEmail(TestCase):
             proposed_duration=10,
         )
         experiment.changes.filter(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
 

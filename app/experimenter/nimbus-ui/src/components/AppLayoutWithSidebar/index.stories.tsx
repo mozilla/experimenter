@@ -12,9 +12,18 @@ import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 storiesOf("components/AppLayoutWithSidebar", module)
   .addDecorator(withLinks)
-  .add("basic", () => (
+  .add("status: draft", () => (
     <RouterSlugProvider>
       <AppLayoutWithSidebar>
+        <p>App contents go here</p>
+      </AppLayoutWithSidebar>
+    </RouterSlugProvider>
+  ))
+  .add("status: preview", () => (
+    <RouterSlugProvider>
+      <AppLayoutWithSidebar
+        status={mockGetStatus({ status: NimbusExperimentStatus.PREVIEW })}
+      >
         <p>App contents go here</p>
       </AppLayoutWithSidebar>
     </RouterSlugProvider>
@@ -27,31 +36,6 @@ storiesOf("components/AppLayoutWithSidebar", module)
           invalidPages: ["branches", "audience"],
         }}
       >
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
-  ))
-  .add("status: review", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar
-        status={mockGetStatus(NimbusExperimentStatus.REVIEW)}
-      >
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
-  ))
-  .add("status: accepted", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar
-        status={mockGetStatus(NimbusExperimentStatus.ACCEPTED)}
-      >
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
-  ))
-  .add("status: live", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar status={mockGetStatus(NimbusExperimentStatus.LIVE)}>
         <p>App contents go here</p>
       </AppLayoutWithSidebar>
     </RouterSlugProvider>

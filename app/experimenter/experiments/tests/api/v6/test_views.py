@@ -17,7 +17,6 @@ class TestNimbusExperimentViewSet(TestCase):
         for status in NimbusExperiment.Status:
             if status not in [
                 NimbusExperiment.Status.DRAFT,
-                NimbusExperiment.Status.REVIEW,
             ]:
                 experiments.append(
                     NimbusExperimentFactory.create_with_status(status.value, slug=status)

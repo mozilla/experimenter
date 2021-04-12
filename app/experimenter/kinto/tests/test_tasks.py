@@ -22,7 +22,8 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -38,17 +39,19 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         )
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.status, NimbusExperiment.Status.ACCEPTED)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.WAITING
+        )
         self.assertTrue(
             experiment.changes.filter(
-                old_status=NimbusExperiment.Status.REVIEW,
-                new_status=NimbusExperiment.Status.ACCEPTED,
+                old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
+                new_publish_status=NimbusExperiment.PublishStatus.WAITING,
             ).exists()
         )
 
     def test_push_experiment_to_kinto_sends_fenix_experiment_data(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW,
+        experiment = NimbusExperimentFactory.create(
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             application=NimbusExperiment.Application.FENIX,
         )
 
@@ -64,8 +67,8 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         )
 
     def test_push_experiment_to_kinto_reraises_exception(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW,
+        experiment = NimbusExperimentFactory.create(
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
         )
         self.mock_kinto_client.create_record.side_effect = Exception
         with self.assertRaises(Exception):
@@ -116,15 +119,15 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         self.mock_push_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
-    def test_check_experiment_with_no_review_status_pushes_nothing(self):
-        for status in [
-            NimbusExperiment.Status.DRAFT,
-            NimbusExperiment.Status.ACCEPTED,
-            NimbusExperiment.Status.LIVE,
-            NimbusExperiment.Status.COMPLETE,
+    def test_check_experiment_with_no_approved_publish_status_pushes_nothing(self):
+        for publish_status in [
+            NimbusExperiment.PublishStatus.IDLE,
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.WAITING,
         ]:
             NimbusExperimentFactory.create(
-                status=status, application=NimbusExperiment.Application.DESKTOP
+                publish_status=publish_status,
+                application=NimbusExperiment.Application.DESKTOP,
             )
 
         self.setup_kinto_no_pending_review()
@@ -134,9 +137,9 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         self.mock_push_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
-    def test_check_experiment_with_review_and_kinto_pending_pushes_nothing(self):
+    def test_check_experiment_with_approved_and_kinto_pending_pushes_nothing(self):
         NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.REVIEW,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             application=NimbusExperiment.Application.DESKTOP,
         )
         self.setup_kinto_pending_review()
@@ -146,13 +149,15 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         self.mock_push_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
-    def test_checkexperiment_with_review_and_no_kinto_pending_pushes_experiment(
+    def test_checkexperiment_with_approved_and_no_kinto_pending_pushes_experiment(
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW, application=NimbusExperiment.Application.FENIX
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.FENIX,
         )
-        self.assertEqual(experiment.changes.count(), 2)
+        self.assertEqual(experiment.changes.count(), 1)
 
         self.setup_kinto_no_pending_review()
         tasks.nimbus_check_kinto_push_queue_by_application(
@@ -162,7 +167,8 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 
     def test_check_with_reject_review(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -203,8 +209,8 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         self.assertTrue(
             experiment.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.ACCEPTED,
-                new_status=NimbusExperiment.Status.DRAFT,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).exists()
         )
 
@@ -319,8 +325,8 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
             is_end_requested=True,
             application=NimbusExperiment.Application.DESKTOP,
         )
-        experiment2 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW,
+        experiment2 = NimbusExperimentFactory.create(
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -385,14 +391,15 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
     def test_check_experiment_pushes_experiment_before_ending_experiment(
         self,
     ):
-        experiment_1 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.REVIEW,
+        experiment_1 = NimbusExperimentFactory.create(
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             name="First experiment",
             slug="first-experiment",
             application=NimbusExperiment.Application.FENIX,
         )
         experiment_2 = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             name="Second experiment",
             slug="second-experiment",
             application=NimbusExperiment.Application.FENIX,
@@ -425,7 +432,7 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
         launch_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
         launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
@@ -442,19 +449,21 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
     def test_experiment_updates_when_record_is_in_main(self):
         experiment1 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
         )
 
         experiment2 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
         )
 
         experiment3 = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
         )
 
-        self.assertEqual(experiment1.changes.count(), 3)
-        self.assertEqual(experiment2.changes.count(), 3)
+        self.assertEqual(experiment1.changes.count(), 1)
+        self.assertEqual(experiment2.changes.count(), 1)
         self.assertEqual(experiment3.changes.count(), 1)
 
         self.setup_kinto_get_main_records([experiment1.slug])
@@ -465,15 +474,17 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
         self.assertTrue(
             experiment1.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.ACCEPTED,
+                old_status=NimbusExperiment.Status.DRAFT,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
                 new_status=NimbusExperiment.Status.LIVE,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).exists()
         )
 
         self.assertFalse(
             experiment2.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.ACCEPTED,
+                old_status=NimbusExperiment.Status.DRAFT,
                 new_status=NimbusExperiment.Status.LIVE,
             ).exists()
         )
@@ -493,8 +504,8 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
             NimbusExperiment.Status.DRAFT,
         )
 
-        self.assertEqual(experiment1.changes.count(), 4)
-        self.assertEqual(experiment2.changes.count(), 4)
+        self.assertEqual(experiment1.changes.count(), 2)
+        self.assertEqual(experiment2.changes.count(), 2)
         self.assertEqual(experiment3.changes.count(), 1)
 
         self.setup_kinto_get_main_records([experiment1.slug])
@@ -552,7 +563,7 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
             proposed_duration=10,
         )
         experiment.changes.filter(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
 
@@ -693,7 +704,7 @@ class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
         launch_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.ACCEPTED,
+            old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
         launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)

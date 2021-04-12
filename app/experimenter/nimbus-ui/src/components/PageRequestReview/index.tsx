@@ -15,6 +15,7 @@ import { getStatus } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   ExperimentInput,
+  NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment as UpdateExperiment } from "../../types/updateExperiment";
@@ -97,19 +98,19 @@ const PageRequestReview = ({
   ] = useMemo(
     () =>
       [
-        NimbusExperimentStatus.PREVIEW,
-        NimbusExperimentStatus.DRAFT,
-        NimbusExperimentStatus.REVIEW,
-      ].map((status: NimbusExperimentStatus) => async () => {
+        { status: NimbusExperimentStatus.PREVIEW },
+        { status: NimbusExperimentStatus.DRAFT },
+        {
+          status: NimbusExperimentStatus.DRAFT,
+          publishStatus: NimbusExperimentPublishStatus.APPROVED,
+        },
+      ].map((changes: Partial<ExperimentInput>) => async () => {
         try {
           setSubmitError(null);
 
           const result = await updateExperiment({
             variables: {
-              input: {
-                id: currentExperiment.current!.id,
-                status,
-              },
+              input: { id: currentExperiment.current!.id, ...changes },
             },
           });
 
@@ -143,7 +144,7 @@ const PageRequestReview = ({
           return `edit/${review.invalidPages[0] || "overview"}?show-errors`;
         }
 
-        if (status.released) {
+        if (status.launched) {
           // Return to the experiment root/summary page
           return "";
         }
@@ -162,7 +163,7 @@ const PageRequestReview = ({
               </Alert>
             )}
 
-            {status.draft && (
+            {status.draft && status.idle && (
               <ChangeApprovalOperations
                 {...{
                   actionDescription: "launch",
@@ -199,7 +200,7 @@ const PageRequestReview = ({
               </ChangeApprovalOperations>
             )}
 
-            {status.review && (
+            {(status.draft || status.preview) && !status.idle && (
               <Alert
                 data-testid="submit-success"
                 variant="success"
@@ -211,7 +212,7 @@ const PageRequestReview = ({
                 </p>
               </Alert>
             )}
-            {status.preview && (
+            {status.preview && status.idle && (
               <FormLaunchPreviewToReview
                 {...{
                   isLoading,

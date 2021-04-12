@@ -135,12 +135,10 @@ export enum NimbusExperimentPublishStatus {
 }
 
 export enum NimbusExperimentStatus {
-  ACCEPTED = "ACCEPTED",
   COMPLETE = "COMPLETE",
   DRAFT = "DRAFT",
   LIVE = "LIVE",
   PREVIEW = "PREVIEW",
-  REVIEW = "REVIEW",
 }
 
 export enum NimbusExperimentTargetingConfigSlug {
