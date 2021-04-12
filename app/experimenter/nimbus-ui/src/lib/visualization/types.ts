@@ -4,8 +4,8 @@
 
 export interface AnalysisData {
   daily: AnalysisPoint[] | null;
-  weekly: { [branch: string]: BranchDescription } | null;
-  overall: { [branch: string]: BranchDescription } | null;
+  weekly: { [branch: string]: BranchDescription };
+  overall: { [branch: string]: BranchDescription };
   show_analysis: boolean;
   metadata?: Metadata;
   other_metrics?: { [metric: string]: string };
