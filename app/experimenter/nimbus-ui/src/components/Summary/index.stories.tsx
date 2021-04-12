@@ -99,9 +99,10 @@ const SubjectEXP1143 = ({
     status: NimbusExperimentStatus.LIVE,
   });
   const mutationMock = mockExperimentMutation(
-    END_EXPERIMENT_MUTATION,
+    UPDATE_EXPERIMENT_MUTATION,
     {
       id: experiment.id!,
+      isEndRequested: true,
     },
     "endExperiment",
   );
