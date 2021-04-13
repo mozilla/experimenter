@@ -57,7 +57,7 @@ jobs:
             ./scripts/store_git_info.sh
             make publish_storybooks
 
-  integration_legacy:
+  integration:
     machine:
       docker_layer_caching: true
       image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
@@ -78,28 +78,6 @@ jobs:
             make refresh
             make up_prod_detached
             make integration_test_legacy
-  
-  integration_nimbus:
-    machine:
-      docker_layer_caching: true
-      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
-    resource_class: xlarge
-    working_directory: ~/experimenter
-    steps:
-      - run:
-          name: Docker info
-          command: docker -v
-      - run:
-          name: Docker compose info
-          command: docker-compose -v
-      - checkout
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.sample .env
-            make refresh
-            make up_prod_detached
-            make integration_test_nimbus
 
   deploy:
     working_directory: ~/experimenter
@@ -133,14 +111,6 @@ workflows:
             - build
       - integration_legacy:
           name: integration_legacy
-          requires:
-            - build
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus:
-          name: integration_nimbus
           requires:
             - build
           filters:
