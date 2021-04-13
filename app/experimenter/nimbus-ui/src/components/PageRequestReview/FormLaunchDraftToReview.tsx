@@ -29,7 +29,7 @@ const FormLaunchDraftToReview = ({
   );
 
   return (
-    <Alert variant="warning">
+    <Alert variant="secondary">
       <Form className="text-body">
         <p className="my-1">
           <span className="text-danger">

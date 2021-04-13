@@ -19,7 +19,7 @@ const FormLaunchDraftToPreview = ({
   onLaunchWithoutPreview: () => void;
 }) => {
   return (
-    <Alert variant="warning">
+    <Alert variant="secondary">
       <Form className="text-body">
         <p>
           Do you want to test this experiment before launching to production?{" "}
