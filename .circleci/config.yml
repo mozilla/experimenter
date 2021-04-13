@@ -109,8 +109,8 @@ workflows:
           name: publish_storybooks
           requires:
             - build
-      - integration_legacy:
-          name: integration_legacy
+      - integration:
+          name: integration
           requires:
             - build
           filters:
