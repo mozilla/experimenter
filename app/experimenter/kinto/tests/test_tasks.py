@@ -168,14 +168,14 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         )
         pending_experiment = NimbusExperiment.objects.get(slug=pending_experiment.slug)
         self.assertEqual(
-            pending_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+            pending_experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
         )
         self.assertTrue(
             pending_experiment.changes.filter(
                 old_status=NimbusExperiment.Status.DRAFT,
                 old_publish_status=NimbusExperiment.PublishStatus.WAITING,
                 new_status=NimbusExperiment.Status.DRAFT,
-                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
             ).exists()
         )
 
@@ -236,14 +236,14 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         )
         pending_experiment = NimbusExperiment.objects.get(slug=pending_experiment.slug)
         self.assertEqual(
-            pending_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+            pending_experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
         )
         self.assertTrue(
             pending_experiment.changes.filter(
                 old_status=NimbusExperiment.Status.LIVE,
                 old_publish_status=NimbusExperiment.PublishStatus.WAITING,
                 new_status=NimbusExperiment.Status.LIVE,
-                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
             ).exists()
         )
 

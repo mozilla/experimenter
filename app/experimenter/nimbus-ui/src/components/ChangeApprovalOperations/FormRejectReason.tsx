@@ -10,7 +10,7 @@ import { FormProvider } from "react-hook-form";
 import { useCommonForm } from "../../hooks";
 import { REQUIRED_FIELD } from "../../lib/constants";
 
-export const rejectReasonFieldNames = ["reason"];
+export const rejectReasonFieldNames = ["changelogMessage"];
 type RejectReasonFieldNames = typeof rejectReasonFieldNames[number];
 
 const FormRejectReason = ({
@@ -19,7 +19,7 @@ const FormRejectReason = ({
   onCancel,
 }: {
   isLoading: boolean;
-  onSubmit: (fields: { reason: string }) => void;
+  onSubmit: (event: any, fields: { changelogMessage: string }) => void;
   onCancel: () => void;
 }) => {
   const isServerValid = true;
@@ -28,7 +28,7 @@ const FormRejectReason = ({
   const setSubmitErrors = () => {};
 
   const defaultValues = {
-    reason: "",
+    changelogMessage: "",
   };
   type DefaultValues = typeof defaultValues;
 
@@ -37,7 +37,6 @@ const FormRejectReason = ({
     formControlAttrs,
     formMethods,
     handleSubmit,
-    isValid,
   } = useCommonForm<RejectReasonFieldNames>(
     defaultValues,
     isServerValid,
@@ -46,7 +45,7 @@ const FormRejectReason = ({
   );
 
   const handleSubmitClick = handleSubmit(
-    (data: DefaultValues) => !isLoading && onSubmit(data),
+    (data: DefaultValues) => !isLoading && onSubmit(null, data),
   );
 
   return (
@@ -57,21 +56,21 @@ const FormRejectReason = ({
             <strong>You are rejecting this review.</strong> Please add some
             comments:
           </p>
-          <Form.Group controlId="reason">
+          <Form.Group controlId="changelogMessage">
             <Form.Control
-              {...formControlAttrs("reason", REQUIRED_FIELD)}
+              {...formControlAttrs("changelogMessage", REQUIRED_FIELD)}
               as="textarea"
               data-testid="reject-reason"
               rows={4}
             />
-            <FormErrors name="reason" />
+            <FormErrors name="changelogMessage" />
           </Form.Group>
           <div className="d-flex bd-highlight">
             <div>
               <Button
                 data-testid="reject-submit"
                 className="mr-2 btn btn-danger"
-                disabled={isLoading || !isValid}
+                disabled={isLoading}
                 onClick={handleSubmitClick}
               >
                 Reject

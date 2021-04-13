@@ -7,7 +7,11 @@ import { storiesOf } from "@storybook/react";
 import React from "react";
 import Summary from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
+import {
+  mockChangelog,
+  mockExperimentMutation,
+  mockExperimentQuery,
+} from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
@@ -15,7 +19,6 @@ import {
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
 import AppLayout from "../AppLayout";
-import { mockChangelog } from "../ChangeApprovalOperations/mocks";
 
 storiesOf("components/Summary", module)
   .add("draft status", () => {
@@ -93,9 +96,13 @@ const Subject = ({
 );
 
 const SubjectEXP1143 = ({
+  publishStatus = NimbusExperimentPublishStatus.IDLE,
   ...props
-}: Partial<React.ComponentProps<typeof Summary>>) => {
+}: {
+  publishStatus?: getExperiment_experimentBySlug["publishStatus"];
+} & Partial<React.ComponentProps<typeof Summary>>) => {
   const { experiment } = mockExperimentQuery("demo-slug", {
+    publishStatus,
     status: NimbusExperimentStatus.LIVE,
   });
   const mutationMock = mockExperimentMutation(
@@ -121,6 +128,7 @@ storiesOf("components/Summary/EXP-1143; end experiment review flow", module)
   .add("review requested, user can review", () => (
     <SubjectEXP1143
       {...{
+        publishStatus: NimbusExperimentPublishStatus.REVIEW,
         reviewRequestEvent: mockChangelog(),
         canReview: true,
       }}
@@ -129,8 +137,8 @@ storiesOf("components/Summary/EXP-1143; end experiment review flow", module)
   .add("review pending in Remote Rettings, user can review", () => (
     <SubjectEXP1143
       {...{
+        publishStatus: NimbusExperimentPublishStatus.WAITING,
         reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
         canReview: true,
       }}
     />
@@ -138,8 +146,8 @@ storiesOf("components/Summary/EXP-1143; end experiment review flow", module)
   .add("review timed out in Remote Settings, user can review", () => (
     <SubjectEXP1143
       {...{
+        publishStatus: NimbusExperimentPublishStatus.REVIEW,
         reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
         timeoutEvent: mockChangelog("ghi@mozilla.com"),
         canReview: true,
       }}
@@ -148,6 +156,7 @@ storiesOf("components/Summary/EXP-1143; end experiment review flow", module)
   .add("review requested, user cannot review", () => (
     <SubjectEXP1143
       {...{
+        publishStatus: NimbusExperimentPublishStatus.REVIEW,
         reviewRequestEvent: mockChangelog(),
         canReview: false,
       }}
@@ -156,8 +165,8 @@ storiesOf("components/Summary/EXP-1143; end experiment review flow", module)
   .add("review pending in Remote Settings, user cannot review", () => (
     <SubjectEXP1143
       {...{
+        publishStatus: NimbusExperimentPublishStatus.WAITING,
         reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
         canReview: false,
       }}
     />
@@ -165,8 +174,8 @@ storiesOf("components/Summary/EXP-1143; end experiment review flow", module)
   .add("review timed out in Remote Settings, user cannot review", () => (
     <SubjectEXP1143
       {...{
+        publishStatus: NimbusExperimentPublishStatus.REVIEW,
         reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
         timeoutEvent: mockChangelog("ghi@mozilla.com"),
         canReview: false,
       }}
@@ -175,8 +184,8 @@ storiesOf("components/Summary/EXP-1143; end experiment review flow", module)
   .add("review rejected", () => (
     <SubjectEXP1143
       {...{
+        publishStatus: NimbusExperimentPublishStatus.IDLE,
         reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
         rejectionEvent: mockChangelog(
           "ghi@mozilla.com",
           "Not ready to end yet, having too much fun.",

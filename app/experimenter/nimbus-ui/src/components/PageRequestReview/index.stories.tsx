@@ -3,134 +3,89 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { withLinks } from "@storybook/addon-links";
-import { storiesOf } from "@storybook/react";
 import React from "react";
 import PageRequestReview from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
-import { mockChangelog } from "../ChangeApprovalOperations/mocks";
-import { mock, Subject, SubjectEXP1143 } from "./mocks";
+import {
+  mock,
+  reviewPendingBaseProps,
+  reviewRejectedBaseProps,
+  reviewRequestedBaseProps,
+  reviewTimedoutBaseProps,
+  Subject,
+} from "./mocks";
 
-storiesOf("pages/RequestReview", module)
-  .addDecorator(withLinks)
-  .add("draft status", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
-    });
+const storyWithExperimentProps = (
+  props: Partial<getExperiment_experimentBySlug | null>,
+  storyName?: string,
+) => {
+  const story = () => {
+    const { mock } = mockExperimentQuery("demo-slug", props);
     return <Subject {...{ mocks: [mock] }} />;
-  })
-  .add("preview status", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.PREVIEW,
-    });
-    return <Subject {...{ mocks: [mock] }} />;
-  })
-  .add("preview status + approved publish status", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.PREVIEW,
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
-    });
-    return <Subject {...{ mocks: [mock] }} />;
-  })
-  .add("preview status + publish status waiting", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.PREVIEW,
-      publishStatus: NimbusExperimentPublishStatus.WAITING,
-    });
-    return <Subject {...{ mocks: [mock] }} />;
-  })
-  .add("review status", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      publishStatus: NimbusExperimentPublishStatus.REVIEW,
-    });
-    return <Subject {...{ mocks: [mock] }} />;
-  })
-  .add("non-reviewable", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      publishStatus: NimbusExperimentPublishStatus.WAITING,
-    });
-    return <Subject {...{ mocks: [mock] }} />;
-  })
-  .add("error", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <PageRequestReview polling={false} />
-    </RouterSlugProvider>
-  ));
+  };
+  story.storyName = storyName;
+  return story;
+};
 
-storiesOf(
-  "pages/RequestReview/EXP-1143; end experiment review refactor",
-  module,
-)
-  .addDecorator(withLinks)
-  .add("review not requested", () => <SubjectEXP1143 />)
-  .add("review requested, user can review", () => (
-    <SubjectEXP1143
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        canReview: true,
-      }}
-    />
-  ))
-  .add("review pending in Remote Rettings, user can review", () => (
-    <SubjectEXP1143
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
-        canReview: true,
-      }}
-    />
-  ))
-  .add("review timed out in Remote Settings, user can review", () => (
-    <SubjectEXP1143
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
-        timeoutEvent: mockChangelog("ghi@mozilla.com"),
-        canReview: true,
-      }}
-    />
-  ))
-  .add("review requested, user cannot review", () => (
-    <SubjectEXP1143
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        canReview: false,
-      }}
-    />
-  ))
-  .add("review pending in Remote Settings, user cannot review", () => (
-    <SubjectEXP1143
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
-        canReview: false,
-      }}
-    />
-  ))
-  .add("review timed out in Remote Settings, user cannot review", () => (
-    <SubjectEXP1143
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
-        timeoutEvent: mockChangelog("ghi@mozilla.com"),
-        canReview: false,
-      }}
-    />
-  ))
-  .add("review rejected", () => (
-    <SubjectEXP1143
-      {...{
-        reviewRequestEvent: mockChangelog(),
-        approvalEvent: mockChangelog("def@mozilla.com"),
-        rejectionEvent: mockChangelog(
-          "ghi@mozilla.com",
-          "It's bad. Just start over.",
-        ),
-        canReview: true,
-      }}
-    />
-  ));
+export default {
+  title: "pages/RequestReview",
+  component: Subject,
+  decorators: [withLinks],
+};
+
+export const draftStatus = storyWithExperimentProps({
+  status: NimbusExperimentStatus.DRAFT,
+  publishStatus: NimbusExperimentPublishStatus.IDLE,
+});
+
+export const previewStatus = storyWithExperimentProps({
+  status: NimbusExperimentStatus.PREVIEW,
+  publishStatus: NimbusExperimentPublishStatus.IDLE,
+});
+
+export const reviewRequestedCanReview = storyWithExperimentProps(
+  { ...reviewRequestedBaseProps, canReview: true },
+  "Review requested, user can review",
+);
+
+export const reviewPendingCanReview = storyWithExperimentProps(
+  { ...reviewPendingBaseProps, canReview: true },
+  "Review pending in Remote Rettings, user can review",
+);
+
+export const reviewTimedoutCanReview = storyWithExperimentProps(
+  { ...reviewTimedoutBaseProps, canReview: true },
+  "Review timed out in Remote Settings, user can review",
+);
+
+export const reviewRequestedCannotReview = storyWithExperimentProps(
+  { ...reviewRequestedBaseProps, canReview: false },
+  "Review requested, user cannot review",
+);
+
+export const reviewPendingCannotReview = storyWithExperimentProps(
+  { ...reviewPendingBaseProps, canReview: false },
+  "Review pending in Remote Rettings, user cannot review",
+);
+
+export const reviewTimedoutCannotReview = storyWithExperimentProps(
+  { ...reviewTimedoutBaseProps, canReview: false },
+  "Review timed out in Remote Settings, user cannot review",
+);
+
+export const reviewRejected = storyWithExperimentProps(
+  reviewRejectedBaseProps,
+  "Review rejected",
+);
+
+export const error = () => (
+  <RouterSlugProvider mocks={[mock]}>
+    <PageRequestReview polling={false} />
+  </RouterSlugProvider>
+);

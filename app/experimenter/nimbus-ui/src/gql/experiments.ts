@@ -100,6 +100,27 @@ export const GET_EXPERIMENT_QUERY = gql`
 
       isEnrollmentPaused
       enrollmentEndDate
+
+      canReview
+      reviewRequest {
+        changedOn
+        changedBy {
+          email
+        }
+      }
+      rejection {
+        message
+        changedOn
+        changedBy {
+          email
+        }
+      }
+      timeout {
+        changedOn
+        changedBy {
+          email
+        }
+      }
     }
   }
 `;
