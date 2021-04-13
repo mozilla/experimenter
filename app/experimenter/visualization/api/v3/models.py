@@ -29,6 +29,42 @@ class Statistic:
     COUNT = "count"
 
 
+SEARCH_METRICS = [
+    "searches_with_ads",
+    "search_count",  # Remove this when above is done.
+    "organic_search_count",
+    "tagged_follow_on_search_count",
+    "tagged_search_count",
+]
+USAGE_METRICS = [
+    "uri_count",
+    "active_hours",
+]
+GROUPED_METRICS = [
+    # TODO: Once front-end changes are done, give this a try...
+    # {
+    #     "name": "guardrails",
+    #     "metrics": [
+    #         "days_of_use",
+    #         "retained",
+    #         "search_count",
+    #     ]
+    # },
+    {
+        "name": "search_metrics",
+        "metrics": SEARCH_METRICS,
+    },
+    {
+        "name": "usage_metrics",
+        "metrics": USAGE_METRICS,
+    },
+]
+METRIC_GROUP = {}
+for group in GROUPED_METRICS:
+    for metric in group["metrics"]:
+        METRIC_GROUP[metric] = group["name"]
+
+
 class JetstreamDataPoint(BaseModel):
     lower: float = None
     upper: float = None
@@ -151,11 +187,17 @@ class ResultsObjectModelBase(BaseModel):
                 branch_obj.is_control = experiment.reference_branch.slug == branch
 
                 if metric == Metric.USER_COUNT and statistic == Statistic.PERCENT:
-                    user_count_data = getattr(branch_obj.branch_data, Metric.USER_COUNT)
+                    user_count_data = getattr(
+                        branch_obj.branch_data.other, Metric.USER_COUNT
+                    )
                     user_count_data.percent = data_point.point
                     continue
 
-                metric_data = getattr(branch_obj.branch_data, metric)
+                metric_data = getattr(
+                    getattr(branch_obj.branch_data, METRIC_GROUP.get(metric, "other")),
+                    metric,
+                )
+
                 if (
                     branch_comparison == BranchComparison.DIFFERENCE
                     and data_point.has_bounds()
@@ -178,9 +220,12 @@ class ResultsObjectModelBase(BaseModel):
             branch = getattr(self, branch_name)
             branch_data = branch.branch_data
             for primary_metric in primary_metrics_set:
-                user_count_data = getattr(branch_data, Metric.USER_COUNT)
+                user_count_data = getattr(branch_data.other, Metric.USER_COUNT)
                 absolute_user_counts = getattr(user_count_data, BranchComparison.ABSOLUTE)
-                primary_metric_data = getattr(branch_data, primary_metric)
+                primary_metric_data = getattr(
+                    getattr(branch_data, METRIC_GROUP.get(primary_metric, "other")),
+                    primary_metric,
+                )
                 absolute_primary_metric_vals = getattr(
                     primary_metric_data, BranchComparison.ABSOLUTE
                 )
@@ -220,16 +265,36 @@ def create_results_object_model(data):
             significance=SignificanceData(),
         )
 
-    # Create BranchData model which is dependent on metrics
+    search_data = {k: v for k, v in metrics.items() if k in SEARCH_METRICS}
+    usage_data = {k: v for k, v in metrics.items() if k in USAGE_METRICS}
+    other_data = {
+        k: v for k, v in metrics.items() if k not in SEARCH_METRICS + USAGE_METRICS
+    }
+
+    # Dynamically create our grouped models which are dependent on metrics
     # available for a given experiment
-    BranchData = create_model("BranchData", **metrics)
+    SearchData = create_model("SearchData", **search_data)
+    UsageData = create_model("UsageData", **usage_data)
+    OtherData = create_model("OtherData", **other_data)
+
+    class BranchData(BaseModel):
+        search_metrics: SearchData
+        usage_metrics: UsageData
+        other: OtherData
 
     class Branch(BaseModel):
         is_control: bool = False
         branch_data: BranchData
 
     for branch in branches:
-        branches[branch] = Branch(is_control=False, branch_data=BranchData())
+        branches[branch] = Branch(
+            is_control=False,
+            branch_data=BranchData(
+                search_metrics=SearchData(),
+                usage_metrics=UsageData(),
+                other=OtherData(),
+            ),
+        )
 
     # Create ResultsObjectModel model which is dependent on
     # branches available for a given experiment
