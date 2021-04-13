@@ -47,11 +47,10 @@ class TestVisualizationView(TestCase):
         json_data = json.loads(response.content)
         self.assertEqual(
             {
-                "daily": [],
-                "metadata": [],
-                "weekly": {},
-                "overall": {},
-                "other_metrics": {},
+                "daily": None,
+                "metadata": None,
+                "weekly": None,
+                "overall": None,
                 "show_analysis": False,
             },
             json_data,
