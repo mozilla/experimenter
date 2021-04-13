@@ -6,7 +6,6 @@ from django.urls import reverse
 from graphene.utils.str_converters import to_snake_case
 from graphene_django.utils.testing import GraphQLTestCase
 
-from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
@@ -361,14 +360,10 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_in_review_can_review(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.REVIEW
         )
 
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
         response = self.query(
             """
             query experimentBySlug($slug: String!) {
@@ -414,18 +409,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_with_approval(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.APPROVED
         )
-
-        for publish_status in (
-            NimbusExperiment.PublishStatus.REVIEW,
-            NimbusExperiment.PublishStatus.APPROVED,
-        ):
-            experiment.publish_status = publish_status
-            experiment.save()
-            generate_nimbus_changelog(experiment, experiment.owner)
 
         response = self.query(
             """
@@ -479,18 +465,13 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_with_rejection(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
-        )
-
-        for publish_status in (
-            NimbusExperiment.PublishStatus.REVIEW,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
             NimbusExperiment.PublishStatus.IDLE,
-        ):
-            experiment.publish_status = publish_status
-            experiment.save()
-            generate_nimbus_changelog(experiment, experiment.owner)
+            extra_transitions=[
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+            ],
+        )
 
         response = self.query(
             """
@@ -543,14 +524,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_with_review_request(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.REVIEW,
         )
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
 
         response = self.query(
             """
@@ -576,13 +552,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_without_timeout_returns_none(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.WAITING,
         )
-        experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
 
         response = self.query(
             """
@@ -606,17 +578,13 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_with_timeout_returns_changelog(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.APPROVED,
+            extra_transitions=[
+                NimbusExperiment.PublishStatus.WAITING,
+                NimbusExperiment.PublishStatus.REVIEW,
+            ],
         )
-        experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
 
         response = self.query(
             """

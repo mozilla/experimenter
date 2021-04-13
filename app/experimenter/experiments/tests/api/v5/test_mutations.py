@@ -479,8 +479,8 @@ class TestMutations(GraphQLTestCase):
 
     def test_update_experiment_publish_status(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.IDLE,
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -499,9 +499,8 @@ class TestMutations(GraphQLTestCase):
 
     def test_reject_draft_experiment(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.REVIEW,
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,

@@ -971,15 +971,10 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.bucket_range.count, 5000)
 
     def test_publish_status_generates_bucket_allocation(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.REVIEW,
             population_percent=Decimal("50.0"),
         )
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
 
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=experiment).exists())
 
@@ -1178,15 +1173,9 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
 
     def test_can_review_for_non_requesting_user(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.REVIEW,
         )
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-
-        generate_nimbus_changelog(experiment, experiment.owner)
 
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1203,13 +1192,9 @@ class TestNimbusExperimentSerializer(TestCase):
         )
 
     def test_cant_review_for_requesting_user(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.REVIEW,
         )
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
 
         generate_nimbus_changelog(experiment, experiment.owner)
 
@@ -1225,12 +1210,9 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("publish_status", serializer.errors)
 
     def test_can_review_for_requesting_user_when_idle(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.IDLE,
         )
-
-        generate_nimbus_changelog(experiment, experiment.owner)
 
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1243,15 +1225,9 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_can_update_publish_status_for_non_approved_state(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.REVIEW,
         )
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-
-        generate_nimbus_changelog(experiment, experiment.owner)
 
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1435,8 +1411,8 @@ class TestNimbusStatusTransitionValidator(TestCase):
         )
 
     def test_update_publish_status_from_approved_to_review_error(self):
-        experiment = NimbusExperimentFactory.create(
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.APPROVED,
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1460,8 +1436,8 @@ class TestNimbusStatusValidationMixin(TestCase):
         self.user = UserFactory()
 
     def test_update_experiment_publish_status_while_in_preview(self):
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.PREVIEW,
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.PREVIEW,
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1487,8 +1463,8 @@ class TestNimbusStatusValidationMixin(TestCase):
         self.assertIn("experiment", serializer.errors)
 
     def test_update_experiment_with_invalid_publish_status_error(self):
-        experiment = NimbusExperimentFactory.create(
-            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.REVIEW,
         )
         serializer = NimbusExperimentSerializer(
             experiment,

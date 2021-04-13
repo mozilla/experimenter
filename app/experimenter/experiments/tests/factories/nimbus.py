@@ -142,6 +142,31 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
         return NimbusExperiment.objects.get(id=experiment.id)
 
+    @classmethod
+    def create_with_publish_status(cls, target_publish_status, **kwargs):
+        extra_transitions = kwargs.pop("extra_transitions", [])
+        experiment = cls.create(**kwargs)
+
+        for publish_status, _ in NimbusExperiment.PublishStatus.choices:
+            experiment.publish_status = publish_status
+            experiment.save()
+
+            if experiment.should_allocate_bucket_range:
+                experiment.allocate_bucket_range()
+
+            generate_nimbus_changelog(experiment, experiment.owner)
+
+            if publish_status == target_publish_status:
+                break
+
+        for publish_status in extra_transitions:
+            experiment.publish_status = publish_status.value
+            experiment.save()
+
+            generate_nimbus_changelog(experiment, experiment.owner)
+
+        return NimbusExperiment.objects.get(id=experiment.id)
+
 
 class NimbusBranchFactory(factory.django.DjangoModelFactory):
     ratio = 1
