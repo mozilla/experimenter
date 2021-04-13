@@ -270,7 +270,10 @@ class NimbusExperiment(NimbusConstants, models.Model):
         )
 
     def can_review(self, reviewer):
-        if self.publish_status == NimbusExperiment.PublishStatus.REVIEW:
+        if self.publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.WAITING,
+        ):
             review_request = self.changes.latest_review_request()
             return review_request and review_request.changed_by != reviewer
         return False
@@ -436,10 +439,25 @@ class NimbusChangeLogManager(models.Manager):
         return (
             self.all()
             .filter(
-                old_status=NimbusExperiment.Status.DRAFT,
+                Q(old_status=NimbusExperiment.Status.DRAFT)
+                | Q(old_status=NimbusExperiment.Status.PREVIEW),
+            )
+            .filter(
                 old_publish_status=NimbusExperiment.PublishStatus.IDLE,
                 new_status=NimbusExperiment.Status.DRAFT,
                 new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            )
+            .order_by("-changed_on")
+        ).first()
+
+    def latest_review_approval(self):
+        return (
+            self.all()
+            .filter(
+                old_status=NimbusExperiment.Status.DRAFT,
+                old_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+                new_status=NimbusExperiment.Status.DRAFT,
+                new_publish_status=NimbusExperiment.PublishStatus.APPROVED,
             )
             .order_by("-changed_on")
         ).first()

@@ -448,7 +448,6 @@ class TestNimbusExperiment(TestCase):
         [
             NimbusExperiment.PublishStatus.IDLE,
             NimbusExperiment.PublishStatus.APPROVED,
-            NimbusExperiment.PublishStatus.WAITING,
         ]
     )
     def test_can_review_false_for_non_review_publish_status(self, publish_status):
@@ -673,6 +672,29 @@ class TestNimbusChangeLogManager(TestCase):
         second_request = generate_nimbus_changelog(experiment, experiment.owner)
 
         self.assertEqual(experiment.changes.latest_review_request(), second_request)
+
+    def test_latest_approval_returns_none_for_no_approval(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        self.assertIsNone(experiment.changes.latest_review_approval())
+
+    def test_latest_approval_returns_approval_for_review_to_approved(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            last_change = generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertEqual(experiment.changes.latest_review_approval(), last_change)
 
     def test_latest_rejection_returns_none_for_no_rejection(self):
         experiment = NimbusExperimentFactory.create_with_status(
