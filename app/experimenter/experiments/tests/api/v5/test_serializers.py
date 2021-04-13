@@ -1141,6 +1141,26 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("primary_outcomes", serializer.errors)
 
+    def test_can_request_review_from_preview(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.PREVIEW,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.DRAFT.value,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW.value,
+            },
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
     def test_can_review_for_non_requesting_user(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
