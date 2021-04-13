@@ -75,14 +75,14 @@ const EndExperiment = ({
   return (
     <div className="mb-4" data-testid="experiment-end">
       {isEnding ? (
-        <Alert variant="warning" data-testid="experiment-ended-alert">
+        <Alert variant="secondary" data-testid="experiment-ended-alert">
           Users will no longer see the experiment once ending is approved in
           Remote Settings, and is in &quot;Complete&quot; state.
         </Alert>
       ) : (
         <>
           {showEndConfirmation ? (
-            <Alert variant="warning" data-testid="end-experiment-alert">
+            <Alert variant="secondary" data-testid="end-experiment-alert">
               <p>
                 Are you sure you want to end your experiment? It will turn off
                 the experiment for all users in production.
