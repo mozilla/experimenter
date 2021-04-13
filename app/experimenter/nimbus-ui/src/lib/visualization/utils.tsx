@@ -8,9 +8,7 @@ import { AnalysisData } from "./types";
 // `show_analysis` is the feature flag for turning visualization on/off.
 // `overall` will be `null` if the analysis isn't available yet.
 export const analysisAvailable = (analysis: AnalysisData | undefined) =>
-  analysis?.show_analysis === true &&
-  (Object.keys(analysis?.overall).length > 0 ||
-    Object.keys(analysis?.weekly).length > 0);
+  analysis?.show_analysis && (analysis?.overall || analysis?.weekly);
 
 export const analysisUnavailable = (analysis: AnalysisData | undefined) =>
   analysis && !analysisAvailable(analysis);
