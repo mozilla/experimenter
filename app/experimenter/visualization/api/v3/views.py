@@ -22,11 +22,8 @@ METADATA_FOLDER = "metadata"
 
 
 def load_data_from_gcs(path):
-    return (
-        json.loads(default_storage.open(path).read())
-        if default_storage.exists(path)
-        else []
-    )
+    if default_storage.exists(path):
+        return json.loads(default_storage.open(path).read())
 
 
 def get_results_metrics_map(data, primary_outcomes, secondary_outcomes):
@@ -111,7 +108,9 @@ def analysis_results_view(request, slug):
     }
 
     for window in windows:
-        data = raw_data[window] = JetstreamData(__root__=get_data(recipe_slug, window))
+        data = raw_data[window] = JetstreamData(
+            __root__=(get_data(recipe_slug, window) or [])
+        )
         result_metrics, primary_metrics_set, other_metrics = get_results_metrics_map(
             data, experiment.primary_outcomes, experiment.secondary_outcomes
         )
@@ -130,6 +129,8 @@ def analysis_results_view(request, slug):
             ResultsObjectModel = create_results_object_model(data)
             data = ResultsObjectModel(result_metrics, data, experiment, window)
 
-        experiment_data[window] = data.dict(exclude_none=True)
+        response_data = data.dict(exclude_none=True) or None
+
+        experiment_data[window] = response_data
 
     return Response(experiment_data)
