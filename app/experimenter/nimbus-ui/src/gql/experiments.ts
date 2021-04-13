@@ -23,14 +23,6 @@ export const UPDATE_EXPERIMENT_MUTATION = gql`
   }
 `;
 
-export const END_EXPERIMENT_MUTATION = gql`
-  mutation endExperiment($input: ExperimentIdInput!) {
-    endExperiment(input: $input) {
-      message
-    }
-  }
-`;
-
 export const GET_EXPERIMENT_QUERY = gql`
   query getExperiment($slug: String!) {
     experimentBySlug(slug: $slug) {

@@ -5,7 +5,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import EndExperiment from ".";
-import { END_EXPERIMENT_MUTATION } from "../../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../../gql/experiments";
 import { getStatus } from "../../../lib/experiment";
 import {
   MockedCache,
@@ -89,15 +89,16 @@ const Subject = ({
   const mocks = [];
   if (withEndMock) {
     const mock = mockExperimentMutation(
-      END_EXPERIMENT_MUTATION,
+      UPDATE_EXPERIMENT_MUTATION,
       {
         id: experiment.id!,
+        isEndRequested: true,
       },
-      "endExperiment",
+      "updateExperiment",
     );
 
     if (withMockedError) {
-      mock.result.data["endExperiment"].message = "No can do";
+      mock.result.data["updateExperiment"].message = "No can do";
     }
 
     mocks.push(mock);
