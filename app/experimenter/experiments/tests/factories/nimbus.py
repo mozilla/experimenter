@@ -266,3 +266,10 @@ class NimbusChangeLogFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusChangeLog
+
+
+def transition_publish_status(experiment, target_publish_status, reviewer=None):
+    experiment.publish_status = target_publish_status
+    experiment.save()
+    user = reviewer if reviewer else experiment.owner
+    return generate_nimbus_changelog(experiment, user)

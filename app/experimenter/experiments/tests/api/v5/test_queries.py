@@ -382,9 +382,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_no_approval_data(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.IDLE,
         )
 
         response = self.query(
@@ -438,9 +437,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_no_rejection_data(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.IDLE,
         )
 
         response = self.query(
@@ -497,9 +495,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_no_review_request_data(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_publish_status(
+            NimbusExperiment.PublishStatus.IDLE,
         )
 
         response = self.query(
