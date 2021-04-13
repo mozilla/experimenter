@@ -15,14 +15,6 @@ input DocumentationLinkType {
   link: String!
 }
 
-type EndExperiment {
-  message: ObjectField
-}
-
-input ExperimentIdInput {
-  id: Int
-}
-
 input ExperimentInput {
   id: Int
   status: NimbusExperimentStatus
@@ -45,6 +37,8 @@ input ExperimentInput {
   proposedEnrollment: String
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
   totalEnrolledClients: Int
+  isEndRequested: Boolean
+  changelogMessage: String
 }
 
 scalar JSONString
@@ -52,7 +46,6 @@ scalar JSONString
 type Mutation {
   createExperiment(input: ExperimentInput!): CreateExperiment
   updateExperiment(input: ExperimentInput!): UpdateExperiment
-  endExperiment(input: ExperimentIdInput!): EndExperiment
 }
 
 type NimbusBranchType {

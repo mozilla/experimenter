@@ -452,8 +452,6 @@ class NimbusChangeLogManager(models.Manager):
                 | Q(old_publish_status=NimbusExperiment.PublishStatus.WAITING),
             )
             .filter(
-                old_status=NimbusExperiment.Status.DRAFT,
-                new_status=NimbusExperiment.Status.DRAFT,
                 new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             )
             .order_by("-changed_on")

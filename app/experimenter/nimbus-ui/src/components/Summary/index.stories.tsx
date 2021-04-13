@@ -6,7 +6,7 @@ import { MockedResponse } from "@apollo/client/testing";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import Summary from ".";
-import { END_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -33,7 +33,7 @@ storiesOf("components/Summary", module)
       status: NimbusExperimentStatus.LIVE,
     });
     const mutationMock = mockExperimentMutation(
-      END_EXPERIMENT_MUTATION,
+      UPDATE_EXPERIMENT_MUTATION,
       {
         id: experiment.id!,
       },
@@ -99,9 +99,10 @@ const SubjectEXP1143 = ({
     status: NimbusExperimentStatus.LIVE,
   });
   const mutationMock = mockExperimentMutation(
-    END_EXPERIMENT_MUTATION,
+    UPDATE_EXPERIMENT_MUTATION,
     {
       id: experiment.id!,
+      isEndRequested: true,
     },
     "endExperiment",
   );
