@@ -71,8 +71,15 @@ class NimbusExperimentAdmin(admin.ModelAdmin):
         NimbusBranchInlineAdmin,
         NimbusExperimentChangeLogInlineAdmin,
     )
-    list_display = ("name", "status", "application", "channel", "firefox_min_version")
-    list_filter = ("status", "application")
+    list_display = (
+        "name",
+        "status",
+        "publish_status",
+        "application",
+        "channel",
+        "firefox_min_version",
+    )
+    list_filter = ("status", "publish_status", "application")
     prepopulated_fields = {"slug": ("name",)}
     form = NimbusExperimentAdminForm
 
