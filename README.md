@@ -251,7 +251,7 @@ ipdb.set_trace()
 Then invoke the test using its full path:
 
 ```sh
-./manage.py experimenter.some_module.tests.some_test_file.SomeTestClass.test_some_thing
+./manage.py test experimenter.some_module.tests.some_test_file.SomeTestClass.test_some_thing
 ```
 
 And you will enter an interactive iPython shell at the point where you placed the ipdb snippet, allowing you to introspect variables and call methods
