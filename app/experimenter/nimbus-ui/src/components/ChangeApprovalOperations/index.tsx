@@ -109,6 +109,7 @@ export const ChangeApprovalOperations: React.FC<
           {...{
             isLoading,
             onConfirm: startRemoteSettingsApproval,
+            actionDescription,
           }}
         />
       );
@@ -127,15 +128,15 @@ export const ChangeApprovalOperations: React.FC<
         <>
           <Alert variant="warning" data-testid="rejection-notice">
             <div className="text-body">
-              <p>
+              <p className="mb-2">
                 The request to {actionDescription} this experiment was{" "}
                 <strong>Rejected</strong> due to:
               </p>
-              <p className="mb-0">
+              <p className="mb-2">
                 {rejectionEvent!.changedBy!.email} on{" "}
                 {humanDate(rejectionEvent!.changedOn!)}:
               </p>
-              <p className="bg-white rounded border p-3">
+              <p className="bg-white rounded border p-2 mb-0">
                 {rejectionEvent!.message}
               </p>
             </div>
