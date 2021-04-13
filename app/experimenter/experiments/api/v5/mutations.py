@@ -13,10 +13,9 @@
 """
 import graphene
 
-from experimenter.experiments.api.v5.inputs import ExperimentIdInput, ExperimentInput
+from experimenter.experiments.api.v5.inputs import ExperimentInput
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.api.v5.types import NimbusExperimentType, ObjectField
-from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.models import NimbusExperiment
 
 
@@ -66,37 +65,8 @@ class UpdateExperiment(graphene.Mutation):
         return handle_with_serializer(cls, serializer)
 
 
-class EndExperiment(graphene.Mutation):
-    message = ObjectField()
-
-    class Arguments:
-        input = ExperimentIdInput(required=True)
-
-    @classmethod
-    def mutate(cls, root, info, input: ExperimentIdInput):
-        experiment = NimbusExperiment.objects.get(id=input.id)
-
-        if experiment.status == NimbusExperiment.Status.LIVE:
-            experiment.is_end_requested = True
-            experiment.save()
-            generate_nimbus_changelog(experiment, info.context.user)
-            msg = "success"
-        else:
-            msg = (
-                f"Nimbus Experiment has status '{experiment.status}', but can only "
-                "be ended when set to 'Live'."
-            )
-
-        return cls(
-            message=msg,
-        )
-
-
 class Mutation(graphene.ObjectType):
     create_experiment = CreateExperiment.Field(
         description="Create a new Nimbus Experiment."
     )
     update_experiment = UpdateExperiment.Field(description="Update a Nimbus Experiment.")
-    end_experiment = EndExperiment.Field(
-        description="Request the end of a Nimbus Experiment."
-    )

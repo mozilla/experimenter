@@ -62,3 +62,5 @@ class ExperimentInput(graphene.InputObjectType):
     proposed_enrollment = graphene.String()
     targeting_config_slug = NimbusExperimentTargetingConfigSlug()
     total_enrolled_clients = graphene.Int()
+    is_end_requested = graphene.Boolean()
+    changelog_message = graphene.String()

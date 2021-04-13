@@ -902,7 +902,45 @@ class TestNimbusExperimentSerializer(TestCase):
         else:
             self.assertNotIn("population_percent", serializer.errors)
 
-    def test_name_change_with_live_status(self):
+    @parameterized.expand(
+        [
+            [NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.PREVIEW],
+            [NimbusExperiment.Status.PREVIEW, NimbusExperiment.Status.DRAFT],
+        ]
+    )
+    def test_valid_status_update(self, from_status, to_status):
+        experiment = NimbusExperimentFactory(status=from_status)
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={"status": to_status},
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.status, to_status)
+
+    def test_status_with_invalid_target_status(self):
+        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={"status": NimbusExperiment.Status.COMPLETE},
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "status": [
+                    "Nimbus Experiment status cannot transition from Draft to Complete."
+                ]
+            },
+            serializer.errors,
+        )
+
+    def test_status_restriction(self):
         experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.LIVE)
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -911,29 +949,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertEqual(experiment.changes.count(), 0)
         self.assertFalse(serializer.is_valid())
-        self.assert_(
-            serializer.errors["experiment"][0].startswith("Nimbus Experiment has status")
-        )
-
-    def test_name_change_with_preview_status(self):
-        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.PREVIEW)
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            data={"name": "new name"},
-            context={"user": self.user},
-        )
-        self.assertEqual(experiment.changes.count(), 0)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors,
-            {
-                "experiment": [
-                    "Nimbus Experiment has status 'Preview', only status "
-                    "can be changed."
-                ]
-            },
-            serializer.errors,
-        )
+        self.assertIn("experiment", serializer.errors)
 
     def test_status_generates_bucket_allocation(self):
         experiment = NimbusExperimentFactory.create_with_status(
@@ -1448,10 +1464,7 @@ class TestNimbusStatusValidationMixin(TestCase):
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["experiment"][0],
-            "Nimbus Experiment has status 'Preview', only status can be changed.",
-        )
+        self.assertIn("experiment", serializer.errors)
 
     def test_update_experiment_with_invalid_publish_status_error(self):
         experiment = NimbusExperimentFactory.create(
@@ -1465,10 +1478,4 @@ class TestNimbusStatusValidationMixin(TestCase):
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["experiment"][0],
-            (
-                "Nimbus Experiment has publish_status 'Review', only "
-                "publish_status can be changed."
-            ),
-        )
+        self.assertIn("experiment", serializer.errors)

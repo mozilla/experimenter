@@ -5,14 +5,14 @@
 import { useMutation } from "@apollo/client";
 import React, { useCallback, useState } from "react";
 import { Alert, Button } from "react-bootstrap";
-import { END_EXPERIMENT_MUTATION } from "../../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "../../../gql/experiments";
 import { SUBMIT_ERROR } from "../../../lib/constants";
-import { endExperiment_endExperiment as EndExperimentResult } from "../../../types/endExperiment";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import {
-  ExperimentIdInput,
+  ExperimentInput,
   NimbusExperimentStatus,
 } from "../../../types/globalTypes";
+import { updateExperiment_updateExperiment as UpdateExperimentEndResult } from "../../../types/updateExperiment";
 
 const EndExperiment = ({
   experiment,
@@ -28,9 +28,9 @@ const EndExperiment = ({
     endRequested;
 
   const [endExperiment, { loading: endExperimentLoading }] = useMutation<
-    { endExperiment: EndExperimentResult },
-    { input: ExperimentIdInput }
-  >(END_EXPERIMENT_MUTATION);
+    { updateExperiment: UpdateExperimentEndResult },
+    { input: ExperimentInput }
+  >(UPDATE_EXPERIMENT_MUTATION);
 
   const toggleShowEndConfirmation = useCallback(
     () => setShowEndConfirmation(!showEndConfirmation),
@@ -43,13 +43,14 @@ const EndExperiment = ({
         variables: {
           input: {
             id: experiment.id,
+            isEndRequested: true,
           },
         },
       });
 
       if (
-        !result.data?.endExperiment ||
-        result.data.endExperiment.message !== "success"
+        !result.data?.updateExperiment ||
+        result.data.updateExperiment.message !== "success"
       ) {
         throw new Error(SUBMIT_ERROR);
       }
