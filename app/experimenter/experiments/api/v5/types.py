@@ -138,6 +138,7 @@ class NimbusExperimentType(DjangoObjectType):
     secondary_outcomes = graphene.List(graphene.String)
     ready_for_review = graphene.Field(NimbusReadyForReviewType)
     monitoring_dashboard_url = graphene.String()
+    results_ready = graphene.Boolean()
     start_date = graphene.DateTime()
     computed_end_date = graphene.DateTime()
     is_enrollment_paused = graphene.Boolean()
