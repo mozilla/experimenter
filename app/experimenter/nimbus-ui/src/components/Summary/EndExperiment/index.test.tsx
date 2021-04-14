@@ -13,7 +13,10 @@ import {
   mockExperimentQuery,
 } from "../../../lib/mocks";
 import { getExperiment } from "../../../types/getExperiment";
-import { NimbusExperimentStatus } from "../../../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../../types/globalTypes";
 
 describe("EndExperiment", () => {
   it("displays the end button when experiment is live", async () => {
@@ -93,6 +96,7 @@ const Subject = ({
       {
         id: experiment.id!,
         isEndRequested: true,
+        publishStatus: NimbusExperimentPublishStatus.APPROVED,
       },
       "updateExperiment",
     );

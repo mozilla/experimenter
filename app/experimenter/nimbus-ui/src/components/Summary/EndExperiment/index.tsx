@@ -10,6 +10,7 @@ import { SUBMIT_ERROR } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import {
   ExperimentInput,
+  NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../../types/globalTypes";
 import { updateExperiment_updateExperiment as UpdateExperimentEndResult } from "../../../types/updateExperiment";
@@ -44,6 +45,7 @@ const EndExperiment = ({
           input: {
             id: experiment.id,
             isEndRequested: true,
+            publishStatus: NimbusExperimentPublishStatus.APPROVED,
           },
         },
       });
