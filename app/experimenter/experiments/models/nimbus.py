@@ -38,12 +38,16 @@ class NimbusExperimentManager(models.Manager):
     def end_queue(self, application):
         return self.filter(
             status=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             application=application,
             is_end_requested=True,
         )
 
-    def waiting_queue(self):
-        return self.filter(publish_status=NimbusExperiment.PublishStatus.WAITING)
+    def waiting_to_launch_queue(self):
+        return self.filter(
+            status=NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        )
 
 
 class NimbusExperiment(NimbusConstants, models.Model):
@@ -119,6 +123,9 @@ class NimbusExperiment(NimbusConstants, models.Model):
 
     def get_absolute_url(self):
         return reverse("nimbus-detail", kwargs={"slug": self.slug})
+
+    def has_state(self, state):
+        return type(self).objects.filter(id=self.id).filter(state).exists()
 
     @property
     def experiment_url(self):
