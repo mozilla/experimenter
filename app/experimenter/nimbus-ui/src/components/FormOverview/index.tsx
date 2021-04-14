@@ -307,6 +307,7 @@ const FormOverview = ({
                 data-testid="next-button"
                 onClick={handleSaveNext}
                 className="btn btn-secondary"
+                id="save-and-continue-button"
                 disabled={isLoading}
                 data-sb-kind="pages/EditBranches"
               >
@@ -320,6 +321,7 @@ const FormOverview = ({
               type="submit"
               onClick={handleSave}
               className="btn btn-primary"
+              id="submit-button"
               disabled={isLoading}
               data-sb-kind="pages/EditOverview"
             >
@@ -332,7 +334,11 @@ const FormOverview = ({
           </div>
           {onCancel && (
             <div className="p-2">
-              <button onClick={handleCancel} className="btn btn-light">
+              <button
+                onClick={handleCancel}
+                className="btn btn-light"
+                id="cancel-button"
+              >
                 Cancel
               </button>
             </div>
