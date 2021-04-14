@@ -194,6 +194,7 @@ const FormMetrics = ({
           <button
             onClick={handleSaveNext}
             data-testid="next-button"
+            id="save-and-continue-button"
             className="btn btn-secondary"
             disabled={isLoading}
             data-sb-kind="pages/EditMetrics"
@@ -207,6 +208,7 @@ const FormMetrics = ({
             type="submit"
             onClick={handleSave}
             className="btn btn-primary"
+            id="save-button"
             disabled={isLoading}
             data-sb-kind="pages/EditMetrics"
           >
