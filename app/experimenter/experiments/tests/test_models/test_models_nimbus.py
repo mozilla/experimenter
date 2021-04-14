@@ -469,6 +469,28 @@ class TestNimbusExperiment(TestCase):
 
         self.assertTrue(experiment.can_review(UserFactory.create()))
 
+    def test_results_ready_true(self):
+        experiment = NimbusExperimentFactory.create()
+
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=datetime.date(2019, 5, 1),
+        )
+        self.assertTrue(experiment.results_ready)
+
+    def test_results_ready_false(self):
+        experiment = NimbusExperimentFactory.create()
+
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=datetime.date.today() - datetime.timedelta(days=2),
+        )
+        self.assertFalse(experiment.results_ready)
+
     @parameterized.expand(
         [
             NimbusExperiment.PublishStatus.IDLE,

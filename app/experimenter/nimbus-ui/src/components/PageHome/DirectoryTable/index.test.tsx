@@ -179,7 +179,7 @@ describe("DirectoryLiveTable", () => {
       getProposedEnrollmentRange(experiment) as string,
       humanDate(experiment.computedEndDate!),
       "Grafana",
-      "Results",
+      experiment.resultsReady ? "Results" : "N/A",
     ]);
   });
 });

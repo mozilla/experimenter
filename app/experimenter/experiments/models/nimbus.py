@@ -285,6 +285,16 @@ class NimbusExperiment(NimbusConstants, models.Model):
             return review_request and review_request.changed_by != reviewer
         return False
 
+    # Results are available if enrollment is complete and
+    # more than a week has passed after that.
+    @property
+    def results_ready(self):
+        if self.proposed_enrollment_end_date:
+            resultsReadyDate = self.proposed_enrollment_end_date + datetime.timedelta(
+                days=NimbusConstants.DAYS_UNTIL_ANALYSIS
+            )
+            return datetime.date.today() >= resultsReadyDate
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
