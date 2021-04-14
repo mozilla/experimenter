@@ -30,7 +30,9 @@ class NimbusExperimentChangeLogInlineAdmin(admin.TabularInline):
         "changed_by",
         "changed_on",
         "old_status",
+        "old_publish_status",
         "new_status",
+        "new_publish_status",
         "message",
     )
 
