@@ -2,6 +2,7 @@ import datetime
 from decimal import Decimal
 
 from django.conf import settings
+from django.db.models import Q
 from django.test import TestCase
 from django.utils import timezone
 from parameterized import parameterized_class
@@ -48,6 +49,7 @@ class TestNimbusExperimentManager(TestCase):
     def test_end_queue_returns_ending_experiments_with_correct_application(self):
         experiment1 = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
             is_end_requested=True,
             application=NimbusExperiment.Application.DESKTOP,
         )
@@ -119,6 +121,29 @@ class TestNimbusExperimentManager(TestCase):
                 NimbusExperiment.objects.pause_queue(NimbusExperiment.Application.DESKTOP)
             ),
             [experiment1],
+        )
+
+    def test_waiting_to_launch_only_returns_launching_experiments(self):
+        launching = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        )
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            is_end_requested=True,
+        )
+
+        self.assertEqual(
+            list(NimbusExperiment.objects.waiting_to_launch_queue()), [launching]
         )
 
 
@@ -492,6 +517,34 @@ class TestNimbusExperiment(TestCase):
 
         # Timeout should be the latest changelog entry.
         self.assertEqual(experiment.changes.latest_timeout(), experiment.latest_change())
+
+    def test_has_state_true(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        )
+        self.assertTrue(
+            experiment.has_state(
+                Q(
+                    status=NimbusExperiment.Status.DRAFT,
+                    publish_status=NimbusExperiment.PublishStatus.WAITING,
+                )
+            )
+        )
+
+    def test_has_state_false(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        )
+        self.assertFalse(
+            experiment.has_state(
+                Q(
+                    status=NimbusExperiment.Status.DRAFT,
+                    publish_status=NimbusExperiment.PublishStatus.IDLE,
+                )
+            )
+        )
 
 
 class TestNimbusBranch(TestCase):

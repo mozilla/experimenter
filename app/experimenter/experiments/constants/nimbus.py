@@ -3,6 +3,7 @@ from typing import Dict
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 
 @dataclass
@@ -193,6 +194,15 @@ class NimbusConstants(object):
         "publish_status",
         "is_end_requested",
     )
+
+    # State Predicates
+    IS_LAUNCHING = Q(status=Status.DRAFT, publish_status=PublishStatus.WAITING)
+    IS_ENDING = Q(
+        status=Status.LIVE,
+        publish_status=PublishStatus.WAITING,
+        is_end_requested=True,
+    )
+    SHOULD_TIMEOUT = Q(IS_LAUNCHING | IS_ENDING)
 
     class Application(models.TextChoices):
         DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
