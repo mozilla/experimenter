@@ -141,7 +141,7 @@ const AppLayoutWithExperiment = ({
         experiment,
       }}
     >
-      <section data-testid={testId}>
+      <section data-testid={testId} id={testId}>
         <Head
           title={title ? `${experiment.name} – ${title}` : experiment.name}
         />

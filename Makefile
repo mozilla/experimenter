@@ -145,13 +145,16 @@ integration_build: build_prod ssl
 	$(COMPOSE_INTEGRATION) build
 
 integration_shell: integration_build
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox bash
+	$(COMPOSE_INTEGRATION) run firefox bash
 
 integration_vnc_up: integration_build
-	$(COMPOSE_INTEGRATION) up firefox
+	$(COMPOSE_INTEGRATION) up
 
 integration_vnc_up_detached: integration_build
 	$(COMPOSE_INTEGRATION) up -d firefox
 
-integration_test: integration_build
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -- -n 4"
+integration_test_legacy: integration_build
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-legacy -- -n 4"
+
+integration_test_nimbus: integration_build
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus -- -n 4"
