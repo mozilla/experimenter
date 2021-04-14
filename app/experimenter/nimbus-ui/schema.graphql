@@ -296,6 +296,7 @@ type NimbusExperimentType {
   jexlTargetingExpression: String
   readyForReview: NimbusReadyForReviewType
   monitoringDashboardUrl: String
+  resultsReady: Boolean
   startDate: DateTime
   computedEndDate: DateTime
   isEnrollmentPaused: Boolean
