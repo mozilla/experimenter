@@ -51,6 +51,34 @@ export interface getExperiment_experimentBySlug_documentationLinks {
   link: string;
 }
 
+export interface getExperiment_experimentBySlug_reviewRequest_changedBy {
+  email: string;
+}
+
+export interface getExperiment_experimentBySlug_reviewRequest {
+  changedOn: DateTime;
+  changedBy: getExperiment_experimentBySlug_reviewRequest_changedBy;
+}
+
+export interface getExperiment_experimentBySlug_rejection_changedBy {
+  email: string;
+}
+
+export interface getExperiment_experimentBySlug_rejection {
+  message: string | null;
+  changedOn: DateTime;
+  changedBy: getExperiment_experimentBySlug_rejection_changedBy;
+}
+
+export interface getExperiment_experimentBySlug_timeout_changedBy {
+  email: string;
+}
+
+export interface getExperiment_experimentBySlug_timeout {
+  changedOn: DateTime;
+  changedBy: getExperiment_experimentBySlug_timeout_changedBy;
+}
+
 export interface getExperiment_experimentBySlug {
   id: number | null;
   name: string;
@@ -84,6 +112,10 @@ export interface getExperiment_experimentBySlug {
   documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
   isEnrollmentPaused: boolean | null;
   enrollmentEndDate: DateTime | null;
+  canReview: boolean | null;
+  reviewRequest: getExperiment_experimentBySlug_reviewRequest | null;
+  rejection: getExperiment_experimentBySlug_rejection | null;
+  timeout: getExperiment_experimentBySlug_timeout | null;
 }
 
 export interface getExperiment {

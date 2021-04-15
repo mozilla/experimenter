@@ -4,7 +4,7 @@
 
 import React from "react";
 import Badge from "react-bootstrap/Badge";
-import { useConfig, useFakeMutation } from "../../hooks";
+import { useFakeMutation } from "../../hooks";
 import { ReactComponent as ExternalIcon } from "../../images/external.svg";
 import { getStatus } from "../../lib/experiment";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
@@ -30,13 +30,10 @@ const Summary = ({
   /* istanbul ignore next until EXP-1143 & EXP-1144 done */
   reviewRequestEvent,
   /* istanbul ignore next until EXP-1143 & EXP-1144 done */
-  approvalEvent,
-  /* istanbul ignore next until EXP-1143 & EXP-1144 done */
   rejectionEvent,
   /* istanbul ignore next until EXP-1143 & EXP-1144 done */
   timeoutEvent,
 }: SummaryProps) => {
-  const { featureFlags } = useConfig();
   const status = getStatus(experiment);
   const branchCount = [
     experiment.referenceBranch,
@@ -68,6 +65,8 @@ const Summary = ({
     rejectExperimentEndLoading ||
     startRemoteSettingsApprovalLoading;
 
+  const { publishStatus } = experiment;
+
   return (
     <div data-testid="summary">
       <h2 className="h5 mb-3">
@@ -81,11 +80,10 @@ const Summary = ({
         <ChangeApprovalOperations
           {...{
             actionDescription: "end",
-            featureFlags,
             isLoading,
+            publishStatus,
             canReview,
             reviewRequestEvent,
-            approvalEvent,
             rejectionEvent,
             timeoutEvent,
             rejectChange: rejectExperimentEnd,

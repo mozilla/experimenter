@@ -7,9 +7,7 @@ export function getDefault() {
     graphql_url: "",
     sentry_dsn: "",
     version: "",
-    featureFlags: {
-      exp1055ReviewFlow: false,
-    },
+    featureFlags: {},
   };
 }
 

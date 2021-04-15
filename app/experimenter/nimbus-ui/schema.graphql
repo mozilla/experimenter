@@ -113,6 +113,7 @@ type NimbusConfigurationType {
   hypothesisDefault: String
   maxPrimaryOutcomes: Int
   documentationLink: [NimbusLabelValueType]
+  kintoAdminUrl: String
 }
 
 enum NimbusDocumentationLinkTitle {
@@ -303,7 +304,6 @@ type NimbusExperimentType {
   enrollmentEndDate: DateTime
   canReview: Boolean
   reviewRequest: NimbusChangeLogType
-  reviewApproval: NimbusChangeLogType
   rejection: NimbusChangeLogType
   timeout: NimbusChangeLogType
 }

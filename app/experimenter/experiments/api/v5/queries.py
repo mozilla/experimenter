@@ -1,4 +1,5 @@
 import graphene
+from django.conf import settings
 
 from experimenter.experiments.api.v5.types import (
     NimbusExperimentType,
@@ -25,6 +26,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     hypothesis_default = graphene.String()
     max_primary_outcomes = graphene.Int()
     documentation_link = graphene.List(NimbusLabelValueType)
+    kinto_admin_url = graphene.String()
 
     def _text_choices_to_label_value_list(root, text_choices):
         return [
@@ -61,6 +63,9 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_documentation_link(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.DocumentationLink)
+
+    def resolve_kinto_admin_url(root, info):
+        return settings.KINTO_ADMIN_URL
 
 
 class Query(graphene.ObjectType):

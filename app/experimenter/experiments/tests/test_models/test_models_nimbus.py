@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db.models import Q
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
@@ -491,6 +491,24 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertFalse(experiment.results_ready)
 
+    @parameterized.expand([(settings.DEV_USER_EMAIL, True), ("jdoe@mozilla.org", False)])
+    @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
+    def test_can_review_for_requesting_user_if_dev_user_and_setting_enabled(
+        self, email, is_allowed
+    ):
+        user = UserFactory.create(email=email)
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            owner=user,
+        )
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertEqual(experiment.can_review(user), is_allowed)
+
     @parameterized.expand(
         [
             NimbusExperiment.PublishStatus.IDLE,
@@ -747,29 +765,6 @@ class TestNimbusChangeLogManager(TestCase):
         second_request = generate_nimbus_changelog(experiment, experiment.owner)
 
         self.assertEqual(experiment.changes.latest_review_request(), second_request)
-
-    def test_latest_approval_returns_none_for_no_approval(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
-        )
-        self.assertIsNone(experiment.changes.latest_review_approval())
-
-    def test_latest_approval_returns_approval_for_review_to_approved(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
-        )
-
-        for publish_status in (
-            NimbusExperiment.PublishStatus.REVIEW,
-            NimbusExperiment.PublishStatus.APPROVED,
-        ):
-            experiment.publish_status = publish_status
-            experiment.save()
-            last_change = generate_nimbus_changelog(experiment, experiment.owner)
-
-        self.assertEqual(experiment.changes.latest_review_approval(), last_change)
 
     def test_latest_rejection_returns_none_for_no_rejection(self):
         experiment = NimbusExperimentFactory.create_with_status(
