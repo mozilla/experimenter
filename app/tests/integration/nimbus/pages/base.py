@@ -25,8 +25,8 @@ class Base(Page):
 
     def save_btn(self):
         self.find_element(*self._save_btn_locator).click()
-        time.sleep(1) 
-        
+        time.sleep(1)
+
     def next_btn(self):
         pass
 

@@ -1,6 +1,5 @@
 from nimbus.pages.base import Base
 from nimbus.pages.new_experiment import NewExperiment
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -32,7 +31,7 @@ class OverviewPage(Base):
     def public_description(self, text=None):
         name = self.find_element(*self._public_description_locator)
         name.send_keys(f"{text}")
-    
+
     @property
     def risk_mitigation(self):
         return self.find_element(*self._risk_mitigation_locator).text

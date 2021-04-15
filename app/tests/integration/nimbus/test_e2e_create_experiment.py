@@ -1,7 +1,6 @@
 import random
 
 import pytest
-
 from nimbus.pages.home import HomePage
 
 
@@ -34,4 +33,3 @@ def test_create_new_experiment(selenium, base_url):
     audience.save_btn()
     audience.save_and_continue()
     selenium.find_element_by_css_selector("#PageRequestReview")
-
