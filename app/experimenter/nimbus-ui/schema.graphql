@@ -308,18 +308,12 @@ type NimbusExperimentType {
   timeout: NimbusChangeLogType
 }
 
-enum NimbusFeatureConfigApplication {
-  FIREFOX_DESKTOP
-  FENIX
-  IOS
-}
-
 type NimbusFeatureConfigType {
   id: ID!
   name: String!
   slug: String!
   description: String
-  application: NimbusFeatureConfigApplication
+  application: NimbusExperimentApplication
   ownerEmail: String
   schema: String
   nimbusexperimentSet: [NimbusExperimentType!]!

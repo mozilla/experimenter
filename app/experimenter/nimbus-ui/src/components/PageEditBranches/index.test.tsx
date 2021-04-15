@@ -20,7 +20,7 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   ExperimentInput,
-  NimbusFeatureConfigApplication,
+  NimbusExperimentApplication,
 } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment } from "../../types/updateExperiment";
 import FormBranches from "./FormBranches";
@@ -42,7 +42,9 @@ describe("PageEditBranches", () => {
   });
 
   it("renders as expected with experiment data", async () => {
-    const { mock } = mockExperimentQuery("demo-slug");
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplication.FENIX,
+    });
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
       expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
@@ -56,17 +58,13 @@ describe("PageEditBranches", () => {
     );
 
     for (const feature of MOCK_CONFIG!.featureConfig!) {
-      const { slug } = feature!;
-      expect(screen.getByText(slug)).toBeInTheDocument();
-    }
-
-    // Assert that non of the feature configs that don't belong to our application are available
-    for (const feature of MOCK_CONFIG!.featureConfig!.filter(
-      (config) =>
-        config?.application === NimbusFeatureConfigApplication.FIREFOX_DESKTOP,
-    )) {
-      const { slug } = feature!;
-      expect(screen.queryByText(slug)).not.toBeInTheDocument();
+      const { slug, application } = feature!;
+      const configEl = screen.queryByText(slug);
+      if (application === experiment!.application) {
+        expect(configEl).toBeInTheDocument();
+      } else {
+        expect(configEl).not.toBeInTheDocument();
+      }
     }
   });
 

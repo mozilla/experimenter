@@ -9,7 +9,7 @@ import React from "react";
 import PageEditBranches from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-import { NimbusFeatureConfigApplication } from "../../types/globalTypes";
+import { NimbusExperimentApplication } from "../../types/globalTypes";
 
 const { mock } = mockExperimentQuery("demo-slug", {
   featureConfig: {
@@ -17,7 +17,7 @@ const { mock } = mockExperimentQuery("demo-slug", {
     name: "Mauris odio erat",
     slug: "mauris-odio-erat",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    application: NimbusFeatureConfigApplication.FENIX,
+    application: NimbusExperimentApplication.FENIX,
     ownerEmail: "dude23@yahoo.com",
     schema: '{ "sample": "schema" }',
   },
