@@ -51,6 +51,9 @@ class TestConstants:
         VARIANT_DATA_ROW = DATA_IDENTITY_ROW.copy()
         VARIANT_DATA_ROW.branch = "variant"
 
+        SEGMENTED_ROW = VARIANT_DATA_ROW.copy()
+        SEGMENTED_ROW.segment = "some_segment"
+
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.metric = "some_count"
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
@@ -87,6 +90,7 @@ class TestConstants:
         DAILY_DATA = [
             CONTROL_DATA_ROW.dict(exclude_none=True),
             VARIANT_DATA_ROW.dict(exclude_none=True),
+            SEGMENTED_ROW.dict(exclude_none=True),
             VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
             VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
             VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
@@ -109,7 +113,7 @@ class TestConstants:
         ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
         ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
-        ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = 50.0
+        ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = 33.0
 
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL = cls.get_difference_metric_data(
             DATA_POINT_B, SignificanceData(weekly={"1": Significance.NEUTRAL}, overall={})
