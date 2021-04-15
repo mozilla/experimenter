@@ -1,7 +1,7 @@
 """Base page."""
 import time
 
-from pypom import Page, Region
+from pypom import Page
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
