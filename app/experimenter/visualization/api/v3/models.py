@@ -29,6 +29,10 @@ class Statistic:
     COUNT = "count"
 
 
+class Segment:
+    ALL = "all"
+
+
 class JetstreamDataPoint(BaseModel):
     lower: float = None
     upper: float = None
@@ -38,6 +42,7 @@ class JetstreamDataPoint(BaseModel):
     statistic: str = None
     window_index: str = None
     comparison: str = None
+    segment: str = Segment.ALL
 
 
 class JetstreamData(BaseModel):
@@ -132,9 +137,13 @@ class ResultsObjectModelBase(BaseModel):
         super(ResultsObjectModelBase, self).__init__()
 
         for jetstream_data_point in data:
+            if jetstream_data_point.segment != Segment.ALL:
+                continue
+
             branch = jetstream_data_point.branch
             metric = jetstream_data_point.metric
             statistic = jetstream_data_point.statistic
+
             branch_comparison = (
                 BranchComparison.ABSOLUTE
                 if jetstream_data_point.comparison is None
