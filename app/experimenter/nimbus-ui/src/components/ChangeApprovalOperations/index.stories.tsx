@@ -5,10 +5,17 @@
 import { action } from "@storybook/addon-actions";
 import { withLinks } from "@storybook/addon-links";
 import React from "react";
+import { mockChangelog } from "../../lib/mocks";
 import FormApproveOrReject from "./FormApproveOrReject";
 import FormRejectReason from "./FormRejectReason";
 import FormRemoteSettingsPending from "./FormRemoteSettingsPending";
-import { BaseSubject, mockChangelog } from "./mocks";
+import {
+  BaseSubject,
+  reviewPendingInRemoteSettingsBaseProps,
+  reviewRejectedBaseProps,
+  reviewRequestedBaseProps,
+  reviewTimedOutBaseProps,
+} from "./mocks";
 
 const Subject = ({
   rejectChange = action("rejectChange"),
@@ -35,80 +42,71 @@ export default {
   ],
 };
 
-export const ReviewNotRequested = () => <Subject />;
+const storyWithProps = (
+  props?: React.ComponentProps<typeof Subject>,
+  storyName?: string,
+) => {
+  const story = () => <Subject {...props} />;
+  if (storyName) story.storyName = storyName;
+  return story;
+};
 
-export const ReviewRequestedUserCanReview = () => (
-  <Subject
-    {...{
-      reviewRequestEvent: mockChangelog(),
-      canReview: true,
-    }}
-  />
+export const ReviewNotRequested = storyWithProps({}, "Review not requested");
+
+export const ReviewRequestedUserCanReview = storyWithProps(
+  {
+    ...reviewRequestedBaseProps,
+    canReview: true,
+  },
+  "Review requested, user can review",
 );
 
-export const ReviewPendingInRemoteSettingsUserCanReview = () => (
-  <Subject
-    {...{
-      reviewRequestEvent: mockChangelog(),
-      approvalEvent: mockChangelog("def@mozilla.com"),
-      canReview: true,
-    }}
-  />
+export const ReviewPendingInRemoteSettingsUserCanReview = storyWithProps(
+  {
+    ...reviewPendingInRemoteSettingsBaseProps,
+    canReview: true,
+  },
+  "Review pending in Remote Settings, user can review",
 );
 
-export const ReviewTimedOutInRemoteSettingsUserCanReview = () => (
-  <Subject
-    {...{
-      reviewRequestEvent: mockChangelog(),
-      approvalEvent: mockChangelog("def@mozilla.com"),
-      timeoutEvent: mockChangelog("ghi@mozilla.com"),
-      canReview: true,
-    }}
-  />
+export const ReviewTimedOutInRemoteSettingsUserCanReview = storyWithProps(
+  {
+    ...reviewTimedOutBaseProps,
+    canReview: true,
+  },
+  "Review timed out in Remote Settings, user can review",
 );
 
-export const ReviewRequestedUserCannotReview = () => (
-  <Subject
-    {...{
-      reviewRequestEvent: mockChangelog(),
-      canReview: false,
-    }}
-  />
+export const ReviewRejectedInExperimenterOrRemoteSettings = storyWithProps(
+  {
+    ...reviewRejectedBaseProps,
+    canReview: true,
+  },
+  "Review rejected",
 );
 
-export const ReviewPendingInRemoteSettingsUserCannotReview = () => (
-  <Subject
-    {...{
-      reviewRequestEvent: mockChangelog(),
-      approvalEvent: mockChangelog("def@mozilla.com"),
-      canReview: false,
-    }}
-  />
+export const ReviewRequestedUserCannotReview = storyWithProps(
+  {
+    ...reviewRequestedBaseProps,
+    canReview: false,
+  },
+  "Review requested, user cannot review",
 );
 
-export const ReviewTimedOutInRemoteSettingsUserCannotReview = () => (
-  <Subject
-    {...{
-      reviewRequestEvent: mockChangelog(),
-      approvalEvent: mockChangelog("def@mozilla.com"),
-      timeoutEvent: mockChangelog("ghi@mozilla.com"),
-      canReview: false,
-    }}
-  />
+export const ReviewPendingInRemoteSettingsUserCannotReview = storyWithProps(
+  {
+    ...reviewPendingInRemoteSettingsBaseProps,
+    canReview: false,
+  },
+  "Review pending in Remote Settings, user cannot review",
 );
 
-export const ReviewRejectedInExperimenterOrRemoteSettings = () => (
-  <Subject
-    {...{
-      reviewRequestEvent: mockChangelog(),
-      approvalEvent: mockChangelog("def@mozilla.com"),
-      rejectionEvent: mockChangelog(
-        "ghi@mozilla.com",
-        "It's bad. Just start over.",
-      ),
-      canReview: true,
-    }}
-  />
+export const ReviewTimedOutInRemoteSettingsUserCannotReview = storyWithProps(
+  {
+    ...reviewTimedOutBaseProps,
+    canReview: false,
+  },
+  "Review timed out in Remote Settings, user cannot review",
 );
 
 export const FormApproveOrRejectStory = () => (
@@ -123,6 +121,7 @@ export const FormApproveOrRejectStory = () => (
     }}
   />
 );
+
 export const FormRejectReasonStory = () => (
   <FormRejectReason
     {...{

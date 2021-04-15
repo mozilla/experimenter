@@ -30,6 +30,7 @@ import { getConfig_nimbusConfig } from "../types/getConfig";
 import {
   getExperiment,
   getExperiment_experimentBySlug,
+  getExperiment_experimentBySlug_rejection_changedBy,
 } from "../types/getExperiment";
 import {
   ExperimentInput,
@@ -159,6 +160,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
   ],
   maxPrimaryOutcomes: 2,
+  kintoAdminUrl: "https://kinto.example.com/v1/admin/",
 };
 
 // Disabling this rule for now because we'll eventually
@@ -520,3 +522,22 @@ export function mockOutcomeSets(
     secondaryOutcomes: pairOutcomes(experiment.secondaryOutcomes),
   };
 }
+
+// HACK: treat rejection as the superset changelog type since we don't
+// actually have the generic type in auto-generated types
+export type NimbusChangeLog = getExperiment_experimentBySlug["rejection"];
+export type NimbusUser = getExperiment_experimentBySlug_rejection_changedBy;
+
+export const mockUser = (email = "abc@mozilla.com"): NimbusUser => ({
+  email,
+});
+
+export const mockChangelog = (
+  email = "abc@mozilla.com",
+  message: string | null = null,
+  changedOn: DateTime = new Date().toISOString(),
+): NimbusChangeLog => ({
+  changedBy: mockUser(email),
+  changedOn,
+  message,
+});

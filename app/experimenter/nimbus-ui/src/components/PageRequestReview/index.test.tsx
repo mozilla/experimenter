@@ -13,14 +13,16 @@ import {
 import fetchMock from "jest-fetch-mock";
 import React from "react";
 import { BASE_PATH } from "../../lib/constants";
-import { mockExperimentQuery } from "../../lib/mocks";
+import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
 import {
+  createFullStatusMutationMock,
   createPublishStatusMutationMock,
   createStatusMutationMock,
+  reviewRequestedBaseProps,
   Subject,
 } from "./mocks";
 
@@ -30,8 +32,26 @@ jest.mock("@reach/router", () => ({
 }));
 
 describe("PageRequestReview", () => {
+  const origError = global.console.error;
+  const origWindowOpen = global.window.open;
+
+  let mockError: any;
+  let mockWindowOpen: any;
+
   beforeAll(() => {
     fetchMock.enableMocks();
+  });
+
+  beforeEach(() => {
+    mockError = jest.fn();
+    mockWindowOpen = jest.fn();
+    global.console.error = mockError;
+    global.window.open = mockWindowOpen;
+  });
+
+  afterEach(() => {
+    global.console.error = origError;
+    global.window.open = origWindowOpen;
   });
 
   afterAll(() => {
@@ -156,7 +176,11 @@ describe("PageRequestReview", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createStatusMutationMock(experiment.id!);
+    const mutationMock = createFullStatusMutationMock(
+      experiment.id!,
+      NimbusExperimentStatus.DRAFT,
+      NimbusExperimentPublishStatus.REVIEW,
+    );
     render(<Subject mocks={[mock, mutationMock]} />);
     await launchFromDraftToReview();
   });
@@ -215,18 +239,53 @@ describe("PageRequestReview", () => {
     await act(async () => void fireEvent.click(launchButton));
   });
 
-  it("handles submission with bad server data", async () => {
+  it("handles approval of launch as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
+      ...reviewRequestedBaseProps,
+      canReview: true,
     });
-    const mutationMock = createPublishStatusMutationMock(experiment.id!);
-    // @ts-ignore - intentionally breaking this type for error handling
-    delete mutationMock.result.data.updateExperiment;
-    render(<Subject mocks={[mock, mutationMock]} />);
-    await launchFromDraftToReview();
-    await waitFor(() =>
-      expect(screen.getByTestId("submit-error")).toBeInTheDocument(),
+    const mutationMock = createFullStatusMutationMock(
+      experiment.id!,
+      NimbusExperimentStatus.DRAFT,
+      NimbusExperimentPublishStatus.APPROVED,
     );
+    render(<Subject mocks={[mock, mutationMock]} />);
+    const approveButton = await screen.findByTestId("approve-request");
+    fireEvent.click(approveButton);
+    const openRemoteSettingsButton = await screen.findByTestId(
+      "open-remote-settings",
+    );
+    fireEvent.click(openRemoteSettingsButton);
+    await waitFor(() => {
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        MOCK_CONFIG.kintoAdminUrl,
+        "_blank",
+      );
+    });
+  });
+
+  it("handles rejection of launch as expected", async () => {
+    const expectedReason = "This smells bad.";
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      ...reviewRequestedBaseProps,
+      canReview: true,
+    });
+    const mutationMock = createFullStatusMutationMock(
+      experiment.id!,
+      NimbusExperimentStatus.DRAFT,
+      NimbusExperimentPublishStatus.IDLE,
+      expectedReason,
+    );
+    render(<Subject mocks={[mock, mutationMock]} />);
+    const rejectButton = await screen.findByTestId("reject-request");
+    fireEvent.click(rejectButton);
+    const rejectSubmitButton = await screen.findByTestId("reject-submit");
+    const rejectReasonField = await screen.findByTestId("reject-reason");
+    fireEvent.change(rejectReasonField, {
+      target: { value: expectedReason },
+    });
+    fireEvent.blur(rejectReasonField);
+    fireEvent.click(rejectSubmitButton);
   });
 
   it("handles submission with server API error", async () => {
@@ -246,7 +305,10 @@ describe("PageRequestReview", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createPublishStatusMutationMock(experiment.id!);
+    const mutationMock = createPublishStatusMutationMock(
+      experiment.id!,
+      NimbusExperimentPublishStatus.REVIEW,
+    );
     const errorMessage = "Something went very wrong.";
     mutationMock.result.data.updateExperiment.message = {
       status: [errorMessage],

@@ -277,6 +277,12 @@ class NimbusExperiment(NimbusConstants, models.Model):
         )
 
     def can_review(self, reviewer):
+        if (
+            settings.SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER
+            and reviewer.email == settings.DEV_USER_EMAIL
+        ):
+            return True
+
         if self.publish_status in (
             NimbusExperiment.PublishStatus.REVIEW,
             NimbusExperiment.PublishStatus.WAITING,
@@ -463,18 +469,6 @@ class NimbusChangeLogManager(models.Manager):
                 old_publish_status=NimbusExperiment.PublishStatus.IDLE,
                 new_status=NimbusExperiment.Status.DRAFT,
                 new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            )
-            .order_by("-changed_on")
-        ).first()
-
-    def latest_review_approval(self):
-        return (
-            self.all()
-            .filter(
-                old_status=NimbusExperiment.Status.DRAFT,
-                old_publish_status=NimbusExperiment.PublishStatus.REVIEW,
-                new_status=NimbusExperiment.Status.DRAFT,
-                new_publish_status=NimbusExperiment.PublishStatus.APPROVED,
             )
             .order_by("-changed_on")
         ).first()

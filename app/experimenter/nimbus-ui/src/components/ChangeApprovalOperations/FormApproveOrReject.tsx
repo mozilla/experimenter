@@ -6,7 +6,7 @@ import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { NimbusChangeLogType } from "./temp-types";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
 const FormApproveOrReject = ({
   actionDescription,
@@ -17,8 +17,8 @@ const FormApproveOrReject = ({
   onReject,
 }: {
   actionDescription: string;
-  timeoutEvent?: NimbusChangeLogType;
-  reviewRequestEvent?: NimbusChangeLogType;
+  timeoutEvent?: getExperiment_experimentBySlug["timeout"];
+  reviewRequestEvent?: getExperiment_experimentBySlug["reviewRequest"];
   isLoading: boolean;
   onApprove: () => void;
   onReject: () => void;

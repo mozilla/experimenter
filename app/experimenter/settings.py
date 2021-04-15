@@ -409,7 +409,7 @@ KINTO_BUCKET_MAIN = "main"
 KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
 KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
-
+KINTO_ADMIN_URL = config("KINTO_ADMIN_URL", default=urljoin(KINTO_HOST, "/admin/"))
 
 # Jetstream GCS Bucket data
 DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
@@ -422,4 +422,8 @@ NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").
 # Jetstream config paths
 JETSTREAM_CONFIG_OUTCOMES_PATH = os.path.join(
     BASE_DIR, "outcomes", "jetstream-config-main", "outcomes"
+)
+
+SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
+    "SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER", default=False
 )
