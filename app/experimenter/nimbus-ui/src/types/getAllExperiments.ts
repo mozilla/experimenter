@@ -30,8 +30,8 @@ export interface getAllExperiments_experiments {
   publishStatus: NimbusExperimentPublishStatus | null;
   isEndRequested: boolean;
   monitoringDashboardUrl: string | null;
-  featureConfig: getAllExperiments_experiments_featureConfig | null;
   resultsReady: boolean | null;
+  featureConfig: getAllExperiments_experiments_featureConfig | null;
 }
 
 export interface getAllExperiments {

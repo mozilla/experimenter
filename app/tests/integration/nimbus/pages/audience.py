@@ -1,14 +1,12 @@
 from nimbus.pages.base import Base
-
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.select import Select
 from selenium.webdriver.support import expected_conditions as EC
-
+from selenium.webdriver.support.select import Select
 
 
 class AudiencePage(Base):
     """Experiment Audience Page."""
-    
+
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditAudience")
     _channel_select_locator = (By.CSS_SELECTOR, "#channel")
     _min_version_select_locator = (By.CSS_SELECTOR, "#minVersion")
@@ -31,7 +29,7 @@ class AudiencePage(Base):
         from nimbus.pages.review import ReviewPage
 
         return ReviewPage(self.driver, self.base_url).wait_for_page_to_load()
-    
+
     @property
     def channel(self):
         return self.find_element(*self._channel_select_locator).text
@@ -41,7 +39,7 @@ class AudiencePage(Base):
         el = self.find_element(*self._channel_select_locator)
         select = Select(el)
         select.select_by_visible_text(channel)
-    
+
     @property
     def min_version(self):
         return self.find_element(*self._min_version_select_locator).text
@@ -51,7 +49,7 @@ class AudiencePage(Base):
         el = self.find_element(*self._min_version_select_locator)
         select = Select(el)
         select.select_by_value(f"FIREFOX_{version}")
-    
+
     @property
     def targeting(self):
         return self.find_element(*self._targeting_select_locator).text

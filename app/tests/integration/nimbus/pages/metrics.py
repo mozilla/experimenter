@@ -1,12 +1,11 @@
 from nimbus.pages.base import Base
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 
 class MetricsPage(Base):
     """Experiment Metrics Page.."""
-    
+
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditMetrics")
     _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
 

@@ -58,6 +58,7 @@ export interface getExperiment_experimentBySlug {
   status: NimbusExperimentStatus | null;
   publishStatus: NimbusExperimentPublishStatus | null;
   monitoringDashboardUrl: string | null;
+  resultsReady: boolean | null;
   isEndRequested: boolean;
   hypothesis: string;
   application: NimbusExperimentApplication | null;
@@ -73,7 +74,6 @@ export interface getExperiment_experimentBySlug {
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug | null;
   jexlTargetingExpression: string | null;
   populationPercent: string | null;
-  resultsReady: boolean | null;
   totalEnrolledClients: number;
   proposedEnrollment: number;
   proposedDuration: number;

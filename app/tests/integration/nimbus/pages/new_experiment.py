@@ -1,11 +1,8 @@
-from pypom import Page, Region
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.select import Select
-from selenium.webdriver.support import expected_conditions as EC
-
-
 from nimbus.pages.base import Base
+from pypom import Page, Region
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.select import Select
 
 
 class NewExperiment(Base):
@@ -16,7 +13,7 @@ class NewExperiment(Base):
     _application_select_locator = (By.CSS_SELECTOR, "#application")
     _cancel_btn_locator = (By.CSS_SELECTOR, ".btn-light")
     _next_btn_locator = (By.CSS_SELECTOR, "#submit-button")
-    _page_wait_locator = (By.CSS_SELECTOR, "#PageNew-page") # page needs a good selector
+    _page_wait_locator = (By.CSS_SELECTOR, "#PageNew-page")  # page needs a good selector
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
@@ -47,7 +44,7 @@ class NewExperiment(Base):
     def hypothesis(self, text=None):
         name = self.find_element(*self._hypothesis_locator)
         name.send_keys(f" {text}")
-    
+
     @property
     def application(self):
         return self.find_element(*self._application_select_locator).text
@@ -64,7 +61,3 @@ class NewExperiment(Base):
         from nimbus.pages.overview import OverviewPage
 
         return OverviewPage(self.driver, self.base_url).wait_for_page_to_load()
-
-    
-
-   
