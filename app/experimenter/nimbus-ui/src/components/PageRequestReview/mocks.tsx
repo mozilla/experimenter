@@ -5,8 +5,11 @@
 import React from "react";
 import PageRequestReview from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { MockConfigContext } from "../../hooks";
-import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
+import {
+  mockChangelog,
+  mockExperimentMutation,
+  mockExperimentQuery,
+} from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import {
   NimbusExperimentPublishStatus,
@@ -55,31 +58,54 @@ export function createPublishStatusMutationMock(
   );
 }
 
+export function createFullStatusMutationMock(
+  id: number,
+  status = NimbusExperimentStatus.DRAFT,
+  publishStatus = NimbusExperimentPublishStatus.IDLE,
+  changelogMessage?: string,
+) {
+  return mockExperimentMutation(
+    UPDATE_EXPERIMENT_MUTATION,
+    { id, publishStatus, status, changelogMessage },
+    "updateExperiment",
+    { experiment: { publishStatus, status } },
+  );
+}
+
 export const Subject = ({
   mocks = [mock, createStatusMutationMock(experiment.id!)],
 }: {
   mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
-}) => (
-  <RouterSlugProvider {...{ mocks }}>
-    <PageRequestReview polling={false} />
-  </RouterSlugProvider>
-);
-
-export const SubjectEXP1143 = ({
-  mocks = [mock, createStatusMutationMock(experiment.id!)],
-  ...pageProps
-}: {
-  mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
-} & React.ComponentProps<typeof PageRequestReview>) => (
-  <MockConfigContext.Provider
-    value={{
-      featureFlags: {
-        exp1055ReviewFlow: true,
-      },
-    }}
-  >
+}) => {
+  return (
     <RouterSlugProvider {...{ mocks }}>
-      <PageRequestReview polling={false} {...pageProps} />
+      <PageRequestReview polling={false} />
     </RouterSlugProvider>
-  </MockConfigContext.Provider>
-);
+  );
+};
+
+export const reviewRequestedBaseProps = {
+  status: NimbusExperimentStatus.DRAFT,
+  publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  reviewRequest: mockChangelog(),
+};
+
+export const reviewPendingBaseProps = {
+  status: NimbusExperimentStatus.DRAFT,
+  publishStatus: NimbusExperimentPublishStatus.WAITING,
+  reviewRequest: mockChangelog(),
+};
+
+export const reviewTimedoutBaseProps = {
+  status: NimbusExperimentStatus.DRAFT,
+  publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  reviewRequest: mockChangelog(),
+  timeout: mockChangelog("def@mozilla.com"),
+};
+
+export const reviewRejectedBaseProps = {
+  status: NimbusExperimentStatus.DRAFT,
+  publishStatus: NimbusExperimentPublishStatus.IDLE,
+  reviewRequest: mockChangelog(),
+  rejection: mockChangelog("def@mozilla.com", "It's bad. Just start over."),
+};

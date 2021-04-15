@@ -61,6 +61,7 @@ export interface getConfig_nimbusConfig {
   hypothesisDefault: string | null;
   documentationLink: (getConfig_nimbusConfig_documentationLink | null)[] | null;
   maxPrimaryOutcomes: number | null;
+  kintoAdminUrl: string | null;
 }
 
 export interface getConfig {

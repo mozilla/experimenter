@@ -4,7 +4,15 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { BaseSubject, mockChangelog } from "./mocks";
+import {
+  BaseSubject,
+  reviewApprovedAfterTimeoutBaseProps,
+  reviewPendingInRemoteSettingsBaseProps,
+  reviewRejectedBaseProps,
+  reviewRequestedAfterRejectionBaseProps,
+  reviewRequestedBaseProps,
+  reviewTimedOutBaseProps,
+} from "./mocks";
 
 const Subject = ({
   rejectChange = () => {},
@@ -34,8 +42,8 @@ describe("ChangeApprovalOperations", () => {
     render(
       <Subject
         {...{
+          ...reviewRequestedBaseProps,
           canReview: true,
-          reviewRequestEvent: mockChangelog(),
           approveChange,
           startRemoteSettingsApproval,
         }}
@@ -57,8 +65,8 @@ describe("ChangeApprovalOperations", () => {
     render(
       <Subject
         {...{
+          ...reviewRequestedBaseProps,
           canReview: false,
-          reviewRequestEvent: mockChangelog(),
         }}
       />,
     );
@@ -72,9 +80,8 @@ describe("ChangeApprovalOperations", () => {
     render(
       <Subject
         {...{
+          ...reviewPendingInRemoteSettingsBaseProps,
           canReview: true,
-          reviewRequestEvent: mockChangelog(),
-          approvalEvent: mockChangelog(),
           startRemoteSettingsApproval,
         }}
       />,
@@ -91,9 +98,8 @@ describe("ChangeApprovalOperations", () => {
     render(
       <Subject
         {...{
+          ...reviewPendingInRemoteSettingsBaseProps,
           canReview: false,
-          reviewRequestEvent: mockChangelog(),
-          approvalEvent: mockChangelog(),
           startRemoteSettingsApproval,
         }}
       />,
@@ -110,8 +116,8 @@ describe("ChangeApprovalOperations", () => {
     render(
       <Subject
         {...{
+          ...reviewRequestedBaseProps,
           canReview: true,
-          reviewRequestEvent: mockChangelog(),
           rejectChange,
         }}
       />,
@@ -120,17 +126,15 @@ describe("ChangeApprovalOperations", () => {
     fireEvent.click(rejectButton);
     const rejectSubmitButton = await screen.findByTestId("reject-submit");
     const rejectReasonField = await screen.findByTestId("reject-reason");
-    expect(rejectSubmitButton).not.toBeEnabled();
     fireEvent.change(rejectReasonField, {
       target: { value: expectedReason },
     });
     fireEvent.blur(rejectReasonField);
-    await waitFor(() => {
-      expect(rejectSubmitButton).toBeEnabled();
-    });
     fireEvent.click(rejectSubmitButton);
     await waitFor(() => {
-      expect(rejectChange).toBeCalledWith({ reason: expectedReason });
+      expect(rejectChange).toBeCalledWith(null, {
+        changelogMessage: expectedReason,
+      });
     });
   });
 
@@ -139,8 +143,8 @@ describe("ChangeApprovalOperations", () => {
     render(
       <Subject
         {...{
+          ...reviewRequestedBaseProps,
           canReview: true,
-          reviewRequestEvent: mockChangelog(),
           rejectChange,
         }}
       />,
@@ -157,14 +161,15 @@ describe("ChangeApprovalOperations", () => {
 
   it("reports a rejection reason when review is rejected", async () => {
     const actionDescription = "gizmofy";
-    const rejectionUser = "jdoe@mozilla.com";
-    const rejectionMessage = "chutes too narrow";
+    const {
+      changedBy: rejectionUser,
+      message: rejectionMessage,
+    } = reviewRejectedBaseProps.rejectionEvent!;
     render(
       <Subject
         {...{
+          ...reviewRejectedBaseProps,
           actionDescription,
-          reviewRequestEvent: mockChangelog(),
-          rejectionEvent: mockChangelog(rejectionUser, rejectionMessage),
         }}
       />,
     );
@@ -173,17 +178,16 @@ describe("ChangeApprovalOperations", () => {
       `The request to ${actionDescription} this experiment was`,
       { exact: false },
     );
-    await screen.findByText(rejectionMessage, { exact: false });
-    await screen.findByText(rejectionUser, { exact: false });
+    await screen.findByText(rejectionMessage!, { exact: false });
+    await screen.findByText(rejectionUser!.email, { exact: false });
   });
 
   it("when user can review and review has timed out, a timeout notice is displayed", async () => {
     render(
       <Subject
         {...{
+          ...reviewTimedOutBaseProps,
           canReview: true,
-          reviewRequestEvent: mockChangelog(),
-          timeoutEvent: mockChangelog(),
         }}
       />,
     );
@@ -196,9 +200,8 @@ describe("ChangeApprovalOperations", () => {
     render(
       <Subject
         {...{
+          ...reviewTimedOutBaseProps,
           canReview: false,
-          reviewRequestEvent: mockChangelog(),
-          timeoutEvent: mockChangelog(),
         }}
       />,
     );
@@ -206,5 +209,29 @@ describe("ChangeApprovalOperations", () => {
     expect(screen.queryByTestId("timeout-notice")).not.toBeInTheDocument();
     expect(screen.queryByTestId("approve-request")).not.toBeInTheDocument();
     expect(screen.queryByTestId("reject-request")).not.toBeInTheDocument();
+  });
+
+  it("supports a follow-up review request after a rejection", async () => {
+    render(
+      <Subject
+        {...{
+          ...reviewRequestedAfterRejectionBaseProps,
+          canReview: true,
+        }}
+      />,
+    );
+    await screen.findByTestId("approve-request");
+  });
+
+  it("supports a retried approval after a timeout", async () => {
+    render(
+      <Subject
+        {...{
+          ...reviewApprovedAfterTimeoutBaseProps,
+          canReview: true,
+        }}
+      />,
+    );
+    await screen.findByTestId("open-remote-settings");
   });
 });
