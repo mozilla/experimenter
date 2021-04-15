@@ -53,13 +53,18 @@ const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
 storiesOf("pages/EditBranches", module)
   .addDecorator(withLinks)
   .addDecorator(withQuery)
-  .add("basic", () => (
+  .add("default", () => (
+    <RouterSlugProvider mocks={[mockMissingFields]}>
+      <PageEditBranches />
+    </RouterSlugProvider>
+  ))
+  .add("filled out", () => (
     <RouterSlugProvider mocks={[mock]}>
       <PageEditBranches />
     </RouterSlugProvider>
   ))
   .add(
-    "missing fields",
+    "show missing fields",
     () => (
       <RouterSlugProvider mocks={[mockMissingFields]}>
         <PageEditBranches />

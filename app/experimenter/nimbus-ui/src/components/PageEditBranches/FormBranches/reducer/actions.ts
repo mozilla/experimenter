@@ -56,11 +56,11 @@ function addBranch(state: FormBranchesState) {
   lastId++;
 
   if (referenceBranch === null) {
-    referenceBranch = createAnnotatedBranch(lastId, "New control");
+    referenceBranch = createAnnotatedBranch(lastId, "control");
   } else {
     treatmentBranches = [
       ...(treatmentBranches || []),
-      createAnnotatedBranch(state.lastId, `New treatment ${lastId}`),
+      createAnnotatedBranch(state.lastId, `treatment ${lastId}`),
     ];
   }
 
