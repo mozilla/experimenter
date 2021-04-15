@@ -37,7 +37,6 @@ import {
   NimbusExperimentApplication,
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
-  NimbusFeatureConfigApplication,
 } from "../types/globalTypes";
 import { getStatus } from "./experiment";
 import { OutcomesList, OutcomeSlugs } from "./types";
@@ -83,7 +82,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       slug: "picture-in-picture",
       description:
         "Quickly above also mission action. Become thing item institution plan.\nImpact friend wonder. Interview strategy nature question. Admit room without impact its enter forward.",
-      application: NimbusFeatureConfigApplication.FENIX,
+      application: NimbusExperimentApplication.FENIX,
       ownerEmail: "sheila43@yahoo.com",
       schema: null,
     },
@@ -92,7 +91,16 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       name: "Mauris odio erat",
       slug: "mauris-odio-erat",
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      application: NimbusFeatureConfigApplication.FENIX,
+      application: NimbusExperimentApplication.DESKTOP,
+      ownerEmail: "dude23@yahoo.com",
+      schema: '{ "sample": "schema" }',
+    },
+    {
+      id: "3",
+      name: "Foo lila sat",
+      slug: "foo-lila-sat",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      application: NimbusExperimentApplication.IOS,
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
     },

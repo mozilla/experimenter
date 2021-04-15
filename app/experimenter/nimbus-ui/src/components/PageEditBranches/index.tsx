@@ -85,6 +85,12 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
       {({ experiment, review }) => {
         currentExperiment.current = experiment;
         refetchReview.current = review.refetch;
+
+        const applicationFeatureConfigs =
+          featureConfig?.filter(
+            (config) => config?.application === experiment.application,
+          ) || [];
+
         return (
           <>
             <p>
@@ -101,8 +107,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
             <FormBranches
               {...{
                 experiment,
-                // TODO: EXP-560 - configs should be filtered by application type
-                featureConfig,
+                featureConfig: applicationFeatureConfigs,
                 isLoading: loading,
                 onSave: onFormSave,
               }}

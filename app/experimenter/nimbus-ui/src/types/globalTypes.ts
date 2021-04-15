@@ -151,12 +151,6 @@ export enum NimbusExperimentTargetingConfigSlug {
   US_ONLY = "US_ONLY",
 }
 
-export enum NimbusFeatureConfigApplication {
-  FENIX = "FENIX",
-  FIREFOX_DESKTOP = "FIREFOX_DESKTOP",
-  IOS = "IOS",
-}
-
 export interface DocumentationLinkType {
   title: NimbusExperimentDocumentationLink;
   link: string;
