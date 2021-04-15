@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusFeatureConfigApplication, NimbusExperimentApplication } from "./globalTypes";
+import { NimbusExperimentApplication } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getConfig
@@ -24,7 +24,7 @@ export interface getConfig_nimbusConfig_featureConfig {
   name: string;
   slug: string;
   description: string | null;
-  application: NimbusFeatureConfigApplication | null;
+  application: NimbusExperimentApplication | null;
   ownerEmail: string | null;
   schema: string | null;
 }
