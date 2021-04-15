@@ -118,6 +118,16 @@ class NimbusExperimentBranchMixin:
         if not feature_config or not feature_config.schema or not self.instance:
             return data
 
+        if self.instance.application != feature_config.application:
+            raise serializers.ValidationError(
+                {
+                    "feature_config": [
+                        f"Feature Config application {feature_config.application} does "
+                        f"not match experiment application {self.instance.application}."
+                    ]
+                }
+            )
+
         schema = json.loads(feature_config.schema)
         error_result = {}
         if data["reference_branch"].get("feature_enabled"):

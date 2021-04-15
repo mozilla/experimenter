@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusFeatureConfigApplication, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusExperimentTargetingConfigSlug, NimbusDocumentationLinkTitle } from "./globalTypes";
+import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusExperimentTargetingConfigSlug, NimbusDocumentationLinkTitle } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -36,7 +36,7 @@ export interface getExperiment_experimentBySlug_featureConfig {
   slug: string;
   name: string;
   description: string | null;
-  application: NimbusFeatureConfigApplication | null;
+  application: NimbusExperimentApplication | null;
   ownerEmail: string | null;
   schema: string | null;
 }

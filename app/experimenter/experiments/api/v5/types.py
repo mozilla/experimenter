@@ -79,6 +79,8 @@ class NimbusDocumentationLinkType(DjangoObjectType):
 
 
 class NimbusFeatureConfigType(DjangoObjectType):
+    application = NimbusExperimentApplication()
+
     class Meta:
         model = NimbusFeatureConfig
 
