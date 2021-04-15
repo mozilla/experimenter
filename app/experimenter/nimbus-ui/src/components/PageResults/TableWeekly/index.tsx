@@ -25,7 +25,7 @@ const getWeekCount = (
   metric: string,
   weeklyResults: { [branch: string]: BranchDescription },
 ) => {
-  let maxWeeks = 0;
+  const weekIndexSet = new Set();
   Object.keys(weeklyResults).forEach((branch: string) => {
     if (!(metric in weeklyResults[branch].branch_data)) {
       return;
@@ -36,13 +36,11 @@ const getWeekCount = (
       branchData.forEach((dataPoint: FormattedAnalysisPoint) => {
         const weekIndex: number =
           "window_index" in dataPoint ? dataPoint["window_index"]! : 0;
-        if (weekIndex > maxWeeks) {
-          maxWeeks = weekIndex;
-        }
+        weekIndexSet.add(weekIndex);
       });
     });
   });
-  return maxWeeks;
+  return Array.from(weekIndexSet).sort();
 };
 
 const TableWeekly = ({
@@ -50,7 +48,7 @@ const TableWeekly = ({
   metricName,
   results = {},
 }: TableWeeklyProps) => {
-  const weekCount = getWeekCount(metricKey, results);
+  const weekIndexList = getWeekCount(metricKey, results);
 
   return (
     <table
@@ -60,13 +58,13 @@ const TableWeekly = ({
       <thead>
         <tr>
           <th scope="col" className="border-bottom-0 bg-light" />
-          {Array.from({ length: weekCount }).map((x, weekIndex) => (
+          {weekIndexList.map((weekIndex) => (
             <th
-              key={weekIndex}
+              key={`${weekIndex}`}
               className="border-bottom-0 bg-light"
               scope="col"
             >
-              <div>{`Week ${weekIndex + 1}`}</div>
+              <div>{`Week ${weekIndex}`}</div>
             </th>
           ))}
         </tr>
