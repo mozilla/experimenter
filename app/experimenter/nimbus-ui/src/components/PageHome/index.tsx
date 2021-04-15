@@ -5,11 +5,12 @@
 import { useQuery } from "@apollo/client";
 import { Link, RouteComponentProps } from "@reach/router";
 import React from "react";
-import { Tab, Tabs } from "react-bootstrap";
+import { Alert, Tab, Tabs } from "react-bootstrap";
 import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 import AppLayout from "../AppLayout";
 import Head from "../Head";
+import LinkExternal from "../LinkExternal";
 import PageLoading from "../PageLoading";
 import DirectoryTable, {
   DirectoryCompleteTable,
@@ -64,7 +65,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     <AppLayout testid="PageHome">
       <Head title="Experiments" />
 
-      <div className="d-flex mb-4">
+      <div className="d-flex mb-4 justify-content-between">
         <h2 className="mb-0 mr-1">Nimbus Experiments </h2>
         <div>
           <Link
@@ -77,6 +78,17 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
           </Link>
         </div>
       </div>
+
+      <Alert variant="primary" className="mb-4">
+        <span role="img" aria-label="book emoji">
+          📖
+        </span>{" "}
+        Not sure where to start? Check out the{" "}
+        <LinkExternal href="https://mozilla.github.io/experimenter-docs/">
+          Experimenter documentation hub
+        </LinkExternal>
+        .
+      </Alert>
 
       <Body />
     </AppLayout>
