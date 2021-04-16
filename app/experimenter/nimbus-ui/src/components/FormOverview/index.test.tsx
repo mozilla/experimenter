@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
 import { FIELD_MESSAGES } from "../../lib/constants";
@@ -19,18 +13,14 @@ import { Subject } from "./mocks";
 describe("FormOverview", () => {
   it("renders as expected", async () => {
     render(<Subject />);
-    await act(async () =>
-      expect(screen.getByTestId("FormOverview")).toBeInTheDocument(),
-    );
+    await screen.findByTestId("FormOverview");
   });
 
   it("calls onCancel when cancel clicked", async () => {
     const onCancel = jest.fn();
     render(<Subject {...{ onCancel }} />);
-
-    const cancelButton = screen.getByText("Cancel");
-    await act(async () => void fireEvent.click(cancelButton));
-    expect(onCancel).toHaveBeenCalled();
+    fireEvent.click(screen.getByText("Cancel"));
+    await waitFor(() => expect(onCancel).toHaveBeenCalled());
   });
 
   it("renders initial documentation links", async () => {
@@ -69,22 +59,26 @@ describe("FormOverview", () => {
     ]) {
       const fieldName = screen.getByLabelText(labelText);
 
-      await act(async () => {
-        fireEvent.click(fieldName);
-        fireEvent.blur(fieldName);
-      });
+      fireEvent.click(fieldName);
+      fireEvent.blur(fieldName);
+
       if (labelText !== "Hypothesis") {
-        expect(fieldName).toHaveClass("is-invalid");
-        expect(fieldName).not.toHaveClass("is-valid");
+        await waitFor(() => {
+          expect(fieldName).toHaveClass("is-invalid");
+          expect(fieldName).not.toHaveClass("is-valid");
+        });
       }
 
-      await act(async () => {
-        fireEvent.change(fieldName, { target: { value: fieldValue } });
-        fireEvent.blur(fieldName);
+      fireEvent.change(fieldName, { target: { value: fieldValue } });
+      fireEvent.blur(fieldName);
+
+      await waitFor(() => {
+        expect(fieldName).not.toHaveClass("is-invalid");
+        expect(fieldName).toHaveClass("is-valid");
       });
-      expect(fieldName).not.toHaveClass("is-invalid");
-      expect(fieldName).toHaveClass("is-valid");
     }
+
+    Promise.resolve();
   };
 
   const getDocumentationLinkFields = (index: number) => {
@@ -152,11 +146,13 @@ describe("FormOverview", () => {
     render(<Subject {...{ onSubmit }} />);
 
     const submitButton = screen.getByTestId("submit-button");
-    await act(async () => fillOutNewForm(expected));
-    await act(async () => void fireEvent.click(submitButton));
+    await fillOutNewForm(expected);
+    fireEvent.click(submitButton);
 
-    expect(onSubmit).toHaveBeenCalled();
-    expect(onSubmit.mock.calls[0][0]).toEqual(expected);
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalled();
+      expect(onSubmit.mock.calls[0][0]).toEqual(expected);
+    });
   });
 
   it("requires a URL for the risk mitigation link", async () => {
@@ -164,27 +160,27 @@ describe("FormOverview", () => {
     render(<Subject {...{ experiment }} />);
     const linkField = screen.getByTestId("riskMitigationLink");
 
-    await act(async () => {
-      fireEvent.change(linkField, {
-        target: { value: "whatchu-talkin-bout-willis" },
-      });
-      fireEvent.blur(linkField);
+    fireEvent.change(linkField, {
+      target: { value: "whatchu-talkin-bout-willis" },
     });
+    fireEvent.blur(linkField);
 
-    expect(
-      screen.getByTestId("FormOverview").querySelector(".invalid-feedback"),
-    ).toHaveTextContent(FIELD_MESSAGES.URL);
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("FormOverview").querySelector(".invalid-feedback"),
+      ).toHaveTextContent(FIELD_MESSAGES.URL),
+    );
 
-    await act(async () => {
-      fireEvent.change(linkField, {
-        target: { value: "https://www.com" },
-      });
-      fireEvent.blur(linkField);
+    fireEvent.change(linkField, {
+      target: { value: "https://www.com" },
     });
+    fireEvent.blur(linkField);
 
-    expect(
-      screen.getByTestId("FormOverview").querySelector(".invalid-feedback"),
-    ).toBeNull();
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("FormOverview").querySelector(".invalid-feedback"),
+      ).toBeNull(),
+    );
   });
 
   it("with existing experiment, checks fields and allows saving data", async () => {
@@ -215,17 +211,18 @@ describe("FormOverview", () => {
     });
     fireEvent.blur(nameField);
 
-    await act(async () => {
-      fireEvent.click(saveButton);
-      fireEvent.click(nextButton);
+    fireEvent.click(saveButton);
+    fireEvent.click(nextButton);
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledTimes(2);
+      expect(onSubmit.mock.calls).toEqual([
+        // Save button just saves
+        [expected, false],
+        // Next button advances to next page
+        [expected, true],
+      ]);
     });
-    expect(onSubmit).toHaveBeenCalledTimes(2);
-    expect(onSubmit.mock.calls).toEqual([
-      // Save button just saves
-      [expected, false],
-      // Next button advances to next page
-      [expected, true],
-    ]);
   });
 
   it("with missing public description, still allows submit", async () => {
@@ -236,15 +233,13 @@ describe("FormOverview", () => {
     const descriptionField = screen.getByLabelText("Public description");
     const submitButton = screen.getByTestId("submit-button");
 
-    await act(async () => {
-      fireEvent.change(descriptionField, { target: { value: "" } });
-      fireEvent.blur(descriptionField);
-    });
+    fireEvent.change(descriptionField, { target: { value: "" } });
+    fireEvent.blur(descriptionField);
 
     expect(submitButton).toBeEnabled();
 
-    await act(async () => void fireEvent.click(submitButton));
-    expect(onSubmit).toHaveBeenCalled();
+    fireEvent.click(submitButton);
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
   });
 
   it("correctly renders, updates, filters, and deletes documentation links", async () => {
@@ -269,75 +264,68 @@ describe("FormOverview", () => {
     expect(getDocumentationLinkFields(0).removeButton).toBeNull();
 
     // Update the values of the first set
-    await act(async () => {
-      experiment.documentationLinks![0] = {
-        title: NimbusDocumentationLinkTitle.ENG_TICKET,
-        link: "https://",
-      };
-      fillDocumentationLinkFields(experiment.documentationLinks![0], 0);
-    });
+    experiment.documentationLinks![0] = {
+      title: NimbusDocumentationLinkTitle.ENG_TICKET,
+      link: "https://",
+    };
+    fillDocumentationLinkFields(experiment.documentationLinks![0], 0);
 
     // Whoops! Invalid URL.
-    expect(
-      screen
-        .getByTestId("DocumentationLink")
-        .querySelector(".invalid-feedback"),
-    ).toHaveTextContent(FIELD_MESSAGES.URL);
+    await waitFor(() =>
+      expect(
+        screen
+          .getByTestId("DocumentationLink")
+          .querySelector(".invalid-feedback"),
+      ).toHaveTextContent(FIELD_MESSAGES.URL),
+    );
 
     // Fix the invalid URL
     experiment.documentationLinks![0].link = "https://ooga.booga";
-    await act(async () => {
-      fillDocumentationLinkFields(experiment.documentationLinks![0], 0);
-    });
+    fillDocumentationLinkFields(experiment.documentationLinks![0], 0);
 
     // Add a new set and populate it
-    await act(async () => void fireEvent.click(addButton));
-    await act(async () => {
-      experiment.documentationLinks!.push({
-        title: NimbusDocumentationLinkTitle.DESIGN_DOC,
-        link: "https://boingo.oingo",
-      });
-      fillDocumentationLinkFields(experiment.documentationLinks![1], 1);
+    fireEvent.click(addButton);
+    experiment.documentationLinks!.push({
+      title: NimbusDocumentationLinkTitle.DESIGN_DOC,
+      link: "https://boingo.oingo",
     });
+    fillDocumentationLinkFields(experiment.documentationLinks![1], 1);
 
     // Add a new set and PARTIALLY populate it
     // This set should be filtered out and therefore will
     // not be added to expected output
-    await act(async () => void fireEvent.click(addButton));
-    await act(async () =>
-      fillDocumentationLinkFields(
-        {
-          title: NimbusDocumentationLinkTitle.DESIGN_DOC,
-          link: "",
-        },
-        2,
-      ),
+    fireEvent.click(addButton);
+    fillDocumentationLinkFields(
+      {
+        title: NimbusDocumentationLinkTitle.DESIGN_DOC,
+        link: "",
+      },
+      2,
     );
 
     // Add a new set, and populate it with the data from the second field
-    await act(async () => void fireEvent.click(addButton));
-    await act(async () => {
-      fillDocumentationLinkFields(experiment.documentationLinks![1], 3);
-    });
+    fireEvent.click(addButton);
+    fillDocumentationLinkFields(experiment.documentationLinks![1], 3);
 
     // Now delete the second set
-    await act(
-      async () =>
-        void fireEvent.click(getDocumentationLinkFields(1).removeButton),
+    fireEvent.click(getDocumentationLinkFields(1).removeButton);
+
+    await waitFor(() =>
+      expect(screen.queryAllByTestId("DocumentationLink").length).toEqual(
+        // Add one because this array doesn't include the field that will be filtered out
+        experiment.documentationLinks!.length + 1,
+      ),
     );
 
-    expect(screen.queryAllByTestId("DocumentationLink").length).toEqual(
-      // Add one because this array doesn't include the field that will be filtered out
-      experiment.documentationLinks!.length + 1,
-    );
+    fireEvent.click(submitButton);
 
-    await act(async () => void fireEvent.click(submitButton));
-
-    expect(onSubmit.mock.calls[0][0].documentationLinks).toEqual(
-      experiment.documentationLinks!.map(({ title, link }) => ({
-        title,
-        link,
-      })),
+    await waitFor(() =>
+      expect(onSubmit.mock.calls[0][0].documentationLinks).toEqual(
+        experiment.documentationLinks!.map(({ title, link }) => ({
+          title,
+          link,
+        })),
+      ),
     );
   });
 
@@ -346,25 +334,20 @@ describe("FormOverview", () => {
     render(<Subject {...{ onSubmit, isLoading: true }} />);
 
     // Fill out valid form to ensure only isLoading prevents submission
-    await act(
-      async () =>
-        void fillOutNewForm({
-          name: "Foo bar baz",
-          hypothesis: "Some thing",
-          application: "DESKTOP",
-        }),
-    );
+    await fillOutNewForm({
+      name: "Foo bar baz",
+      hypothesis: "Some thing",
+      application: "DESKTOP",
+    });
 
     const submitButton = screen.getByTestId("submit-button");
     expect(submitButton).toBeDisabled();
     expect(submitButton).toHaveTextContent("Submitting");
 
-    await act(async () => {
-      fireEvent.click(submitButton);
-      fireEvent.submit(screen.getByTestId("FormOverview"));
-    });
+    fireEvent.click(submitButton);
+    fireEvent.submit(screen.getByTestId("FormOverview"));
 
-    expect(onSubmit).not.toHaveBeenCalled();
+    await waitFor(() => expect(onSubmit).not.toHaveBeenCalled());
   });
 
   it("displays saving button when loading", async () => {
@@ -383,7 +366,7 @@ describe("FormOverview", () => {
       "*": ["Big bad happened"],
     };
     render(<Subject {...{ submitErrors }} />);
-    await act(async () =>
+    await waitFor(() =>
       expect(screen.getByTestId("submit-error")).toHaveTextContent(
         submitErrors["*"][0],
       ),
@@ -396,7 +379,7 @@ describe("FormOverview", () => {
     };
     render(<Subject {...{ submitErrors }} />);
     const errorFeedback = screen.getByText(submitErrors["name"][0]);
-    await act(async () => {
+    await waitFor(() => {
       expect(errorFeedback).toHaveClass("invalid-feedback");
       expect(errorFeedback).toHaveAttribute("data-for", "name");
     });
