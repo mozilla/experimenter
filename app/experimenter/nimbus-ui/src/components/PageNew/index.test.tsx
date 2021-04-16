@@ -4,13 +4,7 @@
 
 import { MockedResponse } from "@apollo/client/testing";
 import { navigate } from "@reach/router";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import PageNew from ".";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
@@ -42,17 +36,15 @@ describe("PageNew", () => {
 
   it("renders as expected", async () => {
     render(<Subject />);
-    await act(async () => {
-      expect(screen.getByTestId("PageNew")).toBeInTheDocument();
-    });
+    await screen.findByTestId("PageNew");
   });
 
   it("handles experiment form submission", async () => {
     render(<Subject mocks={[mutationMock]} />);
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("submit"));
-    });
-    expect(navigate).toHaveBeenCalledWith("foo-bar-baz/edit/overview");
+    fireEvent.click(screen.getByTestId("submit"));
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith("foo-bar-baz/edit/overview"),
+    );
   });
 
   it("handles experiment form submission with server-side validation errors", async () => {
@@ -61,11 +53,12 @@ describe("PageNew", () => {
     };
     mutationMock.result.data.createExperiment.message = expectedErrors;
     render(<Subject mocks={[mutationMock]} />);
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("submit"));
-    });
-    expect(screen.getByTestId("submitErrors")).toHaveTextContent(
-      JSON.stringify(expectedErrors),
+    const submitButton = await screen.findByTestId("submit");
+    fireEvent.click(submitButton);
+    await waitFor(() =>
+      expect(screen.getByTestId("submitErrors")).toHaveTextContent(
+        JSON.stringify(expectedErrors),
+      ),
     );
   });
 
@@ -73,11 +66,12 @@ describe("PageNew", () => {
     // @ts-ignore - intentionally breaking this type for error handling
     delete mutationMock.result.data.createExperiment;
     render(<Subject mocks={[mutationMock]} />);
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("submit"));
-    });
-    expect(screen.getByTestId("submitErrors")).toHaveTextContent(
-      JSON.stringify({ "*": SUBMIT_ERROR }),
+    const submitButton = await screen.findByTestId("submit");
+    fireEvent.click(submitButton);
+    await waitFor(() =>
+      expect(screen.getByTestId("submitErrors")).toHaveTextContent(
+        JSON.stringify({ "*": SUBMIT_ERROR }),
+      ),
     );
   });
 
