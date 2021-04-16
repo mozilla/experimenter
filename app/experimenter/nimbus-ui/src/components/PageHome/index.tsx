@@ -84,7 +84,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
           📖
         </span>{" "}
         Not sure where to start? Check out the{" "}
-        <LinkExternal href="https://mozilla.github.io/experimenter-docs/">
+        <LinkExternal href="https://experimenter.info">
           Experimenter documentation hub
         </LinkExternal>
         .
