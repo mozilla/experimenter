@@ -326,6 +326,38 @@ Any of the accounts above can be used for any of those two roles, but your local
 
 For more detailed information on the Remote Settings integration please see the [Kinto module documentation](app/experimenter/kinto/README.md).
 
+### Storybook in CircleCI
+
+This project uses [Storybook][] as a tool for building and demoing user interface components in React.
+
+For most test runs [in CircleCI][storybook-circleci], a static build of Storybook for the relevant commit is published to [a website on the Google Cloud Platform][storybooks-site] using [mozilla-fxa/storybook-gcp-publisher][storybook-gcp-publisher]. Refer to that tool's github repository for more details.
+
+You can find the Storybook build associated with a given commit on Github via the "storybooks: pull request" details link accessible via clicking the green checkmark next to the commit title.
+
+![Capture](https://user-images.githubusercontent.com/21687/115094484-8ebcf100-9ed2-11eb-812e-b37ca049b144.PNG)
+
+The Google Cloud Platform project dashboard for the website can be found here, if you've been given access:
+
+* https://console.cloud.google.com/home/dashboard?project=storybook-static-sites
+
+For quick reference, here are [a few CircleCI environment variables][storybook-gcp-publisher-config] used by storybook-gcp-publisher that are relevant to FxA operations in CircleCI. Occasionally they may need maintenance or replacement - e.g. in case of a security incident involving another tool that exposes variables.
+
+* `STORYBOOKS_GITHUB_TOKEN` - personal access token on GitHub for use in posting status check updates
+
+* `STORYBOOKS_GCP_BUCKET` - name of the GCP bucket to which Storybook builds will be uploaded
+
+* `STORYBOOKS_GCP_PROJECT_ID` - the ID of the GCP project to which the bucket belongs
+
+* `STORYBOOKS_GCP_CLIENT_EMAIL` - client email address from GCP credentials with access to the bucket
+
+* `STORYBOOKS_GCP_PRIVATE_KEY_BASE64` - the private key from GCP credentials, encoded with base64 to accomodate linebreaks
+
+[storybooks-site]: https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html
+[storybook-gcp-publisher-config]: https://github.com/mozilla-fxa/storybook-gcp-publisher#basic-1
+[storybook-gcp-publisher]: https://github.com/mozilla-fxa/storybook-gcp-publisher
+[storybook]: https://storybook.js.org/
+[storybook-circleci]: https://github.com/mozilla/experimenter/blob/main/.circleci/config.yml#L56-L60
+
 ## Frontend
 
 Experimenter has two front-end UIs:
