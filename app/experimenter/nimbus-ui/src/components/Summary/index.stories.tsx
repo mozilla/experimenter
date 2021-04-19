@@ -2,195 +2,92 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MockedResponse } from "@apollo/client/testing";
-import { storiesOf } from "@storybook/react";
+import { withLinks } from "@storybook/addon-links";
 import React from "react";
-import Summary from ".";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import {
-  mockChangelog,
-  mockExperimentMutation,
-  mockExperimentQuery,
-} from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
-} from "../../types/globalTypes";
-import AppLayout from "../AppLayout";
+  reviewPendingBaseProps,
+  reviewRejectedBaseProps,
+  reviewRequestedBaseProps,
+  reviewTimedoutBaseProps,
+  Subject,
+} from "./mocks";
 
-storiesOf("components/Summary", module)
-  .add("draft status", () => {
-    const { experiment } = mockExperimentQuery("demo-slug");
-    return <Subject {...{ experiment }} />;
-  })
-  .add("non-draft status", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      publishStatus: NimbusExperimentPublishStatus.WAITING,
-    });
-    return <Subject {...{ experiment }} />;
-  })
-  .add("live status", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.LIVE,
-    });
-    const mutationMock = mockExperimentMutation(
-      UPDATE_EXPERIMENT_MUTATION,
-      {
-        id: experiment.id!,
-      },
-      "endExperiment",
-    );
-    return <Subject {...{ experiment, mocks: [mutationMock] }} />;
-  })
-  .add("end requested", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.LIVE,
-      isEndRequested: true,
-    });
-    return <Subject {...{ experiment }} />;
-  })
-  .add("enrollment active", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.LIVE,
-      isEnrollmentPaused: false,
-    });
-    return <Subject {...{ experiment }} />;
-  })
-  .add("enrollment ended", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.LIVE,
-      enrollmentEndDate: new Date().toISOString(),
-    });
-    return <Subject {...{ experiment }} />;
-  })
-  .add("enrollment ended + end requested", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.LIVE,
-      isEndRequested: true,
-      enrollmentEndDate: new Date().toISOString(),
-    });
-    return <Subject {...{ experiment }} />;
-  })
-  .add("no branches", () => {
-    const { experiment } = mockExperimentQuery("demo-slug", {
-      referenceBranch: null,
-      treatmentBranches: null,
-    });
-    return <Subject {...{ experiment }} />;
-  });
-
-const Subject = ({
-  experiment,
-  mocks = [],
-}: {
-  experiment: getExperiment_experimentBySlug;
-  mocks?: MockedResponse<Record<string, any>>[];
-}) => (
-  <AppLayout>
-    <RouterSlugProvider {...{ mocks }}>
-      <Summary {...{ experiment }} />
-    </RouterSlugProvider>
-  </AppLayout>
-);
-
-const SubjectEXP1143 = ({
-  publishStatus = NimbusExperimentPublishStatus.IDLE,
-  ...props
-}: {
-  publishStatus?: getExperiment_experimentBySlug["publishStatus"];
-} & Partial<React.ComponentProps<typeof Summary>>) => {
-  const { experiment } = mockExperimentQuery("demo-slug", {
-    publishStatus,
-    status: NimbusExperimentStatus.LIVE,
-  });
-  const mutationMock = mockExperimentMutation(
-    UPDATE_EXPERIMENT_MUTATION,
-    {
-      id: experiment.id!,
-      isEndRequested: true,
-    },
-    "endExperiment",
-  );
-  const mocks = [mutationMock];
-  return (
-    <AppLayout>
-      <RouterSlugProvider {...{ mocks }}>
-        <Summary {...{ experiment, ...props }} />
-      </RouterSlugProvider>
-    </AppLayout>
-  );
+const storyWithExperimentProps = (
+  props?: Partial<getExperiment_experimentBySlug | null>,
+  storyName?: string,
+) => {
+  const story = () => {
+    return <Subject {...{ props }} />;
+  };
+  story.storyName = storyName;
+  return story;
 };
 
-storiesOf("components/Summary/EXP-1143; end experiment review flow", module)
-  .add("review not requested", () => <SubjectEXP1143 />)
-  .add("review requested, user can review", () => (
-    <SubjectEXP1143
-      {...{
-        publishStatus: NimbusExperimentPublishStatus.REVIEW,
-        reviewRequestEvent: mockChangelog(),
-        canReview: true,
-      }}
-    />
-  ))
-  .add("review pending in Remote Rettings, user can review", () => (
-    <SubjectEXP1143
-      {...{
-        publishStatus: NimbusExperimentPublishStatus.WAITING,
-        reviewRequestEvent: mockChangelog(),
-        canReview: true,
-      }}
-    />
-  ))
-  .add("review timed out in Remote Settings, user can review", () => (
-    <SubjectEXP1143
-      {...{
-        publishStatus: NimbusExperimentPublishStatus.REVIEW,
-        reviewRequestEvent: mockChangelog(),
-        timeoutEvent: mockChangelog("ghi@mozilla.com"),
-        canReview: true,
-      }}
-    />
-  ))
-  .add("review requested, user cannot review", () => (
-    <SubjectEXP1143
-      {...{
-        publishStatus: NimbusExperimentPublishStatus.REVIEW,
-        reviewRequestEvent: mockChangelog(),
-        canReview: false,
-      }}
-    />
-  ))
-  .add("review pending in Remote Settings, user cannot review", () => (
-    <SubjectEXP1143
-      {...{
-        publishStatus: NimbusExperimentPublishStatus.WAITING,
-        reviewRequestEvent: mockChangelog(),
-        canReview: false,
-      }}
-    />
-  ))
-  .add("review timed out in Remote Settings, user cannot review", () => (
-    <SubjectEXP1143
-      {...{
-        publishStatus: NimbusExperimentPublishStatus.REVIEW,
-        reviewRequestEvent: mockChangelog(),
-        timeoutEvent: mockChangelog("ghi@mozilla.com"),
-        canReview: false,
-      }}
-    />
-  ))
-  .add("review rejected", () => (
-    <SubjectEXP1143
-      {...{
-        publishStatus: NimbusExperimentPublishStatus.IDLE,
-        reviewRequestEvent: mockChangelog(),
-        rejectionEvent: mockChangelog(
-          "ghi@mozilla.com",
-          "Not ready to end yet, having too much fun.",
-        ),
-        canReview: true,
-      }}
-    />
-  ));
+export default {
+  title: "components/Summary",
+  component: Subject,
+  decorators: [withLinks],
+};
+
+export const draftStatus = storyWithExperimentProps();
+
+export const liveStatus = storyWithExperimentProps({
+  status: NimbusExperimentStatus.LIVE,
+});
+
+export const enrollmentActive = storyWithExperimentProps({
+  status: NimbusExperimentStatus.LIVE,
+  isEnrollmentPaused: false,
+});
+
+export const enrollmentEnded = storyWithExperimentProps({
+  status: NimbusExperimentStatus.LIVE,
+  enrollmentEndDate: new Date().toISOString(),
+});
+
+export const endRequestedEnrollmentEnded = storyWithExperimentProps({
+  ...reviewRequestedBaseProps,
+  enrollmentEndDate: new Date().toISOString(),
+});
+
+export const noBranches = storyWithExperimentProps({
+  referenceBranch: null,
+  treatmentBranches: null,
+});
+
+export const reviewRequestedCanReview = storyWithExperimentProps(
+  { ...reviewRequestedBaseProps, canReview: true },
+  "Review requested, user can review",
+);
+
+export const reviewPendingCanReview = storyWithExperimentProps(
+  { ...reviewPendingBaseProps, canReview: true },
+  "Review pending in Remote Rettings, user can review",
+);
+
+export const reviewTimedoutCanReview = storyWithExperimentProps(
+  { ...reviewTimedoutBaseProps, canReview: true },
+  "Review timed out in Remote Settings, user can review",
+);
+
+export const reviewRequestedCannotReview = storyWithExperimentProps(
+  { ...reviewRequestedBaseProps, canReview: false },
+  "Review requested, user cannot review",
+);
+
+export const reviewPendingCannotReview = storyWithExperimentProps(
+  { ...reviewPendingBaseProps, canReview: false },
+  "Review pending in Remote Rettings, user cannot review",
+);
+
+export const reviewTimedoutCannotReview = storyWithExperimentProps(
+  { ...reviewTimedoutBaseProps, canReview: false },
+  "Review timed out in Remote Settings, user cannot review",
+);
+
+export const reviewRejected = storyWithExperimentProps(
+  reviewRejectedBaseProps,
+  "Review rejected",
+);

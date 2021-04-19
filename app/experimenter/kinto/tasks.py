@@ -124,7 +124,7 @@ def handle_rejection(application, kinto_client):
         generate_nimbus_changelog(
             experiment,
             get_kinto_user(),
-            message=f'Rejected: {collection_data["last_reviewer_comment"]}',
+            message=collection_data["last_reviewer_comment"],
         )
 
         logger.info(f"{experiment} rejected")
