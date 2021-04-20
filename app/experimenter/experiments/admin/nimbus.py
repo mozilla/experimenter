@@ -19,22 +19,11 @@ class NimbusBranchInlineAdmin(admin.StackedInline):
 class NimbusDocumentationLinkInlineAdmin(admin.TabularInline):
     model = NimbusDocumentationLink
     extra = 1
-    fields = ("title", "link")
 
 
-class NimbusExperimentChangeLogInlineAdmin(admin.TabularInline):
+class NimbusExperimentChangeLogInlineAdmin(admin.StackedInline):
     model = NimbusChangeLog
     extra = 1
-
-    fields = (
-        "changed_by",
-        "changed_on",
-        "old_status",
-        "old_publish_status",
-        "new_status",
-        "new_publish_status",
-        "message",
-    )
 
 
 class NimbusExperimentAdminForm(forms.ModelForm):
