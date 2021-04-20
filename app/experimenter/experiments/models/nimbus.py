@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import F, Q
 from django.urls import reverse
 from django.utils import timezone
 
@@ -179,7 +179,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
             return self.TARGETING_CONFIGS[self.targeting_config_slug]
 
     def latest_change(self):
-        return self.changes.order_by("-changed_on").first()
+        return self.changes.latest_change()
 
     @property
     def treatment_branches(self):
@@ -458,53 +458,49 @@ class NimbusFeatureConfig(models.Model):
 
 
 class NimbusChangeLogManager(models.Manager):
+    def latest_change(self):
+        return self.all().order_by("-changed_on").first()
+
     def latest_review_request(self):
         return (
             self.all()
             .filter(
-                Q(old_status=NimbusExperiment.Status.DRAFT)
-                | Q(old_status=NimbusExperiment.Status.PREVIEW),
+                Q(old_status=F("new_status"))
+                | Q(
+                    old_status=NimbusExperiment.Status.PREVIEW,
+                    new_status=NimbusExperiment.Status.DRAFT,
+                )
             )
             .filter(
                 old_publish_status=NimbusExperiment.PublishStatus.IDLE,
-                new_status=NimbusExperiment.Status.DRAFT,
                 new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
             )
             .order_by("-changed_on")
         ).first()
 
     def latest_rejection(self):
-        return (
-            self.all()
-            .filter(
-                Q(old_publish_status=NimbusExperiment.PublishStatus.REVIEW)
-                | Q(old_publish_status=NimbusExperiment.PublishStatus.WAITING),
+        change = self.latest_change()
+        if (
+            change
+            and change.old_status == change.new_status
+            and change.old_publish_status
+            in (
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.WAITING,
             )
-            .filter(
-                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
-            )
-            .order_by("-changed_on")
-        ).first()
+            and change.new_publish_status == NimbusExperiment.PublishStatus.IDLE
+        ):
+            return change
 
     def latest_timeout(self):
-        return (
-            self.all()
-            .filter(
-                Q(
-                    old_status=NimbusExperiment.Status.DRAFT,
-                    new_status=NimbusExperiment.Status.DRAFT,
-                )
-                | Q(
-                    old_status=NimbusExperiment.Status.LIVE,
-                    new_status=NimbusExperiment.Status.LIVE,
-                )
-            )
-            .filter(
-                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            )
-            .order_by("-changed_on")
-        ).first()
+        change = self.latest_change()
+        if (
+            change
+            and change.old_status == change.new_status
+            and change.old_publish_status == NimbusExperiment.PublishStatus.WAITING
+            and change.new_publish_status == NimbusExperiment.PublishStatus.REVIEW
+        ):
+            return change
 
 
 class NimbusChangeLog(models.Model):
