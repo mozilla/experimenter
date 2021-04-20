@@ -78,19 +78,6 @@ class KintoClient:
         if self.collection_data["status"] == KINTO_REJECTED_STATUS:
             return self.collection_data
 
-    def get_rejected_record(self):
-        main_records = self.kinto_http_client.get_records(
-            bucket=settings.KINTO_BUCKET_MAIN, collection=self.collection
-        )
-
-        workspace_records = self.kinto_http_client.get_records(
-            bucket=settings.KINTO_BUCKET_WORKSPACE, collection=self.collection
-        )
-
-        main_record_ids = [record["id"] for record in main_records]
-        workspace_record_ids = [record["id"] for record in workspace_records]
-        return list(set(workspace_record_ids) - set(main_record_ids))[0]
-
     def rollback_changes(self):
         self.kinto_http_client.patch_collection(
             id=self.collection,

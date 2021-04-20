@@ -137,15 +137,3 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
     def test_returns_rejected_data(self):
         self.setup_kinto_rejected_review()
         self.assertTrue(self.client.get_rejected_collection_data())
-
-    def test_returns_rejected_record(self):
-        self.mock_kinto_client.get_records.side_effect = [
-            [{"id": "bug-12345-rapid-test-release-55"}],
-            [
-                {"id": "bug-12345-rapid-test-release-55"},
-                {"id": "bug-9999-rapid-test-release-55"},
-            ],
-        ]
-        self.assertEqual(
-            self.client.get_rejected_record(), "bug-9999-rapid-test-release-55"
-        )
