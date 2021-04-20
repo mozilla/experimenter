@@ -9,12 +9,386 @@ from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializ
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.kinto import tasks
-from experimenter.kinto.client import (
-    KINTO_REJECTED_STATUS,
-    KINTO_REVIEW_STATUS,
-    KINTO_ROLLBACK_STATUS,
-)
+from experimenter.kinto.client import KINTO_REVIEW_STATUS, KINTO_ROLLBACK_STATUS
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
+
+
+class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        mock_dispatchee_task_patcher = mock.patch(
+            "experimenter.kinto.tasks.nimbus_check_kinto_push_queue_by_application.delay"
+        )
+        self.mock_dispatchee_task = mock_dispatchee_task_patcher.start()
+        self.addCleanup(mock_dispatchee_task_patcher.stop)
+
+    def test_dispatches_check_push_queue(self):
+        tasks.nimbus_check_kinto_push_queue()
+        for application in NimbusExperiment.Application:
+            self.mock_dispatchee_task.assert_any_call(application.value)
+
+
+class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        mock_push_task_patcher = mock.patch(
+            "experimenter.kinto.tasks.nimbus_push_experiment_to_kinto.delay"
+        )
+        self.mock_push_task = mock_push_task_patcher.start()
+        self.addCleanup(mock_push_task_patcher.stop)
+
+        mock_end_task_patcher = mock.patch(
+            "experimenter.kinto.tasks.nimbus_end_experiment_in_kinto.delay"
+        )
+        self.mock_end_task = mock_end_task_patcher.start()
+        self.addCleanup(mock_end_task_patcher.stop)
+
+        mock_pause_task_patcher = mock.patch(
+            "experimenter.kinto.tasks.nimbus_pause_experiment_in_kinto.delay"
+        )
+        self.mock_pause_task = mock_pause_task_patcher.start()
+        self.addCleanup(mock_pause_task_patcher.stop)
+
+    def test_check_with_empty_queue_pushes_nothing(self):
+        self.setup_kinto_no_pending_review()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+        self.mock_kinto_client.patch_collection.assert_not_called()
+        self.mock_push_task.assert_not_called()
+        self.mock_pause_task.assert_not_called()
+        self.mock_end_task.assert_not_called()
+
+    def test_check_with_no_approved_publish_status_pushes_nothing(self):
+        for status in [NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.LIVE]:
+            for publish_status in [
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.WAITING,
+            ]:
+                NimbusExperimentFactory.create_with_status(
+                    status,
+                    publish_status=publish_status,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+
+        self.setup_kinto_no_pending_review()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+        self.mock_kinto_client.patch_collection.assert_not_called()
+        self.mock_push_task.assert_not_called()
+        self.mock_pause_task.assert_not_called()
+        self.mock_end_task.assert_not_called()
+
+    def test_check_with_approved_launch_and_no_kinto_pending_pushes_experiment(
+        self,
+    ):
+        launching_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.setup_kinto_no_pending_review()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+        self.mock_push_task.assert_called_with(launching_experiment.id)
+
+    def test_check_with_approved_end_and_no_kinto_pending_ends_experiment(self):
+        ending_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_end_requested=True,
+        )
+
+        self.setup_kinto_no_pending_review()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+        self.mock_end_task.assert_called_with(ending_experiment.id)
+
+    def test_check_with_pause_and_no_kinto_pending_pauses_experiment(self):
+        pausing_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        for change in pausing_experiment.changes.all():
+            change.changed_on = change.changed_on - datetime.timedelta(
+                days=pausing_experiment.proposed_enrollment + 1
+            )
+            change.save()
+
+        self.setup_kinto_no_pending_review()
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+        self.mock_pause_task.assert_called_with(pausing_experiment.id)
+
+    def test_check_with_timeout_launch_review_and_queued_launch_rolls_back_and_pushes(
+        self,
+    ):
+        pending_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        launching_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.setup_kinto_pending_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+
+        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id="nimbus-desktop-experiments",
+            data={"status": "to-rollback"},
+            bucket="main-workspace",
+        )
+
+        pending_experiment = NimbusExperiment.objects.get(id=pending_experiment.id)
+        self.assertEqual(
+            pending_experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
+        )
+        self.assertTrue(
+            pending_experiment.changes.filter(
+                old_status=NimbusExperiment.Status.DRAFT,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_status=NimbusExperiment.Status.DRAFT,
+                new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            ).exists()
+        )
+
+    def test_check_with_pending_pause_review_and_queued_launch_aborts_early(
+        self,
+    ):
+        pausing_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        for change in pausing_experiment.changes.all():
+            change.changed_on = change.changed_on - datetime.timedelta(
+                days=pausing_experiment.proposed_enrollment + 1
+            )
+            change.save()
+
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.setup_kinto_pending_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+
+        self.mock_kinto_client.patch_collection.assert_not_called()
+        self.mock_push_task.assert_not_called()
+        self.mock_pause_task.assert_not_called()
+        self.mock_end_task.assert_not_called()
+
+    def test_check_with_timeout_end_review_and_queued_launch_rolls_back_and_pushes(
+        self,
+    ):
+        pending_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_end_requested=True,
+        )
+        launching_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.setup_kinto_pending_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+
+        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id="nimbus-desktop-experiments",
+            data={"status": "to-rollback"},
+            bucket="main-workspace",
+        )
+
+        pending_experiment = NimbusExperiment.objects.get(id=pending_experiment.id)
+        self.assertEqual(
+            pending_experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
+        )
+        self.assertFalse(pending_experiment.is_end_requested)
+        self.assertTrue(
+            pending_experiment.changes.filter(
+                old_status=NimbusExperiment.Status.LIVE,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_status=NimbusExperiment.Status.LIVE,
+                new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            ).exists()
+        )
+
+    def test_check_with_rejected_launch_rolls_back_and_pushes(self):
+        rejected_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        launching_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.setup_kinto_rejected_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+
+        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            data={"status": KINTO_ROLLBACK_STATUS},
+        )
+
+        rejected_experiment = NimbusExperiment.objects.get(id=rejected_experiment.id)
+        self.assertEqual(rejected_experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(
+            rejected_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+
+        self.assertTrue(
+            rejected_experiment.changes.filter(
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=NimbusExperiment.Status.DRAFT,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_status=NimbusExperiment.Status.DRAFT,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            ).exists()
+        )
+
+    def test_check_with_rejected_pause_rolls_back_and_pushes_same_pause(self):
+        pausing_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        for change in pausing_experiment.changes.all():
+            change.changed_on = change.changed_on - datetime.timedelta(
+                days=pausing_experiment.proposed_enrollment + 1
+            )
+            change.save()
+
+        self.setup_kinto_rejected_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+
+        self.mock_pause_task.assert_called_with(pausing_experiment.id)
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            data={"status": KINTO_ROLLBACK_STATUS},
+        )
+
+    def test_check_with_rejected_end_rolls_back_and_pushes(self):
+        rejected_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_end_requested=True,
+        )
+        launching_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.setup_kinto_rejected_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.DESKTOP
+        )
+
+        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            data={"status": KINTO_ROLLBACK_STATUS},
+        )
+
+        rejected_experiment = NimbusExperiment.objects.get(id=rejected_experiment.id)
+        self.assertEqual(rejected_experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            rejected_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+        self.assertFalse(rejected_experiment.is_end_requested)
+
+        self.assertTrue(
+            rejected_experiment.changes.filter(
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=NimbusExperiment.Status.LIVE,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_status=NimbusExperiment.Status.LIVE,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            ).exists()
+        )
+
+    def test_check_with_missing_review_and_queued_launch_rolls_back_and_pushes(self):
+        launching_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.FENIX,
+        )
+
+        self.setup_kinto_pending_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.FENIX
+        )
+
+        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id="nimbus-mobile-experiments",
+            data={"status": "to-rollback"},
+            bucket="main-workspace",
+        )
+
+    def test_check_with_missing_rejection_and_queued_launch_rolls_back_and_pushes(self):
+        launching_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            application=NimbusExperiment.Application.FENIX,
+        )
+
+        self.setup_kinto_rejected_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_application(
+            NimbusExperiment.Application.FENIX
+        )
+
+        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id="nimbus-mobile-experiments",
+            data={"status": "to-rollback"},
+            bucket="main-workspace",
+        )
 
 
 class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
@@ -75,459 +449,12 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             tasks.nimbus_push_experiment_to_kinto(experiment.id)
 
 
-class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-        mock_dispatchee_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_check_kinto_push_queue_by_application.delay"
-        )
-        self.mock_dispatchee_task = mock_dispatchee_task_patcher.start()
-        self.addCleanup(mock_dispatchee_task_patcher.stop)
-
-    def test_dispatches_check_push_queue(self):
-        tasks.nimbus_check_kinto_push_queue()
-        for application in NimbusExperiment.Application:
-            self.mock_dispatchee_task.assert_any_call(application.value)
-
-
-class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-        mock_push_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_push_experiment_to_kinto.delay"
-        )
-        self.mock_push_task = mock_push_task_patcher.start()
-        self.addCleanup(mock_push_task_patcher.stop)
-
-        mock_end_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_end_experiment_in_kinto.delay"
-        )
-        self.mock_end_task = mock_end_task_patcher.start()
-        self.addCleanup(mock_end_task_patcher.stop)
-
-        mock_pause_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_pause_experiment_in_kinto.delay"
-        )
-        self.mock_pause_task = mock_pause_task_patcher.start()
-        self.addCleanup(mock_pause_task_patcher.stop)
-
-    def test_check_with_empty_queue_pushes_nothing(self):
-        self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
-        )
-        self.mock_push_task.assert_not_called()
-        self.mock_end_task.assert_not_called()
-
-    def test_check_experiment_with_no_approved_publish_status_pushes_nothing(self):
-        for publish_status in [
-            NimbusExperiment.PublishStatus.IDLE,
-            NimbusExperiment.PublishStatus.REVIEW,
-            NimbusExperiment.PublishStatus.WAITING,
-        ]:
-            NimbusExperimentFactory.create(
-                publish_status=publish_status,
-                application=NimbusExperiment.Application.DESKTOP,
-            )
-
-        self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
-        )
-        self.mock_push_task.assert_not_called()
-        self.mock_end_task.assert_not_called()
-
-    def test_check_with_review_and_kinto_pending_launch_rolls_back_and_pushes(self):
-        pending_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
-            application=NimbusExperiment.Application.FENIX,
-        )
-        launching_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=NimbusExperiment.Application.FENIX,
-        )
-
-        self.setup_kinto_pending_review()
-        self.mock_kinto_client.get_records.side_effect = [
-            [],
-            [{"id": pending_experiment.slug}],
-        ]
-
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.FENIX
-        )
-
-        self.mock_push_task.assert_called_with(launching_experiment.id)
-
-        self.mock_kinto_client.patch_collection.assert_called_with(
-            id="nimbus-mobile-experiments",
-            data={"status": "to-rollback"},
-            bucket="main-workspace",
-        )
-        pending_experiment = NimbusExperiment.objects.get(slug=pending_experiment.slug)
-        self.assertEqual(
-            pending_experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
-        )
-        self.assertTrue(
-            pending_experiment.changes.filter(
-                old_status=NimbusExperiment.Status.DRAFT,
-                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                new_status=NimbusExperiment.Status.DRAFT,
-                new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            ).exists()
-        )
-
-    def test_check_with_review_and_kinto_pending_update_doesnt_update_collection(self):
-        pending_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
-            application=NimbusExperiment.Application.FENIX,
-        )
-        NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=NimbusExperiment.Application.FENIX,
-        )
-
-        self.setup_kinto_pending_review()
-        self.mock_kinto_client.get_records.side_effect = [
-            [],
-            [{"id": pending_experiment.slug}],
-        ]
-
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.FENIX
-        )
-
-        self.mock_push_task.assert_not_called()
-        self.mock_kinto_client.patch_collection.assert_not_called()
-
-    def test_check_with_review_and_kinto_pending_end_rolls_back_and_pushes(self):
-        pending_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
-            is_end_requested=True,
-            application=NimbusExperiment.Application.FENIX,
-        )
-        launching_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=NimbusExperiment.Application.FENIX,
-        )
-
-        self.setup_kinto_pending_review()
-        self.mock_kinto_client.get_records.side_effect = [
-            [{"id": pending_experiment.slug}],
-            [{"id": pending_experiment.slug}],
-        ]
-
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.FENIX
-        )
-
-        self.mock_push_task.assert_called_with(launching_experiment.id)
-
-        self.mock_kinto_client.patch_collection.assert_called_with(
-            id="nimbus-mobile-experiments",
-            data={"status": "to-rollback"},
-            bucket="main-workspace",
-        )
-        pending_experiment = NimbusExperiment.objects.get(slug=pending_experiment.slug)
-        self.assertEqual(
-            pending_experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
-        )
-        self.assertTrue(
-            pending_experiment.changes.filter(
-                old_status=NimbusExperiment.Status.LIVE,
-                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                new_status=NimbusExperiment.Status.LIVE,
-                new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            ).exists()
-        )
-
-    def test_checkexperiment_with_approved_and_no_kinto_pending_pushes_experiment(
-        self,
-    ):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=NimbusExperiment.Application.FENIX,
-        )
-        self.assertEqual(experiment.changes.count(), 1)
-
-        self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.FENIX
-        )
-        self.mock_push_task.assert_called_with(experiment.id)
-
-    def test_check_with_reject_review(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-
-        self.mock_kinto_client.get_collection.side_effect = [
-            # Desktop responses
-            {
-                "data": {
-                    "status": KINTO_REJECTED_STATUS,
-                    "last_reviewer_comment": "it's no good",
-                }
-            },
-            {"data": {"status": "anything"}},
-            # Fenix responses
-            {"data": {"status": "anything"}},
-            {"data": {"status": "anything"}},
-        ]
-        self.mock_kinto_client.get_records.side_effect = [
-            # Desktop responses
-            [{"id": "another-experiment"}],
-            [
-                {"id": "another-experiment"},
-                {"id": experiment.slug},
-            ],
-            # Fenix responses
-            [],
-            [],
-        ]
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
-        )
-
-        self.mock_kinto_client.patch_collection.assert_called_with(
-            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-            data={"status": KINTO_ROLLBACK_STATUS},
-        )
-
-        self.assertTrue(
-            experiment.changes.filter(
-                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
-            ).exists()
-        )
-
-    def test_check_with_reject_review_doesnt_draft_non_accepted(self):
+class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
+    def test_updates_experiment_record_isEnrollmentPaused_true_in_kinto(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.LIVE,
-            is_end_requested=False,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-
-        self.mock_kinto_client.get_collection.side_effect = [
-            # Desktop responses
-            {
-                "data": {
-                    "status": KINTO_REJECTED_STATUS,
-                    "last_reviewer_comment": "it's no good",
-                }
-            },
-            {"data": {"status": "anything"}},
-            # Fenix responses
-            {"data": {"status": "anything"}},
-            {"data": {"status": "anything"}},
-        ]
-        self.mock_kinto_client.get_records.side_effect = [
-            # Desktop responses
-            [{"id": "another-experiment"}],
-            [
-                {"id": "another-experiment"},
-                {"id": experiment.slug},
-            ],
-            # Fenix responses
-            [],
-            [],
-        ]
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
-        )
-
-        # It still rolls back
-        self.mock_kinto_client.patch_collection.assert_called_with(
-            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-            data={"status": KINTO_ROLLBACK_STATUS},
-        )
-
-        # But it does not revert to draft
-        self.assertFalse(
-            experiment.changes.filter(
-                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.LIVE,
-                new_status=NimbusExperiment.Status.DRAFT,
-            ).exists()
-        )
-
-    def test_check_live_end_requested_with_reject_review(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            is_end_requested=True,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-
-        rejection_message = "can't end this yet"
-        self.mock_kinto_client.get_collection.side_effect = [
-            # Desktop responses
-            {
-                "data": {
-                    "status": KINTO_REJECTED_STATUS,
-                    "last_reviewer_comment": rejection_message,
-                }
-            },
-            {"data": {"status": "anything"}},
-            # Fenix responses
-            {"data": {"status": "anything"}},
-            {"data": {"status": "anything"}},
-        ]
-        self.mock_kinto_client.get_records.side_effect = [
-            # Desktop responses
-            [{"id": "another-experiment"}],
-            [
-                {"id": "another-experiment"},
-                {"id": experiment.slug},
-            ],
-            # Fenix responses
-            [],
-            [],
-        ]
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
-        )
-
-        self.mock_kinto_client.patch_collection.assert_called_with(
-            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-            data={"status": KINTO_ROLLBACK_STATUS},
-        )
-
-        self.assertTrue(
-            NimbusExperiment.objects.filter(
-                id=experiment.id,
-                status=NimbusExperiment.Status.LIVE,
-                is_end_requested=False,
-            ).exists()
-        )
-
-        latest_change = experiment.changes.order_by("-changed_on").first()
-        self.assertFalse(latest_change.experiment_data["is_end_requested"])
-        self.assertEqual(latest_change.message, f"Rejected: {rejection_message}")
-
-    def test_check_can_rejection_and_still_push_changes(self):
-        experiment1 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            is_end_requested=True,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        experiment2 = NimbusExperimentFactory.create(
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-
-        self.mock_kinto_client.get_collection.side_effect = [
-            # Desktop responses
-            {
-                "data": {
-                    "status": KINTO_REJECTED_STATUS,
-                    "last_reviewer_comment": "can't end this yet",
-                }
-            },
-            {"data": {"status": "anything"}},
-            # Fenix responses
-            {"data": {"status": "anything"}},
-            {"data": {"status": "anything"}},
-        ]
-        self.mock_kinto_client.get_records.side_effect = [
-            # Desktop responses
-            [{"id": "another-experiment"}],
-            [
-                {"id": "another-experiment"},
-                {"id": experiment1.slug},
-            ],
-            # Fenix responses
-            [],
-            [],
-        ]
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
-        )
-
-        self.mock_kinto_client.patch_collection.assert_called_with(
-            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-            data={"status": KINTO_ROLLBACK_STATUS},
-        )
-
-        self.assertTrue(
-            NimbusExperiment.objects.filter(
-                id=experiment1.id,
-                status=NimbusExperiment.Status.LIVE,
-                is_end_requested=False,
-            ).exists()
-        )
-
-        self.mock_push_task.assert_called_with(experiment2.id)
-
-    def test_check_experiment_with_end_requested_and_no_kinto_pending_ends_experiment(
-        self,
-    ):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=NimbusExperiment.Application.DESKTOP,
-            is_end_requested=True,
-        )
-        self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
-        )
-        self.mock_end_task.assert_called_with(experiment.id)
-
-    def test_check_experiment_pushes_experiment_before_ending_experiment(
-        self,
-    ):
-        experiment_1 = NimbusExperimentFactory.create(
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            name="First experiment",
-            slug="first-experiment",
-            application=NimbusExperiment.Application.FENIX,
-        )
-        experiment_2 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            name="Second experiment",
-            slug="second-experiment",
-            application=NimbusExperiment.Application.FENIX,
-            is_end_requested=True,
-        )
-
-        self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.FENIX
-        )
-        self.mock_push_task.assert_called_with(experiment_1.id)
-        self.mock_end_task.assert_not_called()
-
-        experiment_1.status = NimbusExperiment.Status.LIVE
-        experiment_1.save()
-
-        self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.FENIX
-        )
-        self.mock_end_task.assert_called_with(experiment_2.id)
-
-    def test_check_experiment_that_should_pause_does_pause(
-        self,
-    ):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
             proposed_enrollment=10,
-            is_paused=False,
             application=NimbusExperiment.Application.DESKTOP,
         )
         launch_change = experiment.changes.get(
@@ -537,12 +464,77 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
         launch_change.save()
 
-        self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": False}
+        ]
+
+        tasks.nimbus_pause_experiment_in_kinto(experiment.id)
+
+        data = NimbusExperimentSerializer(experiment).data
+        data["isEnrollmentPaused"] = True
+
+        self.mock_kinto_client.update_record.assert_called_with(
+            data=data,
+            collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            if_match='"0"',
         )
 
-        self.mock_pause_task.assert_called_with(experiment.id)
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            data={"status": KINTO_REVIEW_STATUS},
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.WAITING
+        )
+
+    def test_push_experiment_to_kinto_reraises_exception(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+        )
+        self.mock_kinto_client.get_records.side_effect = Exception
+        with self.assertRaises(Exception):
+            tasks.nimbus_pause_experiment_in_kinto(experiment.id)
+
+
+class TestEndExperimentInKinto(MockKintoClientMixin, TestCase):
+    def test_exception_for_failed_delete(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+        )
+        self.mock_kinto_client.delete_record.side_effect = Exception
+        with self.assertRaises(Exception):
+            tasks.nimbus_end_experiment_in_kinto(experiment.id)
+
+    def test_end_experiment_in_kinto_deletes_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            is_end_requested=True,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        tasks.nimbus_end_experiment_in_kinto(experiment.id)
+
+        self.mock_kinto_client.delete_record.assert_called_with(
+            id=experiment.slug,
+            collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+        )
+
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            data={"status": KINTO_REVIEW_STATUS},
+        )
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.WAITING
+        )
 
 
 class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
@@ -587,6 +579,62 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
                 new_status=NimbusExperiment.Status.LIVE,
             ).exists()
         )
+
+
+class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
+    def test_ignores_unpaused_experiment_with_isEnrollmentPaused_false(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_paused=False,
+        )
+        changes_count = experiment.changes.count()
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": False}
+        ]
+
+        tasks.nimbus_check_experiments_are_paused()
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertFalse(experiment.is_paused)
+        self.assertEqual(experiment.changes.count(), changes_count)
+
+    def test_updates_unpaused_experiment_with_isEnrollmentPaused_true(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_paused=False,
+        )
+        changes_count = experiment.changes.count()
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": True}
+        ]
+
+        tasks.nimbus_check_experiments_are_paused()
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertTrue(experiment.is_paused)
+        self.assertEqual(experiment.changes.count(), changes_count + 1)
+
+    def test_ignores_paused_experiment_with_isEnrollmentPaused_true(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_paused=True,
+        )
+        changes_count = experiment.changes.count()
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": True}
+        ]
+
+        tasks.nimbus_check_experiments_are_paused()
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertTrue(experiment.is_paused)
+        self.assertEqual(experiment.changes.count(), changes_count)
 
 
 class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
@@ -707,138 +755,6 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
                 id=fenix_experiment.id, status=NimbusExperiment.Status.LIVE
             ).exists()
         )
-
-
-class TestEndExperimentInKinto(MockKintoClientMixin, TestCase):
-    def test_exception_for_failed_delete(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-        )
-        self.mock_kinto_client.delete_record.side_effect = Exception
-        with self.assertRaises(Exception):
-            tasks.nimbus_end_experiment_in_kinto(experiment.id)
-
-    def test_end_experiment_in_kinto_deletes_experiment(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            is_end_requested=True,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-
-        tasks.nimbus_end_experiment_in_kinto(experiment.id)
-
-        self.mock_kinto_client.delete_record.assert_called_with(
-            id=experiment.slug,
-            collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-        )
-
-        self.mock_kinto_client.patch_collection.assert_called_with(
-            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-            data={"status": KINTO_REVIEW_STATUS},
-        )
-
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(
-            experiment.publish_status, NimbusExperiment.PublishStatus.WAITING
-        )
-
-
-class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
-    def test_ignores_unpaused_experiment_with_isEnrollmentPaused_false(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            application=NimbusExperiment.Application.DESKTOP,
-            is_paused=False,
-        )
-        changes_count = experiment.changes.count()
-
-        self.mock_kinto_client.get_records.return_value = [
-            {"id": experiment.slug, "isEnrollmentPaused": False}
-        ]
-
-        tasks.nimbus_check_experiments_are_paused()
-
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertFalse(experiment.is_paused)
-        self.assertEqual(experiment.changes.count(), changes_count)
-
-    def test_updates_unpaused_experiment_with_isEnrollmentPaused_true(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            application=NimbusExperiment.Application.DESKTOP,
-            is_paused=False,
-        )
-        changes_count = experiment.changes.count()
-
-        self.mock_kinto_client.get_records.return_value = [
-            {"id": experiment.slug, "isEnrollmentPaused": True}
-        ]
-
-        tasks.nimbus_check_experiments_are_paused()
-
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertTrue(experiment.is_paused)
-        self.assertEqual(experiment.changes.count(), changes_count + 1)
-
-    def test_ignores_paused_experiment_with_isEnrollmentPaused_true(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            application=NimbusExperiment.Application.DESKTOP,
-            is_paused=True,
-        )
-        changes_count = experiment.changes.count()
-
-        self.mock_kinto_client.get_records.return_value = [
-            {"id": experiment.slug, "isEnrollmentPaused": True}
-        ]
-
-        tasks.nimbus_check_experiments_are_paused()
-
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertTrue(experiment.is_paused)
-        self.assertEqual(experiment.changes.count(), changes_count)
-
-
-class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
-    def test_updates_experiment_record_isEnrollmentPaused_true_in_kinto(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            proposed_enrollment=10,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        launch_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        )
-        launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
-        launch_change.save()
-
-        self.mock_kinto_client.get_records.return_value = [{"id": experiment.slug}]
-        tasks.nimbus_pause_experiment_in_kinto(experiment.id)
-
-        self.mock_kinto_client.update_record.assert_called_with(
-            data={"id": experiment.slug, "isEnrollmentPaused": True},
-            collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-            if_match='"0"',
-        )
-
-        self.mock_kinto_client.patch_collection.assert_called_with(
-            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            data={"status": KINTO_REVIEW_STATUS},
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-        )
-
-    def test_push_experiment_to_kinto_reraises_exception(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-        )
-        self.mock_kinto_client.get_records.side_effect = Exception
-        with self.assertRaises(Exception):
-            tasks.nimbus_pause_experiment_in_kinto(experiment.id)
 
 
 class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestCase):
