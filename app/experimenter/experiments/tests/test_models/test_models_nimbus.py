@@ -779,15 +779,17 @@ class TestNimbusChangeLogManager(TestCase):
             publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
+        changes = []
         for publish_status in (
             NimbusExperiment.PublishStatus.REVIEW,
             NimbusExperiment.PublishStatus.IDLE,
         ):
             experiment.publish_status = publish_status
             experiment.save()
-            rejection = generate_nimbus_changelog(experiment, experiment.owner)
+            changes.append(generate_nimbus_changelog(experiment, experiment.owner))
 
-        self.assertEqual(experiment.changes.latest_rejection(), rejection)
+        self.assertEqual(experiment.changes.latest_review_request(), changes[0])
+        self.assertEqual(experiment.changes.latest_rejection(), changes[1])
 
     def test_latest_rejection_returns_rejection_for_waiting_to_idle(self):
         experiment = NimbusExperimentFactory.create_with_status(
@@ -795,6 +797,7 @@ class TestNimbusChangeLogManager(TestCase):
             publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
+        changes = []
         for publish_status in (
             NimbusExperiment.PublishStatus.REVIEW,
             NimbusExperiment.PublishStatus.APPROVED,
@@ -803,9 +806,60 @@ class TestNimbusChangeLogManager(TestCase):
         ):
             experiment.publish_status = publish_status
             experiment.save()
-            rejection = generate_nimbus_changelog(experiment, experiment.owner)
+            changes.append(generate_nimbus_changelog(experiment, experiment.owner))
 
-        self.assertEqual(experiment.changes.latest_rejection(), rejection)
+        self.assertEqual(experiment.changes.latest_review_request(), changes[0])
+        self.assertEqual(experiment.changes.latest_rejection(), changes[3])
+
+    def test_launch_to_live_is_not_considered_latest_rejection(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        )
+
+        experiment.status = NimbusExperiment.Status.LIVE
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertIsNone(experiment.changes.latest_rejection())
+
+    def test_stale_timeout_not_returned(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
+            NimbusExperiment.PublishStatus.WAITING,
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertIsNone(experiment.changes.latest_timeout())
+
+    def test_stale_rejection_not_returned(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
+            NimbusExperiment.PublishStatus.WAITING,
+            NimbusExperiment.PublishStatus.IDLE,
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            generate_nimbus_changelog(experiment, experiment.owner)
+
+        self.assertIsNone(experiment.changes.latest_rejection())
 
 
 class TestNimbusChangeLog(TestCase):
