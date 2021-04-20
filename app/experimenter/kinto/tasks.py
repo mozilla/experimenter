@@ -289,7 +289,6 @@ def nimbus_check_experiments_are_paused():
 
         for experiment in live_experiments:
             if records[experiment.slug]["isEnrollmentPaused"]:
-                nimbus_send_experiment_ending_email(experiment)
                 logger.info(
                     f"{experiment.slug} is_paused is being updated to True".format(
                         experiment=experiment
