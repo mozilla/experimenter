@@ -543,15 +543,17 @@ class TestNimbusQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
-        experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
+            NimbusExperiment.PublishStatus.WAITING,
+            NimbusExperiment.PublishStatus.REVIEW,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            generate_nimbus_changelog(experiment, experiment.owner)
 
         response = self.query(
             """
