@@ -55,76 +55,79 @@ def nimbus_check_kinto_push_queue_by_application(application):
 
     kinto_client = KintoClient(collection)
 
-    can_update_collection = True
+    should_rollback = False
     if kinto_client.has_pending_review():
         logger.info(f"{collection} has pending review")
-        can_update_collection = handle_pending_review(application, kinto_client)
+        should_abort = handle_pending_review(application, kinto_client)
+
+        if should_abort:
+            return
+
+        should_rollback = True
 
     if kinto_client.has_rejection():
         logger.info(f"{collection} has rejection")
-        handle_rejection(kinto_client)
+        handle_rejection(application, kinto_client)
+        should_rollback = True
 
-    if can_update_collection:
-        if queued_launch_experiment := NimbusExperiment.objects.launch_queue(
-            application
-        ).first():
-            nimbus_push_experiment_to_kinto.delay(queued_launch_experiment.id)
-        elif queued_end_experiment := NimbusExperiment.objects.end_queue(
-            application
-        ).first():
-            nimbus_end_experiment_in_kinto.delay(queued_end_experiment.id)
-        elif queued_pause_experiment := NimbusExperiment.objects.pause_queue(
-            application
-        ).first():
-            nimbus_pause_experiment_in_kinto.delay(queued_pause_experiment.id)
+    if should_rollback:
+        kinto_client.rollback_changes()
+
+    if queued_launch_experiment := NimbusExperiment.objects.launch_queue(
+        application
+    ).first():
+        nimbus_push_experiment_to_kinto.delay(queued_launch_experiment.id)
+    elif queued_end_experiment := NimbusExperiment.objects.end_queue(application).first():
+        nimbus_end_experiment_in_kinto.delay(queued_end_experiment.id)
+    elif queued_pause_experiment := NimbusExperiment.objects.pause_queue(
+        application
+    ).first():
+        nimbus_pause_experiment_in_kinto.delay(queued_pause_experiment.id)
 
     metrics.incr(f"check_kinto_push_queue_by_{collection}_application.completed")
 
 
 def handle_pending_review(application, kinto_client):
-    experiment = NimbusExperiment.objects.get(
+    experiment = NimbusExperiment.objects.filter(
         application=application, publish_status=NimbusExperiment.PublishStatus.WAITING
-    )
+    ).first()
 
-    if experiment.has_state(experiment.SHOULD_TIMEOUT):
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+    if experiment:
+        if experiment.has_state(experiment.SHOULD_TIMEOUT):
+            experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+            experiment.is_end_requested = False
+            experiment.save()
+
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message="Timed Out",
+            )
+
+            logger.info(f"{experiment} timed out")
+        else:
+            # There is a pending review but it shouldn't time out
+            return True
+
+
+def handle_rejection(application, kinto_client):
+    collection_data = kinto_client.get_rejected_collection_data()
+    experiment = NimbusExperiment.objects.filter(
+        application=application, publish_status=NimbusExperiment.PublishStatus.WAITING
+    ).first()
+
+    if experiment:
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         experiment.is_end_requested = False
         experiment.save()
 
         generate_nimbus_changelog(
             experiment,
             get_kinto_user(),
-            message="Timed Out",
+            message=f'Rejected: {collection_data["last_reviewer_comment"]}',
         )
 
-        kinto_client.rollback_changes()
-        logger.info(f"{experiment} timed out")
-        return True
-    return False
-
-
-def handle_rejection(kinto_client):
-    rejected_slug = kinto_client.get_rejected_record()
-    collection_data = kinto_client.get_rejected_collection_data()
-    experiment = NimbusExperiment.objects.get(slug=rejected_slug)
-
-    if experiment.status == NimbusExperiment.Status.LIVE and experiment.is_end_requested:
-        experiment.is_end_requested = False
-        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-    elif experiment.publish_status == NimbusExperiment.PublishStatus.WAITING:
-        experiment.status = NimbusExperiment.Status.DRAFT
-
-    experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-    experiment.save()
-
-    generate_nimbus_changelog(
-        experiment,
-        get_kinto_user(),
-        message=f'Rejected: {collection_data["last_reviewer_comment"]}',
-    )
-
-    kinto_client.rollback_changes()
-    logger.info(f"{experiment} rejected")
+        logger.info(f"{experiment} rejected")
 
 
 @app.task
@@ -162,6 +165,43 @@ def nimbus_push_experiment_to_kinto(experiment_id):
 
 
 @app.task
+@metrics.timer_decorator("pause_experiment_in_kinto")
+def nimbus_pause_experiment_in_kinto(experiment_id):
+    """
+    An invoked task that given a single experiment id, marks it as paused
+    and updates the record. If it fails for any reason, log the error and
+    reraise it so it will be forwarded to sentry.
+    """
+    metrics.incr("pause_experiment_in_kinto.started")
+
+    try:
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        logger.info(f"Deleting {experiment.slug} from Kinto")
+
+        kinto_client = KintoClient(experiment.application_config.collection)
+
+        records = {r["id"]: r for r in kinto_client.get_main_records()}
+        record = records[experiment.slug]
+
+        if not record["isEnrollmentPaused"]:
+            data = NimbusExperimentSerializer(experiment).data
+            data["isEnrollmentPaused"] = True
+
+            kinto_client.update_record(data)
+
+            experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
+            experiment.save()
+
+            logger.info(f"{experiment.slug} paused in Kinto")
+
+        metrics.incr("pause_experiment_in_kinto.completed")
+    except Exception as e:
+        metrics.incr("pause_experiment_in_kinto.failed")
+        logger.info(f"Pausing experiment id {experiment.slug} in Kinto failed: {e}")
+        raise e
+
+
+@app.task
 @metrics.timer_decorator("end_experiment_in_kinto")
 def nimbus_end_experiment_in_kinto(experiment_id):
     """
@@ -186,36 +226,6 @@ def nimbus_end_experiment_in_kinto(experiment_id):
     except Exception as e:
         metrics.incr("end_experiment_in_kinto.failed")
         logger.info(f"Deleting experiment id {experiment.slug} from Kinto failed: {e}")
-        raise e
-
-
-@app.task
-@metrics.timer_decorator("pause_experiment_in_kinto")
-def nimbus_pause_experiment_in_kinto(experiment_id):
-    """
-    An invoked task that given a single experiment id, marks it as paused
-    and updates the record. If it fails for any reason, log the error and
-    reraise it so it will be forwarded to sentry.
-    """
-    metrics.incr("pause_experiment_in_kinto.started")
-
-    try:
-        experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.info(f"Deleting {experiment.slug} from Kinto")
-
-        kinto_client = KintoClient(experiment.application_config.collection)
-
-        records = {r["id"]: r for r in kinto_client.get_main_records()}
-        record = records[experiment.slug]
-        record["isEnrollmentPaused"] = True
-
-        kinto_client.update_record(record)
-
-        logger.info(f"{experiment.slug} paused in Kinto")
-        metrics.incr("pause_experiment_in_kinto.completed")
-    except Exception as e:
-        metrics.incr("pause_experiment_in_kinto.failed")
-        logger.info(f"Pausing experiment id {experiment.slug} in Kinto failed: {e}")
         raise e
 
 
@@ -286,6 +296,7 @@ def nimbus_check_experiments_are_paused():
                     )
                 )
 
+                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.is_paused = True
                 experiment.save()
 
