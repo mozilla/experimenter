@@ -656,11 +656,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
         for feature_config in feature_configs:
             config_feature_config = next(
-                filter(
-                    lambda f: f["id"] == str(feature_config.id), config["featureConfig"]
-                )
+                filter(lambda f: f["id"] == feature_config.id, config["featureConfig"])
             )
-            self.assertEqual(config_feature_config["id"], str(feature_config.id))
+            self.assertEqual(config_feature_config["id"], feature_config.id)
             self.assertEqual(config_feature_config["name"], feature_config.name)
             self.assertEqual(config_feature_config["slug"], feature_config.slug)
             self.assertEqual(

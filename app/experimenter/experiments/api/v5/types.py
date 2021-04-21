@@ -26,6 +26,8 @@ class ObjectField(graphene.Scalar):
 
 
 class NimbusUser(DjangoObjectType):
+    id = graphene.Int()
+
     class Meta:
         model = get_user_model()
         fields = ("id", "username", "first_name", "last_name", "email")
@@ -79,6 +81,7 @@ class NimbusDocumentationLinkType(DjangoObjectType):
 
 
 class NimbusFeatureConfigType(DjangoObjectType):
+    id = graphene.Int()
     application = NimbusExperimentApplication()
 
     class Meta:
@@ -86,6 +89,8 @@ class NimbusFeatureConfigType(DjangoObjectType):
 
 
 class ProjectType(DjangoObjectType):
+    id = graphene.Int()
+
     class Meta:
         model = Project
 
@@ -93,6 +98,7 @@ class ProjectType(DjangoObjectType):
 class NimbusIsolationGroupType(DjangoObjectType):
     class Meta:
         model = NimbusIsolationGroup
+        exclude = ("id",)
 
 
 class NimbusBucketRangeType(DjangoObjectType):
