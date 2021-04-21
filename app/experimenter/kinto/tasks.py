@@ -347,6 +347,7 @@ def nimbus_check_experiments_are_complete():
                 )
 
                 experiment.status = NimbusExperiment.Status.COMPLETE
+                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.save()
 
                 generate_nimbus_changelog(experiment, get_kinto_user())
