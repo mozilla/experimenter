@@ -13,7 +13,7 @@ import { NimbusExperimentApplication } from "../../types/globalTypes";
 
 const { mock } = mockExperimentQuery("demo-slug", {
   featureConfig: {
-    id: "2",
+    id: 2,
     name: "Mauris odio erat",
     slug: "mauris-odio-erat",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",

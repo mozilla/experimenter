@@ -265,7 +265,7 @@ describe("FormBranches", () => {
     });
     await clickAndWaitForSave(onSave);
     expect(onSave.mock.calls[0][0].featureConfigId).toEqual(
-      parseInt(MOCK_CONFIG.featureConfig![0]!.id, 10),
+      MOCK_CONFIG.featureConfig![0]!.id,
     );
   });
 
@@ -360,7 +360,7 @@ describe("FormBranches", () => {
     const saveResult = onSave.mock.calls[0][0];
 
     expect(saveResult.featureConfigId).toEqual(
-      parseInt(MOCK_FEATURE_CONFIG_WITH_SCHEMA.id, 10),
+      MOCK_FEATURE_CONFIG_WITH_SCHEMA.id,
     );
     expect(saveResult.referenceBranch).toEqual(expectedData);
     expect(saveResult.treatmentBranches[1]).toEqual(expectedData);

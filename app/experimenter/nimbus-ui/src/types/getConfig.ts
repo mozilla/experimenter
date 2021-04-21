@@ -20,7 +20,7 @@ export interface getConfig_nimbusConfig_channel {
 }
 
 export interface getConfig_nimbusConfig_featureConfig {
-  id: string;
+  id: number | null;
   name: string;
   slug: string;
   description: string | null;

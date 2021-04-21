@@ -309,7 +309,7 @@ type NimbusExperimentType {
 }
 
 type NimbusFeatureConfigType {
-  id: ID!
+  id: Int
   name: String!
   slug: String!
   description: String
@@ -326,7 +326,6 @@ enum NimbusIsolationGroupApplication {
 }
 
 type NimbusIsolationGroupType {
-  id: ID!
   application: NimbusIsolationGroupApplication!
   name: String!
   instance: Int!
@@ -352,7 +351,7 @@ type NimbusReadyForReviewType {
 }
 
 type NimbusUser {
-  id: ID!
+  id: Int
   username: String!
   firstName: String!
   lastName: String!
@@ -362,7 +361,7 @@ type NimbusUser {
 scalar ObjectField
 
 type ProjectType {
-  id: ID!
+  id: Int
   name: String!
   slug: String!
   nimbusexperimentSet: [NimbusExperimentType!]!
