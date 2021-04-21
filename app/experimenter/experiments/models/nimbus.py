@@ -18,28 +18,28 @@ from experimenter.projects.models import Project
 
 
 class NimbusExperimentManager(models.Manager):
-    def launch_queue(self, application):
+    def launch_queue(self, applications):
         return self.filter(
             status=NimbusExperiment.Status.DRAFT,
             publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=application,
+            application__in=applications,
         )
 
-    def pause_queue(self, application):
+    def pause_queue(self, applications):
         return self.filter(
             status=NimbusExperiment.Status.LIVE,
             is_paused=False,
-            application=application,
+            application__in=applications,
             id__in=[
                 experiment.id for experiment in self.all() if experiment.should_pause
             ],
         )
 
-    def end_queue(self, application):
+    def end_queue(self, applications):
         return self.filter(
             status=NimbusExperiment.Status.LIVE,
             publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=application,
+            application__in=applications,
             is_end_requested=True,
         )
 

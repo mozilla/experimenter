@@ -13,22 +13,22 @@ from experimenter.kinto.client import KINTO_REVIEW_STATUS, KINTO_ROLLBACK_STATUS
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 
 
-class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
+class TestNimbusCheckKintoPushQueue(MockKintoClientMixin, TestCase):
     def setUp(self):
         super().setUp()
         mock_dispatchee_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_check_kinto_push_queue_by_application.delay"
+            "experimenter.kinto.tasks.nimbus_check_kinto_push_queue_by_collection.delay"
         )
         self.mock_dispatchee_task = mock_dispatchee_task_patcher.start()
         self.addCleanup(mock_dispatchee_task_patcher.stop)
 
     def test_dispatches_check_push_queue(self):
         tasks.nimbus_check_kinto_push_queue()
-        for application in NimbusExperiment.Application:
-            self.mock_dispatchee_task.assert_any_call(application.value)
+        for collection in NimbusExperiment.KINTO_COLLECTION_APPLICATIONS.keys():
+            self.mock_dispatchee_task.assert_any_call(collection)
 
 
-class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
+class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
     def setUp(self):
         super().setUp()
         mock_push_task_patcher = mock.patch(
@@ -51,8 +51,8 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 
     def test_check_with_empty_queue_pushes_nothing(self):
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
         self.mock_kinto_client.patch_collection.assert_not_called()
         self.mock_push_task.assert_not_called()
@@ -73,8 +73,8 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
                 )
 
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
         self.mock_kinto_client.patch_collection.assert_not_called()
         self.mock_push_task.assert_not_called()
@@ -91,10 +91,12 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         )
 
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
-        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_push_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
+        )
 
     def test_check_with_approved_end_and_no_kinto_pending_ends_experiment(self):
         ending_experiment = NimbusExperimentFactory.create_with_status(
@@ -105,10 +107,12 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         )
 
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
-        self.mock_end_task.assert_called_with(ending_experiment.id)
+        self.mock_end_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, ending_experiment.id
+        )
 
     def test_check_with_pause_and_no_kinto_pending_pauses_experiment(self):
         pausing_experiment = NimbusExperimentFactory.create_with_status(
@@ -123,10 +127,12 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
             change.save()
 
         self.setup_kinto_no_pending_review()
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
-        self.mock_pause_task.assert_called_with(pausing_experiment.id)
+        self.mock_pause_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, pausing_experiment.id
+        )
 
     def test_check_with_timeout_launch_review_and_queued_launch_rolls_back_and_pushes(
         self,
@@ -144,13 +150,15 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 
         self.setup_kinto_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
 
-        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_push_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
+        )
         self.mock_kinto_client.patch_collection.assert_called_with(
-            id="nimbus-desktop-experiments",
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             data={"status": "to-rollback"},
             bucket="main-workspace",
         )
@@ -190,8 +198,8 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 
         self.setup_kinto_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
 
         self.mock_kinto_client.patch_collection.assert_not_called()
@@ -216,13 +224,15 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 
         self.setup_kinto_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
 
-        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_push_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
+        )
         self.mock_kinto_client.patch_collection.assert_called_with(
-            id="nimbus-desktop-experiments",
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             data={"status": "to-rollback"},
             bucket="main-workspace",
         )
@@ -255,11 +265,13 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 
         self.setup_kinto_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
 
-        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_push_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
+        )
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
@@ -296,11 +308,13 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 
         self.setup_kinto_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
 
-        self.mock_pause_task.assert_called_with(pausing_experiment.id)
+        self.mock_pause_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, pausing_experiment.id
+        )
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
@@ -322,11 +336,13 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
 
         self.setup_kinto_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.DESKTOP
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
 
-        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_push_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
+        )
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
@@ -354,18 +370,20 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         launching_experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
             publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=NimbusExperiment.Application.FENIX,
+            application=NimbusExperiment.Application.DESKTOP,
         )
 
         self.setup_kinto_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.FENIX
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
 
-        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_push_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
+        )
         self.mock_kinto_client.patch_collection.assert_called_with(
-            id="nimbus-mobile-experiments",
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             data={"status": "to-rollback"},
             bucket="main-workspace",
         )
@@ -374,24 +392,26 @@ class TestCheckKintoPushQueueByApplication(MockKintoClientMixin, TestCase):
         launching_experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
             publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=NimbusExperiment.Application.FENIX,
+            application=NimbusExperiment.Application.DESKTOP,
         )
 
         self.setup_kinto_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_application(
-            NimbusExperiment.Application.FENIX
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
 
-        self.mock_push_task.assert_called_with(launching_experiment.id)
+        self.mock_push_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
+        )
         self.mock_kinto_client.patch_collection.assert_called_with(
-            id="nimbus-mobile-experiments",
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             data={"status": "to-rollback"},
             bucket="main-workspace",
         )
 
 
-class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
+class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
     def test_push_experiment_to_kinto_sends_desktop_experiment_data_and_sets_accepted(
         self,
     ):
@@ -401,7 +421,9 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        tasks.nimbus_push_experiment_to_kinto(experiment.id)
+        tasks.nimbus_push_experiment_to_kinto(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
+        )
 
         data = NimbusExperimentSerializer(experiment).data
 
@@ -426,16 +448,18 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
     def test_push_experiment_to_kinto_sends_fenix_experiment_data(self):
         experiment = NimbusExperimentFactory.create(
             publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=NimbusExperiment.Application.FENIX,
+            application=NimbusExperiment.Application.DESKTOP,
         )
 
-        tasks.nimbus_push_experiment_to_kinto(experiment.id)
+        tasks.nimbus_push_experiment_to_kinto(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
+        )
 
         data = NimbusExperimentSerializer(experiment).data
 
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
-            collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+            collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
             if_not_exists=True,
         )
@@ -446,7 +470,9 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         )
         self.mock_kinto_client.create_record.side_effect = Exception
         with self.assertRaises(Exception):
-            tasks.nimbus_push_experiment_to_kinto(experiment.id)
+            tasks.nimbus_push_experiment_to_kinto(
+                settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
+            )
 
 
 class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
@@ -468,7 +494,9 @@ class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
             {"id": experiment.slug, "isEnrollmentPaused": False}
         ]
 
-        tasks.nimbus_pause_experiment_in_kinto(experiment.id)
+        tasks.nimbus_pause_experiment_in_kinto(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
+        )
 
         data = NimbusExperimentSerializer(experiment).data
         data["isEnrollmentPaused"] = True
@@ -497,17 +525,22 @@ class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
         )
         self.mock_kinto_client.get_records.side_effect = Exception
         with self.assertRaises(Exception):
-            tasks.nimbus_pause_experiment_in_kinto(experiment.id)
+            tasks.nimbus_pause_experiment_in_kinto(
+                settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
+            )
 
 
-class TestEndExperimentInKinto(MockKintoClientMixin, TestCase):
+class TestNimbusEndExperimentInKinto(MockKintoClientMixin, TestCase):
     def test_exception_for_failed_delete(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
         )
         self.mock_kinto_client.delete_record.side_effect = Exception
         with self.assertRaises(Exception):
-            tasks.nimbus_end_experiment_in_kinto(experiment.id)
+            tasks.nimbus_end_experiment_in_kinto(
+                settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
+            )
 
     def test_end_experiment_in_kinto_deletes_experiment(self):
         experiment = NimbusExperimentFactory.create_with_status(
@@ -517,7 +550,9 @@ class TestEndExperimentInKinto(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        tasks.nimbus_end_experiment_in_kinto(experiment.id)
+        tasks.nimbus_end_experiment_in_kinto(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
+        )
 
         self.mock_kinto_client.delete_record.assert_called_with(
             id=experiment.slug,
@@ -537,7 +572,7 @@ class TestEndExperimentInKinto(MockKintoClientMixin, TestCase):
         )
 
 
-class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
+class TestNimbusCheckExperimentsAreLive(MockKintoClientMixin, TestCase):
     def test_experiment_updates_when_record_is_in_main(self):
         experiment1 = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
@@ -637,7 +672,7 @@ class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
         self.assertEqual(experiment.changes.count(), changes_count)
 
 
-class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
+class TestNimbusCheckExperimentsAreComplete(MockKintoClientMixin, TestCase):
     def test_experiment_updates_when_record_is_not_in_main(self):
         experiment1 = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.LIVE,

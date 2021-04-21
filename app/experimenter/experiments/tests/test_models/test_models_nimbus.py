@@ -40,7 +40,7 @@ class TestNimbusExperimentManager(TestCase):
         self.assertEqual(
             list(
                 NimbusExperiment.objects.launch_queue(
-                    NimbusExperiment.Application.DESKTOP
+                    [NimbusExperiment.Application.DESKTOP]
                 )
             ),
             [experiment1],
@@ -71,7 +71,7 @@ class TestNimbusExperimentManager(TestCase):
         )
         self.assertEqual(
             list(
-                NimbusExperiment.objects.end_queue(NimbusExperiment.Application.DESKTOP)
+                NimbusExperiment.objects.end_queue([NimbusExperiment.Application.DESKTOP])
             ),
             [experiment1],
         )
@@ -118,7 +118,9 @@ class TestNimbusExperimentManager(TestCase):
         )
         self.assertEqual(
             list(
-                NimbusExperiment.objects.pause_queue(NimbusExperiment.Application.DESKTOP)
+                NimbusExperiment.objects.pause_queue(
+                    [NimbusExperiment.Application.DESKTOP]
+                )
             ),
             [experiment1],
         )
