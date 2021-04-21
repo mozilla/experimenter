@@ -175,11 +175,8 @@ const mockClearSubmitErrors = jest.fn();
 let mockUpdateState: FormBranchesSaveState;
 
 function setMockUpdateState(experiment: getExperiment_experimentBySlug) {
-  // issue #3954: Need to parse string IDs into numbers
   const featureConfigId =
-    experiment.featureConfig === null
-      ? null
-      : parseInt(experiment.featureConfig.id, 10);
+    experiment.featureConfig === null ? null : experiment.featureConfig.id;
   mockUpdateState = {
     featureConfigId,
     // @ts-ignore type mismatch covers discarded annotation properties

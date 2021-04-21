@@ -32,7 +32,7 @@ export interface getExperiment_experimentBySlug_treatmentBranches {
 }
 
 export interface getExperiment_experimentBySlug_featureConfig {
-  id: string;
+  id: number | null;
   slug: string;
   name: string;
   description: string | null;

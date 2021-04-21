@@ -27,9 +27,7 @@ export function extractUpdateState(
     throw new UpdateStateError("Control branch is required");
   }
 
-  // issue #3954: Need to parse string IDs into numbers
-  const featureConfigId =
-    featureConfig === null ? null : parseInt(featureConfig.id, 10);
+  const featureConfigId = featureConfig === null ? null : featureConfig.id;
 
   return {
     featureConfigId,
