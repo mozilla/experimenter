@@ -43,6 +43,12 @@ class NimbusExperimentManager(models.Manager):
             is_end_requested=True,
         )
 
+    def waiting(self, applications):
+        return self.filter(
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            application__in=applications,
+        )
+
     def waiting_to_launch_queue(self):
         return self.filter(
             status=NimbusExperiment.Status.DRAFT,

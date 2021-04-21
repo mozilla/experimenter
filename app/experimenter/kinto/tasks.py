@@ -89,10 +89,7 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
 
 
 def handle_pending_review(applications, kinto_client):
-    experiment = NimbusExperiment.objects.filter(
-        application__in=applications,
-        publish_status=NimbusExperiment.PublishStatus.WAITING,
-    ).first()
+    experiment = NimbusExperiment.objects.waiting(applications).first()
 
     if experiment:
         if experiment.has_state(experiment.SHOULD_TIMEOUT):
@@ -114,10 +111,7 @@ def handle_pending_review(applications, kinto_client):
 
 def handle_rejection(applications, kinto_client):
     collection_data = kinto_client.get_rejected_collection_data()
-    experiment = NimbusExperiment.objects.filter(
-        application__in=applications,
-        publish_status=NimbusExperiment.PublishStatus.WAITING,
-    ).first()
+    experiment = NimbusExperiment.objects.waiting(applications).first()
 
     if experiment:
         experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
