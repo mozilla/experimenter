@@ -225,6 +225,7 @@ LOGGING = {
 
 # Sentry configuration
 SENTRY_DSN = config("SENTRY_DSN", default=None)
+SENTRY_DSN_NIMBUS_UI = config("SENTRY_DSN_NIMBUS_UI", default=None)
 if SENTRY_DSN:  # pragma: no cover
     RAVEN_CONFIG = {
         "dsn": SENTRY_DSN,
