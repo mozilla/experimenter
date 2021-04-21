@@ -641,14 +641,17 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
     def test_experiment_updates_when_record_is_not_in_main(self):
         experiment1 = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
         experiment2 = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.WAITING,
         )
 
         experiment3 = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
         self.assertEqual(experiment1.changes.count(), 2)
@@ -662,17 +665,23 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
 
         self.assertTrue(
             NimbusExperiment.objects.filter(
-                id=experiment1.id, status=NimbusExperiment.Status.LIVE
+                id=experiment1.id,
+                status=NimbusExperiment.Status.LIVE,
+                publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).exists()
         )
         self.assertTrue(
             NimbusExperiment.objects.filter(
-                id=experiment2.id, status=NimbusExperiment.Status.COMPLETE
+                id=experiment2.id,
+                status=NimbusExperiment.Status.COMPLETE,
+                publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).exists()
         )
         self.assertTrue(
             NimbusExperiment.objects.filter(
-                id=experiment3.id, status=NimbusExperiment.Status.DRAFT
+                id=experiment3.id,
+                status=NimbusExperiment.Status.DRAFT,
+                publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).exists()
         )
 
@@ -688,7 +697,9 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
             experiment2.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
                 old_status=NimbusExperiment.Status.LIVE,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
                 new_status=NimbusExperiment.Status.COMPLETE,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).exists()
         )
 
