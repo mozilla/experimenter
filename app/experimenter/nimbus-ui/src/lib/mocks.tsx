@@ -78,7 +78,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   ],
   featureConfig: [
     {
-      id: "1",
+      id: 1,
       name: "Picture-in-Picture",
       slug: "picture-in-picture",
       description:
@@ -88,7 +88,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       schema: null,
     },
     {
-      id: "2",
+      id: 2,
       name: "Mauris odio erat",
       slug: "mauris-odio-erat",
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
@@ -97,7 +97,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       schema: '{ "sample": "schema" }',
     },
     {
-      id: "3",
+      id: 3,
       name: "Foo lila sat",
       slug: "foo-lila-sat",
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",

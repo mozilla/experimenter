@@ -36,10 +36,6 @@ class TreatmentBranchType(BranchType):
         )
 
 
-class ExperimentIdInput(graphene.InputObjectType):
-    id = graphene.Int()
-
-
 class ExperimentInput(graphene.InputObjectType):
     id = graphene.Int()
     status = NimbusExperimentStatus()
