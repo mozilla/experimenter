@@ -18,7 +18,7 @@ def features(request):
         "APP_CONFIG": urllib.parse.quote(
             json.dumps(
                 {
-                    "sentry_dsn": settings.SENTRY_DSN,
+                    "sentry_dsn": settings.SENTRY_DSN_NIMBUS_UI,
                     "graphql_url": reverse("nimbus-api-graphql"),
                 }
             )
