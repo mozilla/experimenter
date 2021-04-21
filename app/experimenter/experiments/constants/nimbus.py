@@ -114,7 +114,6 @@ class ApplicationConfig:
     app_name: str
     channel_app_id: Dict[str, str]
     default_app_id: str
-    collection: str
     randomization_unit: str
 
 
@@ -128,7 +127,6 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
         Channel.RELEASE: "firefox-desktop",
     },
     default_app_id="firefox-desktop",
-    collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
 )
 
@@ -142,7 +140,6 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
         Channel.RELEASE: "org.mozilla.firefox",
     },
     default_app_id="",
-    collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
@@ -156,7 +153,6 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
         Channel.RELEASE: "org.mozilla.ios.Firefox",
     },
     default_app_id="",
-    collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
@@ -380,3 +376,13 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     # completion for "week 1" of the experiment. However, an extra
     # buffer day is added for Jetstream to compute the results.
     DAYS_UNTIL_ANALYSIS = 8
+
+    KINTO_COLLECTION_APPLICATIONS = {
+        settings.KINTO_COLLECTION_NIMBUS_DESKTOP: [
+            APPLICATION_CONFIG_DESKTOP.slug,
+        ],
+        settings.KINTO_COLLECTION_NIMBUS_MOBILE: [
+            APPLICATION_CONFIG_FENIX.slug,
+            APPLICATION_CONFIG_IOS.slug,
+        ],
+    }
