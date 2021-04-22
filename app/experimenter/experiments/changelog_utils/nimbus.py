@@ -39,7 +39,7 @@ class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
 
 
 def generate_nimbus_changelog(experiment, changed_by, message=None):
-    latest_change = experiment.latest_change()
+    latest_change = experiment.changes.latest_change()
     experiment_data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
 
     old_status = None
