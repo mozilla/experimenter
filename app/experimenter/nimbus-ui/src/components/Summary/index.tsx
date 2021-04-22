@@ -2,13 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useRef } from "react";
+import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
-import { useFakeMutation } from "../../hooks";
+import { useChangeOperationMutation, useConfig } from "../../hooks";
 import { ReactComponent as ExternalIcon } from "../../images/external.svg";
 import { getStatus } from "../../lib/experiment";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { NimbusExperimentPublishStatus } from "../../types/globalTypes";
 import ChangeApprovalOperations from "../ChangeApprovalOperations";
 import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
@@ -21,51 +23,58 @@ import TableSummary from "./TableSummary";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
+  refetch?: () => void;
 } & Partial<React.ComponentProps<typeof ChangeApprovalOperations>>; // TODO EXP-1143: temporary page-level props, should be replaced by API data for experiment & current user
 
-const Summary = ({
-  experiment,
-  /* istanbul ignore next until EXP-1143 & EXP-1144 done */
-  canReview = false,
-  /* istanbul ignore next until EXP-1143 & EXP-1144 done */
-  reviewRequestEvent,
-  /* istanbul ignore next until EXP-1143 & EXP-1144 done */
-  rejectionEvent,
-  /* istanbul ignore next until EXP-1143 & EXP-1144 done */
-  timeoutEvent,
-}: SummaryProps) => {
+const Summary = ({ experiment, refetch }: SummaryProps) => {
+  const { kintoAdminUrl } = useConfig();
   const status = getStatus(experiment);
   const branchCount = [
     experiment.referenceBranch,
     ...(experiment.treatmentBranches || []),
   ].filter((branch) => !!branch).length;
 
-  /* istanbul ignore next until EXP-1143 & EXP-1144 done */
-  const [
-    rejectExperimentEnd,
-    { loading: rejectExperimentEndLoading },
-  ] = useFakeMutation();
+  // TODO: PageRequestReview assigns the experiment and refetch values to refs,
+  // and since this component shares the same useChangeOperationMutation hook
+  // it also needs to pass its experiment/refetch values into refs. Ideally
+  // neither of these components need to use refs.
+  const currentExperiment = useRef<getExperiment_experimentBySlug>(experiment);
+  const refetchReview = useRef<(() => void) | undefined>(refetch);
 
-  /* istanbul ignore next until EXP-1143 & EXP-1144 done */
-  const [
-    approveExperimentEnd,
-    { loading: approveExperimentEndLoading },
-  ] = useFakeMutation();
+  const {
+    publishStatus,
+    canReview,
+    reviewRequest: reviewRequestEvent,
+    rejection: rejectionEvent,
+    timeout: timeoutEvent,
+  } = experiment;
 
-  /* istanbul ignore next until EXP-1143 & EXP-1144 done */
-  const [
-    startRemoteSettingsApproval,
-    { loading: startRemoteSettingsApprovalLoading },
-  ] = useFakeMutation();
+  const startRemoteSettingsApproval = async () => {
+    window.open(kintoAdminUrl!, "_blank");
+  };
 
-  // TODO: EXP-1144 wrap these new mutations in setSubmitError handling like updateExperiment uses below.
-
-  const isLoading =
-    approveExperimentEndLoading ||
-    rejectExperimentEndLoading ||
-    startRemoteSettingsApprovalLoading;
-
-  const { publishStatus } = experiment;
+  const {
+    isLoading,
+    submitError,
+    callbacks: [
+      onConfirmEndClicked,
+      onReviewApprovedClicked,
+      onReviewRejectedClicked,
+    ],
+  } = useChangeOperationMutation(
+    currentExperiment,
+    refetchReview,
+    {
+      publishStatus: NimbusExperimentPublishStatus.REVIEW,
+    },
+    {
+      isEndRequested: true,
+      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+    },
+    {
+      publishStatus: NimbusExperimentPublishStatus.IDLE,
+    },
+  );
 
   return (
     <div data-testid="summary">
@@ -76,22 +85,30 @@ const Summary = ({
 
       <SummaryTimeline {...{ experiment }} />
 
+      {submitError && (
+        <Alert data-testid="submit-error" variant="warning">
+          {submitError}
+        </Alert>
+      )}
+
       {status.live && (
         <ChangeApprovalOperations
           {...{
             actionDescription: "end",
             isLoading,
             publishStatus,
-            canReview,
+            canReview: !!canReview,
             reviewRequestEvent,
             rejectionEvent,
             timeoutEvent,
-            rejectChange: rejectExperimentEnd,
-            approveChange: approveExperimentEnd,
+            rejectChange: onReviewRejectedClicked,
+            approveChange: onReviewApprovedClicked,
             startRemoteSettingsApproval,
           }}
         >
-          <EndExperiment {...{ experiment }} />
+          {!experiment.isEndRequested && (
+            <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
+          )}
         </ChangeApprovalOperations>
       )}
 

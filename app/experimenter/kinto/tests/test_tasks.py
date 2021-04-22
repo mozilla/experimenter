@@ -570,6 +570,12 @@ class TestNimbusEndExperimentInKinto(MockKintoClientMixin, TestCase):
         self.assertEqual(
             experiment.publish_status, NimbusExperiment.PublishStatus.WAITING
         )
+        self.assertTrue(
+            experiment.changes.filter(
+                old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
+                new_publish_status=NimbusExperiment.PublishStatus.WAITING,
+            ).exists()
+        )
 
 
 class TestNimbusCheckExperimentsAreLive(MockKintoClientMixin, TestCase):

@@ -121,7 +121,7 @@ def handle_rejection(applications, kinto_client):
         generate_nimbus_changelog(
             experiment,
             get_kinto_user(),
-            message=f'Rejected: {collection_data["last_reviewer_comment"]}',
+            message=collection_data["last_reviewer_comment"],
         )
 
         logger.info(f"{experiment} rejected")
@@ -217,6 +217,8 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
 
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
+
+        generate_nimbus_changelog(experiment, get_kinto_user())
 
         logger.info(f"{experiment.slug} deleted from Kinto")
         metrics.incr("end_experiment_in_kinto.completed")
