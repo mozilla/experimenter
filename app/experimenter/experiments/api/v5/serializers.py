@@ -473,7 +473,7 @@ class NimbusExperimentSerializer(
         with transaction.atomic():
             experiment = super().save(*args, **kwargs)
 
-            if experiment.should_allocate_bucket_range:
+            if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
                 experiment.allocate_bucket_range()
 
             if self.should_call_preview_task:

@@ -11,7 +11,6 @@ from experimenter.experiments.changelog_utils import (
     NimbusExperimentChangeLogSerializer,
     generate_nimbus_changelog,
 )
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBucketRange,
@@ -33,7 +32,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(
-        lambda o: slugify(o.name)[: NimbusConstants.MAX_SLUG_LEN]
+        lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
     )
     public_description = factory.LazyAttribute(lambda o: faker.text(200))
     risk_mitigation_link = factory.LazyAttribute(lambda o: faker.uri())
@@ -132,7 +131,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             experiment.status = status
             experiment.save()
 
-            if experiment.should_allocate_bucket_range:
+            if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
                 experiment.allocate_bucket_range()
 
             generate_nimbus_changelog(experiment, experiment.owner)
@@ -148,7 +147,7 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
     experiment = factory.SubFactory(NimbusExperimentFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(
-        lambda o: slugify(o.name)[: NimbusConstants.MAX_SLUG_LEN]
+        lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
     )
     description = factory.LazyAttribute(lambda o: faker.text())
     feature_value = factory.LazyAttribute(
@@ -209,7 +208,7 @@ FAKER_JSON_SCHEMA = """\
 class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(
-        lambda o: slugify(o.name)[: NimbusConstants.MAX_SLUG_LEN]
+        lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
     )
     description = factory.LazyAttribute(lambda o: faker.text(200))
     application = factory.LazyAttribute(
