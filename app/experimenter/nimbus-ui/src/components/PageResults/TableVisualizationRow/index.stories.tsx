@@ -27,6 +27,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       tableLabel={TABLE_LABEL.HIGHLIGHTS}
       metricKey="retained"
       displayType={DISPLAY_TYPE.POPULATION}
+      group="other"
     />
   ))
   .add("Count field", () => (
@@ -35,6 +36,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       tableLabel={TABLE_LABEL.HIGHLIGHTS}
       metricKey="retained"
       displayType={DISPLAY_TYPE.COUNT}
+      group="other"
     />
   ))
   .add("Percent field", () => (
@@ -43,6 +45,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       tableLabel={TABLE_LABEL.RESULTS}
       metricKey="retained"
       displayType={DISPLAY_TYPE.PERCENT}
+      group="other"
     />
   ))
   .add("Conversion count field", () => (
@@ -52,6 +55,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       results={MOCK_ANALYSIS.overall.treatment}
       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
       metricKey="picture_in_picture_ever_used"
+      group="other"
     />
   ))
   .add("Conversion change field (positive)", () => (
@@ -61,6 +65,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       results={MOCK_ANALYSIS.overall.treatment}
       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
       metricKey="picture_in_picture_ever_used"
+      group="other"
     />
   ))
   .add("Conversion change field (negative)", () => (
@@ -70,6 +75,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       results={MOCK_ANALYSIS.overall.treatment}
       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
       metricKey="feature_b_ever_used"
+      group="other"
     />
   ))
   .add("Conversion change field (neutral)", () => (
@@ -79,6 +85,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       results={MOCK_ANALYSIS.overall.treatment}
       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
       metricKey="feature_c_ever_used"
+      group="other"
     />
   ))
   .add("Count field missing values", () => (
@@ -88,5 +95,6 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       tableLabel={TABLE_LABEL.RESULTS}
       metricKey="retained"
       displayType={DISPLAY_TYPE.PERCENT}
+      group="other"
     />
   ));

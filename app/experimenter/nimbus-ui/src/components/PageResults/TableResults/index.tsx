@@ -31,6 +31,7 @@ const getResultMetrics = (outcomes: OutcomesList) => {
       name: `${outcome!.friendlyName} Conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
       type: METRIC_TYPE.PRIMARY,
+      group: "other",
     });
   });
 
@@ -104,6 +105,7 @@ const TableResults = ({
                     key={`${displayType}-${metricKey}`}
                     metricName={metric.name}
                     results={overallResults[branch]}
+                    group={metric.group}
                     tableLabel={TABLE_LABEL.RESULTS}
                     {...{ metricKey }}
                     {...{ displayType }}

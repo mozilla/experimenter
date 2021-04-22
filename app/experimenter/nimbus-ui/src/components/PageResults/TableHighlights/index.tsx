@@ -38,6 +38,7 @@ const getHighlightMetrics = (outcomes: OutcomesList) => {
       value: `${outcome!.slug}_ever_used`,
       name: `${outcome!.friendlyName} conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
+      group: "other",
     });
   });
 
@@ -84,7 +85,7 @@ const TableHighlights = ({
       <tbody>
         {Object.keys(overallResults).map((branch) => {
           const userCountMetric =
-            overallResults[branch]["branch_data"][METRIC.USER_COUNT];
+            overallResults[branch]["branch_data"]["other"][METRIC.USER_COUNT];
           const participantCount =
             userCountMetric[BRANCH_COMPARISON.ABSOLUTE]["first"]["point"];
           return (
@@ -120,6 +121,7 @@ const TableHighlights = ({
                         key={`${displayType}-${metricKey}`}
                         metricName={metric.name}
                         results={overallResults[branch]}
+                        group={metric.group}
                         tableLabel={TABLE_LABEL.HIGHLIGHTS}
                         {...{ metricKey, displayType, tooltip }}
                       />

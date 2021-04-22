@@ -6,6 +6,7 @@ import React from "react";
 import { ReactComponent as Info } from "../../../images/info.svg";
 import {
   DISPLAY_TYPE,
+  METRIC_GROUPS,
   METRIC_TYPE,
   SECONDARY_METRIC_COLUMNS,
   TABLE_LABEL,
@@ -110,24 +111,27 @@ const TableMetricSecondary = ({
         </thead>
         <tbody>
           {Object.keys(overallResults).map((branch) => {
-            return (
-              <tr key={branch}>
-                <th className="align-middle" scope="row">
-                  {branch}
-                </th>
-                {secondaryMetricStatistics.map(
-                  ({ displayType, branchComparison, value }) => (
-                    <TableVisualizationRow
-                      key={`${displayType}-${value}`}
-                      results={overallResults[branch]}
-                      tableLabel={TABLE_LABEL.SECONDARY_METRICS}
-                      metricKey={outcomeSlug}
-                      {...{ displayType, branchComparison }}
-                    />
-                  ),
-                )}
-              </tr>
-            );
+            return METRIC_GROUPS.map((group) => {
+              return overallResults[branch].branch_data[group] && (
+                <tr key={`${branch}-${group}`}>
+                  <th className="align-middle" scope="row">
+                    {branch}
+                  </th>
+                  {secondaryMetricStatistics.map(
+                    ({ displayType, branchComparison, value }) => (
+                      <TableVisualizationRow
+                        key={`${displayType}-${value}`}
+                        results={overallResults[branch]}
+                        group={group}
+                        tableLabel={TABLE_LABEL.SECONDARY_METRICS}
+                        metricKey={outcomeSlug}
+                        {...{ displayType, branchComparison }}
+                      />
+                    ),
+                  )}
+                </tr>
+              )
+            })
           })}
         </tbody>
       </table>

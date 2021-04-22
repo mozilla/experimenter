@@ -77,6 +77,7 @@ const TableMetricPrimary = ({
                     <TableVisualizationRow
                       key={`${displayType}-${value}`}
                       results={results[branch]}
+                      group="other"
                       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
                       {...{ metricKey, displayType, branchComparison }}
                     />

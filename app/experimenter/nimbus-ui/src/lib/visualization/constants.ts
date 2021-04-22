@@ -107,6 +107,49 @@ export const TABLE_LABEL = {
   SECONDARY_METRICS: "secondary_metrics",
 };
 
+export const SEARCH_METRICS = [
+  "searches_with_ads",
+  "search_count", // Remove this when guardrail metrics are added.
+  "organic_search_count",
+  "tagged_follow_on_search_count",
+  "tagged_search_count",
+];
+
+export const USAGE_METRICS = ["uri_count", "active_hours"];
+
+// TODO:
+// export const GUARDRAIL_METRICS = ["days_of_use", "retained", "search_count"];
+export const OTHER_METRICS = ["retained", "identity", "days_of_use"];
+
+export const GROUPED_METRICS = [
+  // TODO: Once front-end changes are done, give this a try...
+  // {
+  //   name: "guardrails",
+  //   metrics: GUARDRAIL_METRICS,
+  // },
+  {
+    name: "search_metrics",
+    metrics: SEARCH_METRICS,
+  },
+  {
+    name: "usage_metrics",
+    metrics: USAGE_METRICS,
+  },
+  {
+    name: "other",
+    metrics: OTHER_METRICS,
+  },
+];
+
+export const METRIC_GROUPS = GROUPED_METRICS.map((group) => group.name);
+
+const METRIC_TO_GROUP = GROUPED_METRICS.reduce((res, group) => {
+  group.metrics.forEach((metric) => {
+    res[metric] = group.name;
+  });
+  return res;
+}, {} as Record<string, string>);
+
 // This is used as an ordered list of items to
 // display in the highlights table from top to bottom.
 export const HIGHLIGHTS_METRICS_LIST = [
@@ -114,16 +157,19 @@ export const HIGHLIGHTS_METRICS_LIST = [
     value: METRIC.RETENTION,
     name: "Retention",
     tooltip: METRICS_TIPS.RETENTION,
+    group: METRIC_TO_GROUP[METRIC.RETENTION],
   },
   {
     value: METRIC.SEARCH,
     name: "Search",
     tooltip: METRICS_TIPS.SEARCH,
+    group: METRIC_TO_GROUP[METRIC.SEARCH],
   },
   {
     value: METRIC.DAYS_OF_USE,
     name: "Days of Use",
     tooltip: METRICS_TIPS.DAYS_OF_USE,
+    group: METRIC_TO_GROUP[METRIC.DAYS_OF_USE],
   },
 ];
 
@@ -135,23 +181,27 @@ export const RESULTS_METRICS_LIST = [
     name: "2-Week Browser Retention",
     tooltip: METRICS_TIPS.RETENTION,
     type: METRIC_TYPE.GUARDRAIL,
+    group: METRIC_TO_GROUP[METRIC.RETENTION],
   },
   {
     value: METRIC.SEARCH,
     name: "Daily Mean Searches Per User",
     tooltip: METRICS_TIPS.SEARCH,
     type: METRIC_TYPE.GUARDRAIL,
+    group: METRIC_TO_GROUP[METRIC.SEARCH],
   },
   {
     value: METRIC.DAYS_OF_USE,
     name: "Overall Mean Days of Use Per User",
     tooltip: METRICS_TIPS.DAYS_OF_USE,
     type: METRIC_TYPE.GUARDRAIL,
+    group: METRIC_TO_GROUP[METRIC.DAYS_OF_USE],
   },
   {
     value: METRIC.USER_COUNT,
     name: "Total Users",
     tooltip: METRICS_TIPS.USER_COUNT,
+    group: METRIC_TO_GROUP[METRIC.USER_COUNT],
   },
 ];
 

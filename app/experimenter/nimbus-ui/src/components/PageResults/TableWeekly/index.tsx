@@ -5,6 +5,7 @@
 import React from "react";
 import {
   BRANCH_COMPARISON,
+  METRIC_GROUPS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import {
@@ -80,21 +81,23 @@ const TableWeekly = ({
           );
 
           return (
-            <tr key={`${branch}-${metricKey}`}>
-              <th className="align-middle" scope="row">
-                {branch}
-              </th>
-              <TableVisualizationRow
-                key={`${displayType}-${metricKey}`}
-                metricName={metricName}
-                results={results[branch]}
-                tableLabel={TABLE_LABEL.RESULTS}
-                {...{ metricKey }}
-                {...{ displayType }}
-                window="weekly"
-              />
-            </tr>
-          );
+            METRIC_GROUPS.map((group) => {
+              <tr key={`${branch}-${metricKey}`}>
+                <th className="align-middle" scope="row">
+                  {branch}
+                </th>
+                <TableVisualizationRow
+                  key={`${displayType}-${metricKey}`}
+                  metricName={metricName}
+                  results={results[branch]}
+                  group={group}
+                  tableLabel={TABLE_LABEL.RESULTS}
+                  {...{ metricKey }}
+                  {...{ displayType }}
+                  window="weekly"
+                />
+              </tr>
+          }));
         })}
       </tbody>
     </table>

@@ -183,6 +183,7 @@ const formattedAnalysisPointComparator = (
 const TableVisualizationRow: React.FC<{
   metricKey: string;
   results: BranchDescription;
+  group: string;
   tableLabel: string;
   metricName?: string;
   displayType?: DISPLAY_TYPE;
@@ -192,6 +193,7 @@ const TableVisualizationRow: React.FC<{
 }> = ({
   metricKey,
   results,
+  group,
   tableLabel,
   metricName = "",
   displayType,
@@ -200,7 +202,7 @@ const TableVisualizationRow: React.FC<{
   window = "overall",
 }) => {
   const { branch_data, is_control } = results;
-  const metricData = branch_data[metricKey];
+  const metricData = branch_data[group][metricKey];
   const fieldList = [];
 
   let field = <>{metricName} is not available</>;
@@ -211,13 +213,13 @@ const TableVisualizationRow: React.FC<{
     className = "";
     tooltipText = tooltip;
     field = <div className="font-italic">---baseline---</div>;
-    const percent = branch_data[METRIC.USER_COUNT]["percent"];
+    const percent = branch_data["other"][METRIC.USER_COUNT]["percent"];
     const branchType = is_control ? VARIANT_TYPE.CONTROL : VARIANT_TYPE.VARIANT;
     branchComparison =
       branchComparison || dataTypeMapping[tableLabel][branchType];
 
     const userCountsList =
-      branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["all"];
+      branch_data["other"][METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["all"];
     const metricDataList = metricData[branchComparison]["all"];
 
     userCountsList.sort(formattedAnalysisPointComparator);
