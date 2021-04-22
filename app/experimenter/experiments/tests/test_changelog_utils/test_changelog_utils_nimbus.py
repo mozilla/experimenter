@@ -174,7 +174,7 @@ class TestGenerateNimbusChangeLog(TestCase):
 
         self.assertEqual(experiment.changes.count(), 2)
 
-        change = experiment.latest_change()
+        change = experiment.changes.latest_change()
 
         self.assertEqual(change.experiment, experiment)
         self.assertEqual(change.changed_by, self.user)

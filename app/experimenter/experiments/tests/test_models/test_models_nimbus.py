@@ -184,8 +184,8 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 "version|versionCompare('83.!') >= 0 "
-                "&& localeLanguageCode == 'en' "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
+                "&& localeLanguageCode == 'en'"
             ),
         )
 
@@ -225,8 +225,8 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 'browserSettings.update.channel == "nightly" '
-                "&& localeLanguageCode == 'en' "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
+                "&& localeLanguageCode == 'en'"
             ),
         )
 
@@ -386,30 +386,6 @@ class TestNimbusExperiment(TestCase):
         self.assertIsNone(experiment.reference_branch)
         self.assertEqual(experiment.branches.count(), 0)
         self.assertEqual(experiment.changes.count(), 1)
-
-    @parameterized.expand(
-        [
-            [False, NimbusExperiment.Status.DRAFT],
-            [True, NimbusExperiment.Status.PREVIEW],
-            [False, NimbusExperiment.Status.LIVE],
-            [False, NimbusExperiment.Status.COMPLETE],
-        ]
-    )
-    def test_status_should_allocate_buckets(self, expected_value, status):
-        experiment = NimbusExperimentFactory(status=status)
-        self.assertEqual(experiment.should_allocate_bucket_range, expected_value)
-
-    @parameterized.expand(
-        [
-            [False, NimbusExperiment.PublishStatus.IDLE],
-            [False, NimbusExperiment.PublishStatus.REVIEW],
-            [True, NimbusExperiment.PublishStatus.APPROVED],
-            [False, NimbusExperiment.PublishStatus.WAITING],
-        ]
-    )
-    def test_publish_status_should_allocate_buckets(self, expected_value, publish_status):
-        experiment = NimbusExperimentFactory(publish_status=publish_status)
-        self.assertEqual(experiment.should_allocate_bucket_range, expected_value)
 
     def test_allocate_buckets_generates_bucket_range(self):
         experiment = NimbusExperimentFactory(
@@ -576,7 +552,9 @@ class TestNimbusExperiment(TestCase):
         generate_nimbus_changelog(experiment, experiment.owner)
 
         # Timeout should be the latest changelog entry.
-        self.assertEqual(experiment.changes.latest_timeout(), experiment.latest_change())
+        self.assertEqual(
+            experiment.changes.latest_timeout(), experiment.changes.latest_change()
+        )
 
     def test_has_state_true(self):
         experiment = NimbusExperimentFactory.create_with_status(
@@ -584,7 +562,7 @@ class TestNimbusExperiment(TestCase):
             publish_status=NimbusExperiment.PublishStatus.WAITING,
         )
         self.assertTrue(
-            experiment.has_state(
+            experiment.has_filter(
                 Q(
                     status=NimbusExperiment.Status.DRAFT,
                     publish_status=NimbusExperiment.PublishStatus.WAITING,
@@ -598,7 +576,7 @@ class TestNimbusExperiment(TestCase):
             publish_status=NimbusExperiment.PublishStatus.WAITING,
         )
         self.assertFalse(
-            experiment.has_state(
+            experiment.has_filter(
                 Q(
                     status=NimbusExperiment.Status.DRAFT,
                     publish_status=NimbusExperiment.PublishStatus.IDLE,

@@ -17,18 +17,21 @@ from experimenter.experiments.constants import NimbusConstants
 from experimenter.projects.models import Project
 
 
+class FilterMixin:
+    def has_filter(self, filter):
+        return type(self).objects.filter(id=self.id).filter(filter).exists()
+
+
 class NimbusExperimentManager(models.Manager):
     def launch_queue(self, applications):
         return self.filter(
-            status=NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            NimbusExperiment.Filters.IS_LAUNCH_QUEUED,
             application__in=applications,
         )
 
     def pause_queue(self, applications):
         return self.filter(
-            status=NimbusExperiment.Status.LIVE,
-            is_paused=False,
+            NimbusExperiment.Filters.IS_PAUSE_QUEUED,
             application__in=applications,
             id__in=[
                 experiment.id for experiment in self.all() if experiment.should_pause
@@ -37,10 +40,8 @@ class NimbusExperimentManager(models.Manager):
 
     def end_queue(self, applications):
         return self.filter(
-            status=NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            NimbusExperiment.Filters.IS_END_QUEUED,
             application__in=applications,
-            is_end_requested=True,
         )
 
     def waiting(self, applications):
@@ -50,13 +51,10 @@ class NimbusExperimentManager(models.Manager):
         )
 
     def waiting_to_launch_queue(self):
-        return self.filter(
-            status=NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
-        )
+        return self.filter(NimbusExperiment.Filters.IS_LAUNCHING)
 
 
-class NimbusExperiment(NimbusConstants, models.Model):
+class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     owner = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
@@ -124,14 +122,40 @@ class NimbusExperiment(NimbusConstants, models.Model):
         verbose_name = "Nimbus Experiment"
         verbose_name_plural = "Nimbus Experiments"
 
+    class Filters:
+        IS_LAUNCH_QUEUED = Q(
+            status=NimbusConstants.Status.DRAFT,
+            publish_status=NimbusConstants.PublishStatus.APPROVED,
+        )
+        IS_LAUNCHING = Q(
+            status=NimbusConstants.Status.DRAFT,
+            publish_status=NimbusConstants.PublishStatus.WAITING,
+        )
+        IS_PAUSE_QUEUED = Q(
+            status=NimbusConstants.Status.LIVE,
+            is_paused=False,
+        )
+        IS_END_QUEUED = Q(
+            status=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.APPROVED,
+            is_end_requested=True,
+        )
+        IS_ENDING = Q(
+            status=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.WAITING,
+            is_end_requested=True,
+        )
+        SHOULD_TIMEOUT = Q(IS_LAUNCHING | IS_ENDING)
+        SHOULD_ALLOCATE_BUCKETS = Q(
+            Q(status=NimbusConstants.Status.PREVIEW)
+            | Q(publish_status=NimbusConstants.PublishStatus.APPROVED)
+        )
+
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
         return reverse("nimbus-detail", kwargs={"slug": self.slug})
-
-    def has_state(self, state):
-        return type(self).objects.filter(id=self.id).filter(state).exists()
 
     @property
     def experiment_url(self):
@@ -139,16 +163,12 @@ class NimbusExperiment(NimbusConstants, models.Model):
             "https://{host}".format(host=settings.HOSTNAME), self.get_absolute_url()
         )
 
-    @property
-    def is_desktop_experiment(self):
-        return self.application == self.Application.DESKTOP
-
     # This is the full JEXL expression processed by clients
     @property
     def targeting(self):
         expressions = []
 
-        if self.is_desktop_experiment:
+        if self.application == self.Application.DESKTOP:
             if self.channel:
                 expressions.append(
                     'browserSettings.update.channel == "{channel}"'.format(
@@ -161,12 +181,12 @@ class NimbusExperiment(NimbusConstants, models.Model):
                         version=self.firefox_min_version
                     )
                 )
+
+            # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
+            expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
+
         if self.targeting_config:
             expressions.append(self.targeting_config.targeting)
-
-        # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
-        if self.is_desktop_experiment:
-            expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
 
         #  If there is no targeting defined all clients should match, so we return "true"
         if len(expressions) == 0:
@@ -183,9 +203,6 @@ class NimbusExperiment(NimbusConstants, models.Model):
     def targeting_config(self):
         if self.targeting_config_slug:
             return self.TARGETING_CONFIGS[self.targeting_config_slug]
-
-    def latest_change(self):
-        return self.changes.latest_change()
 
     @property
     def treatment_branches(self):
@@ -261,13 +278,6 @@ class NimbusExperiment(NimbusConstants, models.Model):
         self.reference_branch = None
         self.save()
         self.branches.all().delete()
-
-    @property
-    def should_allocate_bucket_range(self):
-        return (
-            self.status == NimbusExperiment.Status.PREVIEW
-            or self.publish_status == NimbusExperiment.PublishStatus.APPROVED
-        )
 
     def allocate_bucket_range(self):
         existing_bucket_range = NimbusBucketRange.objects.filter(experiment=self)
@@ -470,46 +480,22 @@ class NimbusChangeLogManager(models.Manager):
     def latest_review_request(self):
         return (
             self.all()
-            .filter(
-                Q(old_status=F("new_status"))
-                | Q(
-                    old_status=NimbusExperiment.Status.PREVIEW,
-                    new_status=NimbusExperiment.Status.DRAFT,
-                )
-            )
-            .filter(
-                old_publish_status=NimbusExperiment.PublishStatus.IDLE,
-                new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            )
+            .filter(NimbusChangeLog.Filters.IS_REVIEW_REQUEST)
             .order_by("-changed_on")
         ).first()
 
     def latest_rejection(self):
         change = self.latest_change()
-        if (
-            change
-            and change.old_status == change.new_status
-            and change.old_publish_status
-            in (
-                NimbusExperiment.PublishStatus.REVIEW,
-                NimbusExperiment.PublishStatus.WAITING,
-            )
-            and change.new_publish_status == NimbusExperiment.PublishStatus.IDLE
-        ):
+        if change and change.has_filter(NimbusChangeLog.Filters.IS_REJECTION):
             return change
 
     def latest_timeout(self):
         change = self.latest_change()
-        if (
-            change
-            and change.old_status == change.new_status
-            and change.old_publish_status == NimbusExperiment.PublishStatus.WAITING
-            and change.new_publish_status == NimbusExperiment.PublishStatus.REVIEW
-        ):
+        if change and change.has_filter(NimbusChangeLog.Filters.IS_TIMEOUT):
             return change
 
 
-class NimbusChangeLog(models.Model):
+class NimbusChangeLog(FilterMixin, models.Model):
     def current_datetime():
         return timezone.now()
 
@@ -542,6 +528,25 @@ class NimbusChangeLog(models.Model):
         verbose_name = "Nimbus Experiment Change Log"
         verbose_name_plural = "Nimbus Experiment Change Logs"
         ordering = ("changed_on",)
+
+    class Filters:
+        IS_REVIEW_REQUEST = Q(
+            old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
+        IS_REJECTION = Q(
+            Q(old_status=F("new_status")),
+            old_publish_status__in=(
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.WAITING,
+            ),
+            new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        IS_TIMEOUT = Q(
+            Q(old_status=F("new_status")),
+            old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
 
     def __str__(self):
         if self.message:

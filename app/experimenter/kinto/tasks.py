@@ -92,7 +92,7 @@ def handle_pending_review(applications, kinto_client):
     experiment = NimbusExperiment.objects.waiting(applications).first()
 
     if experiment:
-        if experiment.has_state(experiment.SHOULD_TIMEOUT):
+        if experiment.has_filter(experiment.Filters.SHOULD_TIMEOUT):
             experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
             experiment.is_end_requested = False
             experiment.save()
@@ -279,15 +279,14 @@ def nimbus_check_experiments_are_paused():
     ) in NimbusExperiment.KINTO_COLLECTION_APPLICATIONS.items():
         kinto_client = KintoClient(collection)
 
-        live_experiments = NimbusExperiment.objects.filter(
-            status=NimbusExperiment.Status.LIVE,
+        pause_queue = NimbusExperiment.objects.filter(
+            NimbusExperiment.Filters.IS_PAUSE_QUEUED,
             application__in=applications,
-            is_paused=False,
         )
 
         records = {r["id"]: r for r in kinto_client.get_main_records()}
 
-        for experiment in live_experiments:
+        for experiment in pause_queue:
             if records[experiment.slug]["isEnrollmentPaused"]:
                 logger.info(
                     f"{experiment.slug} is_paused is being updated to True".format(
