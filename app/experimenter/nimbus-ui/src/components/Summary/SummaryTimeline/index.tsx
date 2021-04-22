@@ -55,7 +55,7 @@ const StartEnd = ({
   computedEndDate: string | null;
 }) => (
   <div className="d-flex">
-    {status.draft || status.review || status.preview || status.waiting ? (
+    {status.draft || status.preview ? (
       <span className="flex-fill" data-testid="label-not-launched">
         Not yet launched
       </span>
