@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from "./useAnalysis";
+export * from "./useChangeOperationMutation";
 export * from "./useCommonForm";
 export * from "./useCommonForm/useCommonNestedForm";
 export * from "./useCommonForm/useForm";
