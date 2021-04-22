@@ -221,6 +221,8 @@ def nimbus_end_experiment_in_kinto(experiment_id):
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
 
+        generate_nimbus_changelog(experiment, get_kinto_user())
+
         logger.info(f"{experiment.slug} deleted from Kinto")
         metrics.incr("end_experiment_in_kinto.completed")
     except Exception as e:
