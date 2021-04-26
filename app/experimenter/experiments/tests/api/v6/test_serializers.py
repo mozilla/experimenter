@@ -111,7 +111,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         experiment.save()
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertIsNone(serializer.data["branches"][0]["feature"]["value"])
+        self.assertEqual(serializer.data["branches"][0]["feature"]["value"], {})
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     @parameterized.expand(
