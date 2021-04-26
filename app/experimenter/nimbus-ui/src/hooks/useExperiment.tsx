@@ -8,7 +8,7 @@ import { getExperiment } from "../types/getExperiment";
 
 const fieldPageMap: { [page: string]: string[] } = {
   overview: ["public_description", "risk_mitigation_link"],
-  branches: ["reference_branch", "treatment_branches"],
+  branches: ["reference_branch", "treatment_branches", "feature_config"],
   audience: [
     "channel",
     "firefox_min_version",

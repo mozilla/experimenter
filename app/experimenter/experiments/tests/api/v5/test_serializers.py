@@ -1469,6 +1469,25 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             ["Description cannot be blank."],
         )
 
+    def test_invalid_experiment_missing_feature_config(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP.value,
+            feature_config=None,
+        )
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["feature_config"], ["This field may not be null."]
+        )
+
 
 class TestNimbusStatusTransitionValidator(TestCase):
     maxDiff = None
