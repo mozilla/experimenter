@@ -177,8 +177,7 @@ def nimbus_pause_experiment_in_kinto(collection, experiment_id):
 
         kinto_client = KintoClient(collection)
 
-        records = {r["id"]: r for r in kinto_client.get_main_records()}
-        record = records[experiment.slug]
+        record = kinto_client.get_main_records()[experiment.slug]
 
         if not record["isEnrollmentPaused"]:
             data = NimbusExperimentSerializer(experiment).data
@@ -240,12 +239,10 @@ def nimbus_check_experiments_are_live():
 
     for collection in NimbusExperiment.KINTO_COLLECTION_APPLICATIONS.keys():
         kinto_client = KintoClient(collection)
-
         records = kinto_client.get_main_records()
-        record_ids = [r.get("id") for r in records]
 
         for experiment in NimbusExperiment.objects.waiting_to_launch_queue():
-            if experiment.slug in record_ids:
+            if experiment.slug in records:
                 logger.info(
                     f"{experiment} status is being updated to live".format(
                         experiment=experiment
@@ -280,13 +277,12 @@ def nimbus_check_experiments_are_paused():
         applications,
     ) in NimbusExperiment.KINTO_COLLECTION_APPLICATIONS.items():
         kinto_client = KintoClient(collection)
+        records = kinto_client.get_main_records()
 
         pause_queue = NimbusExperiment.objects.filter(
             NimbusExperiment.Filters.IS_PAUSE_QUEUED,
             application__in=applications,
         )
-
-        records = {r["id"]: r for r in kinto_client.get_main_records()}
 
         for experiment in pause_queue:
             if records[experiment.slug]["isEnrollmentPaused"]:
@@ -329,7 +325,6 @@ def nimbus_check_experiments_are_complete():
         )
 
         records = kinto_client.get_main_records()
-        record_ids = [r.get("id") for r in records]
 
         for experiment in live_experiments:
             if (
@@ -340,7 +335,7 @@ def nimbus_check_experiments_are_complete():
             ):
                 nimbus_send_experiment_ending_email(experiment)
 
-            if experiment.slug not in record_ids:
+            if experiment.slug not in records:
                 logger.info(
                     f"{experiment.slug} status is being updated to complete".format(
                         experiment=experiment
@@ -371,7 +366,7 @@ def nimbus_synchronize_preview_experiments_in_kinto():
     kinto_client = KintoClient(settings.KINTO_COLLECTION_NIMBUS_PREVIEW, review=False)
 
     try:
-        published_preview_slugs = [e["id"] for e in kinto_client.get_main_records()]
+        published_preview_slugs = kinto_client.get_main_records().keys()
 
         should_publish_experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.PREVIEW

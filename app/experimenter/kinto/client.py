@@ -86,6 +86,9 @@ class KintoClient:
         )
 
     def get_main_records(self):
-        return self.kinto_http_client.get_records(
-            bucket=settings.KINTO_BUCKET_MAIN, collection=self.collection
-        )
+        return {
+            r["id"]: r
+            for r in self.kinto_http_client.get_records(
+                bucket=settings.KINTO_BUCKET_MAIN, collection=self.collection
+            )
+        }

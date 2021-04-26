@@ -124,11 +124,11 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
     def test_returns_records(self):
         slug = "test-slug"
         self.setup_kinto_get_main_records([slug])
-        self.assertEqual(self.client.get_main_records(), [{"id": slug}])
+        self.assertEqual(self.client.get_main_records(), {slug: {"id": slug}})
 
     def test_returns_no_records(self):
         self.setup_kinto_get_main_records([])
-        self.assertEqual(self.client.get_main_records(), [])
+        self.assertEqual(self.client.get_main_records(), {})
 
     def test_returns_nothing_when_not_rejects(self):
         self.setup_kinto_no_pending_review()
