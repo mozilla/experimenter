@@ -12,6 +12,7 @@ class BranchesPage(Base):
         "#referenceBranch-description",
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
+    _add_feature_locator = (By.CSS_SELECTOR, ".feature-config-add")
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditBranches")
     _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
 
@@ -47,4 +48,8 @@ class BranchesPage(Base):
 
     def remove_branch(self):
         el = self.find_element(*self._remove_branch_locator)
+        el.click()
+
+    def select_feature(self):
+        el = self.find_element(*self._add_feature_locator)
         el.click()

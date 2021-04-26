@@ -512,7 +512,7 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     treatment_branches = NimbusBranchSerializer(many=True)
     feature_config = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
-        allow_null=True,
+        allow_null=False,
     )
     primary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
