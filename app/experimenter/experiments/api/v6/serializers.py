@@ -35,19 +35,12 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         model = NimbusBranch
         fields = ("slug", "ratio", "feature")
 
-    def to_representation(self, branch):
-        data = super().to_representation(branch)
-        if not branch.experiment.feature_config:
-            data = {k: v for k, v in data.items() if k != "feature"}
-        return data
-
     def get_feature(self, obj):
-        if obj.experiment.feature_config:
-            return {
-                "featureId": obj.experiment.feature_config.slug,
-                "enabled": obj.feature_enabled,
-                "value": json.loads(obj.feature_value) if obj.feature_value else None,
-            }
+        return {
+            "featureId": obj.experiment.feature_config.slug,
+            "enabled": obj.feature_enabled,
+            "value": json.loads(obj.feature_value) if obj.feature_value else {},
+        }
 
 
 class NimbusExperimentSerializer(serializers.ModelSerializer):
@@ -126,6 +119,4 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             return obj.reference_branch.slug
 
     def get_featureIds(self, obj):
-        if obj.feature_config:
-            return [obj.feature_config.slug]
-        return []
+        return [obj.feature_config.slug]
