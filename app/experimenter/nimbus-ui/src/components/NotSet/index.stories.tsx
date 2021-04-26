@@ -6,4 +6,6 @@ import { storiesOf } from "@storybook/react";
 import React from "react";
 import NotSet from ".";
 
-storiesOf("Components/NotSet", module).add("basic", () => <NotSet />);
+storiesOf("Components/NotSet", module)
+  .add("basic", () => <NotSet />)
+  .add("custom copy", () => <NotSet copy="YOU'RE the one that's not set." />);

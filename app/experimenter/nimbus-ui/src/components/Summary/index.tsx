@@ -29,10 +29,6 @@ type SummaryProps = {
 const Summary = ({ experiment, refetch }: SummaryProps) => {
   const { kintoAdminUrl } = useConfig();
   const status = getStatus(experiment);
-  const branchCount = [
-    experiment.referenceBranch,
-    ...(experiment.treatmentBranches || []),
-  ].filter((branch) => !!branch).length;
 
   // TODO: PageRequestReview assigns the experiment and refetch values to refs,
   // and since this component shares the same useChangeOperationMutation hook
@@ -77,7 +73,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
   );
 
   return (
-    <div data-testid="summary">
+    <div data-testid="summary" className="mb-5">
       <h2 className="h5 mb-3">
         Timeline
         {status.live && <StatusPills {...{ experiment }} />}
@@ -137,9 +133,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       <h2 className="h5 mb-3">Audience</h2>
       <TableAudience {...{ experiment }} />
 
-      <h2 className="h5 mb-3" data-testid="branches-section-title">
-        Branches ({branchCount})
-      </h2>
+      {/* Branches title is inside its table */}
       <TableBranches {...{ experiment }} />
     </div>
   );

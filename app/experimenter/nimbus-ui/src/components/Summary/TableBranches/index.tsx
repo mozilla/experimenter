@@ -11,9 +11,23 @@ import {
 } from "../../../types/getExperiment";
 import NotSet from "../../NotSet";
 
+export const NO_BRANCHES_COPY = "No branches have been saved yet";
+
 type Branch =
   | getExperiment_experimentBySlug_referenceBranch
   | getExperiment_experimentBySlug_treatmentBranches;
+
+const TableTitle = ({
+  branchCount,
+  hasOneBranchNameSet,
+}: {
+  branchCount: number;
+  hasOneBranchNameSet?: boolean;
+}) => (
+  <h2 className="h5 mb-3" data-testid="branches-section-title">
+    Branches {branchCount > 0 && hasOneBranchNameSet && `(${branchCount})`}
+  </h2>
+);
 
 const TableBranches = ({
   experiment,
@@ -26,16 +40,21 @@ const TableBranches = ({
     experiment.referenceBranch,
     ...(experiment.treatmentBranches || []),
   ].filter((branch): branch is Branch => branch !== null);
-
-  if (branches.length === 0) {
-    return <NotSet />;
-  }
+  const branchCount = branches.length;
+  const hasOneBranchNameSet = Boolean(branches.find((branch) => branch.name));
 
   return (
     <>
-      {branches.map((branch, key) => (
-        <TableBranch key={key} {...{ hasSchema, branch }} />
-      ))}
+      <TableTitle {...{ branchCount, hasOneBranchNameSet }} />
+      {branchCount === 0 || !hasOneBranchNameSet ? (
+        <NotSet copy={NO_BRANCHES_COPY} />
+      ) : (
+        <>
+          {branches.map((branch, key) => (
+            <TableBranch key={key} {...{ hasSchema, branch }} />
+          ))}
+        </>
+      )}
     </>
   );
 };
