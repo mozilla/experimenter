@@ -393,7 +393,9 @@ class TestNimbusExperiment(TestCase):
         )
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 5000)
-        self.assertEqual(experiment.bucket_range.isolation_group.name, experiment.slug)
+        self.assertEqual(
+            experiment.bucket_range.isolation_group.name, experiment.feature_config.slug
+        )
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
         experiment = NimbusExperimentFactory(
@@ -401,12 +403,16 @@ class TestNimbusExperiment(TestCase):
         )
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 5000)
-        self.assertEqual(experiment.bucket_range.isolation_group.name, experiment.slug)
+        self.assertEqual(
+            experiment.bucket_range.isolation_group.name, experiment.feature_config.slug
+        )
 
         experiment.population_percent = Decimal("20.0")
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 2000)
-        self.assertEqual(experiment.bucket_range.isolation_group.name, experiment.slug)
+        self.assertEqual(
+            experiment.bucket_range.isolation_group.name, experiment.feature_config.slug
+        )
 
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
         experiment = NimbusExperimentFactory.create_with_status(
