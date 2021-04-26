@@ -66,6 +66,11 @@ export function annotateExperimentBranch(
 ) {
   return {
     ...branch,
+    // Set default branch names - reference branch to "control" and first treatment branch to "treatment"
+    ...(branch.name === "" && {
+      name:
+        lastId === "reference" ? "control" : lastId === 0 ? "treatment" : "",
+    }),
     key: `branch-${lastId}`,
     isValid: true,
     isDirty: false,

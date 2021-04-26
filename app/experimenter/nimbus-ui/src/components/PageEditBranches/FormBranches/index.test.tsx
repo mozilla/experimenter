@@ -42,6 +42,39 @@ describe("FormBranches", () => {
     expect(onNext).not.toHaveBeenCalled();
   });
 
+  it("sets expected default name values", async () => {
+    render(
+      <SubjectBranches
+        {...{
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            referenceBranch: {
+              ...MOCK_EXPERIMENT.referenceBranch!,
+              name: "",
+            },
+            treatmentBranches: [
+              {
+                name: "",
+                slug: "",
+                description: "",
+                ratio: 0,
+                featureValue: null,
+                featureEnabled: false,
+              },
+            ],
+          },
+        }}
+      />,
+    );
+    expect(
+      (screen.getByTestId("referenceBranch.name") as HTMLInputElement).value,
+    ).toEqual("control");
+    expect(
+      (screen.getByTestId("treatmentBranches[0].name") as HTMLInputElement)
+        .value,
+    ).toEqual("treatment");
+  });
+
   it("calls onSave with extracted update when save button clicked", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);

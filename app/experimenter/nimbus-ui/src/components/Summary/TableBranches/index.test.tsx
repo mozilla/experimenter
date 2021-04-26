@@ -4,6 +4,7 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
+import { NO_BRANCHES_COPY } from ".";
 import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
 describe("TableBranches", () => {
@@ -11,6 +12,9 @@ describe("TableBranches", () => {
     render(<Subject />);
     expect(screen.queryByTestId("not-set")).not.toBeInTheDocument();
     expect(screen.queryAllByTestId("table-branch")).toHaveLength(2);
+    expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
+      "Branches (2)",
+    );
   });
 
   it("handles zero defined branches", () => {
@@ -23,7 +27,40 @@ describe("TableBranches", () => {
         }}
       />,
     );
-    expect(screen.getByTestId("not-set")).toBeInTheDocument();
+    expect(screen.getByTestId("not-set")).toHaveTextContent(NO_BRANCHES_COPY);
+    expect(screen.queryAllByTestId("table-branch")).toHaveLength(0);
+    expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
+      "Branches",
+    );
+  });
+
+  it("displays expected text with no branch names set", () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          referenceBranch: {
+            ...MOCK_EXPERIMENT.referenceBranch!,
+            name: "",
+          },
+          treatmentBranches: [
+            {
+              name: "",
+              slug: "",
+              description: "",
+              ratio: 0,
+              featureValue: null,
+              featureEnabled: false,
+            },
+          ],
+        }}
+      />,
+    );
+    expect(screen.getByTestId("not-set")).toHaveTextContent(NO_BRANCHES_COPY);
+    expect(screen.queryAllByTestId("table-branch")).toHaveLength(0);
+    expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
+      "Branches",
+    );
   });
 
   it("hides feature value when feature schema is null", () => {

@@ -21,7 +21,7 @@ describe("Summary", () => {
     expect(screen.getByTestId("table-audience")).toBeInTheDocument();
     expect(screen.queryAllByTestId("table-branch")).toHaveLength(2);
     expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
-      "Branches (2)",
+      "Branches",
     );
   });
 
@@ -60,21 +60,6 @@ describe("Summary", () => {
       />,
     );
     await screen.findByTestId("pill-enrolling-complete");
-  });
-
-  it("renders as expected with no defined branches", () => {
-    render(
-      <Subject
-        props={{
-          referenceBranch: null,
-          treatmentBranches: null,
-        }}
-      />,
-    );
-    expect(screen.queryAllByTestId("table-branch")).toHaveLength(0);
-    expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
-      "Branches (0)",
-    );
   });
 
   describe("JSON representation link", () => {
