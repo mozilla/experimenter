@@ -182,6 +182,7 @@ export const FormBranch = ({
         <Form.Group className="px-2 mx-3">
           <Form.Row>
             <Button
+              className="feature-config-add"
               variant="outline-primary"
               size="sm"
               data-testid="feature-config-add"

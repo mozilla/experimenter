@@ -18,9 +18,10 @@ def test_create_new_experiment(selenium, base_url):
     overview.risk_mitigation = "http://risk.mitigation"
     # Fill Branches page
     branches = overview.save_and_continue()
+    branches.remove_branch()
     branches.reference_branch_name = "name 1"
     branches.reference_branch_description = "a nice experiment"
-    branches.remove_branch()
+    branches.select_feature()
     # Fill Metrics page
     metrics = branches.save_and_continue()
     # Fill Audience page

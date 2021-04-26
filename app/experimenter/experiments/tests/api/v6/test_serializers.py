@@ -99,7 +99,7 @@ class TestNimbusExperimentSerializer(TestCase):
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     @parameterized.expand(list(NimbusExperiment.Application))
-    def test_serializers_with_feature_value_None(self, application):
+    def test_serializers_with_missing_feature_value(self, application):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
             application=application,
@@ -111,7 +111,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         experiment.save()
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertIsNone(serializer.data["branches"][0]["feature"]["value"])
+        self.assertEqual(serializer.data["branches"][0]["feature"]["value"], {})
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     @parameterized.expand(
@@ -207,26 +207,6 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(serializer.data["channel"], channel)
         self.assertEqual(serializer.data["appName"], expected_appName)
         self.assertEqual(serializer.data["appId"], expected_appId)
-        check_schema("experiments/NimbusExperiment", serializer.data)
-
-    def test_serializer_outputs_expected_schema_without_feature(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            application=NimbusExperiment.Application.DESKTOP,
-            feature_config=None,
-        )
-        serializer = NimbusExperimentSerializer(experiment)
-        experiment_data = serializer.data.copy()
-        self.assertEqual(experiment_data["featureIds"], [])
-        branches_data = [dict(b) for b in experiment_data.pop("branches")]
-        self.assertEqual(len(branches_data), 2)
-        for branch in experiment.branches.all():
-            self.assertIn(
-                {"slug": branch.slug, "ratio": branch.ratio},
-                branches_data,
-            )
-
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_serializer_outputs_targeting(self):
