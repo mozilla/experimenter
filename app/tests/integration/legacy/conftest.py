@@ -357,7 +357,7 @@ def fill_risks_page(selenium, base_url, request, fill_overview):
 
 @pytest.fixture
 def signoff_and_ship(selenium, base_url, fill_overview):
-    """"Fills signoffs and clicks 'Confirm ready to ship' button."""
+    """ "Fills signoffs and clicks 'Confirm ready to ship' button."""
     detail_page = DetailPage(
         selenium, base_url, experiment_url=f"{fill_overview.url}"
     ).wait_for_page_to_load()
