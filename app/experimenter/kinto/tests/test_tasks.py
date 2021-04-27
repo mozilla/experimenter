@@ -592,6 +592,7 @@ class TestNimbusCheckExperimentsAreLive(MockKintoClientMixin, TestCase):
 
         experiment3 = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
         self.assertEqual(experiment1.changes.count(), 1)
@@ -602,6 +603,9 @@ class TestNimbusCheckExperimentsAreLive(MockKintoClientMixin, TestCase):
         tasks.nimbus_check_experiments_are_live()
 
         self.assertEqual(experiment3.changes.count(), 1)
+
+        experiment1 = NimbusExperiment.objects.get(id=experiment1.id)
+        self.assertEqual(experiment1.published_dto, {"id": experiment1.slug})
 
         self.assertTrue(
             experiment1.changes.filter(
@@ -649,14 +653,15 @@ class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
         )
         changes_count = experiment.changes.count()
 
-        self.mock_kinto_client.get_records.return_value = [
-            {"id": experiment.slug, "isEnrollmentPaused": True}
-        ]
+        record = {"id": experiment.slug, "isEnrollmentPaused": True}
+
+        self.mock_kinto_client.get_records.return_value = [record]
 
         tasks.nimbus_check_experiments_are_paused()
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertTrue(experiment.is_paused)
+        self.assertEqual(experiment.published_dto, record)
         self.assertEqual(experiment.changes.count(), changes_count + 1)
 
     def test_ignores_paused_experiment_with_isEnrollmentPaused_true(self):
