@@ -53,9 +53,9 @@ isort = "5.8.0"
 google-cloud-storage = "1.37.1"
 django-storages = "1.11.1"
 graphene-django = "^2.15.0"
-mozilla-nimbus-shared = "^1.4.0"
 toml = "^0.10.2"
 pydantic = "1.8.1"
+mozilla-nimbus-shared = "^1.5.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.19.0"
