@@ -917,7 +917,7 @@ test = ["pytest (<5.4)", "pytest-cov"]
 
 [[package]]
 name = "mozilla-nimbus-shared"
-version = "1.4.0"
+version = "1.5.0"
 description = "Shared data and schemas for Project Nimbus"
 category = "main"
 optional = false
@@ -1559,7 +1559,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "695a3ae007f6c556e5c8aca7fdb00f889e32bcefe9222b4706c1e92efe2a92f8"
+content-hash = "90ba99d52c019d39f91e6930c962fd026fca3b76ceef7cd378d80b50672feed4"
 
 [metadata.files]
 aiohttp = [
@@ -1905,6 +1905,7 @@ graphql-relay = [
     {file = "graphql_relay-2.0.1-py3-none-any.whl", hash = "sha256:ac514cb86db9a43014d7e73511d521137ac12cf0101b2eaa5f0a3da2e10d913d"},
 ]
 gunicorn = [
+    {file = "gunicorn-20.1.0-py3-none-any.whl", hash = "sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e"},
     {file = "gunicorn-20.1.0.tar.gz", hash = "sha256:e0a968b5ba15f8a328fdfd7ab1fcb5af4470c28aaf7e55df02a99bc13138e6e8"},
 ]
 idna = [
@@ -1963,8 +1964,8 @@ mock = [
     {file = "mock-4.0.3.tar.gz", hash = "sha256:7d3fbbde18228f4ff2f1f119a45cdffa458b4c0dee32eb4d2bb2f82554bac7bc"},
 ]
 mozilla-nimbus-shared = [
-    {file = "mozilla_nimbus_shared-1.4.0-py3-none-any.whl", hash = "sha256:19287e8f2f50a3874900509636c3cc2f95ee5b19506b04ec519d6785024f0220"},
-    {file = "mozilla_nimbus_shared-1.4.0.tar.gz", hash = "sha256:32349382518e618a496bf800a7403471cfe80f1a2e3d939720c46c9cbb0cf937"},
+    {file = "mozilla_nimbus_shared-1.5.0-py3-none-any.whl", hash = "sha256:0544d5af4d97e3d603f99ad1306d5e42b5ff31ef208c26787896c3cd3388c970"},
+    {file = "mozilla_nimbus_shared-1.5.0.tar.gz", hash = "sha256:2ab8a15df5c45b17a9a07967f7574318c284668b1886fb75efe48cad09f7a3ef"},
 ]
 multidict = [
     {file = "multidict-4.7.6-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:275ca32383bc5d1894b6975bb4ca6a7ff16ab76fa622967625baeebcf8079000"},
