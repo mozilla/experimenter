@@ -55,7 +55,7 @@
     "react-tooltip": "^4.2.10",
     "typescript": "4.2.3",
     "vega": "^5.18.0",
-    "vega-embed": "^6.15.2",
+    "vega-embed": "^6.17.0",
     "vega-lite": "^4.17.0"
   },
   "devDependencies": {
