@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     "experimenter.openidc",
     "experimenter.outcomes",
     "experimenter.projects",
+    "experimenter.reporting",
 ]
 
 MIDDLEWARE = [
