@@ -548,6 +548,14 @@ class NimbusChangeLog(FilterMixin, models.Model):
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
         )
 
+    class Messages:
+        TIMED_OUT_IN_KINTO = "Timed Out"
+        PUSHED_TO_KINTO = "Pushed to Kinto"
+        DELETED_FROM_KINTO = "Deleted from Kinto"
+        LIVE = "Experiment is now live!"
+        PAUSED = "Enrollment was paused"
+        COMPLETED = "Experiment is complete"
+
     def __str__(self):
         if self.message:
             return self.message

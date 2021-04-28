@@ -7,7 +7,11 @@ import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useState } from "react";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { ReactComponent as DeleteIcon } from "../../images/x.svg";
-import { EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
+import {
+  CHANGELOG_MESSAGES,
+  EXTERNAL_URLS,
+  SUBMIT_ERROR,
+} from "../../lib/constants";
 import { createExperiment_createExperiment as CreateExperimentResult } from "../../types/createExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
 import AppLayout from "../AppLayout";
@@ -34,7 +38,14 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
     async ({ name, hypothesis, application }: Record<string, any>) => {
       try {
         const result = await createExperiment({
-          variables: { input: { name, hypothesis, application } },
+          variables: {
+            input: {
+              name,
+              hypothesis,
+              application,
+              changelogMessage: CHANGELOG_MESSAGES.CREATED_EXPERIMENT,
+            },
+          },
         });
         if (!result.data?.createExperiment) {
           throw new Error("Save failed, no error available");

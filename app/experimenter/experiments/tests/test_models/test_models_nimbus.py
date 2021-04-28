@@ -455,7 +455,7 @@ class TestNimbusExperiment(TestCase):
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
 
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertFalse(experiment.can_review(experiment.owner))
 
@@ -467,7 +467,7 @@ class TestNimbusExperiment(TestCase):
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
 
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertTrue(experiment.can_review(UserFactory.create()))
 
@@ -507,7 +507,7 @@ class TestNimbusExperiment(TestCase):
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
 
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertEqual(experiment.can_review(user), is_allowed)
 
@@ -525,7 +525,7 @@ class TestNimbusExperiment(TestCase):
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
 
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         experiment.publish_status = publish_status
         experiment.save()
@@ -547,7 +547,7 @@ class TestNimbusExperiment(TestCase):
         # Simulate waiting for approval in remote settings
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         # No timeout at first.
         self.assertIsNone(experiment.changes.latest_timeout())
@@ -555,7 +555,7 @@ class TestNimbusExperiment(TestCase):
         # Next, simulate a timeout.
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         # Timeout should be the latest changelog entry.
         self.assertEqual(
@@ -744,7 +744,7 @@ class TestNimbusChangeLogManager(TestCase):
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
 
-        change = generate_nimbus_changelog(experiment, experiment.owner)
+        change = generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertEqual(experiment.changes.latest_review_request(), change)
 
@@ -757,16 +757,18 @@ class TestNimbusChangeLogManager(TestCase):
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
 
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         experiment.save()
-        generate_nimbus_changelog(experiment, reviewer)
+        generate_nimbus_changelog(experiment, reviewer, "test message")
 
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
 
-        second_request = generate_nimbus_changelog(experiment, experiment.owner)
+        second_request = generate_nimbus_changelog(
+            experiment, experiment.owner, "test message"
+        )
 
         self.assertEqual(experiment.changes.latest_review_request(), second_request)
 
@@ -790,7 +792,9 @@ class TestNimbusChangeLogManager(TestCase):
         ):
             experiment.publish_status = publish_status
             experiment.save()
-            changes.append(generate_nimbus_changelog(experiment, experiment.owner))
+            changes.append(
+                generate_nimbus_changelog(experiment, experiment.owner, "test message")
+            )
 
         self.assertEqual(experiment.changes.latest_review_request(), changes[0])
         self.assertEqual(experiment.changes.latest_rejection(), changes[1])
@@ -810,7 +814,9 @@ class TestNimbusChangeLogManager(TestCase):
         ):
             experiment.publish_status = publish_status
             experiment.save()
-            changes.append(generate_nimbus_changelog(experiment, experiment.owner))
+            changes.append(
+                generate_nimbus_changelog(experiment, experiment.owner, "test message")
+            )
 
         self.assertEqual(experiment.changes.latest_review_request(), changes[0])
         self.assertEqual(experiment.changes.latest_rejection(), changes[3])
@@ -824,7 +830,7 @@ class TestNimbusChangeLogManager(TestCase):
         experiment.status = NimbusExperiment.Status.LIVE
         experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertIsNone(experiment.changes.latest_rejection())
 
@@ -842,7 +848,7 @@ class TestNimbusChangeLogManager(TestCase):
         ):
             experiment.publish_status = publish_status
             experiment.save()
-            generate_nimbus_changelog(experiment, experiment.owner)
+            generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertIsNone(experiment.changes.latest_timeout())
 
@@ -861,7 +867,7 @@ class TestNimbusChangeLogManager(TestCase):
         ):
             experiment.publish_status = publish_status
             experiment.save()
-            generate_nimbus_changelog(experiment, experiment.owner)
+            generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         self.assertIsNone(experiment.changes.latest_rejection())
 

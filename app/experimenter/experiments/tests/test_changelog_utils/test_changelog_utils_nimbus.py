@@ -142,13 +142,14 @@ class TestGenerateNimbusChangeLog(TestCase):
 
         self.assertEqual(experiment.changes.count(), 0)
 
-        generate_nimbus_changelog(experiment, self.user)
+        generate_nimbus_changelog(experiment, self.user, "test message")
 
         self.assertEqual(experiment.changes.count(), 1)
 
         change = experiment.changes.get()
 
         self.assertEqual(change.experiment, experiment)
+        self.assertEqual(change.message, "test message")
         self.assertEqual(change.changed_by, self.user)
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.old_publish_status, None)
@@ -170,13 +171,14 @@ class TestGenerateNimbusChangeLog(TestCase):
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
 
-        generate_nimbus_changelog(experiment, self.user)
+        generate_nimbus_changelog(experiment, self.user, "test message")
 
         self.assertEqual(experiment.changes.count(), 2)
 
         change = experiment.changes.latest_change()
 
         self.assertEqual(change.experiment, experiment)
+        self.assertEqual(change.message, "test message")
         self.assertEqual(change.changed_by, self.user)
         self.assertEqual(change.old_status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(change.old_publish_status, NimbusExperiment.PublishStatus.IDLE)

@@ -134,7 +134,11 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
                 experiment.allocate_bucket_range()
 
-            generate_nimbus_changelog(experiment, experiment.owner)
+            generate_nimbus_changelog(
+                experiment,
+                experiment.owner,
+                f"set status to {status}, target status is {target_status}",
+            )
 
             if status == target_status:
                 break

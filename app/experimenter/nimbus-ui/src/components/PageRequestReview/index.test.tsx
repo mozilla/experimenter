@@ -12,7 +12,7 @@ import {
 } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
-import { BASE_PATH } from "../../lib/constants";
+import { BASE_PATH, CHANGELOG_MESSAGES } from "../../lib/constants";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import {
   NimbusExperimentPublishStatus,
@@ -164,6 +164,7 @@ describe("PageRequestReview", () => {
     const mutationMock = createStatusMutationMock(
       experiment.id!,
       NimbusExperimentStatus.PREVIEW,
+      CHANGELOG_MESSAGES.LAUNCHED_TO_PREVIEW,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
     const launchButton = (await screen.findByTestId(
@@ -180,6 +181,7 @@ describe("PageRequestReview", () => {
       experiment.id!,
       NimbusExperimentStatus.DRAFT,
       NimbusExperimentPublishStatus.REVIEW,
+      CHANGELOG_MESSAGES.REQUESTED_REVIEW,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
     await launchFromDraftToReview();
@@ -210,6 +212,7 @@ describe("PageRequestReview", () => {
     const mutationMock = createStatusMutationMock(
       experiment.id!,
       NimbusExperimentStatus.PREVIEW,
+      CHANGELOG_MESSAGES.LAUNCHED_TO_PREVIEW,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
 
@@ -231,6 +234,7 @@ describe("PageRequestReview", () => {
     const mutationMock = createStatusMutationMock(
       experiment.id!,
       NimbusExperimentStatus.DRAFT,
+      CHANGELOG_MESSAGES.RETURNED_TO_DRAFT,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
     const launchButton = (await screen.findByTestId(
@@ -248,6 +252,7 @@ describe("PageRequestReview", () => {
       experiment.id!,
       NimbusExperimentStatus.DRAFT,
       NimbusExperimentPublishStatus.APPROVED,
+      CHANGELOG_MESSAGES.REVIEW_APPROVED,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
     const approveButton = await screen.findByTestId("approve-request");
@@ -308,6 +313,7 @@ describe("PageRequestReview", () => {
     const mutationMock = createPublishStatusMutationMock(
       experiment.id!,
       NimbusExperimentPublishStatus.REVIEW,
+      CHANGELOG_MESSAGES.REQUESTED_REVIEW,
     );
     const errorMessage = "Something went very wrong.";
     mutationMock.result.data.updateExperiment.message = {

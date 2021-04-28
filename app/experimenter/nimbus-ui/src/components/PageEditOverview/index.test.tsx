@@ -9,7 +9,7 @@ import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditOverview from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { SUBMIT_ERROR } from "../../lib/constants";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import FormOverview from "../FormOverview";
@@ -49,6 +49,7 @@ describe("PageEditOverview", () => {
 
   beforeEach(() => {
     mockSubmitData = {
+      changelogMessage: CHANGELOG_MESSAGES.UPDATED_OVERVIEW,
       name: experiment.name,
       hypothesis: experiment.hypothesis!,
       publicDescription: experiment.publicDescription!,
@@ -56,7 +57,11 @@ describe("PageEditOverview", () => {
     };
     mutationMock = mockExperimentMutation(
       UPDATE_EXPERIMENT_MUTATION,
-      { ...mockSubmitData, id: experiment.id },
+      {
+        ...mockSubmitData,
+        id: experiment.id,
+        changelogMessage: CHANGELOG_MESSAGES.UPDATED_OVERVIEW,
+      },
       "updateExperiment",
       {
         experiment: mockSubmitData,

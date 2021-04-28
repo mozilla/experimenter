@@ -368,7 +368,7 @@ class TestNimbusQuery(GraphQLTestCase):
 
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
         response = self.query(
             """
             query experimentBySlug($slug: String!) {
@@ -425,7 +425,7 @@ class TestNimbusQuery(GraphQLTestCase):
         ):
             experiment.publish_status = publish_status
             experiment.save()
-            generate_nimbus_changelog(experiment, experiment.owner)
+            generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         response = self.query(
             """
@@ -485,7 +485,7 @@ class TestNimbusQuery(GraphQLTestCase):
 
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         response = self.query(
             """
@@ -517,7 +517,7 @@ class TestNimbusQuery(GraphQLTestCase):
         )
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner)
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         response = self.query(
             """
@@ -553,7 +553,7 @@ class TestNimbusQuery(GraphQLTestCase):
         ):
             experiment.publish_status = publish_status
             experiment.save()
-            generate_nimbus_changelog(experiment, experiment.owner)
+            generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         response = self.query(
             """

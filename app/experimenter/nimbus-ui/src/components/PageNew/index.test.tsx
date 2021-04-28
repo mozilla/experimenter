@@ -8,7 +8,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import PageNew from ".";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { SUBMIT_ERROR } from "../../lib/constants";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
 import { MockedCache, mockExperimentMutation } from "../../lib/mocks";
 
 jest.mock("@reach/router", () => ({
@@ -23,6 +23,7 @@ describe("PageNew", () => {
       name: "Foo bar baz",
       hypothesis: "Some thing",
       application: "firefox-desktop",
+      changelogMessage: CHANGELOG_MESSAGES.CREATED_EXPERIMENT,
     };
     mutationMock = mockExperimentMutation(
       CREATE_EXPERIMENT_MUTATION,

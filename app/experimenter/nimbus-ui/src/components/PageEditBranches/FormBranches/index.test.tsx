@@ -66,13 +66,14 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    expect(
-      (screen.getByTestId("referenceBranch.name") as HTMLInputElement).value,
-    ).toEqual("control");
-    expect(
-      (screen.getByTestId("treatmentBranches[0].name") as HTMLInputElement)
-        .value,
-    ).toEqual("treatment");
+    const controlBranchName = (await screen.findByTestId(
+      "referenceBranch.name",
+    )) as HTMLInputElement;
+    expect(controlBranchName.value).toEqual("control");
+    const treatmentBranchName = (await screen.findByTestId(
+      "treatmentBranches[0].name",
+    )) as HTMLInputElement;
+    expect(treatmentBranchName.value).toEqual("treatment");
   });
 
   it("calls onSave with extracted update when save button clicked", async () => {

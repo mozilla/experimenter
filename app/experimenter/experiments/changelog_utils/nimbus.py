@@ -38,7 +38,7 @@ class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
         exclude = ("id",)
 
 
-def generate_nimbus_changelog(experiment, changed_by, message=None):
+def generate_nimbus_changelog(experiment, changed_by, message):
     latest_change = experiment.changes.latest_change()
     experiment_data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
 

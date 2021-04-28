@@ -9,7 +9,11 @@ import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditMetrics from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
+import {
+  CHANGELOG_MESSAGES,
+  EXTERNAL_URLS,
+  SUBMIT_ERROR,
+} from "../../lib/constants";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { OutcomeSlugs } from "../../lib/types";
@@ -22,7 +26,7 @@ jest.mock("@reach/router", () => ({
   navigate: jest.fn(),
 }));
 
-let mockSubmitData: { [key: string]: OutcomeSlugs | number } = {};
+let mockSubmitData: { [key: string]: OutcomeSlugs | number | string } = {};
 const mockSubmit = jest.fn();
 
 describe("PageEditMetrics", () => {
@@ -51,6 +55,7 @@ describe("PageEditMetrics", () => {
   beforeEach(() => {
     mockSubmitData = {
       id: experiment.id!,
+      changelogMessage: CHANGELOG_MESSAGES.UPDATED_OUTCOMES,
       primaryOutcomes: experiment.primaryOutcomes!,
       secondaryOutcomes: experiment.secondaryOutcomes!,
     };
