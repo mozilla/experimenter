@@ -3,7 +3,6 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 
-from experimenter.projects.models import Project
 from experimenter.reporting.models import ReportLog
 
 
@@ -44,7 +43,7 @@ def download_csv(modeladmin, request, queryset):
         ]
     )
     for rl in queryset:
-        projects =list(rl.projects.values_list("name", flat=True).order_by("name"))
+        projects = list(rl.projects.values_list("name", flat=True).order_by("name"))
         writer.writerow(
             [
                 rl.timestamp,
