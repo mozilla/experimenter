@@ -290,6 +290,7 @@ type NimbusExperimentType {
   featureConfig: NimbusFeatureConfigType
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
   referenceBranch: NimbusBranchType
+  publishedDto: JSONString
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType
   changes: [NimbusChangeLogType!]!
