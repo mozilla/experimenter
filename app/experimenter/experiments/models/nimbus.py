@@ -115,6 +115,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     reference_branch = models.OneToOneField(
         "NimbusBranch", blank=True, null=True, on_delete=models.CASCADE
     )
+    published_dto = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
 
     objects = NimbusExperimentManager()
 

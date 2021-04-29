@@ -251,6 +251,7 @@ def nimbus_check_experiments_are_live():
 
                 experiment.status = NimbusExperiment.Status.LIVE
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+                experiment.published_dto = records[experiment.slug]
                 experiment.save()
 
                 generate_nimbus_changelog(
@@ -294,6 +295,7 @@ def nimbus_check_experiments_are_paused():
 
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.is_paused = True
+                experiment.published_dto = records[experiment.slug]
                 experiment.save()
 
                 generate_nimbus_changelog(experiment, get_kinto_user())
