@@ -9,7 +9,14 @@ class TestInitialData(TestCase):
         self.assertFalse(Experiment.objects.exists())
         self.assertFalse(NimbusExperiment.objects.exists())
         call_command("load_dummy_experiments")
-        self.assertEqual(Experiment.objects.count(), len(Experiment.STATUS_CHOICES))
-        self.assertEqual(
-            NimbusExperiment.objects.count(), len(NimbusExperiment.Status.choices)
-        )
+
+        for status, _ in Experiment.STATUS_CHOICES:
+            self.assertTrue(Experiment.objects.filter(status=status).exists())
+
+        for application in NimbusExperiment.Application:
+            for status in NimbusExperiment.Status:
+                self.assertTrue(
+                    NimbusExperiment.objects.filter(
+                        status=status, application=application
+                    ).exists()
+                )

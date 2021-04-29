@@ -22,6 +22,9 @@ class Command(BaseCommand):
             experiment = ExperimentFactory.create_with_status(status, type=random_type)
             logger.info("Created {}: {}".format(experiment, status))
 
-        for status, _ in NimbusExperiment.Status.choices:
-            experiment = NimbusExperimentFactory.create_with_status(status)
-            logger.info("Created {}: {}".format(experiment, status))
+        for application in NimbusExperiment.Application:
+            for status in NimbusExperiment.Status:
+                experiment = NimbusExperimentFactory.create_with_status(
+                    status, application=application
+                )
+                logger.info("Created {}: {}".format(experiment, status))
