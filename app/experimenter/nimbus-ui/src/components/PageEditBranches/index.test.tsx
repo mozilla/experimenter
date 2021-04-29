@@ -14,7 +14,7 @@ import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { EXTERNAL_URLS } from "../../lib/constants";
+import { CHANGELOG_MESSAGES, EXTERNAL_URLS } from "../../lib/constants";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -72,7 +72,11 @@ describe("PageEditBranches", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     setMockUpdateState(experiment);
     const mockMutation = mockUpdateExperimentBranchesMutation(
-      { ...mockUpdateState, id: 1 },
+      {
+        ...mockUpdateState,
+        id: 1,
+        changelogMessage: CHANGELOG_MESSAGES.UPDATED_BRANCHES,
+      },
       {},
     );
     render(<Subject mocks={[mock, mockMutation]} />);
@@ -87,7 +91,11 @@ describe("PageEditBranches", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     setMockUpdateState(experiment);
     const mockMutation = mockUpdateExperimentBranchesMutation(
-      { ...mockUpdateState, id: 1 },
+      {
+        ...mockUpdateState,
+        id: 1,
+        changelogMessage: CHANGELOG_MESSAGES.UPDATED_BRANCHES,
+      },
       {},
     );
     render(<Subject mocks={[mock, mockMutation, mock]} />);
@@ -103,7 +111,11 @@ describe("PageEditBranches", () => {
     setMockUpdateState(experiment);
 
     const mockMutation = mockUpdateExperimentBranchesMutation(
-      { ...mockUpdateState, id: 1 },
+      {
+        ...mockUpdateState,
+        id: 1,
+        changelogMessage: CHANGELOG_MESSAGES.UPDATED_BRANCHES,
+      },
       {},
     );
     // @ts-ignore - intentionally breaking this type for error handling
@@ -129,7 +141,11 @@ describe("PageEditBranches", () => {
     setMockUpdateState(experiment);
 
     const mockMutation = mockUpdateExperimentBranchesMutation(
-      { ...mockUpdateState, id: 1 },
+      {
+        ...mockUpdateState,
+        id: 1,
+        changelogMessage: CHANGELOG_MESSAGES.UPDATED_BRANCHES,
+      },
       {},
     );
 

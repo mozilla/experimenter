@@ -7,7 +7,7 @@ import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useRef } from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { useConfig } from "../../hooks";
-import { EXTERNAL_URLS } from "../../lib/constants";
+import { CHANGELOG_MESSAGES, EXTERNAL_URLS } from "../../lib/constants";
 import { editCommonRedirects } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
@@ -48,6 +48,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
           variables: {
             input: {
               id: nimbusExperimentId,
+              changelogMessage: CHANGELOG_MESSAGES.UPDATED_BRANCHES,
               featureConfigId,
               referenceBranch,
               treatmentBranches,

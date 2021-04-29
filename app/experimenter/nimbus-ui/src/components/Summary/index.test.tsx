@@ -4,7 +4,7 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { SUBMIT_ERROR } from "../../lib/constants";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import {
   NimbusExperimentPublishStatus,
@@ -113,6 +113,7 @@ describe("Summary", () => {
       const mutationMock = createMutationMock(
         experiment.id!,
         NimbusExperimentPublishStatus.REVIEW,
+        { changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END },
       );
       render(
         <Subject props={experiment} mocks={[mutationMock]} {...{ refetch }} />,
@@ -133,6 +134,7 @@ describe("Summary", () => {
       const mutationMock = createMutationMock(
         experiment.id!,
         NimbusExperimentPublishStatus.REVIEW,
+        { changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END },
       );
       mutationMock.result.errors = [new Error("Boo")];
       render(<Subject props={experiment} mocks={[mutationMock]} />);
@@ -150,6 +152,7 @@ describe("Summary", () => {
       const mutationMock = createMutationMock(
         experiment.id!,
         NimbusExperimentPublishStatus.REVIEW,
+        { changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END },
       );
       const errorMessage = "Something went very wrong.";
       mutationMock.result.data.updateExperiment.message = {
@@ -171,6 +174,7 @@ describe("Summary", () => {
       const mutationMock = createMutationMock(
         experiment.id!,
         NimbusExperimentPublishStatus.APPROVED,
+        { changelogMessage: CHANGELOG_MESSAGES.END_APPROVED },
       );
       render(<Subject props={experiment} mocks={[mutationMock]} />);
       const approveButton = await screen.findByTestId("approve-request");

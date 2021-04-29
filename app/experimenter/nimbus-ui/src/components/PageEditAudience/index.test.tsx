@@ -15,7 +15,7 @@ import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditAudience from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { SUBMIT_ERROR } from "../../lib/constants";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import {
@@ -44,7 +44,11 @@ describe("PageEditAudience", () => {
   beforeEach(() => {
     mockSubmitData = { ...MOCK_FORM_DATA };
     mutationMock = mockUpdateExperimentAudienceMutation(
-      { ...mockSubmitData, id: experiment.id },
+      {
+        ...mockSubmitData,
+        id: experiment.id,
+        changelogMessage: CHANGELOG_MESSAGES.UPDATED_AUDIENCE,
+      },
       {},
     );
   });
