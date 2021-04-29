@@ -303,7 +303,15 @@ Run the integration test suite inside a containerized instance of Firefox. You m
 
 #### make integration_vnc_up
 
-Start a linux VM container with VNC available over `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter `tox -c tests/integration/` to run the integration tests and watch them run in a Firefox instance you can watch and interact with.
+Start a linux VM container with VNC available over `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter:
+
+```bash
+cd app
+sudo mkdir -m 0777 tests/integration/.tox/logs
+tox -c tests/integration/
+```
+
+This should run the integration tests and watch them run in a Firefox instance you can watch and interact with.
 
 ## Accessing Remote Settings locally
 

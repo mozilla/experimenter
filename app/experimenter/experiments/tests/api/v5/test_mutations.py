@@ -62,6 +62,7 @@ class TestMutations(GraphQLTestCase):
                     "name": "Test 1234",
                     "hypothesis": "Test hypothesis",
                     "application": NimbusExperiment.Application.DESKTOP.name,
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -95,7 +96,10 @@ class TestMutations(GraphQLTestCase):
         result = content["data"]["createExperiment"]
         self.assertEqual(
             result["message"],
-            {"name": ["Ensure this field has no more than 255 characters."]},
+            {
+                "changelog_message": ["This field is required."],
+                "name": ["Ensure this field has no more than 255 characters."],
+            },
         )
 
     def test_update_experiment_overview(self):
@@ -116,6 +120,7 @@ class TestMutations(GraphQLTestCase):
                     "hypothesis": "new hypothesis",
                     "publicDescription": "new public description",
                     "riskMitigationLink": "https://example.com/risk",
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -144,6 +149,7 @@ class TestMutations(GraphQLTestCase):
                     "name": long_name,
                     "hypothesis": "new hypothesis",
                     "riskMitigationLink": "i like pie",
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -185,6 +191,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "documentationLinks": documentation_links,
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -217,6 +224,7 @@ class TestMutations(GraphQLTestCase):
                     "name": "new name",
                     "hypothesis": "new hypothesis",
                     "publicDescription": "new public description",
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -244,6 +252,7 @@ class TestMutations(GraphQLTestCase):
                     "name": "new name",
                     "hypothesis": "new hypothesis",
                     "publicDescription": "new public description",
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -276,6 +285,7 @@ class TestMutations(GraphQLTestCase):
                     "featureConfigId": feature.id,
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -304,6 +314,7 @@ class TestMutations(GraphQLTestCase):
                     "featureConfigId": 2,
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -337,6 +348,7 @@ class TestMutations(GraphQLTestCase):
                     "id": experiment.id,
                     "primaryOutcomes": primary_outcomes,
                     "secondaryOutcomes": secondary_outcomes,
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -363,6 +375,7 @@ class TestMutations(GraphQLTestCase):
                     "id": experiment.id,
                     "primaryOutcomes": ["invalid-outcome"],
                     "secondaryOutcomes": ["invalid-outcome"],
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -409,6 +422,7 @@ class TestMutations(GraphQLTestCase):
                         NimbusConstants.TargetingConfig.ALL_ENGLISH.name
                     ),
                     "totalEnrolledClients": 100,
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -446,6 +460,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "populationPercent": "10.23471",
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -473,6 +488,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "status": NimbusExperiment.Status.PREVIEW.name,
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -493,6 +509,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "publishStatus": NimbusExperiment.PublishStatus.REVIEW.name,
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -570,6 +587,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "isEndRequested": True,
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -591,6 +609,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "isEndRequested": True,
+                    "changelogMessage": "test changelog message",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},

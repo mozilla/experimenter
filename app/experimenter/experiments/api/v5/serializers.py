@@ -321,6 +321,9 @@ class NimbusExperimentSerializer(
             )
         ],
     )
+    changelog_message = serializers.CharField(
+        min_length=0, max_length=1024, required=True, allow_blank=False
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -347,6 +350,7 @@ class NimbusExperimentSerializer(
             "targeting_config_slug",
             "total_enrolled_clients",
             "is_end_requested",
+            "changelog_message",
         ]
 
     def __init__(self, instance=None, data=None, **kwargs):
@@ -360,7 +364,6 @@ class NimbusExperimentSerializer(
                 and data.get("status") == NimbusExperiment.Status.DRAFT
             )
         )
-        self.changelog_message = data and data.pop("changelog_message", "") or ""
         super().__init__(instance=instance, data=data, **kwargs)
 
     def validate_publish_status(self, publish_status):
@@ -460,6 +463,10 @@ class NimbusExperimentSerializer(
             )
         return data
 
+    def update(self, experiment, validated_data):
+        self.changelog_message = validated_data.pop("changelog_message")
+        return super().update(experiment, validated_data)
+
     def create(self, validated_data):
         validated_data.update(
             {
@@ -467,6 +474,7 @@ class NimbusExperimentSerializer(
                 "owner": self.context["user"],
             }
         )
+        self.changelog_message = validated_data.pop("changelog_message")
         return super().create(validated_data)
 
     def save(self, *args, **kwargs):

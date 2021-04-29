@@ -7,6 +7,7 @@ import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
 import { useChangeOperationMutation, useConfig } from "../../hooks";
 import { ReactComponent as ExternalIcon } from "../../images/external.svg";
+import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -62,10 +63,12 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
     refetchReview,
     {
       publishStatus: NimbusExperimentPublishStatus.REVIEW,
+      changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
     },
     {
       isEndRequested: true,
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      changelogMessage: CHANGELOG_MESSAGES.END_APPROVED,
     },
     {
       publishStatus: NimbusExperimentPublishStatus.IDLE,
