@@ -28,8 +28,13 @@ const mkSimulatedQueries = ({
     },
     delay: 1000,
     result: (operation: Operation) => {
-      const { name, application, hypothesis } = operation.variables.input;
-      actionCreateExperiment(name, application, hypothesis);
+      const {
+        name,
+        application,
+        hypothesis,
+        changelogMessage,
+      } = operation.variables.input;
+      actionCreateExperiment(name, application, hypothesis, changelogMessage);
       return {
         data: {
           createExperiment: {

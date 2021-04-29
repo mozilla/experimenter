@@ -7,6 +7,7 @@ import React, { useRef, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import { useChangeOperationMutation } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
+import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
@@ -50,15 +51,23 @@ const PageRequestReview = ({
   } = useChangeOperationMutation(
     currentExperiment,
     refetchReview,
-    { status: NimbusExperimentStatus.PREVIEW },
-    { status: NimbusExperimentStatus.DRAFT },
+    {
+      status: NimbusExperimentStatus.PREVIEW,
+      changelogMessage: CHANGELOG_MESSAGES.LAUNCHED_TO_PREVIEW,
+    },
+    {
+      status: NimbusExperimentStatus.DRAFT,
+      changelogMessage: CHANGELOG_MESSAGES.RETURNED_TO_DRAFT,
+    },
     {
       status: NimbusExperimentStatus.DRAFT,
       publishStatus: NimbusExperimentPublishStatus.REVIEW,
+      changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW,
     },
     {
       status: NimbusExperimentStatus.DRAFT,
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      changelogMessage: CHANGELOG_MESSAGES.REVIEW_APPROVED,
     },
     {
       status: NimbusExperimentStatus.DRAFT,

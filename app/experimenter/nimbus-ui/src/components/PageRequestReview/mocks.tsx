@@ -5,6 +5,7 @@
 import React from "react";
 import PageRequestReview from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import {
   mockChangelog,
   mockExperimentMutation,
@@ -21,12 +22,14 @@ export const { mock, experiment } = mockExperimentQuery("demo-slug");
 export function createStatusMutationMock(
   id: number,
   status = NimbusExperimentStatus.DRAFT,
+  changelogMessage = CHANGELOG_MESSAGES.RETURNED_TO_DRAFT as string,
 ) {
   return mockExperimentMutation(
     UPDATE_EXPERIMENT_MUTATION,
     {
       id,
       status,
+      changelogMessage,
     },
     "updateExperiment",
     {
@@ -40,6 +43,7 @@ export function createStatusMutationMock(
 export function createPublishStatusMutationMock(
   id: number,
   publishStatus = NimbusExperimentPublishStatus.APPROVED,
+  changelogMessage = CHANGELOG_MESSAGES.REVIEW_APPROVED as string,
 ) {
   return mockExperimentMutation(
     UPDATE_EXPERIMENT_MUTATION,
@@ -47,6 +51,7 @@ export function createPublishStatusMutationMock(
       id,
       publishStatus,
       status: NimbusExperimentStatus.DRAFT,
+      changelogMessage,
     },
     "updateExperiment",
     {

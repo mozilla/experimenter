@@ -6,7 +6,7 @@ from django.core import mail
 from django.test import TestCase
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.kinto import tasks
 from experimenter.kinto.client import KINTO_REVIEW_STATUS, KINTO_ROLLBACK_STATUS
@@ -442,6 +442,7 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             experiment.changes.filter(
                 old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
                 new_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                message="Pushed to Kinto",
             ).exists()
         )
 
@@ -574,6 +575,7 @@ class TestNimbusEndExperimentInKinto(MockKintoClientMixin, TestCase):
             experiment.changes.filter(
                 old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
                 new_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                message=NimbusChangeLog.Messages.DELETED_FROM_KINTO,
             ).exists()
         )
 
@@ -663,6 +665,9 @@ class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
         self.assertTrue(experiment.is_paused)
         self.assertEqual(experiment.published_dto, record)
         self.assertEqual(experiment.changes.count(), changes_count + 1)
+        self.assertTrue(
+            experiment.changes.filter(message=NimbusChangeLog.Messages.PAUSED).exists()
+        )
 
     def test_ignores_paused_experiment_with_isEnrollmentPaused_true(self):
         experiment = NimbusExperimentFactory.create_with_status(
@@ -736,6 +741,7 @@ class TestNimbusCheckExperimentsAreComplete(MockKintoClientMixin, TestCase):
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
                 old_status=NimbusExperiment.Status.LIVE,
                 new_status=NimbusExperiment.Status.COMPLETE,
+                message=NimbusChangeLog.Messages.COMPLETED,
             ).exists()
         )
 
@@ -746,6 +752,7 @@ class TestNimbusCheckExperimentsAreComplete(MockKintoClientMixin, TestCase):
                 old_publish_status=NimbusExperiment.PublishStatus.WAITING,
                 new_status=NimbusExperiment.Status.COMPLETE,
                 new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                message=NimbusChangeLog.Messages.COMPLETED,
             ).exists()
         )
 

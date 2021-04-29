@@ -28,6 +28,20 @@ export const EXTERNAL_URLS = {
     "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus",
 };
 
+export const CHANGELOG_MESSAGES = {
+  CREATED_EXPERIMENT: "Created Experiment",
+  UPDATED_BRANCHES: "Updated Branches",
+  UPDATED_AUDIENCE: "Updated Audience",
+  UPDATED_OUTCOMES: "Updated Outcomes",
+  UPDATED_OVERVIEW: "Updated Overview",
+  LAUNCHED_TO_PREVIEW: "Launched to Preview",
+  RETURNED_TO_DRAFT: "Returned to Draft Status",
+  REQUESTED_REVIEW: "Review Requested for Launch",
+  REVIEW_APPROVED: "Launch Review Approved",
+  REQUESTED_REVIEW_END: "Requested Review to End",
+  END_APPROVED: "End Review Approved",
+} as const;
+
 export const FIELD_MESSAGES = {
   REQUIRED: "This field may not be blank.",
   NUMBER: "This field must be a number.",

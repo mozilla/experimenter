@@ -7,7 +7,7 @@ from experimenter.celery import app
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.email import nimbus_send_experiment_ending_email
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.kinto.client import KintoClient
 
 logger = get_task_logger(__name__)
@@ -100,7 +100,7 @@ def handle_pending_review(applications, kinto_client):
             generate_nimbus_changelog(
                 experiment,
                 get_kinto_user(),
-                message="Timed Out",
+                message=NimbusChangeLog.Messages.TIMED_OUT_IN_KINTO,
             )
 
             logger.info(f"{experiment} timed out")
@@ -151,7 +151,11 @@ def nimbus_push_experiment_to_kinto(collection, experiment_id):
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
 
-        generate_nimbus_changelog(experiment, get_kinto_user())
+        generate_nimbus_changelog(
+            experiment,
+            get_kinto_user(),
+            message=NimbusChangeLog.Messages.PUSHED_TO_KINTO,
+        )
 
         logger.info(f"{experiment.slug} pushed to Kinto")
         metrics.incr("push_experiment_to_kinto.completed")
@@ -217,7 +221,11 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
 
-        generate_nimbus_changelog(experiment, get_kinto_user())
+        generate_nimbus_changelog(
+            experiment,
+            get_kinto_user(),
+            message=NimbusChangeLog.Messages.DELETED_FROM_KINTO,
+        )
 
         logger.info(f"{experiment.slug} deleted from Kinto")
         metrics.incr("end_experiment_in_kinto.completed")
@@ -255,7 +263,9 @@ def nimbus_check_experiments_are_live():
                 experiment.save()
 
                 generate_nimbus_changelog(
-                    experiment, get_kinto_user(), message="Experiment is now live!"
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.LIVE,
                 )
 
                 logger.info(f"{experiment.slug} status is set to Live")
@@ -298,7 +308,11 @@ def nimbus_check_experiments_are_paused():
                 experiment.published_dto = records[experiment.slug]
                 experiment.save()
 
-                generate_nimbus_changelog(experiment, get_kinto_user())
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.PAUSED,
+                )
 
                 logger.info(f"{experiment.slug} is_paused is set to True")
 
@@ -348,7 +362,11 @@ def nimbus_check_experiments_are_complete():
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.save()
 
-                generate_nimbus_changelog(experiment, get_kinto_user())
+                generate_nimbus_changelog(
+                    experiment,
+                    get_kinto_user(),
+                    message=NimbusChangeLog.Messages.COMPLETED,
+                )
 
                 logger.info(f"{experiment.slug} status is set to Complete")
 
