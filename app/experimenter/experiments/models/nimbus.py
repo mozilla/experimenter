@@ -13,6 +13,7 @@ from django.db.models import F, Q
 from django.urls import reverse
 from django.utils import timezone
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.projects.models import Project
 
@@ -100,6 +101,8 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         choices=NimbusConstants.Channel.choices,
         default=NimbusConstants.Channel.NO_CHANNEL,
     )
+    locales = models.ManyToManyField(Locale, blank=True)
+    countries = models.ManyToManyField(Country, blank=True)
     projects = models.ManyToManyField(Project, blank=True)
     hypothesis = models.TextField(default=NimbusConstants.HYPOTHESIS_DEFAULT)
     primary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
