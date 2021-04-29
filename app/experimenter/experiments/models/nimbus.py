@@ -302,6 +302,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
         if self.publish_status in (
             NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
             NimbusExperiment.PublishStatus.WAITING,
         ):
             review_request = self.changes.latest_review_request()

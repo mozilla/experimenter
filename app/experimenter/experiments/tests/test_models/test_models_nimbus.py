@@ -459,15 +459,28 @@ class TestNimbusExperiment(TestCase):
 
         self.assertFalse(experiment.can_review(experiment.owner))
 
-    def test_can_review_true_for_non_requesting_user(self):
+    @parameterized.expand(
+        (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
+            NimbusExperiment.PublishStatus.WAITING,
+        )
+    )
+    def test_can_review_true_for_non_requesting_user(self, last_publish_status):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-
-        generate_nimbus_changelog(experiment, experiment.owner, "test message")
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
+            NimbusExperiment.PublishStatus.WAITING,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            generate_nimbus_changelog(experiment, experiment.owner, "test message")
+            if publish_status == last_publish_status:
+                break
 
         self.assertTrue(experiment.can_review(UserFactory.create()))
 
@@ -511,13 +524,7 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(experiment.can_review(user), is_allowed)
 
-    @parameterized.expand(
-        [
-            NimbusExperiment.PublishStatus.IDLE,
-            NimbusExperiment.PublishStatus.APPROVED,
-        ]
-    )
-    def test_can_review_false_for_non_review_publish_status(self, publish_status):
+    def test_can_review_false_for_non_review_publish_status(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
@@ -527,7 +534,8 @@ class TestNimbusExperiment(TestCase):
 
         generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
-        experiment.publish_status = publish_status
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+
         experiment.save()
 
         self.assertFalse(experiment.can_review(UserFactory.create()))
