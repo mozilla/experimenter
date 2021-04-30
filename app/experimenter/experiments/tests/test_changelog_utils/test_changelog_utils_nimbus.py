@@ -32,11 +32,13 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "application": "",
                 "branches": [],
                 "channel": NimbusExperiment.Channel.NO_CHANNEL,
+                "countries": [],
                 "feature_config": None,
                 "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
                 "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
                 "is_end_requested": False,
                 "is_paused": False,
+                "locales": [],
                 "name": "",
                 "owner": owner.email,
                 "population_percent": "0.0000",
@@ -75,6 +77,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
         branches_data = [dict(b) for b in data.pop("branches")]
         control_branch_data = dict(data.pop("reference_branch"))
+        locales_data = data.pop("locales")
+        countries_data = data.pop("countries")
         self.assertEqual(
             data,
             {
@@ -109,6 +113,14 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "targeting_config_slug": experiment.targeting_config_slug,
                 "total_enrolled_clients": experiment.total_enrolled_clients,
             },
+        )
+        self.assertEqual(
+            set(locales_data),
+            set(experiment.locales.all().values_list("code", flat=True)),
+        )
+        self.assertEqual(
+            set(countries_data),
+            set(experiment.countries.all().values_list("code", flat=True)),
         )
         self.assertEqual(
             control_branch_data,

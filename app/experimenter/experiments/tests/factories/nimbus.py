@@ -7,6 +7,7 @@ import factory
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.changelog_utils import (
     NimbusExperimentChangeLogSerializer,
     generate_nimbus_changelog,
@@ -118,6 +119,30 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                         experiment=self, title=title
                     )
                 )
+
+    @factory.post_generation
+    def locales(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted is None and Locale.objects.exists():
+            extracted = Locale.objects.all()[:3]
+
+        if extracted:
+            self.locales.add(*extracted)
+
+    @factory.post_generation
+    def countries(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted is None and Country.objects.exists():
+            extracted = Country.objects.all()[:3]
+
+        if extracted:
+            self.countries.add(*extracted)
 
     @classmethod
     def create_with_status(cls, target_status, **kwargs):
