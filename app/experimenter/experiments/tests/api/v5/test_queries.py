@@ -641,7 +641,7 @@ class TestNimbusQuery(GraphQLTestCase):
         assertChoices(config["targetingConfigSlug"], NimbusExperiment.TargetingConfig)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
         self.assertEqual(config["kintoAdminUrl"], settings.KINTO_ADMIN_URL)
-        self.assertEqual(len(config["featureConfig"]), 10)
+        self.assertEqual(len(config["featureConfig"]), 13)
 
         for outcome in Outcomes.all():
             self.assertIn(
