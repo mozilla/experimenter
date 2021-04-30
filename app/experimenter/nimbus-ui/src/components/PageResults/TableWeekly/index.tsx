@@ -19,9 +19,10 @@ type TableWeeklyProps = {
   metricKey: string;
   metricName: string;
   results: AnalysisDataWeekly;
+  sortedBranches: string[];
 };
 
-const getWeekCount = (
+const getWeekIndexList = (
   metric: string,
   weeklyResults: { [branch: string]: BranchDescription },
 ) => {
@@ -30,6 +31,7 @@ const getWeekCount = (
     if (!(metric in weeklyResults[branch].branch_data)) {
       return;
     }
+
     Object.values(BRANCH_COMPARISON).forEach((branchComparison) => {
       const branchData =
         weeklyResults[branch].branch_data[metric][branchComparison].all;
@@ -47,8 +49,9 @@ const TableWeekly = ({
   metricKey,
   metricName,
   results = {},
+  sortedBranches,
 }: TableWeeklyProps) => {
-  const weekIndexList = getWeekCount(metricKey, results);
+  const weekIndexList = getWeekIndexList(metricKey, results);
 
   return (
     <table
@@ -70,7 +73,7 @@ const TableWeekly = ({
         </tr>
       </thead>
       <tbody>
-        {Object.keys(results).map((branch) => {
+        {sortedBranches.map((branch) => {
           const displayType = getTableDisplayType(
             metricKey,
             TABLE_LABEL.RESULTS,

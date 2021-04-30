@@ -6,7 +6,10 @@ import { RouteComponentProps } from "@reach/router";
 import React from "react";
 import { useConfig } from "../../hooks";
 import { HIGHLIGHTS_METRICS_LIST } from "../../lib/visualization/constants";
-import { analysisUnavailable } from "../../lib/visualization/utils";
+import {
+  analysisUnavailable,
+  getSortedBranches,
+} from "../../lib/visualization/utils";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
@@ -43,6 +46,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
         if (analysisUnavailable(analysis)) return;
 
         const slugUnderscored = experiment.slug.replace(/-/g, "_");
+        const sortedBranches = getSortedBranches(analysis!);
         return (
           <>
             <LinkMonitoring {...experiment} />
@@ -62,17 +66,20 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             <h3 className="h6">Hypothesis</h3>
             <p>{experiment.hypothesis}</p>
             {analysis?.overall && (
-              <TableHighlights results={analysis!} {...{ experiment }} />
+              <TableHighlights
+                results={analysis}
+                {...{ experiment, sortedBranches }}
+              />
             )}
-            <TableHighlightsOverview
-              {...{ experiment }}
-              results={analysis?.overall!}
-            />
+            <TableHighlightsOverview {...{ experiment }} />
 
             <div id="results_summary">
               <h2 className="h5 mb-3">Results Summary</h2>
               {analysis?.overall && (
-                <TableResults {...{ experiment }} results={analysis!} />
+                <TableResults
+                  {...{ experiment, sortedBranches }}
+                  results={analysis!}
+                />
               )}
 
               {analysis?.weekly && (
@@ -80,6 +87,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   weeklyResults={analysis.weekly}
                   hasOverallResults={!!analysis?.overall}
                   metricsList={HIGHLIGHTS_METRICS_LIST}
+                  {...{ sortedBranches }}
                 />
               )}
             </div>
@@ -111,6 +119,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       outcomeSlug={outcome!.slug!}
                       outcomeDefaultName={outcome!.friendlyName!}
                       isDefault={false}
+                      {...{ sortedBranches }}
                     />
                   );
                 })}
@@ -121,6 +130,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                     results={analysis}
                     outcomeSlug={metric}
                     outcomeDefaultName={analysis!.other_metrics![metric]}
+                    {...{ sortedBranches }}
                   />
                 ))}
             </div>

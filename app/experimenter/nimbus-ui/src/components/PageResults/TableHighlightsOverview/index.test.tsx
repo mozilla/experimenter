@@ -7,7 +7,6 @@ import React from "react";
 import TableHighlightsOverview from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
-import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 
@@ -17,10 +16,7 @@ describe("TableHighlightsOverview", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlightsOverview
-          {...{ experiment }}
-          results={mockAnalysis().overall}
-        />
+        <TableHighlightsOverview {...{ experiment }} />
       </RouterSlugProvider>,
     );
 
@@ -32,10 +28,7 @@ describe("TableHighlightsOverview", () => {
   it("has the expected targeting", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlightsOverview
-          {...{ experiment }}
-          results={mockAnalysis().overall}
-        />
+        <TableHighlightsOverview {...{ experiment }} />
       </RouterSlugProvider>,
     );
 
@@ -47,10 +40,7 @@ describe("TableHighlightsOverview", () => {
   it("has the expected outcomes", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlightsOverview
-          {...{ experiment }}
-          results={mockAnalysis().overall}
-        />
+        <TableHighlightsOverview {...{ experiment }} />
       </RouterSlugProvider>,
     );
 
@@ -60,10 +50,7 @@ describe("TableHighlightsOverview", () => {
   it("has the experiment owner", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlightsOverview
-          {...{ experiment }}
-          results={mockAnalysis().overall}
-        />
+        <TableHighlightsOverview {...{ experiment }} />
       </RouterSlugProvider>,
     );
     expect(screen.getByText("example@mozilla.com")).toBeInTheDocument();

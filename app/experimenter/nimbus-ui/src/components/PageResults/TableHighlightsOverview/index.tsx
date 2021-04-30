@@ -5,12 +5,10 @@
 import React from "react";
 import { useConfig, useOutcomes } from "../../../hooks";
 import { getConfigLabel } from "../../../lib/getConfigLabel";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 
 type TableHighlightsOverviewProps = {
   experiment: getExperiment_experimentBySlug;
-  results: AnalysisDataOverall;
 };
 
 const TableHighlightsOverview = ({

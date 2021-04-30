@@ -12,6 +12,7 @@ import {
   WEEKLY_TREATMENT,
   WONKY_WEEKLY_TREATMENT,
 } from "../../../lib/visualization/mocks";
+import { getSortedBranches } from "../../../lib/visualization/utils";
 
 describe("TableWeekly", () => {
   it("has the correct headings", () => {
@@ -29,12 +30,20 @@ describe("TableWeekly", () => {
       },
     };
 
+    const results = weeklyMockAnalysis(modified_treatment);
+    const sortedBranches = getSortedBranches({
+      show_analysis: true,
+      daily: null,
+      weekly: results,
+      overall: null,
+    });
+
     render(
       <RouterSlugProvider>
         <TableWeekly
           metricKey="retained"
           metricName="Retention"
-          results={weeklyMockAnalysis(modified_treatment)}
+          {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
     );
@@ -46,13 +55,20 @@ describe("TableWeekly", () => {
 
   it("shows error text when metric data isn't available", () => {
     const ERROR_TEXT = "Some Made Up Metric is not available";
+    const results = weeklyMockAnalysis();
+    const sortedBranches = getSortedBranches({
+      show_analysis: true,
+      daily: null,
+      weekly: results,
+      overall: null,
+    });
 
     render(
       <RouterSlugProvider>
         <TableWeekly
           metricKey="fake"
           metricName="Some Made Up Metric"
-          results={weeklyMockAnalysis()}
+          {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
     );

@@ -36,6 +36,7 @@ const dataTypeMapping = {
     [VARIANT_TYPE.VARIANT]: BRANCH_COMPARISON.ABSOLUTE,
   },
 };
+const BASELINE_TEXT = "(baseline)";
 
 const showSignificanceField = (
   significance: string | undefined,
@@ -43,6 +44,7 @@ const showSignificanceField = (
   name: string,
   tableLabel: string,
   tooltip: string,
+  isControl = false,
 ) => {
   let significanceIcon,
     changeText = "";
@@ -94,7 +96,7 @@ const showSignificanceField = (
   return (
     <>
       <span {...{ className }} data-testid={className}>
-        {significanceIcon}&nbsp;{interval}
+        {significanceIcon}&nbsp;{interval}&nbsp;{isControl && BASELINE_TEXT}
       </span>
       <ReactTooltip />
     </>
@@ -139,6 +141,7 @@ const countField = (
   metricName: string,
   tableLabel: string,
   tooltip: string,
+  isControl = false,
 ) => {
   const interval = `${lower.toFixed(2)} to ${upper.toFixed(2)}`;
   return showSignificanceField(
@@ -147,6 +150,7 @@ const countField = (
     metricName,
     tableLabel,
     tooltip,
+    isControl,
   );
 };
 
@@ -157,6 +161,7 @@ const percentField = (
   metricName: string,
   tableLabel: string,
   tooltip: string,
+  isControl = false,
 ) => {
   const interval = `${Math.round(lower * 1000) / 10}% to ${
     Math.round(upper * 1000) / 10
@@ -167,6 +172,7 @@ const percentField = (
     metricName,
     tableLabel,
     tooltip,
+    isControl,
   );
 };
 
@@ -210,7 +216,7 @@ const TableVisualizationRow: React.FC<{
   if (metricData) {
     className = "";
     tooltipText = tooltip;
-    field = <div className="font-italic">---baseline---</div>;
+    field = <div>{BASELINE_TEXT}</div>;
     const percent = branch_data[METRIC.USER_COUNT]["percent"];
     const branchType = is_control ? VARIANT_TYPE.CONTROL : VARIANT_TYPE.VARIANT;
     branchComparison =
@@ -240,6 +246,7 @@ const TableVisualizationRow: React.FC<{
             metricName,
             tableLabel,
             tooltipText,
+            is_control,
           );
           break;
         case DISPLAY_TYPE.PERCENT:
@@ -251,6 +258,7 @@ const TableVisualizationRow: React.FC<{
             metricName,
             tableLabel,
             tooltipText,
+            is_control,
           );
           break;
         case DISPLAY_TYPE.CONVERSION_COUNT:

@@ -27,6 +27,7 @@ type TableMetricSecondaryProps = {
   outcomeSlug: string;
   outcomeDefaultName: string;
   isDefault?: boolean;
+  sortedBranches: string[];
 };
 
 const getStatistics = (slug: string): Array<SecondaryMetricStatistic> => {
@@ -52,6 +53,7 @@ const TableMetricSecondary = ({
   outcomeSlug,
   outcomeDefaultName,
   isDefault = true,
+  sortedBranches,
 }: TableMetricSecondaryProps) => {
   const secondaryMetricStatistics = getStatistics(outcomeSlug);
   const secondaryType = isDefault
@@ -109,7 +111,7 @@ const TableMetricSecondary = ({
           </tr>
         </thead>
         <tbody>
-          {Object.keys(overallResults).map((branch) => {
+          {sortedBranches.map((branch) => {
             return (
               <tr key={branch}>
                 <th className="align-middle" scope="row">
