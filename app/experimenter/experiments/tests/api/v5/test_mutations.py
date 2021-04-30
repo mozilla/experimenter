@@ -304,14 +304,15 @@ class TestMutations(GraphQLTestCase):
         experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
         reference_branch = {"name": "control", "description": "a control", "ratio": 1}
         treatment_branches = [{"name": "treatment1", "description": "desc1", "ratio": 1}]
-        # The NimbusExperimentFactory always creates a single feature config.
-        self.assertEqual(NimbusFeatureConfig.objects.count(), 1)
+        invalid_feature_config_id = (
+            NimbusFeatureConfig.objects.all().order_by("-id").first().id + 1
+        )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": 2,
+                    "featureConfigId": invalid_feature_config_id,
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                     "changelogMessage": "test changelog message",
@@ -319,12 +320,17 @@ class TestMutations(GraphQLTestCase):
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
+
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]
         self.assertEqual(
             result["message"],
-            {"feature_config": ['Invalid pk "2" - object does not exist.']},
+            {
+                "feature_config": [
+                    f'Invalid pk "{invalid_feature_config_id}" - object does not exist.'
+                ]
+            },
         )
 
     def test_update_experiment_outcomes(self):
