@@ -113,7 +113,7 @@ class TestConstants:
         ABSOLUTE_METRIC_DATA_A = cls.get_absolute_metric_data(DATA_POINT_A)
         ABSOLUTE_METRIC_DATA_F = cls.get_absolute_metric_data(DATA_POINT_F)
         ABSOLUTE_METRIC_DATA_F_WITH_PERCENT = ABSOLUTE_METRIC_DATA_F.copy()
-        ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = 33.0
+        ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.percent = 50.0
 
         DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL = cls.get_difference_metric_data(
             DATA_POINT_B, SignificanceData(weekly={"1": Significance.NEUTRAL}, overall={})
