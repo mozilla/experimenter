@@ -1244,7 +1244,7 @@ pytest = ">=3.10"
 
 [[package]]
 name = "pytest-testmon"
-version = "1.1.0"
+version = "1.1.1"
 description = "selects tests affected by changed files and methods"
 category = "main"
 optional = false
@@ -1559,7 +1559,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "5169b617f22c126b259b91a263508134f764f08c472b2fc272f30cb499aa1085"
+content-hash = "8414b07b6ea0be62b3007c792e29eadd57d0e4d2da088b54c0a69bb748d97e36"
 
 [metadata.files]
 aiohttp = [
@@ -2171,7 +2171,7 @@ pytest-forked = [
     {file = "pytest_forked-1.3.0-py2.py3-none-any.whl", hash = "sha256:dc4147784048e70ef5d437951728825a131b81714b398d5d52f17c7c144d8815"},
 ]
 pytest-testmon = [
-    {file = "pytest-testmon-1.1.0.tar.gz", hash = "sha256:f88a53d28f89836509732e9dee611d66c61f5b8217201bb822a0456f2c323d19"},
+    {file = "pytest-testmon-1.1.1.tar.gz", hash = "sha256:c8810f991545e352f646fb382e5962ff54b8aa52b09d62d35ae04f0d7a9c58d9"},
 ]
 pytest-watch = [
     {file = "pytest-watch-4.2.0.tar.gz", hash = "sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9"},
