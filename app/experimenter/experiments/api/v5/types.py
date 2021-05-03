@@ -130,6 +130,12 @@ class NimbusChangeLogType(DjangoObjectType):
         exclude = ("id",)
 
 
+class NimbusSignoffRecommendationsType(graphene.ObjectType):
+    qa_signoff = graphene.Boolean()
+    vp_signoff = graphene.Boolean()
+    legal_signoff = graphene.Boolean()
+
+
 class NimbusExperimentType(DjangoObjectType):
     id = graphene.Int()
     status = NimbusExperimentStatus()
@@ -155,6 +161,7 @@ class NimbusExperimentType(DjangoObjectType):
     review_request = graphene.Field(NimbusChangeLogType)
     rejection = graphene.Field(NimbusChangeLogType)
     timeout = graphene.Field(NimbusChangeLogType)
+    signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
 
     class Meta:
         model = NimbusExperiment

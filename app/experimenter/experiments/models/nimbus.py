@@ -325,6 +325,17 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             )
             return datetime.date.today() >= resultsReadyDate
 
+    @property
+    def signoff_recommendations(self):
+        return {
+            # QA signoff is always recommended
+            "qa_signoff": True,
+            "vp_signoff": any(
+                (self.risk_brand, self.risk_revenue, self.risk_partner_related)
+            ),
+            "legal_signoff": any((self.risk_revenue, self.risk_partner_related)),
+        }
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
