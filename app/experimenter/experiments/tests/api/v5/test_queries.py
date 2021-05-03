@@ -701,3 +701,34 @@ class TestNimbusQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(experiment_data["isEnrollmentPaused"], True)
         self.assertEqual(experiment_data["enrollmentEndDate"], "2021-01-08")
+
+    def test_signoff_recommendations(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            risk_brand=True,
+            risk_revenue=True,
+            risk_partner_related=True,
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    signoffRecommendations {
+                        qaSignoff
+                        vpSignoff
+                        legalSignoff
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["signoffRecommendations"]["qaSignoff"], True)
+        self.assertEqual(experiment_data["signoffRecommendations"]["vpSignoff"], True)
+        self.assertEqual(experiment_data["signoffRecommendations"]["legalSignoff"], True)
