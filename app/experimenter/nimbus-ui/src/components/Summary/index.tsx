@@ -63,10 +63,10 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
     refetchReview,
     {
       publishStatus: NimbusExperimentPublishStatus.REVIEW,
+      isEndRequested: true,
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
     },
     {
-      isEndRequested: true,
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
       changelogMessage: CHANGELOG_MESSAGES.END_APPROVED,
     },
