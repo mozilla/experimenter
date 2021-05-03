@@ -96,6 +96,12 @@ export const GET_EXPERIMENT_QUERY = gql`
       riskBrand
       riskPartnerRelated
 
+      signoffRecommendations {
+        qaSignoff
+        vpSignoff
+        legalSignoff
+      }
+
       documentationLinks {
         title
         link
