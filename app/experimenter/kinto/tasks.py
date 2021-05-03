@@ -94,7 +94,6 @@ def handle_pending_review(applications, kinto_client):
     if experiment:
         if experiment.has_filter(experiment.Filters.SHOULD_TIMEOUT):
             experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-            experiment.is_end_requested = False
             experiment.save()
 
             generate_nimbus_changelog(

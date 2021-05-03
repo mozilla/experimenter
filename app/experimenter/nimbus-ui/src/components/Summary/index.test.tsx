@@ -113,7 +113,10 @@ describe("Summary", () => {
       const mutationMock = createMutationMock(
         experiment.id!,
         NimbusExperimentPublishStatus.REVIEW,
-        { changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END },
+        {
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
+          isEndRequested: true,
+        },
       );
       render(
         <Subject props={experiment} mocks={[mutationMock]} {...{ refetch }} />,
@@ -152,7 +155,10 @@ describe("Summary", () => {
       const mutationMock = createMutationMock(
         experiment.id!,
         NimbusExperimentPublishStatus.REVIEW,
-        { changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END },
+        {
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
+          isEndRequested: true,
+        },
       );
       const errorMessage = "Something went very wrong.";
       mutationMock.result.data.updateExperiment.message = {

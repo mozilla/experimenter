@@ -241,7 +241,6 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         self.assertEqual(
             pending_experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW
         )
-        self.assertFalse(pending_experiment.is_end_requested)
         self.assertTrue(
             pending_experiment.changes.filter(
                 old_status=NimbusExperiment.Status.LIVE,
