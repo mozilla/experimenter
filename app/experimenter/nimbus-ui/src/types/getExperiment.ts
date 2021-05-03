@@ -46,6 +46,12 @@ export interface getExperiment_experimentBySlug_readyForReview {
   message: ObjectField | null;
 }
 
+export interface getExperiment_experimentBySlug_signoffRecommendations {
+  qaSignoff: boolean | null;
+  vpSignoff: boolean | null;
+  legalSignoff: boolean | null;
+}
+
 export interface getExperiment_experimentBySlug_documentationLinks {
   title: NimbusDocumentationLinkTitle;
   link: string;
@@ -112,6 +118,7 @@ export interface getExperiment_experimentBySlug {
   riskRevenue: boolean | null;
   riskBrand: boolean | null;
   riskPartnerRelated: boolean | null;
+  signoffRecommendations: getExperiment_experimentBySlug_signoffRecommendations | null;
   documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
   isEnrollmentPaused: boolean | null;
   enrollmentEndDate: DateTime | null;

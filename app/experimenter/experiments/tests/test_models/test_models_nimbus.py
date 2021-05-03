@@ -598,6 +598,34 @@ class TestNimbusExperiment(TestCase):
             )
         )
 
+    @parameterized.expand(
+        [
+            [False, False, False, False, False],
+            [True, False, False, True, False],
+            [False, True, False, True, True],
+            [False, False, True, True, True],
+        ]
+    )
+    def test_signoff_recommendations(
+        self,
+        risk_brand,
+        risk_revenue,
+        risk_partner_related,
+        vp_recommended,
+        legal_recommended,
+    ):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            risk_brand=risk_brand,
+            risk_revenue=risk_revenue,
+            risk_partner_related=risk_partner_related,
+        )
+        self.assertEqual(experiment.signoff_recommendations["qa_signoff"], True)
+        self.assertEqual(experiment.signoff_recommendations["vp_signoff"], vp_recommended)
+        self.assertEqual(
+            experiment.signoff_recommendations["legal_signoff"], legal_recommended
+        )
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):

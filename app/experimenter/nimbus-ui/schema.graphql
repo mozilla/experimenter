@@ -313,6 +313,7 @@ type NimbusExperimentType {
   reviewRequest: NimbusChangeLogType
   rejection: NimbusChangeLogType
   timeout: NimbusChangeLogType
+  signoffRecommendations: NimbusSignoffRecommendationsType
 }
 
 type NimbusFeatureConfigType {
@@ -355,6 +356,12 @@ type NimbusOutcomeType {
 type NimbusReadyForReviewType {
   message: ObjectField
   ready: Boolean
+}
+
+type NimbusSignoffRecommendationsType {
+  qaSignoff: Boolean
+  vpSignoff: Boolean
+  legalSignoff: Boolean
 }
 
 type NimbusUser {
