@@ -67,6 +67,9 @@ class JetstreamData(BaseModel):
         total_population = 0
         branches = {}
         for jetstream_data_point in self.__root__:
+            if jetstream_data_point.segment != Segment.ALL:
+                continue
+
             if jetstream_data_point.metric == Metric.USER_COUNT:
                 total_population += jetstream_data_point.point
                 branches[jetstream_data_point.branch] = jetstream_data_point.point
