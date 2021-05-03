@@ -60,3 +60,6 @@ class ExperimentInput(graphene.InputObjectType):
     total_enrolled_clients = graphene.Int()
     is_end_requested = graphene.Boolean()
     changelog_message = graphene.String()
+    risk_partner_related = graphene.Boolean()
+    risk_revenue = graphene.Boolean()
+    risk_brand = graphene.Boolean()

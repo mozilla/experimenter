@@ -351,6 +351,9 @@ class NimbusExperimentSerializer(
             "total_enrolled_clients",
             "is_end_requested",
             "changelog_message",
+            "risk_partner_related",
+            "risk_revenue",
+            "risk_brand",
         ]
 
     def __init__(self, instance=None, data=None, **kwargs):

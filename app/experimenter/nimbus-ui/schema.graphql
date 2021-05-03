@@ -39,6 +39,9 @@ input ExperimentInput {
   totalEnrolledClients: Int
   isEndRequested: Boolean
   changelogMessage: String
+  riskPartnerRelated: Boolean
+  riskRevenue: Boolean
+  riskBrand: Boolean
 }
 
 scalar JSONString
@@ -291,6 +294,9 @@ type NimbusExperimentType {
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
   referenceBranch: NimbusBranchType
   publishedDto: JSONString
+  riskPartnerRelated: Boolean
+  riskRevenue: Boolean
+  riskBrand: Boolean
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType
   changes: [NimbusChangeLogType!]!

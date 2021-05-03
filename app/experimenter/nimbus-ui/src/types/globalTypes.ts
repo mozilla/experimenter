@@ -180,6 +180,9 @@ export interface ExperimentInput {
   totalEnrolledClients?: number | null;
   isEndRequested?: boolean | null;
   changelogMessage?: string | null;
+  riskPartnerRelated?: boolean | null;
+  riskRevenue?: boolean | null;
+  riskBrand?: boolean | null;
 }
 
 export interface ReferenceBranchType {

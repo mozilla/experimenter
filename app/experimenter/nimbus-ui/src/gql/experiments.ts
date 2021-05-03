@@ -92,6 +92,9 @@ export const GET_EXPERIMENT_QUERY = gql`
       computedEndDate
 
       riskMitigationLink
+      riskRevenue
+      riskBrand
+      riskPartnerRelated
 
       documentationLinks {
         title
