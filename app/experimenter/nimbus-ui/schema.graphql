@@ -39,6 +39,9 @@ input ExperimentInput {
   totalEnrolledClients: Int
   isEndRequested: Boolean
   changelogMessage: String
+  riskPartnerRelated: Boolean
+  riskRevenue: Boolean
+  riskBrand: Boolean
 }
 
 scalar JSONString

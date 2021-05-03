@@ -110,6 +110,9 @@ class TestMutations(GraphQLTestCase):
             name="old name",
             hypothesis="old hypothesis",
             public_description="old public description",
+            risk_brand=False,
+            risk_revenue=False,
+            risk_partner_related=False,
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -121,6 +124,9 @@ class TestMutations(GraphQLTestCase):
                     "publicDescription": "new public description",
                     "riskMitigationLink": "https://example.com/risk",
                     "changelogMessage": "test changelog message",
+                    "riskBrand": True,
+                    "riskRevenue": True,
+                    "riskPartnerRelated": True,
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -136,6 +142,9 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(experiment.hypothesis, "new hypothesis")
         self.assertEqual(experiment.public_description, "new public description")
         self.assertEqual(experiment.risk_mitigation_link, "https://example.com/risk")
+        self.assertEqual(experiment.risk_brand, True)
+        self.assertEqual(experiment.risk_revenue, True)
+        self.assertEqual(experiment.risk_partner_related, True)
 
     def test_update_experiment_error(self):
         user_email = "user@example.com"
