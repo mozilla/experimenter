@@ -109,6 +109,9 @@ export interface getExperiment_experimentBySlug {
   startDate: DateTime | null;
   computedEndDate: DateTime | null;
   riskMitigationLink: string;
+  riskRevenue: boolean | null;
+  riskBrand: boolean | null;
+  riskPartnerRelated: boolean | null;
   documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
   isEnrollmentPaused: boolean | null;
   enrollmentEndDate: DateTime | null;
