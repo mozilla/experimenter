@@ -77,7 +77,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/react-helmet": "^6.1.1",
     "@types/react-scrollspy": "^3.3.3",
-    "@typescript-eslint/eslint-plugin": "2.x",
+    "@typescript-eslint/eslint-plugin": "4.x",
     "@typescript-eslint/parser": "2.x",
     "babel-eslint": "10.x",
     "eslint": "7.x",
