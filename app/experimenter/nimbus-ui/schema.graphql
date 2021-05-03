@@ -291,6 +291,9 @@ type NimbusExperimentType {
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
   referenceBranch: NimbusBranchType
   publishedDto: JSONString
+  riskPartnerRelated: Boolean
+  riskRevenue: Boolean
+  riskBrand: Boolean
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType
   changes: [NimbusChangeLogType!]!
