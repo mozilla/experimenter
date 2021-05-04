@@ -16,6 +16,9 @@ services:
       - STORYBOOKS_GCP_CLIENT_EMAIL
     links:
       - db
+    volumes:
+      - ./app/coverage:/app/coverage
+
 
   db:
     restart: always

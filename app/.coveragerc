@@ -4,6 +4,8 @@ source = experimenter
 #branch = True
 omit =
     */tests/*
+data_file = /app/coverage/python_coverage
+
 
 [report]
 fail_under = 100
