@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  codecov: codecov/codecov@1.1.5
 jobs:
   build:
     machine:
@@ -38,6 +40,8 @@ jobs:
           command: |
             cp .env.sample .env
             make check
+      - codecov/upload:
+          file: /home/circleci/experimenter/app/coverage/python_coverage
 
   publish_storybooks:
     machine:
