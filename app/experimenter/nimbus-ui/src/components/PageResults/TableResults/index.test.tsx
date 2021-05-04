@@ -11,14 +11,17 @@ import {
   mockAnalysis,
   mockIncompleteAnalysis,
 } from "../../../lib/visualization/mocks";
+import { getSortedBranches } from "../../../lib/visualization/utils";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
+const results = mockAnalysis();
+const sortedBranches = getSortedBranches(results);
 
 describe("TableResults", () => {
   it("renders correct headings", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults {...{ experiment }} results={mockAnalysis()} />
+        <TableResults {...{ experiment, results, sortedBranches }} />
       </RouterSlugProvider>,
     );
     const EXPECTED_HEADINGS = [
@@ -37,7 +40,7 @@ describe("TableResults", () => {
   it("renders the expected variant and user count", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults {...{ experiment }} results={mockAnalysis()} />
+        <TableResults {...{ experiment, results, sortedBranches }} />
       </RouterSlugProvider>,
     );
 
@@ -49,7 +52,7 @@ describe("TableResults", () => {
   it("renders correctly labelled result significance", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults {...{ experiment }} results={mockAnalysis()} />
+        <TableResults {...{ experiment, results, sortedBranches }} />
       </RouterSlugProvider>,
     );
 
@@ -59,9 +62,12 @@ describe("TableResults", () => {
   });
 
   it("renders missing retention with warning", () => {
+    const results = mockIncompleteAnalysis();
+    const sortedBranches = getSortedBranches(results);
+
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults {...{ experiment }} results={mockIncompleteAnalysis()} />
+        <TableResults {...{ experiment, results, sortedBranches }} />
       </RouterSlugProvider>,
     );
 

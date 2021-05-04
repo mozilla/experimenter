@@ -8,6 +8,10 @@ import TableMetricSecondary from ".";
 import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
+import { getSortedBranches } from "../../../lib/visualization/utils";
+
+const results = mockAnalysis();
+const sortedBranches = getSortedBranches(results);
 
 describe("TableMetricSecondary", () => {
   it("has the correct headings", () => {
@@ -18,10 +22,10 @@ describe("TableMetricSecondary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
-          results={mockAnalysis()}
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
+          {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
     );
@@ -38,10 +42,10 @@ describe("TableMetricSecondary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
-          results={mockAnalysis()}
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
+          {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
     );
@@ -61,10 +65,10 @@ describe("TableMetricSecondary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
-          results={mockAnalysis()}
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
+          {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
     );
@@ -80,10 +84,10 @@ describe("TableMetricSecondary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
-          results={mockAnalysis()}
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
+          {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
     );
@@ -103,15 +107,16 @@ describe("TableMetricSecondary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
-          results={mockAnalysis()}
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
+          {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
     );
 
-    expect(screen.queryAllByText("0.02 to 0.08")).toHaveLength(2);
+    expect(screen.queryAllByText("0.02 to 0.08")).toHaveLength(1);
+    expect(screen.queryAllByText("0.02 to 0.08 (baseline)")).toHaveLength(1);
   });
 
   it("uses the friendly name from the metadata", () => {
@@ -121,10 +126,10 @@ describe("TableMetricSecondary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
-          results={mockAnalysis()}
           outcomeSlug="feature_d"
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
+          {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
     );

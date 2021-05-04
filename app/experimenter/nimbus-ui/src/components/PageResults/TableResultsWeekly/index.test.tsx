@@ -8,6 +8,15 @@ import TableResultsWeekly from ".";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { HIGHLIGHTS_METRICS_LIST } from "../../../lib/visualization/constants";
 import { weeklyMockAnalysis } from "../../../lib/visualization/mocks";
+import { getSortedBranches } from "../../../lib/visualization/utils";
+
+const weeklyResults = weeklyMockAnalysis();
+const sortedBranches = getSortedBranches({
+  show_analysis: true,
+  daily: null,
+  weekly: weeklyResults,
+  overall: null,
+});
 
 describe("TableResultsWeekly", () => {
   it("has the correct headings", () => {
@@ -16,9 +25,9 @@ describe("TableResultsWeekly", () => {
     render(
       <RouterSlugProvider>
         <TableResultsWeekly
-          weeklyResults={weeklyMockAnalysis()}
           hasOverallResults
           metricsList={HIGHLIGHTS_METRICS_LIST}
+          {...{ weeklyResults, sortedBranches }}
         />
       </RouterSlugProvider>,
     );
@@ -35,9 +44,9 @@ describe("TableResultsWeekly", () => {
     render(
       <RouterSlugProvider>
         <TableResultsWeekly
-          weeklyResults={weeklyMockAnalysis()}
           hasOverallResults={false}
           metricsList={HIGHLIGHTS_METRICS_LIST}
+          {...{ weeklyResults, sortedBranches }}
         />
       </RouterSlugProvider>,
     );

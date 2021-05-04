@@ -24,6 +24,7 @@ import TableVisualizationRow from "../TableVisualizationRow";
 type TableHighlightsProps = {
   results: AnalysisData;
   experiment: getExperiment_experimentBySlug;
+  sortedBranches: string[];
 };
 
 type Branch =
@@ -70,6 +71,7 @@ const TableHighlights = ({
     show_analysis: false,
   },
   experiment,
+  sortedBranches,
 }: TableHighlightsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
   const highlightMetricsList = getHighlightMetrics(primaryOutcomes);
@@ -82,7 +84,7 @@ const TableHighlights = ({
   return (
     <table data-testid="table-highlights" className="table mt-4 mb-0">
       <tbody>
-        {Object.keys(overallResults).map((branch) => {
+        {sortedBranches.map((branch) => {
           const userCountMetric =
             overallResults[branch]["branch_data"][METRIC.USER_COUNT];
           const participantCount =

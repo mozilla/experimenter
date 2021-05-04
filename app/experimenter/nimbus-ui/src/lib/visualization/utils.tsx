@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { DISPLAY_TYPE, METRIC, TABLE_LABEL } from "./constants";
-import { AnalysisData } from "./types";
+import { AnalysisData, BranchDescription } from "./types";
 
 // `show_analysis` is the feature flag for turning visualization on/off.
 // `overall` will be `null` if the analysis isn't available yet.
@@ -36,4 +36,22 @@ export const getTableDisplayType = (
   }
 
   return displayType;
+};
+
+export const getSortedBranches = (analysis: AnalysisData) => {
+  const results: { [branch: string]: BranchDescription } | null =
+    analysis?.overall || analysis?.weekly;
+  if (!results) {
+    return [];
+  }
+
+  const sortedBranches: string[] = [];
+  Object.keys(results).forEach((branch: string) => {
+    if (results[branch]["is_control"]) {
+      sortedBranches.unshift(branch);
+    } else {
+      sortedBranches.push(branch);
+    }
+  });
+  return sortedBranches;
 };

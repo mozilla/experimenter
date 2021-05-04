@@ -8,7 +8,6 @@ import React from "react";
 import TableHighlightsOverview from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
-import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 storiesOf("pages/Results/TableHighlightsOverview", module)
   .addDecorator(withLinks)
@@ -16,10 +15,7 @@ storiesOf("pages/Results/TableHighlightsOverview", module)
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlightsOverview
-          {...{ experiment }}
-          results={mockAnalysis().overall}
-        />
+        <TableHighlightsOverview {...{ experiment }} />
       </RouterSlugProvider>
     );
   })
@@ -29,10 +25,7 @@ storiesOf("pages/Results/TableHighlightsOverview", module)
     });
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlightsOverview
-          {...{ experiment }}
-          results={mockAnalysis().overall}
-        />
+        <TableHighlightsOverview {...{ experiment }} />
       </RouterSlugProvider>
     );
   });
