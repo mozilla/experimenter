@@ -8,6 +8,10 @@ import React from "react";
 import TableMetricSecondary from ".";
 import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
+import { getSortedBranches } from "../../../lib/visualization/utils";
+
+const results = mockAnalysis();
+const sortedBranches = getSortedBranches(results);
 
 storiesOf("pages/Results/TableMetricSecondary", module)
   .addDecorator(withLinks)
@@ -19,7 +23,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
 
     return (
       <TableMetricSecondary
-        results={mockAnalysis()}
+        {...{ results, sortedBranches }}
         outcomeSlug={secondaryOutcomes![0]!.slug!}
         outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         isDefault={false}
@@ -32,7 +36,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
 
     return (
       <TableMetricSecondary
-        results={mockAnalysis()}
+        {...{ results, sortedBranches }}
         outcomeSlug={secondaryOutcomes![0]!.slug!}
         outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         isDefault={false}
@@ -47,7 +51,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
 
     return (
       <TableMetricSecondary
-        results={mockAnalysis()}
+        {...{ results, sortedBranches }}
         outcomeSlug={secondaryOutcomes![0]!.slug!}
         outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         isDefault={false}

@@ -9,6 +9,10 @@ import TableHighlights from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
+import { getSortedBranches } from "../../../lib/visualization/utils";
+
+const results = mockAnalysis();
+const sortedBranches = getSortedBranches(results);
 
 storiesOf("pages/Results/TableHighlights", module)
   .addDecorator(withLinks)
@@ -16,7 +20,7 @@ storiesOf("pages/Results/TableHighlights", module)
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights results={mockAnalysis()} {...{ experiment }} />
+        <TableHighlights {...{ experiment, results, sortedBranches }} />
       </RouterSlugProvider>
     );
   })
@@ -26,7 +30,7 @@ storiesOf("pages/Results/TableHighlights", module)
     });
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights results={mockAnalysis()} {...{ experiment }} />
+        <TableHighlights {...{ experiment, results, sortedBranches }} />
       </RouterSlugProvider>
     );
   });

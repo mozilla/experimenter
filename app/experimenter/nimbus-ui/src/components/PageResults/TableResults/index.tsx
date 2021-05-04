@@ -20,6 +20,7 @@ import TooltipWithMarkdown from "../TooltipWithMarkdown";
 type TableResultsProps = {
   experiment: getExperiment_experimentBySlug;
   results: AnalysisData;
+  sortedBranches: string[];
 };
 
 const getResultMetrics = (outcomes: OutcomesList) => {
@@ -46,6 +47,7 @@ const TableResults = ({
     metadata: { metrics: {}, outcomes: {} },
     show_analysis: false,
   },
+  sortedBranches,
 }: TableResultsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
   const resultsMetricsList = getResultMetrics(primaryOutcomes);
@@ -86,7 +88,7 @@ const TableResults = ({
         </tr>
       </thead>
       <tbody>
-        {Object.keys(overallResults).map((branch) => {
+        {sortedBranches.map((branch) => {
           return (
             <tr key={branch}>
               <th className="align-middle" scope="row">

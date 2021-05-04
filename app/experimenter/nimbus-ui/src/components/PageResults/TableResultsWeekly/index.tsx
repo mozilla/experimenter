@@ -13,12 +13,14 @@ type TableResultsWeeklyProps = {
   weeklyResults: AnalysisDataWeekly;
   hasOverallResults: boolean;
   metricsList: { value: string; name: string; tooltip: string }[];
+  sortedBranches: string[];
 };
 
 const TableResultsWeekly = ({
   weeklyResults = {},
   hasOverallResults = false,
   metricsList,
+  sortedBranches,
 }: TableResultsWeeklyProps) => {
   const [open, setOpen] = useState(!hasOverallResults);
 
@@ -57,6 +59,7 @@ const TableResultsWeekly = ({
                   metricKey={metric.value}
                   metricName={metric.name}
                   results={weeklyResults}
+                  {...{ sortedBranches }}
                 />
               </div>
             );
