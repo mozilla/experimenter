@@ -8,13 +8,22 @@ import React from "react";
 import TableResultsWeekly from ".";
 import { HIGHLIGHTS_METRICS_LIST } from "../../../lib/visualization/constants";
 import { weeklyMockAnalysis } from "../../../lib/visualization/mocks";
+import { getSortedBranches } from "../../../lib/visualization/utils";
+
+const weeklyResults = weeklyMockAnalysis();
+const sortedBranches = getSortedBranches({
+  show_analysis: true,
+  daily: null,
+  weekly: weeklyResults,
+  overall: null,
+});
 
 storiesOf("pages/Results/TableResultsWeekly", module)
   .addDecorator(withLinks)
   .add("basic", () => {
     return (
       <TableResultsWeekly
-        weeklyResults={weeklyMockAnalysis()}
+        {...{ weeklyResults, sortedBranches }}
         hasOverallResults
         metricsList={HIGHLIGHTS_METRICS_LIST}
       />
