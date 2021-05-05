@@ -26,6 +26,12 @@ export const EXTERNAL_URLS = {
   // EXP-866 TBD URL
   PREVIEW_LAUNCH_DOC:
     "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus",
+  SIGNOFF_BRAND:
+    "https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FIREFOX&title=Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-VPSign-off",
+  SIGNOFF_PARTNER:
+    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Isthisstudypartnerrelated?",
+  SIGNOFF_REVENUE:
+    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthisstudyhavepossiblenegativeimpactonrevenue?",
 };
 
 export const CHANGELOG_MESSAGES = {

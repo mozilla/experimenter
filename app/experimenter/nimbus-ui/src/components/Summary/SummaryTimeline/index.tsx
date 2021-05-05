@@ -6,7 +6,7 @@ import React from "react";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import { humanDate } from "../../../lib/dateUtils";
 import { getStatus, StatusCheck } from "../../../lib/experiment";
-import pluralize from "../../../lib/pluralize";
+import { pluralize } from "../../../lib/utils";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import NotSet from "../../NotSet";
 

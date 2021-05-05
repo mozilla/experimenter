@@ -21,6 +21,7 @@ jest.mock("@reach/router", () => ({
   navigate: jest.fn(),
 }));
 
+let mockMutationData: Record<string, string | boolean> = {};
 let mockSubmitData: Record<string, string> = {};
 const mockSubmit = jest.fn();
 
@@ -48,23 +49,34 @@ describe("PageEditOverview", () => {
   };
 
   beforeEach(() => {
-    mockSubmitData = {
+    mockMutationData = {
       changelogMessage: CHANGELOG_MESSAGES.UPDATED_OVERVIEW,
       name: experiment.name,
       hypothesis: experiment.hypothesis!,
       publicDescription: experiment.publicDescription!,
       riskMitigationLink: experiment.riskMitigationLink!,
+      riskBrand: experiment.riskBrand!,
+      riskRevenue: experiment.riskRevenue!,
+      riskPartnerRelated: experiment.riskPartnerRelated!,
+    };
+    mockSubmitData = {
+      ...mockMutationData,
+      ...{
+        riskBrand: String(experiment.riskBrand!),
+        riskRevenue: String(experiment.riskRevenue!),
+        riskPartnerRelated: String(experiment.riskPartnerRelated!),
+      },
     };
     mutationMock = mockExperimentMutation(
       UPDATE_EXPERIMENT_MUTATION,
       {
-        ...mockSubmitData,
+        ...mockMutationData,
         id: experiment.id,
         changelogMessage: CHANGELOG_MESSAGES.UPDATED_OVERVIEW,
       },
       "updateExperiment",
       {
-        experiment: mockSubmitData,
+        experiment: mockMutationData,
       },
     );
   });
