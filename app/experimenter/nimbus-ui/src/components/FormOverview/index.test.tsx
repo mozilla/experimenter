@@ -124,7 +124,6 @@ describe("FormOverview", () => {
       ["Public name", expected.name],
       ["Hypothesis", expected.hypothesis],
       ["Public description", expected.publicDescription],
-      ["Risk Mitigation Checklist Link", expected.riskMitigationLink],
       ["documentationLinks", expected.documentationLinks],
     ]) {
       if (labelText === "documentationLinks") {
@@ -156,34 +155,6 @@ describe("FormOverview", () => {
     });
   });
 
-  it("requires a URL for the risk mitigation link", async () => {
-    const { experiment } = mockExperimentQuery("boo");
-    render(<Subject {...{ experiment }} />);
-    const linkField = screen.getByTestId("riskMitigationLink");
-
-    fireEvent.change(linkField, {
-      target: { value: "whatchu-talkin-bout-willis" },
-    });
-    fireEvent.blur(linkField);
-
-    await waitFor(() =>
-      expect(
-        screen.getByTestId("FormOverview").querySelector(".invalid-feedback"),
-      ).toHaveTextContent(FIELD_MESSAGES.URL),
-    );
-
-    fireEvent.change(linkField, {
-      target: { value: "https://www.com" },
-    });
-    fireEvent.blur(linkField);
-
-    await waitFor(() =>
-      expect(
-        screen.getByTestId("FormOverview").querySelector(".invalid-feedback"),
-      ).toBeNull(),
-    );
-  });
-
   it("with existing experiment, checks fields and allows saving data", async () => {
     const { experiment } = mockExperimentQuery("boo");
     const onSubmit = jest.fn();
@@ -191,7 +162,6 @@ describe("FormOverview", () => {
       name: experiment.name,
       hypothesis: experiment.hypothesis as string,
       publicDescription: experiment.publicDescription as string,
-      riskMitigationLink: experiment.riskMitigationLink as string,
       documentationLinks: experiment.documentationLinks as Record<string, any>,
       riskBrand: optionalBoolString(experiment.riskBrand),
       riskRevenue: optionalBoolString(experiment.riskRevenue),

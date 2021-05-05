@@ -33,7 +33,6 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
       {
         name,
         hypothesis,
-        riskMitigationLink,
         publicDescription,
         documentationLinks,
         riskBrand,
@@ -51,7 +50,6 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
               name,
               hypothesis,
               publicDescription,
-              riskMitigationLink,
               documentationLinks,
               riskBrand: optionalStringBool(riskBrand),
               riskRevenue: optionalStringBool(riskRevenue),

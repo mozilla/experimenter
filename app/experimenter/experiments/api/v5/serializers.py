@@ -512,9 +512,6 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
         NimbusExperiment.Application.choices, required=True
     )
     hypothesis = serializers.CharField(required=True)
-    risk_mitigation_link = serializers.URLField(
-        min_length=0, max_length=255, required=True
-    )
     documentation_links = NimbusDocumentationLinkSerializer(many=True)
     targeting_config_slug = serializers.ChoiceField(
         NimbusExperiment.TargetingConfig.choices, required=True

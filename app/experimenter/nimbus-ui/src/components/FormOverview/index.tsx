@@ -16,7 +16,7 @@ import {
 } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Info } from "../../images/info.svg";
-import { EXTERNAL_URLS, REQUIRED_FIELD, URL_FIELD } from "../../lib/constants";
+import { EXTERNAL_URLS, REQUIRED_FIELD } from "../../lib/constants";
 import { optionalBoolString } from "../../lib/utils";
 import { getExperiment } from "../../types/getExperiment";
 import InlineErrorIcon from "../InlineErrorIcon";
@@ -49,7 +49,6 @@ export const overviewFieldNames = [
   "hypothesis",
   "application",
   "publicDescription",
-  "riskMitigationLink",
   "documentationLinks",
   "riskBrand",
   "riskRevenue",
@@ -75,7 +74,6 @@ const FormOverview = ({
     hypothesis: experiment?.hypothesis || (hypothesisDefault as string).trim(),
     application: "",
     publicDescription: experiment?.publicDescription as string,
-    riskMitigationLink: experiment?.riskMitigationLink as string,
     riskBrand: optionalBoolString(experiment?.riskBrand),
     riskRevenue: optionalBoolString(experiment?.riskRevenue),
     riskPartnerRelated: optionalBoolString(experiment?.riskPartnerRelated),
@@ -254,30 +252,6 @@ const FormOverview = ({
                 This description will be public to users on about:studies
               </Form.Text>
               <FormErrors name="publicDescription" />
-            </Form.Group>
-
-            <Form.Group controlId="riskMitigationLink">
-              <Form.Label className="d-flex align-items-center">
-                Risk Mitigation Checklist Link
-                {isMissingField!("risk_mitigation_link") && (
-                  <InlineErrorIcon
-                    name="risk_mitigation_link"
-                    message="A Risk Mitigation Checklist is required"
-                  />
-                )}
-              </Form.Label>
-              <Form.Control
-                {...formControlAttrs("riskMitigationLink", URL_FIELD)}
-                type="url"
-              />
-              <Form.Text className="text-muted">
-                Go to the{" "}
-                <LinkExternal href={EXTERNAL_URLS.RISK_MITIGATION_TEMPLATE_DOC}>
-                  risk mitigation checklist
-                </LinkExternal>{" "}
-                to make a copy and add the link above
-              </Form.Text>
-              <FormErrors name="riskMitigationLink" />
             </Form.Group>
 
             <InputRadios
