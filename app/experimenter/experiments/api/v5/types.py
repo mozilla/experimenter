@@ -1,9 +1,12 @@
+import json
+
 import graphene
 from django.contrib.auth import get_user_model
 from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
 from experimenter.experiments.api.v5.serializers import NimbusReadyForReviewSerializer
+from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
@@ -162,6 +165,7 @@ class NimbusExperimentType(DjangoObjectType):
     rejection = graphene.Field(NimbusChangeLogType)
     timeout = graphene.Field(NimbusChangeLogType)
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
+    recipe_json = graphene.String()
 
     class Meta:
         model = NimbusExperiment
@@ -205,3 +209,6 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_timeout(self, info):
         return self.changes.latest_timeout()
+
+    def resolve_recipe_json(self, info):
+        return json.dumps(NimbusExperimentSerializer(self).data, indent=2, sort_keys=True)

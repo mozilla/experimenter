@@ -119,4 +119,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             return obj.reference_branch.slug
 
     def get_featureIds(self, obj):
-        return [obj.feature_config.slug]
+        feature_ids = []
+        if obj.feature_config:
+            feature_ids.append(obj.feature_config.slug)
+        return feature_ids
