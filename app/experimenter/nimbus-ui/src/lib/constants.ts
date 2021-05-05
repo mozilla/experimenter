@@ -26,12 +26,18 @@ export const EXTERNAL_URLS = {
   // EXP-866 TBD URL
   PREVIEW_LAUNCH_DOC:
     "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus",
-  SIGNOFF_BRAND:
-    "https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FIREFOX&title=Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-VPSign-off",
-  SIGNOFF_PARTNER:
-    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Isthisstudypartnerrelated?",
-  SIGNOFF_REVENUE:
-    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthisstudyhavepossiblenegativeimpactonrevenue?",
+  RISK_BRAND:
+    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
+  RISK_PARTNER:
+    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Isthisstudypartnerrelated?riskPARTNER",
+  RISK_REVENUE:
+    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-riskREV",
+  SIGNOFF_QA:
+    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-QAsign-offsignQA",
+  SIGNOFF_VP:
+    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-VPSign-offsignVP",
+  SIGNOFF_LEGAL:
+    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-signLEGAL",
 };
 
 export const CHANGELOG_MESSAGES = {
