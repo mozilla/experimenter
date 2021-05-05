@@ -122,6 +122,23 @@ describe("TableAudience", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("renders 'Recipe JSON' row as expected", () => {
+    it("when set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-recipe-json")).toBeInTheDocument();
+    });
+    it("when recipeJson is null", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        recipeJson: null,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.queryByTestId("experiment-recipe-json"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
 
 const Subject = ({

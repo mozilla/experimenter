@@ -314,6 +314,7 @@ type NimbusExperimentType {
   rejection: NimbusChangeLogType
   timeout: NimbusChangeLogType
   signoffRecommendations: NimbusSignoffRecommendationsType
+  recipeJson: String
 }
 
 type NimbusFeatureConfigType {
