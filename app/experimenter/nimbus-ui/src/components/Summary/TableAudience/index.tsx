@@ -19,7 +19,12 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
   const { firefoxMinVersion, channel, targetingConfigSlug } = useConfig();
 
   return (
-    <Table bordered data-testid="table-audience" className="mb-4">
+    <Table
+      bordered
+      data-testid="table-audience"
+      className="mb-4"
+      style={{ tableLayout: "fixed" }}
+    >
       <tbody>
         <tr>
           <th className="w-33">Channel</th>
@@ -72,7 +77,19 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
               data-testid="experiment-target-expression"
               className="text-monospace"
             >
-              {experiment.jexlTargetingExpression}
+              <code>
+                <pre>{experiment.jexlTargetingExpression}</pre>
+              </code>
+            </td>
+          </tr>
+        )}
+        {experiment.recipeJson && (
+          <tr>
+            <th>Recipe JSON</th>
+            <td data-testid="experiment-recipe-json">
+              <code>
+                <pre>{experiment.recipeJson}</pre>
+              </code>
             </td>
           </tr>
         )}
