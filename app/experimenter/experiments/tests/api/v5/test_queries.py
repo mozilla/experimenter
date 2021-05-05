@@ -6,6 +6,7 @@ from django.urls import reverse
 from graphene.utils.str_converters import to_snake_case
 from graphene_django.utils.testing import GraphQLTestCase
 
+from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
@@ -575,6 +576,34 @@ class TestNimbusQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
             experiment_data["timeout"]["changedBy"]["email"], experiment.owner.email
+        )
+
+    def test_recipe_json_returns_serialized_data(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    recipeJson
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["recipeJson"],
+            json.dumps(
+                NimbusExperimentSerializer(experiment).data, indent=2, sort_keys=True
+            ),
         )
 
     def test_nimbus_config(self):
