@@ -20,7 +20,7 @@ import {
   GET_EXPERIMENTS_QUERY,
   GET_EXPERIMENT_QUERY,
 } from "../gql/experiments";
-import { ExperimentReview } from "../hooks";
+import { ReviewCheck } from "../hooks";
 import { cacheConfig } from "../services/apollo";
 import {
   getAllExperiments,
@@ -361,12 +361,11 @@ export function mockExperimentQuery<
   };
 }
 
-export const MOCK_REVIEW: ExperimentReview = {
+export const MOCK_REVIEW: ReviewCheck = {
   ready: true,
   invalidPages: [],
   missingFields: [],
   isMissingField: () => false,
-  refetch: () => {},
 };
 
 export const mockExperimentMutation = (

@@ -20,6 +20,12 @@ import {
 } from "../../../types/globalTypes";
 import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
+jest.mock("../../../hooks/useReviewCheck", () => ({
+  useReviewCheck: () => ({
+    isMissingField: () => true,
+  }),
+}));
+
 describe("FormAudience", () => {
   it("renders without error", async () => {
     render(<Subject />);
@@ -250,11 +256,9 @@ describe("FormAudience", () => {
       },
     });
 
-    const isMissingField = jest.fn(() => true);
     render(
       <Subject
         {...{
-          isMissingField,
           experiment: {
             ...MOCK_EXPERIMENT,
             readyForReview: {
@@ -273,7 +277,6 @@ describe("FormAudience", () => {
       />,
     );
 
-    expect(isMissingField).toHaveBeenCalled();
     expect(screen.queryByTestId("missing-channel")).toBeInTheDocument();
     expect(screen.queryByTestId("missing-ff-min")).toBeInTheDocument();
     expect(screen.queryByTestId("missing-config")).toBeInTheDocument();

@@ -15,7 +15,6 @@ export const Subject = ({
   config = MOCK_CONFIG,
   experiment = MOCK_EXPERIMENT,
   submitErrors = {},
-  isMissingField = () => false,
   isLoading = false,
   isServerValid = true,
   onSubmit = () => {},
@@ -33,7 +32,6 @@ export const Subject = ({
           {...{
             experiment,
             setSubmitErrors,
-            isMissingField,
             isLoading,
             isServerValid,
             onSubmit,
