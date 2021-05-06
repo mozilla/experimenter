@@ -4,7 +4,7 @@
 
 import { getAllExperiments_experiments } from "../types/getAllExperiments";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
-import pluralize from "./pluralize";
+import { pluralize } from "./utils";
 
 export function humanDate(
   date: string,

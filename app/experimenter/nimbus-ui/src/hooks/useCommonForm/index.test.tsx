@@ -107,7 +107,10 @@ describe("hooks/useCommonForm", () => {
           // documentationLinks uses useCommonForm
           if (!["application", "documentationLinks"].includes(name)) {
             await screen.findByTestId(`${name}-form-errors`);
-            await screen.findByTestId(name);
+            // Some inputs, such as radios, will have identical test-ids
+            // so just make sure there's at least one in the DOM
+            const inputs = await screen.findAllByTestId(name);
+            expect(inputs.length).toBeGreaterThanOrEqual(1);
           }
         }
       });
@@ -123,6 +126,9 @@ describe("hooks/useCommonForm", () => {
               "publicDescription",
               "documentationLinks",
               "riskMitigationLink",
+              "riskBrand",
+              "riskRevenue",
+              "riskPartnerRelated",
             ].includes(name)
           ) {
             expect(
