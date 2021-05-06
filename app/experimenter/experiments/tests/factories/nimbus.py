@@ -69,6 +69,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     secondary_outcomes = factory.LazyAttribute(
         lambda o: [oc.slug for oc in Outcomes.all()[2:]]
     )
+    risk_partner_related = factory.LazyAttribute(lambda o: random.choice([True, False]))
+    risk_revenue = factory.LazyAttribute(lambda o: random.choice([True, False]))
+    risk_brand = factory.LazyAttribute(lambda o: random.choice([True, False]))
 
     class Meta:
         model = NimbusExperiment
