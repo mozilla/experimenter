@@ -8,7 +8,7 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import ReactTooltip from "react-tooltip";
-import { useCommonForm, useConfig } from "../../../hooks";
+import { useCommonForm, useConfig, useReviewCheck } from "../../../hooks";
 import {
   EXTERNAL_URLS,
   POSITIVE_NUMBER_FIELD,
@@ -22,7 +22,6 @@ type FormAudienceProps = {
   experiment: getExperiment_experimentBySlug;
   submitErrors: Record<string, string[]>;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-  isMissingField: (fieldName: string) => boolean;
   isServerValid: boolean;
   isLoading: boolean;
   onSubmit: (data: Record<string, any>, next: boolean) => void;
@@ -44,12 +43,12 @@ export const FormAudience = ({
   experiment,
   submitErrors,
   setSubmitErrors,
-  isMissingField,
   isServerValid,
   isLoading,
   onSubmit,
 }: FormAudienceProps) => {
   const config = useConfig();
+  const { isMissingField } = useReviewCheck(experiment);
 
   const defaultValues = {
     channel: experiment.channel,

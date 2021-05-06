@@ -89,11 +89,9 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
       testId="PageEditAudience"
       redirect={editCommonRedirects}
     >
-      {({ experiment, review }) => {
+      {({ experiment, refetch }) => {
         currentExperiment.current = experiment;
-        refetchReview.current = review.refetch;
-
-        const { isMissingField } = review;
+        refetchReview.current = refetch;
 
         return (
           <FormAudience
@@ -101,7 +99,6 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
               experiment,
               submitErrors,
               setSubmitErrors,
-              isMissingField,
               isServerValid,
               isLoading: loading,
               onSubmit: onFormSubmit,

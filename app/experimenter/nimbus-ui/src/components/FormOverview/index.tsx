@@ -13,6 +13,7 @@ import {
   SubmitErrors,
   useCommonForm,
   useExitWarning,
+  useReviewCheck,
 } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Info } from "../../images/info.svg";
@@ -33,7 +34,6 @@ import FormDocumentationLink, {
 type FormOverviewProps = {
   isLoading: boolean;
   isServerValid: boolean;
-  isMissingField?: (fieldName: string) => boolean;
   submitErrors: SubmitErrors;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   experiment?: getExperiment["experimentBySlug"];
@@ -60,7 +60,6 @@ type OverviewFieldName = typeof overviewFieldNames[number];
 const FormOverview = ({
   isLoading,
   isServerValid,
-  isMissingField,
   submitErrors,
   setSubmitErrors,
   experiment,
@@ -68,6 +67,7 @@ const FormOverview = ({
   onCancel,
 }: FormOverviewProps) => {
   const { application, hypothesisDefault } = useConfig();
+  const { isMissingField } = useReviewCheck(experiment);
 
   const defaultValues = {
     name: experiment?.name || "",
