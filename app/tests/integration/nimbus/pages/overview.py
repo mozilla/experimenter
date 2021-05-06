@@ -8,6 +8,10 @@ class OverviewPage(Base):
 
     _public_description_locator = (By.CSS_SELECTOR, "#publicDescription")
     _risk_mitigation_locator = (By.CSS_SELECTOR, "#riskMitigationLink")
+    _risk_brand_locator = (By.CSS_SELECTOR, "#riskBrand-false")
+    _risk_revenue_locator = (By.CSS_SELECTOR, "#riskRevenue-false")
+    _risk_partner_locator = (By.CSS_SELECTOR, "#riskPartnerRelated-false")
+
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditOverview")
 
     def wait_for_page_to_load(self):
@@ -39,3 +43,15 @@ class OverviewPage(Base):
     def risk_mitigation(self, text=None):
         name = self.find_element(*self._risk_mitigation_locator)
         name.send_keys(f"{text}")
+
+    def select_risk_brand_false(self):
+        el = self.find_element(*self._risk_brand_locator)
+        el.click()
+
+    def select_risk_revenue_false(self):
+        el = self.find_element(*self._risk_revenue_locator)
+        el.click()
+
+    def select_risk_partner_false(self):
+        el = self.find_element(*self._risk_partner_locator)
+        el.click()
