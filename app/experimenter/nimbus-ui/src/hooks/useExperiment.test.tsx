@@ -47,6 +47,9 @@ describe("hooks/useExperiment", () => {
       population_percent: [
         "Ensure this value is greater than or equal to 0.0001.",
       ],
+      risk_brand: ["This field may not be null."],
+      risk_revenue: ["This field may not be null."],
+      risk_partner_related: ["This field may not be null."],
     };
 
     const pageNames = {
@@ -58,6 +61,9 @@ describe("hooks/useExperiment", () => {
       reference_branch: "branches",
       channel: "audience",
       population_percent: "audience",
+      risk_brand: "overview",
+      risk_revenue: "overview",
+      risk_partner_related: "overview",
     };
 
     beforeAll(() => {

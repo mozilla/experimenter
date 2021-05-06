@@ -13,11 +13,17 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 const { mock } = mockExperimentQuery("demo-slug");
 const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
   publicDescription: "",
+  riskBrand: null,
+  riskPartnerRelated: null,
+  riskRevenue: null,
   readyForReview: {
     ready: false,
     message: {
       public_description: ["This field may not be null."],
       risk_mitigation_link: ["This field may not be null."],
+      risk_brand: ["This field may not be null."],
+      risk_revenue: ["This field may not be null."],
+      risk_partner_related: ["This field may not be null."],
     },
   },
 });

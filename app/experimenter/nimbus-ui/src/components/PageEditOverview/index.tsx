@@ -8,6 +8,7 @@ import React, { useCallback, useRef, useState } from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
 import { editCommonRedirects } from "../../lib/experiment";
+import { optionalStringBool } from "../../lib/utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment as UpdateExperimentOverviewResult } from "../../types/updateExperiment";
@@ -35,6 +36,9 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
         riskMitigationLink,
         publicDescription,
         documentationLinks,
+        riskBrand,
+        riskRevenue,
+        riskPartnerRelated,
       }: Record<string, any>,
       next: boolean,
     ) => {
@@ -49,6 +53,9 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
               publicDescription,
               riskMitigationLink,
               documentationLinks,
+              riskBrand: optionalStringBool(riskBrand),
+              riskRevenue: optionalStringBool(riskRevenue),
+              riskPartnerRelated: optionalStringBool(riskPartnerRelated),
             },
           },
         });
