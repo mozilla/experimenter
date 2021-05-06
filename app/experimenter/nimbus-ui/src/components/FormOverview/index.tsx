@@ -67,7 +67,7 @@ const FormOverview = ({
   onCancel,
 }: FormOverviewProps) => {
   const { application, hypothesisDefault } = useConfig();
-  const { isMissingField } = useReviewCheck(experiment);
+  const { FieldReview } = useReviewCheck(experiment);
 
   const defaultValues = {
     name: experiment?.name || "",
@@ -185,14 +185,13 @@ const FormOverview = ({
             <LinkExternal href={EXTERNAL_URLS.RISK_BRAND}>
               Learn more
             </LinkExternal>
-            {isMissingField!("risk_brand") && (
-              <span className="align-text-bottom ml-1">
-                <InlineErrorIcon
-                  name="risk_brand"
-                  message="Please answer this question"
-                />
-              </span>
-            )}
+            <FieldReview field="risk_brand">
+              {({ field, message }) => (
+                <span className="align-text-bottom ml-1">
+                  <InlineErrorIcon {...{ field, message }} />
+                </span>
+              )}
+            </FieldReview>
           </InputRadios>
         )}
 
@@ -236,12 +235,11 @@ const FormOverview = ({
             <Form.Group controlId="publicDescription">
               <Form.Label className="d-flex align-items-center">
                 Public description
-                {isMissingField!("public_description") && (
-                  <InlineErrorIcon
-                    name="description"
-                    message="Public description cannot be blank"
-                  />
-                )}
+                <FieldReview field="public_description">
+                  {({ field, message }) => (
+                    <InlineErrorIcon {...{ field, message }} />
+                  )}
+                </FieldReview>
               </Form.Label>
               <Form.Control
                 as="textarea"
@@ -267,14 +265,13 @@ const FormOverview = ({
               <LinkExternal href={EXTERNAL_URLS.RISK_PARTNER}>
                 Learn more
               </LinkExternal>
-              {isMissingField!("risk_partner_related") && (
-                <span className="align-text-bottom ml-1">
-                  <InlineErrorIcon
-                    name="risk_partner_related"
-                    message="Please answer this question"
-                  />
-                </span>
-              )}
+              <FieldReview field="risk_partner_related">
+                {({ field, message }) => (
+                  <span className="align-text-bottom ml-1">
+                    <InlineErrorIcon {...{ field, message }} />
+                  </span>
+                )}
+              </FieldReview>
             </InputRadios>
 
             <InputRadios
@@ -290,14 +287,13 @@ const FormOverview = ({
               <LinkExternal href={EXTERNAL_URLS.RISK_REVENUE}>
                 Learn more
               </LinkExternal>
-              {isMissingField!("risk_revenue") && (
-                <span className="align-text-bottom ml-1">
-                  <InlineErrorIcon
-                    name="risk_revenue"
-                    message="Please answer this question"
-                  />
-                </span>
-              )}
+              <FieldReview field="risk_revenue">
+                {({ field, message }) => (
+                  <span className="align-text-bottom ml-1">
+                    <InlineErrorIcon {...{ field, message }} />
+                  </span>
+                )}
+              </FieldReview>
             </InputRadios>
 
             <Form.Group controlId="documentationLinks">

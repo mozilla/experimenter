@@ -67,20 +67,12 @@ describe("hooks/useReviewCheck", () => {
     });
 
     await waitFor(() => {
-      const {
-        ready,
-        invalidPages,
-        missingFields,
-        isMissingField,
-      } = result.current;
+      const { ready, invalidPages, invalidFields } = result.current;
       expect(ready).toBeFalsy();
       expect(invalidPages).toEqual(expect.arrayContaining([pageName]));
-      expect(missingFields).toEqual(
+      expect(invalidFields).toEqual(
         expect.arrayContaining(Object.keys(readyMessage)),
       );
-      for (const fieldName of Object.keys(readyMessage)) {
-        expect(isMissingField(fieldName)).toBeTruthy();
-      }
     });
   };
 
@@ -106,18 +98,10 @@ describe("hooks/useReviewCheck", () => {
     });
 
     await waitFor(() => {
-      const {
-        ready,
-        invalidPages,
-        missingFields,
-        isMissingField,
-      } = result.current;
+      const { ready, invalidPages, invalidFields } = result.current;
       expect(ready).toBeTruthy();
       expect(invalidPages).toEqual([]);
-      expect(missingFields).toEqual([]);
-      for (const fieldName in readyMessages) {
-        expect(isMissingField(fieldName)).toBeFalsy();
-      }
+      expect(invalidFields).toEqual([]);
     });
   });
 });
