@@ -38,6 +38,15 @@ export const EXTERNAL_URLS = {
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-signLEGAL",
 };
 
+export const RISK_QUESTIONS = {
+  BRAND:
+    "If the public, users or press, were to discover this experiment and description, do you think it would negatively impact their perception of the brand?",
+  PARTNER:
+    "Does this experiment impact or rely on a partner or outside company (e.g. Google, Amazon)?",
+  REVENUE:
+    "Does this experiment have a risk to negatively impact revenue (e.g. search, Pocket revenue)?",
+};
+
 export const CHANGELOG_MESSAGES = {
   CREATED_EXPERIMENT: "Created Experiment",
   UPDATED_BRANCHES: "Updated Branches",
