@@ -184,7 +184,7 @@ const FormOverview = ({
             If the public, users or press, were to discover this experiment and
             description, do you think it would negatively impact their
             perception of the brand?{" "}
-            <LinkExternal href={EXTERNAL_URLS.SIGNOFF_BRAND}>
+            <LinkExternal href={EXTERNAL_URLS.RISK_BRAND}>
               Learn more
             </LinkExternal>
             {isMissingField!("risk_brand") && (
@@ -290,7 +290,7 @@ const FormOverview = ({
             >
               Does this experiment impact or rely on a partner or outside
               company (e.g. Google, Amazon)?{" "}
-              <LinkExternal href={EXTERNAL_URLS.SIGNOFF_PARTNER}>
+              <LinkExternal href={EXTERNAL_URLS.RISK_PARTNER}>
                 Learn more
               </LinkExternal>
               {isMissingField!("risk_partner_related") && (
@@ -313,7 +313,7 @@ const FormOverview = ({
             >
               Does this experiment have a risk to negatively impact revenue
               (e.g. search, Pocket revenue)?{" "}
-              <LinkExternal href={EXTERNAL_URLS.SIGNOFF_REVENUE}>
+              <LinkExternal href={EXTERNAL_URLS.RISK_REVENUE}>
                 Learn more
               </LinkExternal>
               {isMissingField!("risk_revenue") && (

@@ -44,10 +44,18 @@ export const draftStatus = storyWithExperimentProps({
   publishStatus: NimbusExperimentPublishStatus.IDLE,
 });
 
-export const previewStatus = storyWithExperimentProps({
-  status: NimbusExperimentStatus.PREVIEW,
-  publishStatus: NimbusExperimentPublishStatus.IDLE,
-});
+export const previewStatus = storyWithExperimentProps(
+  {
+    status: NimbusExperimentStatus.PREVIEW,
+    publishStatus: NimbusExperimentPublishStatus.IDLE,
+    signoffRecommendations: {
+      qaSignoff: true,
+      vpSignoff: false,
+      legalSignoff: false,
+    },
+  },
+  "Preview status, one recommended signoff",
+);
 
 export const reviewRequestedCanReview = storyWithExperimentProps(
   { ...reviewRequestedBaseProps, canReview: true },
@@ -82,6 +90,18 @@ export const reviewTimedoutCannotReview = storyWithExperimentProps(
 export const reviewRejected = storyWithExperimentProps(
   reviewRejectedBaseProps,
   "Review rejected",
+);
+
+export const reviewRecommendedSignoffs = storyWithExperimentProps(
+  {
+    ...reviewRequestedBaseProps,
+    signoffRecommendations: {
+      qaSignoff: true,
+      vpSignoff: true,
+      legalSignoff: true,
+    },
+  },
+  "Review with recommended sign offs",
 );
 
 export const error = () => (

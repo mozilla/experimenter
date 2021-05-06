@@ -4,10 +4,11 @@
 
 import { RouteComponentProps } from "@reach/router";
 import React, { useRef, useState } from "react";
+import { Table } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import { useChangeOperationMutation } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
-import { CHANGELOG_MESSAGES } from "../../lib/constants";
+import { CHANGELOG_MESSAGES, EXTERNAL_URLS } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
@@ -16,6 +17,7 @@ import {
 } from "../../types/globalTypes";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import ChangeApprovalOperations from "../ChangeApprovalOperations";
+import LinkExternal from "../LinkExternal";
 import Summary from "../Summary";
 import FormLaunchDraftToPreview from "./FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "./FormLaunchDraftToReview";
@@ -160,6 +162,52 @@ const PageRequestReview = ({
                 )}
               </ChangeApprovalOperations>
             )}
+
+            <h3 className="h5 mb-3">Recommended actions before launch</h3>
+            <Table bordered data-testid="table-signoff" className="mb-4">
+              <tr data-testid="table-signoff-qa">
+                <td>
+                  <strong>QA Sign - Off</strong>
+                </td>
+                <td>
+                  {experiment.signoffRecommendations?.qaSignoff && (
+                    <span className="text-success">Recommended: </span>
+                  )}
+                  Describe what they should do.{" "}
+                  <LinkExternal href={EXTERNAL_URLS.SIGNOFF_QA}>
+                    Learn More
+                  </LinkExternal>
+                </td>
+              </tr>
+              <tr data-testid="table-signoff-vp">
+                <td>
+                  <strong>VP Sign - Off</strong>
+                </td>
+                <td>
+                  {experiment.signoffRecommendations?.vpSignoff && (
+                    <span className="text-success">Recommended: </span>
+                  )}
+                  Describe what they should do.{" "}
+                  <LinkExternal href={EXTERNAL_URLS.SIGNOFF_VP}>
+                    Learn More
+                  </LinkExternal>
+                </td>
+              </tr>
+              <tr data-testid="table-signoff-legal">
+                <td>
+                  <strong>Legal Sign - Off</strong>
+                </td>
+                <td>
+                  {experiment.signoffRecommendations?.legalSignoff && (
+                    <span className="text-success">Recommended: </span>
+                  )}
+                  Describe what they should do.{" "}
+                  <LinkExternal href={EXTERNAL_URLS.SIGNOFF_LEGAL}>
+                    Learn More
+                  </LinkExternal>
+                </td>
+              </tr>
+            </Table>
 
             <Summary {...{ experiment }} />
           </>
