@@ -531,6 +531,9 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     secondary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
     )
+    risk_partner_related = serializers.BooleanField(required=True, allow_null=False)
+    risk_revenue = serializers.BooleanField(required=True, allow_null=False)
+    risk_brand = serializers.BooleanField(required=True, allow_null=False)
 
     class Meta:
         model = NimbusExperiment
