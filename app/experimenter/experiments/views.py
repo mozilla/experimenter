@@ -230,3 +230,19 @@ class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):
 
 class NimbusUIView(TemplateView):
     template_name = "nimbus/index.html"
+
+
+class PageNotFoundView(TemplateView):
+    template_name = "nimbus/404.html"
+
+    @classmethod
+    def as_404_view(cls):
+        as_view_fn = cls.as_view()
+
+        def view_fn(request, exception):
+            response = as_view_fn(request)
+            response.status_code = 404
+            response.render()
+            return response
+
+        return view_fn

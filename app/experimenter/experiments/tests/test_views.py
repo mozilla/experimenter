@@ -782,3 +782,11 @@ class TestNimbusUIView(TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
+
+
+class Test404View(TestCase):
+    def test_404(self):
+        user_email = "user@example.com"
+        response = self.client.get("/404", **{settings.OPENIDC_EMAIL_HEADER: user_email})
+        self.assertTemplateUsed(response, "nimbus/404.html")
+        self.assertEqual(response.status_code, 404)
