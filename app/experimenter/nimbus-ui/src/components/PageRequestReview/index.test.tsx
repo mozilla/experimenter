@@ -354,4 +354,68 @@ describe("PageRequestReview", () => {
       expect(screen.getByTestId("in-review-label")).toBeInTheDocument(),
     );
   });
+
+  it("shows no recommended signoff", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      signoffRecommendations: {
+        qaSignoff: false,
+        vpSignoff: false,
+        legalSignoff: false,
+      },
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(screen.getByTestId("table-signoff")).not.toHaveTextContent(
+        "Recommended",
+      ),
+    );
+  });
+
+  it("shows qa recommended signoff", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      signoffRecommendations: {
+        qaSignoff: true,
+        vpSignoff: false,
+        legalSignoff: false,
+      },
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(screen.getByTestId("table-signoff-qa")).toHaveTextContent(
+        "Recommended",
+      ),
+    );
+  });
+
+  it("shows vp recommended signoff", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      signoffRecommendations: {
+        qaSignoff: false,
+        vpSignoff: true,
+        legalSignoff: false,
+      },
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(screen.getByTestId("table-signoff-vp")).toHaveTextContent(
+        "Recommended",
+      ),
+    );
+  });
+
+  it("shows legal recommended signoff", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      signoffRecommendations: {
+        qaSignoff: false,
+        vpSignoff: false,
+        legalSignoff: true,
+      },
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() =>
+      expect(screen.getByTestId("table-signoff-legal")).toHaveTextContent(
+        "Recommended",
+      ),
+    );
+  });
 });
