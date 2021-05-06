@@ -7,7 +7,6 @@ from graphene.utils.str_converters import to_snake_case
 from graphene_django.utils.testing import GraphQLTestCase
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
@@ -19,8 +18,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiments(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED
         )
 
         response = self.query(
@@ -47,8 +46,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiments_with_no_branches_returns_empty_values(self):
         user_email = "user@example.com"
-        NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT, branches=[]
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED, branches=[]
         )
 
         response = self.query(
@@ -86,8 +85,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiments_with_branches_returns_branch_data(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED
         )
 
         response = self.query(
@@ -119,8 +118,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiments_with_documentation_links_return_link_data(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED
         )
         documentation_links = experiment.documentation_links.all()
         self.assert_(len(documentation_links) > 0)
@@ -176,8 +175,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_by_slug_ready_for_review(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED
         )
 
         response = self.query(
@@ -211,8 +210,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_by_slug_not_ready_for_review(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT, hypothesis=NimbusExperiment.HYPOTHESIS_DEFAULT
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
+            hypothesis=NimbusExperiment.HYPOTHESIS_DEFAULT,
         )
 
         response = self.query(
@@ -242,7 +242,7 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_by_slug_not_found(self):
         user_email = "user@example.com"
-        NimbusExperimentFactory.create_with_status(NimbusExperiment.Status.DRAFT)
+        NimbusExperimentFactory.create_with_lifecycle(NimbusExperiment.Lifecycles.CREATED)
 
         response = self.query(
             """
@@ -264,8 +264,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_jexl_targeting_expression(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             application=NimbusExperiment.Application.DESKTOP,
         )
@@ -287,8 +287,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_no_jexl_targeting_expression(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             targeting_config_slug="",
             application=NimbusExperiment.Application.FENIX,
         )
@@ -313,8 +313,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_computed_end_date_proposed(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_duration=10,
         )
         response = self.query(
@@ -338,8 +338,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_computed_end_date_actual(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.COMPLETE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.ENDING_APPROVE_APPROVE
         )
         response = self.query(
             """
@@ -362,14 +362,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_in_review_can_review(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_REVIEW_REQUESTED
         )
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner, "test message")
         response = self.query(
             """
             query experimentBySlug($slug: String!) {
@@ -388,9 +383,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_no_rejection_data(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED
         )
 
         response = self.query(
@@ -415,19 +409,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_with_rejection(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_REJECT
         )
-
-        for publish_status in (
-            NimbusExperiment.PublishStatus.REVIEW,
-            NimbusExperiment.PublishStatus.IDLE,
-        ):
-            experiment.publish_status = publish_status
-            experiment.save()
-            generate_nimbus_changelog(experiment, experiment.owner, "test message")
-
         response = self.query(
             """
             query experimentBySlug($slug: String!) {
@@ -452,9 +436,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_no_review_request_data(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED
         )
 
         response = self.query(
@@ -479,15 +462,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_with_review_request(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_REVIEW_REQUESTED
         )
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner, "test message")
-
         response = self.query(
             """
             query experimentBySlug($slug: String!) {
@@ -512,14 +489,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_without_timeout_returns_none(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_WAITING
         )
-        experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
-        experiment.save()
-        generate_nimbus_changelog(experiment, experiment.owner, "test message")
-
         response = self.query(
             """
             query experimentBySlug($slug: String!) {
@@ -542,20 +514,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiment_with_timeout_returns_changelog(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_TIMEOUT
         )
-        for publish_status in (
-            NimbusExperiment.PublishStatus.REVIEW,
-            NimbusExperiment.PublishStatus.APPROVED,
-            NimbusExperiment.PublishStatus.WAITING,
-            NimbusExperiment.PublishStatus.REVIEW,
-        ):
-            experiment.publish_status = publish_status
-            experiment.save()
-            generate_nimbus_changelog(experiment, experiment.owner, "test message")
-
         response = self.query(
             """
             query experimentBySlug($slug: String!) {
@@ -580,11 +541,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_recipe_json_returns_serialized_data(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED
         )
-
         response = self.query(
             """
             query experimentBySlug($slug: String!) {
@@ -701,8 +660,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_paused_experiment_returns_date(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             is_paused=True,
             proposed_enrollment=7,
         )
@@ -733,8 +692,8 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_signoff_recommendations(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             risk_brand=True,
             risk_revenue=True,
             risk_partner_related=True,

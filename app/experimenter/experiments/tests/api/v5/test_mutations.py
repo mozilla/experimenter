@@ -221,8 +221,8 @@ class TestMutations(GraphQLTestCase):
 
     def test_does_not_delete_branches_when_other_fields_specified(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED
         )
         branch_count = experiment.branches.count()
         response = self.query(
@@ -248,8 +248,8 @@ class TestMutations(GraphQLTestCase):
 
     def test_does_not_clear_feature_config_when_other_fields_specified(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED
         )
         expected_feature_config = experiment.feature_config
 
@@ -536,9 +536,8 @@ class TestMutations(GraphQLTestCase):
 
     def test_reject_draft_experiment(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_REVIEW_REQUESTED
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -561,10 +560,8 @@ class TestMutations(GraphQLTestCase):
 
     def test_reject_ending_experiment(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.REVIEW,
-            is_end_requested=True,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.ENDING_REVIEW_REQUESTED
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,

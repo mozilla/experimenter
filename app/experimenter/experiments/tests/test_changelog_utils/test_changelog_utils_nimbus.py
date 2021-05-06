@@ -69,8 +69,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         primary_outcome = Outcomes.by_application(application)[0].slug
         secondary_outcome = Outcomes.by_application(application)[1].slug
 
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.COMPLETE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.ENDING_APPROVE_APPROVE,
             application=application,
             feature_config=feature_config,
             projects=[project],
@@ -181,8 +181,8 @@ class TestGenerateNimbusChangeLog(TestCase):
         )
 
     def test_generate_nimbus_changelog_with_prior_change(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED
         )
 
         self.assertEqual(experiment.changes.count(), 1)

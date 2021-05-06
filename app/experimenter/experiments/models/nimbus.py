@@ -32,7 +32,7 @@ class NimbusExperimentManager(models.Manager):
 
     def pause_queue(self, applications):
         return self.filter(
-            NimbusExperiment.Filters.IS_PAUSE_QUEUED,
+            NimbusExperiment.Filters.IS_PAUSE_CANDIDATE,
             application__in=applications,
             id__in=[
                 experiment.id for experiment in self.all() if experiment.should_pause
@@ -130,28 +130,11 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         verbose_name_plural = "Nimbus Experiments"
 
     class Filters:
-        IS_LAUNCH_QUEUED = Q(
-            status=NimbusConstants.Status.DRAFT,
-            publish_status=NimbusConstants.PublishStatus.APPROVED,
-        )
-        IS_LAUNCHING = Q(
-            status=NimbusConstants.Status.DRAFT,
-            publish_status=NimbusConstants.PublishStatus.WAITING,
-        )
-        IS_PAUSE_QUEUED = Q(
-            status=NimbusConstants.Status.LIVE,
-            is_paused=False,
-        )
-        IS_END_QUEUED = Q(
-            status=NimbusConstants.Status.LIVE,
-            publish_status=NimbusConstants.PublishStatus.APPROVED,
-            is_end_requested=True,
-        )
-        IS_ENDING = Q(
-            status=NimbusConstants.Status.LIVE,
-            publish_status=NimbusConstants.PublishStatus.WAITING,
-            is_end_requested=True,
-        )
+        IS_LAUNCH_QUEUED = Q(**NimbusConstants.LifecycleStates.DRAFT_APPROVED.value)
+        IS_LAUNCHING = Q(**NimbusConstants.LifecycleStates.DRAFT_WAITING.value)
+        IS_PAUSE_CANDIDATE = Q(**NimbusConstants.LifecycleStates.PAUSE_CANDIDATE.value)
+        IS_END_QUEUED = Q(**NimbusConstants.LifecycleStates.LIVE_APPROVED_ENDING.value)
+        IS_ENDING = Q(**NimbusConstants.LifecycleStates.LIVE_WAITING_ENDING.value)
         SHOULD_TIMEOUT = Q(IS_LAUNCHING | IS_ENDING)
         SHOULD_ALLOCATE_BUCKETS = Q(
             Q(status=NimbusConstants.Status.PREVIEW)
@@ -160,6 +143,10 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     def __str__(self):
         return self.name
+
+    def apply_lifecycle_state(self, lifecycle_state):
+        for name, value in lifecycle_state.value.items():
+            setattr(self, name, value)
 
     def get_absolute_url(self):
         return reverse("nimbus-detail", kwargs={"slug": self.slug})

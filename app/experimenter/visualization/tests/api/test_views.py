@@ -24,18 +24,18 @@ class TestVisualizationView(TestCase):
 
     @parameterized.expand(
         [
-            NimbusExperiment.Status.DRAFT,
-            NimbusExperiment.Status.COMPLETE,
+            (NimbusExperiment.Lifecycles.CREATED,),
+            (NimbusExperiment.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
     @patch("django.core.files.storage.default_storage.exists")
-    def test_analysis_results_view_no_data(self, status, mock_exists):
+    def test_analysis_results_view_no_data(self, lifecycle, mock_exists):
         user_email = "user@example.com"
 
         mock_exists.return_value = False
         primary_outcome = "outcome"
-        experiment = NimbusExperimentFactory.create_with_status(
-            target_status=status, primary_outcomes=[primary_outcome]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, primary_outcomes=[primary_outcome]
         )
 
         response = self.client.get(
@@ -103,13 +103,13 @@ class TestVisualizationView(TestCase):
 
     @parameterized.expand(
         [
-            NimbusExperiment.Status.DRAFT,
-            NimbusExperiment.Status.COMPLETE,
+            (NimbusExperiment.Lifecycles.CREATED,),
+            (NimbusExperiment.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
-    def test_analysis_results_view_data(self, status, mock_exists, mock_open):
+    def test_analysis_results_view_data(self, lifecycle, mock_exists, mock_open):
         user_email = "user@example.com"
 
         (
@@ -146,8 +146,8 @@ class TestVisualizationView(TestCase):
         mock_exists.return_value = True
         primary_outcome = "primary_outcome"
         secondary_outcome = "secondary_outcome"
-        experiment = NimbusExperimentFactory.create_with_status(
-            target_status=status,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
             primary_outcomes=[primary_outcome],
             secondary_outcomes=[secondary_outcome],
         )
