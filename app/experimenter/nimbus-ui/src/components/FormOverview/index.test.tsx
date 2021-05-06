@@ -7,6 +7,7 @@ import React from "react";
 import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
 import { FIELD_MESSAGES } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
+import { optionalBoolString } from "../../lib/utils";
 import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
 import { Subject } from "./mocks";
 
@@ -192,6 +193,9 @@ describe("FormOverview", () => {
       publicDescription: experiment.publicDescription as string,
       riskMitigationLink: experiment.riskMitigationLink as string,
       documentationLinks: experiment.documentationLinks as Record<string, any>,
+      riskBrand: optionalBoolString(experiment.riskBrand),
+      riskRevenue: optionalBoolString(experiment.riskRevenue),
+      riskPartnerRelated: optionalBoolString(experiment.riskPartnerRelated),
     };
 
     render(<Subject {...{ onSubmit, experiment }} />);

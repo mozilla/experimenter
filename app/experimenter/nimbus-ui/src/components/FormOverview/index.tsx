@@ -17,8 +17,10 @@ import {
 import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Info } from "../../images/info.svg";
 import { EXTERNAL_URLS, REQUIRED_FIELD, URL_FIELD } from "../../lib/constants";
+import { optionalBoolString } from "../../lib/utils";
 import { getExperiment } from "../../types/getExperiment";
 import InlineErrorIcon from "../InlineErrorIcon";
+import InputRadios from "../InputRadios";
 import LinkExternal from "../LinkExternal";
 import {
   stripInvalidDocumentationLinks,
@@ -49,6 +51,9 @@ export const overviewFieldNames = [
   "publicDescription",
   "riskMitigationLink",
   "documentationLinks",
+  "riskBrand",
+  "riskRevenue",
+  "riskPartnerRelated",
 ] as const;
 
 type OverviewFieldName = typeof overviewFieldNames[number];
@@ -71,6 +76,9 @@ const FormOverview = ({
     application: "",
     publicDescription: experiment?.publicDescription as string,
     riskMitigationLink: experiment?.riskMitigationLink as string,
+    riskBrand: optionalBoolString(experiment?.riskBrand),
+    riskRevenue: optionalBoolString(experiment?.riskRevenue),
+    riskPartnerRelated: optionalBoolString(experiment?.riskPartnerRelated),
   };
 
   const {
@@ -163,6 +171,33 @@ const FormOverview = ({
           </Form.Text>
           <FormErrors name="hypothesis" />
         </Form.Group>
+
+        {experiment && (
+          <InputRadios
+            name="riskBrand"
+            options={[
+              { label: "Yes", value: "true" },
+              { label: "No", value: "false" },
+            ]}
+            {...{ FormErrors, formControlAttrs }}
+          >
+            If the public, users or press, were to discover this experiment and
+            description, do you think it would negatively impact their
+            perception of the brand?{" "}
+            <LinkExternal href={EXTERNAL_URLS.SIGNOFF_BRAND}>
+              Learn more
+            </LinkExternal>
+            {isMissingField!("risk_brand") && (
+              <span className="align-text-bottom ml-1">
+                <InlineErrorIcon
+                  name="risk_brand"
+                  message="Please answer this question"
+                />
+              </span>
+            )}
+          </InputRadios>
+        )}
+
         <Form.Group controlId="application">
           <Form.Label>Application</Form.Label>
           {experiment ? (
@@ -244,6 +279,52 @@ const FormOverview = ({
               </Form.Text>
               <FormErrors name="riskMitigationLink" />
             </Form.Group>
+
+            <InputRadios
+              name="riskRevenue"
+              options={[
+                { label: "Yes", value: "true" },
+                { label: "No", value: "false" },
+              ]}
+              {...{ FormErrors, formControlAttrs }}
+            >
+              Does this experiment impact or rely on a partner or outside
+              company (e.g. Google, Amazon)?{" "}
+              <LinkExternal href={EXTERNAL_URLS.SIGNOFF_PARTNER}>
+                Learn more
+              </LinkExternal>
+              {isMissingField!("risk_partner_related") && (
+                <span className="align-text-bottom ml-1">
+                  <InlineErrorIcon
+                    name="risk_partner_related"
+                    message="Please answer this question"
+                  />
+                </span>
+              )}
+            </InputRadios>
+
+            <InputRadios
+              name="riskPartnerRelated"
+              options={[
+                { label: "Yes", value: "true" },
+                { label: "No", value: "false" },
+              ]}
+              {...{ FormErrors, formControlAttrs }}
+            >
+              Does this experiment have a risk to negatively impact revenue
+              (e.g. search, Pocket revenue)?{" "}
+              <LinkExternal href={EXTERNAL_URLS.SIGNOFF_REVENUE}>
+                Learn more
+              </LinkExternal>
+              {isMissingField!("risk_revenue") && (
+                <span className="align-text-bottom ml-1">
+                  <InlineErrorIcon
+                    name="risk_revenue"
+                    message="Please answer this question"
+                  />
+                </span>
+              )}
+            </InputRadios>
 
             <Form.Group controlId="documentationLinks">
               <Form.Label>
