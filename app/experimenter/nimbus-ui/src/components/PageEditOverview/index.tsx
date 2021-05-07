@@ -90,18 +90,15 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
       testId="PageEditOverview"
       redirect={editCommonRedirects}
     >
-      {({ experiment, review }) => {
+      {({ experiment, refetch }) => {
         currentExperiment.current = experiment;
-        refetchReview.current = review.refetch;
-
-        const { isMissingField } = review;
+        refetchReview.current = refetch;
 
         return (
           <FormOverview
             {...{
               isLoading: loading,
               isServerValid,
-              isMissingField,
               experiment,
               submitErrors,
               setSubmitErrors,
