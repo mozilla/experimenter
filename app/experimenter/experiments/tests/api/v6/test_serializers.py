@@ -113,9 +113,8 @@ class TestNimbusExperimentSerializer(TestCase):
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_serializer_with_branches_no_feature(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             feature_config=None,
         )
         experiment.save()
