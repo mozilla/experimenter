@@ -290,7 +290,7 @@ def nimbus_check_experiments_are_paused():
         records = kinto_client.get_main_records()
 
         pause_queue = NimbusExperiment.objects.filter(
-            NimbusExperiment.Filters.IS_PAUSE_QUEUED,
+            NimbusExperiment.Filters.IS_PAUSE_CANDIDATE,
             application__in=applications,
         )
 
