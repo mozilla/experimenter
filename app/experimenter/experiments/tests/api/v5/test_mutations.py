@@ -122,7 +122,6 @@ class TestMutations(GraphQLTestCase):
                     "name": "new name",
                     "hypothesis": "new hypothesis",
                     "publicDescription": "new public description",
-                    "riskMitigationLink": "https://example.com/risk",
                     "changelogMessage": "test changelog message",
                     "riskBrand": True,
                     "riskRevenue": True,
@@ -141,7 +140,6 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(experiment.name, "new name")
         self.assertEqual(experiment.hypothesis, "new hypothesis")
         self.assertEqual(experiment.public_description, "new public description")
-        self.assertEqual(experiment.risk_mitigation_link, "https://example.com/risk")
         self.assertEqual(experiment.risk_brand, True)
         self.assertEqual(experiment.risk_revenue, True)
         self.assertEqual(experiment.risk_partner_related, True)
@@ -157,7 +155,6 @@ class TestMutations(GraphQLTestCase):
                     "id": experiment.id,
                     "name": long_name,
                     "hypothesis": "new hypothesis",
-                    "riskMitigationLink": "i like pie",
                     "changelogMessage": "test changelog message",
                 }
             },
@@ -170,7 +167,6 @@ class TestMutations(GraphQLTestCase):
             result["message"],
             {
                 "name": ["Ensure this field has no more than 255 characters."],
-                "risk_mitigation_link": ["Enter a valid URL."],
             },
         )
 
