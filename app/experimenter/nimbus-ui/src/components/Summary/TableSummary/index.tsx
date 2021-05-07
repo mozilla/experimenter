@@ -62,21 +62,19 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
             )}
           </td>
         </tr>
-        <tr>
-          <th>Risk mitigation checklist</th>
-          <td data-testid="experiment-risk-mitigation-link">
-            {experiment.riskMitigationLink ? (
+        {experiment.riskMitigationLink && (
+          <tr>
+            <th>Risk mitigation checklist</th>
+            <td data-testid="experiment-risk-mitigation-link">
               <LinkExternal href={experiment.riskMitigationLink}>
                 <span className="mr-1 align-middle">
                   {experiment.riskMitigationLink}
                 </span>
                 <ExternalIcon />
               </LinkExternal>
-            ) : (
-              <NotSet />
-            )}
-          </td>
-        </tr>
+            </td>
+          </tr>
+        )}
         {experiment.documentationLinks &&
           experiment.documentationLinks?.length > 0 && (
             <tr>
