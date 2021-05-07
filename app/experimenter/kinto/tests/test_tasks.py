@@ -60,17 +60,18 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         self.mock_end_task.assert_not_called()
 
     def test_check_with_no_approved_publish_status_pushes_nothing(self):
-        for status in [NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.LIVE]:
-            for publish_status in [
-                NimbusExperiment.PublishStatus.IDLE,
-                NimbusExperiment.PublishStatus.REVIEW,
-                NimbusExperiment.PublishStatus.WAITING,
-            ]:
-                NimbusExperimentFactory.create_with_status(
-                    status,
-                    publish_status=publish_status,
-                    application=NimbusExperiment.Application.DESKTOP,
-                )
+        for lifecycle in [
+            NimbusExperiment.Lifecycles.CREATED,
+            NimbusExperiment.Lifecycles.LAUNCH_REVIEW_REQUESTED,
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_WAITING,
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperiment.Lifecycles.ENDING_REVIEW_REQUESTED,
+            NimbusExperiment.Lifecycles.ENDING_APPROVE_WAITING,
+        ]:
+            NimbusExperimentFactory.create_with_lifecycle(
+                lifecycle,
+                application=NimbusExperiment.Application.DESKTOP,
+            )
 
         self.setup_kinto_no_pending_review()
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -84,9 +85,8 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
     def test_check_with_approved_launch_and_no_kinto_pending_pushes_experiment(
         self,
     ):
-        launching_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -99,11 +99,9 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         )
 
     def test_check_with_approved_end_and_no_kinto_pending_ends_experiment(self):
-        ending_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        ending_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.ENDING_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            is_end_requested=True,
         )
 
         self.setup_kinto_no_pending_review()
@@ -115,9 +113,8 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         )
 
     def test_check_with_pause_and_no_kinto_pending_pauses_experiment(self):
-        pausing_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        pausing_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
         for change in pausing_experiment.changes.all():
@@ -137,14 +134,12 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
     def test_check_with_timeout_launch_review_and_queued_launch_rolls_back_and_pushes(
         self,
     ):
-        pending_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        pending_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
         )
-        launching_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -179,9 +174,8 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
     def test_check_with_pending_pause_review_and_queued_launch_aborts_early(
         self,
     ):
-        pausing_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        pausing_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
         for change in pausing_experiment.changes.all():
@@ -190,9 +184,15 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             )
             change.save()
 
-        NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        for publish_status in [
+            NimbusExperiment.PublishStatus.APPROVED,
+            NimbusExperiment.PublishStatus.WAITING,
+        ]:
+            pausing_experiment.publish_status = publish_status
+            pausing_experiment.save()
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -210,15 +210,12 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
     def test_check_with_timeout_end_review_and_queued_launch_rolls_back_and_pushes(
         self,
     ):
-        pending_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        pending_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.ENDING_APPROVE_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
-            is_end_requested=True,
         )
-        launching_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -251,14 +248,12 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         )
 
     def test_check_with_rejected_launch_rolls_back_and_pushes(self):
-        rejected_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        rejected_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
         )
-        launching_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -294,9 +289,8 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         )
 
     def test_check_with_rejected_pause_rolls_back_and_pushes_same_pause(self):
-        pausing_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        pausing_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
         for change in pausing_experiment.changes.all():
@@ -304,6 +298,9 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
                 days=pausing_experiment.proposed_enrollment + 1
             )
             change.save()
+
+        pausing_experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
+        pausing_experiment.save()
 
         self.setup_kinto_rejected_review()
 
@@ -321,15 +318,12 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         )
 
     def test_check_with_rejected_end_rolls_back_and_pushes(self):
-        rejected_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        rejected_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.ENDING_APPROVE_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
-            is_end_requested=True,
         )
-        launching_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -366,9 +360,8 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         )
 
     def test_check_with_missing_review_and_queued_launch_rolls_back_and_pushes(self):
-        launching_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -388,9 +381,8 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         )
 
     def test_check_with_missing_rejection_and_queued_launch_rolls_back_and_pushes(self):
-        launching_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -414,9 +406,8 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
     def test_push_experiment_to_kinto_sends_desktop_experiment_data_and_sets_accepted(
         self,
     ):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -446,8 +437,8 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         )
 
     def test_push_experiment_to_kinto_sends_fenix_experiment_data(self):
-        experiment = NimbusExperimentFactory.create(
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -477,9 +468,8 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
 
 class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
     def test_updates_experiment_record_isEnrollmentPaused_true_in_kinto(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=10,
             application=NimbusExperiment.Application.DESKTOP,
         )
@@ -520,8 +510,8 @@ class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
         )
 
     def test_push_experiment_to_kinto_reraises_exception(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
         )
         self.mock_kinto_client.get_records.side_effect = Exception
         with self.assertRaises(Exception):
@@ -532,8 +522,8 @@ class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
 
 class TestNimbusEndExperimentInKinto(MockKintoClientMixin, TestCase):
     def test_exception_for_failed_delete(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
         )
         self.mock_kinto_client.delete_record.side_effect = Exception
@@ -543,10 +533,8 @@ class TestNimbusEndExperimentInKinto(MockKintoClientMixin, TestCase):
             )
 
     def test_end_experiment_in_kinto_deletes_experiment(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
-            is_end_requested=True,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.ENDING_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -581,29 +569,22 @@ class TestNimbusEndExperimentInKinto(MockKintoClientMixin, TestCase):
 
 class TestNimbusCheckExperimentsAreLive(MockKintoClientMixin, TestCase):
     def test_experiment_updates_when_record_is_in_main(self):
-        experiment1 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_WAITING,
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_WAITING,
+        )
+        experiment3 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
         )
 
-        experiment2 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
-        )
-
-        experiment3 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
-        )
-
-        self.assertEqual(experiment1.changes.count(), 1)
-        self.assertEqual(experiment2.changes.count(), 1)
-        self.assertEqual(experiment3.changes.count(), 1)
+        initial_change_count = experiment3.changes.count()
 
         self.setup_kinto_get_main_records([experiment1.slug])
         tasks.nimbus_check_experiments_are_live()
 
-        self.assertEqual(experiment3.changes.count(), 1)
+        self.assertEqual(experiment3.changes.count(), initial_change_count)
 
         experiment1 = NimbusExperiment.objects.get(id=experiment1.id)
         self.assertEqual(experiment1.published_dto, {"id": experiment1.slug})
@@ -629,10 +610,9 @@ class TestNimbusCheckExperimentsAreLive(MockKintoClientMixin, TestCase):
 
 class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
     def test_ignores_unpaused_experiment_with_isEnrollmentPaused_false(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            is_paused=False,
         )
         changes_count = experiment.changes.count()
 
@@ -647,10 +627,9 @@ class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
         self.assertEqual(experiment.changes.count(), changes_count)
 
     def test_updates_unpaused_experiment_with_isEnrollmentPaused_true(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            is_paused=False,
         )
         changes_count = experiment.changes.count()
 
@@ -669,10 +648,9 @@ class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
         )
 
     def test_ignores_paused_experiment_with_isEnrollmentPaused_true(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.PAUSED,
             application=NimbusExperiment.Application.DESKTOP,
-            is_paused=True,
         )
         changes_count = experiment.changes.count()
 
@@ -689,29 +667,22 @@ class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
 
 class TestNimbusCheckExperimentsAreComplete(MockKintoClientMixin, TestCase):
     def test_experiment_updates_when_record_is_not_in_main(self):
-        experiment1 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.ENDING_APPROVE_WAITING,
+        )
+        experiment3 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
         )
 
-        experiment2 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
-        )
-
-        experiment3 = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
-        )
-
-        self.assertEqual(experiment1.changes.count(), 2)
-        self.assertEqual(experiment2.changes.count(), 2)
-        self.assertEqual(experiment3.changes.count(), 1)
+        initial_change_count = experiment3.changes.count()
 
         self.setup_kinto_get_main_records([experiment1.slug])
         tasks.nimbus_check_experiments_are_complete()
 
-        self.assertEqual(experiment3.changes.count(), 1)
+        self.assertEqual(experiment3.changes.count(), initial_change_count)
 
         self.assertTrue(
             NimbusExperiment.objects.filter(
@@ -758,8 +729,8 @@ class TestNimbusCheckExperimentsAreComplete(MockKintoClientMixin, TestCase):
     def test_experiment_ending_email_not_sent_for_experiments_before_proposed_end_date(
         self,
     ):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_duration=10,
         )
         self.assertEqual(experiment.emails.count(), 0)
@@ -768,8 +739,8 @@ class TestNimbusCheckExperimentsAreComplete(MockKintoClientMixin, TestCase):
         self.assertEqual(experiment.emails.count(), 0)
 
     def test_experiment_ending_email_sent_for_experiments_past_proposed_end_date(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_duration=10,
         )
         experiment.changes.filter(
@@ -790,12 +761,12 @@ class TestNimbusCheckExperimentsAreComplete(MockKintoClientMixin, TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
     def test_only_completes_experiments_with_matching_application_collection(self):
-        desktop_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+        desktop_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
-        fenix_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE,
+        fenix_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.FENIX,
         )
 
@@ -822,11 +793,11 @@ class TestNimbusCheckExperimentsAreComplete(MockKintoClientMixin, TestCase):
 
 class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestCase):
     def test_publishes_preview_experiments_and_unpublishes_non_preview_experiments(self):
-        should_publish_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.PREVIEW
+        should_publish_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.PREVIEW,
         )
-        should_unpublish_experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
+        should_unpublish_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
         )
 
         self.setup_kinto_get_main_records([should_unpublish_experiment.slug])

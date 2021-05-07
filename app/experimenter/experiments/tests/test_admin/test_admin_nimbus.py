@@ -37,8 +37,10 @@ class TestNimbusExperimentAdminForm(TestCase):
         self.assertTrue(form.is_valid(), form.errors)
 
     def test_form_saves_outcomes(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT, primary_outcomes=[], secondary_outcomes=[]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
+            primary_outcomes=[],
+            secondary_outcomes=[],
         )
         form = NimbusExperimentAdminForm(
             instance=experiment,
