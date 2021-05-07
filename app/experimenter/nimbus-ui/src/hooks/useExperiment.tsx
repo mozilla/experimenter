@@ -9,7 +9,6 @@ import { getExperiment } from "../types/getExperiment";
 const fieldPageMap: { [page: string]: string[] } = {
   overview: [
     "public_description",
-    "risk_mitigation_link",
     "risk_brand",
     "risk_revenue",
     "risk_partner_related",

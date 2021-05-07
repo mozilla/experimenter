@@ -16,7 +16,6 @@ def test_create_new_experiment(selenium, base_url):
     # Fill Overview Page
     overview = experiment.save_and_continue()
     overview.public_description = "description stuff"
-    overview.risk_mitigation = "http://risk.mitigation"
     overview.select_risk_brand_false()
     overview.select_risk_revenue_false()
     overview.select_risk_partner_false()

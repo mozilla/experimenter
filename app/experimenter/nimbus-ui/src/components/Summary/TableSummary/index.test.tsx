@@ -126,7 +126,7 @@ describe("TableSummary", () => {
     });
   });
 
-  describe("renders 'Risk mitigation checklist' row as expected", () => {
+  describe("renders 'Risk mitigation checklist' (obsolete implementation) row as expected", () => {
     it("when set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         riskMitigationLink: "https://mozilla.org",
@@ -144,8 +144,8 @@ describe("TableSummary", () => {
       });
       render(<Subject {...{ experiment }} />);
       expect(
-        screen.getByTestId("experiment-risk-mitigation-link"),
-      ).toHaveTextContent("Not set");
+        screen.queryByTestId("experiment-risk-mitigation-link"),
+      ).not.toBeInTheDocument();
     });
   });
 

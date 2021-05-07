@@ -125,7 +125,6 @@ describe("hooks/useCommonForm", () => {
             ![
               "publicDescription",
               "documentationLinks",
-              "riskMitigationLink",
               "riskBrand",
               "riskRevenue",
               "riskPartnerRelated",

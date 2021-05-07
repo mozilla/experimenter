@@ -54,7 +54,6 @@ describe("PageEditOverview", () => {
       name: experiment.name,
       hypothesis: experiment.hypothesis!,
       publicDescription: experiment.publicDescription!,
-      riskMitigationLink: experiment.riskMitigationLink!,
       riskBrand: experiment.riskBrand!,
       riskRevenue: experiment.riskRevenue!,
       riskPartnerRelated: experiment.riskPartnerRelated!,

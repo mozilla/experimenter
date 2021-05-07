@@ -49,7 +49,6 @@ storiesOf("components/Summary/TableSummary", module)
       primaryOutcomes: [],
       secondaryOutcomes: [],
       publicDescription: "",
-      riskMitigationLink: "",
       documentationLinks: [],
     });
 
