@@ -49,6 +49,9 @@ storiesOf("components/Summary/TableSummary", module)
       primaryOutcomes: [],
       secondaryOutcomes: [],
       publicDescription: "",
+      riskRevenue: null,
+      riskBrand: null,
+      riskPartnerRelated: null,
       documentationLinks: [],
     });
 
