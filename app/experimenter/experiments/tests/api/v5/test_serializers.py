@@ -100,8 +100,8 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
         )
 
     def test_serializer_returns_error_for_non_unique_slug(self):
-        NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             name="non unique slug",
             slug="non-unique-slug",
         )
@@ -156,8 +156,8 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
         self.assertEqual(experiment.slug, "the-thing")
 
     def test_saves_existing_experiment_with_changelog(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.FENIX,
             hypothesis="Existing hypothesis",
             name="Existing Name",
@@ -612,8 +612,9 @@ class TestNimbusExperimentBranchMixin(TestCase):
         feature_config = NimbusFeatureConfigFactory(
             application=NimbusExperiment.Application.IOS, schema=self.BASIC_JSON_SCHEMA
         )
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT, application=NimbusExperiment.Application.FENIX
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
         )
         reference_branch = {
             "name": "control",
@@ -657,8 +658,8 @@ class TestNimbusExperimentBranchMixin(TestCase):
         )
 
     def test_does_not_delete_branches_when_other_fields_specified(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
         )
         branch_count = experiment.branches.count()
 
@@ -748,8 +749,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("application", serializer.errors)
 
     def test_allows_empty_values_for_all_fields_existing_experiment(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
         )
         data = {
             "name": "",
@@ -836,8 +837,8 @@ class TestNimbusExperimentSerializer(TestCase):
         )
 
     def test_serializer_returns_error_for_non_unique_slug(self):
-        NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             name="non unique slug",
             slug="non-unique-slug",
         )
@@ -892,8 +893,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.slug, "the-thing")
 
     def test_saves_existing_experiment_with_changelog(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.FENIX,
             hypothesis="Existing hypothesis",
             name="Existing Name",
@@ -1055,8 +1056,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("experiment", serializer.errors)
 
     def test_status_generates_bucket_allocation(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT, population_percent=Decimal("50.0")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED, population_percent=Decimal("50.0")
         )
 
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=experiment).exists())
@@ -1077,9 +1078,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.bucket_range.count, 5000)
 
     def test_publish_status_generates_bucket_allocation(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             population_percent=Decimal("50.0"),
         )
 
@@ -1106,13 +1106,15 @@ class TestNimbusExperimentSerializer(TestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.PREVIEW],
-            [NimbusExperiment.Status.PREVIEW, NimbusExperiment.Status.DRAFT],
+            [NimbusExperiment.Lifecycles.CREATED, NimbusExperiment.Status.PREVIEW],
+            [NimbusExperiment.Lifecycles.PREVIEW, NimbusExperiment.Status.DRAFT],
         ]
     )
-    def test_preview_draft_transition_invokes_kinto_task(self, from_status, to_status):
-        experiment = NimbusExperimentFactory.create_with_status(
-            from_status, population_percent=Decimal("50.0")
+    def test_preview_draft_transition_invokes_kinto_task(
+        self, start_lifecycle, to_status
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            start_lifecycle, population_percent=Decimal("50.0")
         )
 
         serializer = NimbusExperimentSerializer(
@@ -1130,8 +1132,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.mock_preview_task.apply_async.assert_called_with(countdown=5)
 
     def test_set_status_already_draft_doesnt_invoke_kinto_task(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT, population_percent=Decimal("50.0")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED, population_percent=Decimal("50.0")
         )
 
         serializer = NimbusExperimentSerializer(
@@ -1149,8 +1151,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.mock_preview_task.apply_async.assert_not_called()
 
     def test_serializer_updates_outcomes_on_experiment(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[],
             secondary_outcomes=[],
@@ -1178,8 +1180,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.secondary_outcomes, secondary_outcomes)
 
     def test_serializer_rejects_invalid_outcome_slugs(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[],
             secondary_outcomes=[],
@@ -1199,8 +1201,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("secondary_outcomes", serializer.errors)
 
     def test_serializer_rejects_outcomes_for_wrong_application(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.FENIX,
             primary_outcomes=[],
             secondary_outcomes=[],
@@ -1226,8 +1228,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("secondary_outcomes", serializer.errors)
 
     def test_serializer_rejects_duplicate_outcomes(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[],
             secondary_outcomes=[],
@@ -1255,8 +1257,8 @@ class TestNimbusExperimentSerializer(TestCase):
     def test_serializer_rejects_too_many_primary_outcomes(self):
         NimbusConstants.MAX_PRIMARY_OUTCOMES = 1
 
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[],
             secondary_outcomes=[],
@@ -1278,9 +1280,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("primary_outcomes", serializer.errors)
 
     def test_can_request_review_from_preview(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.PREVIEW,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.PREVIEW,
         )
 
         serializer = NimbusExperimentSerializer(
@@ -1299,15 +1300,9 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
 
     def test_can_review_for_non_requesting_user(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_REVIEW_REQUESTED,
         )
-
-        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
-        experiment.save()
-
-        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1325,9 +1320,8 @@ class TestNimbusExperimentSerializer(TestCase):
         )
 
     def test_cant_review_for_requesting_user(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
         )
 
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -1348,12 +1342,9 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("publish_status", serializer.errors)
 
     def test_can_review_for_requesting_user_when_idle(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
         )
-
-        generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1367,9 +1358,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_can_update_publish_status_for_non_approved_state(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
         )
 
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -1399,8 +1389,8 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         self.user = UserFactory()
 
     def test_valid_experiment(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP.value,
             feature_config=NimbusFeatureConfigFactory(
                 application=NimbusExperiment.Application.DESKTOP.value
@@ -1417,8 +1407,8 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_invalid_experiment_default_hypothesis(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP.value,
             feature_config=NimbusFeatureConfigFactory(
                 application=NimbusExperiment.Application.DESKTOP.value
@@ -1441,8 +1431,8 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
 
     def test_invalid_experiment_requires_reference_branch(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP.value,
             feature_config=NimbusFeatureConfigFactory(
                 application=NimbusExperiment.Application.DESKTOP.value
@@ -1465,8 +1455,8 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
 
     def test_invalid_experiment_reference_branch_requires_description(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP.value,
             feature_config=NimbusFeatureConfigFactory(
                 application=NimbusExperiment.Application.DESKTOP.value
@@ -1489,8 +1479,8 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
 
     def test_invalid_experiment_requires_non_zero_population_percent(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             population_percent=0.0,
         )
         serializer = NimbusReadyForReviewSerializer(
@@ -1508,8 +1498,8 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
 
     def test_invalid_experiment_treatment_branch_requires_description(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP.value,
             feature_config=NimbusFeatureConfigFactory(
                 application=NimbusExperiment.Application.DESKTOP.value
@@ -1535,8 +1525,8 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
 
     def test_invalid_experiment_missing_feature_config(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP.value,
             feature_config=None,
         )

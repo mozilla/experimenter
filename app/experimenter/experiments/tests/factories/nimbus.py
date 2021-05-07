@@ -148,15 +148,11 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             self.countries.add(*extracted)
 
     @classmethod
-    def create_with_status(cls, target_status, **kwargs):
+    def create_with_lifecycle(cls, lifecycle, **kwargs):
         experiment = cls.create(**kwargs)
 
-        for status, _ in NimbusExperiment.Status.choices:
-            if status == NimbusExperiment.Status.PREVIEW and status != target_status:
-                # HACK: exclude PREVIEW status from the usual mock sequence
-                continue
-
-            experiment.status = status
+        for state in lifecycle.value:
+            experiment.apply_lifecycle_state(state)
             experiment.save()
 
             if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
@@ -165,11 +161,8 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             generate_nimbus_changelog(
                 experiment,
                 experiment.owner,
-                f"set status to {status}, target status is {target_status}",
+                f"set lifecycle {lifecycle} state {state}",
             )
-
-            if status == target_status:
-                break
 
         return NimbusExperiment.objects.get(id=experiment.id)
 
