@@ -7,6 +7,7 @@ import { Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig, useOutcomes } from "../../../hooks";
 import { ReactComponent as ExternalIcon } from "../../../images/external.svg";
+import { RISK_QUESTIONS } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import LinkExternal from "../../LinkExternal";
 import NotSet from "../../NotSet";
@@ -17,6 +18,8 @@ type TableSummaryProps = {
 };
 
 // `<tr>`s showing optional fields that are not set are not displayed.
+
+const getRiskLabel = (answer: boolean) => (answer ? "Yes" : "No");
 
 const TableSummary = ({ experiment }: TableSummaryProps) => {
   const {
@@ -75,6 +78,39 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
             </td>
           </tr>
         )}
+        <tr>
+          <th>Risk mitigation question (1):</th>
+          <td>
+            {RISK_QUESTIONS.BRAND} —{" "}
+            {experiment.riskBrand !== null ? (
+              getRiskLabel(experiment.riskBrand)
+            ) : (
+              <NotSet />
+            )}
+          </td>
+        </tr>
+        <tr>
+          <th>Risk mitigation question (2):</th>
+          <td>
+            {RISK_QUESTIONS.PARTNER} —{" "}
+            {experiment.riskPartnerRelated !== null ? (
+              getRiskLabel(experiment.riskPartnerRelated)
+            ) : (
+              <NotSet />
+            )}
+          </td>
+        </tr>
+        <tr>
+          <th>Risk mitigation question (3):</th>
+          <td>
+            {RISK_QUESTIONS.REVENUE} —{" "}
+            {experiment.riskRevenue !== null ? (
+              getRiskLabel(experiment.riskRevenue)
+            ) : (
+              <NotSet />
+            )}
+          </td>
+        </tr>
         {experiment.documentationLinks &&
           experiment.documentationLinks?.length > 0 && (
             <tr>

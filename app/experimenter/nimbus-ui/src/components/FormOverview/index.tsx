@@ -16,7 +16,11 @@ import {
 } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Info } from "../../images/info.svg";
-import { EXTERNAL_URLS, REQUIRED_FIELD } from "../../lib/constants";
+import {
+  EXTERNAL_URLS,
+  REQUIRED_FIELD,
+  RISK_QUESTIONS,
+} from "../../lib/constants";
 import { optionalBoolString } from "../../lib/utils";
 import { getExperiment } from "../../types/getExperiment";
 import InlineErrorIcon from "../InlineErrorIcon";
@@ -179,9 +183,7 @@ const FormOverview = ({
             ]}
             {...{ FormErrors, formControlAttrs }}
           >
-            If the public, users or press, were to discover this experiment and
-            description, do you think it would negatively impact their
-            perception of the brand?{" "}
+            {RISK_QUESTIONS.BRAND}{" "}
             <LinkExternal href={EXTERNAL_URLS.RISK_BRAND}>
               Learn more
             </LinkExternal>
@@ -262,8 +264,7 @@ const FormOverview = ({
               ]}
               {...{ FormErrors, formControlAttrs }}
             >
-              Does this experiment impact or rely on a partner or outside
-              company (e.g. Google, Amazon)?{" "}
+              {RISK_QUESTIONS.PARTNER}{" "}
               <LinkExternal href={EXTERNAL_URLS.RISK_PARTNER}>
                 Learn more
               </LinkExternal>
@@ -285,8 +286,7 @@ const FormOverview = ({
               ]}
               {...{ FormErrors, formControlAttrs }}
             >
-              Does this experiment have a risk to negatively impact revenue
-              (e.g. search, Pocket revenue)?{" "}
+              {RISK_QUESTIONS.REVENUE}{" "}
               <LinkExternal href={EXTERNAL_URLS.RISK_REVENUE}>
                 Learn more
               </LinkExternal>

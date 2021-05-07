@@ -5,6 +5,7 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import TableSummary from ".";
+import { RISK_QUESTIONS } from "../../../lib/constants";
 import {
   MockedCache,
   mockExperimentQuery,
@@ -104,6 +105,48 @@ describe("TableSummary", () => {
           "Not set",
         );
       });
+    });
+  });
+
+  describe("renders 'Risk mitigation question' rows as expected", () => {
+    it("when not set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        riskRevenue: null,
+        riskBrand: null,
+        riskPartnerRelated: null,
+      });
+      render(<Subject {...{ experiment }} />);
+      for (const question of Object.values(RISK_QUESTIONS)) {
+        expect(screen.getByText(question, { exact: false })).toHaveTextContent(
+          "Not set",
+        );
+      }
+    });
+    it("when set to false", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        riskRevenue: false,
+        riskBrand: false,
+        riskPartnerRelated: false,
+      });
+      render(<Subject {...{ experiment }} />);
+      for (const question of Object.values(RISK_QUESTIONS)) {
+        expect(screen.getByText(question, { exact: false })).toHaveTextContent(
+          "No",
+        );
+      }
+    });
+    it("when set to true", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        riskRevenue: true,
+        riskBrand: true,
+        riskPartnerRelated: true,
+      });
+      render(<Subject {...{ experiment }} />);
+      for (const question of Object.values(RISK_QUESTIONS)) {
+        expect(screen.getByText(question, { exact: false })).toHaveTextContent(
+          "Yes",
+        );
+      }
     });
   });
 
