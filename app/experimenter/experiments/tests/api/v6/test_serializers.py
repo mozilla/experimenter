@@ -114,6 +114,16 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(serializer.data["branches"][0]["feature"]["value"], {})
         check_schema("experiments/NimbusExperiment", serializer.data)
 
+    def test_serializer_with_branches_no_feature(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            feature_config=None,
+        )
+        experiment.save()
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertIsNone(serializer.data["branches"][0]["feature"]["featureId"])
+
     @parameterized.expand(
         [
             [

@@ -37,7 +37,9 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 
     def get_feature(self, obj):
         return {
-            "featureId": obj.experiment.feature_config.slug,
+            "featureId": obj.experiment.feature_config.slug
+            if obj.experiment.feature_config
+            else None,
             "enabled": obj.feature_enabled,
             "value": json.loads(obj.feature_value) if obj.feature_value else {},
         }
