@@ -16,7 +16,9 @@ export default {
   component: InputRadios,
 };
 
-export const basic = () => {
+// Because we're using a hook here this story function needs to be capitalized so it
+// looks like a component, otherwise we get a react-hooks/rules-of-hooks warning
+export const Basic = () => {
   const { FormErrors, formControlAttrs } = useCommonForm<
     typeof exampleFieldNames[number]
   >(defaultValues, true, {}, () => {});
