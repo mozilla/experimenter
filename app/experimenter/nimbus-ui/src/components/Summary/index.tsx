@@ -16,6 +16,7 @@ import ChangeApprovalOperations from "../ChangeApprovalOperations";
 import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
 import NotSet from "../NotSet";
+import PreviewURL from "../PreviewURL";
 import EndExperiment from "./EndExperiment";
 import SummaryTimeline from "./SummaryTimeline";
 import TableAudience from "./TableAudience";
@@ -112,6 +113,8 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       )}
 
       <hr />
+
+      <PreviewURL {...experiment} />
 
       <LinkMonitoring {...experiment} />
 
