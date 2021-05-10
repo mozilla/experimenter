@@ -65,7 +65,7 @@
     "@storybook/addon-links": "^6.2.7",
     "@storybook/addon-queryparams": "^6.1.17",
     "@storybook/preset-create-react-app": "^3.1.7",
-    "@storybook/react": "^6.1.21",
+    "@storybook/react": "^6.2.9",
     "@testing-library/dom": "^7.29.6",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.0.4",
