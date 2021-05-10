@@ -167,7 +167,7 @@ const PageRequestReview = ({
             <Table bordered data-testid="table-signoff" className="mb-4">
               <tr data-testid="table-signoff-qa">
                 <td>
-                  <strong>QA Sign - Off</strong>
+                  <strong>QA Sign-off</strong>
                 </td>
                 <td>
                   {experiment.signoffRecommendations?.qaSignoff && (
@@ -181,7 +181,7 @@ const PageRequestReview = ({
               </tr>
               <tr data-testid="table-signoff-vp">
                 <td>
-                  <strong>VP Sign - Off</strong>
+                  <strong>VP Sign-off</strong>
                 </td>
                 <td>
                   {experiment.signoffRecommendations?.vpSignoff && (
@@ -195,7 +195,7 @@ const PageRequestReview = ({
               </tr>
               <tr data-testid="table-signoff-legal">
                 <td>
-                  <strong>Legal Sign - Off</strong>
+                  <strong>Legal Sign-off</strong>
                 </td>
                 <td>
                   {experiment.signoffRecommendations?.legalSignoff && (
