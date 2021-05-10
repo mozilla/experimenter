@@ -54,7 +54,7 @@
     "react-select-event": "^5.1.0",
     "react-tooltip": "^4.2.18",
     "typescript": "4.2.3",
-    "vega": "^5.18.0",
+    "vega": "^5.20.2",
     "vega-embed": "^6.17.0",
     "vega-lite": "^4.17.0"
   },
