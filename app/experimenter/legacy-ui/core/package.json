@@ -38,7 +38,7 @@
     "jquery": "3.6.0",
     "popper.js": "1.16.1",
     "prettier": "2.2.1",
-    "react": "16.13.1",
+    "react": "17.0.2",
     "react-bootstrap": "1.5.2",
     "react-dom": "16.13.1",
     "react-select": "^4.3.0"
