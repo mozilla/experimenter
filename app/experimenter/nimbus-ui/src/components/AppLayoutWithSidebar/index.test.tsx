@@ -139,9 +139,6 @@ describe("AppLayoutWithSidebar", () => {
 
       review.invalidPages.forEach((page) => {
         expect(
-          screen.queryByTestId(`missing-detail-alert-${page}`),
-        ).toBeInTheDocument();
-        expect(
           screen.queryByTestId(`missing-detail-link-${page}`),
         ).toBeInTheDocument();
       });
