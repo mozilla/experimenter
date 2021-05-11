@@ -9,6 +9,7 @@ import {
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "../../../types/getExperiment";
+import { Code } from "../../Code";
 import NotSet from "../../NotSet";
 
 export const NO_BRANCHES_COPY = "No branches have been saved yet";
@@ -100,7 +101,7 @@ const TableBranch = ({
           <tr>
             <th>Value</th>
             <td data-testid="branch-featureValue">
-              {featureValue ? featureValue : <NotSet />}
+              {featureValue ? <Code codeString={featureValue} /> : <NotSet />}
             </td>
           </tr>
         )}

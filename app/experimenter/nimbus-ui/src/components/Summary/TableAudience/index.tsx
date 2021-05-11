@@ -7,6 +7,7 @@ import { Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig } from "../../../hooks";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import { Code } from "../../Code";
 import NotSet from "../../NotSet";
 
 type TableAudienceProps = {
@@ -70,26 +71,23 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
             </td>
           </tr>
         )}
-        {experiment.jexlTargetingExpression !== "" && (
-          <tr>
-            <th>Full targeting expression</th>
-            <td
-              data-testid="experiment-target-expression"
-              className="text-monospace"
-            >
-              <code>
-                <pre>{experiment.jexlTargetingExpression}</pre>
-              </code>
-            </td>
-          </tr>
-        )}
+        {experiment.jexlTargetingExpression &&
+          experiment.jexlTargetingExpression !== "" && (
+            <tr>
+              <th>Full targeting expression</th>
+              <td
+                data-testid="experiment-target-expression"
+                className="text-monospace"
+              >
+                <Code codeString={experiment.jexlTargetingExpression} />
+              </td>
+            </tr>
+          )}
         {experiment.recipeJson && (
           <tr>
             <th>Recipe JSON</th>
             <td data-testid="experiment-recipe-json">
-              <code>
-                <pre>{experiment.recipeJson}</pre>
-              </code>
+              <Code codeString={experiment.recipeJson} />
             </td>
           </tr>
         )}
