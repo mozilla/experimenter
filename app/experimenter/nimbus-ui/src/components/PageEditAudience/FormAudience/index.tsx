@@ -8,21 +8,19 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import ReactTooltip from "react-tooltip";
-import { useCommonForm, useConfig } from "../../../hooks";
+import { useCommonForm, useConfig, useReviewCheck } from "../../../hooks";
 import {
   EXTERNAL_URLS,
   POSITIVE_NUMBER_FIELD,
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
 } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import InlineErrorIcon from "../../InlineErrorIcon";
 import LinkExternal from "../../LinkExternal";
 
 type FormAudienceProps = {
   experiment: getExperiment_experimentBySlug;
   submitErrors: Record<string, string[]>;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-  isMissingField: (fieldName: string) => boolean;
   isServerValid: boolean;
   isLoading: boolean;
   onSubmit: (data: Record<string, any>, next: boolean) => void;
@@ -44,12 +42,12 @@ export const FormAudience = ({
   experiment,
   submitErrors,
   setSubmitErrors,
-  isMissingField,
   isServerValid,
   isLoading,
   onSubmit,
 }: FormAudienceProps) => {
   const config = useConfig();
+  const { FieldReview } = useReviewCheck(experiment);
 
   const defaultValues = {
     channel: experiment.channel,
@@ -106,12 +104,7 @@ export const FormAudience = ({
           <Form.Group as={Col} controlId="channel" md={8} lg={8}>
             <Form.Label className="d-flex align-items-center">
               Channel
-              {isMissingField("channel") && (
-                <InlineErrorIcon
-                  name="channel"
-                  message="A channel must be selected"
-                />
-              )}
+              <FieldReview field="channel" />
             </Form.Label>
             <Form.Control {...formControlAttrs("channel")} as="select">
               <SelectOptions options={config.channel} />
@@ -121,12 +114,7 @@ export const FormAudience = ({
           <Form.Group as={Col} controlId="minVersion">
             <Form.Label className="d-flex align-items-center">
               Min Version
-              {isMissingField("firefox_min_version") && (
-                <InlineErrorIcon
-                  name="ff-min"
-                  message="A minimum Firefox version must be selected"
-                />
-              )}
+              <FieldReview field="firefox_min_version" />
             </Form.Label>
             <Form.Control
               {...formControlAttrs("firefoxMinVersion")}
@@ -141,12 +129,7 @@ export const FormAudience = ({
           <Form.Group as={Col} controlId="targeting">
             <Form.Label className="d-flex align-items-center">
               Advanced Targeting
-              {isMissingField("targeting_config_slug") && (
-                <InlineErrorIcon
-                  name="config"
-                  message="A targeting config must be selected"
-                />
-              )}
+              <FieldReview field="targeting_config_slug" />
             </Form.Label>
             <Form.Control
               {...formControlAttrs("targetingConfigSlug")}
@@ -174,12 +157,7 @@ export const FormAudience = ({
           <Form.Group as={Col} className="mx-5" controlId="populationPercent">
             <Form.Label>
               Percent of clients
-              {isMissingField("population_percent") && (
-                <InlineErrorIcon
-                  name="population-percent"
-                  message="A valid percent of clients must be set"
-                />
-              )}
+              <FieldReview field="population_percent" />
             </Form.Label>
             <InputGroup>
               <Form.Control
@@ -207,12 +185,7 @@ export const FormAudience = ({
           >
             <Form.Label>
               Expected number of clients
-              {isMissingField("total_enrolled_clients") && (
-                <InlineErrorIcon
-                  name="clients"
-                  message="Expected number of clients must be a number greater than zero"
-                />
-              )}
+              <FieldReview field="total_enrolled_clients" />
             </Form.Label>
             <Form.Control
               {...formControlAttrs(
@@ -228,12 +201,7 @@ export const FormAudience = ({
           <Form.Group as={Col} className="mx-5" controlId="proposedEnrollment">
             <Form.Label className="d-flex align-items-center">
               Enrollment period
-              {isMissingField("proposed_enrollment") && (
-                <InlineErrorIcon
-                  name="enrollment"
-                  message="Proposed enrollment must be a number greater than zero"
-                />
-              )}
+              <FieldReview field="proposed_enrollment" />
             </Form.Label>
             <InputGroup>
               <Form.Control
@@ -257,12 +225,7 @@ export const FormAudience = ({
           <Form.Group as={Col} className="mx-5" controlId="proposedDuration">
             <Form.Label className="d-flex align-items-center">
               Experiment duration
-              {isMissingField("proposed_duration") && (
-                <InlineErrorIcon
-                  name="duration"
-                  message="Proposed duration must be a number greater than zero"
-                />
-              )}
+              <FieldReview field="proposed_duration" />
             </Form.Label>
             <InputGroup className="mb-3">
               <Form.Control

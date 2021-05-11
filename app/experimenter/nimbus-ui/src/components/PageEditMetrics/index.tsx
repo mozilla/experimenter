@@ -80,9 +80,9 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
       testId="PageEditMetrics"
       redirect={editCommonRedirects}
     >
-      {({ experiment, review }) => {
+      {({ experiment, refetch }) => {
         currentExperiment.current = experiment;
-        refetchReview.current = review.refetch;
+        refetchReview.current = refetch;
 
         return (
           <>

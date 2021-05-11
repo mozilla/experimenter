@@ -243,46 +243,44 @@ describe("FormAudience", () => {
     }
   });
 
-  it("displays warning icons when server complains fields are missing", async () => {
+  it("displays warning icons when server complains fields are missing", () => {
     Object.defineProperty(window, "location", {
       value: {
         search: "?show-errors",
       },
     });
 
-    const isMissingField = jest.fn(() => true);
+    const invalidFields = {
+      population_percent: ["This field may not be null."],
+      proposed_duration: ["This field may not be null."],
+      proposed_enrollment: ["This field may not be null."],
+      total_enrolled_clients: ["This field may not be null"],
+      firefox_min_version: ["This field may not be null."],
+      targeting_config_slug: ["This field may not be null."],
+      channel: ["This list may not be empty."],
+    };
+
     render(
       <Subject
         {...{
-          isMissingField,
           experiment: {
             ...MOCK_EXPERIMENT,
             readyForReview: {
               ready: false,
-              message: {
-                population_percent: ["This field may not be null."],
-                proposed_duration: ["This field may not be null."],
-                proposed_enrollment: ["This field may not be null."],
-                firefox_min_version: ["This field may not be null."],
-                targeting_config_slug: ["This field may not be null."],
-                channel: ["This list may not be empty."],
-              },
+              message: invalidFields,
             },
           },
         }}
       />,
     );
 
-    expect(isMissingField).toHaveBeenCalled();
-    expect(screen.queryByTestId("missing-channel")).toBeInTheDocument();
-    expect(screen.queryByTestId("missing-ff-min")).toBeInTheDocument();
-    expect(screen.queryByTestId("missing-config")).toBeInTheDocument();
-    expect(
-      screen.queryByTestId("missing-population-percent"),
-    ).toBeInTheDocument();
-    expect(screen.queryByTestId("missing-clients")).toBeInTheDocument();
-    expect(screen.queryByTestId("missing-enrollment")).toBeInTheDocument();
-    expect(screen.queryByTestId("missing-duration")).toBeInTheDocument();
+    for (const [key, value] of Object.entries(invalidFields)) {
+      expect(screen.getByTestId(`missing-${key}`).dataset).toEqual(
+        expect.objectContaining({
+          tip: value.join(", "),
+        }),
+      );
+    }
   });
 });
 

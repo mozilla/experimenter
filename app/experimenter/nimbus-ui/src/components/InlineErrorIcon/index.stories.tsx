@@ -7,5 +7,5 @@ import React from "react";
 import InlineErrorIcon from ".";
 
 storiesOf("components/InlineErrorIcon", module).add("basic", () => (
-  <InlineErrorIcon name="demo" message="This is a test" />
+  <InlineErrorIcon field="demo" message="This is a test" />
 ));
