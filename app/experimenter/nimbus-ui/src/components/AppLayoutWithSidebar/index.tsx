@@ -15,7 +15,6 @@ import { BASE_PATH } from "../../lib/constants";
 import { StatusCheck } from "../../lib/experiment";
 import { DisabledItem } from "../DisabledItem";
 import { LinkNav } from "../LinkNav";
-import { ReactComponent as AlertCircle } from "./alert-circle.svg";
 import { ReactComponent as ChartArrow } from "./chart-arrow.svg";
 import { ReactComponent as Cog } from "./cog.svg";
 import "./index.scss";
@@ -114,14 +113,6 @@ export const AppLayoutWithSidebar = ({
                 >
                   {page.icon}
                   {page.name}
-                  {review?.invalidPages.includes(page.slug) && (
-                    <AlertCircle
-                      className="ml-3"
-                      width="18"
-                      height="18"
-                      data-testid={`missing-detail-alert-${page.slug}`}
-                    />
-                  )}
                 </LinkNav>
               ))}
               {!review || review.ready || reviewOrPreview ? (
