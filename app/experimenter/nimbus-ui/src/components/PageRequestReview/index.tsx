@@ -165,48 +165,50 @@ const PageRequestReview = ({
 
             <h3 className="h5 mb-3">Recommended actions before launch</h3>
             <Table bordered data-testid="table-signoff" className="mb-4">
-              <tr data-testid="table-signoff-qa">
-                <td>
-                  <strong>QA Sign-off</strong>
-                </td>
-                <td>
-                  {experiment.signoffRecommendations?.qaSignoff && (
-                    <span className="text-success">Recommended: </span>
-                  )}
-                  Describe what they should do.{" "}
-                  <LinkExternal href={EXTERNAL_URLS.SIGNOFF_QA}>
-                    Learn More
-                  </LinkExternal>
-                </td>
-              </tr>
-              <tr data-testid="table-signoff-vp">
-                <td>
-                  <strong>VP Sign-off</strong>
-                </td>
-                <td>
-                  {experiment.signoffRecommendations?.vpSignoff && (
-                    <span className="text-success">Recommended: </span>
-                  )}
-                  Describe what they should do.{" "}
-                  <LinkExternal href={EXTERNAL_URLS.SIGNOFF_VP}>
-                    Learn More
-                  </LinkExternal>
-                </td>
-              </tr>
-              <tr data-testid="table-signoff-legal">
-                <td>
-                  <strong>Legal Sign-off</strong>
-                </td>
-                <td>
-                  {experiment.signoffRecommendations?.legalSignoff && (
-                    <span className="text-success">Recommended: </span>
-                  )}
-                  Describe what they should do.{" "}
-                  <LinkExternal href={EXTERNAL_URLS.SIGNOFF_LEGAL}>
-                    Learn More
-                  </LinkExternal>
-                </td>
-              </tr>
+              <tbody>
+                <tr data-testid="table-signoff-qa">
+                  <td>
+                    <strong>QA Sign-off</strong>
+                  </td>
+                  <td>
+                    {experiment.signoffRecommendations?.qaSignoff && (
+                      <span className="text-success">Recommended: </span>
+                    )}
+                    Describe what they should do.{" "}
+                    <LinkExternal href={EXTERNAL_URLS.SIGNOFF_QA}>
+                      Learn More
+                    </LinkExternal>
+                  </td>
+                </tr>
+                <tr data-testid="table-signoff-vp">
+                  <td>
+                    <strong>VP Sign-off</strong>
+                  </td>
+                  <td>
+                    {experiment.signoffRecommendations?.vpSignoff && (
+                      <span className="text-success">Recommended: </span>
+                    )}
+                    Describe what they should do.{" "}
+                    <LinkExternal href={EXTERNAL_URLS.SIGNOFF_VP}>
+                      Learn More
+                    </LinkExternal>
+                  </td>
+                </tr>
+                <tr data-testid="table-signoff-legal">
+                  <td>
+                    <strong>Legal Sign-off</strong>
+                  </td>
+                  <td>
+                    {experiment.signoffRecommendations?.legalSignoff && (
+                      <span className="text-success">Recommended: </span>
+                    )}
+                    Describe what they should do.{" "}
+                    <LinkExternal href={EXTERNAL_URLS.SIGNOFF_LEGAL}>
+                      Learn More
+                    </LinkExternal>
+                  </td>
+                </tr>
+              </tbody>
             </Table>
 
             <Summary {...{ experiment }} />
