@@ -7,7 +7,6 @@ import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
-import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig, useReviewCheck } from "../../../hooks";
 import {
   EXTERNAL_URLS,
@@ -82,9 +81,6 @@ export const FormAudience = ({
       ),
     [isLoading, onSubmit, handleSubmit],
   );
-
-  const notReadyForReview = !experiment?.readyForReview?.ready;
-  const isNextDisabled = isLoading || notReadyForReview;
 
   return (
     <Form
@@ -251,17 +247,12 @@ export const FormAudience = ({
             onClick={handleSaveNext}
             className="btn btn-secondary"
             id="save-and-continue-button"
-            disabled={isNextDisabled}
+            disabled={isLoading}
             data-testid="next-button"
             data-sb-kind="pages/RequestReview"
-            data-tip={
-              notReadyForReview &&
-              "Required fields must be completed before proceeding to review."
-            }
           >
             Save and Continue
           </button>
-          {notReadyForReview && <ReactTooltip />}
         </div>
         <div className="p-2">
           <button

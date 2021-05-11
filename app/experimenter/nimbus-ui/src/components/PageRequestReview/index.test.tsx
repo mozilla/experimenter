@@ -74,45 +74,18 @@ describe("PageRequestReview", () => {
     expect(screen.getByTestId("table-summary")).toBeInTheDocument();
   });
 
-  it("redirects to the first edit page containing missing fields if the experiment status is draft and its not ready for review", async () => {
-    const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
+  it("displays a banner for pages missing fields required for review", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
       readyForReview: {
         ready: false,
         message: {
-          // This field exists on the Audience page
-          firefox_min_version: ["This field may not be null."],
+          channel: ["This list may not be empty."],
         },
       },
     });
     render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(
-        navigate,
-      ).toHaveBeenCalledWith(
-        `${BASE_PATH}/${experiment.slug}/edit/audience?show-errors`,
-        { replace: true },
-      );
-    });
-  });
-
-  it("redirects to the overview edit page if the experiment status is draft and its not ready for review, and for some reason invalid pages is empty", async () => {
-    const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
-      readyForReview: {
-        ready: false,
-        message: {},
-      },
-    });
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(
-        navigate,
-      ).toHaveBeenCalledWith(
-        `${BASE_PATH}/${experiment.slug}/edit/overview?show-errors`,
-        { replace: true },
-      );
-    });
+    await screen.findByText(/all required fields must be completed/);
+    expect(screen.queryByTestId("launch-draft-to-preview")).toBeNull();
   });
 
   it("redirects to the summary page if the experiment status is live", async () => {

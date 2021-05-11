@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from "@reach/router";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Table } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
-import { useChangeOperationMutation } from "../../hooks";
+import { useChangeOperationMutation, useReviewCheck } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
 import { CHANGELOG_MESSAGES, EXTERNAL_URLS } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
@@ -30,12 +30,31 @@ type PageRequestReviewProps = {
 const PageRequestReview = ({
   /* istanbul ignore next - only used in tests & stories */
   polling = true,
-}: PageRequestReviewProps) => {
-  const { kintoAdminUrl } = useConfig();
-  const currentExperiment = useRef<getExperiment_experimentBySlug>();
-  const refetchReview = useRef<() => void>();
-  const [showLaunchToReview, setShowLaunchToReview] = useState(false);
+}: PageRequestReviewProps) => (
+  <AppLayoutWithExperiment
+    title="Review &amp; Launch"
+    testId="PageRequestReview"
+    {...{ polling }}
+    redirect={({ status }) => {
+      if (status.launched) {
+        // Return to the experiment root/summary page
+        return "";
+      }
+    }}
+  >
+    {({ experiment, refetch }) => <PageContent {...{ experiment, refetch }} />}
+  </AppLayoutWithExperiment>
+);
 
+const PageContent: React.FC<{
+  experiment: getExperiment_experimentBySlug;
+  refetch: () => void;
+}> = ({ experiment, refetch }) => {
+  const { kintoAdminUrl } = useConfig();
+  const [showLaunchToReview, setShowLaunchToReview] = useState(false);
+  const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
+
+  const status = getStatus(experiment);
   const startRemoteSettingsApproval = async () => {
     window.open(kintoAdminUrl!, "_blank");
   };
@@ -51,8 +70,8 @@ const PageRequestReview = ({
       onReviewRejectedClicked,
     ],
   } = useChangeOperationMutation(
-    currentExperiment,
-    refetchReview,
+    experiment,
+    refetch,
     {
       status: NimbusExperimentStatus.PREVIEW,
       changelogMessage: CHANGELOG_MESSAGES.LAUNCHED_TO_PREVIEW,
@@ -77,145 +96,125 @@ const PageRequestReview = ({
     },
   );
 
+  const {
+    publishStatus,
+    canReview,
+    reviewRequest: reviewRequestEvent,
+    rejection: rejectionEvent,
+    timeout: timeoutEvent,
+  } = experiment;
+
   return (
-    <AppLayoutWithExperiment
-      title="Review &amp; Launch"
-      testId="PageRequestReview"
-      {...{ polling }}
-      redirect={({ status, review }) => {
-        if (review && status.draft && !review.ready) {
-          // If the experiment is not ready to be reviewed, let's send them to
-          // the first page we know needs fixing up, with field errors displayed
-          return `edit/${review.invalidPages[0] || "overview"}?show-errors`;
-        }
+    <>
+      {submitError && (
+        <Alert data-testid="submit-error" variant="warning">
+          {submitError}
+        </Alert>
+      )}
 
-        if (status.launched) {
-          // Return to the experiment root/summary page
-          return "";
-        }
-      }}
-    >
-      {({ experiment, refetch }) => {
-        currentExperiment.current = experiment;
-        refetchReview.current = refetch;
-        const status = getStatus(experiment);
-        const {
-          publishStatus,
-          canReview,
-          reviewRequest: reviewRequestEvent,
-          rejection: rejectionEvent,
-          timeout: timeoutEvent,
-        } = experiment;
-
-        return (
-          <>
-            {submitError && (
-              <Alert data-testid="submit-error" variant="warning">
-                {submitError}
-              </Alert>
-            )}
-
-            {(status.draft || status.preview) && (
-              <ChangeApprovalOperations
+      {(status.draft || status.preview) && invalidPages.length > 0 ? (
+        <Alert variant="warning">
+          Before this experiment can be reviewed or launched, all required
+          fields must be completed. Fields on the <InvalidPagesList />{" "}
+          {invalidPages.length === 1 ? "page" : "pages"} are missing details.
+        </Alert>
+      ) : (
+        <ChangeApprovalOperations
+          {...{
+            actionDescription: "launch",
+            isLoading,
+            publishStatus,
+            canReview: !!canReview,
+            reviewRequestEvent,
+            rejectionEvent,
+            timeoutEvent,
+            rejectChange: onReviewRejectedClicked,
+            approveChange: onReviewApprovedClicked,
+            startRemoteSettingsApproval,
+          }}
+        >
+          {status.draft &&
+            (showLaunchToReview ? (
+              <FormLaunchDraftToReview
                 {...{
-                  actionDescription: "launch",
                   isLoading,
-                  publishStatus,
-                  canReview: !!canReview,
-                  reviewRequestEvent,
-                  rejectionEvent,
-                  timeoutEvent,
-                  rejectChange: onReviewRejectedClicked,
-                  approveChange: onReviewApprovedClicked,
-                  startRemoteSettingsApproval,
+                  onSubmit: onLaunchClicked,
+                  onCancel: () => setShowLaunchToReview(false),
+                  onLaunchToPreview: onLaunchToPreviewClicked,
                 }}
-              >
-                {status.draft &&
-                  (showLaunchToReview ? (
-                    <FormLaunchDraftToReview
-                      {...{
-                        isLoading,
-                        onSubmit: onLaunchClicked,
-                        onCancel: () => setShowLaunchToReview(false),
-                        onLaunchToPreview: onLaunchToPreviewClicked,
-                      }}
-                    />
-                  ) : (
-                    <FormLaunchDraftToPreview
-                      {...{
-                        isLoading,
-                        onSubmit: onLaunchToPreviewClicked,
-                        onLaunchWithoutPreview: () =>
-                          setShowLaunchToReview(true),
-                      }}
-                    />
-                  ))}
+              />
+            ) : (
+              <FormLaunchDraftToPreview
+                {...{
+                  isLoading,
+                  onSubmit: onLaunchToPreviewClicked,
+                  onLaunchWithoutPreview: () => setShowLaunchToReview(true),
+                }}
+              />
+            ))}
 
-                {status.preview && status.idle && (
-                  <FormLaunchPreviewToReview
-                    {...{
-                      isLoading,
-                      onSubmit: onLaunchClicked,
-                      onBackToDraft: onBackToDraftClicked,
-                    }}
-                  />
-                )}
-              </ChangeApprovalOperations>
-            )}
+          {status.preview && status.idle && (
+            <FormLaunchPreviewToReview
+              {...{
+                isLoading,
+                onSubmit: onLaunchClicked,
+                onBackToDraft: onBackToDraftClicked,
+              }}
+            />
+          )}
+        </ChangeApprovalOperations>
+      )}
 
-            <h3 className="h5 mb-3">Recommended actions before launch</h3>
-            <Table bordered data-testid="table-signoff" className="mb-4">
-              <tbody>
-                <tr data-testid="table-signoff-qa">
-                  <td>
-                    <strong>QA Sign-off</strong>
-                  </td>
-                  <td>
-                    {experiment.signoffRecommendations?.qaSignoff && (
-                      <span className="text-success">Recommended: </span>
-                    )}
-                    Describe what they should do.{" "}
-                    <LinkExternal href={EXTERNAL_URLS.SIGNOFF_QA}>
-                      Learn More
-                    </LinkExternal>
-                  </td>
-                </tr>
-                <tr data-testid="table-signoff-vp">
-                  <td>
-                    <strong>VP Sign-off</strong>
-                  </td>
-                  <td>
-                    {experiment.signoffRecommendations?.vpSignoff && (
-                      <span className="text-success">Recommended: </span>
-                    )}
-                    Describe what they should do.{" "}
-                    <LinkExternal href={EXTERNAL_URLS.SIGNOFF_VP}>
-                      Learn More
-                    </LinkExternal>
-                  </td>
-                </tr>
-                <tr data-testid="table-signoff-legal">
-                  <td>
-                    <strong>Legal Sign-off</strong>
-                  </td>
-                  <td>
-                    {experiment.signoffRecommendations?.legalSignoff && (
-                      <span className="text-success">Recommended: </span>
-                    )}
-                    Describe what they should do.{" "}
-                    <LinkExternal href={EXTERNAL_URLS.SIGNOFF_LEGAL}>
-                      Learn More
-                    </LinkExternal>
-                  </td>
-                </tr>
-              </tbody>
-            </Table>
+      <h3 className="h5 mb-3">Recommended actions before launch</h3>
+      <Table bordered data-testid="table-signoff" className="mb-4">
+        <tbody>
+          <tr data-testid="table-signoff-qa">
+            <td>
+              <strong>QA Sign-off</strong>
+            </td>
+            <td>
+              {experiment.signoffRecommendations?.qaSignoff && (
+                <span className="text-success">Recommended: </span>
+              )}
+              Describe what they should do.{" "}
+              <LinkExternal href={EXTERNAL_URLS.SIGNOFF_QA}>
+                Learn More
+              </LinkExternal>
+            </td>
+          </tr>
+          <tr data-testid="table-signoff-vp">
+            <td>
+              <strong>VP Sign-off</strong>
+            </td>
+            <td>
+              {experiment.signoffRecommendations?.vpSignoff && (
+                <span className="text-success">Recommended: </span>
+              )}
+              Describe what they should do.{" "}
+              <LinkExternal href={EXTERNAL_URLS.SIGNOFF_VP}>
+                Learn More
+              </LinkExternal>
+            </td>
+          </tr>
+          <tr data-testid="table-signoff-legal">
+            <td>
+              <strong>Legal Sign-off</strong>
+            </td>
+            <td>
+              {experiment.signoffRecommendations?.legalSignoff && (
+                <span className="text-success">Recommended: </span>
+              )}
+              Describe what they should do.{" "}
+              <LinkExternal href={EXTERNAL_URLS.SIGNOFF_LEGAL}>
+                Learn More
+              </LinkExternal>
+            </td>
+          </tr>
+        </tbody>
+      </Table>
 
-            <Summary {...{ experiment }} />
-          </>
-        );
-      }}
-    </AppLayoutWithExperiment>
+      <Summary {...{ experiment }} />
+    </>
   );
 };
 
