@@ -95,9 +95,9 @@ const PageRequestReview = ({
         }
       }}
     >
-      {({ experiment, review }) => {
+      {({ experiment, refetch }) => {
         currentExperiment.current = experiment;
-        refetchReview.current = review.refetch;
+        refetchReview.current = refetch;
         const status = getStatus(experiment);
         const {
           publishStatus,

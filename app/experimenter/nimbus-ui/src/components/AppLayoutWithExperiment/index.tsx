@@ -4,7 +4,7 @@
 
 import { navigate, RouteComponentProps, useParams } from "@reach/router";
 import React, { useEffect } from "react";
-import { ExperimentReview, useAnalysis, useExperiment } from "../../hooks";
+import { useAnalysis, useExperiment, useReviewCheck } from "../../hooks";
 import { BASE_PATH } from "../../lib/constants";
 import { getStatus, StatusCheck } from "../../lib/experiment";
 import { AnalysisData } from "../../lib/visualization/types";
@@ -18,7 +18,7 @@ import PageLoading from "../PageLoading";
 
 type AppLayoutWithExperimentChildrenProps = {
   experiment: getExperiment_experimentBySlug;
-  review: ExperimentReview;
+  refetch: () => void;
   analysis?: AnalysisData;
 };
 
@@ -67,7 +67,7 @@ const AppLayoutWithExperiment = ({
     loading,
     startPolling,
     stopPolling,
-    review,
+    refetch,
   } = useExperiment(slug);
   const {
     execute: fetchAnalysis,
@@ -75,6 +75,7 @@ const AppLayoutWithExperiment = ({
     error: analysisError,
     status: analysisFetchStatus,
   } = useAnalysis();
+  const review = useReviewCheck(experiment);
   const status = getStatus(experiment);
   const analysisLoading = analysisFetchStatus === "loading";
   const analysisFetched = analysisFetchStatus !== "not-requested";
@@ -132,7 +133,6 @@ const AppLayoutWithExperiment = ({
     <Layout
       {...{
         children,
-        review,
         analysisRequired,
         analysis,
         analysisLoadingInSidebar,
@@ -156,7 +156,9 @@ const AppLayoutWithExperiment = ({
           }}
         />
         {title && <h2 className="mt-3 mb-4 h4">{title}</h2>}
-        <div className="my-4">{children({ experiment, review, analysis })}</div>
+        <div className="my-4">
+          {children({ experiment, refetch, analysis })}
+        </div>
       </section>
     </Layout>
   );
@@ -165,7 +167,6 @@ const AppLayoutWithExperiment = ({
 type LayoutProps = {
   children: React.ReactElement;
   status: StatusCheck;
-  review: ExperimentReview;
   analysis?: AnalysisData;
   analysisRequired: boolean;
   analysisLoadingInSidebar: boolean;
@@ -175,15 +176,16 @@ type LayoutProps = {
 
 const Layout = ({
   children,
-  review,
   status,
   analysis,
   analysisRequired,
   analysisLoadingInSidebar,
   analysisError,
   experiment,
-}: LayoutProps) =>
-  status?.launched ? (
+}: LayoutProps) => {
+  const review = useReviewCheck(experiment);
+
+  return status?.launched ? (
     <AppLayoutSidebarLaunched
       {...{
         status,
@@ -201,5 +203,6 @@ const Layout = ({
       {children}
     </AppLayoutWithSidebar>
   );
+};
 
 export default AppLayoutWithExperiment;

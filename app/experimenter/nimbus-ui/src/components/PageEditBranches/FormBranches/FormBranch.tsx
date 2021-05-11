@@ -159,7 +159,7 @@ export const FormBranch = ({
               reviewErrors.map((error, idx) => (
                 <InlineErrorIcon
                   key={`${fieldNamePrefix}-missing-icon-${idx}`}
-                  name={`${fieldNamePrefix}-missing-icon-${idx}`}
+                  field={`${fieldNamePrefix}-missing-icon-${idx}`}
                   message={error}
                 />
               ))}

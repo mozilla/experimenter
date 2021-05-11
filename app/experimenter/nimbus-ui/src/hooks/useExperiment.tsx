@@ -6,25 +6,6 @@ import { useQuery } from "@apollo/client";
 import { GET_EXPERIMENT_QUERY } from "../gql/experiments";
 import { getExperiment } from "../types/getExperiment";
 
-const fieldPageMap: { [page: string]: string[] } = {
-  overview: [
-    "public_description",
-    "risk_brand",
-    "risk_revenue",
-    "risk_partner_related",
-  ],
-  branches: ["reference_branch", "treatment_branches", "feature_config"],
-  audience: [
-    "channel",
-    "firefox_min_version",
-    "targeting_config_slug",
-    "proposed_enrollment",
-    "proposed_duration",
-    "population_percent",
-    "total_enrolled_clients",
-  ],
-};
-
 /**
  * Hook to retrieve all Experiment data by slug.
  *
@@ -56,16 +37,6 @@ export function useExperiment(slug: string) {
   });
 
   const experiment = data?.experimentBySlug;
-  const missingFields = Object.keys(experiment?.readyForReview?.message || {});
-  const invalidPages = Object.keys(fieldPageMap).filter((page) =>
-    fieldPageMap[page].some((field) => missingFields.includes(field)),
-  );
-  const isMissingField = (fieldName: string) =>
-    missingFields.includes(fieldName) &&
-    // This is a bit hacky, but we only want to visually display missing field
-    // errors when you click the links under the "Missing details" section, not
-    // from a regular sidebar navigation link
-    window.location.search.includes("show-errors");
 
   return {
     experiment: experiment!,
@@ -73,14 +44,6 @@ export function useExperiment(slug: string) {
     loading,
     startPolling,
     stopPolling,
-    review: {
-      ready: experiment?.readyForReview?.ready || false,
-      invalidPages,
-      missingFields,
-      isMissingField,
-      refetch: refetch as () => void,
-    },
+    refetch,
   };
 }
-
-export type ExperimentReview = ReturnType<typeof useExperiment>["review"];

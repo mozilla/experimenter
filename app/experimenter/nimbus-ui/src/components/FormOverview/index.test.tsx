@@ -359,20 +359,34 @@ describe("FormOverview", () => {
     });
   });
 
-  it("displays warning icon when public description is not filled out and server requires it", async () => {
+  it("displays warning icons when server complains fields are missing", () => {
     Object.defineProperty(window, "location", {
       value: {
         search: "?show-errors",
       },
     });
 
-    const { experiment } = mockExperimentQuery("boo");
-    const isMissingField = jest.fn(() => true);
-    render(<Subject {...{ isMissingField, experiment }} />);
+    const invalidFields = {
+      public_description: ["This field may not be null."],
+      risk_brand: ["This field may not be null."],
+      risk_revenue: ["This field may not be null."],
+      risk_partner_related: ["This field may not be null."],
+    };
 
-    waitFor(() => {
-      expect(isMissingField).toHaveBeenCalled();
-      expect(screen.queryByTestId("missing-description")).toBeInTheDocument();
+    const { experiment } = mockExperimentQuery("boo", {
+      readyForReview: {
+        ready: false,
+        message: invalidFields,
+      },
     });
+    render(<Subject {...{ experiment }} />);
+
+    for (const [field, errors] of Object.entries(invalidFields)) {
+      expect(screen.getByTestId(`missing-${field}`).dataset).toEqual(
+        expect.objectContaining({
+          tip: errors.join(", "),
+        }),
+      );
+    }
   });
 });
