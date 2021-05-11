@@ -7,10 +7,10 @@ import ReactTooltip from "react-tooltip";
 import { ReactComponent as ErrorCircle } from "../../images/error-circle.svg";
 
 const InlineErrorIcon = ({
-  name,
+  field,
   message,
 }: {
-  name: string;
+  field: string;
   message: string;
 }) => (
   <>
@@ -18,7 +18,7 @@ const InlineErrorIcon = ({
       width="20"
       height="20"
       className="ml-1"
-      data-testid={`missing-${name}`}
+      data-testid={`missing-${field}`}
       data-tip={message}
     />
     <ReactTooltip />

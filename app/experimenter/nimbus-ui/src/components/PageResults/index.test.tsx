@@ -121,13 +121,7 @@ jest.mock("../AppLayoutWithExperiment", () => ({
         {props.children({
           experiment,
           analysis,
-          review: {
-            isMissingField: () => false,
-            refetch: () => {},
-            ready: true,
-            invalidPages: [],
-            missingFields: [],
-          },
+          refetch: () => {},
         })}
       </div>
     );
