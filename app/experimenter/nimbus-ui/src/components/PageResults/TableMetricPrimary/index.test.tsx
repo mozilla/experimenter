@@ -8,6 +8,10 @@ import TableMetricPrimary from ".";
 import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
+import { getSortedBranches } from "../../../lib/visualization/utils";
+
+const results = mockAnalysis().overall;
+const sortedBranches = getSortedBranches(mockAnalysis());
 
 describe("TableMetricPrimary", () => {
   it("has the correct headings", () => {
@@ -22,7 +26,7 @@ describe("TableMetricPrimary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
-          results={mockAnalysis().overall}
+          {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
@@ -40,7 +44,7 @@ describe("TableMetricPrimary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
-          results={mockAnalysis().overall}
+          {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
@@ -61,7 +65,7 @@ describe("TableMetricPrimary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
-          results={mockAnalysis().overall}
+          {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
@@ -78,7 +82,7 @@ describe("TableMetricPrimary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
-          results={mockAnalysis().overall}
+          {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
@@ -101,7 +105,7 @@ describe("TableMetricPrimary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
-          results={mockAnalysis().overall}
+          {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
@@ -124,7 +128,7 @@ describe("TableMetricPrimary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
-          results={mockAnalysis().overall}
+          {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
       </RouterSlugProvider>,
