@@ -163,9 +163,9 @@ describe("TableSummary", () => {
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
-      expect(
-        screen.queryByTestId("experiment-feature-config"),
-      ).not.toBeInTheDocument();
+      expect(screen.getByTestId("experiment-feature-config")).toHaveTextContent(
+        "Not set",
+      );
     });
   });
 
