@@ -136,14 +136,16 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
               </td>
             </tr>
           )}
-        {experiment.featureConfig?.name && (
-          <tr>
-            <th>Feature config</th>
-            <td data-testid="experiment-feature-config">
-              {experiment.featureConfig.name}
-            </td>
-          </tr>
-        )}
+        <tr>
+          <th>Feature config</th>
+          <td data-testid="experiment-feature-config">
+            {experiment.featureConfig?.name ? (
+              experiment.featureConfig.name
+            ) : (
+              <NotSet />
+            )}
+          </td>
+        </tr>
         {primaryOutcomes.length > 0 && (
           <tr>
             <th>Primary outcomes</th>
