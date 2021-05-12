@@ -93,6 +93,17 @@ TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
     desktop_telemetry="",
 )
 
+TARGETING_URLBAR_FIREFOX_SUGGEST = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) US users (en)",
+    slug="urlbar_firefox_suggest_us_en",
+    description="US (en) users with the default search suggestion showing order",
+    targeting="{us_en} && {default_order}".format(
+        us_en=TARGETING_US_ONLY.targeting,
+        default_order="'browser.urlbar.showSearchSuggestionsFirst'|preferenceValue",
+    ),
+    desktop_telemetry="",
+)
+
 
 class Channel(models.TextChoices):
     NO_CHANNEL = ""
@@ -418,6 +429,7 @@ class NimbusConstants(object):
             TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
         ),
         TARGETING_HOMEPAGE_GOOGLE.slug: TARGETING_HOMEPAGE_GOOGLE,
+        TARGETING_URLBAR_FIREFOX_SUGGEST.slug: TARGETING_URLBAR_FIREFOX_SUGGEST,
     }
 
     class TargetingConfig(models.TextChoices):
@@ -434,6 +446,10 @@ class NimbusConstants(object):
         TARGETING_HOMEPAGE_GOOGLE = (
             TARGETING_HOMEPAGE_GOOGLE.slug,
             TARGETING_HOMEPAGE_GOOGLE.name,
+        )
+        TARGETING_URLBAR_FIREFOX_SUGGEST = (
+            TARGETING_URLBAR_FIREFOX_SUGGEST.slug,
+            TARGETING_URLBAR_FIREFOX_SUGGEST.name,
         )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
