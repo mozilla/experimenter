@@ -7,6 +7,7 @@ import Select from "react-select";
 import { SelectOption } from "../../hooks/useCommonForm/useCommonFormMethods";
 import { StatusCheck } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { NimbusExperimentApplication } from "../../types/globalTypes";
 
 type CopyableURLProps = {
   experimentSlug: string;
@@ -19,24 +20,39 @@ const CopyableURL: React.FC<CopyableURLProps> = ({
   branch,
   collection,
 }) => {
+  // This about: url cannot be linked from web content, so help with auto-copy.
   let url = `about:studies?optin_slug=${experimentSlug}&optin_branch=${branch}`;
   const clipboard = navigator.clipboard;
   if (collection) {
     url = `${url}&optin_collection=${collection}`;
   }
-  return <code onClick={() => clipboard.writeText(url)}>{url}</code>;
+  return (
+    <code onClick={() => clipboard.writeText(url)} style={{ cursor: "copy" }}>
+      {url}
+    </code>
+  );
 };
 
 export const PreviewURL: React.FC<
   Pick<
     getExperiment_experimentBySlug,
-    "slug" | "referenceBranch" | "treatmentBranches"
+    "application" | "referenceBranch" | "slug" | "treatmentBranches"
   > & { status: StatusCheck }
-> = ({ slug: experimentSlug, referenceBranch, treatmentBranches, status }) => {
+> = ({
+  application,
+  referenceBranch,
+  slug: experimentSlug,
+  status,
+  treatmentBranches,
+}) => {
   const [selection, setSelection] = useState(referenceBranch?.slug || "");
   const slugs: SelectOption[] = [];
 
-  if (!referenceBranch || !Array.isArray(treatmentBranches)) {
+  if (
+    application !== NimbusExperimentApplication.DESKTOP ||
+    !referenceBranch ||
+    !Array.isArray(treatmentBranches)
+  ) {
     return null;
   }
 
@@ -53,8 +69,11 @@ export const PreviewURL: React.FC<
         Preview URL
       </h3>
       <p>
-        <b>Click to copy the link</b> and paste it in your browser. You need to
-        enable <code>nimbus.debug</code> pref before.
+        <b>
+          Click the <code>about:studies</code> link below to copy
+        </b>{" "}
+        then paste it in your browser. Ensure you enable{" "}
+        <code>nimbus.debug</code> in <code>about:config</code> first.
       </p>
       <form data-testid="preview-url-form" className="mb-2">
         <label htmlFor="preview-branch">Selected Branch</label>

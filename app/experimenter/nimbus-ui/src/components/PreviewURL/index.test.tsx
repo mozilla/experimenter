@@ -40,6 +40,17 @@ describe("PreviewURL", () => {
 
     expect(screen.queryByText("Preview URL")).toBeInTheDocument();
   });
+  it("does not render when not desktop", () => {
+    render(
+      <PreviewURL
+        {...experiment}
+        application={null}
+        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+      />,
+    );
+
+    expect(screen.queryByText("Preview URL")).toBeNull();
+  });
   it("does not render when missing content", () => {
     render(
       <PreviewURL
