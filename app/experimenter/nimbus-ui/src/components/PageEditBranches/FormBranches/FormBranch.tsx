@@ -67,18 +67,15 @@ export const FormBranch = ({
   const id = fieldNamePrefix;
   const submitErrors = { ...branch.errors };
 
-  const {
-    FormErrors,
-    formControlAttrs,
-    watch,
-  } = useCommonNestedForm<BranchFieldName>(
-    defaultValues,
-    setSubmitErrors,
-    fieldNamePrefix,
-    submitErrors,
-    errors,
-    touched,
-  );
+  const { FormErrors, formControlAttrs, watch } =
+    useCommonNestedForm<BranchFieldName>(
+      defaultValues,
+      setSubmitErrors,
+      fieldNamePrefix,
+      submitErrors,
+      errors,
+      touched,
+    );
 
   const featureEnabled = watch(`${fieldNamePrefix}.featureEnabled`);
 

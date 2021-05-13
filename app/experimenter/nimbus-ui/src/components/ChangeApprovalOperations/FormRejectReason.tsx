@@ -32,17 +32,13 @@ const FormRejectReason = ({
   };
   type DefaultValues = typeof defaultValues;
 
-  const {
-    FormErrors,
-    formControlAttrs,
-    formMethods,
-    handleSubmit,
-  } = useCommonForm<RejectReasonFieldNames>(
-    defaultValues,
-    isServerValid,
-    submitErrors,
-    setSubmitErrors,
-  );
+  const { FormErrors, formControlAttrs, formMethods, handleSubmit } =
+    useCommonForm<RejectReasonFieldNames>(
+      defaultValues,
+      isServerValid,
+      submitErrors,
+      setSubmitErrors,
+    );
 
   const handleSubmitClick = handleSubmit(
     (data: DefaultValues) => !isLoading && onSubmit(null, data),

@@ -22,10 +22,8 @@ type TableSummaryProps = {
 const getRiskLabel = (answer: boolean) => (answer ? "Yes" : "No");
 
 const TableSummary = ({ experiment }: TableSummaryProps) => {
-  const {
-    application,
-    documentationLink: configDocumentationLinks,
-  } = useConfig();
+  const { application, documentationLink: configDocumentationLinks } =
+    useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
   return (

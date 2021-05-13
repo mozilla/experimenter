@@ -49,30 +49,29 @@ describe("hooks/useReviewCheck", () => {
     });
   });
 
-  const missingDetailsTest = (
-    fieldName: keyof typeof readyMessages,
-  ) => async () => {
-    const readyMessage = {
-      [fieldName]: readyMessages[fieldName],
-    };
-    const pageName = pageNames[fieldName];
-    const { mock, experiment } = mockExperimentQuery("howdy", {
-      readyForReview: {
-        ready: false,
-        message: readyMessage,
-      },
-    });
-    const { result } = renderHook(() => useReviewCheck(experiment), {
-      wrapper,
-      initialProps: { mocks: [mock] },
-    });
+  const missingDetailsTest =
+    (fieldName: keyof typeof readyMessages) => async () => {
+      const readyMessage = {
+        [fieldName]: readyMessages[fieldName],
+      };
+      const pageName = pageNames[fieldName];
+      const { mock, experiment } = mockExperimentQuery("howdy", {
+        readyForReview: {
+          ready: false,
+          message: readyMessage,
+        },
+      });
+      const { result } = renderHook(() => useReviewCheck(experiment), {
+        wrapper,
+        initialProps: { mocks: [mock] },
+      });
 
-    await waitFor(() => {
-      const { ready, invalidPages } = result.current;
-      expect(ready).toBeFalsy();
-      expect(invalidPages).toEqual(expect.arrayContaining([pageName]));
-    });
-  };
+      await waitFor(() => {
+        const { ready, invalidPages } = result.current;
+        expect(ready).toBeFalsy();
+        expect(invalidPages).toEqual(expect.arrayContaining([pageName]));
+      });
+    };
 
   let fieldName: keyof typeof readyMessages;
   for (fieldName in readyMessages) {

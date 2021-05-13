@@ -140,18 +140,14 @@ describe("The `DesignForm` component for message", () => {
     const ratio0Input = within(controlBranch).getByTestId("Branch Size");
     const name0Input = within(controlBranch).getByTestId("Name");
     const description0Input = within(controlBranch).getByTestId("Description");
-    const messageTargeting0Input = within(controlBranch).getByTestId(
-      "Message Targeting",
-    );
-    const messageThreshold0Input = within(controlBranch).getByTestId(
-      "Message Threshold",
-    );
-    const messageTriggers0Input = within(controlBranch).getByTestId(
-      "Message Triggers",
-    );
-    const messageContent0Input = within(controlBranch).getByTestId(
-      "Message Content",
-    );
+    const messageTargeting0Input =
+      within(controlBranch).getByTestId("Message Targeting");
+    const messageThreshold0Input =
+      within(controlBranch).getByTestId("Message Threshold");
+    const messageTriggers0Input =
+      within(controlBranch).getByTestId("Message Triggers");
+    const messageContent0Input =
+      within(controlBranch).getByTestId("Message Content");
 
     fireEvent.change(ratio0Input, { target: { value: branch0ratio } });
     fireEvent.change(name0Input, { target: { value: branch0name } });
@@ -178,15 +174,12 @@ describe("The `DesignForm` component for message", () => {
     const ratio2Input = within(branch2).getByTestId("Branch Size");
     const name2Input = within(branch2).getByTestId("Name");
     const description2Input = within(branch2).getByTestId("Description");
-    const messageTargeting2Input = within(branch2).getByTestId(
-      "Message Targeting",
-    );
-    const messageThreshold2Input = within(branch2).getByTestId(
-      "Message Threshold",
-    );
-    const messageTriggers2Input = within(branch2).getByTestId(
-      "Message Triggers",
-    );
+    const messageTargeting2Input =
+      within(branch2).getByTestId("Message Targeting");
+    const messageThreshold2Input =
+      within(branch2).getByTestId("Message Threshold");
+    const messageTriggers2Input =
+      within(branch2).getByTestId("Message Triggers");
     const messageContent2Input = within(branch2).getByTestId("Message Content");
 
     fireEvent.change(ratio2Input, { target: { value: branch2ratio } });
@@ -285,9 +278,8 @@ describe("The `DesignForm` component for message", () => {
     const ratio0Input = within(controlBranch).getByTestId("Branch Size");
     const name0Input = within(controlBranch).getByTestId("Name");
     const description0Input = within(controlBranch).getByTestId("Description");
-    const messageContent0Input = within(controlBranch).getByTestId(
-      "Message Content",
-    );
+    const messageContent0Input =
+      within(controlBranch).getByTestId("Message Content");
 
     fireEvent.change(ratio0Input, { target: { value: branch0ratio } });
     fireEvent.change(name0Input, { target: { value: branch0name } });

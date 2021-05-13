@@ -18,23 +18,15 @@ class BranchManager extends React.PureComponent {
   };
 
   addBranch() {
-    const {
-      branches,
-      errors,
-      handleDataChange,
-      handleErrorsChange,
-    } = this.props;
+    const { branches, errors, handleDataChange, handleErrorsChange } =
+      this.props;
     handleDataChange("variants", branches.push(fromJS({ is_control: false })));
     handleErrorsChange("variants", errors.push(fromJS({})));
   }
 
   removeBranch(index) {
-    const {
-      branches,
-      errors,
-      handleDataChange,
-      handleErrorsChange,
-    } = this.props;
+    const { branches, errors, handleDataChange, handleErrorsChange } =
+      this.props;
     handleDataChange("variants", branches.delete(index));
     handleErrorsChange("variants", errors.delete(index));
   }

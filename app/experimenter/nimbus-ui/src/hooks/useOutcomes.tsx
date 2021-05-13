@@ -6,9 +6,7 @@ import { OutcomesList, OutcomeSlugs } from "../lib/types";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
 import { useConfig } from "./useConfig";
 
-export function useOutcomes(
-  experiment: getExperiment_experimentBySlug,
-): {
+export function useOutcomes(experiment: getExperiment_experimentBySlug): {
   primaryOutcomes: OutcomesList;
   secondaryOutcomes: OutcomesList;
   available: OutcomesList;
