@@ -89,29 +89,6 @@ describe("FormAudience", () => {
     }
   });
 
-  it("disables next button when experiment is not ready for review", async () => {
-    const onSubmit = jest.fn();
-    render(
-      <Subject
-        {...{
-          onSubmit,
-          experiment: {
-            ...MOCK_EXPERIMENT,
-            readyForReview: {
-              ready: false,
-              message: "Test",
-            },
-          },
-        }}
-      />,
-    );
-    await screen.findByTestId("FormAudience");
-    const nextButton = screen.getByTestId("next-button");
-    expect(nextButton).toBeDisabled();
-    fireEvent.click(nextButton);
-    expect(onSubmit).not.toHaveBeenCalled();
-  });
-
   it("calls onSubmit when save and next buttons are clicked", async () => {
     const onSubmit = jest.fn();
     const expected = {

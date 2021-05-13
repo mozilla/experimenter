@@ -3,40 +3,43 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { withLinks } from "@storybook/addon-links";
-import { storiesOf } from "@storybook/react";
 import React from "react";
 import AppLayoutWithSidebar from ".";
-import { mockGetStatus } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { Subject } from "./mocks";
 
-storiesOf("components/AppLayoutWithSidebar", module)
-  .addDecorator(withLinks)
-  .add("status: draft", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar>
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
-  ))
-  .add("status: preview", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar
-        status={mockGetStatus({ status: NimbusExperimentStatus.PREVIEW })}
-      >
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
-  ))
-  .add("missing details", () => (
-    <RouterSlugProvider>
-      <AppLayoutWithSidebar
-        review={{
-          ready: false,
-          invalidPages: ["branches", "audience"],
-        }}
-      >
-        <p>App contents go here</p>
-      </AppLayoutWithSidebar>
-    </RouterSlugProvider>
-  ));
+export default {
+  title: "components/AppLayoutWithSidebar",
+  component: AppLayoutWithSidebar,
+  decorators: [withLinks],
+};
+
+export const DraftStatus = () => (
+  <Subject
+    experiment={{
+      status: NimbusExperimentStatus.DRAFT,
+    }}
+  />
+);
+
+export const PreviewStatus = () => (
+  <Subject
+    experiment={{
+      status: NimbusExperimentStatus.PREVIEW,
+    }}
+  />
+);
+
+export const MissingDetails = () => (
+  <Subject
+    experiment={{
+      readyForReview: {
+        ready: false,
+        message: {
+          reference_branch: ["This field may not be null."],
+          channel: ["This list may not be empty."],
+        },
+      },
+    }}
+  />
+);

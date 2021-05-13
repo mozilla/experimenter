@@ -11,8 +11,8 @@ import { ExperimentInput } from "../types/globalTypes";
 import { updateExperiment_updateExperiment as UpdateExperiment } from "../types/updateExperiment";
 
 export function useChangeOperationMutation(
-  experiment: React.MutableRefObject<Experiment | undefined>,
-  refetch: React.MutableRefObject<(() => void) | undefined>,
+  experiment: Experiment | undefined,
+  refetch: (() => void) | undefined,
   ...dataSets: Partial<ExperimentInput>[]
 ) {
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function useChangeOperationMutation(
             const result = await updateExperiment({
               variables: {
                 input: {
-                  id: experiment.current?.id,
+                  id: experiment?.id,
                   ...baseDataChanges,
                   ...submitDataChanges,
                 },
@@ -57,7 +57,7 @@ export function useChangeOperationMutation(
               return void setSubmitError(message.status.join(", "));
             }
 
-            refetch.current && refetch.current();
+            refetch && refetch();
           } catch (error) {
             setSubmitError(SUBMIT_ERROR);
           }
