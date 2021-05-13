@@ -421,9 +421,10 @@ fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
 /** Creates a single mock experiment suitable for getAllExperiments queries.  */
 export function mockSingleDirectoryExperiment(
   overrides: Partial<getAllExperiments_experiments> = {},
+  slugIndex: number = Math.round(Math.random() * 100),
 ): getAllExperiments_experiments {
   return {
-    slug: `some-experiment-${Math.round(Math.random() * 100)}`,
+    slug: `some-experiment-${slugIndex}`,
     owner: {
       username: "example@mozilla.com",
     },
