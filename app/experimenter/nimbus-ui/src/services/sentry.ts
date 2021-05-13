@@ -119,9 +119,9 @@ interface SentryMetrics {
  *
  * @constructor
  */
-const SentryMetrics = (function (this: SentryMetrics) {
+const SentryMetrics = function (this: SentryMetrics) {
   this._logger = new Logger();
-} as any) as new () => SentryMetrics;
+} as any as new () => SentryMetrics;
 
 SentryMetrics.prototype = {
   /**
@@ -160,9 +160,11 @@ SentryMetrics.prototype = {
         if (tagName in err) {
           scope.setTag(
             tagName,
-            (err as {
-              [key: string]: any;
-            })[tagName],
+            (
+              err as {
+                [key: string]: any;
+              }
+            )[tagName],
           );
         }
       });

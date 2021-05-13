@@ -13,9 +13,8 @@ export const Subject = ({
   onSave = () => {},
   experiment = mockExperimentQuery("boo").experiment,
 }: Partial<React.ComponentProps<typeof FormMetrics>>) => {
-  const [submitErrorsDefault, setSubmitErrors] = useState<Record<string, any>>(
-    submitErrors,
-  );
+  const [submitErrorsDefault, setSubmitErrors] =
+    useState<Record<string, any>>(submitErrors);
   return (
     <MockedCache>
       <FormMetrics

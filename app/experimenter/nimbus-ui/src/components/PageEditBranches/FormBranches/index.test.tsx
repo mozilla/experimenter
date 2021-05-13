@@ -512,9 +512,8 @@ async function fillInBranch(
 
 function selectFeatureConfig(featureIdx = 1) {
   act(() => {
-    const featureConfigAddButton = screen.queryAllByTestId(
-      "feature-config-add",
-    )![0];
+    const featureConfigAddButton =
+      screen.queryAllByTestId("feature-config-add")![0];
     fireEvent.click(featureConfigAddButton);
   });
   act(() => {

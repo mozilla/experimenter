@@ -58,18 +58,13 @@ export const FormAudience = ({
     proposedDuration: experiment.proposedDuration,
   };
 
-  const {
-    FormErrors,
-    formControlAttrs,
-    isValid,
-    handleSubmit,
-    isSubmitted,
-  } = useCommonForm<AudienceFieldName>(
-    defaultValues,
-    isServerValid,
-    submitErrors,
-    setSubmitErrors,
-  );
+  const { FormErrors, formControlAttrs, isValid, handleSubmit, isSubmitted } =
+    useCommonForm<AudienceFieldName>(
+      defaultValues,
+      isServerValid,
+      submitErrors,
+      setSubmitErrors,
+    );
 
   type DefaultValues = typeof defaultValues;
   const [handleSave, handleSaveNext] = useMemo(

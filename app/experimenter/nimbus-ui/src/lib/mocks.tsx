@@ -259,7 +259,7 @@ export class SimulatedMockLink extends ApolloLink {
 }
 
 export function mockExperiment<
-  T extends getExperiment["experimentBySlug"] = getExperiment_experimentBySlug
+  T extends getExperiment["experimentBySlug"] = getExperiment_experimentBySlug,
 >(modifications: Partial<getExperiment["experimentBySlug"]> = {}): T {
   return Object.assign(
     {
@@ -332,7 +332,7 @@ export function mockExperiment<
 }
 
 export function mockExperimentQuery<
-  T extends getExperiment["experimentBySlug"] = getExperiment_experimentBySlug
+  T extends getExperiment["experimentBySlug"] = getExperiment_experimentBySlug,
 >(
   slug = "foo",
   modifications: Partial<getExperiment["experimentBySlug"]> = {},
@@ -508,9 +508,10 @@ export function mockDirectoryExperimentsQuery(
 }
 
 // Basically the same as useOutcomes, but uses the mocked config values
-export function mockOutcomeSets(
-  experiment: getExperiment_experimentBySlug,
-): { primaryOutcomes: OutcomesList; secondaryOutcomes: OutcomesList } {
+export function mockOutcomeSets(experiment: getExperiment_experimentBySlug): {
+  primaryOutcomes: OutcomesList;
+  secondaryOutcomes: OutcomesList;
+} {
   const { outcomes } = MOCK_CONFIG;
 
   const pairOutcomes = (slugs: OutcomeSlugs) => {

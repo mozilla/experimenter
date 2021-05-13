@@ -60,14 +60,8 @@ const AppLayoutWithExperiment = ({
   redirect,
 }: AppLayoutWithExperimentProps) => {
   const { slug } = useParams();
-  const {
-    experiment,
-    notFound,
-    loading,
-    startPolling,
-    stopPolling,
-    refetch,
-  } = useExperiment(slug);
+  const { experiment, notFound, loading, startPolling, stopPolling, refetch } =
+    useExperiment(slug);
   const {
     execute: fetchAnalysis,
     result: analysis,

@@ -80,18 +80,14 @@ describe("The `DesignForm` component for Pref Experiments", () => {
   it("displays and edits data about single pref experiments", async () => {
     const apiResponse = setup();
 
-    const {
-      getByText,
-      getByLabelText,
-      getAllByLabelText,
-      container,
-    } = await render(
-      <DesignForm
-        slug="the-slug"
-        experimentType={"pref"}
-        isBranchedAddon={false}
-      />,
-    );
+    const { getByText, getByLabelText, getAllByLabelText, container } =
+      await render(
+        <DesignForm
+          slug="the-slug"
+          experimentType={"pref"}
+          isBranchedAddon={false}
+        />,
+      );
 
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
 
