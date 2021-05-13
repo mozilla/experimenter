@@ -11,6 +11,7 @@ import {
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import { AnalysisData } from "../../../lib/visualization/types";
+import { getExtremeBounds } from "../../../lib/visualization/utils";
 import GraphsWeekly from "../GraphsWeekly";
 import TableVisualizationRow from "../TableVisualizationRow";
 import TooltipWithMarkdown from "../TooltipWithMarkdown";
@@ -61,6 +62,7 @@ const TableMetricSecondary = ({
     : METRIC_TYPE.USER_SELECTED_SECONDARY;
 
   const overallResults = results?.overall!;
+  const bounds = getExtremeBounds(sortedBranches, overallResults, outcomeSlug);
   const outcomeName =
     results.metadata?.metrics[outcomeSlug]?.friendly_name || outcomeDefaultName;
   const outcomeDescription =
@@ -124,7 +126,7 @@ const TableMetricSecondary = ({
                       results={overallResults[branch]}
                       tableLabel={TABLE_LABEL.SECONDARY_METRICS}
                       metricKey={outcomeSlug}
-                      {...{ displayType, branchComparison }}
+                      {...{ displayType, branchComparison, bounds }}
                     />
                   ),
                 )}

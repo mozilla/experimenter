@@ -103,6 +103,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                     key={slug}
                     results={analysis?.overall!}
                     outcome={outcome!}
+                    {...{ sortedBranches }}
                   />
                 );
               })}
