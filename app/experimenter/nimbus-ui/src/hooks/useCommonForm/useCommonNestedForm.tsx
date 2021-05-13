@@ -17,6 +17,7 @@ export function useCommonNestedForm<FieldNames extends string>(
   nestedSubmitErrors: Record<string, string[]>,
   nestedErrors: UseFormMethods["errors"],
   nestedTouched: UseFormMethods["formState"]["touched"],
+  nestedReviewMessages: Record<string, string[]> = {},
 ) {
   const { register, watch } = useFormContext();
 
@@ -27,6 +28,7 @@ export function useCommonNestedForm<FieldNames extends string>(
     register,
     nestedErrors,
     nestedTouched,
+    nestedReviewMessages,
   );
 
   const NestedFormErrors = <K extends FieldNames>({ name }: { name: K }) => (
