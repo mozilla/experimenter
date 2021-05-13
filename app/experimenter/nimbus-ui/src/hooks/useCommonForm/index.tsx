@@ -30,18 +30,15 @@ export function useCommonForm<FieldNames extends string>(
   const isDirtyUnsaved = IsDirtyUnsaved(isDirty, isClientValid, isSubmitted);
   const isValid = isServerValid && isClientValid;
 
-  const {
-    FormErrors,
-    formControlAttrs,
-    formSelectAttrs,
-  } = useCommonFormMethods<FieldNames>(
-    defaultValues,
-    setSubmitErrors,
-    submitErrors,
-    register,
-    errors,
-    touched,
-  );
+  const { FormErrors, formControlAttrs, formSelectAttrs } =
+    useCommonFormMethods<FieldNames>(
+      defaultValues,
+      setSubmitErrors,
+      submitErrors,
+      register,
+      errors,
+      touched,
+    );
 
   return {
     FormErrors,

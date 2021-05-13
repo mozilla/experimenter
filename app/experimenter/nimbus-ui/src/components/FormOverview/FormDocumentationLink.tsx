@@ -39,20 +39,18 @@ export const FormDocumentationLink = ({
 }: FormDocumentationLinkProps) => {
   const { documentationLink: documentationLinkOptions } = useConfig();
 
-  const {
-    FormErrors,
-    formControlAttrs,
-  } = useCommonNestedForm<DocumentationLinkFieldName>(
-    {
-      title: documentationLink.title,
-      link: documentationLink.link,
-    },
-    setSubmitErrors,
-    fieldNamePrefix,
-    submitErrors,
-    errors,
-    touched,
-  );
+  const { FormErrors, formControlAttrs } =
+    useCommonNestedForm<DocumentationLinkFieldName>(
+      {
+        title: documentationLink.title,
+        link: documentationLink.link,
+      },
+      setSubmitErrors,
+      fieldNamePrefix,
+      submitErrors,
+      errors,
+      touched,
+    );
 
   return (
     <Form.Group className="mb-0" data-testid="DocumentationLink">

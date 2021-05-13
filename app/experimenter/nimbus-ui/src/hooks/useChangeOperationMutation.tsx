@@ -25,43 +25,44 @@ export function useChangeOperationMutation(
   const callbacks = useMemo(
     () =>
       dataSets.map(
-        (baseDataChanges: Partial<ExperimentInput>) => async (
-          _inputEvent?: any,
-          submitDataChanges?: Partial<ExperimentInput>,
-        ) => {
-          try {
-            setSubmitError(null);
+        (baseDataChanges: Partial<ExperimentInput>) =>
+          async (
+            _inputEvent?: any,
+            submitDataChanges?: Partial<ExperimentInput>,
+          ) => {
+            try {
+              setSubmitError(null);
 
-            const result = await updateExperiment({
-              variables: {
-                input: {
-                  id: experiment?.id,
-                  ...baseDataChanges,
-                  ...submitDataChanges,
+              const result = await updateExperiment({
+                variables: {
+                  input: {
+                    id: experiment?.id,
+                    ...baseDataChanges,
+                    ...submitDataChanges,
+                  },
                 },
-              },
-            });
+              });
 
-            // istanbul ignore next - can't figure out how to trigger this in a test
-            if (!result.data?.updateExperiment) {
-              throw new Error(SUBMIT_ERROR);
+              // istanbul ignore next - can't figure out how to trigger this in a test
+              if (!result.data?.updateExperiment) {
+                throw new Error(SUBMIT_ERROR);
+              }
+
+              const { message } = result.data.updateExperiment;
+
+              if (
+                message &&
+                message !== "success" &&
+                typeof message === "object"
+              ) {
+                return void setSubmitError(message.status.join(", "));
+              }
+
+              refetch && refetch();
+            } catch (error) {
+              setSubmitError(SUBMIT_ERROR);
             }
-
-            const { message } = result.data.updateExperiment;
-
-            if (
-              message &&
-              message !== "success" &&
-              typeof message === "object"
-            ) {
-              return void setSubmitError(message.status.join(", "));
-            }
-
-            refetch && refetch();
-          } catch (error) {
-            setSubmitError(SUBMIT_ERROR);
-          }
-        },
+          },
       ),
     [updateExperiment, experiment, refetch, dataSets],
   );

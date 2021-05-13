@@ -16,13 +16,12 @@ const FormLaunchConfirmationCheckboxes = ({
   onChange: (allChecked: boolean) => void;
 }) => {
   const checkedBoxes = useRef<Record<string, boolean>>({});
-  const handleConfirmChange = (labelText: string) => (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    event.persist();
-    checkedBoxes.current[labelText] = event.target.checked;
-    onChange(checkboxLabels.every((label) => !!checkedBoxes.current[label]));
-  };
+  const handleConfirmChange =
+    (labelText: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      event.persist();
+      checkedBoxes.current[labelText] = event.target.checked;
+      onChange(checkboxLabels.every((label) => !!checkedBoxes.current[label]));
+    };
 
   return (
     <Form.Row className="mx-1 my-3 text-body">

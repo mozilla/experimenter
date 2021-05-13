@@ -161,10 +161,8 @@ describe("ChangeApprovalOperations", () => {
 
   it("reports a rejection reason when review is rejected", async () => {
     const actionDescription = "gizmofy";
-    const {
-      changedBy: rejectionUser,
-      message: rejectionMessage,
-    } = reviewRejectedBaseProps.rejectionEvent!;
+    const { changedBy: rejectionUser, message: rejectionMessage } =
+      reviewRejectedBaseProps.rejectionEvent!;
     render(
       <Subject
         {...{

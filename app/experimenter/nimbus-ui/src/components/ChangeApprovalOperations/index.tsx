@@ -64,14 +64,13 @@ export const ChangeApprovalOperations: React.FC<
     }
   }, [publishStatus, canReview]);
 
-  const [uiState, setUIState] = useState<ChangeApprovalOperationsState>(
-    defaultUIState,
-  );
+  const [uiState, setUIState] =
+    useState<ChangeApprovalOperationsState>(defaultUIState);
 
-  const resetUIState = useCallback(() => setUIState(defaultUIState), [
-    defaultUIState,
-    setUIState,
-  ]);
+  const resetUIState = useCallback(
+    () => setUIState(defaultUIState),
+    [defaultUIState, setUIState],
+  );
 
   // Whenever publishStatus or canReview changes (i.e. via polling or
   // refetch), override and reset the state.
