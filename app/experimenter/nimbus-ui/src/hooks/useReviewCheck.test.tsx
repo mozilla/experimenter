@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from "@apollo/client/testing";
-import { waitFor } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
+import { editPages } from "../components/AppLayoutWithSidebar";
 import { MockedCache, mockExperimentQuery } from "../lib/mocks";
 import { useReviewCheck } from "./useReviewCheck";
 
@@ -67,12 +68,9 @@ describe("hooks/useReviewCheck", () => {
     });
 
     await waitFor(() => {
-      const { ready, invalidPages, invalidFields } = result.current;
+      const { ready, invalidPages } = result.current;
       expect(ready).toBeFalsy();
       expect(invalidPages).toEqual(expect.arrayContaining([pageName]));
-      expect(invalidFields).toEqual(
-        expect.arrayContaining(Object.keys(readyMessage)),
-      );
     });
   };
 
@@ -98,10 +96,40 @@ describe("hooks/useReviewCheck", () => {
     });
 
     await waitFor(() => {
-      const { ready, invalidPages, invalidFields } = result.current;
+      const { ready, invalidPages } = result.current;
       expect(ready).toBeTruthy();
       expect(invalidPages).toEqual([]);
-      expect(invalidFields).toEqual([]);
+    });
+  });
+
+  it("returns a component that can render invalid pages", async () => {
+    const { mock, experiment } = mockExperimentQuery("howdy", {
+      readyForReview: {
+        ready: false,
+        message: {
+          public_description: ["This field may not be null."],
+          reference_branch: ["This field may not be null."],
+          channel: ["This list may not be empty."],
+        },
+      },
+    });
+
+    const { result } = renderHook(() => useReviewCheck(experiment), {
+      wrapper,
+      initialProps: { mocks: [mock] },
+    });
+
+    const { InvalidPagesList } = result.current;
+    const { getByText } = render(<InvalidPagesList />);
+
+    editPages.forEach((page) => {
+      // Currently metrics does not produce any
+      // review-readiness messages
+      if (page.slug === "metrics") {
+        return;
+      }
+
+      getByText(page.name);
     });
   });
 });

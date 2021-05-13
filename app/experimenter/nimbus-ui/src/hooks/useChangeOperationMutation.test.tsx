@@ -5,14 +5,13 @@
 import { MockedResponse } from "@apollo/client/testing";
 import { waitFor } from "@testing-library/dom";
 import { act, renderHook } from "@testing-library/react-hooks";
-import React, { useRef } from "react";
+import React from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../gql/experiments";
 import {
   MockedCache,
   mockExperiment,
   mockExperimentMutation,
 } from "../lib/mocks";
-import { getExperiment_experimentBySlug as Experiment } from "../types/getExperiment";
 import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
@@ -41,7 +40,8 @@ describe("hooks/useChangeOperationMutation", () => {
 });
 
 const setupTestHook = (customMocks: MockedResponse[] = []) => {
-  const { experiment, refetch } = setupRefArgs();
+  const experiment = mockExperiment();
+  const refetch = jest.fn();
   const mutationSets = [
     {
       isEndRequested: true,
@@ -63,7 +63,7 @@ const setupTestHook = (customMocks: MockedResponse[] = []) => {
           mockExperimentMutation(
             UPDATE_EXPERIMENT_MUTATION,
             {
-              id: experiment.current.id,
+              id: experiment.id,
               ...cur,
             },
             "updateExperiment",
@@ -89,17 +89,6 @@ const setupTestHook = (customMocks: MockedResponse[] = []) => {
   );
 
   return { isLoading, submitError, callbacks, mutationSets, refetch };
-};
-
-const setupRefArgs = () => {
-  const {
-    result: { current: experiment },
-  } = renderHook(() => useRef<Experiment>(mockExperiment()));
-  const {
-    result: { current: refetch },
-  } = renderHook(() => useRef<() => void>(jest.fn()));
-
-  return { experiment, refetch };
 };
 
 const wrapper = ({

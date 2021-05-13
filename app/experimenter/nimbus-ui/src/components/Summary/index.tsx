@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef } from "react";
+import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
 import { useChangeOperationMutation, useConfig } from "../../hooks";
@@ -32,13 +32,6 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
   const { kintoAdminUrl } = useConfig();
   const status = getStatus(experiment);
 
-  // TODO: PageRequestReview assigns the experiment and refetch values to refs,
-  // and since this component shares the same useChangeOperationMutation hook
-  // it also needs to pass its experiment/refetch values into refs. Ideally
-  // neither of these components need to use refs.
-  const currentExperiment = useRef<getExperiment_experimentBySlug>(experiment);
-  const refetchReview = useRef<(() => void) | undefined>(refetch);
-
   const {
     publishStatus,
     canReview,
@@ -60,8 +53,8 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       onReviewRejectedClicked,
     ],
   } = useChangeOperationMutation(
-    currentExperiment,
-    refetchReview,
+    experiment,
+    refetch,
     {
       publishStatus: NimbusExperimentPublishStatus.REVIEW,
       isEndRequested: true,

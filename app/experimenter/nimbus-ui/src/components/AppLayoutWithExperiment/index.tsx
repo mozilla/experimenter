@@ -4,7 +4,7 @@
 
 import { navigate, RouteComponentProps, useParams } from "@reach/router";
 import React, { useEffect } from "react";
-import { useAnalysis, useExperiment, useReviewCheck } from "../../hooks";
+import { useAnalysis, useExperiment } from "../../hooks";
 import { BASE_PATH } from "../../lib/constants";
 import { getStatus, StatusCheck } from "../../lib/experiment";
 import { AnalysisData } from "../../lib/visualization/types";
@@ -43,7 +43,6 @@ type AppLayoutWithExperimentProps = {
   analysisRequiredInSidebar?: boolean; // only the sidebar needs analysis data
   redirect?: ({
     status,
-    review,
     analysis,
     analysisError,
   }: RedirectCheck) => string | void;
@@ -75,20 +74,19 @@ const AppLayoutWithExperiment = ({
     error: analysisError,
     status: analysisFetchStatus,
   } = useAnalysis();
-  const review = useReviewCheck(experiment);
   const status = getStatus(experiment);
   const analysisLoading = analysisFetchStatus === "loading";
   const analysisFetched = analysisFetchStatus !== "not-requested";
   const analysisLoadingInSidebar = analysisRequiredInSidebar && analysisLoading;
 
   // If the redirect prop function is supplied let's call it with
-  // experiment status, review, and analysis details. If it returns
+  // experiment status, and analysis details. If it returns
   // a string we know to redirect to it as a path.
   let redirectPath: string | undefined, redirectResult: string | void;
   if (
     !loading &&
     redirect &&
-    (redirectResult = redirect!({ status, review, analysis })) != null
+    (redirectResult = redirect!({ status, analysis })) != null
   ) {
     redirectResult = redirectResult.length
       ? `/${redirectResult}`
@@ -182,10 +180,8 @@ const Layout = ({
   analysisLoadingInSidebar,
   analysisError,
   experiment,
-}: LayoutProps) => {
-  const review = useReviewCheck(experiment);
-
-  return status?.launched ? (
+}: LayoutProps) =>
+  status?.launched ? (
     <AppLayoutSidebarLaunched
       {...{
         status,
@@ -199,10 +195,7 @@ const Layout = ({
       {children}
     </AppLayoutSidebarLaunched>
   ) : (
-    <AppLayoutWithSidebar {...{ status, review }}>
-      {children}
-    </AppLayoutWithSidebar>
+    <AppLayoutWithSidebar {...{ experiment }}>{children}</AppLayoutWithSidebar>
   );
-};
 
 export default AppLayoutWithExperiment;
