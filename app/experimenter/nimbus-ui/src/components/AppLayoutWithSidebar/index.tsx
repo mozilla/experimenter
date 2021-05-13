@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Link, RouteComponentProps, useParams } from "@reach/router";
+import { RouteComponentProps, useParams } from "@reach/router";
 import React from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
+import { useReviewCheck } from "../../hooks";
 import { ReactComponent as Airplane } from "../../images/airplane.svg";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
-import { BASE_PATH } from "../../lib/constants";
-import { StatusCheck } from "../../lib/experiment";
-import { DisabledItem } from "../DisabledItem";
+import { getStatus } from "../../lib/experiment";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as ChartArrow } from "./chart-arrow.svg";
 import { ReactComponent as Cog } from "./cog.svg";
@@ -24,14 +24,10 @@ import { ReactComponent as Person } from "./person.svg";
 type AppLayoutWithSidebarProps = {
   testid?: string;
   children: React.ReactNode;
-  status?: StatusCheck;
-  review?: {
-    invalidPages: string[];
-    ready: boolean;
-  };
+  experiment: getExperiment_experimentBySlug;
 } & RouteComponentProps;
 
-const editPages = [
+export const editPages = [
   {
     name: "Overview",
     slug: "overview",
@@ -57,10 +53,11 @@ const editPages = [
 export const AppLayoutWithSidebar = ({
   children,
   testid = "AppLayoutWithSidebar",
-  status,
-  review,
+  experiment,
 }: AppLayoutWithSidebarProps) => {
   const { slug } = useParams();
+  const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
+  const status = getStatus(experiment);
   const reviewOrPreview = !status?.idle || status?.preview;
 
   return (
@@ -115,41 +112,22 @@ export const AppLayoutWithSidebar = ({
                   {page.name}
                 </LinkNav>
               ))}
-              {!review || review.ready || reviewOrPreview ? (
-                <LinkNav
-                  route={`${slug}/request-review`}
-                  storiesOf="pages/RequestReview"
-                  testid="nav-request-review"
-                >
-                  <Clipboard className="sidebar-icon" />
-                  Review &amp; Launch
-                </LinkNav>
-              ) : (
-                <DisabledItem
-                  name="Review &amp; Launch"
-                  testId="missing-details"
-                >
-                  Missing details in:{" "}
-                  {review.invalidPages.map((missingPage, idx) => {
-                    const editPage = editPages.find(
-                      (p) => p.slug === missingPage,
-                    )!;
+              <LinkNav
+                route={`${slug}/request-review`}
+                storiesOf="pages/RequestReview"
+                testid="nav-request-review"
+              >
+                <Clipboard className="sidebar-icon" />
+                Review &amp; Launch
+              </LinkNav>
 
-                    return (
-                      <React.Fragment key={`missing-${idx}`}>
-                        <Link
-                          data-sb-kind={`pages/Edit${editPage.name}`}
-                          data-testid={`missing-detail-link-${editPage.slug}`}
-                          to={`${BASE_PATH}/${slug}/edit/${editPage.slug}?show-errors`}
-                        >
-                          {editPage.name}
-                        </Link>
-
-                        {idx !== review.invalidPages.length - 1 && ", "}
-                      </React.Fragment>
-                    );
-                  })}
-                </DisabledItem>
+              {invalidPages.length > 0 && !reviewOrPreview && (
+                <div className="mx-1 mb-2 d-flex text-muted font-weight-normal">
+                  <div className="sidebar-icon"></div>
+                  <p className="my-0 small">
+                    Missing details in: <InvalidPagesList />
+                  </p>
+                </div>
               )}
             </Nav>
           </nav>

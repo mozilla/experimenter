@@ -39,6 +39,19 @@ export default {
   decorators: [withLinks],
 };
 
+export const missingRequiredFields = storyWithExperimentProps(
+  {
+    readyForReview: {
+      ready: false,
+      message: {
+        reference_branch: ["This field may not be null."],
+        channel: ["This list may not be empty."],
+      },
+    },
+  },
+  "Missing fields required for review",
+);
+
 export const draftStatus = storyWithExperimentProps({
   status: NimbusExperimentStatus.DRAFT,
   publishStatus: NimbusExperimentPublishStatus.IDLE,

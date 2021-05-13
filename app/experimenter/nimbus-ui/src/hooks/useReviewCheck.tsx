@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Link } from "@reach/router";
 import React from "react";
+import { editPages } from "../components/AppLayoutWithSidebar";
 import InlineErrorIcon from "../components/InlineErrorIcon";
+import { BASE_PATH } from "../lib/constants";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
 
 export type ReviewCheck = ReturnType<typeof useReviewCheck>;
@@ -34,9 +37,10 @@ export function useReviewCheck(
     string,
     string[]
   >;
-  const invalidFields = Object.keys(reviewItems);
   const invalidPages = Object.keys(fieldPageMap).filter((page) =>
-    fieldPageMap[page].some((field) => invalidFields.includes(field)),
+    fieldPageMap[page].some((field) =>
+      Object.keys(reviewItems).includes(field),
+    ),
   );
   const fieldReviewMessages = (fieldName: string): string[] =>
     reviewItems[fieldName] || [];
@@ -57,12 +61,33 @@ export function useReviewCheck(
       </span>
     );
   };
+  const InvalidPagesList: React.FC = () => (
+    <>
+      {experiment &&
+        invalidPages.map((missingPage, idx) => {
+          const editPage = editPages.find((p) => p.slug === missingPage)!;
+
+          return (
+            <React.Fragment key={`missing-${idx}`}>
+              <Link
+                to={`${BASE_PATH}/${experiment.slug}/edit/${editPage.slug}?show-errors`}
+                data-testid={`missing-detail-link-${editPage.slug}`}
+              >
+                {editPage.name}
+              </Link>
+
+              {idx !== invalidPages.length - 1 && ", "}
+            </React.Fragment>
+          );
+        })}
+    </>
+  );
 
   return {
     ready: experiment?.readyForReview?.ready || false,
     invalidPages,
-    invalidFields,
     fieldReviewMessages,
     FieldReview,
+    InvalidPagesList,
   };
 }
