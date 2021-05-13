@@ -8,6 +8,10 @@ import React from "react";
 import TableMetricPrimary from ".";
 import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
+import { getSortedBranches } from "../../../lib/visualization/utils";
+
+const results = mockAnalysis().overall;
+const sortedBranches = getSortedBranches(mockAnalysis());
 
 storiesOf("pages/Results/TableMetricPrimary", module)
   .addDecorator(withLinks)
@@ -19,7 +23,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
 
     return (
       <TableMetricPrimary
-        results={mockAnalysis().overall}
+        {...{ results, sortedBranches }}
         outcome={primaryOutcomes![0]!}
       />
     );
@@ -32,7 +36,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
 
     return (
       <TableMetricPrimary
-        results={mockAnalysis().overall}
+        {...{ results, sortedBranches }}
         outcome={primaryOutcomes![0]!}
       />
     );
@@ -45,7 +49,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
 
     return (
       <TableMetricPrimary
-        results={mockAnalysis().overall}
+        {...{ results, sortedBranches }}
         outcome={primaryOutcomes![0]!}
       />
     );

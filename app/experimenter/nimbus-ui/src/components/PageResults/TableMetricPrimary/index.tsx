@@ -9,6 +9,7 @@ import {
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import { AnalysisDataOverall } from "../../../lib/visualization/types";
+import { getExtremeBounds } from "../../../lib/visualization/utils";
 import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
 import TableVisualizationRow from "../TableVisualizationRow";
 
@@ -22,6 +23,7 @@ type PrimaryMetricStatistic = {
 type TableMetricPrimaryProps = {
   results: AnalysisDataOverall;
   outcome: getConfig_nimbusConfig_outcomes;
+  sortedBranches: string[];
 };
 
 const getStatistics = (slug: string): Array<PrimaryMetricStatistic> => {
@@ -41,9 +43,11 @@ const getStatistics = (slug: string): Array<PrimaryMetricStatistic> => {
 const TableMetricPrimary = ({
   results = {},
   outcome,
+  sortedBranches,
 }: TableMetricPrimaryProps) => {
   const primaryMetricStatistics = getStatistics(outcome.slug!);
   const metricKey = `${outcome.slug}_ever_used`;
+  const bounds = getExtremeBounds(sortedBranches, results, outcome.slug!);
 
   return (
     <div data-testid="table-metric-primary" className="mb-5">
@@ -78,7 +82,7 @@ const TableMetricPrimary = ({
                       key={`${displayType}-${value}`}
                       results={results[branch]}
                       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
-                      {...{ metricKey, displayType, branchComparison }}
+                      {...{ metricKey, displayType, branchComparison, bounds }}
                     />
                   ),
                 )}
