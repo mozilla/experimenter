@@ -61,9 +61,9 @@
   },
   "devDependencies": {
     "@rescripts/cli": "^0.0.16",
-    "@storybook/addon-actions": "^6.1.17",
-    "@storybook/addon-links": "^6.2.7",
-    "@storybook/addon-queryparams": "^6.1.17",
+    "@storybook/addon-actions": "^6.2.9",
+    "@storybook/addon-links": "^6.2.9",
+    "@storybook/addon-queryparams": "^6.2.9",
     "@storybook/preset-create-react-app": "^3.1.7",
     "@storybook/react": "^6.2.9",
     "@testing-library/dom": "^7.29.6",
