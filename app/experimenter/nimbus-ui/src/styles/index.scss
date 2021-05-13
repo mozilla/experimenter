@@ -80,6 +80,10 @@ $sizes: (
   color: inherit;
 }
 
+.table-fixed {
+  table-layout: fixed;
+}
+
 .sidebar-icon {
   @extend .mr-3;
   min-width: 18px;
