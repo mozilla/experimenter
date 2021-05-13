@@ -117,12 +117,14 @@ const conversionCountField = (totalConversions: number, totalUsers: number) => {
 const conversionChangeField = (
   lower: number,
   upper: number,
+  range: number,
   significance: string | undefined,
 ) => {
   lower = Math.round(lower * 1000) / 10;
   upper = Math.round(upper * 1000) / 10;
+  range = Math.round(range * 1000) / 10;
   significance = significance || SIGNIFICANCE.NEUTRAL;
-  return <ConfidenceInterval {...{ upper, lower, significance }} />;
+  return <ConfidenceInterval {...{ upper, lower, range, significance }} />;
 };
 
 const populationField = (point: number, percent: number | undefined) => {
@@ -195,6 +197,7 @@ const TableVisualizationRow: React.FC<{
   branchComparison?: string;
   tooltip?: string;
   window?: string;
+  bounds?: number;
 }> = ({
   metricKey,
   results,
@@ -204,6 +207,7 @@ const TableVisualizationRow: React.FC<{
   branchComparison,
   tooltip = "",
   window = "overall",
+  bounds = 0.05,
 }) => {
   const { branch_data, is_control } = results;
   const metricData = branch_data[metricKey];
@@ -265,7 +269,7 @@ const TableVisualizationRow: React.FC<{
           field = conversionCountField(count!, userCountMetric);
           break;
         case DISPLAY_TYPE.CONVERSION_CHANGE:
-          field = conversionChangeField(lower!, upper!, significance);
+          field = conversionChangeField(lower!, upper!, bounds, significance);
           break;
       }
       fieldList.push({ field, tooltipText, className });
