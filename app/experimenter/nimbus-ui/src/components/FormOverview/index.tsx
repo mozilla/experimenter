@@ -101,11 +101,8 @@ const FormOverview = ({
     setSubmitErrors,
   );
 
-  const {
-    documentationLinks,
-    addDocumentationLink,
-    removeDocumentationLink,
-  } = useDocumentationLinks(experiment, control, setValue);
+  const { documentationLinks, addDocumentationLink, removeDocumentationLink } =
+    useDocumentationLinks(experiment, control, setValue);
 
   const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
@@ -295,9 +292,9 @@ const FormOverview = ({
                       fieldNamePrefix: `documentationLinks[${index}]`,
                       submitErrors:
                         (submitErrors?.documentation_links &&
-                          (submitErrors?.documentation_links as SubmitErrorRecord[])[
-                            index
-                          ]) ||
+                          (
+                            submitErrors?.documentation_links as SubmitErrorRecord[]
+                          )[index]) ||
                         {},
                       //@ts-ignore react-hook-form types seem broken for nested fields
                       errors: (errors?.documentationLinks?.[index] ||

@@ -6,7 +6,8 @@ import React from "react";
 import LinkExternal from "../LinkExternal";
 
 // Match http://, https://, www., a combo, but not neither
-const LINK_MATCHER = /((?<!\+)(?:https?:\/\/(?:www\.)?|www\.)(?:[a-zA-Z\d-_.]+(?:(?:\.|@)[a-zA-Z\d]{2,}))(?:(?:[-a-zA-Z\d:%_+.~#*$!?&//=@]*)(?:[,](?![\s]))*)*)/gi;
+const LINK_MATCHER =
+  /((?<!\+)(?:https?:\/\/(?:www\.)?|www\.)(?:[a-zA-Z\d-_.]+(?:(?:\.|@)[a-zA-Z\d]{2,}))(?:(?:[-a-zA-Z\d:%_+.~#*$!?&//=@]*)(?:[,](?![\s]))*)*)/gi;
 const NEWLINE_MATCHER = /(\r\n|\r|\n)/gi;
 
 const RichText = ({ text }: { text: string }) => (

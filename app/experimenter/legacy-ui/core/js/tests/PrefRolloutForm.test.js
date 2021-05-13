@@ -105,12 +105,8 @@ describe("The `DesignForm` component for Pref Rollouts", () => {
 
   it("Make Edits to Form and is saved ", async () => {
     const data = setup();
-    const {
-      getByLabelText,
-      getAllByLabelText,
-      getByText,
-      container,
-    } = await render(<DesignForm experimentType={"rollout"} />);
+    const { getByLabelText, getAllByLabelText, getByText, container } =
+      await render(<DesignForm experimentType={"rollout"} />);
 
     await waitForFormToLoad(container);
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);

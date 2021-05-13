@@ -14,9 +14,8 @@ export const Subject = ({
   onCancel,
   experiment,
 }: Partial<React.ComponentProps<typeof FormOverview>>) => {
-  const [submitErrorsDefault, setSubmitErrors] = useState<Record<string, any>>(
-    submitErrors,
-  );
+  const [submitErrorsDefault, setSubmitErrors] =
+    useState<Record<string, any>>(submitErrors);
   return (
     <MockedCache>
       <FormOverview
