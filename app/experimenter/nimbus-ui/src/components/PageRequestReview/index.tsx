@@ -176,7 +176,7 @@ const PageContent: React.FC<{
               {experiment.signoffRecommendations?.qaSignoff && (
                 <span className="text-success">Recommended: </span>
               )}
-              Describe what they should do.{" "}
+              Please file a PI request.{" "}
               <LinkExternal href={EXTERNAL_URLS.SIGNOFF_QA}>
                 Learn More
               </LinkExternal>
@@ -190,7 +190,7 @@ const PageContent: React.FC<{
               {experiment.signoffRecommendations?.vpSignoff && (
                 <span className="text-success">Recommended: </span>
               )}
-              Describe what they should do.{" "}
+              Please email your VP.{" "}
               <LinkExternal href={EXTERNAL_URLS.SIGNOFF_VP}>
                 Learn More
               </LinkExternal>
@@ -204,7 +204,7 @@ const PageContent: React.FC<{
               {experiment.signoffRecommendations?.legalSignoff && (
                 <span className="text-success">Recommended: </span>
               )}
-              Describe what they should do.{" "}
+              Please email legal.{" "}
               <LinkExternal href={EXTERNAL_URLS.SIGNOFF_LEGAL}>
                 Learn More
               </LinkExternal>
