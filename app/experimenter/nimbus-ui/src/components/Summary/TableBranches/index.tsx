@@ -41,8 +41,9 @@ const TableBranches = ({
     experiment.referenceBranch,
     ...(experiment.treatmentBranches || []),
   ].filter((branch): branch is Branch => branch !== null);
-  const branchCount = branches.length;
-  const hasOneBranchNameSet = Boolean(branches.find((branch) => branch.name));
+  const savedBranches = branches.filter((branch) => branch.name);
+  const branchCount = savedBranches.length;
+  const hasOneBranchNameSet = Boolean(savedBranches);
 
   return (
     <>
@@ -51,7 +52,7 @@ const TableBranches = ({
         <NotSet copy={NO_BRANCHES_COPY} />
       ) : (
         <>
-          {branches.map((branch, key) => (
+          {savedBranches.map((branch, key) => (
             <TableBranch key={key} {...{ hasSchema, branch }} />
           ))}
         </>
@@ -72,7 +73,7 @@ const TableBranch = ({
       <thead className="thead-light">
         <tr>
           <th colSpan={2} data-testid="branch-name">
-            {name ? name : <NotSet />}
+            {name}
           </th>
         </tr>
       </thead>
