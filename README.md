@@ -300,6 +300,7 @@ For a full reference of all the common commands that can be run inside the conta
 #### make integration_test_legacy
 
 Run the integration test suite for experimenter inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
+
 #### make integration_test_nimbus
 
 Run the integration test suite for nimbus inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
@@ -318,13 +319,14 @@ This should run the integration tests and watch them run in a Firefox instance y
 
 #### Integration Test options
 
-- `TOX_ENV`: [Tox](https://tox.readthedocs.io/en/latest/config.html#tox) commandline variables.
-- `PYTEST_ENV`: [Pytest](https://docs.pytest.org/en/6.2.x/usage.html#) commandline variables.
+- `TOX_ARGS`: [Tox](https://tox.readthedocs.io/en/latest/config.html#tox) commandline variables.
+- `PYTEST_ARGS`: [Pytest](https://docs.pytest.org/en/6.2.x/usage.html#) commandline variables.
 
 An example using PYTEST_ARGS to run one test.
 ```bash
-make integration_test_legacy PYTEST_ARGS="-k test_addon_rollout_experiment_e2e
+make integration_test_legacy PYTEST_ARGS="-k test_addon_rollout_experiment_e2e"
 ```
+
 ## Accessing Remote Settings locally
 
 In development you may wish to approve or reject changes to experiments as if they were on Remote Settings. You can do so here: `http://localhost:8888/v1/admin/`
