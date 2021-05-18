@@ -10,10 +10,12 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
+import { filterTargetingConfigSlug } from ".";
 import { snakeToCamelCase } from "../../../lib/caseConversions";
 import { EXTERNAL_URLS, FIELD_MESSAGES } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import {
+  NimbusExperimentApplication,
   NimbusExperimentChannel,
   NimbusExperimentFirefoxMinVersion,
   NimbusExperimentTargetingConfigSlug,
@@ -22,7 +24,37 @@ import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
 describe("FormAudience", () => {
   it("renders without error", async () => {
-    render(<Subject />);
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplication.DESKTOP,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigSlug: [
+            {
+              label: "No Targeting",
+              value: "NO_TARGETING",
+              applicationValues: [
+                NimbusExperimentApplication.DESKTOP,
+                "TOASTER",
+              ],
+            },
+            {
+              label: "Us Only",
+              value: "US_ONLY",
+              applicationValues: [NimbusExperimentApplication.DESKTOP],
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+            },
+          ],
+        }}
+      />,
+    );
     await waitFor(() => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
     });
@@ -32,9 +64,15 @@ describe("FormAudience", () => {
     );
     const targetingConfigSlug = screen.queryByTestId("targetingConfigSlug");
     expect(targetingConfigSlug).toBeInTheDocument();
-    expect((targetingConfigSlug as HTMLSelectElement).value).toEqual(
+    const targetingConfigSlugSelect = targetingConfigSlug as HTMLSelectElement;
+    expect(targetingConfigSlugSelect.value).toEqual(
       MOCK_CONFIG!.targetingConfigSlug![0]!.value,
     );
+
+    // Assert that the targeting choices are filtered for application
+    expect(
+      Array.from(targetingConfigSlugSelect.options).map((node) => node.value),
+    ).toEqual(["NO_TARGETING", "US_ONLY"]);
 
     // Assert that we have all the channels available
     for (const channel of MOCK_CONFIG.channel!) {
@@ -261,6 +299,41 @@ describe("FormAudience", () => {
   });
 });
 
+describe("filterTargetingConfigSlug", () => {
+  it("filters for experiment application as expected", () => {
+    const expectedNoTargetingLabel = "No Targeting";
+    const expectedLabel = "Foo Bar";
+    const expectedMissingLabel = "Baz Quux";
+    const application = NimbusExperimentApplication.DESKTOP;
+    const targetingConfigSlug = [
+      {
+        label: expectedNoTargetingLabel,
+        value: "NO_TARGETING",
+        applicationValues: [application, NimbusExperimentApplication.IOS],
+      },
+      {
+        label: expectedLabel,
+        value: "FOO_BAR",
+        applicationValues: [application],
+      },
+      {
+        label: expectedMissingLabel,
+        value: "BAZ_QUUX",
+        applicationValues: [NimbusExperimentApplication.IOS],
+      },
+    ];
+    const result = filterTargetingConfigSlug(targetingConfigSlug, application);
+    expect(result).toHaveLength(2);
+    expect(
+      result.find((item) => item.label == expectedNoTargetingLabel),
+    ).toBeDefined();
+    expect(result.find((item) => item.label == expectedLabel)).toBeDefined();
+    expect(
+      result.find((item) => item.label == expectedMissingLabel),
+    ).toBeUndefined();
+  });
+});
+
 const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
   render(
     <Subject
@@ -269,8 +342,19 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         ...MOCK_CONFIG,
         targetingConfigSlug: [
           {
-            label: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
-            value: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
+            label: "No Targeting",
+            value: "NO_TARGETING",
+            applicationValues: [NimbusExperimentApplication.DESKTOP, "TOASTER"],
+          },
+          {
+            label: "Us Only",
+            value: "US_ONLY",
+            applicationValues: [NimbusExperimentApplication.DESKTOP],
+          },
+          {
+            label: "Some toaster thing",
+            value: "SOME_TOASTER_THING",
+            applicationValues: ["TOASTER"],
           },
         ],
         firefoxMinVersion: [
@@ -288,6 +372,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
       }}
       experiment={{
         ...MOCK_EXPERIMENT,
+        application: NimbusExperimentApplication.DESKTOP,
         firefoxMinVersion: NimbusExperimentFirefoxMinVersion.NO_VERSION,
         channel: NimbusExperimentChannel.NO_CHANNEL,
         populationPercent: "0.0",

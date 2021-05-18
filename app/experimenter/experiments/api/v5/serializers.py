@@ -464,6 +464,21 @@ class NimbusExperimentSerializer(
                     )
                 }
             )
+
+        if self.instance and "targeting_config_slug" in data:
+            targeting_config_slug = data["targeting_config_slug"]
+            application_choice = NimbusExperiment.Application(self.instance.application)
+            targeting_config = NimbusExperiment.TARGETING_CONFIGS[targeting_config_slug]
+            if application_choice.name not in targeting_config.application_choice_names:
+                raise serializers.ValidationError(
+                    {
+                        "targeting_config_slug": (
+                            f"Targeting config '{targeting_config.name}' is not "
+                            f"available for application '{application_choice.label}'"
+                        )
+                    }
+                )
+
         return data
 
     def update(self, experiment, validated_data):

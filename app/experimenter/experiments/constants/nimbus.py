@@ -6,105 +6,6 @@ from django.conf import settings
 from django.db import models
 
 
-@dataclass
-class NimbusTargetingConfig:
-    name: str
-    slug: str
-    description: str
-    targeting: str
-    desktop_telemetry: str
-
-
-TARGETING_ALL_ENGLISH = NimbusTargetingConfig(
-    name="All English users",
-    slug="all_english",
-    description="All users in en-* locales.",
-    targeting="localeLanguageCode == 'en'",
-    desktop_telemetry="STARTS_WITH(environment.settings.locale, 'en')",
-)
-
-TARGETING_US_ONLY = NimbusTargetingConfig(
-    name="US users (en)",
-    slug="us_only",
-    description="All users in the US with an en-* locale.",
-    targeting="localeLanguageCode == 'en' && region == 'US'",
-    desktop_telemetry=(
-        "STARTS_WITH(environment.settings.locale, 'en') "
-        "AND normalized_country_code = 'US'"
-    ),
-)
-
-TARGETING_FIRST_RUN = NimbusTargetingConfig(
-    name="First start-up users (en)",
-    slug="first_run",
-    description=("First start-up users (e.g. for about:welcome) with an en-* " "locale."),
-    targeting=("{en} && (({is_first_startup} && {not_see_aw}) || {sticky})").format(
-        en=TARGETING_ALL_ENGLISH.targeting,
-        is_first_startup="isFirstStartup",
-        not_see_aw="!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)",
-        sticky="experiment.slug in activeExperiments",
-    ),
-    desktop_telemetry=(
-        "STARTS_WITH(environment.settings.locale, 'en') "
-        "AND payload.info.profile_subsession_counter = 1"
-    ),
-)
-
-TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
-    name="First start-up users (en) from Chrome",
-    slug="first_run_chrome",
-    description=(
-        "First start-up users (e.g. for about:welcome) who download Firefox "
-        "from Chrome with an en-* locale."
-    ),
-    targeting=("{first_run} && attributionData.ua == 'chrome'").format(
-        first_run=TARGETING_FIRST_RUN.targeting
-    ),
-    desktop_telemetry=(
-        "{first_run} AND environment.settings.attribution.ua = 'chrome'"
-    ).format(first_run=TARGETING_FIRST_RUN.desktop_telemetry),
-)
-
-TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
-    name="First start-up users (en) on Windows 10 1903 (build 18362) or newer",
-    slug="first_run_win1903",
-    description=(
-        "First start-up users (e.g. for about:welcome) on Win 18362+ with an en-* locale."
-    ),
-    targeting=("{first_run} && os.windowsBuildNumber >= 18362").format(
-        first_run=TARGETING_FIRST_RUN.targeting
-    ),
-    desktop_telemetry=(
-        "{first_run} AND environment.system.os.windows_build_number >= 18362"
-    ).format(first_run=TARGETING_FIRST_RUN.desktop_telemetry),
-)
-
-TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
-    name="Homepage set to google.com",
-    slug="homepage_google_dot_com",
-    description="US users (en) with their Homepage set to google.com",
-    targeting=(
-        "localeLanguageCode == 'en' && "
-        "region == 'US' && "
-        "!homePageSettings.isDefault && "
-        "homePageSettings.isCustomUrl && "
-        "homePageSettings.urls[.host == 'google.com']|length > 0"
-    ),
-    desktop_telemetry="",
-)
-
-TARGETING_URLBAR_FIREFOX_SUGGEST = NimbusTargetingConfig(
-    name="Urlbar (Firefox Suggest) US users (en)",
-    slug="urlbar_firefox_suggest_us_en",
-    description="US (en) users with the default search suggestion showing order",
-    targeting="{us_en} && {default_order}".format(
-        us_en=TARGETING_US_ONLY.targeting,
-        default_order="'browser.urlbar.showSearchSuggestionsFirst'|preferenceValue",
-    ),
-    desktop_telemetry="",
-)
-
-
 class Channel(models.TextChoices):
     NO_CHANNEL = ""
     UNBRANDED = "default"
@@ -165,6 +66,132 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     },
     default_app_id="",
     randomization_unit=BucketRandomizationUnit.NIMBUS,
+)
+
+
+class Application(models.TextChoices):
+    DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
+    FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.name)
+    IOS = (APPLICATION_CONFIG_IOS.slug, APPLICATION_CONFIG_IOS.name)
+
+
+@dataclass
+class NimbusTargetingConfig:
+    name: str
+    slug: str
+    description: str
+    targeting: str
+    desktop_telemetry: str
+    application_choice_names: list[str]
+
+
+TARGETING_NO_TARGETING = NimbusTargetingConfig(
+    name="No Targeting",
+    slug="",
+    description="All users",
+    targeting="",
+    desktop_telemetry="",
+    application_choice_names=(
+        Application.DESKTOP.name,
+        Application.FENIX.name,
+        Application.IOS.name,
+    ),
+)
+
+TARGETING_ALL_ENGLISH = NimbusTargetingConfig(
+    name="All English users",
+    slug="all_english",
+    description="All users in en-* locales.",
+    targeting="localeLanguageCode == 'en'",
+    desktop_telemetry="STARTS_WITH(environment.settings.locale, 'en')",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_US_ONLY = NimbusTargetingConfig(
+    name="US users (en)",
+    slug="us_only",
+    description="All users in the US with an en-* locale.",
+    targeting="localeLanguageCode == 'en' && region == 'US'",
+    desktop_telemetry=(
+        "STARTS_WITH(environment.settings.locale, 'en') "
+        "AND normalized_country_code = 'US'"
+    ),
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_FIRST_RUN = NimbusTargetingConfig(
+    name="First start-up users (en)",
+    slug="first_run",
+    description=("First start-up users (e.g. for about:welcome) with an en-* " "locale."),
+    targeting=("{en} && (({is_first_startup} && {not_see_aw}) || {sticky})").format(
+        en=TARGETING_ALL_ENGLISH.targeting,
+        is_first_startup="isFirstStartup",
+        not_see_aw="!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)",
+        sticky="experiment.slug in activeExperiments",
+    ),
+    desktop_telemetry=(
+        "STARTS_WITH(environment.settings.locale, 'en') "
+        "AND payload.info.profile_subsession_counter = 1"
+    ),
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
+    name="First start-up users (en) from Chrome",
+    slug="first_run_chrome",
+    description=(
+        "First start-up users (e.g. for about:welcome) who download Firefox "
+        "from Chrome with an en-* locale."
+    ),
+    targeting=("{first_run} && attributionData.ua == 'chrome'").format(
+        first_run=TARGETING_FIRST_RUN.targeting
+    ),
+    desktop_telemetry=(
+        "{first_run} AND environment.settings.attribution.ua = 'chrome'"
+    ).format(first_run=TARGETING_FIRST_RUN.desktop_telemetry),
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
+    name="First start-up users (en) on Windows 10 1903 (build 18362) or newer",
+    slug="first_run_win1903",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Win 18362+ with an en-* locale."
+    ),
+    targeting=("{first_run} && os.windowsBuildNumber >= 18362").format(
+        first_run=TARGETING_FIRST_RUN.targeting
+    ),
+    desktop_telemetry=(
+        "{first_run} AND environment.system.os.windows_build_number >= 18362"
+    ).format(first_run=TARGETING_FIRST_RUN.desktop_telemetry),
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
+    name="Homepage set to google.com",
+    slug="homepage_google_dot_com",
+    description="US users (en) with their Homepage set to google.com",
+    targeting=(
+        "localeLanguageCode == 'en' && "
+        "region == 'US' && "
+        "!homePageSettings.isDefault && "
+        "homePageSettings.isCustomUrl && "
+        "homePageSettings.urls[.host == 'google.com']|length > 0"
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_URLBAR_FIREFOX_SUGGEST = NimbusTargetingConfig(
+    name="Urlbar (Firefox Suggest) US users (en)",
+    slug="urlbar_firefox_suggest_us_en",
+    description="US (en) users with the default search suggestion showing order",
+    targeting="{us_en} && {default_order}".format(
+        us_en=TARGETING_US_ONLY.targeting,
+        default_order="'browser.urlbar.showSearchSuggestionsFirst'|preferenceValue",
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
 )
 
 
@@ -277,6 +304,7 @@ class NimbusConstants(object):
     PublishStatus = PublishStatus
     LifecycleStates = LifecycleStates
     Lifecycles = Lifecycles
+    Application = Application
 
     VALID_STATUS_TRANSITIONS = {
         Status.DRAFT: (Status.PREVIEW,),
@@ -298,11 +326,6 @@ class NimbusConstants(object):
         "publish_status",
         "is_end_requested",
     )
-
-    class Application(models.TextChoices):
-        DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
-        FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.name)
-        IOS = (APPLICATION_CONFIG_IOS.slug, APPLICATION_CONFIG_IOS.name)
 
     APPLICATION_CONFIGS = {
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,
@@ -419,6 +442,7 @@ class NimbusConstants(object):
     TARGETING_CHANNEL = 'browserSettings.update.channel == "{channel}"'
 
     TARGETING_CONFIGS = {
+        TARGETING_NO_TARGETING.slug: TARGETING_NO_TARGETING,
         TARGETING_ALL_ENGLISH.slug: TARGETING_ALL_ENGLISH,
         TARGETING_US_ONLY.slug: TARGETING_US_ONLY,
         TARGETING_FIRST_RUN.slug: TARGETING_FIRST_RUN,
@@ -433,7 +457,7 @@ class NimbusConstants(object):
     }
 
     class TargetingConfig(models.TextChoices):
-        NO_TARGETING = ""
+        NO_TARGETING = TARGETING_NO_TARGETING.slug, TARGETING_NO_TARGETING.name
         ALL_ENGLISH = TARGETING_ALL_ENGLISH.slug, TARGETING_ALL_ENGLISH.name
         US_ONLY = TARGETING_US_ONLY.slug, TARGETING_US_ONLY.name
         TARGETING_FIRST_RUN = TARGETING_FIRST_RUN.slug, TARGETING_FIRST_RUN.name
