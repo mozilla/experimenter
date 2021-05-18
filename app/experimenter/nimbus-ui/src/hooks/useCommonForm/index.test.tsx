@@ -9,7 +9,12 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
+import Form from "react-bootstrap/Form";
+import { FormProvider } from "react-hook-form";
+import { useCommonForm } from ".";
+import { useCommonNestedForm, useForm } from "..";
 import { overviewFieldNames } from "../../components/FormOverview";
 import { Subject as OverviewSubject } from "../../components/FormOverview/mocks";
 import { audienceFieldNames } from "../../components/PageEditAudience/FormAudience";
@@ -193,6 +198,69 @@ describe("hooks/useCommonForm", () => {
           ).toBeInTheDocument();
         }
       });
+    });
+  });
+
+  describe("review messages", () => {
+    it("marks fields, renders feedback, with warning style", async () => {
+      const feedback = "Too spicy!!!";
+      const {
+        result: {
+          current: { formControlAttrs, FormErrors },
+        },
+      } = renderHook(() =>
+        useCommonForm<"spiceLevel">({}, true, {}, jest.fn(), {
+          spiceLevel: [feedback],
+        }),
+      );
+
+      const { getByRole, findByText } = render(
+        <>
+          <Form.Control type="text" {...formControlAttrs("spiceLevel")} />
+          <FormErrors name="spiceLevel" />
+        </>,
+      );
+
+      expect(getByRole("textbox")).toHaveClass("is-warning");
+      await findByText(feedback);
+    });
+
+    it("works with nested form fields", async () => {
+      const feedback = "Too loud!!!";
+      const {
+        result: {
+          current: { formControlAttrs, FormErrors },
+        },
+      } = renderHook(
+        () =>
+          useCommonNestedForm<"volume">(
+            {},
+            jest.fn(),
+            "audio",
+            {},
+            {},
+            {},
+            {
+              volume: [feedback],
+            },
+          ),
+        {
+          wrapper: ({ children }: { children?: React.ReactNode }) => {
+            const formMethods = useForm({});
+            return <FormProvider {...formMethods}>{children}</FormProvider>;
+          },
+        },
+      );
+
+      const { getByRole, findByText } = render(
+        <>
+          <Form.Control type="text" {...formControlAttrs("volume")} />
+          <FormErrors name="volume" />
+        </>,
+      );
+
+      expect(getByRole("textbox")).toHaveClass("is-warning");
+      await findByText(feedback);
     });
   });
 });

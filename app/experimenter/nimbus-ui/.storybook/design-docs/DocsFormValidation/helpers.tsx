@@ -3,12 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from "react";
-import Form from "react-bootstrap/Form";
-import Alert from "react-bootstrap/Alert";
-
 import { Card, Table } from "react-bootstrap";
-import { useCommonForm } from "../../../src/hooks";
+import Alert from "react-bootstrap/Alert";
+import Form from "react-bootstrap/Form";
 import InlineErrorIcon from "../../../src/components/InlineErrorIcon";
+import { useCommonForm } from "../../../src/hooks";
 
 export const TestCases: React.FunctionComponent = ({ children }) => (
   <Table>
@@ -34,6 +33,7 @@ type ProtoFormProps = {
   isServerValid: boolean;
   submitErrors: Record<string, string[]>;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  reviewMessages: Record<string, string[]>;
   onSubmit: (data: Record<string, any>, reset: Function) => void;
 };
 
@@ -44,6 +44,7 @@ export const ProtoForm = ({
   onSubmit,
   submitErrors,
   setSubmitErrors,
+  reviewMessages,
 }: ProtoFormProps) => {
   const defaultValues: Record<string, string> = {};
   demoInputs.forEach(
@@ -63,6 +64,7 @@ export const ProtoForm = ({
     isServerValid,
     submitErrors,
     setSubmitErrors,
+    reviewMessages,
   );
 
   const handleSubmitAfterValidation = useCallback(
@@ -95,7 +97,7 @@ export const ProtoForm = ({
 
                   {requiredAtLaunch && !getValues(name) && (
                     <InlineErrorIcon
-                      name={name}
+                      field={name}
                       message={`A valid ${label} must be set`}
                     />
                   )}

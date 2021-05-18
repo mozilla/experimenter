@@ -36,15 +36,15 @@ export const InputRadios: React.FC<InputRadiosProps> = ({
 
       <Col sm={2} className="d-flex justify-content-end pr-0">
         {options.map((option) => (
-          <Form.Check
-            key={`radio-${name}-${option.value}`}
-            type="radio"
-            value={option.value}
-            label={option.label}
-            className="ml-3"
-            id={`${name}-${option.value}`}
-            {...formControlAttrs(name, {}, false)}
-          />
+          <span className="ml-3" key={`radio-${name}-${option.value}`}>
+            <Form.Check
+              type="radio"
+              value={option.value}
+              label={option.label}
+              id={`${name}-${option.value}`}
+              {...formControlAttrs(name, {}, false)}
+            />
+          </span>
         ))}
       </Col>
     </Row>
