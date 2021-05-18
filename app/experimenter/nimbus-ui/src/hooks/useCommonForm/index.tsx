@@ -14,6 +14,7 @@ export function useCommonForm<FieldNames extends string>(
   isServerValid: boolean,
   submitErrors: SubmitErrors,
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>,
+  reviewMessages: Record<string, string[]> = {},
 ) {
   const formMethods = useForm(defaultValues);
   const {
@@ -38,6 +39,7 @@ export function useCommonForm<FieldNames extends string>(
       register,
       errors,
       touched,
+      reviewMessages,
     );
 
   return {

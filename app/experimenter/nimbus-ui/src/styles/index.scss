@@ -36,6 +36,28 @@ $sizes: (
   }
 }
 
+// Adds a new style of form feedback, warning, which is yellow
+// This adds the is-warning, warning-feedback form classes
+$form-feedback-warning-color: #e65722 !default;
+$form-feedback-icon-warning-color: $form-feedback-warning-color !default;
+$form-feedback-icon-warning: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='#{$form-feedback-icon-warning-color}' viewBox='0 0 12 12'><circle cx='6' cy='6' r='4.5'/><path stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/><circle cx='6' cy='8.2' r='.6' fill='#{$form-feedback-icon-warning-color}' stroke='none'/></svg>") !default;
+$form-validation-states: map-merge(
+  (
+    "warning": (
+      "color": $form-feedback-warning-color,
+      "icon": $form-feedback-icon-warning,
+    ),
+  ),
+  $form-validation-states
+);
+@each $state, $data in $form-validation-states {
+  @include form-validation-state(
+    $state,
+    map-get($data, color),
+    map-get($data, icon)
+  );
+}
+
 .font-weight-semibold {
   font-weight: 600;
 }
