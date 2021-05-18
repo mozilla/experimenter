@@ -112,7 +112,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     )
     targeting_config_slug = models.CharField(
         max_length=255,
-        choices=NimbusConstants.TargetingConfig.choices,
+        blank=True,
         default=NimbusConstants.TargetingConfig.NO_TARGETING,
     )
     reference_branch = models.OneToOneField(
