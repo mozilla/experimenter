@@ -13,6 +13,10 @@ import {
   POSITIVE_NUMBER_FIELD,
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
 } from "../../../lib/constants";
+import {
+  getConfig_nimbusConfig,
+  getConfig_nimbusConfig_targetingConfigSlug,
+} from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import LinkExternal from "../../LinkExternal";
 
@@ -77,6 +81,15 @@ export const FormAudience = ({
     [isLoading, onSubmit, handleSubmit],
   );
 
+  const targetingConfigSlugOptions = useMemo(
+    () =>
+      filterTargetingConfigSlug(
+        config.targetingConfigSlug,
+        experiment.application,
+      ),
+    [config, experiment],
+  );
+
   return (
     <Form
       noValidate
@@ -126,7 +139,7 @@ export const FormAudience = ({
               {...formControlAttrs("targetingConfigSlug")}
               as="select"
             >
-              <SelectOptions options={config.targetingConfigSlug} />
+              <SelectOptions options={targetingConfigSlugOptions} />
             </Form.Control>
             <FormErrors name="targetingConfigSlug" />
           </Form.Group>
@@ -283,5 +296,20 @@ const SelectOptions = ({
     )}
   </>
 );
+
+export const filterTargetingConfigSlug = (
+  targetingConfigs: getConfig_nimbusConfig["targetingConfigSlug"],
+  application: getExperiment_experimentBySlug["application"],
+) =>
+  targetingConfigs == null
+    ? []
+    : targetingConfigs.filter(
+        (
+          targetingConfig,
+        ): targetingConfig is getConfig_nimbusConfig_targetingConfigSlug =>
+          targetingConfig !== null &&
+          Array.isArray(targetingConfig.applicationValues) &&
+          targetingConfig.applicationValues.includes(application),
+      );
 
 export default FormAudience;

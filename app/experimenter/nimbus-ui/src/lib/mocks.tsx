@@ -61,6 +61,10 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       label: "Desktop",
       value: "DESKTOP",
     },
+    {
+      label: "Toaster",
+      value: "TOASTER",
+    },
   ],
   channel: [
     {
@@ -142,6 +146,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       label: "Us Only",
       value: "US_ONLY",
+      applicationValues: ["DESKTOP"],
     },
   ],
   hypothesisDefault: "Enter a hypothesis",

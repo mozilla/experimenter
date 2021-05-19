@@ -112,7 +112,7 @@ type NimbusConfigurationType {
   featureConfig: [NimbusFeatureConfigType]
   firefoxMinVersion: [NimbusLabelValueType]
   outcomes: [NimbusOutcomeType]
-  targetingConfigSlug: [NimbusLabelValueType]
+  targetingConfigSlug: [NimbusExperimentTargetingConfigSlugChoice]
   hypothesisDefault: String
   maxPrimaryOutcomes: Int
   documentationLink: [NimbusLabelValueType]
@@ -267,6 +267,12 @@ enum NimbusExperimentTargetingConfigSlug {
   TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
   TARGETING_HOMEPAGE_GOOGLE
   TARGETING_URLBAR_FIREFOX_SUGGEST
+}
+
+type NimbusExperimentTargetingConfigSlugChoice {
+  label: String
+  value: String
+  applicationValues: [String]
 }
 
 type NimbusExperimentType {
