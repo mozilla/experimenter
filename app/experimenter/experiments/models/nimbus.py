@@ -179,7 +179,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
             expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
 
-        if self.targeting_config:
+        if self.targeting_config and self.targeting_config.targeting:
             expressions.append(self.targeting_config.targeting)
 
         #  If there is no targeting defined all clients should match, so we return "true"
