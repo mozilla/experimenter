@@ -22,9 +22,10 @@ export type FormDocumentationLinkProps = {
   errors: Record<string, FieldError>;
   onRemove: () => void;
   canRemove: boolean;
-  submitErrors: Record<string, string[]>;
+  submitErrors: SerializerMessages;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   touched: Record<string, boolean>;
+  reviewMessages: SerializerMessages;
 };
 
 export const FormDocumentationLink = ({
@@ -36,6 +37,7 @@ export const FormDocumentationLink = ({
   submitErrors,
   setSubmitErrors,
   touched,
+  reviewMessages,
 }: FormDocumentationLinkProps) => {
   const { documentationLink: documentationLinkOptions } = useConfig();
 
@@ -50,6 +52,7 @@ export const FormDocumentationLink = ({
       submitErrors,
       errors,
       touched,
+      reviewMessages,
     );
 
   return (

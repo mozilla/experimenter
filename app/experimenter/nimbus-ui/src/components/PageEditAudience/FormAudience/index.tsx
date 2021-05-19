@@ -22,7 +22,7 @@ import LinkExternal from "../../LinkExternal";
 
 type FormAudienceProps = {
   experiment: getExperiment_experimentBySlug;
-  submitErrors: Record<string, string[]>;
+  submitErrors: SerializerMessages;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   isServerValid: boolean;
   isLoading: boolean;
@@ -50,7 +50,7 @@ export const FormAudience = ({
   onSubmit,
 }: FormAudienceProps) => {
   const config = useConfig();
-  const { FieldReview } = useReviewCheck(experiment);
+  const { fieldMessages } = useReviewCheck(experiment);
 
   const defaultValues = {
     channel: experiment.channel,
@@ -68,6 +68,7 @@ export const FormAudience = ({
       isServerValid,
       submitErrors,
       setSubmitErrors,
+      fieldMessages,
     );
 
   type DefaultValues = typeof defaultValues;
@@ -108,7 +109,6 @@ export const FormAudience = ({
           <Form.Group as={Col} controlId="channel" md={8} lg={8}>
             <Form.Label className="d-flex align-items-center">
               Channel
-              <FieldReview field="channel" />
             </Form.Label>
             <Form.Control {...formControlAttrs("channel")} as="select">
               <SelectOptions options={config.channel} />
@@ -118,7 +118,6 @@ export const FormAudience = ({
           <Form.Group as={Col} controlId="minVersion">
             <Form.Label className="d-flex align-items-center">
               Min Version
-              <FieldReview field="firefox_min_version" />
             </Form.Label>
             <Form.Control
               {...formControlAttrs("firefoxMinVersion")}
@@ -133,7 +132,6 @@ export const FormAudience = ({
           <Form.Group as={Col} controlId="targeting">
             <Form.Label className="d-flex align-items-center">
               Advanced Targeting
-              <FieldReview field="targeting_config_slug" />
             </Form.Label>
             <Form.Control
               {...formControlAttrs("targetingConfigSlug")}
@@ -159,10 +157,7 @@ export const FormAudience = ({
 
         <Form.Row>
           <Form.Group as={Col} className="mx-5" controlId="populationPercent">
-            <Form.Label>
-              Percent of clients
-              <FieldReview field="population_percent" />
-            </Form.Label>
+            <Form.Label>Percent of clients</Form.Label>
             <InputGroup>
               <Form.Control
                 {...formControlAttrs(
@@ -187,10 +182,7 @@ export const FormAudience = ({
             className="mx-5"
             controlId="totalEnrolledClients"
           >
-            <Form.Label>
-              Expected number of clients
-              <FieldReview field="total_enrolled_clients" />
-            </Form.Label>
+            <Form.Label>Expected number of clients</Form.Label>
             <Form.Control
               {...formControlAttrs(
                 "totalEnrolledClients",
@@ -205,7 +197,6 @@ export const FormAudience = ({
           <Form.Group as={Col} className="mx-5" controlId="proposedEnrollment">
             <Form.Label className="d-flex align-items-center">
               Enrollment period
-              <FieldReview field="proposed_enrollment" />
             </Form.Label>
             <InputGroup>
               <Form.Control
@@ -229,7 +220,6 @@ export const FormAudience = ({
           <Form.Group as={Col} className="mx-5" controlId="proposedDuration">
             <Form.Label className="d-flex align-items-center">
               Experiment duration
-              <FieldReview field="proposed_duration" />
             </Form.Label>
             <InputGroup className="mb-3">
               <Form.Control

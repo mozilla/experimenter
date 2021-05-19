@@ -6,7 +6,6 @@ import classNames from "classnames";
 import React from "react";
 import Form from "react-bootstrap/Form";
 import { FieldError, RegisterOptions, UseFormMethods } from "react-hook-form";
-import { SubmitErrors } from ".";
 import { camelToSnakeCase } from "../../lib/caseConversions";
 
 // TODO: 'any' type on `onChange={(selectedOptions) => ...`,
@@ -27,11 +26,11 @@ export const IsDirtyUnsaved = (
 export function useCommonFormMethods<FieldNames extends string>(
   defaultValues: Record<string, any>,
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>,
-  submitErrors: SubmitErrors,
+  submitErrors: SerializerMessages,
   register: UseFormMethods["register"],
   errors: UseFormMethods["errors"],
   touched: UseFormMethods["formState"]["touched"],
-  reviewMessages: Record<string, string[]>,
+  reviewMessages: SerializerMessages = {},
 ) {
   const hideSubmitError = <K extends FieldNames>(name: K) => {
     if (submitErrors && submitErrors[camelToSnakeCase(name)]) {
@@ -128,11 +127,13 @@ export function useCommonFormMethods<FieldNames extends string>(
       setValuesFromOptions(getValuesFromOptions(selectedOptions));
       hideSubmitError(name);
     },
-    className: Boolean(
-      submitErrors![camelToSnakeCase(name)] || (touched[name] && errors[name]),
-    )
-      ? "is-invalid border border-danger rounded"
-      : "",
+    className: classNames(
+      (submitErrors![camelToSnakeCase(name)] ||
+        (touched[name] && errors[name])) &&
+        "is-invalid border border-danger rounded",
+      (reviewMessages[name] || []).length > 0 &&
+        "is-warning border-feedback-warning rounded",
+    ),
   });
 
   return {

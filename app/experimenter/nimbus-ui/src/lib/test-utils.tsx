@@ -10,9 +10,10 @@ import {
   RouteComponentProps,
   Router,
 } from "@reach/router";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import React from "react";
-import { MockedCache } from "./mocks";
+import { snakeToCamelCase } from "./caseConversions";
+import { MockedCache, mockExperimentQuery } from "./mocks";
 
 export function renderWithRouter(
   ui: React.ReactElement,
@@ -52,3 +53,47 @@ export const RouterSlugProvider = ({
 const Route = (
   props: { component: () => React.ReactNode } & RouteComponentProps,
 ) => <div {...{ props }}>{props.component()}</div>;
+
+export const assertSerializerMessages = async (
+  Subject: React.ComponentType<any>,
+  messages: SerializerMessages,
+) => {
+  Object.defineProperty(window, "location", {
+    value: {
+      search: "?show-errors",
+    },
+  });
+
+  const { experiment } = mockExperimentQuery("boo", {
+    readyForReview: {
+      ready: false,
+      message: messages,
+    },
+  });
+
+  render(<Subject {...{ experiment }} />);
+
+  for (const [field, errors] of Object.entries(messages)) {
+    // An object of serializer messages contains values of either:
+    // - an array of strings
+    // - an array of objects containing this same thing, indicating nested fields
+    // We start by checking if the field contains nested fields
+    if (typeof errors[0] === "object") {
+      let index = 0;
+      for (const set of errors) {
+        for (const [innerField, innerErrors] of Object.entries(set)) {
+          await screen.findByText(innerErrors.join(", "), {
+            selector: `[data-for="${snakeToCamelCase(
+              field,
+            )}[${index}].${snakeToCamelCase(innerField)}"]`,
+          });
+        }
+        index++;
+      }
+    } else {
+      await screen.findByText(errors.join(", "), {
+        selector: `[data-for="${snakeToCamelCase(field)}"]`,
+      });
+    }
+  }
+};
