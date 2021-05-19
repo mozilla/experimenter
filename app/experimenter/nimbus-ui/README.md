@@ -179,7 +179,7 @@ If there are no nested forms, pass the needed parameters into `useCommonForm`. O
 
 Server errors occur when a user attempts to create or modify a record and the server rejects the request. We surface client-side errors to prevent invalid mutations from being attempted and to give users instant feedback if we know a field is invalid. For non-field server-side errors, refer to the "General Errors" section above.
 
-Both hooks return a `FormErrors` JSX Element, intended for use on every form field, which will display client-side errors, server-side errors, or both, within React Bootstrap's [`Form.Control.Feedback`](https://react-bootstrap.github.io/components/forms/#form-control-feedback-props).
+Both hooks return a `FormErrors` JSX Element, intended for use on every form field, which can display client-side errors, server-side errors, review-readiness errors, or a combination of the three, within React Bootstrap's [`Form.Control.Feedback`](https://react-bootstrap.github.io/components/forms/#form-control-feedback-props).
 
 Both hooks also return a form control method that returns an object containing field attributes that should be spread onto the form control or select (`formControlAttrs`).
 
@@ -232,7 +232,9 @@ Multiselects use the hooks similarly, but because the `Select` element comes fro
 
 ### Required for Launch Validation
 
-Some fields like `publicDescription` are allowed to be `null` while someone is editing a draft, but must be set before the experiment can move to the `review` status. You should NOT mark these fields `required`, but rather add help text that indicates they must be filled out before launch.
+While an experiment is in `draft` status all fields are technically allowed to be empty/`null`. Some fields will use the client-side validation to ensure a value is always present (e.g. the "name" field), other fields will allow you to save without filling them out but must be completed and valid before the experiment can move to the `review` status (e.g. the "public description" field). These "optional while editing" fields should NOT be marked as `required` in the client, but instead should be made required in the [`NimbusReadyForReviewSerializer`](app/experimenter/experiments/api/v5/serializers.py).
+
+No additional action is required; as long as you correctly set the form group's `controlId` and the form error's `name` these review-readiness messages will automatically appear as needed when a user attempts to go into review with incomplete fields.
 
 ## Access Visualization Data Locally
 
@@ -402,8 +404,8 @@ This can enable us to better work in parallel and prove out UX designs while sti
 
 For a quick example of how this worked out for an existing feature, take a look a these commits:
 
-* [Initial implementation of Launch to Preview UI](https://github.com/mozilla/experimenter/commit/c0520f0ab214121eba18e255f45cd0c32cd5d1cf)
-* [Polish and integration for Launch to Preview UI](https://github.com/mozilla/experimenter/commit/4f3a35ce53a0bf30ce5ae6941c1cb47d91b99c6c)
+- [Initial implementation of Launch to Preview UI](https://github.com/mozilla/experimenter/commit/c0520f0ab214121eba18e255f45cd0c32cd5d1cf)
+- [Polish and integration for Launch to Preview UI](https://github.com/mozilla/experimenter/commit/4f3a35ce53a0bf30ce5ae6941c1cb47d91b99c6c)
 
 The first commit shows how new components were added and controlled by a feature flag. The second commit shows the work involved in polishing up and integrating those early components with the back-end APIs implemented in the interim.
 
@@ -415,7 +417,9 @@ You can annotate code to be ignored in test coverage using [special comments sup
 
 ```javascript
 /* istanbul ignore next EXP-1234 mock function until API ready */
-function ignoreme() { /* ... */ }
+function ignoreme() {
+  /* ... */
+}
 ```
 
 And, you can annotate code to be ignored in enforcing strict types with [special comments supported by TypeScript](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-6.html#suppress-errors-in-ts-files-using--ts-ignore-comments). For example:
@@ -434,7 +438,7 @@ While iteration on components in Storybook is underway, there's value in being a
 
 Merging earlier and more often can help keep the in-progress feature code from "bit-rotting" or getting too far out of sync with other development efforts. This can lead to significant work and changes to land a long-running effort in `main`.
 
-The trade-off is that the incremental code must be inert when deployed to production until it's ready for release. One tool for achieving this is a "[feature flag](https://martinfowler.com/articles/feature-toggles.html)" defined in application configuration. In this case, the feature flag is set to *disable* the code in production by default, while *enabling* it in Storybook.
+The trade-off is that the incremental code must be inert when deployed to production until it's ready for release. One tool for achieving this is a "[feature flag](https://martinfowler.com/articles/feature-toggles.html)" defined in application configuration. In this case, the feature flag is set to _disable_ the code in production by default, while _enabling_ it in Storybook.
 
 Feature flags are defined in `app/experimenter/nimbus-ui/src/services/config.ts` like so:
 
