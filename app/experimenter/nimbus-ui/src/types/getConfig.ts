@@ -44,6 +44,7 @@ export interface getConfig_nimbusConfig_outcomes {
 export interface getConfig_nimbusConfig_targetingConfigSlug {
   label: string | null;
   value: string | null;
+  applicationValues: (string | null)[] | null;
 }
 
 export interface getConfig_nimbusConfig_documentationLink {

@@ -61,6 +61,12 @@ class NimbusExperimentTargetingConfigSlug(graphene.Enum):
         enum = NimbusConstants.TargetingConfig
 
 
+class NimbusExperimentTargetingConfigSlugChoice(graphene.ObjectType):
+    label = graphene.String()
+    value = graphene.String()
+    application_values = graphene.List(graphene.String)
+
+
 class NimbusExperimentApplication(graphene.Enum):
     class Meta:
         enum = NimbusConstants.Application

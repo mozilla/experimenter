@@ -1380,6 +1380,50 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = serializer.save()
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
+    def test_targeting_config_for_correct_application(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP.value,
+        )
+        data = {
+            "targeting_config_slug": (
+                NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
+            ),
+            "changelog_message": "updating targeting config",
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+    def test_targeting_config_for_wrong_application(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.IOS.value,
+        )
+        data = {
+            "targeting_config_slug": (
+                NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
+            ),
+            "changelog_message": "updating targeting config",
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["targeting_config_slug"],
+            [
+                "Targeting config 'First start-up users (en) on Windows 10 1903 "
+                "(build 18362) or newer' is not available for application "
+                "'Firefox for iOS'",
+            ],
+        )
+
 
 class TestNimbusReadyForReviewSerializer(TestCase):
     maxDiff = None

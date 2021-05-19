@@ -600,6 +600,7 @@ class TestNimbusQuery(GraphQLTestCase):
                     targetingConfigSlug {
                         label
                         value
+                        applicationValues
                     }
                     documentationLink {
                         label
@@ -626,7 +627,6 @@ class TestNimbusQuery(GraphQLTestCase):
         assertChoices(config["application"], NimbusExperiment.Application)
         assertChoices(config["channel"], NimbusExperiment.Channel)
         assertChoices(config["firefoxMinVersion"], NimbusExperiment.Version)
-        assertChoices(config["targetingConfigSlug"], NimbusExperiment.TargetingConfig)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
         self.assertEqual(config["kintoAdminUrl"], settings.KINTO_ADMIN_URL)
         self.assertEqual(len(config["featureConfig"]), 13)
@@ -651,6 +651,20 @@ class TestNimbusQuery(GraphQLTestCase):
             self.assertEqual(config_feature_config["slug"], feature_config.slug)
             self.assertEqual(
                 config_feature_config["description"], feature_config.description
+            )
+
+        for choice in NimbusExperiment.TargetingConfig:
+            self.assertIn(
+                {
+                    "label": choice.label,
+                    "value": choice.name,
+                    "applicationValues": list(
+                        NimbusExperiment.TARGETING_CONFIGS[
+                            choice.value
+                        ].application_choice_names
+                    ),
+                },
+                config["targetingConfigSlug"],
             )
 
         self.assertEqual(config["hypothesisDefault"], NimbusExperiment.HYPOTHESIS_DEFAULT)
