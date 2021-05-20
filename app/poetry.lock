@@ -361,7 +361,7 @@ Django = ">=2.2"
 
 [[package]]
 name = "django-countries"
-version = "7.2"
+version = "7.2.1"
 description = "Provides a country field for Django models."
 category = "main"
 optional = false
@@ -1562,7 +1562,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "d0299a99b5ed1f69848d4367c31cf1b565bfb6e811078d63090abbe25c0cb47d"
+content-hash = "e416c16a49092bc5251add7e7e3ca58e1c454fcb3da026b3b0ae6edd7045b962"
 
 [metadata.files]
 aiohttp = [
@@ -1795,8 +1795,8 @@ django-cors-headers = [
     {file = "django_cors_headers-3.7.0-py3-none-any.whl", hash = "sha256:1ac2b1213de75a251e2ba04448da15f99bcfcbe164288ae6b5ff929dc49b372f"},
 ]
 django-countries = [
-    {file = "django-countries-7.2.tar.gz", hash = "sha256:86aad1bac149e6037772c8b1a38c1204b92ae051efee97ac604363867fbf9e34"},
-    {file = "django_countries-7.2-py3-none-any.whl", hash = "sha256:434bc31c510a27bdb7ecf9297bad8580f83fc6e14eb93b0c650c79a38f0261bf"},
+    {file = "django-countries-7.2.1.tar.gz", hash = "sha256:26878b54d36bedff30b4535ceefcb8af6784741a8b30b1b8a662fb14a936a4ab"},
+    {file = "django_countries-7.2.1-py3-none-any.whl", hash = "sha256:adc965f1d348124274b7d918fc1aad5e29609758af999e1822baa9f2cc06d1b8"},
 ]
 django-filter = [
     {file = "django-filter-2.4.0.tar.gz", hash = "sha256:84e9d5bb93f237e451db814ed422a3a625751cbc9968b484ecc74964a8696b06"},
