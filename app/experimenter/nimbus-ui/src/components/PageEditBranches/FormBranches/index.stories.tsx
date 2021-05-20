@@ -96,6 +96,24 @@ storiesOf("pages/EditBranches/FormBranches", module)
     />
   ))
   .add("with branches", () => <SubjectBranches {...commonFormBranchesProps} />)
+  .add("with only one branch saved", () => (
+    <SubjectBranches
+      {...commonFormBranchesProps}
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        treatmentBranches: [
+          {
+            name: "",
+            slug: "",
+            description: "",
+            ratio: 1,
+            featureValue: null,
+            featureEnabled: false,
+          },
+        ],
+      }}
+    />
+  ))
   .add("with equal ratio", () => (
     <SubjectBranches
       {...commonFormBranchesProps}

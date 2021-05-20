@@ -24,6 +24,7 @@ export type AnnotatedBranch = TreatmentBranchType & {
   isValid: boolean;
   isDirty: boolean;
   errors: Record<string, string[]>;
+  slug?: string;
 };
 
 export function createInitialState({
