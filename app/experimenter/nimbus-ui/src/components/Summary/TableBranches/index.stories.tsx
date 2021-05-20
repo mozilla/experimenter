@@ -8,6 +8,23 @@ import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
 storiesOf("components/Summary/TableBranches", module)
   .add("full branches", () => <Subject />)
+  .add("one branch", () => (
+    <Subject
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        treatmentBranches: [
+          {
+            name: "",
+            slug: "",
+            description: "",
+            ratio: 0,
+            featureValue: null,
+            featureEnabled: false,
+          },
+        ],
+      }}
+    />
+  ))
   .add("unsaved branches", () => (
     <Subject
       experiment={{
@@ -55,17 +72,19 @@ storiesOf("components/Summary/TableBranches", module)
     <Subject
       experiment={{
         ...MOCK_EXPERIMENT,
-        treatmentBranches: [
-          {
-            name: "",
-            slug: "",
-            description: "",
-            ratio: 0,
-            featureValue: null,
-            featureEnabled: false,
-          },
-          ...MOCK_EXPERIMENT.treatmentBranches!,
-        ],
+        featureConfig: {
+          ...MOCK_EXPERIMENT.featureConfig!,
+          schema: "{}",
+        },
+        referenceBranch: {
+          name: "control",
+          slug: "control",
+          description: "",
+          ratio: 0,
+          featureValue: null,
+          featureEnabled: true,
+        },
+        treatmentBranches: [],
       }}
     />
   ));

@@ -51,6 +51,7 @@ describe("FormBranches", () => {
             referenceBranch: {
               ...MOCK_EXPERIMENT.referenceBranch!,
               name: "",
+              slug: "",
             },
             treatmentBranches: [
               {

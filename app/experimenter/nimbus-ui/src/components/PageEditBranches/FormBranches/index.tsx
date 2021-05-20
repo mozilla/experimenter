@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -97,9 +97,26 @@ export const FormBranches = ({
 
   const clearSubmitErrors = () => dispatch({ type: "clearSubmitErrors" });
 
+  // We show two branches by default, an empty control/reference branch and treatment
+  // branch, which are given a default branch name. If a branch slug is not set, it means
+  // that branch hasn't been saved by the user. If only a reference branch was previously
+  // saved we _don't_ show a new treatment branch by default and instead, if "handleAddBranch"
+  // is called, we show the empty treatment branch instead of creating a new one.
+  const [showFirstTreatmentBranch, setShowFirstTreatmentBranch] = useState(
+    !defaultValues.referenceBranch?.slug ||
+      (defaultValues.treatmentBranches &&
+        defaultValues.treatmentBranches[0]?.slug),
+  );
+
   const handleAddBranch = () => {
     commitFormData();
-    dispatch({ type: "addBranch" });
+    if (
+      showFirstTreatmentBranch ||
+      (!showFirstTreatmentBranch && defaultValues.treatmentBranches === null)
+    ) {
+      dispatch({ type: "addBranch" });
+    }
+    if (!showFirstTreatmentBranch) setShowFirstTreatmentBranch(true);
   };
 
   const handleRemoveBranch = (idx: number) => () => {
@@ -223,6 +240,7 @@ export const FormBranches = ({
             />
           )}
           {treatmentBranches &&
+            showFirstTreatmentBranch &&
             treatmentBranches.map(
               (branch, idx) =>
                 branch && (

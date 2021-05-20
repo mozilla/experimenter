@@ -142,12 +142,20 @@ describe("TableBranches", () => {
     }
   });
 
-  it("displays not set for missing branch properties", () => {
+  it("hides branches without 'name' set, displays not set for missing branch properties", () => {
     render(
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
           treatmentBranches: [
+            {
+              name: "treatment",
+              slug: "",
+              description: "",
+              ratio: 0,
+              featureValue: null,
+              featureEnabled: true,
+            },
             {
               name: "",
               slug: "",
@@ -156,24 +164,24 @@ describe("TableBranches", () => {
               featureValue: null,
               featureEnabled: true,
             },
-            ...MOCK_EXPERIMENT.treatmentBranches!,
           ],
         }}
       />,
     );
 
     const branchTables = screen.queryAllByTestId("table-branch");
-    expect(branchTables).toHaveLength(3);
+    expect(branchTables).toHaveLength(2);
 
     const subjectTable = branchTables[1];
-    for (const name of [
-      "name",
+    for (const property of [
       "slug",
       "description",
       "ratio",
       "featureValue",
     ] as const) {
-      const cell = subjectTable.querySelector(`[data-testid='branch-${name}']`);
+      const cell = subjectTable.querySelector(
+        `[data-testid='branch-${property}']`,
+      );
       expect(cell).toBeInTheDocument();
       const notSet = cell!.querySelector("[data-testid='not-set']");
       expect(notSet).toBeInTheDocument();
