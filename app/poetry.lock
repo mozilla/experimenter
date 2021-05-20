@@ -447,7 +447,7 @@ django = ">=2.2"
 
 [[package]]
 name = "djangorestframework-csv"
-version = "2.1.0"
+version = "2.1.1"
 description = "CSV Tools for Django REST Framework"
 category = "main"
 optional = false
@@ -1562,7 +1562,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "71e72f60038690b4f9775ff6960525864992335fc7bb4fc2d2db148c2385288e"
+content-hash = "febc9f21bc3cece1c1826cb2f614b4ffb251324e00d22a23e2d9b84c05e1bec1"
 
 [metadata.files]
 aiohttp = [
@@ -1822,7 +1822,7 @@ djangorestframework = [
     {file = "djangorestframework-3.12.4.tar.gz", hash = "sha256:f747949a8ddac876e879190df194b925c177cdeb725a099db1460872f7c0a7f2"},
 ]
 djangorestframework-csv = [
-    {file = "djangorestframework-csv-2.1.0.tar.gz", hash = "sha256:2f008b20a44f2d3c37835ea5b5ddfe19f54394f07b9cb267c616a917a7f7e27c"},
+    {file = "djangorestframework-csv-2.1.1.tar.gz", hash = "sha256:aa0ee4c894fe319c68e042b05c61dace43a9fb6e6872e1abe1724ca7ea4d15f7"},
 ]
 dockerflow = [
     {file = "dockerflow-2020.10.0-py2.py3-none-any.whl", hash = "sha256:226086becc436b5a1995348e26c4fb2ad1d4e5dbc10dffec0c675c9a43306c8b"},
