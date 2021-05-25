@@ -11,6 +11,7 @@ services:
       - /code/app/tests/integration/.tox
     links:
       - nginx
+      - kinto
     expose:
       - "4444"
     ports:
