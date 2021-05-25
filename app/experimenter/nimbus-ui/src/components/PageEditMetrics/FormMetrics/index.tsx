@@ -12,6 +12,7 @@ import {
   useConfig,
   useExitWarning,
   useOutcomes,
+  useReviewCheck,
 } from "../../../hooks";
 import { SelectOption } from "../../../hooks/useCommonForm/useCommonFormMethods";
 import { ReactComponent as Info } from "../../../images/info.svg";
@@ -27,7 +28,7 @@ type FormMetricsProps = {
   experiment: getExperiment["experimentBySlug"];
   isLoading: boolean;
   isServerValid: boolean;
-  submitErrors: Record<string, string[]>;
+  submitErrors: SerializerMessages;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   onSave: (data: Record<string, any>, next: boolean) => void;
 };
@@ -53,6 +54,7 @@ const FormMetrics = ({
     available: availableOutcomes,
   } = useOutcomes(experiment!);
   const { maxPrimaryOutcomes } = useConfig();
+  const { fieldMessages } = useReviewCheck(experiment);
 
   // We must alter primary outcome options when a secondary set is selected
   // to exclude the set from primary outcome options and vice versa
@@ -100,6 +102,7 @@ const FormMetrics = ({
     isServerValid,
     submitErrors,
     setSubmitErrors,
+    fieldMessages,
   );
 
   const shouldWarnOnExit = useExitWarning();

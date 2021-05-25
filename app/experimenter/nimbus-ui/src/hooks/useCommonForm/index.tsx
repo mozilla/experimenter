@@ -6,15 +6,12 @@ import React from "react";
 import { IsDirtyUnsaved, useCommonFormMethods } from "./useCommonFormMethods";
 import { useForm } from "./useForm";
 
-export type SubmitErrorRecord = Record<string, string[]>;
-export type SubmitErrors = Record<string, string[] | SubmitErrorRecord[]>;
-
 export function useCommonForm<FieldNames extends string>(
   defaultValues: Record<string, any>,
   isServerValid: boolean,
-  submitErrors: SubmitErrors,
+  submitErrors: SerializerMessages,
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>,
-  reviewMessages: Record<string, string[]> = {},
+  reviewMessages?: SerializerMessages,
 ) {
   const formMethods = useForm(defaultValues);
   const {

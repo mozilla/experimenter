@@ -7,6 +7,7 @@ import React from "react";
 import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
 import { FIELD_MESSAGES } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
+import { assertSerializerMessages } from "../../lib/test-utils";
 import { optionalBoolString } from "../../lib/utils";
 import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
 import { Subject } from "./mocks";
@@ -359,34 +360,21 @@ describe("FormOverview", () => {
     });
   });
 
-  it("displays warning icons when server complains fields are missing", () => {
-    Object.defineProperty(window, "location", {
-      value: {
-        search: "?show-errors",
-      },
+  it("can display server review-readiness messages on all fields", async () => {
+    await assertSerializerMessages(Subject, {
+      name: ["That's not your real name"],
+      hypothesis: ["You really think that's gonna happen?"],
+      application: ["Firefox for Palm Trio"],
+      public_description: ["Give Carly Rae Jepson a sword"],
+      risk_brand: ["Be nice to Foxy!"],
+      risk_revenue: ["Racks on racks on racks.", "Yuh, yuh, yuh, let's go"],
+      risk_partner_related: ["Be noice to your friends"],
+      documentation_links: [
+        {
+          title: ["Stop being so en-title-d"],
+          link: ["Link it up bro"],
+        },
+      ],
     });
-
-    const invalidFields = {
-      public_description: ["This field may not be null."],
-      risk_brand: ["This field may not be null."],
-      risk_revenue: ["This field may not be null."],
-      risk_partner_related: ["This field may not be null."],
-    };
-
-    const { experiment } = mockExperimentQuery("boo", {
-      readyForReview: {
-        ready: false,
-        message: invalidFields,
-      },
-    });
-    render(<Subject {...{ experiment }} />);
-
-    for (const [field, errors] of Object.entries(invalidFields)) {
-      expect(screen.getByTestId(`missing-${field}`).dataset).toEqual(
-        expect.objectContaining({
-          tip: errors.join(", "),
-        }),
-      );
-    }
   });
 });

@@ -57,6 +57,10 @@ $form-validation-states: map-merge(
     map-get($data, icon)
   );
 }
+// There's already a border-warning class, so add a feedback-specific one
+.border-feedback-warning {
+  border: 1px solid $form-feedback-warning-color !important;
+}
 
 .font-weight-semibold {
   font-weight: 600;
