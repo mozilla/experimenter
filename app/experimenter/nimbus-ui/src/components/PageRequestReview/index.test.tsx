@@ -12,7 +12,11 @@ import {
 } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
-import { BASE_PATH, CHANGELOG_MESSAGES } from "../../lib/constants";
+import {
+  BASE_PATH,
+  CHANGELOG_MESSAGES,
+  SERVER_ERRORS,
+} from "../../lib/constants";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import {
   NimbusExperimentPublishStatus,
@@ -79,7 +83,7 @@ describe("PageRequestReview", () => {
       readyForReview: {
         ready: false,
         message: {
-          channel: ["This list may not be empty."],
+          channel: [SERVER_ERRORS.EMPTY_LIST],
         },
       },
     });

@@ -7,6 +7,7 @@ import { withQuery } from "@storybook/addon-queryparams";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import PageEditBranches from ".";
+import { SERVER_ERRORS } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentApplication } from "../../types/globalTypes";
@@ -45,7 +46,7 @@ const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
   readyForReview: {
     ready: false,
     message: {
-      reference_branch: ["This field may not be null."],
+      reference_branch: [SERVER_ERRORS.NULL_FIELD],
     },
   },
 });
