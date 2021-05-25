@@ -1,10 +1,9 @@
 import { boundClass } from "autobind-decorator";
-import PropTypes from "prop-types";
-import React from "react";
-import { Form, Row, Col } from "react-bootstrap";
-
 import Error from "experimenter/components/Error";
 import HelpBox from "experimenter/components/HelpBox";
+import PropTypes from "prop-types";
+import React from "react";
+import { Col, Form, Row } from "react-bootstrap";
 
 @boundClass
 class RadioButtonInlineLabel extends React.PureComponent {

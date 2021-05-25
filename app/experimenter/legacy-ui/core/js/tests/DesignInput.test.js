@@ -1,7 +1,7 @@
-import React from "react";
-import { render, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
+import { fireEvent, render } from "@testing-library/react";
 import DesignInput from "experimenter/components/DesignInput";
+import React from "react";
 
 describe("The `DesignInput` Component", () => {
   const setup = () => {

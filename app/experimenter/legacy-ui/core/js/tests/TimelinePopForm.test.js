@@ -1,15 +1,15 @@
-import React from "react";
-import {
-  render,
-  cleanup,
-  waitForDomChange,
-  fireEvent,
-} from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  waitForDomChange,
+} from "@testing-library/react";
 import TimelinePopForm from "experimenter/components/TimelinePopForm";
-import * as Api from "experimenter/utils/api";
 import { TimelinePopDataFactory } from "experimenter/tests/DataFactory";
 import { waitForFormToLoad } from "experimenter/tests/helpers.js";
+import * as Api from "experimenter/utils/api";
+import React from "react";
 
 describe("The TimelinePopForm component for experiments", () => {
   afterEach(() => {

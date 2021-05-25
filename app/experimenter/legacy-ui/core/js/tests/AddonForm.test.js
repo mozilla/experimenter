@@ -1,23 +1,23 @@
-import React from "react";
+import "@testing-library/jest-dom/extend-expect";
 import {
-  render,
   cleanup,
-  waitFor,
   fireEvent,
+  render,
+  waitFor,
   within,
 } from "@testing-library/react";
-import "@testing-library/jest-dom/extend-expect";
 import DesignForm from "experimenter/components/DesignForm";
-import * as Api from "experimenter/utils/api";
+import {
+  AddonDataFactory,
+  BranchedAddonDataFactory,
+} from "experimenter/tests/DataFactory";
 import {
   addBranch,
   removeBranch,
   waitForFormToLoad,
 } from "experimenter/tests/helpers.js";
-import {
-  AddonDataFactory,
-  BranchedAddonDataFactory,
-} from "experimenter/tests/DataFactory";
+import * as Api from "experimenter/utils/api";
+import React from "react";
 
 describe("The `DesignForm` component for Addon", () => {
   afterEach(() => {
