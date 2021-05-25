@@ -3,18 +3,44 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { withLinks } from "@storybook/addon-links";
-import { storiesOf } from "@storybook/react";
+import { withQuery } from "@storybook/addon-queryparams";
 import React from "react";
 import PageEditMetrics from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
-const { mock } = mockExperimentQuery("demo-slug");
+export default {
+  title: "pages/EditMetrics",
+  component: PageEditMetrics,
+  decorators: [withLinks, withQuery],
+};
 
-storiesOf("pages/EditMetrics", module)
-  .addDecorator(withLinks)
-  .add("basic", () => (
+const storyWithExperiment = (
+  experiment?: Partial<getExperiment_experimentBySlug>,
+) => {
+  const { mock } = mockExperimentQuery("demo-slug", experiment);
+  return (
     <RouterSlugProvider mocks={[mock]}>
       <PageEditMetrics />
     </RouterSlugProvider>
-  ));
+  );
+};
+
+export const Basic = () => storyWithExperiment();
+
+export const MissingFields = () =>
+  storyWithExperiment({
+    readyForReview: {
+      ready: false,
+      message: {
+        primary_outcomes: ["Primarily, tell me what's up."],
+        secondary_outcomes: ["On second thought..."],
+      },
+    },
+  });
+MissingFields.parameters = {
+  query: {
+    "show-errors": true,
+  },
+};

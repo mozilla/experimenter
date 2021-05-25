@@ -6,3 +6,8 @@
 
 type DateTime = string;
 type ObjectField = Record<string, any> | string;
+
+type SerializerMessages<T = string | Record<string, string[]>> = Record<
+  string,
+  T[]
+>;

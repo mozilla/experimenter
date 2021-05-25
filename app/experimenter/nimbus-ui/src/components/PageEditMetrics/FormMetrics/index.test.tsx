@@ -12,6 +12,7 @@ import {
 import React from "react";
 import { PRIMARY_OUTCOMES_TOOLTIP, SECONDARY_OUTCOMES_TOOLTIP } from ".";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
+import { assertSerializerMessages } from "../../../lib/test-utils";
 import { Subject } from "./mocks";
 
 const outcomeNames = MOCK_CONFIG.outcomes!.map(
@@ -183,6 +184,13 @@ describe("FormMetrics", () => {
       expect(primaryOutcomes).toHaveTextContent(outcomeNames[0]);
       expect(primaryOutcomes).toHaveTextContent(outcomeNames[1]);
       expect(primaryOutcomes).not.toHaveTextContent(outcomeNames[2]);
+    });
+  });
+
+  it("can display server review-readiness messages on all fields", async () => {
+    await assertSerializerMessages(Subject, {
+      primary_outcomes: ["Primarily, tell me what's up."],
+      secondary_outcomes: ["On second thought..."],
     });
   });
 });
