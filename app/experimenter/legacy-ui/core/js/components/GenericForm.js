@@ -1,11 +1,10 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { List, Map } from "immutable";
-
 import BranchManager from "experimenter/components/BranchManager";
+import { DESIGN_HELP } from "experimenter/components/constants";
 import DesignInput from "experimenter/components/DesignInput";
 import GenericBranchFields from "experimenter/components/GenericBranchFields";
-import { DESIGN_HELP } from "experimenter/components/constants";
+import { List, Map } from "immutable";
+import PropTypes from "prop-types";
+import React from "react";
 
 export default class GenericForm extends React.PureComponent {
   static propTypes = {

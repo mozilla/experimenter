@@ -1,12 +1,11 @@
 import bootstrap from "bootstrap";
 import bsSelect from "bootstrap-select";
+import DesignForm from "experimenter/components/DesignForm";
+import TimelinePopForm from "experimenter/components/TimelinePopForm";
 import jQuery from "jquery";
 import popper from "popper.js";
 import React from "react";
 import ReactDOM from "react-dom";
-
-import DesignForm from "experimenter/components/DesignForm";
-import TimelinePopForm from "experimenter/components/TimelinePopForm";
 
 window.jQuery = jQuery;
 window.$ = jQuery;

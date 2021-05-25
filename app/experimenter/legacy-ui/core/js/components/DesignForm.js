@@ -1,15 +1,5 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { Button, Container, Row, Col } from "react-bootstrap";
 import { boundClass } from "autobind-decorator";
-import { fromJS, Map } from "immutable";
-
 import AddonForm from "experimenter/components/AddonForm";
-import GenericForm from "experimenter/components/GenericForm";
-import MessageForm from "experimenter/components/MessageForm";
-import PrefForm from "experimenter/components/PrefForm";
-import RolloutForm from "experimenter/components/RolloutForm";
-import { makeApiRequest } from "experimenter/utils/api";
 import {
   TYPE_ADDON,
   TYPE_GENERIC,
@@ -17,6 +7,15 @@ import {
   TYPE_PREF,
   TYPE_ROLLOUT,
 } from "experimenter/components/constants";
+import GenericForm from "experimenter/components/GenericForm";
+import MessageForm from "experimenter/components/MessageForm";
+import PrefForm from "experimenter/components/PrefForm";
+import RolloutForm from "experimenter/components/RolloutForm";
+import { makeApiRequest } from "experimenter/utils/api";
+import { fromJS, Map } from "immutable";
+import PropTypes from "prop-types";
+import React from "react";
+import { Button, Col, Container, Row } from "react-bootstrap";
 
 @boundClass
 class DesignForm extends React.PureComponent {

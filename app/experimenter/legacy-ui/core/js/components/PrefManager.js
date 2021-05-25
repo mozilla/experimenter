@@ -1,10 +1,9 @@
 import { boundClass } from "autobind-decorator";
+import Pref from "experimenter/components/Pref";
 import { fromJS, List, Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
-import { Row, Col, Button } from "react-bootstrap";
-
-import Pref from "experimenter/components/Pref";
+import { Button, Col, Row } from "react-bootstrap";
 
 @boundClass
 class PrefManager extends React.PureComponent {

@@ -1,28 +1,28 @@
-import React from "react";
+import "@testing-library/jest-dom/extend-expect";
 import {
-  render,
   cleanup,
-  waitForDomChange,
   fireEvent,
+  render,
+  waitForDomChange,
   within,
 } from "@testing-library/react";
-import "@testing-library/jest-dom/extend-expect";
+import {
+  MESSAGE_TEMPLATE_DOOR,
+  MESSAGE_TEMPLATE_DOOR_LABEL,
+  MESSAGE_TYPE_CFR,
+  MESSAGE_TYPE_CFR_LABEL,
+  MESSAGE_TYPE_WELCOME,
+  MESSAGE_TYPE_WELCOME_LABEL,
+} from "experimenter/components/constants";
 import DesignForm from "experimenter/components/DesignForm";
-import * as Api from "experimenter/utils/api";
+import { MessageDataFactory } from "experimenter/tests/DataFactory";
 import {
   addBranch,
   removeBranch,
   waitForFormToLoad,
 } from "experimenter/tests/helpers.js";
-import { MessageDataFactory } from "experimenter/tests/DataFactory";
-import {
-  MESSAGE_TEMPLATE_DOOR_LABEL,
-  MESSAGE_TEMPLATE_DOOR,
-  MESSAGE_TYPE_CFR_LABEL,
-  MESSAGE_TYPE_CFR,
-  MESSAGE_TYPE_WELCOME_LABEL,
-  MESSAGE_TYPE_WELCOME,
-} from "experimenter/components/constants";
+import * as Api from "experimenter/utils/api";
+import React from "react";
 
 describe("The `DesignForm` component for message", () => {
   afterEach(() => {

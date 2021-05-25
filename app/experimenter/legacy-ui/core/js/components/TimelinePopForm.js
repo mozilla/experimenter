@@ -1,34 +1,32 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { Button, Container, Row, Col } from "react-bootstrap";
 import { boundClass } from "autobind-decorator";
-import { fromJS, Map } from "immutable";
-
+import {
+  CHANNEL_HELP,
+  CLIENT_MATCHING_HELP,
+  COUNTRIES_LOCALES_HELP,
+  PLATFORM_CHOICES,
+  PLATFORM_HELP,
+  PLATFORM_WINDOWS,
+  PLAYBOOK_CHOICES,
+  POPULATION_PERCENT_HELP,
+  PROFILE_AGE_HELP,
+  PROFILE_CHOICES,
+  PROPOSED_DURATION_HELP,
+  PROPOSED_ENROLLMENT_HELP,
+  PROPOSED_START_DATE_HELP,
+  ROLLOUT_PLAYBOOK_HELP,
+  VERSION_CHOICES,
+  VERSION_HELP,
+  WINDOWS_VERSIONS_CHOICES,
+  WINDOWS_VERSIONS_NOTE,
+} from "experimenter/components/constants";
 import DesignInput from "experimenter/components/DesignInput";
 import LabeledMultiSelect from "experimenter/components/LabeledMultiSelect";
 import RadioButtonInlineLabel from "experimenter/components/RadioButtonInlineLabel";
-
 import { makeApiRequest } from "experimenter/utils/api";
-import {
-  VERSION_CHOICES,
-  PLAYBOOK_CHOICES,
-  PLATFORM_CHOICES,
-  WINDOWS_VERSIONS_CHOICES,
-  PROPOSED_START_DATE_HELP,
-  PROPOSED_DURATION_HELP,
-  PROPOSED_ENROLLMENT_HELP,
-  CHANNEL_HELP,
-  POPULATION_PERCENT_HELP,
-  VERSION_HELP,
-  PLATFORM_HELP,
-  WINDOWS_VERSIONS_NOTE,
-  CLIENT_MATCHING_HELP,
-  COUNTRIES_LOCALES_HELP,
-  ROLLOUT_PLAYBOOK_HELP,
-  PLATFORM_WINDOWS,
-  PROFILE_AGE_HELP,
-  PROFILE_CHOICES,
-} from "experimenter/components/constants";
+import { fromJS, Map } from "immutable";
+import PropTypes from "prop-types";
+import React from "react";
+import { Button, Col, Container, Row } from "react-bootstrap";
 
 @boundClass
 class TimelinePopForm extends React.PureComponent {

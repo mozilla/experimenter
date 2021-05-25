@@ -1,11 +1,10 @@
 import { boundClass } from "autobind-decorator";
-import PropTypes from "prop-types";
-import React from "react";
-import { Row, Col, FormLabel } from "react-bootstrap";
-import Select from "react-select";
-
 import Error from "experimenter/components/Error";
 import HelpBox from "experimenter/components/HelpBox";
+import PropTypes from "prop-types";
+import React from "react";
+import { Col, FormLabel, Row } from "react-bootstrap";
+import Select from "react-select";
 
 @boundClass
 class LabeledMultiSelect extends React.PureComponent {

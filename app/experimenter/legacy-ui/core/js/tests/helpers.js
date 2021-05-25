@@ -1,9 +1,9 @@
 import {
-  getByText,
-  getAllByText,
-  waitFor,
   fireEvent,
+  getAllByText,
   getByTestId,
+  getByText,
+  waitFor,
 } from "@testing-library/react";
 
 export async function waitForFormToLoad(container) {
