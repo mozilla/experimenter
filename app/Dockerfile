@@ -8,8 +8,8 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE 1
 
 
-# Script for waiting for the db to initialize
-COPY bin/wait-for-it.sh /app/bin/wait-for-it.sh
+# Scripts for waiting for the db and setting up kinto
+COPY bin/ /app/bin/
 RUN chmod +x /app/bin/wait-for-it.sh
 
 
