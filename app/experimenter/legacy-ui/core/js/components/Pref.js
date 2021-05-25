@@ -1,15 +1,14 @@
 import { boundClass } from "autobind-decorator";
+import {
+  PREF_BRANCH_HELP,
+  PREF_NAME_HELP,
+  PREF_TYPE_HELP,
+} from "experimenter/components/constants";
+import DesignInput from "experimenter/components/DesignInput";
 import { Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
-import { Button, Container, Row, Col } from "react-bootstrap";
-import DesignInput from "experimenter/components/DesignInput";
-
-import {
-  PREF_NAME_HELP,
-  PREF_TYPE_HELP,
-  PREF_BRANCH_HELP,
-} from "experimenter/components/constants";
+import { Button, Col, Container, Row } from "react-bootstrap";
 import { PREF_VALUE_HELP, ROLLOUT_PREF_BRANCH_HELP } from "./constants";
 
 @boundClass

@@ -1,14 +1,13 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { List, Map } from "immutable";
-import { Row, Col } from "react-bootstrap";
-
-import BranchManager from "experimenter/components/BranchManager";
 import BranchedAddonFields from "experimenter/components/BranchedAddonFields";
+import BranchManager from "experimenter/components/BranchManager";
+import { ADDON_RELEASE_URL_HELP } from "experimenter/components/constants";
 import DesignInput from "experimenter/components/DesignInput";
 import GenericBranchFields from "experimenter/components/GenericBranchFields";
 import RadioButton from "experimenter/components/RadioButton";
-import { ADDON_RELEASE_URL_HELP } from "experimenter/components/constants";
+import { List, Map } from "immutable";
+import PropTypes from "prop-types";
+import React from "react";
+import { Col, Row } from "react-bootstrap";
 
 export default class AddonForm extends React.PureComponent {
   static propTypes = {

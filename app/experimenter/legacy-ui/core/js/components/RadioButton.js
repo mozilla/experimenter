@@ -1,8 +1,7 @@
+import Error from "experimenter/components/Error";
 import PropTypes from "prop-types";
 import React from "react";
 import { Form } from "react-bootstrap";
-
-import Error from "experimenter/components/Error";
 
 export default class RadioButton extends React.PureComponent {
   static propTypes = {

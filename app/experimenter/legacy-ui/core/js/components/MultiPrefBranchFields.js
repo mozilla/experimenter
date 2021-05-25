@@ -1,14 +1,13 @@
+import { boundClass } from "autobind-decorator";
+import {
+  BRANCH_DESCRIPTION_HELP,
+  BRANCH_NAME_HELP,
+  BRANCH_RATIO_HELP,
+} from "experimenter/components/constants";
+import PrefManager from "experimenter/components/PrefManager";
+import { List, Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
-import { Map, List } from "immutable";
-import PrefManager from "experimenter/components/PrefManager";
-import { boundClass } from "autobind-decorator";
-
-import {
-  BRANCH_RATIO_HELP,
-  BRANCH_NAME_HELP,
-  BRANCH_DESCRIPTION_HELP,
-} from "experimenter/components/constants";
 
 @boundClass
 class MultiPrefBranchFields extends React.PureComponent {

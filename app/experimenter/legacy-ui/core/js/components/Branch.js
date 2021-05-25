@@ -1,10 +1,9 @@
+import { boundClass } from "autobind-decorator";
+import DesignInput from "experimenter/components/DesignInput";
+import { Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
-import { Button, Row, Col } from "react-bootstrap";
-import { Map } from "immutable";
-import { boundClass } from "autobind-decorator";
-
-import DesignInput from "experimenter/components/DesignInput";
+import { Button, Col, Row } from "react-bootstrap";
 
 @boundClass
 class Branch extends React.PureComponent {

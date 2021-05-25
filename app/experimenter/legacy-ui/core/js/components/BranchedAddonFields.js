@@ -1,14 +1,13 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { Map } from "immutable";
 import { boundClass } from "autobind-decorator";
-
 import {
   ADDON_RELEASE_URL_HELP,
-  BRANCH_RATIO_HELP,
-  BRANCH_NAME_HELP,
   BRANCH_DESCRIPTION_HELP,
+  BRANCH_NAME_HELP,
+  BRANCH_RATIO_HELP,
 } from "experimenter/components/constants";
+import { Map } from "immutable";
+import PropTypes from "prop-types";
+import React from "react";
 
 @boundClass
 class BranchedAddonFields extends React.PureComponent {

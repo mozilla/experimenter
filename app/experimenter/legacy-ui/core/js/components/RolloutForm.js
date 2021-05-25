@@ -1,16 +1,15 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { Map, List, fromJS } from "immutable";
-import { Row, Col } from "react-bootstrap";
-
-import DesignInput from "experimenter/components/DesignInput";
-import RadioButton from "experimenter/components/RadioButton";
 import {
   ADDON_RELEASE_URL_HELP,
   ROLLOUT_DESCRIPTION_HELP,
   TYPE_ADDON,
   TYPE_PREF,
 } from "experimenter/components/constants";
+import DesignInput from "experimenter/components/DesignInput";
+import RadioButton from "experimenter/components/RadioButton";
+import { fromJS, List, Map } from "immutable";
+import PropTypes from "prop-types";
+import React from "react";
+import { Col, Row } from "react-bootstrap";
 import PrefManager from "./PrefManager";
 
 export default class RolloutForm extends React.PureComponent {

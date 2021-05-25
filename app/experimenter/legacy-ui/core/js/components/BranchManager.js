@@ -1,10 +1,9 @@
 import { boundClass } from "autobind-decorator";
+import Branch from "experimenter/components/Branch";
 import { fromJS, List, Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
-import { Row, Col, Button } from "react-bootstrap";
-
-import Branch from "experimenter/components/Branch";
+import { Button, Col, Row } from "react-bootstrap";
 
 @boundClass
 class BranchManager extends React.PureComponent {

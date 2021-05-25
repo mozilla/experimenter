@@ -1,24 +1,24 @@
-import React from "react";
-import {
-  render,
-  cleanup,
-  waitForDomChange,
-  fireEvent,
-} from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
-import DesignForm from "experimenter/components/DesignForm";
-import * as Api from "experimenter/utils/api";
 import {
-  PrefDataFactory,
+  cleanup,
+  fireEvent,
+  render,
+  waitForDomChange,
+} from "@testing-library/react";
+import DesignForm from "experimenter/components/DesignForm";
+import {
   MultiPrefDataFactory,
+  PrefDataFactory,
 } from "experimenter/tests/DataFactory";
 import {
   addBranch,
-  removeBranch,
-  waitForFormToLoad,
   addPrefBranch,
+  removeBranch,
   removePrefBranch,
+  waitForFormToLoad,
 } from "experimenter/tests/helpers.js";
+import * as Api from "experimenter/utils/api";
+import React from "react";
 
 describe("The `DesignForm` component for Pref Experiments", () => {
   afterEach(() => {

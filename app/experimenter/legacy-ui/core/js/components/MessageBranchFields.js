@@ -1,17 +1,16 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { Map } from "immutable";
 import { boundClass } from "autobind-decorator";
-
 import {
-  BRANCH_RATIO_HELP,
-  BRANCH_NAME_HELP,
   BRANCH_DESCRIPTION_HELP,
+  BRANCH_NAME_HELP,
+  BRANCH_RATIO_HELP,
   MESSAGE_CONTENT_HELP,
   MESSAGE_TARGETING_HELP,
   MESSAGE_THRESHOLD_HELP,
   MESSAGE_TRIGGERS_HELP,
 } from "experimenter/components/constants";
+import { Map } from "immutable";
+import PropTypes from "prop-types";
+import React from "react";
 
 @boundClass
 class MessageBranchFields extends React.PureComponent {

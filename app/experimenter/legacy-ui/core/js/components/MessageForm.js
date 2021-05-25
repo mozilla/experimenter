@@ -1,16 +1,15 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { List, Map } from "immutable";
-import { Row, Col } from "react-bootstrap";
-
+import BranchManager from "experimenter/components/BranchManager";
 import {
   MESSAGE_TEMPLATE_CHOICES,
   MESSAGE_TYPE_CFR,
   MESSAGE_TYPE_CHOICES,
 } from "experimenter/components/constants";
-import BranchManager from "experimenter/components/BranchManager";
 import MessageBranchFields from "experimenter/components/MessageBranchFields";
 import RadioButton from "experimenter/components/RadioButton";
+import { List, Map } from "immutable";
+import PropTypes from "prop-types";
+import React from "react";
+import { Col, Row } from "react-bootstrap";
 
 export default class MessageForm extends React.PureComponent {
   static propTypes = {

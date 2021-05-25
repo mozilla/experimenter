@@ -1,7 +1,7 @@
-import React from "react";
-import { render } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
+import { render } from "@testing-library/react";
 import Error from "experimenter/components/Error";
+import React from "react";
 
 describe("The `Error` component", () => {
   const error = "an error occured!";
