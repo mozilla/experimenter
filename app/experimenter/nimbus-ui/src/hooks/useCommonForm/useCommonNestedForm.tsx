@@ -14,10 +14,10 @@ export function useCommonNestedForm<FieldNames extends string>(
   defaultValues: Record<string, any>,
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>,
   prefix: string,
-  nestedSubmitErrors: Record<string, string[]>,
+  nestedSubmitErrors: SerializerMessages,
   nestedErrors: UseFormMethods["errors"],
   nestedTouched: UseFormMethods["formState"]["touched"],
-  nestedReviewMessages: Record<string, string[]> = {},
+  nestedReviewMessages?: SerializerMessages,
 ) {
   const { register, watch } = useFormContext();
 

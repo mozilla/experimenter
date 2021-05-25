@@ -8,13 +8,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { FormProvider } from "react-hook-form";
 import ReactTooltip from "react-tooltip";
-import {
-  SubmitErrorRecord,
-  SubmitErrors,
-  useCommonForm,
-  useExitWarning,
-  useReviewCheck,
-} from "../../hooks";
+import { useCommonForm, useExitWarning, useReviewCheck } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Info } from "../../images/info.svg";
 import {
@@ -37,7 +31,7 @@ import FormDocumentationLink, {
 type FormOverviewProps = {
   isLoading: boolean;
   isServerValid: boolean;
-  submitErrors: SubmitErrors;
+  submitErrors: SerializerMessages;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   experiment?: getExperiment["experimentBySlug"];
   onSubmit: (data: Record<string, any>, next: boolean) => void;
@@ -70,7 +64,7 @@ const FormOverview = ({
   onCancel,
 }: FormOverviewProps) => {
   const { application, hypothesisDefault } = useConfig();
-  const { FieldReview } = useReviewCheck(experiment);
+  const { fieldMessages } = useReviewCheck(experiment);
 
   const defaultValues = {
     name: experiment?.name || "",
@@ -99,6 +93,7 @@ const FormOverview = ({
     isServerValid,
     submitErrors,
     setSubmitErrors,
+    fieldMessages,
   );
 
   const { documentationLinks, addDocumentationLink, removeDocumentationLink } =
@@ -183,7 +178,6 @@ const FormOverview = ({
             <LinkExternal href={EXTERNAL_URLS.RISK_BRAND}>
               Learn more
             </LinkExternal>
-            <FieldReview field="risk_brand" />
           </InputRadios>
         )}
 
@@ -227,7 +221,6 @@ const FormOverview = ({
             <Form.Group controlId="publicDescription">
               <Form.Label className="d-flex align-items-center">
                 Public description
-                <FieldReview field="public_description" />
               </Form.Label>
               <Form.Control
                 as="textarea"
@@ -252,7 +245,6 @@ const FormOverview = ({
               <LinkExternal href={EXTERNAL_URLS.RISK_PARTNER}>
                 Learn more
               </LinkExternal>
-              <FieldReview field="risk_partner_related" />
             </InputRadios>
 
             <InputRadios
@@ -267,7 +259,6 @@ const FormOverview = ({
               <LinkExternal href={EXTERNAL_URLS.RISK_REVENUE}>
                 Learn more
               </LinkExternal>
-              <FieldReview field="risk_revenue" />
             </InputRadios>
 
             <Form.Group controlId="documentationLinks">
@@ -290,12 +281,12 @@ const FormOverview = ({
                       documentationLink,
                       setSubmitErrors,
                       fieldNamePrefix: `documentationLinks[${index}]`,
-                      submitErrors:
-                        (submitErrors?.documentation_links &&
-                          (
-                            submitErrors?.documentation_links as SubmitErrorRecord[]
-                          )[index]) ||
-                        {},
+                      submitErrors: (submitErrors.documentation_links?.[
+                        index
+                      ] || {}) as SerializerMessages<string>,
+                      reviewMessages: (fieldMessages.documentationLinks?.[
+                        index
+                      ] || {}) as SerializerMessages<string>,
                       //@ts-ignore react-hook-form types seem broken for nested fields
                       errors: (errors?.documentationLinks?.[index] ||
                         {}) as FormDocumentationLinkProps["errors"],

@@ -14,6 +14,7 @@ import { filterTargetingConfigSlug } from ".";
 import { snakeToCamelCase } from "../../../lib/caseConversions";
 import { EXTERNAL_URLS, FIELD_MESSAGES } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
+import { assertSerializerMessages } from "../../../lib/test-utils";
 import {
   NimbusExperimentApplication,
   NimbusExperimentChannel,
@@ -258,44 +259,21 @@ describe("FormAudience", () => {
     }
   });
 
-  it("displays warning icons when server complains fields are missing", () => {
-    Object.defineProperty(window, "location", {
-      value: {
-        search: "?show-errors",
-      },
+  it("can display server review-readiness messages on all fields", async () => {
+    await assertSerializerMessages(Subject, {
+      population_percent: ["When it feels like the world is on your shoulders"],
+      proposed_duration: ["And all the madness has got you goin' crazy"],
+      proposed_enrollment: ["It's time to get out"],
+      total_enrolled_clients: ["Step out into the street"],
+      firefox_min_version: [
+        "Where all of the action is right there at your feet.",
+      ],
+      targeting_config_slug: [
+        "Well, I know a place",
+        "Where we can dance the whole night away",
+      ],
+      channel: ["Underneath the electric stars."],
     });
-
-    const invalidFields = {
-      population_percent: ["This field may not be null."],
-      proposed_duration: ["This field may not be null."],
-      proposed_enrollment: ["This field may not be null."],
-      total_enrolled_clients: ["This field may not be null"],
-      firefox_min_version: ["This field may not be null."],
-      targeting_config_slug: ["This field may not be null."],
-      channel: ["This list may not be empty."],
-    };
-
-    render(
-      <Subject
-        {...{
-          experiment: {
-            ...MOCK_EXPERIMENT,
-            readyForReview: {
-              ready: false,
-              message: invalidFields,
-            },
-          },
-        }}
-      />,
-    );
-
-    for (const [key, value] of Object.entries(invalidFields)) {
-      expect(screen.getByTestId(`missing-${key}`).dataset).toEqual(
-        expect.objectContaining({
-          tip: value.join(", "),
-        }),
-      );
-    }
   });
 });
 

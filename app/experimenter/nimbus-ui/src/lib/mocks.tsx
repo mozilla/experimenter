@@ -369,8 +369,7 @@ export function mockExperimentQuery<
 export const MOCK_REVIEW: ReviewCheck = {
   ready: true,
   invalidPages: [],
-  fieldReviewMessages: () => [],
-  FieldReview: () => <></>,
+  fieldMessages: {},
   InvalidPagesList: () => <></>,
 };
 

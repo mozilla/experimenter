@@ -22,7 +22,7 @@ export const Subject = ({
   config?: getConfig_nimbusConfig;
 } & Partial<React.ComponentProps<typeof FormAudience>>) => {
   const [submitErrorsDefault, setSubmitErrors] =
-    useState<Record<string, any>>(submitErrors);
+    useState<SerializerMessages>(submitErrors);
   return (
     <div className="p-5">
       <MockedCache {...{ config }}>

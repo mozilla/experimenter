@@ -4,49 +4,55 @@
 
 import { withLinks } from "@storybook/addon-links";
 import { withQuery } from "@storybook/addon-queryparams";
-import { storiesOf } from "@storybook/react";
 import React from "react";
 import PageEditAudience from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
-const { mock } = mockExperimentQuery("demo-slug");
-const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
-  channel: null,
-  firefoxMinVersion: null,
-  targetingConfigSlug: null,
-  proposedEnrollment: 0,
-  proposedDuration: 0,
-  readyForReview: {
-    ready: false,
-    message: {
-      proposed_duration: ["This field may not be null."],
-      proposed_enrollment: ["This field may not be null."],
-      firefox_min_version: ["This field may not be null."],
-      targeting_config_slug: ["This field may not be null."],
-      channel: ["This field may not be null."],
-    },
-  },
-});
+export default {
+  title: "pages/EditAudience",
+  component: PageEditAudience,
+  decorators: [withLinks, withQuery],
+};
 
-storiesOf("pages/EditAudience", module)
-  .addDecorator(withLinks)
-  .addDecorator(withQuery)
-  .add("basic", () => (
+const storyWithExperiment = (
+  experiment?: Partial<getExperiment_experimentBySlug>,
+) => {
+  const { mock } = mockExperimentQuery("demo-slug", experiment);
+  return (
     <RouterSlugProvider mocks={[mock]}>
       <PageEditAudience />
     </RouterSlugProvider>
-  ))
-  .add(
-    "missing fields",
-    () => (
-      <RouterSlugProvider mocks={[mockMissingFields]}>
-        <PageEditAudience />
-      </RouterSlugProvider>
-    ),
-    {
-      query: {
-        "show-errors": true,
+  );
+};
+
+export const Basic = () => storyWithExperiment();
+
+export const MissingFields = () =>
+  storyWithExperiment({
+    readyForReview: {
+      ready: false,
+      message: {
+        population_percent: [
+          "When it feels like the world is on your shoulders",
+        ],
+        proposed_duration: ["And all the madness has got you goin' crazy"],
+        proposed_enrollment: ["It's time to get out"],
+        total_enrolled_clients: ["Step out into the street"],
+        firefox_min_version: [
+          "Where all of the action is right there at your feet.",
+        ],
+        targeting_config_slug: [
+          "Well, I know a place",
+          "Where we can dance the whole night away",
+        ],
+        channel: ["Underneath the electric stars."],
       },
     },
-  );
+  });
+MissingFields.parameters = {
+  query: {
+    "show-errors": true,
+  },
+};
