@@ -1,7 +1,7 @@
-import React from "react";
-import { render, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
+import { fireEvent, render } from "@testing-library/react";
 import RadioButtonInlineLabel from "experimenter/components/RadioButtonInlineLabel";
+import React from "react";
 
 describe("The `RadioButtonInlineLabel` Component", () => {
   const setup = () => {

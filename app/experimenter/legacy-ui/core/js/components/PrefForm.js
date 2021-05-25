@@ -1,18 +1,17 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { List, Map } from "immutable";
-import { Row, Col } from "react-bootstrap";
-
-import RadioButton from "experimenter/components/RadioButton";
 import BranchManager from "experimenter/components/BranchManager";
-import DesignInput from "experimenter/components/DesignInput";
-import PrefBranchFields from "experimenter/components/PrefBranchFields";
-import MultiPrefBranchFields from "experimenter/components/MultiPrefBranchFields";
 import {
+  PREF_BRANCH_HELP,
   PREF_NAME_HELP,
   PREF_TYPE_HELP,
-  PREF_BRANCH_HELP,
 } from "experimenter/components/constants";
+import DesignInput from "experimenter/components/DesignInput";
+import MultiPrefBranchFields from "experimenter/components/MultiPrefBranchFields";
+import PrefBranchFields from "experimenter/components/PrefBranchFields";
+import RadioButton from "experimenter/components/RadioButton";
+import { List, Map } from "immutable";
+import PropTypes from "prop-types";
+import React from "react";
+import { Col, Row } from "react-bootstrap";
 
 export default class PrefForm extends React.PureComponent {
   static propTypes = {

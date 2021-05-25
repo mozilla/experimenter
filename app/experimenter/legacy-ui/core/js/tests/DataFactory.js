@@ -1,11 +1,11 @@
-import faker from "faker";
-import { AutoIncrementField, Factory, Field } from "experimenter/tests/factory";
 import {
-  PLATFORM_WINDOWS,
-  PLATFORM_WINDOWS_LABEL,
   PLATFORM_MAC,
   PLATFORM_MAC_LABEL,
+  PLATFORM_WINDOWS,
+  PLATFORM_WINDOWS_LABEL,
 } from "experimenter/components/constants";
+import { AutoIncrementField, Factory, Field } from "experimenter/tests/factory";
+import faker from "faker";
 
 export class VariantsFactory extends Factory {
   getFields() {
