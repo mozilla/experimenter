@@ -536,6 +536,7 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     feature_config = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
         allow_null=False,
+        error_messages={"null": NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG},
     )
     primary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
@@ -543,9 +544,21 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     secondary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
     )
-    risk_partner_related = serializers.BooleanField(required=True, allow_null=False)
-    risk_revenue = serializers.BooleanField(required=True, allow_null=False)
-    risk_brand = serializers.BooleanField(required=True, allow_null=False)
+    risk_partner_related = serializers.BooleanField(
+        required=True,
+        allow_null=False,
+        error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
+    )
+    risk_revenue = serializers.BooleanField(
+        required=True,
+        allow_null=False,
+        error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
+    )
+    risk_brand = serializers.BooleanField(
+        required=True,
+        allow_null=False,
+        error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
+    )
 
     class Meta:
         model = NimbusExperiment

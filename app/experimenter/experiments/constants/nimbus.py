@@ -499,6 +499,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     # Serializer validation errors
     ERROR_DUPLICATE_BRANCH_NAME = "Branch names must be unique."
+    ERROR_REQUIRED_QUESTION = "This question may not be blank."
+    ERROR_REQUIRED_FEATURE_CONFIG = (
+        "You must select a feature configuration from the drop down."
+    )
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra

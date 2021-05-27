@@ -7,24 +7,25 @@ import { render, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
 import { editPages } from "../components/AppLayoutWithSidebar";
+import { SERVER_ERRORS } from "../lib/constants";
 import { MockedCache, mockExperimentQuery } from "../lib/mocks";
 import { useReviewCheck } from "./useReviewCheck";
 
 describe("hooks/useReviewCheck", () => {
   const readyMessages = {
-    public_description: ["This field may not be null."],
-    proposed_duration: ["This field may not be null."],
-    proposed_enrollment: ["This field may not be null."],
-    firefox_min_version: ["This field may not be null."],
-    targeting_config_slug: ["This field may not be null."],
-    reference_branch: ["This field may not be null."],
-    channel: ["This field may not be null."],
+    public_description: [SERVER_ERRORS.NULL_FIELD],
+    proposed_duration: [SERVER_ERRORS.NULL_FIELD],
+    proposed_enrollment: [SERVER_ERRORS.NULL_FIELD],
+    firefox_min_version: [SERVER_ERRORS.NULL_FIELD],
+    targeting_config_slug: [SERVER_ERRORS.NULL_FIELD],
+    reference_branch: [SERVER_ERRORS.NULL_FIELD],
+    channel: [SERVER_ERRORS.NULL_FIELD],
     population_percent: [
       "Ensure this value is greater than or equal to 0.0001.",
     ],
-    risk_brand: ["This field may not be null."],
-    risk_revenue: ["This field may not be null."],
-    risk_partner_related: ["This field may not be null."],
+    risk_brand: [SERVER_ERRORS.NULL_FIELD],
+    risk_revenue: [SERVER_ERRORS.NULL_FIELD],
+    risk_partner_related: [SERVER_ERRORS.NULL_FIELD],
   };
 
   const pageNames = {
@@ -106,9 +107,9 @@ describe("hooks/useReviewCheck", () => {
       readyForReview: {
         ready: false,
         message: {
-          public_description: ["This field may not be null."],
-          reference_branch: ["This field may not be null."],
-          channel: ["This list may not be empty."],
+          public_description: [SERVER_ERRORS.NULL_FIELD],
+          reference_branch: [SERVER_ERRORS.NULL_FIELD],
+          channel: [SERVER_ERRORS.EMPTY_LIST],
         },
       },
     });
