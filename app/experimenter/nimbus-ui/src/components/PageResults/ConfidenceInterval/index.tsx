@@ -8,6 +8,7 @@
 import React from "react";
 
 const BUFFER = 5;
+const MIN_BOUNDS_WIDTH = 22;
 
 const renderBounds = (
   lower: number,
@@ -15,27 +16,33 @@ const renderBounds = (
   leftPercent: number,
   barWidth: number,
   significance: string,
-) => (
-  <div
-    className="position-absolute"
-    style={{
-      // Add some buffer to space out the rendered bound values.
-      left: `${leftPercent - BUFFER * 2}%`,
-      width: `${barWidth + BUFFER * 3}%`,
-    }}
-  >
+) => {
+  if (barWidth < MIN_BOUNDS_WIDTH) {
+    leftPercent -= (MIN_BOUNDS_WIDTH - barWidth) / 2;
+  }
+
+  return (
     <div
-      className={`${significance}-significance text-left p-0 h6 font-weight-normal position-absolute`}
+      className="position-absolute"
+      style={{
+        // Add some buffer to space out the rendered bound values.
+        left: `${leftPercent - BUFFER * 2}%`,
+        width: `${Math.max(barWidth, MIN_BOUNDS_WIDTH) + BUFFER * 3}%`,
+      }}
     >
-      {lower}%
+      <div
+        className={`${significance}-significance text-left p-0 h6 font-weight-normal position-absolute`}
+      >
+        {lower}%
+      </div>
+      <div
+        className={`${significance}-significance text-right p-0 h6 font-weight-normal`}
+      >
+        {upper}%
+      </div>
     </div>
-    <div
-      className={`${significance}-significance text-right p-0 h6 font-weight-normal`}
-    >
-      {upper}%
-    </div>
-  </div>
-);
+  );
+};
 
 const renderLine = (
   leftPercent: number,
