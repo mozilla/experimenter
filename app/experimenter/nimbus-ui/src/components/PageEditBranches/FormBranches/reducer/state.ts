@@ -23,7 +23,7 @@ export type AnnotatedBranch = TreatmentBranchType & {
   key: string;
   isValid: boolean;
   isDirty: boolean;
-  errors: Record<string, string[]>;
+  errors: SerializerSet;
   slug?: string;
 };
 
@@ -76,6 +76,7 @@ export function annotateExperimentBranch(
     isValid: true,
     isDirty: false,
     errors: {},
+    reviewMessages: {},
   };
 }
 

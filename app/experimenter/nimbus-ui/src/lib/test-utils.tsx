@@ -54,6 +54,12 @@ const Route = (
   props: { component: () => React.ReactNode } & RouteComponentProps,
 ) => <div {...{ props }}>{props.component()}</div>;
 
+const assertFieldErrors = async (errors: string[], selector: string) => {
+  await screen.findByText(errors.join(", "), {
+    selector: `[data-for="${snakeToCamelCase(selector)}"]`,
+  });
+};
+
 export const assertSerializerMessages = async (
   Subject: React.ComponentType<any>,
   messages: SerializerMessages,
@@ -76,24 +82,32 @@ export const assertSerializerMessages = async (
   for (const [field, errors] of Object.entries(messages)) {
     // An object of serializer messages contains values of either:
     // - an array of strings
-    // - an array of objects containing this same thing, indicating nested fields
-    // We start by checking if the field contains nested fields
-    if (typeof errors[0] === "object") {
-      let index = 0;
-      for (const set of errors) {
-        for (const [innerField, innerErrors] of Object.entries(set)) {
-          await screen.findByText(innerErrors.join(", "), {
-            selector: `[data-for="${snakeToCamelCase(
-              field,
-            )}[${index}].${snakeToCamelCase(innerField)}"]`,
-          });
+    // - an object containing this same thing
+    // - an array of objects containing this same thing
+
+    // First we'll see if the errors are an array
+    if (Array.isArray(errors)) {
+      // Then check if the errors are objects, indicating nested fields
+      if (typeof errors[0] === "object") {
+        let index = 0;
+        for (const set of errors) {
+          for (const [innerField, innerErrors] of Object.entries(set)) {
+            await assertFieldErrors(
+              innerErrors,
+              `${field}[${index}].${innerField}`,
+            );
+          }
+          index++;
         }
-        index++;
+        // Otherwise we know the array is strings for the top-level field
+      } else {
+        await assertFieldErrors(errors as string[], snakeToCamelCase(field));
       }
+      // If the errors aren't an array we know there are child fields
     } else {
-      await screen.findByText(errors.join(", "), {
-        selector: `[data-for="${snakeToCamelCase(field)}"]`,
-      });
+      for (const [innerField, innerErrors] of Object.entries(errors)) {
+        await assertFieldErrors(innerErrors, `${field}.${innerField}`);
+      }
     }
   }
 };

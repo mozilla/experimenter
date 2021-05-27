@@ -10,8 +10,8 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
-import { SERVER_ERRORS } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
+import { assertSerializerMessages } from "../../../lib/test-utils";
 import {
   MOCK_BRANCH,
   MOCK_EXPERIMENT,
@@ -402,75 +402,22 @@ describe("FormBranches", () => {
     expect(saveResult.treatmentBranches[1]).toEqual(expectedData);
   });
 
-  it("displays warning icon when branches have review errors", async () => {
-    Object.defineProperty(window, "location", {
-      value: {
-        search: "?show-errors",
+  it("can display server review-readiness messages", async () => {
+    await assertSerializerMessages(SubjectBranches, {
+      reference_branch: {
+        name: ["Drop a heart", "and break a name"],
+        description: [
+          "We're always sleeping in and sleeping",
+          "For the wrong team",
+        ],
       },
+      treatment_branches: [
+        {
+          name: ["We're going down"],
+          description: ["Down in an earlier round"],
+        },
+      ],
     });
-
-    const expectedReviewErrors = {
-      reference_branch: [SERVER_ERRORS.NULL_FIELD],
-      treatment_branches: [null, [SERVER_ERRORS.BLANK_DESCRIPTION]],
-    } as const;
-
-    render(
-      <SubjectBranches
-        {...{
-          experiment: {
-            ...MOCK_EXPERIMENT,
-            readyForReview: {
-              ready: false,
-              message: expectedReviewErrors,
-            },
-          },
-        }}
-      />,
-    );
-
-    const referenceIcon = screen.queryByTestId(
-      "missing-referenceBranch-missing-icon-0",
-    );
-    expect(referenceIcon).toBeInTheDocument();
-    expect(referenceIcon).toHaveAttribute(
-      "data-tip",
-      expectedReviewErrors.reference_branch[0],
-    );
-
-    const treatmentIcon = screen.queryByTestId(
-      "missing-treatmentBranches[1]-missing-icon-0",
-    );
-    expect(treatmentIcon).toBeInTheDocument();
-    expect(treatmentIcon).toHaveAttribute(
-      "data-tip",
-      expectedReviewErrors.treatment_branches[1][0],
-    );
-  });
-
-  it("displays no warning icon when review error content is string", async () => {
-    Object.defineProperty(window, "location", {
-      value: {
-        search: "?show-errors",
-      },
-    });
-
-    render(
-      <SubjectBranches
-        {...{
-          experiment: {
-            ...MOCK_EXPERIMENT,
-            readyForReview: {
-              ready: false,
-              message: "unexpected error",
-            },
-          },
-        }}
-      />,
-    );
-
-    expect(
-      screen.queryByTestId("missing-referenceBranch-missing-icon-0"),
-    ).not.toBeInTheDocument();
   });
 });
 
