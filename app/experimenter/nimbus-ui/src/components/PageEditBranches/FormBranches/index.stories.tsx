@@ -6,6 +6,7 @@ import { action } from "@storybook/addon-actions";
 import { storiesOf } from "@storybook/react";
 import React, { useState } from "react";
 import { FormBranches } from ".";
+import { SERVER_ERRORS } from "../../../lib/constants";
 import {
   MOCK_ANNOTATED_BRANCH,
   MOCK_EXPERIMENT,
@@ -156,8 +157,8 @@ storiesOf("pages/EditBranches/FormBranches", module)
         readyForReview: {
           ready: false,
           message: {
-            reference_branch: ["Description may not be blank"],
-            treatment_branches: [null, ["Description may not be blank"]],
+            reference_branch: [SERVER_ERRORS.BLANK_DESCRIPTION],
+            treatment_branches: [null, [SERVER_ERRORS.BLANK_DESCRIPTION]],
           },
         },
       }}

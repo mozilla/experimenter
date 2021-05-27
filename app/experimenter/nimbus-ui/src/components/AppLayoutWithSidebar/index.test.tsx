@@ -4,7 +4,7 @@
 
 import { act, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { BASE_PATH } from "../../lib/constants";
+import { BASE_PATH, SERVER_ERRORS } from "../../lib/constants";
 import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
 import { renderWithRouter } from "../../lib/test-utils";
 import {
@@ -105,7 +105,7 @@ describe("AppLayoutWithSidebar", () => {
             readyForReview: {
               ready: false,
               message: {
-                channel: ["This list may not be empty."],
+                channel: [SERVER_ERRORS.EMPTY_LIST],
               },
             },
           }}

@@ -1584,7 +1584,37 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"], ["This field may not be null."]
+            serializer.errors["feature_config"],
+            [NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG],
+        )
+
+    def test_invalid_experiment_risk_questions(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.CREATED,
+            risk_partner_related=None,
+            risk_revenue=None,
+            risk_brand=None,
+        )
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            str(serializer.errors["risk_partner_related"][0]),
+            NimbusConstants.ERROR_REQUIRED_QUESTION,
+        )
+        self.assertEqual(
+            str(serializer.errors["risk_revenue"][0]),
+            NimbusConstants.ERROR_REQUIRED_QUESTION,
+        )
+        self.assertEqual(
+            str(serializer.errors["risk_brand"][0]),
+            NimbusConstants.ERROR_REQUIRED_QUESTION,
         )
 
 

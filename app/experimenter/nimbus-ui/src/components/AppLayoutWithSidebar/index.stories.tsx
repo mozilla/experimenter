@@ -5,6 +5,7 @@
 import { withLinks } from "@storybook/addon-links";
 import React from "react";
 import AppLayoutWithSidebar from ".";
+import { SERVER_ERRORS } from "../../lib/constants";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { Subject } from "./mocks";
 
@@ -36,8 +37,8 @@ export const MissingDetails = () => (
       readyForReview: {
         ready: false,
         message: {
-          reference_branch: ["This field may not be null."],
-          channel: ["This list may not be empty."],
+          reference_branch: [SERVER_ERRORS.NULL_FIELD],
+          channel: [SERVER_ERRORS.EMPTY_LIST],
         },
       },
     }}
