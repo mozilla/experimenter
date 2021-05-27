@@ -10,6 +10,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
+import { SERVER_ERRORS } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import {
   MOCK_BRANCH,
@@ -409,8 +410,8 @@ describe("FormBranches", () => {
     });
 
     const expectedReviewErrors = {
-      reference_branch: ["This field may not be null."],
-      treatment_branches: [null, ["Description may not be blank"]],
+      reference_branch: [SERVER_ERRORS.NULL_FIELD],
+      treatment_branches: [null, [SERVER_ERRORS.BLANK_DESCRIPTION]],
     } as const;
 
     render(

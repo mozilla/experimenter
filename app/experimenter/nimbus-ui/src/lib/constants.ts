@@ -11,6 +11,13 @@ export const UNKNOWN_ERROR =
 export const SUBMIT_ERROR =
   "Sorry, an error occurred while submitting. Please try again.";
 
+export const SERVER_ERRORS = {
+  REQUIRED_QUESTION: "This question may not be blank.",
+  NULL_FIELD: "This field may not be null.",
+  EMPTY_LIST: "This list may not be empty.",
+  BLANK_DESCRIPTION: "Description may not be blank.",
+};
+
 export const EXTERNAL_URLS = {
   TRAINING_AND_PLANNING_DOC:
     "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Onboarding",
