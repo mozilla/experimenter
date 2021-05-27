@@ -138,7 +138,7 @@ export const RESULTS_METRICS_LIST = [
   },
   {
     value: METRIC.SEARCH,
-    name: "Daily Mean Searches Per User",
+    name: "Mean Searches Per User",
     tooltip: METRICS_TIPS.SEARCH,
     type: METRIC_TYPE.GUARDRAIL,
   },
