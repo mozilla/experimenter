@@ -33,4 +33,28 @@ storiesOf("pages/Results/ConfidenceInterval", module)
       range={65}
       significance={SIGNIFICANCE.NEGATIVE}
     />
+  ))
+  .add("with small positive significance", () => (
+    <ConfidenceInterval
+      upper={50}
+      lower={45}
+      range={50}
+      significance={SIGNIFICANCE.POSITIVE}
+    />
+  ))
+  .add("with small neutral significance", () => (
+    <ConfidenceInterval
+      upper={2}
+      lower={-2}
+      range={2}
+      significance={SIGNIFICANCE.NEUTRAL}
+    />
+  ))
+  .add("with small negative significance", () => (
+    <ConfidenceInterval
+      upper={-45}
+      lower={-50}
+      range={50}
+      significance={SIGNIFICANCE.NEGATIVE}
+    />
   ));
