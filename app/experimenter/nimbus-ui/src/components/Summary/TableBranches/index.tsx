@@ -41,7 +41,7 @@ const TableBranches = ({
     experiment.referenceBranch,
     ...(experiment.treatmentBranches || []),
   ].filter((branch): branch is Branch => branch !== null);
-  const savedBranches = branches.filter((branch) => branch.name);
+  const savedBranches = branches.filter((branch) => branch.slug);
   const branchCount = savedBranches.length;
   const hasOneBranchNameSet = Boolean(savedBranches);
 

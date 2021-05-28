@@ -159,7 +159,7 @@ class NimbusExperimentBranchMixin:
     def create(self, validated_data):
         experiment = super().create(validated_data)
         experiment.reference_branch = NimbusBranch.objects.create(
-            experiment=experiment, slug="control", name="Control", feature_enabled=False
+            experiment=experiment, name="control", feature_enabled=False
         )
         experiment.save()
         return experiment
@@ -575,7 +575,7 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     def validate_reference_branch(self, value):
         if value["description"] == "":
             raise serializers.ValidationError(
-                {"description": ["This field cannot be blank."]}
+                {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]}
             )
         return value
 
@@ -584,7 +584,7 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
         for branch in value:
             error = {}
             if branch["description"] == "":
-                error["description"] = ["This field cannot be blank."]
+                error["description"] = [NimbusConstants.ERROR_REQUIRED_FIELD]
             errors.append(error)
 
         if any(x for x in errors):

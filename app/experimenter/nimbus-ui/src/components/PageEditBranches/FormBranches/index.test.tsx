@@ -43,7 +43,7 @@ describe("FormBranches", () => {
     expect(onNext).not.toHaveBeenCalled();
   });
 
-  it("sets expected default name values", async () => {
+  it("sets expected default treatment name", async () => {
     render(
       <SubjectBranches
         {...{
@@ -68,10 +68,6 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    const controlBranchName = (await screen.findByTestId(
-      "referenceBranch.name",
-    )) as HTMLInputElement;
-    expect(controlBranchName.value).toEqual("control");
     const treatmentBranchName = (await screen.findByTestId(
       "treatmentBranches[0].name",
     )) as HTMLInputElement;
