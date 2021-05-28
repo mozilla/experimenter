@@ -96,7 +96,7 @@ export const SubjectBranch = ({
             // react-hook-form types seem broken for nested fields
             touched: (touched.referenceBranch ||
               {}) as FormBranchProps["touched"],
-            reviewErrors: undefined,
+            reviewErrors: {},
             branch,
             isReference,
             equalRatio,

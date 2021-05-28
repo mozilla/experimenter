@@ -41,7 +41,7 @@ describe("TableBranches", () => {
           ...MOCK_EXPERIMENT,
           referenceBranch: {
             ...MOCK_EXPERIMENT.referenceBranch!,
-            name: "",
+            slug: "",
           },
           treatmentBranches: [
             {
@@ -142,7 +142,7 @@ describe("TableBranches", () => {
     }
   });
 
-  it("hides branches without 'name' set, displays not set for missing branch properties", () => {
+  it("hides branches without 'slug' set, displays not set for missing branch properties", () => {
     render(
       <Subject
         experiment={{
@@ -150,7 +150,7 @@ describe("TableBranches", () => {
           treatmentBranches: [
             {
               name: "treatment",
-              slug: "",
+              slug: "treatment-1",
               description: "",
               ratio: 0,
               featureValue: null,
@@ -173,12 +173,7 @@ describe("TableBranches", () => {
     expect(branchTables).toHaveLength(2);
 
     const subjectTable = branchTables[1];
-    for (const property of [
-      "slug",
-      "description",
-      "ratio",
-      "featureValue",
-    ] as const) {
+    for (const property of ["description", "ratio", "featureValue"] as const) {
       const cell = subjectTable.querySelector(
         `[data-testid='branch-${property}']`,
       );

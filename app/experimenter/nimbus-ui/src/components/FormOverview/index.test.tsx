@@ -331,7 +331,7 @@ describe("FormOverview", () => {
     render(<Subject {...{ onSubmit, experiment, isLoading: true }} />);
 
     const submitButton = screen.getByTestId("submit-button");
-    waitFor(() => {
+    await waitFor(() => {
       expect(submitButton).toHaveTextContent("Saving");
     });
   });

@@ -8,7 +8,7 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import { FormProvider } from "react-hook-form";
-import { useExitWarning, useForm } from "../../../hooks";
+import { useExitWarning, useForm, useReviewCheck } from "../../../hooks";
 import { IsDirtyUnsaved } from "../../../hooks/useCommonForm/useCommonFormMethods";
 import {
   getConfig_nimbusConfig,
@@ -37,10 +37,7 @@ export const FormBranches = ({
   featureConfig,
   onSave,
 }: FormBranchesProps) => {
-  const reviewErrors =
-    typeof experiment?.readyForReview?.message !== "string"
-      ? experiment?.readyForReview?.message
-      : null;
+  const { fieldMessages } = useReviewCheck(experiment);
 
   const [
     {
@@ -234,7 +231,8 @@ export const FormBranches = ({
                   {}) as FormBranchProps["touched"],
                 isReference: true,
                 branch: { ...referenceBranch, key: "branch-reference" },
-                reviewErrors: reviewErrors?.["reference_branch"],
+                reviewErrors:
+                  (fieldMessages.referenceBranch as SerializerSet) || {},
                 defaultValues: defaultValues.referenceBranch || {},
               }}
             />
@@ -256,7 +254,9 @@ export const FormBranches = ({
                       touched: (touched?.treatmentBranches?.[idx] ||
                         {}) as FormBranchProps["touched"],
                       branch,
-                      reviewErrors: reviewErrors?.["treatment_branches"]?.[idx],
+                      reviewErrors:
+                        (fieldMessages as SerializerMessages<SerializerSet[]>)
+                          .treatmentBranches?.[idx] || {},
                       onRemove: handleRemoveBranch(idx),
                       defaultValues:
                         defaultValues.treatmentBranches?.[idx] || {},

@@ -65,6 +65,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         if (message !== "success" && typeof message === "object") {
           return void setSubmitErrors(message);
         }
+        refetchReview.current!();
         clearSubmitErrors();
 
         if (next) {
@@ -74,7 +75,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         setSubmitErrors({ "*": [error.message] });
       }
     },
-    [updateExperimentBranches],
+    [updateExperimentBranches, refetchReview],
   );
 
   return (

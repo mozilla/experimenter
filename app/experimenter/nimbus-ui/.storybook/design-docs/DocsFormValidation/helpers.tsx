@@ -6,7 +6,6 @@ import React, { useCallback } from "react";
 import { Card, Table } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
-import InlineErrorIcon from "../../../src/components/InlineErrorIcon";
 import { useCommonForm } from "../../../src/hooks";
 
 export const TestCases: React.FunctionComponent = ({ children }) => (
@@ -89,27 +88,16 @@ export const ProtoForm = ({
               {submitErrors["*"]}
             </Alert>
           )}
-          {demoInputs.map(
-            ({ name, label, required = false, requiredAtLaunch }) => (
-              <Form.Group key={name} controlId={name}>
-                <Form.Label>
-                  {label}
-
-                  {requiredAtLaunch && !getValues(name) && (
-                    <InlineErrorIcon
-                      field={name}
-                      message={`A valid ${label} must be set`}
-                    />
-                  )}
-                </Form.Label>
-                <Form.Control
-                  {...formControlAttrs(name, { required })}
-                  type="text"
-                />
-                <FormErrors name={name} />
-              </Form.Group>
-            ),
-          )}
+          {demoInputs.map(({ name, label, required = false }) => (
+            <Form.Group key={name} controlId={name}>
+              <Form.Label>{label}</Form.Label>
+              <Form.Control
+                {...formControlAttrs(name, { required })}
+                type="text"
+              />
+              <FormErrors name={name} />
+            </Form.Group>
+          ))}
 
           <div className="p-2">
             <button

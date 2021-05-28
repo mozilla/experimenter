@@ -44,7 +44,7 @@ class TestNimbusQuery(GraphQLTestCase):
                 experiments[0][key], str(getattr(experiment, to_snake_case(key)))
             )
 
-    def test_experiments_with_no_branches_returns_empty_values(self):
+    def test_experiments_with_no_branches_returns_empty_treatment_values(self):
         user_email = "user@example.com"
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperiment.Lifecycles.CREATED, branches=[]
@@ -54,12 +54,6 @@ class TestNimbusQuery(GraphQLTestCase):
             """
             query {
                 experiments {
-                    referenceBranch {
-                        name
-                        slug
-                        description
-                        ratio
-                    }
                     treatmentBranches {
                         name
                         slug
@@ -74,10 +68,6 @@ class TestNimbusQuery(GraphQLTestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         experiment_data = content["data"]["experiments"][0]
-        self.assertEqual(
-            experiment_data["referenceBranch"],
-            {"name": "", "slug": "", "description": "", "ratio": 1},
-        )
         self.assertEqual(
             experiment_data["treatmentBranches"],
             [{"name": "", "slug": "", "description": "", "ratio": 1}],

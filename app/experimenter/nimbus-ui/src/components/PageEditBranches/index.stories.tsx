@@ -4,27 +4,24 @@
 
 import { withLinks } from "@storybook/addon-links";
 import { withQuery } from "@storybook/addon-queryparams";
-import { storiesOf } from "@storybook/react";
 import React from "react";
 import PageEditBranches from ".";
-import { SERVER_ERRORS } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentApplication } from "../../types/globalTypes";
 
-const { mock } = mockExperimentQuery("demo-slug", {
-  featureConfig: {
-    id: 2,
-    name: "Mauris odio erat",
-    slug: "mauris-odio-erat",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    application: NimbusExperimentApplication.FENIX,
-    ownerEmail: "dude23@yahoo.com",
-    schema: '{ "sample": "schema" }',
-  },
-});
+const featureConfig = {
+  id: 2,
+  name: "Mauris odio erat",
+  slug: "mauris-odio-erat",
+  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  application: NimbusExperimentApplication.FENIX,
+  ownerEmail: "dude23@yahoo.com",
+  schema: '{ "sample": "schema" }',
+};
 
-const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
+const emptyBranches = {
   referenceBranch: {
     name: "",
     slug: "",
@@ -39,41 +36,59 @@ const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
       slug: "",
       description: "",
       ratio: 1,
-      featureValue: "",
-      featureEnabled: false,
+      featureValue: "woop woop",
+      featureEnabled: true,
     },
   ],
-  readyForReview: {
-    ready: false,
-    message: {
-      reference_branch: [SERVER_ERRORS.NULL_FIELD],
-    },
-  },
-});
+};
 
-storiesOf("pages/EditBranches", module)
-  .addDecorator(withLinks)
-  .addDecorator(withQuery)
-  .add("default", () => (
-    <RouterSlugProvider mocks={[mockMissingFields]}>
-      <PageEditBranches />
-    </RouterSlugProvider>
-  ))
-  .add("filled out", () => (
+export default {
+  title: "pages/EditBranches",
+  component: PageEditBranches,
+  decorators: [withLinks, withQuery],
+};
+
+const storyWithExperiment = (
+  experiment?: Partial<getExperiment_experimentBySlug>,
+) => {
+  const { mock } = mockExperimentQuery("demo-slug", experiment);
+  return (
     <RouterSlugProvider mocks={[mock]}>
       <PageEditBranches />
     </RouterSlugProvider>
-  ))
-  .add(
-    "show missing fields",
-    () => (
-      <RouterSlugProvider mocks={[mockMissingFields]}>
-        <PageEditBranches />
-      </RouterSlugProvider>
-    ),
-    {
-      query: {
-        "show-errors": true,
+  );
+};
+
+export const Basic = () => storyWithExperiment(emptyBranches);
+
+export const FilledOutFields = () => storyWithExperiment({ featureConfig });
+
+export const MissingFields = () =>
+  storyWithExperiment({
+    featureConfig,
+    ...emptyBranches,
+    readyForReview: {
+      ready: false,
+      message: {
+        reference_branch: {
+          name: ["Drop a heart", "and break a name"],
+          description: [
+            "We're always sleeping in and sleeping",
+            "For the wrong team",
+          ],
+        },
+        treatment_branches: [
+          {
+            name: ["We're going down"],
+            description: ["Down in an earlier round"],
+            featureValue: ["Sugar we're going down swinging"],
+          },
+        ],
       },
     },
-  );
+  });
+MissingFields.parameters = {
+  query: {
+    "show-errors": true,
+  },
+};

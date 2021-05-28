@@ -16,7 +16,6 @@ import {
   getConfig_nimbusConfig_featureConfig,
 } from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import InlineErrorIcon from "../../InlineErrorIcon";
 import { AnnotatedBranch } from "./reducer";
 
 export const branchFieldNames = [
@@ -49,7 +48,7 @@ export const FormBranch = ({
   fieldNamePrefix: string;
   touched: Record<string, boolean>;
   errors: Record<string, FieldError>;
-  reviewErrors: string[] | undefined;
+  reviewErrors: SerializerSet;
   branch: AnnotatedBranch;
   equalRatio?: boolean;
   isReference?: boolean;
@@ -75,6 +74,7 @@ export const FormBranch = ({
       submitErrors,
       errors,
       touched,
+      reviewErrors,
     );
 
   const featureEnabled = watch(`${fieldNamePrefix}.featureEnabled`);
@@ -152,14 +152,6 @@ export const FormBranch = ({
             )}
           </Form.Group>
           <Form.Group as={Col} sm={1} className="align-top text-right">
-            {Array.isArray(reviewErrors) &&
-              reviewErrors.map((error, idx) => (
-                <InlineErrorIcon
-                  key={`${fieldNamePrefix}-missing-icon-${idx}`}
-                  field={`${fieldNamePrefix}-missing-icon-${idx}`}
-                  message={error}
-                />
-              ))}
             {!isReference && onRemove && (
               <Button
                 data-testid="remove-branch"
