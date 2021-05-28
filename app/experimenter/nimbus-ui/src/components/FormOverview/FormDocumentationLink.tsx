@@ -22,10 +22,10 @@ export type FormDocumentationLinkProps = {
   errors: Record<string, FieldError>;
   onRemove: () => void;
   canRemove: boolean;
-  submitErrors: SerializerMessages;
+  submitErrors: SerializerSet;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   touched: Record<string, boolean>;
-  reviewMessages: SerializerMessages;
+  reviewMessages: SerializerSet;
 };
 
 export const FormDocumentationLink = ({

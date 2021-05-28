@@ -7,7 +7,8 @@
 type DateTime = string;
 type ObjectField = Record<string, any> | string;
 
-type SerializerMessages<T = string | Record<string, string[]>> = Record<
-  string,
-  T[]
->;
+type SerializerMessage = string[];
+type SerializerSet = Record<string, SerializerMessage>;
+type SerializerMessages<
+  T = SerializerMessage | SerializerSet | SerializerSet[],
+> = Record<string, T>;

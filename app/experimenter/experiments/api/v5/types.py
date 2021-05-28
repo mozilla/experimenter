@@ -178,9 +178,7 @@ class NimbusExperimentType(DjangoObjectType):
         exclude = ("branches",)
 
     def resolve_reference_branch(self, info):
-        if self.reference_branch:
-            return self.reference_branch
-        return NimbusBranch(feature_enabled=False)
+        return self.reference_branch
 
     def resolve_treatment_branches(self, info):
         if self.treatment_branches:

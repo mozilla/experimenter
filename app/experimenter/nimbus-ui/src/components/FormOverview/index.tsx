@@ -281,12 +281,12 @@ const FormOverview = ({
                       documentationLink,
                       setSubmitErrors,
                       fieldNamePrefix: `documentationLinks[${index}]`,
-                      submitErrors: (submitErrors.documentation_links?.[
-                        index
-                      ] || {}) as SerializerMessages<string>,
-                      reviewMessages: (fieldMessages.documentationLinks?.[
-                        index
-                      ] || {}) as SerializerMessages<string>,
+                      submitErrors:
+                        (submitErrors as SerializerMessages<SerializerSet[]>)
+                          .documentation_links?.[index] || {},
+                      reviewMessages:
+                        (fieldMessages as SerializerMessages<SerializerSet[]>)
+                          .documentationLinks?.[index] || {},
                       //@ts-ignore react-hook-form types seem broken for nested fields
                       errors: (errors?.documentationLinks?.[index] ||
                         {}) as FormDocumentationLinkProps["errors"],
