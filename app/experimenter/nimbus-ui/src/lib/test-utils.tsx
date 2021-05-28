@@ -71,6 +71,7 @@ export const assertSerializerMessages = async (
   });
 
   const { experiment } = mockExperimentQuery("boo", {
+    featureConfig: null,
     readyForReview: {
       ready: false,
       message: messages,
@@ -85,28 +86,32 @@ export const assertSerializerMessages = async (
     // - an object containing this same thing
     // - an array of objects containing this same thing
 
-    // First we'll see if the errors are an array
-    if (Array.isArray(errors)) {
-      // Then check if the errors are objects, indicating nested fields
-      if (typeof errors[0] === "object") {
-        let index = 0;
-        for (const set of errors) {
-          for (const [innerField, innerErrors] of Object.entries(set)) {
-            await assertFieldErrors(
-              innerErrors,
-              `${field}[${index}].${innerField}`,
-            );
+    // Skip `feature_config` because it's displayed on the branches page and accounted
+    // for in branch-specific tests
+    if (field !== "feature_config") {
+      // First we'll see if the errors are an array
+      if (Array.isArray(errors)) {
+        // Then check if the errors are objects, indicating nested fields
+        if (typeof errors[0] === "object") {
+          let index = 0;
+          for (const set of errors) {
+            for (const [innerField, innerErrors] of Object.entries(set)) {
+              await assertFieldErrors(
+                innerErrors,
+                `${field}[${index}].${innerField}`,
+              );
+            }
+            index++;
           }
-          index++;
+          // Otherwise we know the array is strings for the top-level field
+        } else {
+          await assertFieldErrors(errors as string[], snakeToCamelCase(field));
         }
-        // Otherwise we know the array is strings for the top-level field
+        // If the errors aren't an array we know there are child fields
       } else {
-        await assertFieldErrors(errors as string[], snakeToCamelCase(field));
-      }
-      // If the errors aren't an array we know there are child fields
-    } else {
-      for (const [innerField, innerErrors] of Object.entries(errors)) {
-        await assertFieldErrors(innerErrors, `${field}.${innerField}`);
+        for (const [innerField, innerErrors] of Object.entries(errors)) {
+          await assertFieldErrors(innerErrors, `${field}.${innerField}`);
+        }
       }
     }
   }
