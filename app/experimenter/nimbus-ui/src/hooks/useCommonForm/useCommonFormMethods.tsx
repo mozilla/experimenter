@@ -82,7 +82,12 @@ export function useCommonFormMethods<FieldNames extends string>(
     prefix?: string;
   }) => {
     const fieldName = prefix ? `${prefix}.${name}` : name;
-    const fieldReviewMessages = reviewMessages[name] || [];
+    const fieldReviewMessages =
+      (
+        reviewMessages as SerializerMessages<
+          SerializerMessage | SerializerSet[]
+        >
+      )[name] || [];
     return (
       <>
         {fieldReviewMessages.length > 0 && (

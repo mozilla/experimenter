@@ -1519,7 +1519,7 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"reference_branch": ["Description cannot be blank."]},
+            {"reference_branch": {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]}},
         )
 
     def test_invalid_experiment_requires_non_zero_population_percent(self):
@@ -1565,7 +1565,7 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["treatment_branches"][1],
-            ["Description cannot be blank."],
+            {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]},
         )
 
     def test_invalid_experiment_missing_feature_config(self):

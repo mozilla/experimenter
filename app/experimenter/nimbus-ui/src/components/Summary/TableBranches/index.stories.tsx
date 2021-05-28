@@ -31,7 +31,7 @@ storiesOf("components/Summary/TableBranches", module)
         ...MOCK_EXPERIMENT,
         referenceBranch: {
           ...MOCK_EXPERIMENT.referenceBranch!,
-          name: "",
+          slug: "",
         },
         treatmentBranches: [
           {

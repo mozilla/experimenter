@@ -23,7 +23,7 @@ export type AnnotatedBranch = TreatmentBranchType & {
   key: string;
   isValid: boolean;
   isDirty: boolean;
-  errors: Record<string, string[]>;
+  errors: SerializerSet;
   slug?: string;
 };
 
@@ -67,15 +67,15 @@ export function annotateExperimentBranch(
 ) {
   return {
     ...branch,
-    // Set default branch names - reference branch to "control" and first treatment branch to "treatment"
+    // Set default treatment branch name - reference branch is set by the server
     ...(branch.name === "" && {
-      name:
-        lastId === "reference" ? "control" : lastId === 0 ? "treatment" : "",
+      name: lastId === 0 ? "treatment" : "",
     }),
     key: `branch-${lastId}`,
     isValid: true,
     isDirty: false,
     errors: {},
+    reviewMessages: {},
   };
 }
 
