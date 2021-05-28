@@ -126,6 +126,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         "NimbusBranch", blank=True, null=True, on_delete=models.CASCADE
     )
     published_dto = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+    results_data = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
     risk_partner_related = models.BooleanField(default=None, blank=True, null=True)
     risk_revenue = models.BooleanField(default=None, blank=True, null=True)
     risk_brand = models.BooleanField(default=None, blank=True, null=True)

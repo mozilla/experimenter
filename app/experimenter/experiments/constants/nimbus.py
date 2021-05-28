@@ -413,6 +413,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     # buffer day is added for Jetstream to compute the results.
     DAYS_UNTIL_ANALYSIS = 8
 
+    # As a buffer, continue to pull in analysis from Jetstream
+    # for 3 days after an experiment is complete.
+    DAYS_ANALYSIS_BUFFER = 3
+
     KINTO_COLLECTION_APPLICATIONS = {
         settings.KINTO_COLLECTION_NIMBUS_DESKTOP: [
             APPLICATION_CONFIG_DESKTOP.slug,

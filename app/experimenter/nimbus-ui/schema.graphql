@@ -312,6 +312,7 @@ type NimbusExperimentType {
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
   referenceBranch: NimbusBranchType
   publishedDto: JSONString
+  resultsData: JSONString
   riskPartnerRelated: Boolean
   riskRevenue: Boolean
   riskBrand: Boolean
