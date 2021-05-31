@@ -244,11 +244,14 @@ def nimbus_check_experiments_are_live():
     """
     metrics.incr("check_experiments_are_live.started")
 
-    for collection in NimbusExperiment.KINTO_COLLECTION_APPLICATIONS.keys():
+    for (
+        collection,
+        applications,
+    ) in NimbusExperiment.KINTO_COLLECTION_APPLICATIONS.items():
         kinto_client = KintoClient(collection)
         records = kinto_client.get_main_records()
 
-        for experiment in NimbusExperiment.objects.waiting_to_launch_queue():
+        for experiment in NimbusExperiment.objects.waiting_to_launch_queue(applications):
             if experiment.slug in records:
                 logger.info(
                     f"{experiment} status is being updated to live".format(
@@ -289,12 +292,7 @@ def nimbus_check_experiments_are_paused():
         kinto_client = KintoClient(collection)
         records = kinto_client.get_main_records()
 
-        pause_queue = NimbusExperiment.objects.filter(
-            NimbusExperiment.Filters.IS_PAUSE_CANDIDATE,
-            application__in=applications,
-        )
-
-        for experiment in pause_queue:
+        for experiment in NimbusExperiment.objects.waiting_to_pause_queue(applications):
             if records[experiment.slug]["isEnrollmentPaused"]:
                 logger.info(
                     f"{experiment.slug} is_paused is being updated to True".format(

@@ -148,7 +148,27 @@ class TestNimbusExperimentManager(TestCase):
         )
 
         self.assertEqual(
-            list(NimbusExperiment.objects.waiting_to_launch_queue()), [launching]
+            list(
+                NimbusExperiment.objects.waiting_to_launch_queue([launching.application])
+            ),
+            [launching],
+        )
+
+    def test_waiting_to_pause_only_returns_pausing_experiments(self):
+        pausing = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LIVE_ENROLLING_WAITING
+        )
+        NimbusExperimentFactory.create_with_lifecycle(NimbusExperiment.Lifecycles.CREATED)
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperiment.Lifecycles.ENDING_APPROVE_WAITING,
+        )
+
+        self.assertEqual(
+            list(NimbusExperiment.objects.waiting_to_pause_queue([pausing.application])),
+            [pausing],
         )
 
 
