@@ -239,20 +239,20 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     @property
     def start_date(self):
-        start_changelog = self.changes.filter(
-            new_status=NimbusExperiment.Status.LIVE,
+        start_changelogs = self.changes.filter(
             old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
         )
-        if start_changelog.exists():
-            return start_changelog.get().changed_on
+        if start_changelogs.exists():
+            return start_changelogs.order_by("-changed_on").first().changed_on
 
     @property
     def end_date(self):
-        end_changelog = self.changes.filter(
+        end_changelogs = self.changes.filter(
             old_status=self.Status.LIVE, new_status=self.Status.COMPLETE
         )
-        if end_changelog.exists():
-            return end_changelog.get().changed_on
+        if end_changelogs.exists():
+            return end_changelogs.order_by("-changed_on").first().changed_on
 
     @property
     def proposed_enrollment_end_date(self):
