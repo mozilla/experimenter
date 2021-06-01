@@ -137,12 +137,34 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         verbose_name_plural = "Nimbus Experiments"
 
     class Filters:
-        IS_LAUNCH_QUEUED = Q(**NimbusConstants.LifecycleStates.DRAFT_APPROVED.value)
-        IS_LAUNCHING = Q(**NimbusConstants.LifecycleStates.DRAFT_WAITING.value)
-        IS_PAUSE_QUEUED = Q(**NimbusConstants.LifecycleStates.LIVE_IDLE_ENROLLING.value)
-        IS_PAUSING = Q(**NimbusConstants.LifecycleStates.LIVE_WAITING_ENROLLING.value)
-        IS_END_QUEUED = Q(**NimbusConstants.LifecycleStates.LIVE_APPROVED_ENDING.value)
-        IS_ENDING = Q(**NimbusConstants.LifecycleStates.LIVE_WAITING_ENDING.value)
+        IS_LAUNCH_QUEUED = Q(
+            status=NimbusConstants.Status.DRAFT,
+            publish_status=NimbusConstants.PublishStatus.APPROVED,
+        )
+        IS_LAUNCHING = Q(
+            status=NimbusConstants.Status.DRAFT,
+            publish_status=NimbusConstants.PublishStatus.WAITING,
+        )
+        IS_PAUSE_QUEUED = Q(
+            status=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.IDLE,
+            is_paused=False,
+        )
+        IS_PAUSING = Q(
+            status=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.WAITING,
+            is_paused=False,
+        )
+        IS_END_QUEUED = Q(
+            status=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.APPROVED,
+            is_end_requested=True,
+        )
+        IS_ENDING = Q(
+            status=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.WAITING,
+            is_end_requested=True,
+        )
         SHOULD_TIMEOUT = Q(IS_LAUNCHING | IS_ENDING)
         SHOULD_ALLOCATE_BUCKETS = Q(
             Q(status=NimbusConstants.Status.PREVIEW)

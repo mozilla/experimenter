@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from enum import Enum
 from typing import Dict
 
 from django.conf import settings
@@ -195,118 +194,19 @@ TARGETING_URLBAR_FIREFOX_SUGGEST = NimbusTargetingConfig(
 )
 
 
-class Status(models.TextChoices):
-    DRAFT = "Draft"
-    PREVIEW = "Preview"
-    LIVE = "Live"
-    COMPLETE = "Complete"
-
-
-class PublishStatus(models.TextChoices):
-    IDLE = "Idle"
-    REVIEW = "Review"
-    APPROVED = "Approved"
-    WAITING = "Waiting"
-
-
-class LifecycleStates(Enum):
-    DRAFT_IDLE = {
-        "status": Status.DRAFT,
-        "publish_status": PublishStatus.IDLE,
-    }
-    PREVIEW_IDLE = {
-        "status": Status.PREVIEW,
-        "publish_status": PublishStatus.IDLE,
-    }
-    DRAFT_REVIEW = {
-        "status": Status.DRAFT,
-        "publish_status": PublishStatus.REVIEW,
-    }
-    DRAFT_APPROVED = {
-        "status": Status.DRAFT,
-        "publish_status": PublishStatus.APPROVED,
-    }
-    DRAFT_WAITING = {
-        "status": Status.DRAFT,
-        "publish_status": PublishStatus.WAITING,
-    }
-    LIVE_IDLE = {
-        "status": Status.LIVE,
-        "publish_status": PublishStatus.IDLE,
-    }
-    LIVE_IDLE_ENROLLING = {
-        "status": Status.LIVE,
-        "publish_status": PublishStatus.IDLE,
-        "is_paused": False,
-    }
-    LIVE_WAITING_ENROLLING = {
-        "status": Status.LIVE,
-        "publish_status": PublishStatus.WAITING,
-        "is_paused": False,
-    }
-    LIVE_IDLE_PAUSED = {
-        "status": Status.LIVE,
-        "publish_status": PublishStatus.IDLE,
-        "is_paused": True,
-    }
-    LIVE_REVIEW_ENDING = {
-        "status": Status.LIVE,
-        "publish_status": PublishStatus.REVIEW,
-        "is_end_requested": True,
-    }
-    LIVE_IDLE_REJECT_ENDING = {
-        "status": Status.LIVE,
-        "publish_status": PublishStatus.IDLE,
-        "is_end_requested": False,
-    }
-    LIVE_APPROVED_ENDING = {
-        "status": Status.LIVE,
-        "publish_status": PublishStatus.APPROVED,
-        "is_end_requested": True,
-    }
-    LIVE_WAITING_ENDING = {
-        "status": Status.LIVE,
-        "publish_status": PublishStatus.WAITING,
-        "is_end_requested": True,
-    }
-    COMPLETE_IDLE = {
-        "status": Status.COMPLETE,
-        "publish_status": PublishStatus.IDLE,
-        "is_end_requested": True,
-    }
-
-
-class Lifecycles(Enum):
-    CREATED = (LifecycleStates.DRAFT_IDLE,)
-    PREVIEW = CREATED + (LifecycleStates.PREVIEW_IDLE,)
-    LAUNCH_REVIEW_REQUESTED = CREATED + (LifecycleStates.DRAFT_REVIEW,)
-    LAUNCH_REJECT = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_IDLE,)
-    LAUNCH_APPROVE = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_APPROVED,)
-    LAUNCH_APPROVE_WAITING = LAUNCH_APPROVE + (LifecycleStates.DRAFT_WAITING,)
-    LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
-    LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
-    LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE_ENROLLING,)
-    LIVE_ENROLLING_WAITING = LIVE_ENROLLING + (LifecycleStates.LIVE_WAITING_ENROLLING,)
-    LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
-    ENDING_REVIEW_REQUESTED = LAUNCH_APPROVE_APPROVE + (
-        LifecycleStates.LIVE_REVIEW_ENDING,
-    )
-    ENDING_APPROVE = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_ENDING,)
-    ENDING_APPROVE_WAITING = ENDING_APPROVE + (LifecycleStates.LIVE_WAITING_ENDING,)
-    ENDING_APPROVE_APPROVE = ENDING_APPROVE_WAITING + (LifecycleStates.COMPLETE_IDLE,)
-    ENDING_APPROVE_REJECT = ENDING_APPROVE_WAITING + (
-        LifecycleStates.LIVE_IDLE_REJECT_ENDING,
-    )
-    ENDING_APPROVE_TIMEOUT = ENDING_APPROVE_WAITING + (
-        LifecycleStates.LIVE_REVIEW_ENDING,
-    )
-
-
 class NimbusConstants(object):
-    Status = Status
-    PublishStatus = PublishStatus
-    LifecycleStates = LifecycleStates
-    Lifecycles = Lifecycles
+    class Status(models.TextChoices):
+        DRAFT = "Draft"
+        PREVIEW = "Preview"
+        LIVE = "Live"
+        COMPLETE = "Complete"
+
+    class PublishStatus(models.TextChoices):
+        IDLE = "Idle"
+        REVIEW = "Review"
+        APPROVED = "Approved"
+        WAITING = "Waiting"
+
     Application = Application
 
     VALID_STATUS_TRANSITIONS = {

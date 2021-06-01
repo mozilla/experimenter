@@ -11,7 +11,7 @@ from experimenter.experiments.tests.factories import NimbusExperimentFactory
 class TestNimbusEmail(TestCase):
     def test_send_experiment_ending_email(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_duration=10,
         )
         experiment.changes.filter(
