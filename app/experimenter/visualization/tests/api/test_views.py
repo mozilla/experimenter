@@ -24,8 +24,8 @@ class TestVisualizationView(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperiment.Lifecycles.CREATED,),
-            (NimbusExperiment.Lifecycles.ENDING_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
     @patch("django.core.files.storage.default_storage.exists")
@@ -103,8 +103,8 @@ class TestVisualizationView(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperiment.Lifecycles.CREATED,),
-            (NimbusExperiment.Lifecycles.ENDING_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
     @patch("django.core.files.storage.default_storage.open")
