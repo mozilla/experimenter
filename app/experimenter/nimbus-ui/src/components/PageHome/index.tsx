@@ -22,12 +22,20 @@ import sortByStatus from "./sortByStatus";
 type PageHomeProps = {} & RouteComponentProps;
 
 export const Body = () => {
-  const { data, loading } = useQuery<{
+  const { data, loading, error } = useQuery<{
     experiments: getAllExperiments_experiments[];
   }>(GET_EXPERIMENTS_QUERY);
 
   if (loading) {
     return <PageLoading />;
+  }
+
+  if (error) {
+    return (
+      <Alert variant="warning">
+        An error occurred while looking up experiments: {error.message}
+      </Alert>
+    );
   }
 
   if (!data) {
