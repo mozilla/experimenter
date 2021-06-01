@@ -149,11 +149,13 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             status=NimbusConstants.Status.LIVE,
             publish_status=NimbusConstants.PublishStatus.IDLE,
             is_paused=False,
+            is_end_requested=False,
         )
         IS_PAUSING = Q(
             status=NimbusConstants.Status.LIVE,
             publish_status=NimbusConstants.PublishStatus.WAITING,
             is_paused=False,
+            is_end_requested=False,
         )
         IS_END_QUEUED = Q(
             status=NimbusConstants.Status.LIVE,
