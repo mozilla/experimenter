@@ -32,7 +32,7 @@ class NimbusExperimentManager(models.Manager):
 
     def pause_queue(self, applications):
         return self.filter(
-            NimbusExperiment.Filters.IS_PAUSE_CANDIDATE,
+            NimbusExperiment.Filters.IS_PAUSE_QUEUED,
             application__in=applications,
             id__in=[
                 experiment.id for experiment in self.all() if experiment.should_pause
@@ -51,8 +51,15 @@ class NimbusExperimentManager(models.Manager):
             application__in=applications,
         )
 
-    def waiting_to_launch_queue(self):
-        return self.filter(NimbusExperiment.Filters.IS_LAUNCHING)
+    def waiting_to_launch_queue(self, applications):
+        return self.filter(
+            NimbusExperiment.Filters.IS_LAUNCHING, application__in=applications
+        )
+
+    def waiting_to_pause_queue(self, applications):
+        return self.filter(
+            NimbusExperiment.Filters.IS_PAUSING, application__in=applications
+        )
 
 
 class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
@@ -132,7 +139,8 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     class Filters:
         IS_LAUNCH_QUEUED = Q(**NimbusConstants.LifecycleStates.DRAFT_APPROVED.value)
         IS_LAUNCHING = Q(**NimbusConstants.LifecycleStates.DRAFT_WAITING.value)
-        IS_PAUSE_CANDIDATE = Q(**NimbusConstants.LifecycleStates.PAUSE_CANDIDATE.value)
+        IS_PAUSE_QUEUED = Q(**NimbusConstants.LifecycleStates.LIVE_IDLE_ENROLLING.value)
+        IS_PAUSING = Q(**NimbusConstants.LifecycleStates.LIVE_WAITING_ENROLLING.value)
         IS_END_QUEUED = Q(**NimbusConstants.LifecycleStates.LIVE_APPROVED_ENDING.value)
         IS_ENDING = Q(**NimbusConstants.LifecycleStates.LIVE_WAITING_ENDING.value)
         SHOULD_TIMEOUT = Q(IS_LAUNCHING | IS_ENDING)
@@ -224,7 +232,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     @property
     def proposed_enrollment_end_date(self):
-        if self.start_date and self.proposed_enrollment:
+        if self.start_date and self.proposed_enrollment is not None:
             return (
                 self.start_date + datetime.timedelta(days=self.proposed_enrollment)
             ).date()
