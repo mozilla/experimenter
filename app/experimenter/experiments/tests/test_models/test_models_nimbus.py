@@ -281,8 +281,36 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(experiment.start_date, start_change.changed_on)
 
+    def test_start_date_uses_most_recent_start_change(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusChangeLogFactory(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        )
+        start_change = NimbusChangeLogFactory(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        )
+        self.assertEqual(experiment.start_date, start_change.changed_on)
+
     def test_end_date_returns_datetime_for_ended_experiment(self):
         experiment = NimbusExperimentFactory.create()
+        end_change = NimbusChangeLogFactory(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.COMPLETE,
+        )
+        self.assertEqual(experiment.end_date, end_change.changed_on)
+
+    def test_end_date_uses_most_recent_end_change(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusChangeLogFactory(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.COMPLETE,
+        )
         end_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
