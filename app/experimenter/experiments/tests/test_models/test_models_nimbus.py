@@ -137,16 +137,20 @@ class TestNimbusExperimentManager(TestCase):
 
     def test_waiting_to_launch_only_returns_launching_experiments(self):
         launching = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            name="launching",
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            name="created",
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            name="launch approve approve",
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,
+            name="ending approve waiting",
         )
 
         self.assertEqual(
@@ -158,16 +162,20 @@ class TestNimbusExperimentManager(TestCase):
 
     def test_waiting_to_pause_only_returns_pausing_experiments(self):
         pausing = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING,
+            name="pausing",
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            name="created",
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            name="launch approve approve",
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,
+            name="ending approve waiting",
         )
 
         self.assertEqual(
