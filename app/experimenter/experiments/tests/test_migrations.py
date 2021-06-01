@@ -49,7 +49,7 @@ class TestMigration0170(MigrationTestCase):
 
         # Experiment was created with no feature when features weren't required
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             feature_config=None,
             application=NimbusExperiment.Application.DESKTOP,
         )
@@ -78,7 +78,7 @@ class TestMigration0170(MigrationTestCase):
 
         # Experiment was created with no feature when features weren't required
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             feature_config=None,
             application=NimbusExperiment.Application.DESKTOP,
         )
@@ -103,7 +103,7 @@ class TestMigration0170(MigrationTestCase):
 
         # Experiment was created with no feature when features weren't required
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             feature_config=None,
         )
         generate_nimbus_changelog(experiment, experiment.owner, "feature is None")

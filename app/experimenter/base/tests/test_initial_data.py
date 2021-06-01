@@ -2,6 +2,7 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from experimenter.experiments.models import Experiment, NimbusExperiment
+from experimenter.experiments.tests.factories import NimbusExperimentFactory
 
 
 class TestInitialData(TestCase):
@@ -13,7 +14,7 @@ class TestInitialData(TestCase):
         for status, _ in Experiment.STATUS_CHOICES:
             self.assertTrue(Experiment.objects.filter(status=status).exists())
 
-        for lifecycle in NimbusExperiment.Lifecycles:
+        for lifecycle in NimbusExperimentFactory.Lifecycles:
             states = lifecycle.value
             final_state = states[-1].value
             self.assertTrue(NimbusExperiment.objects.filter(**final_state).exists())

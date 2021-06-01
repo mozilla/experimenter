@@ -14,7 +14,7 @@ class TestNimbusExperimentViewSet(TestCase):
     def test_list_view_serializes_experiments(self):
         experiments = []
 
-        for lifecycle in NimbusExperiment.Lifecycles:
+        for lifecycle in NimbusExperimentFactory.Lifecycles:
             final_status = lifecycle.value[-1].value
             if final_status["status"] not in [
                 NimbusExperiment.Status.DRAFT,
@@ -37,7 +37,8 @@ class TestNimbusExperimentViewSet(TestCase):
 
     def test_get_nimbus_experiment_returns_expected_data(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE, slug="test-rest-detail"
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            slug="test-rest-detail",
         )
 
         response = self.client.get(
