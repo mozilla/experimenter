@@ -628,7 +628,7 @@ class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
 
     def test_updates_unpaused_experiment_with_isEnrollmentPaused_true(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperiment.Lifecycles.LIVE_ENROLLING_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
         )
         changes_count = experiment.changes.count()
@@ -649,7 +649,7 @@ class TestNimbusCheckExperimentsArePaused(MockKintoClientMixin, TestCase):
 
     def test_ignores_paused_experiment_with_isEnrollmentPaused_true(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.PAUSED,
+            NimbusExperiment.Lifecycles.LIVE_PAUSED,
             application=NimbusExperiment.Application.DESKTOP,
         )
         changes_count = experiment.changes.count()

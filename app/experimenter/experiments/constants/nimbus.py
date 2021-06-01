@@ -234,12 +234,17 @@ class LifecycleStates(Enum):
         "status": Status.LIVE,
         "publish_status": PublishStatus.IDLE,
     }
-    PAUSE_CANDIDATE = {
+    LIVE_IDLE_ENROLLING = {
         "status": Status.LIVE,
         "publish_status": PublishStatus.IDLE,
         "is_paused": False,
     }
-    PAUSED = {
+    LIVE_WAITING_ENROLLING = {
+        "status": Status.LIVE,
+        "publish_status": PublishStatus.WAITING,
+        "is_paused": False,
+    }
+    LIVE_IDLE_PAUSED = {
         "status": Status.LIVE,
         "publish_status": PublishStatus.IDLE,
         "is_paused": True,
@@ -264,7 +269,7 @@ class LifecycleStates(Enum):
         "publish_status": PublishStatus.WAITING,
         "is_end_requested": True,
     }
-    COMPLETE_IDLE_ENDED = {
+    COMPLETE_IDLE = {
         "status": Status.COMPLETE,
         "publish_status": PublishStatus.IDLE,
         "is_end_requested": True,
@@ -279,18 +284,16 @@ class Lifecycles(Enum):
     LAUNCH_APPROVE = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_APPROVED,)
     LAUNCH_APPROVE_WAITING = LAUNCH_APPROVE + (LifecycleStates.DRAFT_WAITING,)
     LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
-    LAUNCH_APPROVE_REJECT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_IDLE,)
     LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
-    PAUSED = LAUNCH_APPROVE_APPROVE + (LifecycleStates.PAUSED,)
+    LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE_ENROLLING,)
+    LIVE_ENROLLING_WAITING = LIVE_ENROLLING + (LifecycleStates.LIVE_WAITING_ENROLLING,)
+    LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
     ENDING_REVIEW_REQUESTED = LAUNCH_APPROVE_APPROVE + (
         LifecycleStates.LIVE_REVIEW_ENDING,
     )
-    ENDING_REJECT = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_IDLE_REJECT_ENDING,)
     ENDING_APPROVE = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_ENDING,)
     ENDING_APPROVE_WAITING = ENDING_APPROVE + (LifecycleStates.LIVE_WAITING_ENDING,)
-    ENDING_APPROVE_APPROVE = ENDING_APPROVE_WAITING + (
-        LifecycleStates.COMPLETE_IDLE_ENDED,
-    )
+    ENDING_APPROVE_APPROVE = ENDING_APPROVE_WAITING + (LifecycleStates.COMPLETE_IDLE,)
     ENDING_APPROVE_REJECT = ENDING_APPROVE_WAITING + (
         LifecycleStates.LIVE_IDLE_REJECT_ENDING,
     )
