@@ -4,7 +4,6 @@ import random
 from django.core.management.base import BaseCommand
 
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     NimbusExperimentFactory,
@@ -22,6 +21,6 @@ class Command(BaseCommand):
             experiment = ExperimentFactory.create_with_status(status, type=random_type)
             logger.info("Created {}: {}".format(experiment, status))
 
-        for lifecycle in NimbusExperiment.Lifecycles:
+        for lifecycle in NimbusExperimentFactory.Lifecycles:
             experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
             logger.info("Created {}: {}".format(experiment, lifecycle))

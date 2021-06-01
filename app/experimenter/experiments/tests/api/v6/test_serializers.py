@@ -16,7 +16,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema_with_feature(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.ENDING_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
@@ -100,7 +100,7 @@ class TestNimbusExperimentSerializer(TestCase):
     @parameterized.expand(list(NimbusExperiment.Application))
     def test_serializers_with_missing_feature_value(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=application,
             branches=[],
         )
@@ -114,7 +114,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_with_branches_no_feature(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             feature_config=None,
         )
         experiment.save()
@@ -204,7 +204,7 @@ class TestNimbusExperimentSerializer(TestCase):
         expected_appName,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=application,
             channel=channel,
         )
@@ -218,7 +218,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_outputs_targeting(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             application=NimbusExperiment.Application.DESKTOP,
@@ -230,7 +230,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_outputs_empty_targeting(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.LAUNCH_APPROVE,
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             publish_status=NimbusExperiment.PublishStatus.APPROVED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,

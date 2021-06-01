@@ -2,6 +2,7 @@ import decimal
 import json
 import random
 from collections.abc import Iterable
+from enum import Enum
 
 import factory
 from django.utils.text import slugify
@@ -26,6 +27,99 @@ from experimenter.outcomes import Outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 
 faker = FakerFactory.create()
+
+
+class LifecycleStates(Enum):
+    DRAFT_IDLE = {
+        "status": NimbusExperiment.Status.DRAFT,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+    }
+    PREVIEW_IDLE = {
+        "status": NimbusExperiment.Status.PREVIEW,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+    }
+    DRAFT_REVIEW = {
+        "status": NimbusExperiment.Status.DRAFT,
+        "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+    }
+    DRAFT_APPROVED = {
+        "status": NimbusExperiment.Status.DRAFT,
+        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+    }
+    DRAFT_WAITING = {
+        "status": NimbusExperiment.Status.DRAFT,
+        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+    }
+    LIVE_IDLE = {
+        "status": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+    }
+    LIVE_IDLE_ENROLLING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "is_paused": False,
+    }
+    LIVE_WAITING_ENROLLING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+        "is_paused": False,
+    }
+    LIVE_IDLE_PAUSED = {
+        "status": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "is_paused": True,
+    }
+    LIVE_REVIEW_ENDING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+        "is_end_requested": True,
+    }
+    LIVE_IDLE_REJECT_ENDING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "is_end_requested": False,
+    }
+    LIVE_APPROVED_ENDING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+        "is_end_requested": True,
+    }
+    LIVE_WAITING_ENDING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+        "is_end_requested": True,
+    }
+    COMPLETE_IDLE = {
+        "status": NimbusExperiment.Status.COMPLETE,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "is_end_requested": True,
+    }
+
+
+class Lifecycles(Enum):
+    CREATED = (LifecycleStates.DRAFT_IDLE,)
+    PREVIEW = CREATED + (LifecycleStates.PREVIEW_IDLE,)
+    LAUNCH_REVIEW_REQUESTED = CREATED + (LifecycleStates.DRAFT_REVIEW,)
+    LAUNCH_REJECT = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_IDLE,)
+    LAUNCH_APPROVE = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_APPROVED,)
+    LAUNCH_APPROVE_WAITING = LAUNCH_APPROVE + (LifecycleStates.DRAFT_WAITING,)
+    LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
+    LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
+    LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE_ENROLLING,)
+    LIVE_ENROLLING_WAITING = LIVE_ENROLLING + (LifecycleStates.LIVE_WAITING_ENROLLING,)
+    LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
+    ENDING_REVIEW_REQUESTED = LAUNCH_APPROVE_APPROVE + (
+        LifecycleStates.LIVE_REVIEW_ENDING,
+    )
+    ENDING_APPROVE = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_ENDING,)
+    ENDING_APPROVE_WAITING = ENDING_APPROVE + (LifecycleStates.LIVE_WAITING_ENDING,)
+    ENDING_APPROVE_APPROVE = ENDING_APPROVE_WAITING + (LifecycleStates.COMPLETE_IDLE,)
+    ENDING_APPROVE_REJECT = ENDING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_IDLE_REJECT_ENDING,
+    )
+    ENDING_APPROVE_TIMEOUT = ENDING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_REVIEW_ENDING,
+    )
 
 
 class NimbusExperimentFactory(factory.django.DjangoModelFactory):
@@ -75,6 +169,10 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusExperiment
+        exclude = ("Lifecycles", "LifecycleStates")
+
+    Lifecycles = Lifecycles
+    LifecycleStates = LifecycleStates
 
     @factory.post_generation
     def projects(self, create, extracted, **kwargs):

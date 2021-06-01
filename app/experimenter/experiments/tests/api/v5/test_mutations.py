@@ -219,7 +219,7 @@ class TestMutations(GraphQLTestCase):
     def test_does_not_delete_branches_when_other_fields_specified(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
         branch_count = experiment.branches.count()
         response = self.query(
@@ -246,7 +246,7 @@ class TestMutations(GraphQLTestCase):
     def test_does_not_clear_feature_config_when_other_fields_specified(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
         expected_feature_config = experiment.feature_config
 
@@ -534,7 +534,7 @@ class TestMutations(GraphQLTestCase):
     def test_reject_draft_experiment(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.LAUNCH_REVIEW_REQUESTED
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -558,7 +558,7 @@ class TestMutations(GraphQLTestCase):
     def test_reject_ending_experiment(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperiment.Lifecycles.ENDING_REVIEW_REQUESTED
+            NimbusExperimentFactory.Lifecycles.ENDING_REVIEW_REQUESTED
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
