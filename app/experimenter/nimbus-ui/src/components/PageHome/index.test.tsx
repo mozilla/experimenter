@@ -33,6 +33,17 @@ describe("PageHome", () => {
     await renderAndWaitForLoaded([]);
     expect(screen.queryByText("No experiments found.")).toBeInTheDocument();
   });
+  it("displays an error message when there is one", async () => {
+    const error = new Error("You done it now!");
+
+    (jest.spyOn(apollo, "useQuery") as jest.Mock).mockReturnValueOnce({
+      error,
+    });
+
+    render(<Subject />);
+
+    await screen.findByText(error.message, { exact: false });
+  });
   it("displays five Directory Tables (one for each status type)", async () => {
     await renderAndWaitForLoaded();
     expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(5);
