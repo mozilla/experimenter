@@ -206,7 +206,7 @@ describe("Summary", () => {
       const mutationMock = createMutationMock(
         experiment.id!,
         NimbusExperimentPublishStatus.IDLE,
-        { changelogMessage: expectedReason },
+        { isEndRequested: false, changelogMessage: expectedReason },
       );
       render(<Subject props={experiment} mocks={[mutationMock]} />);
       const rejectButton = await screen.findByTestId("reject-request");
