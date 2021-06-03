@@ -20,8 +20,6 @@ export function formBranchesActionReducer(
       return addBranch(state);
     case "removeBranch":
       return removeBranch(state, action);
-    case "removeFeatureConfig":
-      return removeFeatureConfig(state);
     case "setFeatureConfig":
       return setFeatureConfig(state, action);
     case "setEqualRatio":
@@ -40,7 +38,6 @@ export function formBranchesActionReducer(
 export type FormBranchesAction =
   | AddBranchAction
   | RemoveBranchAction
-  | RemoveFeatureConfigAction
   | SetEqualRatioAction
   | SetFeatureConfigAction
   | SetSubmitErrorsAction
@@ -87,10 +84,6 @@ function removeBranch(state: FormBranchesState, { idx }: RemoveBranchAction) {
     ],
   };
 }
-
-type RemoveFeatureConfigAction = {
-  type: "removeFeatureConfig";
-};
 
 function removeFeatureConfig(state: FormBranchesState) {
   let { referenceBranch, treatmentBranches } = state;

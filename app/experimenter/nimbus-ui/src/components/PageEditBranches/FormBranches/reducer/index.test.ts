@@ -177,29 +177,6 @@ describe("formBranchesReducer", () => {
     );
   });
 
-  describe("removeFeatureConfig", () => {
-    it(
-      "disables any enabled features in branches when the config is cleared",
-      commonClearFeatureConfigTest({
-        type: "removeFeatureConfig",
-      }),
-    );
-
-    it("works without error when no branches are defined", () => {
-      const oldState = {
-        ...MOCK_STATE,
-        referenceBranch: null,
-        treatmentBranches: null,
-      };
-
-      const newState = formBranchesActionReducer(oldState, {
-        type: "removeFeatureConfig",
-      });
-
-      expect(newState.featureConfig).toBeNull();
-    });
-  });
-
   describe("setSubmitErrors", () => {
     const submitErrors = {
       "*": ["This is bad"],

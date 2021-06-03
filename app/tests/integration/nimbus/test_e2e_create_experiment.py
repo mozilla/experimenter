@@ -25,7 +25,7 @@ def test_create_new_experiment(selenium, base_url):
     branches.remove_branch()
     branches.reference_branch_name = "name 1"
     branches.reference_branch_description = "a nice experiment"
-    branches.select_feature()
+    branches.feature_config = "No Feature Firefox Desktop"
 
     # Fill Metrics page
     metrics = branches.save_and_continue()

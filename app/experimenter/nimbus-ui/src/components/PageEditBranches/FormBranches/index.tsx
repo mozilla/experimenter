@@ -126,18 +126,6 @@ export const FormBranches = ({
     dispatch({ type: "setEqualRatio", value: ev.target.checked });
   };
 
-  // HACK: just use the first available feature config when adding
-  // The only available indicator whether to display "Add feature config" is a non-null feature config
-  const handleAddFeatureConfig = () => {
-    commitFormData();
-    dispatch({ type: "setFeatureConfig", value: featureConfig![0] });
-  };
-
-  const handleRemoveFeatureConfig = () => {
-    commitFormData();
-    dispatch({ type: "removeFeatureConfig" });
-  };
-
   const handleFeatureConfigChange = (
     value: getConfig_nimbusConfig_featureConfig | null,
   ) => {
@@ -167,8 +155,6 @@ export const FormBranches = ({
     featureConfig,
     experimentFeatureConfig,
     onFeatureConfigChange: handleFeatureConfigChange,
-    onAddFeatureConfig: handleAddFeatureConfig,
-    onRemoveFeatureConfig: handleRemoveFeatureConfig,
     setSubmitErrors,
   };
 
@@ -232,38 +218,51 @@ export const FormBranches = ({
                 isReference: true,
                 branch: { ...referenceBranch, key: "branch-reference" },
                 reviewErrors:
-                  (fieldMessages.referenceBranch as SerializerSet) || {},
+                  ({
+                    ...fieldMessages.referenceBranch,
+                    featureConfig: fieldMessages.featureConfig,
+                  } as SerializerSet) || {},
                 defaultValues: defaultValues.referenceBranch || {},
               }}
             />
           )}
           {treatmentBranches &&
             showFirstTreatmentBranch &&
-            treatmentBranches.map(
-              (branch, idx) =>
-                branch && (
-                  <FormBranch
-                    {...{
-                      ...commonBranchProps,
-                      key: branch.key,
-                      fieldNamePrefix: `treatmentBranches[${idx}]`,
-                      //@ts-ignore react-hook-form types seem broken for nested fields
-                      errors: (errors?.treatmentBranches?.[idx] ||
-                        {}) as FormBranchProps["errors"],
-                      //@ts-ignore react-hook-form types seem broken for nested fields
-                      touched: (touched?.treatmentBranches?.[idx] ||
-                        {}) as FormBranchProps["touched"],
-                      branch,
-                      reviewErrors:
-                        (fieldMessages as SerializerMessages<SerializerSet[]>)
-                          .treatmentBranches?.[idx] || {},
-                      onRemove: handleRemoveBranch(idx),
-                      defaultValues:
-                        defaultValues.treatmentBranches?.[idx] || {},
-                    }}
-                  />
-                ),
-            )}
+            treatmentBranches.map((branch, idx) => {
+              const treatmentBranchFieldMessages = (
+                fieldMessages as SerializerMessages<SerializerSet[]>
+              ).treatmentBranches?.[idx];
+
+              return (
+                <FormBranch
+                  key={branch.key}
+                  {...{
+                    ...commonBranchProps,
+                    fieldNamePrefix: `treatmentBranches[${idx}]`,
+                    //@ts-ignore react-hook-form types seem broken for nested fields
+                    errors: (errors?.treatmentBranches?.[idx] ||
+                      {}) as FormBranchProps["errors"],
+                    //@ts-ignore react-hook-form types seem broken for nested fields
+                    touched: (touched?.treatmentBranches?.[idx] ||
+                      {}) as FormBranchProps["touched"],
+                    branch,
+                    reviewErrors:
+                      ({
+                        ...treatmentBranchFieldMessages,
+                        // Only show treatment branch feature config reviewErrors if the branch
+                        // has been saved or if other fields have errors, otherwise a required
+                        // feature config error can show on an optional branch
+                        ...((treatmentBranches?.[idx].slug ||
+                          treatmentBranchFieldMessages) && {
+                          featureConfig: fieldMessages.featureConfig,
+                        }),
+                      } as SerializerSet) || {},
+                    onRemove: handleRemoveBranch(idx),
+                    defaultValues: defaultValues.treatmentBranches?.[idx] || {},
+                  }}
+                />
+              );
+            })}
         </section>
 
         <div className="d-flex flex-row-reverse bd-highlight">
