@@ -6,6 +6,7 @@ import { withLinks } from "@storybook/addon-links";
 import { withQuery } from "@storybook/addon-queryparams";
 import React from "react";
 import PageEditBranches from ".";
+import { SERVER_ERRORS } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -70,6 +71,7 @@ export const MissingFields = () =>
     readyForReview: {
       ready: false,
       message: {
+        feature_config: [SERVER_ERRORS.FEATURE_CONFIG],
         reference_branch: {
           name: ["Drop a heart", "and break a name"],
           description: [

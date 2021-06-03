@@ -64,8 +64,6 @@ export const SubjectBranch = ({
   experimentFeatureConfig = MOCK_FEATURE_CONFIG,
   featureConfig = MOCK_CONFIG.featureConfig,
   onRemove = () => {},
-  onAddFeatureConfig = () => {},
-  onRemoveFeatureConfig = () => {},
   onFeatureConfigChange = () => {},
 }: Partial<React.ComponentProps<typeof FormBranch>>) => {
   const defaultValues = {
@@ -103,8 +101,6 @@ export const SubjectBranch = ({
             featureConfig,
             experimentFeatureConfig,
             onRemove,
-            onAddFeatureConfig,
-            onRemoveFeatureConfig,
             onFeatureConfigChange,
             defaultValues: defaultValues.referenceBranch || {},
             setSubmitErrors,
