@@ -104,6 +104,7 @@ type NimbusChangeLogType {
   newPublishStatus: NimbusChangeLogNewPublishStatus!
   message: String
   experimentData: JSONString
+  publishedDtoChanged: Boolean!
 }
 
 type NimbusConfigurationType {
