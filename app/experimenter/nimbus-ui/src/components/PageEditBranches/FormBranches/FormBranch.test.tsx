@@ -26,7 +26,6 @@ describe("FormBranch", () => {
     expect(screen.queryByTestId("control-pill")).not.toBeInTheDocument();
     expect(screen.queryByTestId("equal-ratio")).not.toBeInTheDocument();
     expect(screen.queryByTestId("feature-config-edit")).toBeInTheDocument();
-    expect(screen.queryByTestId("feature-config-add")).not.toBeInTheDocument();
     expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
   });
 
@@ -56,17 +55,6 @@ describe("FormBranch", () => {
       'label[for="referenceBranch.featureEnabled"]',
     );
     expect(featureSwitchLabel).toHaveTextContent("Off");
-  });
-
-  it("hides feature configuration edit when feature not selected", () => {
-    render(
-      <SubjectBranch
-        branch={MOCK_ANNOTATED_BRANCH}
-        experimentFeatureConfig={null}
-      />,
-    );
-    expect(screen.queryByTestId("feature-config-edit")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("feature-config-add")).toBeInTheDocument();
   });
 
   it("hides feature value edit when schema is null", () => {

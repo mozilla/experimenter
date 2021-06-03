@@ -17,16 +17,12 @@ import {
 } from "./mocks";
 
 const onRemove = action("onRemove");
-const onAddFeatureConfig = action("onAddFeatureConfig");
-const onRemoveFeatureConfig = action("onRemoveFeatureConfig");
 const onFeatureConfigChange = action("onFeatureConfigChange");
 const onSave = action("onSave");
 const onNext = action("onNext");
 
 const commonFormBranchProps = {
   onRemove,
-  onAddFeatureConfig,
-  onRemoveFeatureConfig,
   onFeatureConfigChange,
 };
 

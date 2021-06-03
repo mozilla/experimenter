@@ -16,6 +16,7 @@ export const SERVER_ERRORS = {
   NULL_FIELD: "This field may not be null.",
   EMPTY_LIST: "This list may not be empty.",
   BLANK_DESCRIPTION: "Description may not be blank.",
+  FEATURE_CONFIG: "You must select a feature configuration from the drop down.",
 };
 
 export const EXTERNAL_URLS = {

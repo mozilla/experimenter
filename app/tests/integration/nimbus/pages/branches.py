@@ -1,6 +1,7 @@
 from nimbus.pages.base import Base
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.select import Select
 
 
 class BranchesPage(Base):
@@ -12,7 +13,7 @@ class BranchesPage(Base):
         "#referenceBranch-description",
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
-    _add_feature_locator = (By.CSS_SELECTOR, ".feature-config-add")
+    _feature_select_locator = (By.CSS_SELECTOR, "#referenceBranch-featureConfig")
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditBranches")
     _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
 
@@ -50,6 +51,12 @@ class BranchesPage(Base):
         el = self.find_element(*self._remove_branch_locator)
         el.click()
 
-    def select_feature(self):
-        el = self.find_element(*self._add_feature_locator)
-        el.click()
+    @property
+    def feature_config(self):
+        return self.find_element(*self._feature_select_locator).text
+
+    @feature_config.setter
+    def feature_config(self, feature_config="No Feature Firefox Desktop"):
+        el = self.find_element(*self._feature_select_locator)
+        select = Select(el)
+        select.select_by_visible_text(feature_config)

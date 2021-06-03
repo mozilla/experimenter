@@ -10,6 +10,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
+import { SERVER_ERRORS } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import { assertSerializerMessages } from "../../../lib/test-utils";
 import {
@@ -291,13 +292,10 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    act(() => {
-      const addButton = screen.queryAllByTestId("feature-config-add")[0];
-      fireEvent.click(addButton);
-    });
+    selectFeatureConfig();
     await clickAndWaitForSave(onSave);
     expect(onSave.mock.calls[0][0].featureConfigId).toEqual(
-      MOCK_CONFIG.featureConfig![0]!.id,
+      MOCK_CONFIG.featureConfig![1]!.id,
     );
   });
 
@@ -314,11 +312,7 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    act(() => {
-      const removeButton = screen.queryAllByTestId("feature-config-remove")[0];
-      fireEvent.click(removeButton);
-    });
-    clickSave();
+    selectFeatureConfig(null);
     await clickAndWaitForSave(onSave);
     const saveResult = onSave.mock.calls[0][0];
     expect(saveResult.featureConfigId).toBeNull();
@@ -338,8 +332,9 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    const featureConfigSelects = screen.queryAllByTestId(
-      "feature-config-select",
+
+    const featureConfigSelects = screen.queryAllByLabelText(
+      "Feature configuration",
     )! as HTMLInputElement[];
 
     // All selectors should be equal before change.
@@ -348,16 +343,16 @@ describe("FormBranches", () => {
     }
     const oldValue = featureConfigSelects[0].value;
 
-    act(() => {
-      fireEvent.change(featureConfigSelects[0], {
-        target: { value: featureIdx },
-      });
+    fireEvent.change(featureConfigSelects[0], {
+      target: { value: featureIdx },
     });
 
     // All selectors should have changed
     for (const select of featureConfigSelects) {
-      expect(select.value).toEqual(featureConfigSelects[0].value);
-      expect(select.value).not.toEqual(oldValue);
+      await waitFor(() => {
+        expect(select.value).toEqual(featureConfigSelects[0].value);
+        expect(select.value).not.toEqual(oldValue);
+      });
     }
   });
 
@@ -400,6 +395,7 @@ describe("FormBranches", () => {
 
   it("can display server review-readiness messages", async () => {
     await assertSerializerMessages(SubjectBranches, {
+      feature_config: [SERVER_ERRORS.FEATURE_CONFIG],
       reference_branch: {
         name: ["Drop a heart", "and break a name"],
         description: [
@@ -414,6 +410,55 @@ describe("FormBranches", () => {
         },
       ],
     });
+
+    // Feature config review-readiness errors are displayed on branches
+    expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(2);
+  });
+
+  it("doesn't display feature_config review-readiness message on an unsaved branch", async () => {
+    Object.defineProperty(window, "location", {
+      value: {
+        search: "?show-errors",
+      },
+    });
+
+    render(
+      <SubjectBranches
+        {...{
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            readyForReview: {
+              ready: false,
+              message: {
+                feature_config: [SERVER_ERRORS.FEATURE_CONFIG],
+                reference_branch: {
+                  description: [SERVER_ERRORS.BLANK_DESCRIPTION],
+                },
+              },
+            },
+            referenceBranch: {
+              ...MOCK_EXPERIMENT.referenceBranch!,
+              name: "",
+              slug: "",
+            },
+            treatmentBranches: [
+              {
+                name: "",
+                slug: "",
+                description: "",
+                ratio: 0,
+                featureValue: null,
+                featureEnabled: false,
+              },
+            ],
+          },
+        }}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(1),
+    );
   });
 });
 
@@ -455,18 +500,11 @@ async function fillInBranch(
   }
 }
 
-function selectFeatureConfig(featureIdx = 1) {
-  act(() => {
-    const featureConfigAddButton =
-      screen.queryAllByTestId("feature-config-add")![0];
-    fireEvent.click(featureConfigAddButton);
-  });
-  act(() => {
-    const featureConfigSelects = screen.queryAllByTestId(
-      "feature-config-select",
-    )! as HTMLInputElement[];
-    fireEvent.change(featureConfigSelects[0], {
-      target: { value: featureIdx },
-    });
+function selectFeatureConfig(featureIdx: number | null = 1) {
+  const featureConfigSelects = screen.queryAllByLabelText(
+    "Feature configuration",
+  )! as HTMLInputElement[];
+  fireEvent.change(featureConfigSelects[0], {
+    target: { value: featureIdx },
   });
 }
