@@ -66,6 +66,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
     },
     {
       publishStatus: NimbusExperimentPublishStatus.IDLE,
+      isEndRequested: false,
     },
   );
 
