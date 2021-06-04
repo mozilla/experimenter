@@ -355,6 +355,13 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             "legal_signoff": any((self.risk_revenue, self.risk_partner_related)),
         }
 
+    @property
+    def should_timeout(self):
+        review_expired = (
+            timezone.now() - self.changes.latest_change().changed_on
+        ) >= datetime.timedelta(seconds=settings.KINTO_REVIEW_TIMEOUT)
+        return review_expired and self.has_filter(self.Filters.SHOULD_TIMEOUT)
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
@@ -559,6 +566,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
     )
     message = models.TextField(blank=True, null=True)
     experiment_data = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+    published_dto_changed = models.BooleanField(default=False)
 
     objects = NimbusChangeLogManager()
 
@@ -579,6 +587,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
                 NimbusExperiment.PublishStatus.WAITING,
             ),
             new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            published_dto_changed=False,
         )
         IS_TIMEOUT = Q(
             Q(old_status=F("new_status")),
@@ -589,6 +598,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
     class Messages:
         TIMED_OUT_IN_KINTO = "Timed Out"
         PUSHED_TO_KINTO = "Pushed to Kinto"
+        UPDATED_IN_KINTO = "Updated in Kinto"
         DELETED_FROM_KINTO = "Deleted from Kinto"
         LIVE = "Experiment is now live!"
         PAUSED = "Enrollment was paused"
