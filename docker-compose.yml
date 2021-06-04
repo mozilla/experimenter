@@ -70,10 +70,14 @@ services:
     command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat --pidfile /celerybeat.pid -s /celerybeat-schedule -l DEBUG"
 
   nginx:
-    build: ./nginx
+    build:
+      context: ./nginx
+      args:
+        nginx_conf: nginx-dev.conf
     env_file: .env
     links:
       - app
+      - yarn-nimbus-ui
     ports:
       - "443:443"
 

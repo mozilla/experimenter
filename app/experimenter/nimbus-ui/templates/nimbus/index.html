@@ -22,10 +22,6 @@
   <noscript>Mozilla Experimenter requires JavaScript to run.</noscript>
   <div id="root" data-config="{{ APP_CONFIG }}"></div>
 
-  {% if USE_YARN_DEV %}
-    <script src="http://localhost:3000/static/js/main.js"></script>
-  {% else %}
     <script src="{% static 'nimbus/static/js/main.js' %}"></script>
-  {% endif %}
   </body>
 </html>
