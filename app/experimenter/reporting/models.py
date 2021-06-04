@@ -16,7 +16,10 @@ class ReportLog(models.Model):
         choices=ReportLogConstants.ExperimentType.choices,
     )
     experiment_old_status = models.CharField(
-        max_length=255, choices=ReportLogConstants.ExperimentStatus.choices
+        max_length=255,
+        choices=ReportLogConstants.ExperimentStatus.choices,
+        blank=True,
+        null=True,
     )
     experiment_new_status = models.CharField(
         max_length=255, choices=ReportLogConstants.ExperimentStatus.choices
@@ -39,6 +42,9 @@ class ReportLog(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.timestamp} - {self.experiment_type} - {self.event_reason} "
 
     class Meta:
         ordering = ("timestamp",)
