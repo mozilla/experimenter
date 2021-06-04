@@ -27,4 +27,4 @@ def features(request):
 
 
 def debug(request):
-    return {"DEBUG": settings.DEBUG, "USE_YARN_DEV": settings.USE_YARN_DEV}
+    return {"DEBUG": settings.DEBUG}
