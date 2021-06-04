@@ -412,6 +412,7 @@ KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
 KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
 KINTO_ADMIN_URL = config("KINTO_ADMIN_URL", default=urljoin(KINTO_HOST, "/admin/"))
+KINTO_REVIEW_TIMEOUT = config("KINTO_REVIEW_TIMEOUT", cast=int)
 
 # Jetstream GCS Bucket data
 DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"

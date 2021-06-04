@@ -92,7 +92,7 @@ def handle_pending_review(applications, kinto_client):
     experiment = NimbusExperiment.objects.waiting(applications).first()
 
     if experiment:
-        if experiment.has_filter(experiment.Filters.SHOULD_TIMEOUT):
+        if experiment.should_timeout:
             experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
             experiment.save()
 
@@ -190,6 +190,12 @@ def nimbus_pause_experiment_in_kinto(collection, experiment_id):
 
             experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
             experiment.save()
+
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.UPDATED_IN_KINTO,
+            )
 
             logger.info(f"{experiment.slug} paused in Kinto")
 

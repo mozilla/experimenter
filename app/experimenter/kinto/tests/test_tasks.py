@@ -4,6 +4,7 @@ import mock
 from django.conf import settings
 from django.core import mail
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
@@ -131,6 +132,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             settings.KINTO_COLLECTION_NIMBUS_DESKTOP, pausing_experiment.id
         )
 
+    @override_settings(KINTO_REVIEW_TIMEOUT=0)
     def test_check_with_timeout_launch_review_and_queued_launch_rolls_back_and_pushes(
         self,
     ):
@@ -207,6 +209,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         self.mock_pause_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
+    @override_settings(KINTO_REVIEW_TIMEOUT=0)
     def test_check_with_timeout_end_review_and_queued_launch_rolls_back_and_pushes(
         self,
     ):
@@ -470,15 +473,9 @@ class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
     def test_updates_experiment_record_isEnrollmentPaused_true_in_kinto(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            proposed_enrollment=10,
+            proposed_enrollment=0,
             application=NimbusExperiment.Application.DESKTOP,
         )
-        launch_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        )
-        launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
-        launch_change.save()
 
         self.mock_kinto_client.get_records.return_value = [
             {"id": experiment.slug, "isEnrollmentPaused": False}
@@ -507,6 +504,13 @@ class TestNimbusPauseExperimentInKinto(MockKintoClientMixin, TestCase):
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(
             experiment.publish_status, NimbusExperiment.PublishStatus.WAITING
+        )
+        self.assertTrue(
+            experiment.changes.filter(
+                old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                new_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                message="Updated in Kinto",
+            ).exists()
         )
 
     def test_push_experiment_to_kinto_reraises_exception(self):

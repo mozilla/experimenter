@@ -13,7 +13,10 @@ from experimenter.experiments.models.nimbus import (
     NimbusDocumentationLink,
     NimbusFeatureConfig,
 )
-from experimenter.kinto.tasks import nimbus_synchronize_preview_experiments_in_kinto
+from experimenter.kinto.tasks import (
+    nimbus_check_kinto_push_queue_by_collection,
+    nimbus_synchronize_preview_experiments_in_kinto,
+)
 from experimenter.outcomes import Outcomes
 
 
@@ -375,6 +378,9 @@ class NimbusExperimentSerializer(
                 and data.get("status") == NimbusExperiment.Status.DRAFT
             )
         )
+        self.should_call_push_task = (
+            data.get("publish_status") == NimbusExperiment.PublishStatus.APPROVED
+        )
         super().__init__(instance=instance, data=data, **kwargs)
 
     def validate_publish_status(self, publish_status):
@@ -512,6 +518,14 @@ class NimbusExperimentSerializer(
 
             if self.should_call_preview_task:
                 nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
+
+            if self.should_call_push_task:
+                collection = NimbusExperiment.KINTO_APPLICATION_COLLECTION[
+                    experiment.application
+                ]
+                nimbus_check_kinto_push_queue_by_collection.apply_async(
+                    countdown=5, args=[collection]
+                )
 
             generate_nimbus_changelog(
                 experiment, self.context["user"], message=self.changelog_message

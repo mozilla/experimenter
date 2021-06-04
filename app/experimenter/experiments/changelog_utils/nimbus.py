@@ -44,9 +44,14 @@ def generate_nimbus_changelog(experiment, changed_by, message):
 
     old_status = None
     old_publish_status = None
+    published_dto_changed = False
     if latest_change:
         old_status = latest_change.new_status
         old_publish_status = latest_change.new_publish_status
+        published_dto_changed = (
+            latest_change.experiment_data["published_dto"]
+            != experiment_data["published_dto"]
+        )
 
     return NimbusChangeLog.objects.create(
         experiment=experiment,
@@ -56,5 +61,6 @@ def generate_nimbus_changelog(experiment, changed_by, message):
         new_publish_status=experiment.publish_status,
         changed_by=changed_by,
         experiment_data=experiment_data,
+        published_dto_changed=published_dto_changed,
         message=message,
     )

@@ -679,6 +679,21 @@ class TestNimbusExperiment(TestCase):
             experiment.signoff_recommendations["legal_signoff"], legal_recommended
         )
 
+    @parameterized.expand(
+        [
+            [False, 0, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING],
+            [False, 60, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING],
+            [False, 60, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING],
+            [False, 60, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING],
+            [True, 0, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING],
+            [True, 0, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING],
+        ]
+    )
+    def test_should_timeout(self, expected, timeout, lifecycle):
+        with override_settings(KINTO_REVIEW_TIMEOUT=timeout):
+            experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+            self.assertEqual(experiment.should_timeout, expected)
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
