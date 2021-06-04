@@ -730,6 +730,13 @@ class TestNimbusExperimentSerializer(TestCase):
         self.mock_preview_task = mock_preview_task_patcher.start()
         self.addCleanup(mock_preview_task_patcher.stop)
 
+        mock_push_task_patcher = mock.patch(
+            "experimenter.experiments.api.v5.serializers."
+            "nimbus_check_kinto_push_queue_by_collection"
+        )
+        self.mock_push_task = mock_push_task_patcher.start()
+        self.addCleanup(mock_push_task_patcher.stop)
+
     def test_required_fields_for_creating_experiment(self):
         data = {
             "name": "",
@@ -1149,6 +1156,55 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = serializer.save()
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.mock_preview_task.apply_async.assert_not_called()
+
+    @parameterized.expand(
+        [
+            [NimbusExperiment.PublishStatus.IDLE],
+            [NimbusExperiment.PublishStatus.REVIEW],
+        ]
+    )
+    def test_update_publish_status_doesnt_invoke_push_task(self, publish_status):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": publish_status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.publish_status, publish_status)
+        self.mock_preview_task.apply_async.assert_not_called()
+
+    def test_update_publish_status_to_approved_invokes_push_task(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.mock_push_task.apply_async.assert_called_with(
+            countdown=5,
+            args=[NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]],
+        )
 
     def test_serializer_updates_outcomes_on_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

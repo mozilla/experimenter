@@ -208,3 +208,25 @@ class TestGenerateNimbusChangeLog(TestCase):
             change.experiment_data,
             dict(NimbusExperimentChangeLogSerializer(experiment).data),
         )
+
+    def test_no_change_to_published_dto(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            published_dto={"id": "experiment"},
+        )
+
+        change = generate_nimbus_changelog(experiment, self.user, "test message")
+
+        self.assertFalse(change.published_dto_changed)
+
+    def test_change_to_published_dto(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            published_dto={"id": "experiment", "test": False},
+        )
+
+        experiment.published_dto = {"id": "experiment", "test": True}
+
+        change = generate_nimbus_changelog(experiment, self.user, "test message")
+
+        self.assertTrue(change.published_dto_changed)

@@ -422,3 +422,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
             APPLICATION_CONFIG_IOS.slug,
         ],
     }
+
+    KINTO_APPLICATION_COLLECTION = {
+        application: collection
+        for (collection, applications) in KINTO_COLLECTION_APPLICATIONS.items()
+        for application in applications
+    }
