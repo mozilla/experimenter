@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "SKIP_PREFLIGHT_CHECK=true rescripts start",
-    "build": "SKIP_PREFLIGHT_CHECK=true rescripts build",
+    "build": "SKIP_PREFLIGHT_CHECK=true SENTRY_UPLOAD_SOURCEMAPS=true rescripts build",
     "test": "SKIP_PREFLIGHT_CHECK=true rescripts test",
     "test:cov": "yarn test --coverage",
     "lint": "yarn lint:eslint && yarn lint:tsc && yarn lint:styles",
@@ -60,6 +60,7 @@
   },
   "devDependencies": {
     "@rescripts/cli": "^0.0.16",
+    "@sentry/webpack-plugin": "^1.15.1",
     "@storybook/addon-actions": "^6.2.9",
     "@storybook/addon-links": "^6.2.9",
     "@storybook/addon-queryparams": "^6.2.9",

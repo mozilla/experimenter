@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
+import json
 import os
 from urllib.parse import urljoin
 
@@ -19,6 +20,13 @@ from decouple import config
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+APP_VERSION = ""
+try:
+    version_json = json.load(open(os.path.join(BASE_DIR, "version.json")))
+    APP_VERSION = version_json["commit"]
+except:
+    # No-op, because version.json is usually only generated for real builds
+    pass
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
