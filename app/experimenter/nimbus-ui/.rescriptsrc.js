@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 
 // Rescripts allows us modify the default CRA
 // Webpack config without needing to eject.
@@ -27,6 +28,27 @@ module.exports = [(config) => {
   ] = new MiniCssExtractPlugin({
     filename: 'static/css/[name].css',
   });
+
+  if (process.env.SENTRY_UPLOAD_SOURCEMAPS && process.env.SENTRY_AUTH_TOKEN) {
+    let versionInfo = null;
+    try {
+      versionInfo = require("../../version.json");
+    } catch (e) {
+      /* no-op */
+    }
+    if (versionInfo) {
+      config.plugins.push(
+        new SentryWebpackPlugin({
+          authToken: process.env.SENTRY_AUTH_TOKEN,
+          org: process.env.SENTRY_ORG,
+          project: process.env.SENTRY_PROJECT,
+          release: versionInfo.commit,
+          include: "./build",
+          urlPrefix: "~/static/nimbus",
+        })
+      );
+    }
+  }
 
   return config;
 }];
