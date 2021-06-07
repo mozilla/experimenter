@@ -741,7 +741,7 @@ python-versions = "*"
 
 [[package]]
 name = "ipdb"
-version = "0.13.8"
+version = "0.13.9"
 description = "IPython-enabled pdb"
 category = "main"
 optional = false
@@ -1562,7 +1562,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "5337c6673ca4bdc8728e7284245ec79909ae410efe3f49aa1697736af179579a"
+content-hash = "5ffdf62703b170fb3ce911cbde1c27514aa88802ffcfa8af98fab88d34c711e5"
 
 [metadata.files]
 aiohttp = [
@@ -1920,7 +1920,7 @@ iniconfig = [
     {file = "iniconfig-1.0.1.tar.gz", hash = "sha256:e5f92f89355a67de0595932a6c6c02ab4afddc6fcdc0bfc5becd0d60884d3f69"},
 ]
 ipdb = [
-    {file = "ipdb-0.13.8.tar.gz", hash = "sha256:8d368fa048a93ad6c1985d7f1d78d68580c879e4053fc15714bdcf2a1b042d06"},
+    {file = "ipdb-0.13.9.tar.gz", hash = "sha256:951bd9a64731c444fd907a5ce268543020086a697f6be08f7cc2c9a752a278c5"},
 ]
 ipython = [
     {file = "ipython-7.18.1-py3-none-any.whl", hash = "sha256:2e22c1f74477b5106a6fb301c342ab8c64bb75d702e350f05a649e8cb40a0fb8"},
