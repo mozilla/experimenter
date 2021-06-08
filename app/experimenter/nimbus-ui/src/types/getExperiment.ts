@@ -114,6 +114,8 @@ export interface getExperiment_experimentBySlug {
   readyForReview: getExperiment_experimentBySlug_readyForReview | null;
   startDate: DateTime | null;
   computedEndDate: DateTime | null;
+  computedEnrollmentDays: number | null;
+  computedDurationDays: number | null;
   riskMitigationLink: string;
   riskRevenue: boolean | null;
   riskBrand: boolean | null;

@@ -36,19 +36,6 @@ export function addDaysToDate(datestring: string, days: number): string {
 }
 
 /**
- *  Subtract two dates (e.g. dateA - dateB) and return a string
- *  with their difference in days.
- */
-export function stringDateSubtract(dateA: string, dateB: string): string {
-  const DAY = 86400000; // Number of milliseconds in a day
-  const dateAConverted = +new Date(dateA);
-  const dateBConverted = +new Date(dateB);
-  const dateDifference = Math.abs(dateAConverted - dateBConverted);
-
-  return pluralize(Math.round(dateDifference / DAY), "day");
-}
-
-/**
  *  Renders period of enrollment depend on what's available
  *  If startDate is set, it will return a range of dates
  *      e.g. Dec 2 - Dec 4

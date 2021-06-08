@@ -180,6 +180,8 @@ class NimbusExperimentType(DjangoObjectType):
     computed_end_date = graphene.DateTime()
     is_enrollment_paused = graphene.Boolean()
     enrollment_end_date = graphene.DateTime()
+    computed_enrollment_days = graphene.Int()
+    computed_duration_days = graphene.Int()
     can_review = graphene.Boolean()
     review_request = graphene.Field(NimbusChangeLogType)
     rejection = graphene.Field(NimbusChangeLogType)

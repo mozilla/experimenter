@@ -119,7 +119,7 @@ const AppLayoutWithExperiment = ({
     return <PageExperimentNotFound {...{ slug }} />;
   }
 
-  const { name, startDate, computedEndDate } = experiment;
+  const { name, startDate, computedEndDate, computedDurationDays } = experiment;
 
   return (
     <Layout
@@ -145,6 +145,7 @@ const AppLayoutWithExperiment = ({
             startDate,
             computedEndDate,
             status,
+            computedDurationDays,
           }}
         />
         {title && <h2 className="mt-3 mb-4 h4">{title}</h2>}

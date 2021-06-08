@@ -18,6 +18,7 @@ describe("HeaderExperiment", () => {
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
       />,
     );
@@ -42,6 +43,7 @@ describe("HeaderExperiment", () => {
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
       />,
     );
@@ -54,5 +56,6 @@ describe("HeaderExperiment", () => {
     expect(screen.getByTestId("header-dates")).toHaveTextContent(
       humanDate(experiment.computedEndDate!),
     );
+    expect(screen.getByTestId("header-dates")).toHaveTextContent("(14 days)");
   });
 });

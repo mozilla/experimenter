@@ -317,6 +317,8 @@ export function mockExperiment<
       },
       startDate: new Date().toISOString(),
       computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
+      computedDurationDays: 14,
+      computedEnrollmentDays: 1,
       riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
       documentationLinks: [
         {
