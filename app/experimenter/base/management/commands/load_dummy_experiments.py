@@ -22,5 +22,7 @@ class Command(BaseCommand):
             logger.info("Created {}: {}".format(experiment, status))
 
         for lifecycle in NimbusExperimentFactory.Lifecycles:
-            experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                lifecycle, with_random_timespan=True
+            )
             logger.info("Created {}: {}".format(experiment, lifecycle))
