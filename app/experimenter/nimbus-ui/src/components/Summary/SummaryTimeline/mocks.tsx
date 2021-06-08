@@ -13,23 +13,23 @@ import {
 export const Subject = ({
   startDate = "2020-11-28T14:52:44.704811+00:00",
   computedEndDate = "2020-12-08T14:52:44.704811+00:00",
-  proposedDuration = 10,
-  proposedEnrollment = 1,
+  computedDuration = 10,
+  computedEnrollmentDays = 1,
   status = NimbusExperimentStatus.DRAFT,
   publishStatus = NimbusExperimentPublishStatus.IDLE,
 }: {
   startDate?: string;
   computedEndDate?: string;
-  proposedDuration?: number;
-  proposedEnrollment?: number;
+  computedDuration?: number;
+  computedEnrollmentDays?: number;
   status?: NimbusExperimentStatus;
   publishStatus?: NimbusExperimentPublishStatus;
 }) => {
   const { experiment } = mockExperimentQuery("something-vague", {
     startDate,
     computedEndDate,
-    proposedDuration,
-    proposedEnrollment,
+    computedDuration,
+    computedEnrollmentDays,
     status,
     publishStatus,
   });

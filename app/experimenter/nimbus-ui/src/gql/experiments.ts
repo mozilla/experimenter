@@ -90,6 +90,8 @@ export const GET_EXPERIMENT_QUERY = gql`
 
       startDate
       computedEndDate
+      computedEnrollmentDays
+      computedDuration
 
       riskMitigationLink
       riskRevenue

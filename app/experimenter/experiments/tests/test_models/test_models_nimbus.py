@@ -352,6 +352,88 @@ class TestNimbusExperiment(TestCase):
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
         self.assertTrue(experiment.should_end)
 
+    def test_computed_enrollment_days_returns_changed_on_minus_start_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=3))
+
+        self.assertEqual(
+            experiment.computed_enrollment_days,
+            3,
+        )
+
+    def test_computed_enrollment_days_returns_at_least_1(self):
+        # simulates an experiment that was started and ended on the same day
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        self.assertEqual(
+            experiment.computed_enrollment_days,
+            1,
+        )
+
+    def test_computed_enrollment_days_returns_fallback(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        self.assertEqual(
+            experiment.computed_enrollment_days,
+            experiment.proposed_enrollment,
+        )
+
+    def test_computed_duration_returns_computed_end_date_minus_start_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            proposed_duration=10,
+        )
+
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=7))
+
+        self.assertEqual(
+            experiment.computed_duration,
+            7,
+        )
+
+    def test_computed_duration_returns_fallback(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        self.assertEqual(
+            experiment.computed_duration,
+            experiment.proposed_duration,
+        )
+
+    def test_computed_end_date_returns_proposed(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+        )
+
+        self.assertEqual(
+            experiment.computed_end_date,
+            experiment.proposed_end_date,
+        )
+
+    def test_computed_end_date_returns_actual(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        self.assertEqual(
+            experiment.computed_end_date,
+            experiment.end_date.date(),
+        )
+
     def test_monitoring_dashboard_url_is_when_experiment_not_begun(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",

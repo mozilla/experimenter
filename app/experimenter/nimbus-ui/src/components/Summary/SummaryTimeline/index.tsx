@@ -37,8 +37,8 @@ const SummaryTimeline = ({
 
       <Duration
         {...{
-          duration: experiment.proposedDuration,
-          enrollment: experiment.proposedEnrollment,
+          duration: experiment.computedDuration,
+          enrollment: experiment.computedEnrollmentDays,
         }}
       />
     </div>
