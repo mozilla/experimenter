@@ -13,11 +13,10 @@ class ReviewPage(Base):
         By.CSS_SELECTOR,
         ".header-experiment-status .boarder-primary",
     )
-    _page_wait_locator = (By.CSS_SELECTOR, "#PageRequestReview")
     _launch_without_preview_locator = (By.CSS_SELECTOR, "#launch-to-review-button")
 
     def wait_for_page_to_load(self):
-        self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
+        self.wait.until(EC.presence_of_element_located(self._root_locator))
         return self
 
     @property

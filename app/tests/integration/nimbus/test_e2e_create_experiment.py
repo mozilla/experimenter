@@ -115,7 +115,6 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
             time.sleep(2)
             selenium.refresh()
         else:
-            print("live")
             break
     # Check it's live
     home = HomePage(selenium, base_url).wait_for_page_to_load()
@@ -123,7 +122,6 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
     assert "live experiments" in live_experiments.table_name.lower()
     for item in live_experiments.experiments:
         if experiment_name in item.text:
-            print(item.text)
             item.click()
             break
     summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
