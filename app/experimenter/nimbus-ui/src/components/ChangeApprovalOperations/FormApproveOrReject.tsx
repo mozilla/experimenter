@@ -49,6 +49,7 @@ const FormApproveOrReject = ({
             <div>
               <Button
                 data-testid="approve-request"
+                id="approve-request-button"
                 className="mr-2 btn btn-success"
                 disabled={isLoading}
                 onClick={onApprove}
