@@ -1,3 +1,4 @@
+import datetime
 import decimal
 import json
 import random
@@ -5,6 +6,7 @@ from collections.abc import Iterable
 from enum import Enum
 
 import factory
+from django.utils import timezone
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
@@ -246,8 +248,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             self.countries.add(*extracted)
 
     @classmethod
-    def create_with_lifecycle(cls, lifecycle, **kwargs):
+    def create_with_lifecycle(cls, lifecycle, with_random_timespan=False, **kwargs):
         experiment = cls.create(**kwargs)
+        now = timezone.now() - datetime.timedelta(days=random.randint(100, 200))
 
         for state in lifecycle.value:
             experiment.apply_lifecycle_state(state)
@@ -256,11 +259,15 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
                 experiment.allocate_bucket_range()
 
-            generate_nimbus_changelog(
+            change = generate_nimbus_changelog(
                 experiment,
                 experiment.owner,
                 f"set lifecycle {lifecycle} state {state}",
             )
+            if with_random_timespan:
+                change.changed_on = now
+                change.save()
+                now += datetime.timedelta(days=random.randint(5, 20))
 
         return NimbusExperiment.objects.get(id=experiment.id)
 
