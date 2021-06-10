@@ -79,7 +79,7 @@ export const getExtremeBounds = (
   outcomeSlug: string,
 ) => {
   let extreme = 0;
-  sortedBranches.map((branch) => {
+  sortedBranches.forEach((branch) => {
     const branchComparison = BRANCH_COMPARISON.UPLIFT;
     const metricDataList =
       results[branch].branch_data[outcomeSlug][branchComparison]["all"];
