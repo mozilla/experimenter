@@ -5,8 +5,8 @@ from experimenter.projects.models import Project
 from experimenter.reporting.constants import ReportLogConstants
 
 
-class ReportLog(models.Model):
-    timestamp = models.DateTimeField(auto_now_add=True)
+class ReportLog(ReportLogConstants, models.Model):
+    timestamp = models.DateTimeField()
     experiment_slug = models.CharField(max_length=255, blank=False, null=False)
     experiment_name = models.CharField(max_length=255, blank=False, null=False)
     experiment_type = models.CharField(
