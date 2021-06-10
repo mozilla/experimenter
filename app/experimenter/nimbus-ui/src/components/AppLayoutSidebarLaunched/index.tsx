@@ -42,8 +42,8 @@ const otherMetricsToFriendlyName = (
   metricsMetaData: { [metric: string]: MetadataPoint },
 ) => {
   const newMap: { [key: string]: string } = {};
-  Object.keys(otherMetrics).map((group) => {
-    Object.keys(otherMetrics[group]).map((metric) => {
+  Object.keys(otherMetrics).forEach((group) => {
+    Object.keys(otherMetrics[group]).forEach((metric) => {
       newMap[metric] =
         metricsMetaData[metric]?.friendly_name || otherMetrics[group][metric];
     });
