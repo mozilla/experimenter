@@ -66,6 +66,7 @@ class NimbusExperimentAdmin(admin.ModelAdmin):
         "name",
         "status",
         "publish_status",
+        "status_next",
         "application",
         "channel",
         "firefox_min_version",

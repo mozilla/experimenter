@@ -161,6 +161,7 @@ class NimbusSignoffRecommendationsType(graphene.ObjectType):
 class NimbusExperimentType(DjangoObjectType):
     id = graphene.Int()
     status = NimbusExperimentStatus()
+    status_next = NimbusExperimentStatus()
     publish_status = NimbusExperimentPublishStatus()
     application = NimbusExperimentApplication()
     firefox_min_version = NimbusExperimentFirefoxMinVersion()

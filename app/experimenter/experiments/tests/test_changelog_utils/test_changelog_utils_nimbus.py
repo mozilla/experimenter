@@ -36,7 +36,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "feature_config": None,
                 "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
                 "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
-                "is_end_requested": False,
                 "is_paused": False,
                 "locales": [],
                 "name": "",
@@ -58,6 +57,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "secondary_outcomes": [],
                 "slug": "",
                 "status": NimbusExperiment.Status.DRAFT.value,
+                "status_next": None,
                 "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
                 "total_enrolled_clients": 0,
             },
@@ -98,7 +98,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 },
                 "firefox_min_version": experiment.firefox_min_version,
                 "hypothesis": experiment.hypothesis,
-                "is_end_requested": experiment.is_end_requested,
                 "is_paused": experiment.is_paused,
                 "name": experiment.name,
                 "owner": experiment.owner.email,
@@ -118,6 +117,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "secondary_outcomes": [secondary_outcome],
                 "slug": experiment.slug,
                 "status": experiment.status,
+                "status_next": experiment.status_next,
                 "targeting_config_slug": experiment.targeting_config_slug,
                 "total_enrolled_clients": experiment.total_enrolled_clients,
             },
@@ -174,8 +174,10 @@ class TestGenerateNimbusChangeLog(TestCase):
         self.assertEqual(change.message, "test message")
         self.assertEqual(change.changed_by, self.user)
         self.assertEqual(change.old_status, None)
+        self.assertEqual(change.old_status_next, None)
         self.assertEqual(change.old_publish_status, None)
         self.assertEqual(change.new_status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(change.new_status_next, None)
         self.assertEqual(change.new_publish_status, NimbusExperiment.PublishStatus.IDLE)
         self.assertEqual(
             change.experiment_data,
@@ -189,7 +191,8 @@ class TestGenerateNimbusChangeLog(TestCase):
 
         self.assertEqual(experiment.changes.count(), 1)
 
-        experiment.status = NimbusExperiment.Status.PREVIEW
+        experiment.status = NimbusExperiment.Status.DRAFT
+        experiment.status_next = NimbusExperiment.Status.LIVE
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
 
@@ -203,8 +206,10 @@ class TestGenerateNimbusChangeLog(TestCase):
         self.assertEqual(change.message, "test message")
         self.assertEqual(change.changed_by, self.user)
         self.assertEqual(change.old_status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(change.old_status_next, None)
         self.assertEqual(change.old_publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.assertEqual(change.new_status, NimbusExperiment.Status.PREVIEW)
+        self.assertEqual(change.new_status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(change.new_status_next, NimbusExperiment.Status.LIVE)
         self.assertEqual(change.new_publish_status, NimbusExperiment.PublishStatus.REVIEW)
         self.assertEqual(
             change.experiment_data,

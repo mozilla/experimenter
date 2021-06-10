@@ -73,6 +73,12 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         default=NimbusConstants.Status.DRAFT.value,
         choices=NimbusConstants.Status.choices,
     )
+    status_next = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=NimbusConstants.Status.choices,
+    )
     publish_status = models.CharField(
         max_length=255,
         default=NimbusConstants.PublishStatus.IDLE.value,
@@ -83,7 +89,6 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     public_description = models.TextField(default="")
     risk_mitigation_link = models.URLField(max_length=255, blank=True)
     is_paused = models.BooleanField(default=False)
-    is_end_requested = models.BooleanField(default=False)
     proposed_duration = models.PositiveIntegerField(
         default=NimbusConstants.DEFAULT_PROPOSED_DURATION,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
@@ -140,33 +145,33 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     class Filters:
         IS_LAUNCH_QUEUED = Q(
             status=NimbusConstants.Status.DRAFT,
+            status_next=NimbusConstants.Status.LIVE,
             publish_status=NimbusConstants.PublishStatus.APPROVED,
         )
         IS_LAUNCHING = Q(
             status=NimbusConstants.Status.DRAFT,
+            status_next=NimbusConstants.Status.LIVE,
             publish_status=NimbusConstants.PublishStatus.WAITING,
         )
         IS_PAUSE_QUEUED = Q(
             status=NimbusConstants.Status.LIVE,
             publish_status=NimbusConstants.PublishStatus.IDLE,
             is_paused=False,
-            is_end_requested=False,
         )
         IS_PAUSING = Q(
             status=NimbusConstants.Status.LIVE,
             publish_status=NimbusConstants.PublishStatus.WAITING,
             is_paused=False,
-            is_end_requested=False,
         )
         IS_END_QUEUED = Q(
             status=NimbusConstants.Status.LIVE,
+            status_next=NimbusConstants.Status.COMPLETE,
             publish_status=NimbusConstants.PublishStatus.APPROVED,
-            is_end_requested=True,
         )
         IS_ENDING = Q(
             status=NimbusConstants.Status.LIVE,
+            status_next=NimbusConstants.Status.COMPLETE,
             publish_status=NimbusConstants.PublishStatus.WAITING,
-            is_end_requested=True,
         )
         SHOULD_TIMEOUT = Q(IS_LAUNCHING | IS_ENDING)
         SHOULD_ALLOCATE_BUCKETS = Q(
@@ -555,6 +560,9 @@ class NimbusChangeLog(FilterMixin, models.Model):
     old_status = models.CharField(
         max_length=255, blank=True, null=True, choices=NimbusExperiment.Status.choices
     )
+    old_status_next = models.CharField(
+        max_length=255, blank=True, null=True, choices=NimbusExperiment.Status.choices
+    )
     old_publish_status = models.CharField(
         max_length=255,
         blank=True,
@@ -562,6 +570,9 @@ class NimbusChangeLog(FilterMixin, models.Model):
         choices=NimbusExperiment.PublishStatus.choices,
     )
     new_status = models.CharField(max_length=255, choices=NimbusExperiment.Status.choices)
+    new_status_next = models.CharField(
+        max_length=255, blank=True, null=True, choices=NimbusExperiment.Status.choices
+    )
     new_publish_status = models.CharField(
         max_length=255, choices=NimbusExperiment.PublishStatus.choices
     )
