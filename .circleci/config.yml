@@ -98,8 +98,8 @@ jobs:
       - run:
           name: Run integration tests
           command: |
-            cp .env.sample .env
-            make refresh
+            cp .env.integration-tests .env
+            make refresh SKIP_DUMMY=1
             make up_prod_detached
             make integration_test_nimbus
 
