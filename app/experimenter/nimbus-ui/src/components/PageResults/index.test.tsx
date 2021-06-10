@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
+import { act } from "react-dom/test-utils";
 import PageResults from ".";
 import { getStatus as mockGetStatus } from "../../lib/experiment";
 import { mockExperimentQuery } from "../../lib/mocks";
@@ -102,6 +103,20 @@ describe("PageResults", () => {
     render(<Subject />);
     expect(redirectPath).toEqual("");
   });
+});
+
+it("displays grouped metrics via onClick", async () => {
+  mockExperiment = mockExperimentQuery("demo-slug").experiment;
+  mockAnalysisData = mockAnalysis();
+  render(<Subject />);
+  await waitFor(() => {
+    expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
+  });
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Hide other metrics"));
+  });
+  expect(screen.getByText("Show other metrics")).toBeInTheDocument();
 });
 
 // Mocking form component because validation is exercised in its own tests.

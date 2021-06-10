@@ -9,6 +9,8 @@ from rest_framework.response import Response
 
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.visualization.api.v3.models import (
+    METRIC_GROUP,
+    Group,
     JetstreamData,
     Metric,
     Statistic,
@@ -69,7 +71,10 @@ def get_other_metrics_names_and_map(data, RESULTS_METRICS_MAP):
 
         if statistic in priority_stats:
             metric_title = " ".join([word.title() for word in metric.split("_")])
-            other_metrics_names[metric] = metric_title
+            group_name = METRIC_GROUP.get(metric, Group.OTHER)
+            if group_name not in other_metrics_names:
+                other_metrics_names[group_name] = {}
+            other_metrics_names[group_name][metric] = metric_title
 
             if metric not in other_metrics_map or priority_stats.index(
                 statistic

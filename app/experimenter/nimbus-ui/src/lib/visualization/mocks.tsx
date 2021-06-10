@@ -326,21 +326,29 @@ export const weeklyMockAnalysis = (modifications = {}) =>
       control: {
         is_control: true,
         branch_data: {
-          identity: WEEKLY_IDENTITY,
-          feature_d: WEEKLY_CONTROL,
-          retained: WEEKLY_CONTROL,
-          search_count: WEEKLY_CONTROL,
-          days_of_use: WEEKLY_CONTROL,
+          search_metrics: {
+            search_count: WEEKLY_CONTROL,
+          },
+          other_metrics: {
+            identity: WEEKLY_IDENTITY,
+            feature_d: WEEKLY_CONTROL,
+            retained: WEEKLY_CONTROL,
+            days_of_use: WEEKLY_CONTROL,
+          },
         },
       },
       treatment: {
         is_control: false,
         branch_data: {
-          identity: WEEKLY_IDENTITY,
-          feature_d: WEEKLY_TREATMENT,
-          retained: WEEKLY_TREATMENT,
-          search_count: WEEKLY_TREATMENT,
-          days_of_use: WEEKLY_TREATMENT,
+          search_metrics: {
+            search_count: WEEKLY_TREATMENT,
+          },
+          other_metrics: {
+            identity: WEEKLY_IDENTITY,
+            feature_d: WEEKLY_TREATMENT,
+            retained: WEEKLY_TREATMENT,
+            days_of_use: WEEKLY_TREATMENT,
+          },
         },
       },
     },
@@ -350,7 +358,7 @@ export const weeklyMockAnalysis = (modifications = {}) =>
 export const mockAnalysis = (modifications = {}) =>
   Object.assign(
     {
-      other_metrics: { feature_d: "Feature D" },
+      other_metrics: { other_metrics: { feature_d: "Feature D" } },
       metadata: MOCK_METADATA,
       show_analysis: true,
       daily: [],
@@ -359,257 +367,261 @@ export const mockAnalysis = (modifications = {}) =>
         control: {
           is_control: true,
           branch_data: {
-            identity: {
-              absolute: {
-                all: [
-                  {
+            other_metrics: {
+              identity: {
+                absolute: {
+                  all: [
+                    {
+                      point: 198,
+                    },
+                  ],
+                  first: {
                     point: 198,
                   },
-                ],
-                first: {
-                  point: 198,
                 },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+                percent: 45,
               },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-              percent: 45,
-            },
-            search_count: {
-              absolute: {
-                all: [
-                  {
+              retained: {
+                absolute: {
+                  all: [
+                    {
+                      point: 0.9261083743842364,
+                      lower: 0.8864481497569532,
+                      upper: 0.9578449264993547,
+                    },
+                  ],
+                  first: {
                     point: 14.967359019193298,
                     lower: 10.534758870048162,
                     upper: 20.754349791764547,
                   },
-                ],
-                first: {
-                  point: 14.967359019193298,
-                  lower: 10.534758870048162,
-                  upper: 20.754349791764547,
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
                 },
               },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            retained: {
-              absolute: {
-                all: [
-                  {
-                    point: 0.9261083743842364,
-                    lower: 0.8864481497569532,
-                    upper: 0.9578449264993547,
-                  },
-                ],
-                first: {
-                  point: 14.967359019193298,
-                  lower: 10.534758870048162,
-                  upper: 20.754349791764547,
-                },
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            picture_in_picture_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
-                },
-                all: [
-                  {
+              picture_in_picture_ever_used: {
+                absolute: {
+                  first: {
                     point: 0.05,
                     count: 10,
                     lower: 0.024357271316207685,
                     upper: 0.08411463700173483,
                   },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            picture_in_picture: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              picture_in_picture: {
+                absolute: {
+                  first: {
                     point: 0.05,
                     count: 10,
                     lower: 0.024357271316207685,
                     upper: 0.08411463700173483,
                   },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            feature_b_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_b_ever_used: {
+                absolute: {
+                  first: {
                     point: 0.05,
                     count: 10,
                     lower: 0.024357271316207685,
                     upper: 0.08411463700173483,
                   },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            feature_b: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_b: {
+                absolute: {
+                  first: {
                     point: 0.05,
                     count: 10,
                     lower: 0.024357271316207685,
                     upper: 0.08411463700173483,
                   },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            feature_c_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_c_ever_used: {
+                absolute: {
+                  first: {
                     point: 0.05,
                     count: 10,
                     lower: 0.024357271316207685,
                     upper: 0.08411463700173483,
                   },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            feature_c: CONTROL_NEUTRAL,
-            days_of_use: CONTROL_NEUTRAL,
-            feature_d: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_c: CONTROL_NEUTRAL,
+              feature_d: {
+                absolute: {
+                  first: {
                     point: 0.05,
                     count: 10,
                     lower: 0.024357271316207685,
                     upper: 0.08411463700173483,
                   },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            outcome_d: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              outcome_d: {
+                absolute: {
+                  first: {
                     point: 0.05,
                     count: 10,
                     lower: 0.024357271316207685,
                     upper: 0.08411463700173483,
                   },
-                ],
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
               },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
+              days_of_use: CONTROL_NEUTRAL,
+            },
+            search_metrics: {
+              search_count: {
+                absolute: {
+                  all: [
+                    {
+                      point: 14.967359019193298,
+                      lower: 10.534758870048162,
+                      upper: 20.754349791764547,
+                    },
+                  ],
+                  first: {
+                    point: 14.967359019193298,
+                    lower: 10.534758870048162,
+                    upper: 20.754349791764547,
+                  },
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
               },
             },
           },
@@ -617,359 +629,363 @@ export const mockAnalysis = (modifications = {}) =>
         treatment: {
           is_control: false,
           branch_data: {
-            identity: {
-              absolute: {
-                first: {
-                  point: 200,
-                },
-                all: [
-                  {
+            other_metrics: {
+              identity: {
+                absolute: {
+                  first: {
                     point: 200,
                   },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-              percent: 55,
-            },
-            search_count: TREATMENT_NEGATIVE,
-            retained: TREATMENT_NEUTRAL,
-            picture_in_picture_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
+                  all: [
+                    {
+                      point: 200,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+                percent: 55,
+              },
+              retained: TREATMENT_NEUTRAL,
+              picture_in_picture_ever_used: {
+                absolute: {
+                  first: {
                     point: 0.049019607843137254,
                     count: 10,
                     lower: 0.023872203557007872,
                     upper: 0.08249069209461024,
                   },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {
                     point: -0.0006569487628876534,
                     upper: 0.04316381736512019,
                     lower: 0.04175095963994029,
                   },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                relative_uplift: {
+                  first: {
                     lower: -0.455210299676828,
                     upper: 0.5104985718410426,
                     point: -0.06233954570562385,
                   },
-                ],
-              },
-              significance: { overall: { "1": "positive" }, weekly: {} },
-            },
-            picture_in_picture: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+              picture_in_picture: {
+                absolute: {
+                  first: {
                     point: 0.049019607843137254,
                     count: 10,
                     lower: 0.023872203557007872,
                     upper: 0.08249069209461024,
                   },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {
                     point: -0.0006569487628876534,
                     upper: 0.04316381736512019,
                     lower: 0.04175095963994029,
                   },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                relative_uplift: {
+                  first: {
                     lower: -0.455210299676828,
                     upper: 0.5104985718410426,
                     point: -0.06233954570562385,
                   },
-                ],
-              },
-              significance: { overall: { "1": "positive" }, weekly: {} },
-            },
-            feature_b_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+              feature_b_ever_used: {
+                absolute: {
+                  first: {
                     point: 0.049019607843137254,
                     count: 10,
                     lower: 0.023872203557007872,
                     upper: 0.08249069209461024,
                   },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {
                     point: -0.0006569487628876534,
                     upper: 0.04316381736512019,
                     lower: 0.04175095963994029,
                   },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                relative_uplift: {
+                  first: {
                     lower: -0.455210299676828,
                     upper: 0.5104985718410426,
                     point: -0.06233954570562385,
                   },
-                ],
-              },
-              significance: { overall: { "1": "negative" }, weekly: {} },
-            },
-            feature_b: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                significance: { overall: { "1": "negative" }, weekly: {} },
+              },
+              feature_b: {
+                absolute: {
+                  first: {
                     point: 0.049019607843137254,
                     count: 10,
                     lower: 0.023872203557007872,
                     upper: 0.08249069209461024,
                   },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {
                     point: -0.0006569487628876534,
                     upper: 0.04316381736512019,
                     lower: 0.04175095963994029,
                   },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                relative_uplift: {
+                  first: {
                     lower: -0.455210299676828,
                     upper: 0.5104985718410426,
                     point: -0.06233954570562385,
                   },
-                ],
-              },
-              significance: { overall: { "1": "negative" }, weekly: {} },
-            },
-            feature_c_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                significance: { overall: { "1": "negative" }, weekly: {} },
+              },
+              feature_c_ever_used: {
+                absolute: {
+                  first: {
                     point: 0.049019607843137254,
                     count: 10,
                     lower: 0.023872203557007872,
                     upper: 0.08249069209461024,
                   },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {
                     point: -0.0006569487628876534,
                     upper: 0.04316381736512019,
                     lower: 0.04175095963994029,
                   },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                relative_uplift: {
+                  first: {
                     lower: -0.455210299676828,
                     upper: 0.5104985718410426,
                     point: -0.06233954570562385,
                   },
-                ],
-              },
-              significance: { overall: { "1": "neutral" }, weekly: {} },
-            },
-            feature_c: TREATMENT_NEUTRAL,
-            days_of_use: TREATMENT_NEUTRAL,
-            feature_d: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                significance: { overall: { "1": "neutral" }, weekly: {} },
+              },
+              feature_c: TREATMENT_NEUTRAL,
+              days_of_use: TREATMENT_NEUTRAL,
+              feature_d: {
+                absolute: {
+                  first: {
                     point: 0.049019607843137254,
                     count: 10,
                     lower: 0.023872203557007872,
                     upper: 0.08249069209461024,
                   },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {
                     point: -0.0006569487628876534,
                     upper: 0.04316381736512019,
                     lower: 0.04175095963994029,
                   },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                relative_uplift: {
+                  first: {
                     lower: -0.455210299676828,
                     upper: 0.5104985718410426,
                     point: -0.06233954570562385,
                   },
-                ],
-              },
-              significance: { overall: { "1": "positive" }, weekly: {} },
-            },
-            outcome_d: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+              outcome_d: {
+                absolute: {
+                  first: {
                     point: 0.049019607843137254,
                     count: 10,
                     lower: 0.023872203557007872,
                     upper: 0.08249069209461024,
                   },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {
                     point: -0.0006569487628876534,
                     upper: 0.04316381736512019,
                     lower: 0.04175095963994029,
                   },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                relative_uplift: {
+                  first: {
                     lower: -0.455210299676828,
                     upper: 0.5104985718410426,
                     point: -0.06233954570562385,
                   },
-                ],
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "positive" }, weekly: {} },
               },
-              significance: { overall: { "1": "positive" }, weekly: {} },
+            },
+            search_metrics: {
+              search_count: TREATMENT_NEGATIVE,
             },
           },
         },
@@ -984,7 +1000,7 @@ export const mockAnalysis = (modifications = {}) =>
 export const mockIncompleteAnalysis = (modifications = {}) =>
   Object.assign(
     {
-      other_metrics: { feature_d: "Feature D" },
+      other_metrics: { other_metrics: { feature_d: "Feature D" } },
       metadata: MOCK_METADATA,
       show_analysis: true,
       daily: [],
@@ -993,257 +1009,261 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
         control: {
           is_control: true,
           branch_data: {
-            identity: {
-              absolute: {
-                all: [
-                  {
+            other_metrics: {
+              identity: {
+                absolute: {
+                  all: [
+                    {
+                      point: 198,
+                    },
+                  ],
+                  first: {
                     point: 198,
                   },
-                ],
-                first: {
-                  point: 198,
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+                percent: 45,
+              },
+              picture_in_picture_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
                 },
               },
-              difference: {
-                first: {},
-                all: [],
+              picture_in_picture: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
               },
-              relative_uplift: {
-                first: {},
-                all: [],
+              feature_b_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
               },
-              percent: 45,
+              feature_b: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_c_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_c: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_d: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              outcome_d: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
             },
-            search_count: {
-              absolute: {
-                all: [
-                  {
+            search_metrics: {
+              search_count: {
+                absolute: {
+                  all: [
+                    {
+                      point: 14.967359019193298,
+                      lower: 10.534758870048162,
+                      upper: 20.754349791764547,
+                    },
+                  ],
+                  first: {
                     point: 14.967359019193298,
                     lower: 10.534758870048162,
                     upper: 20.754349791764547,
                   },
-                ],
-                first: {
-                  point: 14.967359019193298,
-                  lower: 10.534758870048162,
-                  upper: 20.754349791764547,
                 },
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            picture_in_picture_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
+                difference: {
+                  first: {},
+                  all: [],
                 },
-                all: [
-                  {
-                    point: 0.05,
-                    count: 10,
-                    lower: 0.024357271316207685,
-                    upper: 0.08411463700173483,
-                  },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            picture_in_picture: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
+                relative_uplift: {
+                  first: {},
+                  all: [],
                 },
-                all: [
-                  {
-                    point: 0.05,
-                    count: 10,
-                    lower: 0.024357271316207685,
-                    upper: 0.08411463700173483,
-                  },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            feature_b_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
-                },
-                all: [
-                  {
-                    point: 0.05,
-                    count: 10,
-                    lower: 0.024357271316207685,
-                    upper: 0.08411463700173483,
-                  },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            feature_b: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
-                },
-                all: [
-                  {
-                    point: 0.05,
-                    count: 10,
-                    lower: 0.024357271316207685,
-                    upper: 0.08411463700173483,
-                  },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            feature_c_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
-                },
-                all: [
-                  {
-                    point: 0.05,
-                    count: 10,
-                    lower: 0.024357271316207685,
-                    upper: 0.08411463700173483,
-                  },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            feature_c: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
-                },
-                all: [
-                  {
-                    point: 0.05,
-                    count: 10,
-                    lower: 0.024357271316207685,
-                    upper: 0.08411463700173483,
-                  },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            feature_d: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
-                },
-                all: [
-                  {
-                    point: 0.05,
-                    count: 10,
-                    lower: 0.024357271316207685,
-                    upper: 0.08411463700173483,
-                  },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-            },
-            outcome_d: {
-              absolute: {
-                first: {
-                  point: 0.05,
-                  count: 10,
-                  lower: 0.024357271316207685,
-                  upper: 0.08411463700173483,
-                },
-                all: [
-                  {
-                    point: 0.05,
-                    count: 10,
-                    lower: 0.024357271316207685,
-                    upper: 0.08411463700173483,
-                  },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
               },
             },
           },
@@ -1251,437 +1271,441 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
         treatment: {
           is_control: false,
           branch_data: {
-            identity: {
-              absolute: {
-                first: {
-                  point: 200,
-                },
-                all: [
-                  {
+            other_metrics: {
+              identity: {
+                absolute: {
+                  first: {
                     point: 200,
                   },
-                ],
-              },
-              difference: {
-                first: {},
-                all: [],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-              percent: 55,
-            },
-            search_count: {
-              absolute: {
-                first: {
-                  point: 25.456361412643364,
-                  lower: 18.998951440573688,
-                  upper: 33.54929175463715,
+                  all: [
+                    {
+                      point: 200,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+                percent: 55,
+              },
+              picture_in_picture_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+              picture_in_picture: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+              feature_b_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "negative" }, weekly: {} },
+              },
+              feature_b: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "negative" }, weekly: {} },
+              },
+              feature_c_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "neutral" }, weekly: {} },
+              },
+              feature_c: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "neutral" }, weekly: {} },
+              },
+              feature_d: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+              outcome_d: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+            },
+            search_metrics: {
+              search_count: {
+                absolute: {
+                  first: {
                     point: 25.456361412643364,
                     lower: 18.998951440573688,
                     upper: 33.54929175463715,
                   },
-                ],
-              },
-              difference: {
-                first: {
-                  point: 5.075852767646001,
-                  upper: -5.63685604594333,
-                  lower: -15.289651027022447,
+                  all: [
+                    {
+                      point: 25.456361412643364,
+                      lower: 18.998951440573688,
+                      upper: 33.54929175463715,
+                    },
+                  ],
                 },
-                all: [
-                  {
+                difference: {
+                  first: {
                     point: 5.075852767646001,
                     upper: -5.63685604594333,
                     lower: -15.289651027022447,
                   },
-                ],
-              },
-              relative_uplift: {
-                first: {},
-                all: [],
-              },
-              significance: { overall: { "1": "negative" }, weekly: {} },
-            },
-            picture_in_picture_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
+                  all: [
+                    {
+                      point: 5.075852767646001,
+                      upper: -5.63685604594333,
+                      lower: -15.289651027022447,
+                    },
+                  ],
                 },
-                all: [
-                  {
-                    point: 0.049019607843137254,
-                    count: 10,
-                    lower: 0.023872203557007872,
-                    upper: 0.08249069209461024,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
+                relative_uplift: {
+                  first: {},
+                  all: [],
                 },
-                all: [
-                  {
-                    point: -0.0006569487628876534,
-                    upper: 0.04316381736512019,
-                    lower: 0.04175095963994029,
-                  },
-                ],
+                significance: { overall: { "1": "negative" }, weekly: {} },
               },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                },
-                all: [
-                  {
-                    lower: -0.455210299676828,
-                    upper: 0.5104985718410426,
-                    point: -0.06233954570562385,
-                  },
-                ],
-              },
-              significance: { overall: { "1": "positive" }, weekly: {} },
-            },
-            picture_in_picture: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
-                },
-                all: [
-                  {
-                    point: 0.049019607843137254,
-                    count: 10,
-                    lower: 0.023872203557007872,
-                    upper: 0.08249069209461024,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
-                },
-                all: [
-                  {
-                    point: -0.0006569487628876534,
-                    upper: 0.04316381736512019,
-                    lower: 0.04175095963994029,
-                  },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                },
-                all: [
-                  {
-                    lower: -0.455210299676828,
-                    upper: 0.5104985718410426,
-                    point: -0.06233954570562385,
-                  },
-                ],
-              },
-              significance: { overall: { "1": "positive" }, weekly: {} },
-            },
-            feature_b_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
-                },
-                all: [
-                  {
-                    point: 0.049019607843137254,
-                    count: 10,
-                    lower: 0.023872203557007872,
-                    upper: 0.08249069209461024,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
-                },
-                all: [
-                  {
-                    point: -0.0006569487628876534,
-                    upper: 0.04316381736512019,
-                    lower: 0.04175095963994029,
-                  },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                },
-                all: [
-                  {
-                    lower: -0.455210299676828,
-                    upper: 0.5104985718410426,
-                    point: -0.06233954570562385,
-                  },
-                ],
-              },
-              significance: { overall: { "1": "negative" }, weekly: {} },
-            },
-            feature_b: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
-                },
-                all: [
-                  {
-                    point: 0.049019607843137254,
-                    count: 10,
-                    lower: 0.023872203557007872,
-                    upper: 0.08249069209461024,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
-                },
-                all: [
-                  {
-                    point: -0.0006569487628876534,
-                    upper: 0.04316381736512019,
-                    lower: 0.04175095963994029,
-                  },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                },
-                all: [
-                  {
-                    lower: -0.455210299676828,
-                    upper: 0.5104985718410426,
-                    point: -0.06233954570562385,
-                  },
-                ],
-              },
-              significance: { overall: { "1": "negative" }, weekly: {} },
-            },
-            feature_c_ever_used: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
-                },
-                all: [
-                  {
-                    point: 0.049019607843137254,
-                    count: 10,
-                    lower: 0.023872203557007872,
-                    upper: 0.08249069209461024,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
-                },
-                all: [
-                  {
-                    point: -0.0006569487628876534,
-                    upper: 0.04316381736512019,
-                    lower: 0.04175095963994029,
-                  },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                },
-                all: [
-                  {
-                    lower: -0.455210299676828,
-                    upper: 0.5104985718410426,
-                    point: -0.06233954570562385,
-                  },
-                ],
-              },
-              significance: { overall: { "1": "neutral" }, weekly: {} },
-            },
-            feature_c: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
-                },
-                all: [
-                  {
-                    point: 0.049019607843137254,
-                    count: 10,
-                    lower: 0.023872203557007872,
-                    upper: 0.08249069209461024,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
-                },
-                all: [
-                  {
-                    point: -0.0006569487628876534,
-                    upper: 0.04316381736512019,
-                    lower: 0.04175095963994029,
-                  },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                },
-                all: [
-                  {
-                    lower: -0.455210299676828,
-                    upper: 0.5104985718410426,
-                    point: -0.06233954570562385,
-                  },
-                ],
-              },
-              significance: { overall: { "1": "neutral" }, weekly: {} },
-            },
-            feature_d: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
-                },
-                all: [
-                  {
-                    point: 0.049019607843137254,
-                    count: 10,
-                    lower: 0.023872203557007872,
-                    upper: 0.08249069209461024,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
-                },
-                all: [
-                  {
-                    point: -0.0006569487628876534,
-                    upper: 0.04316381736512019,
-                    lower: 0.04175095963994029,
-                  },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                },
-                all: [
-                  {
-                    lower: -0.455210299676828,
-                    upper: 0.5104985718410426,
-                    point: -0.06233954570562385,
-                  },
-                ],
-              },
-              significance: { overall: { "1": "positive" }, weekly: {} },
-            },
-            outcome_d: {
-              absolute: {
-                first: {
-                  point: 0.049019607843137254,
-                  count: 10,
-                  lower: 0.023872203557007872,
-                  upper: 0.08249069209461024,
-                },
-                all: [
-                  {
-                    point: 0.049019607843137254,
-                    count: 10,
-                    lower: 0.023872203557007872,
-                    upper: 0.08249069209461024,
-                  },
-                ],
-              },
-              difference: {
-                first: {
-                  point: -0.0006569487628876534,
-                  upper: 0.04316381736512019,
-                  lower: 0.04175095963994029,
-                },
-                all: [
-                  {
-                    point: -0.0006569487628876534,
-                    upper: 0.04316381736512019,
-                    lower: 0.04175095963994029,
-                  },
-                ],
-              },
-              relative_uplift: {
-                first: {
-                  lower: -0.455210299676828,
-                  upper: 0.5104985718410426,
-                  point: -0.06233954570562385,
-                },
-                all: [
-                  {
-                    lower: -0.455210299676828,
-                    upper: 0.5104985718410426,
-                    point: -0.06233954570562385,
-                  },
-                ],
-              },
-              significance: { overall: { "1": "positive" }, weekly: {} },
             },
           },
         },

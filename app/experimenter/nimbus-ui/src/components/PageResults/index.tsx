@@ -3,9 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from "@reach/router";
-import React from "react";
+import React, { useState } from "react";
+import Collapse from "react-bootstrap/Collapse";
 import { useConfig } from "../../hooks";
-import { HIGHLIGHTS_METRICS_LIST } from "../../lib/visualization/constants";
+import { ReactComponent as CollapseMinus } from "../../images/minus.svg";
+import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
+import {
+  GROUP,
+  HIGHLIGHTS_METRICS_LIST,
+} from "../../lib/visualization/constants";
 import {
   analysisUnavailable,
   getSortedBranches,
@@ -22,6 +28,11 @@ import TableResultsWeekly from "./TableResultsWeekly";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { outcomes: configOutcomes } = useConfig();
+  const groupStates: { [group: string]: any } = {
+    usage_metrics: useState(true),
+    search_metrics: useState(true),
+    other_metrics: useState(true),
+  };
 
   return (
     <AppLayoutWithExperiment
@@ -119,21 +130,65 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       results={analysis}
                       outcomeSlug={outcome!.slug!}
                       outcomeDefaultName={outcome!.friendlyName!}
+                      group={GROUP.OTHER}
                       isDefault={false}
                       {...{ sortedBranches }}
                     />
                   );
                 })}
               {analysis?.other_metrics &&
-                Object.keys(analysis.other_metrics).map((metric: string) => (
-                  <TableMetricSecondary
-                    key={metric}
-                    results={analysis}
-                    outcomeSlug={metric}
-                    outcomeDefaultName={analysis!.other_metrics![metric]}
-                    {...{ sortedBranches }}
-                  />
-                ))}
+                Object.keys(analysis.other_metrics).map((group: string) => {
+                  const [open, setOpen] = groupStates[group];
+                  const groupName = group.replace("_", " ");
+
+                  return (
+                    <div key={`${group}-toggle`}>
+                      <span
+                        onClick={() => {
+                          setOpen(!open);
+                        }}
+                        aria-controls="group"
+                        aria-expanded={open}
+                        className="text-primary btn mb-5"
+                      >
+                        {open ? (
+                          <>
+                            <CollapseMinus />
+                            <span style={{ textTransform: "capitalize" }}>
+                              Hide {groupName}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <ExpandPlus />
+                            <span style={{ textTransform: "capitalize" }}>
+                              Show {groupName}
+                            </span>
+                          </>
+                        )}
+                      </span>
+                      <Collapse in={open}>
+                        <div>
+                          {analysis.other_metrics?.[group] &&
+                            Object.keys(analysis.other_metrics[group]).map(
+                              (metric: string) => (
+                                <TableMetricSecondary
+                                  key={metric}
+                                  results={analysis}
+                                  outcomeSlug={metric}
+                                  outcomeDefaultName={
+                                    analysis!.other_metrics![group][metric]
+                                  }
+                                  group={group}
+                                  {...{ sortedBranches }}
+                                />
+                              ),
+                            )}
+                        </div>
+                      </Collapse>
+                    </div>
+                  );
+                })}
             </div>
           </>
         );

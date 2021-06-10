@@ -11,7 +11,6 @@ import {
 import {
   AnalysisData,
   AnalysisDataOverall,
-  BranchDescription,
   FormattedAnalysisPoint,
 } from "./types";
 
@@ -49,21 +48,24 @@ export const getTableDisplayType = (
 };
 
 export const getSortedBranches = (analysis: AnalysisData) => {
-  const results: { [branch: string]: BranchDescription } | null =
-    analysis?.overall || analysis?.weekly;
-  if (!results) {
-    return [];
+  if (analysis?.overall) {
+    return Object.keys(analysis.overall)
+      .filter((branch) => analysis.overall?.[branch].is_control)
+      .concat(
+        Object.keys(analysis.overall).filter(
+          (branch) => !analysis.overall?.[branch].is_control,
+        ),
+      );
+  } else if (analysis?.weekly) {
+    return Object.keys(analysis.weekly)
+      .filter((branch) => analysis.weekly?.[branch].is_control)
+      .concat(
+        Object.keys(analysis.weekly).filter(
+          (branch) => !analysis.weekly?.[branch].is_control,
+        ),
+      );
   }
-
-  const sortedBranches: string[] = [];
-  Object.keys(results).forEach((branch: string) => {
-    if (results[branch]["is_control"]) {
-      sortedBranches.unshift(branch);
-    } else {
-      sortedBranches.push(branch);
-    }
-  });
-  return sortedBranches;
+  return [];
 };
 
 /**
@@ -77,12 +79,13 @@ export const getExtremeBounds = (
   sortedBranches: string[],
   results: AnalysisDataOverall,
   outcomeSlug: string,
+  group: string,
 ) => {
   let extreme = 0;
   sortedBranches.forEach((branch) => {
     const branchComparison = BRANCH_COMPARISON.UPLIFT;
     const metricDataList =
-      results[branch].branch_data[outcomeSlug][branchComparison]["all"];
+      results[branch].branch_data[group][outcomeSlug][branchComparison]["all"];
     metricDataList.forEach((dataPoint: FormattedAnalysisPoint) => {
       const { lower, upper } = dataPoint;
       const max = Math.max(Math.abs(lower!), Math.abs(upper!));

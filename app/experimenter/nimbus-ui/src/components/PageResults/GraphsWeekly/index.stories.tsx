@@ -6,6 +6,7 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import GraphsWeekly from ".";
+import { GROUP } from "../../../lib/visualization/constants";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 storiesOf("pages/Results/GraphsWeekly", module)
@@ -16,6 +17,7 @@ storiesOf("pages/Results/GraphsWeekly", module)
         weeklyResults={mockAnalysis().weekly}
         outcomeSlug="feature_d"
         outcomeName="Feature D"
+        group={GROUP.OTHER}
       />
     );
   });
