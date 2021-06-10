@@ -34,7 +34,7 @@ CHECK_DOCS = python manage.py generate_docs --check=true
 GENERATE_DOCS = python manage.py generate_docs
 LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
 LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
-LOAD_DUMMY_EXPERIMENTS = python manage.py load_dummy_experiments
+LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || echo "skipping dummy experiments"
 PUBLISH_STORYBOOKS = npx github:mozilla-fxa/storybook-gcp-publisher --commit-summary commit-summary.txt --commit-description commit-description.txt --version-json version.json
 
 ssl: nginx/key.pem nginx/cert.pem
@@ -138,7 +138,7 @@ bash: compose_build
 	$(COMPOSE) run app bash
 
 refresh: kill compose_build
-	$(COMPOSE) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
+	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY app bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 # integration tests
 integration_build: build_prod ssl
@@ -157,4 +157,4 @@ integration_test_legacy: integration_build
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-legacy $(TOX_ARGS) -- -n 4 $(PYTEST_ARGS)"
 
 integration_test_nimbus: integration_build
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- -n 4 $(PYTEST_ARGS)"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"

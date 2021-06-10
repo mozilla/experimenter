@@ -33,6 +33,7 @@ const FormLaunchDraftToPreview = ({
           <div>
             <button
               data-testid="launch-draft-to-preview"
+              id="launch-to-preview-button"
               type="button"
               className="mr-2 btn btn-primary"
               disabled={isLoading}
@@ -42,6 +43,7 @@ const FormLaunchDraftToPreview = ({
             </button>
             <button
               data-testid="start-launch-draft-to-review"
+              id="launch-to-review-button"
               type="button"
               className="btn btn-secondary"
               disabled={isLoading}
