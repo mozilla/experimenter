@@ -1,11 +1,14 @@
 import graphene
 from django.conf import settings
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.api.v5.types import (
+    NimbusCountryType,
     NimbusExperimentTargetingConfigSlugChoice,
     NimbusExperimentType,
     NimbusFeatureConfigType,
     NimbusLabelValueType,
+    NimbusLocaleType,
     NimbusOutcomeType,
 )
 from experimenter.experiments.models.nimbus import NimbusExperiment, NimbusFeatureConfig
@@ -28,6 +31,8 @@ class NimbusConfigurationType(graphene.ObjectType):
     max_primary_outcomes = graphene.Int()
     documentation_link = graphene.List(NimbusLabelValueType)
     kinto_admin_url = graphene.String()
+    locales = graphene.List(NimbusLocaleType)
+    countries = graphene.List(NimbusCountryType)
 
     def _text_choices_to_label_value_list(root, text_choices):
         return [
@@ -76,6 +81,12 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_kinto_admin_url(root, info):
         return settings.KINTO_ADMIN_URL
+
+    def resolve_locales(root, info):
+        return Locale.objects.all().order_by("name")
+
+    def resolve_countries(root, info):
+        return Country.objects.all().order_by("name")
 
 
 class Query(graphene.ObjectType):
