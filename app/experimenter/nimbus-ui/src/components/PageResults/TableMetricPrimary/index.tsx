@@ -5,6 +5,7 @@
 import React from "react";
 import {
   DISPLAY_TYPE,
+  GROUP,
   PRIMARY_METRIC_COLUMNS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
@@ -47,7 +48,12 @@ const TableMetricPrimary = ({
 }: TableMetricPrimaryProps) => {
   const primaryMetricStatistics = getStatistics(outcome.slug!);
   const metricKey = `${outcome.slug}_ever_used`;
-  const bounds = getExtremeBounds(sortedBranches, results, outcome.slug!);
+  const bounds = getExtremeBounds(
+    sortedBranches,
+    results,
+    outcome.slug!,
+    GROUP.OTHER,
+  );
 
   return (
     <div data-testid="table-metric-primary" className="mb-5">
@@ -81,6 +87,7 @@ const TableMetricPrimary = ({
                     <TableVisualizationRow
                       key={`${displayType}-${value}`}
                       results={results[branch]}
+                      group={GROUP.OTHER}
                       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
                       {...{ metricKey, displayType, branchComparison, bounds }}
                     />

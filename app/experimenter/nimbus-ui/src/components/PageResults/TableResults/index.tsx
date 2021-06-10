@@ -6,6 +6,7 @@ import React from "react";
 import { useOutcomes } from "../../../hooks";
 import { OutcomesList } from "../../../lib/types";
 import {
+  GROUP,
   METRICS_TIPS,
   METRIC_TYPE,
   RESULTS_METRICS_LIST,
@@ -32,6 +33,7 @@ const getResultMetrics = (outcomes: OutcomesList) => {
       name: `${outcome!.friendlyName} Conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
       type: METRIC_TYPE.PRIMARY,
+      group: GROUP.OTHER,
     });
   });
 
@@ -106,6 +108,7 @@ const TableResults = ({
                     key={`${displayType}-${metricKey}`}
                     metricName={metric.name}
                     results={overallResults[branch]}
+                    group={metric.group}
                     tableLabel={TABLE_LABEL.RESULTS}
                     {...{ metricKey }}
                     {...{ displayType }}

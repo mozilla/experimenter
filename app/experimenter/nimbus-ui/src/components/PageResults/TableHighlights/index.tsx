@@ -7,6 +7,7 @@ import { useOutcomes } from "../../../hooks";
 import { OutcomesList } from "../../../lib/types";
 import {
   BRANCH_COMPARISON,
+  GROUP,
   HIGHLIGHTS_METRICS_LIST,
   METRIC,
   METRICS_TIPS,
@@ -39,6 +40,7 @@ const getHighlightMetrics = (outcomes: OutcomesList) => {
       value: `${outcome!.slug}_ever_used`,
       name: `${outcome!.friendlyName} conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
+      group: GROUP.OTHER,
     });
   });
 
@@ -86,7 +88,9 @@ const TableHighlights = ({
       <tbody>
         {sortedBranches.map((branch) => {
           const userCountMetric =
-            overallResults[branch]["branch_data"][METRIC.USER_COUNT];
+            overallResults[branch]["branch_data"][GROUP.OTHER][
+              METRIC.USER_COUNT
+            ];
           const participantCount =
             userCountMetric[BRANCH_COMPARISON.ABSOLUTE]["first"]["point"];
           return (
@@ -122,6 +126,7 @@ const TableHighlights = ({
                         key={`${displayType}-${metricKey}`}
                         metricName={metric.name}
                         results={overallResults[branch]}
+                        group={metric.group}
                         tableLabel={TABLE_LABEL.HIGHLIGHTS}
                         {...{ metricKey, displayType, tooltip }}
                       />

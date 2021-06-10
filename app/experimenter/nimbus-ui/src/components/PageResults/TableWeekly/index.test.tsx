@@ -6,6 +6,7 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import TableWeekly from ".";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import { GROUP } from "../../../lib/visualization/constants";
 import {
   weeklyMockAnalysis,
   WEEKLY_IDENTITY,
@@ -21,11 +22,15 @@ describe("TableWeekly", () => {
       treatment: {
         is_control: false,
         branch_data: {
-          identity: WEEKLY_IDENTITY,
-          feature_d: WEEKLY_TREATMENT,
-          retained: WONKY_WEEKLY_TREATMENT,
-          search_count: WEEKLY_TREATMENT,
-          days_of_use: WEEKLY_TREATMENT,
+          search_metrics: {
+            search_count: WEEKLY_TREATMENT,
+          },
+          other_metrics: {
+            identity: WEEKLY_IDENTITY,
+            feature_d: WEEKLY_TREATMENT,
+            retained: WONKY_WEEKLY_TREATMENT,
+            days_of_use: WEEKLY_TREATMENT,
+          },
         },
       },
     };
@@ -43,6 +48,7 @@ describe("TableWeekly", () => {
         <TableWeekly
           metricKey="retained"
           metricName="Retention"
+          metricGroup={GROUP.OTHER}
           {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
@@ -68,6 +74,7 @@ describe("TableWeekly", () => {
         <TableWeekly
           metricKey="fake"
           metricName="Some Made Up Metric"
+          metricGroup={GROUP.OTHER}
           {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
