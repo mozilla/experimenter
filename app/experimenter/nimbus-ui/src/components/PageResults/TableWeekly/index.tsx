@@ -18,23 +18,25 @@ import TableVisualizationRow from "../TableVisualizationRow";
 type TableWeeklyProps = {
   metricKey: string;
   metricName: string;
+  metricGroup: string;
   results: AnalysisDataWeekly;
   sortedBranches: string[];
 };
 
 const getWeekIndexList = (
   metric: string,
+  group: string,
   weeklyResults: { [branch: string]: BranchDescription },
 ) => {
   const weekIndexSet = new Set();
   Object.keys(weeklyResults).forEach((branch: string) => {
-    if (!(metric in weeklyResults[branch].branch_data)) {
+    if (!(metric in weeklyResults[branch].branch_data[group])) {
       return;
     }
 
     Object.values(BRANCH_COMPARISON).forEach((branchComparison) => {
       const branchData =
-        weeklyResults[branch].branch_data[metric][branchComparison].all;
+        weeklyResults[branch].branch_data[group][metric][branchComparison].all;
       branchData.forEach((dataPoint: FormattedAnalysisPoint) => {
         const weekIndex: number =
           "window_index" in dataPoint ? dataPoint["window_index"]! : 0;
@@ -48,10 +50,11 @@ const getWeekIndexList = (
 const TableWeekly = ({
   metricKey,
   metricName,
+  metricGroup,
   results = {},
   sortedBranches,
 }: TableWeeklyProps) => {
-  const weekIndexList = getWeekIndexList(metricKey, results);
+  const weekIndexList = getWeekIndexList(metricKey, metricGroup, results);
 
   return (
     <table
@@ -79,7 +82,6 @@ const TableWeekly = ({
             TABLE_LABEL.RESULTS,
             results[branch]["is_control"],
           );
-
           return (
             <tr key={`${branch}-${metricKey}`}>
               <th className="align-middle" scope="row">
@@ -89,6 +91,7 @@ const TableWeekly = ({
                 key={`${displayType}-${metricKey}`}
                 metricName={metricName}
                 results={results[branch]}
+                group={metricGroup}
                 tableLabel={TABLE_LABEL.RESULTS}
                 {...{ metricKey }}
                 {...{ displayType }}

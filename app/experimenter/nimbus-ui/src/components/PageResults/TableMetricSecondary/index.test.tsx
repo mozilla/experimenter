@@ -7,6 +7,7 @@ import React from "react";
 import TableMetricSecondary from ".";
 import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import { GROUP } from "../../../lib/visualization/constants";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 import { getSortedBranches } from "../../../lib/visualization/utils";
 
@@ -25,6 +26,7 @@ describe("TableMetricSecondary", () => {
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           isDefault={false}
+          group={GROUP.OTHER}
           {...{ results, sortedBranches }}
         />
       </RouterSlugProvider>,
@@ -44,6 +46,7 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+          group={GROUP.OTHER}
           isDefault={false}
           {...{ results, sortedBranches }}
         />
@@ -67,6 +70,7 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+          group={GROUP.OTHER}
           isDefault={false}
           {...{ results, sortedBranches }}
         />
@@ -86,6 +90,7 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+          group={GROUP.OTHER}
           isDefault={false}
           {...{ results, sortedBranches }}
         />
@@ -109,6 +114,7 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+          group={GROUP.OTHER}
           isDefault={false}
           {...{ results, sortedBranches }}
         />
@@ -128,6 +134,7 @@ describe("TableMetricSecondary", () => {
         <TableMetricSecondary
           outcomeSlug="feature_d"
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+          group={GROUP.OTHER}
           isDefault={false}
           {...{ results, sortedBranches }}
         />

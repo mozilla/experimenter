@@ -7,6 +7,7 @@ import React from "react";
 import GraphsWeekly from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import { GROUP } from "../../../lib/visualization/constants";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 describe("GraphsWeekly", () => {
@@ -19,6 +20,7 @@ describe("GraphsWeekly", () => {
           weeklyResults={mockAnalysis().weekly}
           outcomeSlug="feature_d"
           outcomeName="Feature D"
+          group={GROUP.OTHER}
         />
       </RouterSlugProvider>,
     );

@@ -2,6 +2,7 @@ from experimenter.visualization.api.v3.models import (
     BranchComparison,
     BranchComparisonData,
     DataPoint,
+    Group,
     JetstreamDataPoint,
     Metric,
     MetricData,
@@ -152,27 +153,37 @@ class TestConstants:
             "control": {
                 "is_control": False,
                 "branch_data": {
-                    "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                    "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                    "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                    "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                    "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL.dict(
-                        exclude_none=True
-                    ),
+                    Group.SEARCH: {
+                        "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                    },
+                    Group.USAGE: {},
+                    Group.OTHER: {
+                        "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
+                        "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL.dict(
+                            exclude_none=True
+                        ),
+                    },
                 },
             },
             "variant": {
                 "is_control": False,
                 "branch_data": {
-                    "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                    "search_count": DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE.dict(
-                        exclude_none=True
-                    ),
-                    "some_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                    "another_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
-                    "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE.dict(
-                        exclude_none=True
-                    ),
+                    Group.SEARCH: {
+                        "search_count": DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE.dict(
+                            exclude_none=True
+                        ),
+                    },
+                    Group.USAGE: {},
+                    Group.OTHER: {
+                        "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
+                        "some_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
+                        "another_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
+                        "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE.dict(
+                            exclude_none=True
+                        ),
+                    },
                 },
             },
         }
@@ -181,31 +192,41 @@ class TestConstants:
             "control": {
                 "is_control": False,
                 "branch_data": {
-                    "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.dict(
-                        exclude_none=True
-                    ),
-                    "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                    "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                    "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
-                    "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL.dict(
-                        exclude_none=True
-                    ),
+                    Group.SEARCH: {
+                        "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                    },
+                    Group.USAGE: {},
+                    Group.OTHER: {
+                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.dict(
+                            exclude_none=True
+                        ),
+                        "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL.dict(
+                            exclude_none=True
+                        ),
+                    },
                 },
             },
             "variant": {
                 "is_control": False,
                 "branch_data": {
-                    "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.dict(
-                        exclude_none=True
-                    ),
-                    "search_count": DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE.dict(
-                        exclude_none=True
-                    ),
-                    "some_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
-                    "another_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
-                    "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE.dict(
-                        exclude_none=True
-                    ),
+                    Group.SEARCH: {
+                        "search_count": DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE.dict(
+                            exclude_none=True
+                        ),
+                    },
+                    Group.USAGE: {},
+                    Group.OTHER: {
+                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.dict(
+                            exclude_none=True
+                        ),
+                        "some_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
+                        "another_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
+                        "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE.dict(
+                            exclude_none=True
+                        ),
+                    },
                 },
             },
         }
