@@ -28,6 +28,7 @@ const FormLaunchConfirmationCheckboxes = ({
       {checkboxLabels.map((labelText, index) => (
         <Form.Group
           key={index}
+          id="checkbox"
           className="w-100 my-1"
           controlId={`checkbox-${index}`}
         >

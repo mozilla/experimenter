@@ -29,7 +29,7 @@ const FormLaunchDraftToReview = ({
   );
 
   return (
-    <Alert variant="secondary">
+    <Alert variant="secondary" id="request-launch-alert">
       <Form className="text-body">
         <p className="my-1">
           <span className="text-danger">
@@ -51,6 +51,7 @@ const FormLaunchDraftToReview = ({
           <div className="py-1">
             <button
               data-testid="launch-draft-to-review"
+              id="request-launch-button"
               type="button"
               className="mr-2 btn btn-primary"
               disabled={isLoading || !allBoxesChecked}
