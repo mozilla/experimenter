@@ -11,6 +11,7 @@ from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.visualization.api.v3.models import (
     BranchComparisonData,
     DataPoint,
+    Group,
     JetstreamDataPoint,
     MetricData,
     SignificanceData,
@@ -69,17 +70,22 @@ class TestVisualizationView(TestCase):
         primary_metric = f"{primary_outcome}_ever_used"
 
         for branch in ["control", "variant"]:
+            if Group.OTHER not in overall_data[branch]["branch_data"]:
+                overall_data[branch]["branch_data"][Group.OTHER] = {}
+            if Group.OTHER not in weekly_data[branch]["branch_data"]:
+                weekly_data[branch]["branch_data"][Group.OTHER] = {}
+
             data_point_overall = range_data.copy()
             data_point_overall.count = 48.0
-            overall_data[branch]["branch_data"][primary_metric] = self.get_metric_data(
-                data_point_overall
-            )
+            overall_data[branch]["branch_data"][Group.OTHER][
+                primary_metric
+            ] = self.get_metric_data(data_point_overall)
 
             data_point_weekly = range_data.copy()
             data_point_weekly.window_index = "1"
-            weekly_data[branch]["branch_data"][primary_metric] = self.get_metric_data(
-                data_point_weekly
-            )
+            weekly_data[branch]["branch_data"][Group.OTHER][
+                primary_metric
+            ] = self.get_metric_data(data_point_weekly)
 
             data.append(
                 JetstreamDataPoint(
@@ -123,8 +129,10 @@ class TestVisualizationView(TestCase):
             "weekly": WEEKLY_DATA,
             "overall": OVERALL_DATA,
             "other_metrics": {
-                "some_count": "Some Count",
-                "another_count": "Another Count",
+                Group.OTHER: {
+                    "some_count": "Some Count",
+                    "another_count": "Another Count",
+                },
             },
             "metadata": {},
             "show_analysis": False,

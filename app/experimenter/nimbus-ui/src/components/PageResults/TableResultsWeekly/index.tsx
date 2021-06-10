@@ -12,7 +12,12 @@ import TableWeekly from "../TableWeekly";
 type TableResultsWeeklyProps = {
   weeklyResults: AnalysisDataWeekly;
   hasOverallResults: boolean;
-  metricsList: { value: string; name: string; tooltip: string }[];
+  metricsList: {
+    value: string;
+    name: string;
+    tooltip: string;
+    group: string;
+  }[];
   sortedBranches: string[];
 };
 
@@ -58,6 +63,7 @@ const TableResultsWeekly = ({
                 <TableWeekly
                   metricKey={metric.value}
                   metricName={metric.name}
+                  metricGroup={metric.group}
                   results={weeklyResults}
                   {...{ sortedBranches }}
                 />

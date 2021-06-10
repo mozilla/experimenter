@@ -9,6 +9,7 @@ import TableVisualizationRow from ".";
 import {
   BRANCH_COMPARISON,
   DISPLAY_TYPE,
+  GROUP,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import {
@@ -27,6 +28,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       tableLabel={TABLE_LABEL.HIGHLIGHTS}
       metricKey="retained"
       displayType={DISPLAY_TYPE.POPULATION}
+      group={GROUP.OTHER}
     />
   ))
   .add("Count field", () => (
@@ -35,6 +37,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       tableLabel={TABLE_LABEL.HIGHLIGHTS}
       metricKey="retained"
       displayType={DISPLAY_TYPE.COUNT}
+      group={GROUP.OTHER}
     />
   ))
   .add("Percent field", () => (
@@ -43,6 +46,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       tableLabel={TABLE_LABEL.RESULTS}
       metricKey="retained"
       displayType={DISPLAY_TYPE.PERCENT}
+      group={GROUP.OTHER}
     />
   ))
   .add("Conversion count field", () => (
@@ -52,6 +56,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       results={MOCK_ANALYSIS.overall.treatment}
       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
       metricKey="picture_in_picture_ever_used"
+      group={GROUP.OTHER}
     />
   ))
   .add("Conversion change field (positive)", () => (
@@ -61,6 +66,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       results={MOCK_ANALYSIS.overall.treatment}
       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
       metricKey="picture_in_picture_ever_used"
+      group={GROUP.OTHER}
     />
   ))
   .add("Conversion change field (negative)", () => (
@@ -70,6 +76,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       results={MOCK_ANALYSIS.overall.treatment}
       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
       metricKey="feature_b_ever_used"
+      group={GROUP.OTHER}
     />
   ))
   .add("Conversion change field (neutral)", () => (
@@ -79,6 +86,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       results={MOCK_ANALYSIS.overall.treatment}
       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
       metricKey="feature_c_ever_used"
+      group={GROUP.OTHER}
     />
   ))
   .add("Count field missing values", () => (
@@ -88,5 +96,6 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       tableLabel={TABLE_LABEL.RESULTS}
       metricKey="retained"
       displayType={DISPLAY_TYPE.PERCENT}
+      group={GROUP.OTHER}
     />
   ));

@@ -38,15 +38,16 @@ const outcomeToMapping = (outcomes: OutcomesList) => {
 };
 
 const otherMetricsToFriendlyName = (
-  otherMetrics: { [metric: string]: string },
+  otherMetrics: { [group: string]: { [metric: string]: string } },
   metricsMetaData: { [metric: string]: MetadataPoint },
 ) => {
   const newMap: { [key: string]: string } = {};
-  Object.keys(otherMetrics).map(
-    (metric) =>
-      (newMap[metric] =
-        metricsMetaData[metric]?.friendly_name || otherMetrics[metric]),
-  );
+  Object.keys(otherMetrics).map((group) => {
+    Object.keys(otherMetrics[group]).map((metric) => {
+      newMap[metric] =
+        metricsMetaData[metric]?.friendly_name || otherMetrics[group][metric];
+    });
+  });
   return newMap;
 };
 

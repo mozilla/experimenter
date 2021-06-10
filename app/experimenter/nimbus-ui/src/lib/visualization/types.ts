@@ -8,7 +8,7 @@ export interface AnalysisData {
   overall: { [branch: string]: BranchDescription } | null;
   show_analysis: boolean;
   metadata?: Metadata;
-  other_metrics?: { [metric: string]: string };
+  other_metrics?: { [group: string]: { [metric: string]: string } };
 }
 
 export type AnalysisDataOverall = Exclude<AnalysisData["overall"], null>;
@@ -50,22 +50,24 @@ export interface FormattedAnalysisPoint {
 export interface BranchDescription {
   is_control: boolean;
   branch_data: {
-    [metric: string]: {
-      [index: string]: any;
-      absolute: {
-        first: FormattedAnalysisPoint;
-        all: FormattedAnalysisPoint[];
+    [group: string]: {
+      [metric: string]: {
+        [index: string]: any;
+        absolute: {
+          first: FormattedAnalysisPoint;
+          all: FormattedAnalysisPoint[];
+        };
+        difference: {
+          first: FormattedAnalysisPoint;
+          all: FormattedAnalysisPoint[];
+        };
+        relative_uplift: {
+          first: FormattedAnalysisPoint;
+          all: FormattedAnalysisPoint[];
+        };
+        percent?: number;
+        significance?: { [window: string]: { [window_index: string]: string } };
       };
-      difference: {
-        first: FormattedAnalysisPoint;
-        all: FormattedAnalysisPoint[];
-      };
-      relative_uplift: {
-        first: FormattedAnalysisPoint;
-        all: FormattedAnalysisPoint[];
-      };
-      percent?: number;
-      significance?: { [window: string]: { [window_index: string]: string } };
     };
   };
 }
