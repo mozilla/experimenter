@@ -14,6 +14,7 @@ services:
       - STORYBOOKS_GCP_BUCKET
       - STORYBOOKS_GCP_PRIVATE_KEY_BASE64
       - STORYBOOKS_GCP_CLIENT_EMAIL
+      - STORYBOOKS_USE_YARN_WORKSPACES=false
     links:
       - db
 
