@@ -118,6 +118,14 @@ type NimbusConfigurationType {
   maxPrimaryOutcomes: Int
   documentationLink: [NimbusLabelValueType]
   kintoAdminUrl: String
+  locales: [NimbusLocaleType]
+  countries: [NimbusCountryType]
+}
+
+type NimbusCountryType {
+  code: String!
+  name: String!
+  nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
 enum NimbusDocumentationLinkTitle {
@@ -294,6 +302,8 @@ type NimbusExperimentType {
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion
   application: NimbusExperimentApplication
   channel: NimbusExperimentChannel
+  locales: [NimbusLocaleType!]!
+  countries: [NimbusCountryType!]!
   projects: [ProjectType!]!
   hypothesis: String!
   primaryOutcomes: [String]
@@ -353,6 +363,12 @@ type NimbusIsolationGroupType {
 type NimbusLabelValueType {
   label: String
   value: String
+}
+
+type NimbusLocaleType {
+  code: String!
+  name: String!
+  nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
 type NimbusOutcomeType {
