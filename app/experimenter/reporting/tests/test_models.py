@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.utils import timezone
 
 from experimenter.reporting.models import ReportLog
 from experimenter.reporting.tests.factories import ReportLogFactory
@@ -19,6 +20,7 @@ class TestReportLog(TestCase):
     def test_reportlog_saves_with_null_old_status(self):
         self.assertEqual(ReportLog.objects.count(), 0)
         ReportLog.objects.create(
+            timestamp=timezone.now(),
             experiment_slug="experiment-slug",
             experiment_name="experiment name",
             experiment_type="Nimbus IOS",
