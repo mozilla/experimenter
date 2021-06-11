@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 
 import factory
 from django.utils.text import slugify
@@ -12,6 +13,7 @@ faker = FakerFactory.create()
 
 
 class ReportLogFactory(ReportLogConstants, factory.django.DjangoModelFactory):
+    timestamp = datetime.now()
     experiment_name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     experiment_slug = factory.LazyAttribute(
         lambda o: "{}_".format(slugify(o.experiment_name))
