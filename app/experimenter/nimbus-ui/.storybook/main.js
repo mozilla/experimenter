@@ -9,4 +9,7 @@ module.exports = {
     "@storybook/addon-links",
     "@storybook/preset-create-react-app",
   ],
+  typescript: {
+    reactDocgen: 'react-docgen',
+  }
 };
