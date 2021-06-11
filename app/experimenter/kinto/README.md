@@ -9,15 +9,21 @@
     - [Collections](#collections)
   - [Experiment States](#experiment-states)
     - [Lifecycle States](#lifecycle-states)
+      - [States](#states)
+      - [Parameters](#parameters)
     - [Publish States](#publish-states)
+      - [States](#states-1)
+      - [Parameters](#parameters-1)
   - [Workflows](#workflows)
     - [Preview](#preview)
     - [Publish (Approve/Approve)](#publish--approve-approve-)
     - [Publish (Reject/------)](#publish--reject--------)
     - [Publish (Approve/Reject)](#publish--approve-reject-)
     - [Publish (Approve/Timeout)](#publish--approve-timeout-)
-    - [Update (Approve)](#update--approve-)
-    - [Update (Reject)](#update--reject-)
+    - [End Enrollment (Approve/Approve)](#end-enrollment--approve-approve-)
+    - [End Enrollment (Reject/------)](#end-enrollment--reject--------)
+    - [End Enrollment (Approve/Reject)](#end-enrollment--approve-reject-)
+    - [End Enrollment (Approve/Timeout)](#end-enrollment--approve-timeout-)
     - [End (Approve/Approve)](#end--approve-approve-)
     - [End (Reject/------)](#end--reject--------)
     - [End (Approve/Reject)](#end--approve-reject-)
@@ -77,23 +83,39 @@ An experiment now has two distinct states:
 
 ### Lifecycle States
 
+#### States
+
 - Draft: An experiment in draft has been created, and can be edited.
 - Preview: An experiment in preview can not be edited and is automatically published to the `nimbus-preview` collection
 - Live: An experiment in live can not be edited and is published to the collection corresponding to its target application after it has been reviewed in Experimenter and in Remote Settings
 - Complete: An experiment in complete can not be edited and is no longer published in Remote Settings
 
+#### Parameters
+
+None
+
 ### Publish States
+
+#### States
 
 - Idle: An experiment has no changes that require review or modification in Remote Settings
 - Review: An experiment has changes that require review in Experimenter before they can be published to Remote Settings
 - Approved: An experiment has changes that have been approved in Experimenter and must be published to Remote Settings
 - Waiting: An experiment has changes that have been published to Remote Settings and are awaiting further review in Remote Settings
 
+#### Parameters
+
+- Next: A lifecycle status which the experiment will move to if it is successfully approved and updated in Remote Settings
+
 In theory an experiment can occupy any combination of these two states, but in practice it will only have a publish state other than Idle in Draft and in Live. Preview experiments can be modified in Remote Settings without any review, and Complete experiments will never be published to Remote Settings.
 
 ## Workflows
 
-The following diagrams describe every interaction between Experimenter and Remote Settings. An experiment's state is denoted as `(lifecycle state, publish state)`. Any change which requires creating a changelog includes `+changelog`.
+The following diagrams describe every interaction between Experimenter and Remote Settings. An experiment's state is denoted as:
+
+`lifecycle state/publish state(next lifecycle state)`
+
+Any change which requires creating a changelog includes `+changelog`.
 
 The following actors are involved:
 
@@ -130,15 +152,25 @@ A draft experiment that has been validly completed is reviewed and approved in E
 A draft experiment that has been validly completed is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
 ![](diagrams/publish_approve_timeout.png)
 
-### Update (Approve)
+### End Enrollment (Approve/Approve)
 
-A live experiment that is published in Remote Settings has new changes which are published automatically by Experimenter, are reviewed and approved in Remote Settings. Currently, the only change that will happen while an experiment is live is change `isEnrollmentPaused` from `false` to `true` after the experiment passes its enrollment pause date. This will be automatically computed and the change will be applied without any interaction with the Experimenter UI.
-![](diagrams/update_approve.png)
+A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and approved in Experimenter and then Remote Settings, the record is updated, and no new clients will be enrolled in the experiment.
+![](diagrams/update_approve_approve.png)
 
-### Update (Reject)
+### End Enrollment (Reject/------)
 
-A live experiment that is published in Remote Settings has new changes which are published automatically by Experimenter, then reviewed and rejected in Remote Settings. We do not allow this change to be rejected, but because there is no way to disable the rejection in Remote Settings, a rejection will be ignored and the change will be published again on the next scheduled task invocation.
+A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and rejected in Experimenter. No change is made to Remote Settings and clients will continue to enroll. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
 ![](diagrams/update_reject.png)
+
+### End Enrollment (Approve/Reject)
+
+A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and approved in Experimenter, and then rejected in Remote Settings. No change is made to Remote Settings and clients will continue to enroll. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
+![](diagrams/update_approve_reject.png)
+
+### End Enrollment (Approve/Timeout)
+
+A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and approved in Experimenter, and the change is pushed to Remote Settings. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
+![](diagrams/update_approve_timeout.png)
 
 ### End (Approve/Approve)
 
