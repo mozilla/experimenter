@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.api.v5.serializers import NimbusReadyForReviewSerializer
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.constants.nimbus import NimbusConstants
@@ -26,6 +27,18 @@ class ObjectField(graphene.Scalar):
     @staticmethod
     def serialize(dt):
         return dt
+
+
+class NimbusCountryType(DjangoObjectType):
+    class Meta:
+        model = Country
+        exclude = ("id",)
+
+
+class NimbusLocaleType(DjangoObjectType):
+    class Meta:
+        model = Locale
+        exclude = ("id",)
 
 
 class NimbusUser(DjangoObjectType):
