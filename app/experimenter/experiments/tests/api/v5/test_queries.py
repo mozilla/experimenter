@@ -6,6 +6,7 @@ from django.urls import reverse
 from graphene.utils.str_converters import to_snake_case
 from graphene_django.utils.testing import GraphQLTestCase
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
@@ -601,6 +602,14 @@ class TestNimbusQuery(GraphQLTestCase):
                     hypothesisDefault
                     maxPrimaryOutcomes
                     kintoAdminUrl
+                    locales {
+                        code
+                        name
+                    }
+                    countries {
+                        code
+                        name
+                    }
                 }
             }
             """,
@@ -663,6 +672,14 @@ class TestNimbusQuery(GraphQLTestCase):
         self.assertEqual(
             config["maxPrimaryOutcomes"], NimbusExperiment.MAX_PRIMARY_OUTCOMES
         )
+
+        for locale in Locale.objects.all():
+            self.assertIn({"code": locale.code, "name": locale.name}, config["locales"])
+
+        for country in Country.objects.all():
+            self.assertIn(
+                {"code": country.code, "name": country.name}, config["countries"]
+            )
 
     def test_paused_experiment_returns_date(self):
         user_email = "user@example.com"
