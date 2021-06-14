@@ -69,7 +69,7 @@ export function annotateExperimentBranch(
     ...branch,
     // Set default treatment branch name - reference branch is set by the server
     ...(branch.name === "" && {
-      name: lastId === 0 ? "treatment" : "",
+      name: lastId === 0 ? "Treatment A" : "",
     }),
     key: `branch-${lastId}`,
     isValid: true,

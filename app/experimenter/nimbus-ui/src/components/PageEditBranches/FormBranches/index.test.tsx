@@ -72,7 +72,7 @@ describe("FormBranches", () => {
     const treatmentBranchName = (await screen.findByTestId(
       "treatmentBranches[0].name",
     )) as HTMLInputElement;
-    expect(treatmentBranchName.value).toEqual("treatment");
+    expect(treatmentBranchName.value).toEqual("Treatment A");
   });
 
   it("calls onSave with extracted update when save button clicked", async () => {

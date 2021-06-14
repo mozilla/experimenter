@@ -162,7 +162,7 @@ class NimbusExperimentBranchMixin:
     def create(self, validated_data):
         experiment = super().create(validated_data)
         experiment.reference_branch = NimbusBranch.objects.create(
-            experiment=experiment, name="control", feature_enabled=False
+            experiment=experiment, name="Control", feature_enabled=False
         )
         experiment.save()
         return experiment

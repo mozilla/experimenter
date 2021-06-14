@@ -57,7 +57,11 @@ function addBranch(state: FormBranchesState) {
   } else {
     treatmentBranches = [
       ...(treatmentBranches || []),
-      createAnnotatedBranch(state.lastId, `treatment ${lastId}`),
+      createAnnotatedBranch(
+        state.lastId,
+        // 65 is A, but we generate a control, so start at 64
+        `Treatment ${String.fromCharCode(64 + lastId)}`,
+      ),
     ];
   }
 
