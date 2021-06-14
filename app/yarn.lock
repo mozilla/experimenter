@@ -16894,10 +16894,10 @@ react-helmet@^6.1.0:
     react-fast-compare "^3.1.1"
     react-side-effect "^2.1.0"
 
-react-hook-form@^6.12.2:
-  version "6.12.2"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-6.12.2.tgz#aa67f47da4730a7bce44768583bdf5b749eed521"
-  integrity sha512-O72E2DXyk7djFqyy6eYi5yESGweKe0CNHHPS0Mx4JazpLbE4Ox+66ldZ23f0J5ZN/krEjDWRD+hUfg5Shvfhtw==
+react-hook-form@^7.8.4:
+  version "7.8.4"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.8.4.tgz#4405b242db7b946f387f2a6c01f92390a2564893"
+  integrity sha512-hVh7uAJZS4/c20kNjW4rW+pD7+4RhuMDF3qY82f8wFuuPkoO+Pg5JHSJUqGdPdlI82snOlZ4DK/avIBn5SxItg==
 
 react-input-autosize@^3.0.0:
   version "3.0.0"
