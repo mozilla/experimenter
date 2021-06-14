@@ -118,7 +118,7 @@ python-versions = "*"
 
 [[package]]
 name = "black"
-version = "21.5b2"
+version = "21.6b0"
 description = "The uncompromising code formatter."
 category = "main"
 optional = false
@@ -1562,7 +1562,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "67400f473cfcda1646a1d2719643a329cef199d449d8c77bd2822ecf8ae1e854"
+content-hash = "9af26fecbe319c28e94e058fafbd14bcb39365ad2589ed256cd4eb55c22d3587"
 
 [metadata.files]
 aiohttp = [
@@ -1624,8 +1624,8 @@ billiard = [
     {file = "billiard-3.6.4.0.tar.gz", hash = "sha256:299de5a8da28a783d51b197d496bef4f1595dd023a93a4f59dde1886ae905547"},
 ]
 black = [
-    {file = "black-21.5b2-py3-none-any.whl", hash = "sha256:e5cf21ebdffc7a9b29d73912b6a6a9a4df4ce70220d523c21647da2eae0751ef"},
-    {file = "black-21.5b2.tar.gz", hash = "sha256:1fc0e0a2c8ae7d269dfcf0c60a89afa299664f3e811395d40b1922dff8f854b5"},
+    {file = "black-21.6b0-py3-none-any.whl", hash = "sha256:dfb8c5a069012b2ab1e972e7b908f5fb42b6bbabcba0a788b86dc05067c7d9c7"},
+    {file = "black-21.6b0.tar.gz", hash = "sha256:dc132348a88d103016726fe360cb9ede02cecf99b76e3660ce6c596be132ce04"},
 ]
 cachetools = [
     {file = "cachetools-4.1.1-py3-none-any.whl", hash = "sha256:513d4ff98dd27f85743a8dc0e92f55ddb1b49e060c2d5961512855cda2c01a98"},
