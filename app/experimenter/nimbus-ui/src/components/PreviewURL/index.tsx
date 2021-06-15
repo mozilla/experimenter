@@ -27,7 +27,7 @@ const CopyableURL: React.FC<CopyableURLProps> = ({
     url = `${url}&optin_collection=${collection}`;
   }
   return (
-    <code onClick={() => clipboard.writeText(url)} style={{ cursor: "copy" }}>
+    <code onClick={() => clipboard.writeText(url)} className="cursor-copy">
       {url}
     </code>
   );
