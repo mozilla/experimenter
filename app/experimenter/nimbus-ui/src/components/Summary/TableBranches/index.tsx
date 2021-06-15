@@ -69,11 +69,11 @@ const TableBranch = ({
   branch: Branch;
 }) => {
   return (
-    <Table bordered data-testid="table-branch" className="mb-4">
+    <Table bordered data-testid="table-branch" className="mb-4" id={slug}>
       <thead className="thead-light">
         <tr>
           <th colSpan={2} data-testid="branch-name">
-            {name}
+            <a href={`#${slug}`}>#</a> {name}
           </th>
         </tr>
       </thead>
