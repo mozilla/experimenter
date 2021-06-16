@@ -90,10 +90,10 @@ export interface getExperiment_experimentBySlug {
   name: string;
   slug: string;
   status: NimbusExperimentStatus | null;
+  statusNext: NimbusExperimentStatus | null;
   publishStatus: NimbusExperimentPublishStatus | null;
   monitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
-  isEndRequested: boolean;
   hypothesis: string;
   application: NimbusExperimentApplication | null;
   publicDescription: string;

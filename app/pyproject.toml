@@ -56,6 +56,7 @@ graphene-django = "^2.15.0"
 toml = "^0.10.2"
 pydantic = "1.8.2"
 mozilla-nimbus-shared = "^1.5.0"
+django-test-migrations = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.19.0"

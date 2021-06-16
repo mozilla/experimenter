@@ -27,8 +27,8 @@ export interface getAllExperiments_experiments {
   proposedEnrollment: number;
   computedEndDate: DateTime | null;
   status: NimbusExperimentStatus | null;
+  statusNext: NimbusExperimentStatus | null;
   publishStatus: NimbusExperimentPublishStatus | null;
-  isEndRequested: boolean;
   monitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;

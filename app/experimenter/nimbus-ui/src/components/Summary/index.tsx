@@ -10,7 +10,10 @@ import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentPublishStatus } from "../../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
 import ChangeApprovalOperations from "../ChangeApprovalOperations";
 import LinkMonitoring from "../LinkMonitoring";
 import NotSet from "../NotSet";
@@ -55,7 +58,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
     refetch,
     {
       publishStatus: NimbusExperimentPublishStatus.REVIEW,
-      isEndRequested: true,
+      statusNext: NimbusExperimentStatus.COMPLETE,
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
     },
     {
@@ -64,7 +67,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
     },
     {
       publishStatus: NimbusExperimentPublishStatus.IDLE,
-      isEndRequested: false,
+      statusNext: null,
     },
   );
 
@@ -98,7 +101,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
             startRemoteSettingsApproval,
           }}
         >
-          {!experiment.isEndRequested && (
+          {experiment.statusNext !== NimbusExperimentStatus.COMPLETE && (
             <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
           )}
         </ChangeApprovalOperations>
@@ -142,7 +145,7 @@ const StatusPills = ({
   experiment: getExperiment_experimentBySlug;
 }) => (
   <>
-    {experiment.isEndRequested && (
+    {experiment.statusNext === NimbusExperimentStatus.COMPLETE && (
       <StatusPill
         testId="pill-end-requested"
         label="Experiment End Requested"

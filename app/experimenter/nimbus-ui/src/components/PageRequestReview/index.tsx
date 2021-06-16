@@ -82,16 +82,19 @@ const PageContent: React.FC<{
     },
     {
       status: NimbusExperimentStatus.DRAFT,
+      statusNext: NimbusExperimentStatus.LIVE,
       publishStatus: NimbusExperimentPublishStatus.REVIEW,
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW,
     },
     {
       status: NimbusExperimentStatus.DRAFT,
+      statusNext: NimbusExperimentStatus.LIVE,
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
       changelogMessage: CHANGELOG_MESSAGES.REVIEW_APPROVED,
     },
     {
       status: NimbusExperimentStatus.DRAFT,
+      statusNext: null,
       publishStatus: NimbusExperimentPublishStatus.IDLE,
     },
   );

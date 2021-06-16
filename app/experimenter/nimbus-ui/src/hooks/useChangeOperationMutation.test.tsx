@@ -44,7 +44,7 @@ const setupTestHook = (customMocks: MockedResponse[] = []) => {
   const refetch = jest.fn();
   const mutationSets = [
     {
-      isEndRequested: true,
+      statusNext: NimbusExperimentStatus.COMPLETE,
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
     },
     {
