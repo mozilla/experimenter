@@ -345,6 +345,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
         "schedule": 86400,
     },
+    "reporting_generate_report_logs": {
+        "task": "experimenter.reporting.tasks.generate_reportlogs",
+        "schedule": config("CELERY_REPORTING_INTERVAL", default=86400, cast=int),
+    },
 }
 
 # Recipe Configuration
@@ -380,6 +384,7 @@ MARKUS_BACKEND = [
 NORMANDY_API_HOST = config("NORMANDY_API_HOST")
 NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
 NORMANDY_API_RECIPES_LIST_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/")
+NORMANDY_API_HISTORY_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/history")
 
 NORMANDY_DEVTOOLS_HOST = config("NORMANDY_DEVTOOLS_HOST")
 NORMANDY_DEVTOOLS_RECIPE_URL = "{root}{recipe_url}".format(
