@@ -1,11 +1,6 @@
-import decimal
-
 import markus
 from celery.utils.log import get_task_logger
 from dateutil import parser
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from experimenter.celery import app
@@ -13,7 +8,6 @@ from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.experiments.models.nimbus import NimbusChangeLog, NimbusExperiment
 from experimenter.normandy import client as normandy
-from experimenter.reporting.constants import ReportLogConstants
 from experimenter.reporting.models import ReportLog
 
 logger = get_task_logger(__name__)
@@ -125,7 +119,7 @@ def get_experiment_type(experiment):
 
 def get_event_type(changelog):
     if (
-        changelog.old_status == None
+        changelog.old_status is None
         and changelog.new_status == ReportLog.ExperimentStatus.DRAFT
     ):
         return ReportLog.Event.CREATE

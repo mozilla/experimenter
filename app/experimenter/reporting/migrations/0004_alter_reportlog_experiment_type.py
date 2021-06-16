@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reporting', '0003_alter_reportlog_timestamp'),
+        ("reporting", "0003_alter_reportlog_timestamp"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reportlog',
-            name='experiment_type',
-            field=models.CharField(choices=[('Normandy-Pref', 'Normandy Pref'), ('Normandy-Addon', 'Normandy Addon'), ('Normandy-Rollout', 'Normandy Rollout'), ('Nimbus-Firefox-Desktop', 'Nimbus Desktop'), ('Nimbus-Fenix', 'Nimbus Fenix'), ('Nimbus-Ios', 'Nimbus Ios')], max_length=255),
+            model_name="reportlog",
+            name="experiment_type",
+            field=models.CharField(
+                choices=[
+                    ("Normandy-Pref", "Normandy Pref"),
+                    ("Normandy-Addon", "Normandy Addon"),
+                    ("Normandy-Rollout", "Normandy Rollout"),
+                    ("Nimbus-Firefox-Desktop", "Nimbus Desktop"),
+                    ("Nimbus-Fenix", "Nimbus Fenix"),
+                    ("Nimbus-Ios", "Nimbus Ios"),
+                ],
+                max_length=255,
+            ),
         ),
     ]

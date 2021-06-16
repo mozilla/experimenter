@@ -1,12 +1,10 @@
 import mock
-from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
 
 from experimenter.experiments.models import (
     Experiment,
     ExperimentChangeLog,
-    NimbusChangeLog,
     NimbusExperiment,
 )
 from experimenter.experiments.tests.factories.legacy import (
@@ -26,7 +24,6 @@ from experimenter.reporting.tasks import (
     get_event_reason,
     get_event_type,
     get_experiment_type,
-    get_update_event_reason,
     is_duplicate_recipe_change,
 )
 from experimenter.reporting.tests.factories import ReportLogFactory
