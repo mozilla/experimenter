@@ -114,7 +114,7 @@ def handle_rejection(applications, kinto_client):
 
     if experiment:
         experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-        experiment.is_end_requested = False
+        experiment.status_next = None
         experiment.save()
 
         generate_nimbus_changelog(
@@ -266,6 +266,7 @@ def nimbus_check_experiments_are_live():
                 )
 
                 experiment.status = NimbusExperiment.Status.LIVE
+                experiment.status_next = None
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.published_dto = records[experiment.slug]
                 experiment.save()
@@ -362,6 +363,7 @@ def nimbus_check_experiments_are_complete():
                 )
 
                 experiment.status = NimbusExperiment.Status.COMPLETE
+                experiment.status_next = None
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.save()
 

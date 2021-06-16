@@ -40,38 +40,16 @@ export function createStatusMutationMock(
   );
 }
 
-export function createPublishStatusMutationMock(
-  id: number,
-  publishStatus = NimbusExperimentPublishStatus.APPROVED,
-  changelogMessage = CHANGELOG_MESSAGES.REVIEW_APPROVED as string,
-) {
-  return mockExperimentMutation(
-    UPDATE_EXPERIMENT_MUTATION,
-    {
-      id,
-      publishStatus,
-      status: NimbusExperimentStatus.DRAFT,
-      changelogMessage,
-    },
-    "updateExperiment",
-    {
-      experiment: {
-        publishStatus,
-        status: NimbusExperimentStatus.DRAFT,
-      },
-    },
-  );
-}
-
 export function createFullStatusMutationMock(
   id: number,
   status = NimbusExperimentStatus.DRAFT,
+  statusNext = null as NimbusExperimentStatus | null,
   publishStatus = NimbusExperimentPublishStatus.IDLE,
   changelogMessage?: string,
 ) {
   return mockExperimentMutation(
     UPDATE_EXPERIMENT_MUTATION,
-    { id, publishStatus, status, changelogMessage },
+    { id, publishStatus, statusNext, status, changelogMessage },
     "updateExperiment",
     { experiment: { publishStatus, status } },
   );
@@ -91,18 +69,21 @@ export const Subject = ({
 
 export const reviewRequestedBaseProps = {
   status: NimbusExperimentStatus.DRAFT,
+  statusNext: NimbusExperimentStatus.LIVE,
   publishStatus: NimbusExperimentPublishStatus.REVIEW,
   reviewRequest: mockChangelog(),
 };
 
 export const reviewPendingBaseProps = {
   status: NimbusExperimentStatus.DRAFT,
+  statusNext: NimbusExperimentStatus.LIVE,
   publishStatus: NimbusExperimentPublishStatus.WAITING,
   reviewRequest: mockChangelog(),
 };
 
 export const reviewTimedoutBaseProps = {
   status: NimbusExperimentStatus.DRAFT,
+  statusNext: NimbusExperimentStatus.LIVE,
   publishStatus: NimbusExperimentPublishStatus.REVIEW,
   reviewRequest: mockChangelog(),
   timeout: mockChangelog("def@mozilla.com"),
@@ -110,6 +91,7 @@ export const reviewTimedoutBaseProps = {
 
 export const reviewRejectedBaseProps = {
   status: NimbusExperimentStatus.DRAFT,
+  statusNext: null,
   publishStatus: NimbusExperimentPublishStatus.IDLE,
   reviewRequest: mockChangelog(),
   rejection: mockChangelog("def@mozilla.com", "It's bad. Just start over."),

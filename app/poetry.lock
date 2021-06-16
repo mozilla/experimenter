@@ -424,6 +424,17 @@ libcloud = ["apache-libcloud"]
 sftp = ["paramiko"]
 
 [[package]]
+name = "django-test-migrations"
+version = "1.1.0"
+description = "Test django schema and data migrations, including ordering"
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.dependencies]
+typing_extensions = ">=3.7.4,<4.0.0"
+
+[[package]]
 name = "django-widget-tweaks"
 version = "1.4.8"
 description = "Tweak the form field rendering in templates, not in python-level form definitions."
@@ -1562,7 +1573,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "9af26fecbe319c28e94e058fafbd14bcb39365ad2589ed256cd4eb55c22d3587"
+content-hash = "e1b1d10d52016cbf1631604cc3ddb5f543e12cfb799cdac15094491c7bccf9c9"
 
 [metadata.files]
 aiohttp = [
@@ -1812,6 +1823,10 @@ django-mozilla-product-details = [
 django-storages = [
     {file = "django-storages-1.11.1.tar.gz", hash = "sha256:c823dbf56c9e35b0999a13d7e05062b837bae36c518a40255d522fbe3750fbb4"},
     {file = "django_storages-1.11.1-py3-none-any.whl", hash = "sha256:f28765826d507a0309cfaa849bd084894bc71d81bf0d09479168d44785396f80"},
+]
+django-test-migrations = [
+    {file = "django-test-migrations-1.1.0.tar.gz", hash = "sha256:27c0127552920bbdc339a84de360f1792abc8c353e2c8d2b86af92dc1ade6703"},
+    {file = "django_test_migrations-1.1.0-py3-none-any.whl", hash = "sha256:7ea17dac1a0b0c8084681899c6563d85f4262832f2fbb0c6240b12e554333934"},
 ]
 django-widget-tweaks = [
     {file = "django-widget-tweaks-1.4.8.tar.gz", hash = "sha256:9f91ca4217199b7671971d3c1f323a2bec71a0c27dec6260b3c006fa541bc489"},

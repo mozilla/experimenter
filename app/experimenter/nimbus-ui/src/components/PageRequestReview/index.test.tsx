@@ -24,7 +24,6 @@ import {
 } from "../../types/globalTypes";
 import {
   createFullStatusMutationMock,
-  createPublishStatusMutationMock,
   createStatusMutationMock,
   reviewRequestedBaseProps,
   Subject,
@@ -157,6 +156,7 @@ describe("PageRequestReview", () => {
     const mutationMock = createFullStatusMutationMock(
       experiment.id!,
       NimbusExperimentStatus.DRAFT,
+      NimbusExperimentStatus.LIVE,
       NimbusExperimentPublishStatus.REVIEW,
       CHANGELOG_MESSAGES.REQUESTED_REVIEW,
     );
@@ -228,6 +228,7 @@ describe("PageRequestReview", () => {
     const mutationMock = createFullStatusMutationMock(
       experiment.id!,
       NimbusExperimentStatus.DRAFT,
+      NimbusExperimentStatus.LIVE,
       NimbusExperimentPublishStatus.APPROVED,
       CHANGELOG_MESSAGES.REVIEW_APPROVED,
     );
@@ -255,6 +256,7 @@ describe("PageRequestReview", () => {
     const mutationMock = createFullStatusMutationMock(
       experiment.id!,
       NimbusExperimentStatus.DRAFT,
+      null,
       NimbusExperimentPublishStatus.IDLE,
       expectedReason,
     );
@@ -287,8 +289,10 @@ describe("PageRequestReview", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createPublishStatusMutationMock(
+    const mutationMock = createFullStatusMutationMock(
       experiment.id!,
+      NimbusExperimentStatus.DRAFT,
+      NimbusExperimentStatus.LIVE,
       NimbusExperimentPublishStatus.REVIEW,
       CHANGELOG_MESSAGES.REQUESTED_REVIEW,
     );

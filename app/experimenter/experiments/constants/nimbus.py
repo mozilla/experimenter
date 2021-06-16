@@ -215,6 +215,13 @@ class NimbusConstants(object):
     }
     STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
 
+    # Valid status_next values for given status values
+    VALID_STATUS_NEXT_VALUES = {
+        Status.DRAFT: (None, Status.LIVE),
+        Status.PREVIEW: (None, Status.LIVE),
+        Status.LIVE: (None, Status.LIVE, Status.COMPLETE),
+    }
+
     VALID_PUBLISH_STATUS_TRANSITIONS = {
         PublishStatus.IDLE: (PublishStatus.REVIEW, PublishStatus.APPROVED),
         PublishStatus.REVIEW: (
@@ -226,8 +233,8 @@ class NimbusConstants(object):
 
     STATUS_UPDATE_EXEMPT_FIELDS = (
         "status",
+        "status_next",
         "publish_status",
-        "is_end_requested",
     )
 
     APPLICATION_CONFIGS = {

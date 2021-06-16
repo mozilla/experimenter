@@ -350,7 +350,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         self.assertEqual(
             rejected_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
-        self.assertFalse(rejected_experiment.is_end_requested)
+        self.assertEqual(rejected_experiment.status_next, None)
 
         self.assertTrue(
             rejected_experiment.changes.filter(
