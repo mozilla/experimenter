@@ -12,12 +12,12 @@ class ReportLogConstants(object):
         COMPLETE = "Complete"
 
     class ExperimentType(models.TextChoices):
-        NORMANDY_PREF = "Normandy Pref"
-        NORMANDY_ADDON = "Normandy Addon"
-        NORMANDY_ROLLOUT = "Normandy Rollout"
-        NIMBUS_DESKTOP = "Nimbus Desktop"
-        NIMBUS_FENIX = "Nimbus Fenix"
-        NIMBUS_IOS = "Nimbus IOS"
+        NORMANDY_PREF = "Normandy-Pref"
+        NORMANDY_ADDON = "Normandy-Addon"
+        NORMANDY_ROLLOUT = "Normandy-Rollout"
+        NIMBUS_DESKTOP = "Nimbus-Firefox-Desktop"
+        NIMBUS_FENIX = "Nimbus-Fenix"
+        NIMBUS_IOS = "Nimbus-Ios"
 
     class Event(models.TextChoices):
         CREATE = "Create"
