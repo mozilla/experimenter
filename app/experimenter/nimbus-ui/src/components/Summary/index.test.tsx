@@ -62,36 +62,6 @@ describe("Summary", () => {
     await screen.findByTestId("pill-enrolling-complete");
   });
 
-  describe("JSON representation link", () => {
-    function renderWithStatus(status: NimbusExperimentStatus) {
-      render(<Subject props={{ status }} />);
-    }
-    it("renders with the correct API link", () => {
-      renderWithStatus(NimbusExperimentStatus.LIVE);
-      expect(screen.getByTestId("link-json")).toBeInTheDocument();
-      expect(screen.getByTestId("link-json")).toHaveAttribute(
-        "href",
-        "/api/v6/experiments/demo-slug/",
-      );
-    });
-    it("renders when status is live", () => {
-      renderWithStatus(NimbusExperimentStatus.LIVE);
-      expect(screen.queryByTestId("link-json")).toBeInTheDocument();
-    });
-    it("renders when status is complete", () => {
-      renderWithStatus(NimbusExperimentStatus.COMPLETE);
-      expect(screen.queryByTestId("link-json")).toBeInTheDocument();
-    });
-    it("renders when status is preview", () => {
-      renderWithStatus(NimbusExperimentStatus.PREVIEW);
-      expect(screen.queryByTestId("link-json")).toBeInTheDocument();
-    });
-    it("does not render in 'draft' status", () => {
-      renderWithStatus(NimbusExperimentStatus.DRAFT);
-      expect(screen.queryByTestId("link-json")).not.toBeInTheDocument();
-    });
-  });
-
   describe("ending an experiment", () => {
     const origWindowOpen = global.window.open;
     let mockWindowOpen: any;
