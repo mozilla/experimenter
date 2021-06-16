@@ -275,8 +275,8 @@ export function mockExperiment<
       name: "Open-architected background installation",
       slug: "open-architected-background-installation",
       status: NimbusExperimentStatus.DRAFT,
+      statusNext: null,
       publishStatus: NimbusExperimentPublishStatus.IDLE,
-      isEndRequested: false,
       monitoringDashboardUrl: "https://grafana.telemetry.mozilla.org",
       hypothesis: "Realize material say pretty.",
       application: "DESKTOP",
@@ -436,6 +436,7 @@ export function mockSingleDirectoryExperiment(
       "https://grafana.telemetry.mozilla.org/d/XspgvdxZz/experiment-enrollment?orgId=1&var-experiment_id=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
     name: "Open-architected background installation",
     status: NimbusExperimentStatus.COMPLETE,
+    statusNext: null,
     publishStatus: NimbusExperimentPublishStatus.IDLE,
     featureConfig: {
       slug: "newtab",
@@ -445,7 +446,6 @@ export function mockSingleDirectoryExperiment(
     proposedDuration: 28,
     startDate: fiveDaysAgo.toISOString(),
     computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
-    isEndRequested: false,
     resultsReady: false,
     ...overrides,
   };

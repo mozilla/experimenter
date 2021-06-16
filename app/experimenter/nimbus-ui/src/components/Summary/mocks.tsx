@@ -63,21 +63,22 @@ export const Subject = ({
 
 export const reviewRequestedBaseProps = {
   status: NimbusExperimentStatus.LIVE,
+  statusNext: NimbusExperimentStatus.COMPLETE,
   publishStatus: NimbusExperimentPublishStatus.REVIEW,
-  isEndRequested: true,
   canReview: false,
   reviewRequest: mockChangelog(),
 };
 
 export const reviewPendingBaseProps = {
   status: NimbusExperimentStatus.LIVE,
+  statusNext: NimbusExperimentStatus.COMPLETE,
   publishStatus: NimbusExperimentPublishStatus.WAITING,
-  isEndRequested: true,
   reviewRequest: mockChangelog(),
 };
 
 export const reviewTimedoutBaseProps = {
   status: NimbusExperimentStatus.LIVE,
+  statusNext: NimbusExperimentStatus.COMPLETE,
   publishStatus: NimbusExperimentPublishStatus.REVIEW,
   reviewRequest: mockChangelog(),
   timeout: mockChangelog("def@mozilla.com"),
@@ -85,6 +86,7 @@ export const reviewTimedoutBaseProps = {
 
 export const reviewRejectedBaseProps = {
   status: NimbusExperimentStatus.LIVE,
+  statusNext: null,
   publishStatus: NimbusExperimentPublishStatus.IDLE,
   reviewRequest: mockChangelog(),
   rejection: mockChangelog("def@mozilla.com", "It's bad. Just start over."),

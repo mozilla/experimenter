@@ -34,67 +34,76 @@ faker = FakerFactory.create()
 class LifecycleStates(Enum):
     DRAFT_IDLE = {
         "status": NimbusExperiment.Status.DRAFT,
+        "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
     PREVIEW_IDLE = {
         "status": NimbusExperiment.Status.PREVIEW,
+        "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
     DRAFT_REVIEW = {
         "status": NimbusExperiment.Status.DRAFT,
+        "status_next": NimbusExperiment.Status.LIVE,
         "publish_status": NimbusExperiment.PublishStatus.REVIEW,
     }
     DRAFT_APPROVED = {
         "status": NimbusExperiment.Status.DRAFT,
+        "status_next": NimbusExperiment.Status.LIVE,
         "publish_status": NimbusExperiment.PublishStatus.APPROVED,
     }
     DRAFT_WAITING = {
         "status": NimbusExperiment.Status.DRAFT,
+        "status_next": NimbusExperiment.Status.LIVE,
         "publish_status": NimbusExperiment.PublishStatus.WAITING,
     }
     LIVE_IDLE = {
         "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
     LIVE_IDLE_ENROLLING = {
         "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
         "is_paused": False,
     }
     LIVE_WAITING_ENROLLING = {
         "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.WAITING,
         "is_paused": False,
     }
     LIVE_IDLE_PAUSED = {
         "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
         "is_paused": True,
     }
     LIVE_REVIEW_ENDING = {
         "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.COMPLETE,
         "publish_status": NimbusExperiment.PublishStatus.REVIEW,
-        "is_end_requested": True,
     }
     LIVE_IDLE_REJECT_ENDING = {
         "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
-        "is_end_requested": False,
     }
     LIVE_APPROVED_ENDING = {
         "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.COMPLETE,
         "publish_status": NimbusExperiment.PublishStatus.APPROVED,
-        "is_end_requested": True,
     }
     LIVE_WAITING_ENDING = {
         "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.COMPLETE,
         "publish_status": NimbusExperiment.PublishStatus.WAITING,
-        "is_end_requested": True,
     }
     COMPLETE_IDLE = {
         "status": NimbusExperiment.Status.COMPLETE,
+        "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
-        "is_end_requested": True,
     }
 
 

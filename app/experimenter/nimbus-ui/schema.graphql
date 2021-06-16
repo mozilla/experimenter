@@ -18,6 +18,7 @@ input DocumentationLinkType {
 input ExperimentInput {
   id: Int
   status: NimbusExperimentStatus
+  statusNext: NimbusExperimentStatus
   publishStatus: NimbusExperimentPublishStatus
   name: String
   hypothesis: String
@@ -37,7 +38,6 @@ input ExperimentInput {
   proposedEnrollment: String
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
   totalEnrolledClients: Int
-  isEndRequested: Boolean
   changelogMessage: String
   riskPartnerRelated: Boolean
   riskRevenue: Boolean
@@ -80,6 +80,13 @@ enum NimbusChangeLogNewStatus {
   COMPLETE
 }
 
+enum NimbusChangeLogNewStatusNext {
+  DRAFT
+  PREVIEW
+  LIVE
+  COMPLETE
+}
+
 enum NimbusChangeLogOldPublishStatus {
   IDLE
   REVIEW
@@ -94,13 +101,22 @@ enum NimbusChangeLogOldStatus {
   COMPLETE
 }
 
+enum NimbusChangeLogOldStatusNext {
+  DRAFT
+  PREVIEW
+  LIVE
+  COMPLETE
+}
+
 type NimbusChangeLogType {
   experiment: NimbusExperimentType!
   changedOn: DateTime!
   changedBy: NimbusUser!
   oldStatus: NimbusChangeLogOldStatus
+  oldStatusNext: NimbusChangeLogOldStatusNext
   oldPublishStatus: NimbusChangeLogOldPublishStatus
   newStatus: NimbusChangeLogNewStatus!
+  newStatusNext: NimbusChangeLogNewStatusNext
   newPublishStatus: NimbusChangeLogNewPublishStatus!
   message: String
   experimentData: JSONString
@@ -288,13 +304,13 @@ type NimbusExperimentType {
   id: Int
   owner: NimbusUser!
   status: NimbusExperimentStatus
+  statusNext: NimbusExperimentStatus
   publishStatus: NimbusExperimentPublishStatus
   name: String!
   slug: String!
   publicDescription: String!
   riskMitigationLink: String!
   isPaused: Boolean!
-  isEndRequested: Boolean!
   proposedDuration: Int!
   proposedEnrollment: Int!
   populationPercent: String

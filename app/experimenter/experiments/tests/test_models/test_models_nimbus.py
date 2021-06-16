@@ -51,16 +51,17 @@ class TestNimbusExperimentManager(TestCase):
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            is_end_requested=True,
+            status_next=NimbusExperiment.Status.COMPLETE,
             application=NimbusExperiment.Application.FENIX,
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_REJECT,
+            status_next=NimbusExperiment.Status.COMPLETE,
             application=NimbusExperiment.Application.DESKTOP,
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
-            is_end_requested=True,
+            status_next=NimbusExperiment.Status.COMPLETE,
             application=NimbusExperiment.Application.DESKTOP,
         )
         self.assertEqual(

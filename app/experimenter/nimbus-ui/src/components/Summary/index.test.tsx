@@ -30,7 +30,7 @@ describe("Summary", () => {
       <Subject
         props={{
           status: NimbusExperimentStatus.LIVE,
-          isEndRequested: true,
+          statusNext: NimbusExperimentStatus.COMPLETE,
         }}
       />,
     );
@@ -85,7 +85,7 @@ describe("Summary", () => {
         NimbusExperimentPublishStatus.REVIEW,
         {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
-          isEndRequested: true,
+          statusNext: NimbusExperimentStatus.COMPLETE,
         },
       );
       render(
@@ -127,7 +127,7 @@ describe("Summary", () => {
         NimbusExperimentPublishStatus.REVIEW,
         {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
-          isEndRequested: true,
+          statusNext: NimbusExperimentStatus.COMPLETE,
         },
       );
       const errorMessage = "Something went very wrong.";
@@ -176,7 +176,7 @@ describe("Summary", () => {
       const mutationMock = createMutationMock(
         experiment.id!,
         NimbusExperimentPublishStatus.IDLE,
-        { isEndRequested: false, changelogMessage: expectedReason },
+        { statusNext: null, changelogMessage: expectedReason },
       );
       render(<Subject props={experiment} mocks={[mutationMock]} />);
       const rejectButton = await screen.findByTestId("reject-request");
