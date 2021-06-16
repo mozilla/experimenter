@@ -307,7 +307,19 @@ Run the integration test suite for nimbus inside a containerized instance of Fir
 
 #### make integration_vnc_up
 
-Start a linux VM container with VNC available over `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter:
+First start a prod instance of Experimenter with:
+
+```bash
+make refresh&&make up_prod_detached
+```
+
+Then start the VNC service:
+
+```bash
+make integration_vnc_up
+```
+
+Then open your VNC client (Safari does this on OSX or just use [VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/)) and open `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter:
 
 ```bash
 cd app
