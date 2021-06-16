@@ -186,6 +186,7 @@ class NimbusExperimentType(DjangoObjectType):
     timeout = graphene.Field(NimbusChangeLogType)
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
     recipe_json = graphene.String()
+    review_url = graphene.String()
 
     class Meta:
         model = NimbusExperiment
