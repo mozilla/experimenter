@@ -6,14 +6,12 @@ import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
 import { useChangeOperationMutation, useConfig } from "../../hooks";
-import { ReactComponent as ExternalIcon } from "../../images/external.svg";
 import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentPublishStatus } from "../../types/globalTypes";
 import ChangeApprovalOperations from "../ChangeApprovalOperations";
-import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
 import NotSet from "../NotSet";
 import PreviewURL from "../PreviewURL";
@@ -116,19 +114,6 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
 
       <div className="d-flex flex-row justify-content-between">
         <h2 className="h5 mb-3">Summary</h2>
-        {!status.draft && (
-          <span>
-            <LinkExternal
-              href={`/api/v6/experiments/${experiment.slug}/`}
-              data-testid="link-json"
-            >
-              <span className="mr-1 align-middle">
-                See full JSON representation
-              </span>
-              <ExternalIcon />
-            </LinkExternal>
-          </span>
-        )}
       </div>
       <TableSummary {...{ experiment }} />
 
