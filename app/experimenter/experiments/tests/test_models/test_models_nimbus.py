@@ -420,7 +420,8 @@ class TestNimbusExperiment(TestCase):
 
     def test_review_url_stage_should_return_simple_review_url(self):
         with override_settings(
-            KINTO_ADMIN_URL="https://settings-writer.stage.mozaws.net/v1/admin"
+            IS_STAGING=True,
+            KINTO_ADMIN_URL="https://settings-writer.stage.mozaws.net/v1/admin",
         ):
             expected = (
                 "https://settings-writer.stage.mozaws.net/v1/admin/#/buckets"
@@ -434,7 +435,8 @@ class TestNimbusExperiment(TestCase):
 
     def test_review_url_prod_should_return_records_url(self):
         with override_settings(
-            KINTO_ADMIN_URL="https://settings-writer.prod.mozaws.net/v1/admin"
+            IS_STAGING=False,
+            KINTO_ADMIN_URL="https://settings-writer.prod.mozaws.net/v1/admin",
         ):
             expected = (
                 "https://settings-writer.prod.mozaws.net/v1/admin/#/buckets"

@@ -308,14 +308,12 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     @property
     def review_url(self):
-        is_staging = "settings-writer.stage" in settings.KINTO_ADMIN_URL
-
         return "{base_url}/{collection_path}/{collection}/{review_path}".format(
             base_url=settings.KINTO_ADMIN_URL,
             collection_path="#/buckets/main-workspace/collections",
             collection=self.application_config.rs_experiments_collection,
-            # TODO: Update when simple-review is on prod in remote settings
-            review_path="simple-review" if is_staging else "records",
+            # TODO: Remove IS_STAGING https://github.com/mozilla/experimenter/issues/5451
+            review_path="simple-review" if settings.IS_STAGING else "records",
         )
 
     def delete_branches(self):

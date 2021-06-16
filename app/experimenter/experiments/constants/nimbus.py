@@ -39,7 +39,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
         Channel.RELEASE: "firefox-desktop",
     },
     default_app_id="firefox-desktop",
-    rs_experiments_collection="nimbus-desktop-experiments",
+    rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
 )
 
@@ -53,7 +53,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
         Channel.RELEASE: "org.mozilla.firefox",
     },
     default_app_id="",
-    rs_experiments_collection="nimbus-mobile-experiments",
+    rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
@@ -67,7 +67,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
         Channel.RELEASE: "org.mozilla.ios.Firefox",
     },
     default_app_id="",
-    rs_experiments_collection="nimbus-mobile-experiments",
+    rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
