@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "experimenter.experiments",
     "experimenter.kinto",
     "experimenter.normandy",
+    "experimenter.jetstream",
     "experimenter.notifications",
     "experimenter.openidc",
     "experimenter.outcomes",
@@ -339,6 +340,10 @@ CELERY_BEAT_SCHEDULE = {
     "nimbus_synchronize_preview_experiments_in_kinto": {
         "task": "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_kinto",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
+    "fetch_jetstream_data": {
+        "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
+        "schedule": 86400,
     },
 }
 

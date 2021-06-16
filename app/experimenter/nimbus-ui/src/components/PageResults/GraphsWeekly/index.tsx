@@ -101,18 +101,26 @@ const GraphsWeekly = ({
     group,
     weeklyResults,
   );
-  embedGraphs(outcomeSlug, outcomeName, mergedBranchData);
 
   const [open, setOpen] = useState(false);
+  const [embedded, setEmbedded] = useState(false);
   const graphsVisibleClass = !open ? "d-none" : "";
   const graphsHiddenClass = open ? "d-none" : "";
+
+  const handleCollapse = () => {
+    setOpen(!open);
+    if (!embedded) {
+      embedGraphs(outcomeSlug, outcomeName, mergedBranchData);
+    }
+    setEmbedded(true);
+  };
 
   return (
     <>
       {Object.keys(mergedBranchData).length > 0 && (
         <>
           <span
-            onClick={() => setOpen(!open)}
+            onClick={handleCollapse}
             aria-controls="graphs"
             aria-expanded={open}
             className="text-primary btn"
