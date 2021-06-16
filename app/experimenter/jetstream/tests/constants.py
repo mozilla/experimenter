@@ -1,4 +1,4 @@
-from experimenter.visualization.api.v3.models import (
+from experimenter.jetstream.models import (
     BranchComparison,
     BranchComparisonData,
     DataPoint,
