@@ -165,7 +165,6 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
   ],
   maxPrimaryOutcomes: 2,
-  kintoAdminUrl: "https://kinto.example.com/v1/admin/",
 };
 
 // Disabling this rule for now because we'll eventually
@@ -331,6 +330,8 @@ export function mockExperiment<
       riskBrand: false,
       riskRevenue: true,
       riskPartnerRelated: false,
+      reviewUrl:
+        "https://kinto.example.com/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review",
     },
     modifications,
   ) as T;
