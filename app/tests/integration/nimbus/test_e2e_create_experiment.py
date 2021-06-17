@@ -132,7 +132,7 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
     assert "live" in summary_page.experiment_status.lower()
 
 
-def test_create_new_experiment_remote_settings1(selenium, base_url):
+def test_create_new_experiment_remote_settings_reject(selenium, base_url):
     experiment_name = f"name here remote {random.randint(0, 1000)}"
 
     selenium.get(base_url)
@@ -191,6 +191,8 @@ def test_create_new_experiment_remote_settings1(selenium, base_url):
     kinto_dashbard = Dashboard(selenium, base_url)
     modal = kinto_dashbard.reject_modal
     modal.decline_changes()
+
+    # Load home page and wait for experiment to show in the Drafts tab
     selenium.get(base_url)
     for attempt in range(45):
         try:
@@ -202,15 +204,14 @@ def test_create_new_experiment_remote_settings1(selenium, base_url):
             time.sleep(2)
             selenium.refresh()
         else:
+            home.tabs[-1].click()
+            draft_experiments = home.tables[0]
+            for item in draft_experiments.experiments:
+                if experiment_name in item.text:
+                    item.click()
+                    break
+        finally:
             break
-    home = HomePage(selenium, base_url).wait_for_page_to_load()
-    home.tabs[-1].click()
-    draft_experiments = home.tables[0]
-    for item in draft_experiments.experiments:
-        if experiment_name in item.text:
-            item.click()
-            break
-    # TEMP FIX
     experiment_url = experiment_name.replace(" ", "-")
     print(experiment_url)
     selenium.get(f"{base_url}/{experiment_url}/request-review")
