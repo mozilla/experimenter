@@ -601,7 +601,6 @@ class TestNimbusQuery(GraphQLTestCase):
                     }
                     hypothesisDefault
                     maxPrimaryOutcomes
-                    kintoAdminUrl
                     locales {
                         code
                         name
@@ -629,7 +628,6 @@ class TestNimbusQuery(GraphQLTestCase):
         assertChoices(config["channel"], NimbusExperiment.Channel)
         assertChoices(config["firefoxMinVersion"], NimbusExperiment.Version)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
-        self.assertEqual(config["kintoAdminUrl"], settings.KINTO_ADMIN_URL)
         self.assertEqual(len(config["featureConfig"]), 13)
 
         for outcome in Outcomes.all():

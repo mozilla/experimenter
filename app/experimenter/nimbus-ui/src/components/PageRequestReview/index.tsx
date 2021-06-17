@@ -7,7 +7,6 @@ import React, { useState } from "react";
 import { Table } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import { useChangeOperationMutation, useReviewCheck } from "../../hooks";
-import { useConfig } from "../../hooks/useConfig";
 import { CHANGELOG_MESSAGES, EXTERNAL_URLS } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -50,13 +49,13 @@ const PageContent: React.FC<{
   experiment: getExperiment_experimentBySlug;
   refetch: () => void;
 }> = ({ experiment, refetch }) => {
-  const { kintoAdminUrl } = useConfig();
+  const { reviewUrl } = experiment;
   const [showLaunchToReview, setShowLaunchToReview] = useState(false);
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
 
   const status = getStatus(experiment);
   const startRemoteSettingsApproval = async () => {
-    window.open(kintoAdminUrl!, "_blank");
+    window.open(reviewUrl!, "_blank");
   };
 
   const {

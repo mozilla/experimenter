@@ -5,7 +5,7 @@
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
-import { useChangeOperationMutation, useConfig } from "../../hooks";
+import { useChangeOperationMutation } from "../../hooks";
 import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
@@ -30,7 +30,7 @@ type SummaryProps = {
 } & Partial<React.ComponentProps<typeof ChangeApprovalOperations>>; // TODO EXP-1143: temporary page-level props, should be replaced by API data for experiment & current user
 
 const Summary = ({ experiment, refetch }: SummaryProps) => {
-  const { kintoAdminUrl } = useConfig();
+  const { reviewUrl } = experiment;
   const status = getStatus(experiment);
 
   const {
@@ -42,7 +42,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
   } = experiment;
 
   const startRemoteSettingsApproval = async () => {
-    window.open(kintoAdminUrl!, "_blank");
+    window.open(reviewUrl!, "_blank");
   };
 
   const {

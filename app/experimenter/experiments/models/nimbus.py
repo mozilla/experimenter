@@ -306,6 +306,16 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             slug=self.slug, from_date=start_date, to_date=end_date
         )
 
+    @property
+    def review_url(self):
+        return "{base_url}/{collection_path}/{collection}/{review_path}".format(
+            base_url=settings.KINTO_ADMIN_URL,
+            collection_path="#/buckets/main-workspace/collections",
+            collection=self.application_config.rs_experiments_collection,
+            # TODO: Remove IS_STAGING https://github.com/mozilla/experimenter/issues/5451
+            review_path="simple-review" if settings.IS_STAGING else "records",
+        )
+
     def delete_branches(self):
         self.reference_branch = None
         self.save()

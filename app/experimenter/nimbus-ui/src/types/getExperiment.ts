@@ -127,6 +127,7 @@ export interface getExperiment_experimentBySlug {
   rejection: getExperiment_experimentBySlug_rejection | null;
   timeout: getExperiment_experimentBySlug_timeout | null;
   recipeJson: string | null;
+  reviewUrl: string | null;
 }
 
 export interface getExperiment {
