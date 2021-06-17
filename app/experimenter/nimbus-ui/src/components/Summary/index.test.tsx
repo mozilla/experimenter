@@ -5,7 +5,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
+import { mockExperimentQuery } from "../../lib/mocks";
 import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
@@ -161,7 +161,7 @@ describe("Summary", () => {
       fireEvent.click(openRemoteSettingsButton);
       await waitFor(() => {
         expect(mockWindowOpen).toHaveBeenCalledWith(
-          MOCK_CONFIG.kintoAdminUrl,
+          experiment.reviewUrl,
           "_blank",
         );
       });

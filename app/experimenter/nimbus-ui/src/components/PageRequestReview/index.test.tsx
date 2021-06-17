@@ -17,7 +17,7 @@ import {
   CHANGELOG_MESSAGES,
   SERVER_ERRORS,
 } from "../../lib/constants";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
+import { mockExperimentQuery } from "../../lib/mocks";
 import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
@@ -241,7 +241,7 @@ describe("PageRequestReview", () => {
     fireEvent.click(openRemoteSettingsButton);
     await waitFor(() => {
       expect(mockWindowOpen).toHaveBeenCalledWith(
-        MOCK_CONFIG.kintoAdminUrl,
+        experiment.reviewUrl,
         "_blank",
       );
     });

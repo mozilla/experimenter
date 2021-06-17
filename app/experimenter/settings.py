@@ -37,6 +37,8 @@ DEBUG = config("DEBUG", default=False, cast=bool)
 
 HOSTNAME = config("HOSTNAME")
 
+IS_STAGING = "stage." in HOSTNAME
+
 ALLOWED_HOSTS = [HOSTNAME]
 
 if DEBUG:

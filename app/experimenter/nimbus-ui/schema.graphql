@@ -133,7 +133,6 @@ type NimbusConfigurationType {
   hypothesisDefault: String
   maxPrimaryOutcomes: Int
   documentationLink: [NimbusLabelValueType]
-  kintoAdminUrl: String
   locales: [NimbusLocaleType]
   countries: [NimbusCountryType]
 }
@@ -350,6 +349,7 @@ type NimbusExperimentType {
   timeout: NimbusChangeLogType
   signoffRecommendations: NimbusSignoffRecommendationsType
   recipeJson: String
+  reviewUrl: String
 }
 
 type NimbusFeatureConfigType {
