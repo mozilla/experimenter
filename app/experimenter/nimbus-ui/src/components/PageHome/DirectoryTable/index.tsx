@@ -12,14 +12,15 @@ import NotSet from "../../NotSet";
 // These are all render functions for column type sin the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;
 
-export const DirectoryColumnTitle: React.FC<
-  getAllExperiments_experiments & { subPath?: string; sbLink?: string }
-> = ({ slug, name, subPath = "", sbLink = "pages/Summary" }) => {
+export const DirectoryColumnTitle: React.FC<getAllExperiments_experiments> = ({
+  slug,
+  name,
+}) => {
   return (
     <td className="w-33" data-testid="directory-table-cell">
       <Link
-        to={slug + subPath}
-        data-sb-kind={sbLink}
+        to={slug}
+        data-sb-kind="pages/Summary"
         data-testid="directory-title-name"
       >
         {name}
@@ -238,13 +239,7 @@ export const DirectoryDraftsTable: React.FC<DirectoryTableProps> = (props) => (
     columns={[
       {
         label: props.title,
-        component: (experiment) => (
-          <DirectoryColumnTitle
-            {...experiment}
-            subPath="/edit"
-            sbLink="pages/EditOverview"
-          />
-        ),
+        component: (experiment) => <DirectoryColumnTitle {...experiment} />,
       },
       { label: "Owner", component: DirectoryColumnOwner },
       { label: "Feature", component: DirectoryColumnFeature },
