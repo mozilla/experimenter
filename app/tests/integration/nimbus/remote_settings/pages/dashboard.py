@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 class Dashboard(Page):
 
     _bucket_menu_locator = (By.CSS_SELECTOR, ".bucket-menu")
+    _modal_locator = (By.CSS_SELECTOR, ".modal-content")
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._bucket_menu_locator))
@@ -26,6 +27,11 @@ class Dashboard(Page):
         self.wait.until(EC.presence_of_element_located(_root_locator))
         self.find_element(*_root_locator)
         return self.Record(self)
+
+    @property
+    def reject_modal(self):
+        el = self.find_element(*self._modal_locator)
+        return self.Modal(self, el)
 
     class BucketCard(Region):
 
@@ -49,14 +55,14 @@ class Dashboard(Page):
     class Record(Region):
 
         _approve_locator = (By.CSS_SELECTOR, ".list-page .interactive .btn-success")
-        _reject_locator = (By.CSS_SELECTOR, ".interactive .btn-danger")
+        _reject_locator = (By.CSS_SELECTOR, ".list-page  .interactive .btn-danger")
 
         @property
         def id(self):
             els = self.find_elements(By.CSS_SELECTOR, ".table td")
             return els[0].text
 
-        def approve(self):
+        def action(self, action="approve"):
             def _wait_for_it(selenium):
                 try:
                     selenium.find_element(*self._approve_locator)
@@ -67,5 +73,26 @@ class Dashboard(Page):
                     return True
 
             self.wait.until(_wait_for_it)
-            el = self.find_element(*self._approve_locator)
+            if "approve" in action:
+                el = self.find_element(*self._approve_locator)
+            elif "reject" in action:
+                el = self.find_element(*self._reject_locator)
             el.click()
+
+    class Modal(Region):
+        _decline_changes_locator = (By.CSS_SELECTOR, ".modal-dialog .btn-primary")
+
+        def decline_changes(self):
+            # time.sleep(5)
+            # click = self.selenium.execute_script("""
+            #     document.querySelector('div.modal-content div.modal-footer button.btn.primary').click();
+            # """)
+            self.selenium.execute_script("""
+                document.activeElement.blur()
+                document.querySelector('.modal-dialog .btn-primary').click()
+                return
+            """)
+            #  self.wait.until(EC.visibility_of_element_located(By.CSS_SELECTOR, "modal-dialog"))
+            # _modal_locator = (By.CSS_SELECTOR, ".modal-dialog")
+            # el = self.selenium.find_element(*_modal_locator)
+            # el.find_element(*self._decline_changes_locator).click()
