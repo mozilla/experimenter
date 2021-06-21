@@ -24,6 +24,7 @@ storiesOf("components/HeaderExperiment", module)
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
       />
     </AppLayout>
@@ -35,6 +36,7 @@ storiesOf("components/HeaderExperiment", module)
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({ status: NimbusExperimentStatus.PREVIEW })}
       />
     </AppLayout>
@@ -46,6 +48,7 @@ storiesOf("components/HeaderExperiment", module)
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({
           publishStatus: NimbusExperimentPublishStatus.REVIEW,
         })}
@@ -59,6 +62,7 @@ storiesOf("components/HeaderExperiment", module)
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={null}
+        computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
       />
     </AppLayout>
@@ -70,6 +74,7 @@ storiesOf("components/HeaderExperiment", module)
         slug={experiment.slug}
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
       />
     </AppLayout>
