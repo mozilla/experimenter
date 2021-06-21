@@ -83,10 +83,6 @@ class Dashboard(Page):
         _decline_changes_locator = (By.CSS_SELECTOR, ".modal-dialog .btn-primary")
 
         def decline_changes(self):
-            # time.sleep(5)
-            # click = self.selenium.execute_script("""
-            #     document.querySelector('div.modal-content div.modal-footer button.btn.primary').click();
-            # """)
             self.selenium.execute_script(
                 """
                 document.activeElement.blur()
@@ -94,7 +90,3 @@ class Dashboard(Page):
                 return
             """
             )
-            #  self.wait.until(EC.visibility_of_element_located(By.CSS_SELECTOR, "modal-dialog"))
-            # _modal_locator = (By.CSS_SELECTOR, ".modal-dialog")
-            # el = self.selenium.find_element(*_modal_locator)
-            # el.find_element(*self._decline_changes_locator).click()
