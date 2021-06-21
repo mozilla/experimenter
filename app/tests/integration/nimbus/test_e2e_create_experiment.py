@@ -1,14 +1,13 @@
-
 import random
 import time
 
 import pytest
-from selenium.common.exceptions import NoSuchElementException
 from nimbus.pages.home import HomePage
-from nimbus.pages.summary import SummaryPage
 from nimbus.pages.review import ReviewPage
-from nimbus.remote_settings.pages.login import Login
+from nimbus.pages.summary import SummaryPage
 from nimbus.remote_settings.pages.dashboard import Dashboard
+from nimbus.remote_settings.pages.login import Login
+from selenium.common.exceptions import NoSuchElementException
 
 
 @pytest.mark.nondestructive

@@ -87,11 +87,13 @@ class Dashboard(Page):
             # click = self.selenium.execute_script("""
             #     document.querySelector('div.modal-content div.modal-footer button.btn.primary').click();
             # """)
-            self.selenium.execute_script("""
+            self.selenium.execute_script(
+                """
                 document.activeElement.blur()
                 document.querySelector('.modal-dialog .btn-primary').click()
                 return
-            """)
+            """
+            )
             #  self.wait.until(EC.visibility_of_element_located(By.CSS_SELECTOR, "modal-dialog"))
             # _modal_locator = (By.CSS_SELECTOR, ".modal-dialog")
             # el = self.selenium.find_element(*_modal_locator)
