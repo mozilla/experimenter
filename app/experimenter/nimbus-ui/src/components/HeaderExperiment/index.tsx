@@ -4,14 +4,14 @@
 
 import classNames from "classnames";
 import React from "react";
-import { humanDate, stringDateSubtract } from "../../lib/dateUtils";
+import { humanDate } from "../../lib/dateUtils";
 import { StatusCheck } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import "./index.scss";
 
 type HeaderExperimentProps = Pick<
   getExperiment_experimentBySlug,
-  "name" | "slug" | "startDate" | "computedEndDate"
+  "name" | "slug" | "startDate" | "computedEndDate" | "computedDurationDays"
 > & { status: StatusCheck };
 
 const HeaderExperiment = ({
@@ -20,6 +20,7 @@ const HeaderExperiment = ({
   startDate = "",
   computedEndDate = "",
   status,
+  computedDurationDays,
 }: HeaderExperimentProps) => (
   <header className="border-bottom" data-testid="header-experiment">
     <h1 className="h5 font-weight-normal" data-testid="header-experiment-name">
@@ -58,7 +59,7 @@ const HeaderExperiment = ({
               <span className="font-weight-bold">
                 {humanDate(computedEndDate!)}
               </span>{" "}
-              ({stringDateSubtract(computedEndDate!, startDate!)})
+              ({computedDurationDays} days)
             </>
           ) : (
             <span className="font-weight-bold">Present</span>

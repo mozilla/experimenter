@@ -343,6 +343,8 @@ type NimbusExperimentType {
   computedEndDate: DateTime
   isEnrollmentPaused: Boolean
   enrollmentEndDate: DateTime
+  computedEnrollmentDays: Int
+  computedDurationDays: Int
   canReview: Boolean
   reviewRequest: NimbusChangeLogType
   rejection: NimbusChangeLogType

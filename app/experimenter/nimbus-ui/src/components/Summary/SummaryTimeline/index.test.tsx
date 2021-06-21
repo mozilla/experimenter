@@ -61,7 +61,7 @@ describe("SummaryTimeline", () => {
   });
 
   it("renders 0 days properly", () => {
-    render(<Subject proposedDuration={0} proposedEnrollment={0} />);
+    render(<Subject computedDurationDays={0} computedEnrollmentDays={0} />);
 
     expect(screen.queryByTestId("label-duration-days")).toHaveTextContent(
       "0 days",
