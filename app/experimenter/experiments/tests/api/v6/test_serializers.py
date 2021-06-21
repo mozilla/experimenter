@@ -41,7 +41,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 # DRF manually replaces the isoformat suffix so we have to do the same
                 "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
                 "id": experiment.slug,
-                "isEnrollmentPaused": False,
+                "isEnrollmentPaused": True,
                 "proposedDuration": experiment.proposed_duration,
                 "proposedEnrollment": experiment.proposed_enrollment,
                 "referenceBranch": experiment.reference_branch.slug,
