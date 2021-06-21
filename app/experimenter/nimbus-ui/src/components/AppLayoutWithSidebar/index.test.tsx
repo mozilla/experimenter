@@ -47,10 +47,6 @@ describe("AppLayoutWithSidebar", () => {
         "href",
         `${BASE_PATH}/my-special-slug/edit/audience`,
       );
-      expect(screen.getByTestId("nav-request-review")).toHaveAttribute(
-        "href",
-        `${BASE_PATH}/my-special-slug/request-review`,
-      );
     });
 
     it("renders expected active page class", async () => {

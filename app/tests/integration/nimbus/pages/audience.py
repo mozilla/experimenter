@@ -20,15 +20,14 @@ class AudiencePage(Base):
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
-
         return self
 
     def save_and_continue(self):
         element = self.selenium.find_element(*self._save_continue_btn_locator)
         element.click()
-        from nimbus.pages.review import ReviewPage
+        from nimbus.pages.summary import SummaryPage
 
-        return ReviewPage(self.driver, self.base_url).wait_for_page_to_load()
+        return SummaryPage(self.driver, self.base_url).wait_for_page_to_load()
 
     @property
     def channel(self):

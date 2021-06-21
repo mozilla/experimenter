@@ -314,6 +314,11 @@ export function mockExperiment<
         ready: true,
         message: {},
       },
+      signoffRecommendations: {
+        qaSignoff: true,
+        vpSignoff: false,
+        legalSignoff: false,
+      },
       startDate: new Date().toISOString(),
       computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
       computedDurationDays: 14,
@@ -417,7 +422,10 @@ export const mockExperimentMutation = (
 
 export const mockGetStatus = (
   modifiers: Partial<
-    Pick<getExperiment_experimentBySlug, "status" | "publishStatus">
+    Pick<
+      getExperiment_experimentBySlug,
+      "status" | "publishStatus" | "statusNext"
+    >
   >,
 ) => {
   const { experiment } = mockExperimentQuery("boo", modifiers);

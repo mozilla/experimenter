@@ -25,9 +25,9 @@ const TableTitle = ({
   branchCount: number;
   hasOneBranchNameSet?: boolean;
 }) => (
-  <h2 className="h5 mb-3" data-testid="branches-section-title">
+  <h3 className="h5 mb-3" data-testid="branches-section-title">
     Branches {branchCount > 0 && hasOneBranchNameSet && `(${branchCount})`}
-  </h2>
+  </h3>
 );
 
 const TableBranches = ({
