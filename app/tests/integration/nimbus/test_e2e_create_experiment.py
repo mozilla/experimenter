@@ -7,7 +7,7 @@ from nimbus.pages.review import ReviewPage
 from nimbus.pages.summary import SummaryPage
 from nimbus.remote_settings.pages.dashboard import Dashboard
 from nimbus.remote_settings.pages.login import Login
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
 @pytest.mark.nondestructive
@@ -57,7 +57,11 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
-    current_experiments = len(home.tables[0].experiments)
+    current_experiments = None
+    try:
+        current_experiments = len(home.tables[0].experiments)
+    except TimeoutException:
+        current_experiments = 0
     experiment = home.create_new_button()
     experiment.public_name = experiment_name
     experiment.hypothesis = "smart stuff here"
@@ -113,7 +117,7 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
         try:
             home = HomePage(selenium, base_url).wait_for_page_to_load()
             new_experiments = len(home.tables[0].experiments)
-            assert new_experiments != current_experiments
+            assert new_experiments > current_experiments
         except AssertionError:
             time.sleep(2)
             selenium.refresh()
@@ -137,7 +141,6 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     home.tabs[-1].click()  # Click drafts
-    current_experiments = len(home.tables[0].experiments)
     experiment = home.create_new_button()
     experiment.public_name = experiment_name
     experiment.hypothesis = "smart stuff here"
@@ -193,36 +196,36 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
 
     # Load home page and wait for experiment to show in the Drafts tab
     selenium.get(base_url)
-    for attempt in range(45):
+    experiment_found = False
+    print(experiment_name)
+    for attempt in range(30):
         try:
             home = HomePage(selenium, base_url).wait_for_page_to_load()
             home.tabs[-1].click()
-            new_experiments = len(home.tables[0].experiments)
-            assert new_experiments != current_experiments
+            new_experiments = home.tables[0].experiments
+            for item in new_experiments:
+                if experiment_name in item.text:
+                    experiment_found = True
+                    item.click()
+                    break
+            else:
+                raise AssertionError
         except AssertionError:
             time.sleep(2)
             selenium.refresh()
-        else:
-            home.tabs[-1].click()
-            draft_experiments = home.tables[0]
-            experiment_found = False
-            for item in draft_experiments.experiments:
-                if experiment_name in item.text:
-                    item.click()
-                    experiment_found = True
-                    break
-            if experiment_found:
-                break
-        if attempt == 45:
-            raise AssertionError("Experiment was not found")
+        if experiment_found:
+            break
+    else:
+        raise AssertionError("Experiment was not found")
     experiment_url = experiment_name.replace(" ", "-")
     selenium.get(f"{base_url}/{experiment_url}/request-review")
     for attempt in range(30):
         try:
             summary_page = ReviewPage(selenium, base_url).wait_for_page_to_load()
             assert summary_page.rejected_text, "Rejected text box did not load"
+            break
         except NoSuchElementException:
             time.sleep(2)
             selenium.refresh()
-        if attempt == 30:
-            raise AssertionError("Experiment page didn't load")
+    else:
+        raise AssertionError("Experiment page didn't load")

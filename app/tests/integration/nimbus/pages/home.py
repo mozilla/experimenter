@@ -19,7 +19,7 @@ class HomePage(Page):
 
     @property
     def tables(self):
-        _table_locator = (By.CSS_SELECTOR, ".tab-content table")
+        _table_locator = (By.CSS_SELECTOR, ".active .directory-table .table")
         self.wait.until(EC.presence_of_element_located(_table_locator))
         tables = self.find_elements(*_table_locator)
         return [self.Tables(self, el) for el in tables]
