@@ -197,8 +197,7 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
     # Load home page and wait for experiment to show in the Drafts tab
     selenium.get(base_url)
     experiment_found = False
-    print(experiment_name)
-    for attempt in range(30):
+    for attempt in range(45):
         try:
             home = HomePage(selenium, base_url).wait_for_page_to_load()
             home.tabs[-1].click()
