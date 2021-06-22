@@ -41,7 +41,7 @@ def fetch_jetstream_data():
                 and (
                     experiment.computed_end_date
                     + datetime.timedelta(days=NimbusConstants.DAYS_ANALYSIS_BUFFER)
-                ).date()
+                )
                 < datetime.date.today()
             ):
                 metrics.incr("fetch_jetstream_data.skipped")
