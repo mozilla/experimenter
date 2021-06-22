@@ -184,6 +184,8 @@ export interface ExperimentInput {
   riskPartnerRelated?: boolean | null;
   riskRevenue?: boolean | null;
   riskBrand?: boolean | null;
+  countries?: (number | null)[] | null;
+  locales?: (number | null)[] | null;
 }
 
 export interface ReferenceBranchType {
