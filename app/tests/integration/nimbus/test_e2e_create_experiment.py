@@ -205,14 +205,17 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
         else:
             home.tabs[-1].click()
             draft_experiments = home.tables[0]
+            experiment_found = False
             for item in draft_experiments.experiments:
                 if experiment_name in item.text:
                     item.click()
+                    experiment_found = True
                     break
-        finally:
-            break
+            if experiment_found:
+                break
+        if attempt == 45:
+            raise AssertionError("Experiment was not found")
     experiment_url = experiment_name.replace(" ", "-")
-    print(experiment_url)
     selenium.get(f"{base_url}/{experiment_url}/request-review")
     for attempt in range(30):
         try:
@@ -221,3 +224,5 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
         except NoSuchElementException:
             time.sleep(2)
             selenium.refresh()
+        if attempt == 30:
+            raise AssertionError("Experiment page didn't load")
