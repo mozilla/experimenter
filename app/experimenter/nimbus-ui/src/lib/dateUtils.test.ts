@@ -24,6 +24,12 @@ describe("humanDate", () => {
   it("with year set to 'past', should produce the date, month, and year", () => {
     expect(humanDate(FAKE_ISO_DATE, "past")).toEqual("Dec 25, 2020");
   });
+
+  it("normalizes time and timezone", () => {
+    expect(humanDate("2021-06-21T10:00:00Z")).toEqual("Jun 21");
+    expect(humanDate("2021-06-21T00:00:00Z")).toEqual("Jun 21");
+    expect(humanDate("2021-06-21")).toEqual("Jun 21");
+  });
 });
 
 describe("addDaysToDate", () => {

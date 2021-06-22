@@ -12,9 +12,16 @@ export function humanDate(
 ): string {
   const today = new Date();
   const parsedDate = new Date(date);
+  // Dates currently arrive both with and without time and
+  // timezone, so reset time to start of day and force GMT
+  parsedDate.setUTCMinutes(0);
+  parsedDate.setUTCHours(0);
+  parsedDate.setUTCSeconds(0);
+  parsedDate.setUTCMilliseconds(0);
   const options: Intl.DateTimeFormatOptions = {
     month: "short",
     day: "numeric",
+    timeZone: "GMT",
   };
 
   // Only show the year if the date's year is not the current
