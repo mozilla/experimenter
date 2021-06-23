@@ -70,7 +70,7 @@ class LifecycleStates(Enum):
     }
     LIVE_WAITING_ENROLLING = {
         "status": NimbusExperiment.Status.LIVE,
-        "status_next": None,
+        "status_next": NimbusExperiment.Status.LIVE,
         "publish_status": NimbusExperiment.PublishStatus.WAITING,
         "is_paused": False,
     }
