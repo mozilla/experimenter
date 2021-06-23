@@ -80,7 +80,6 @@ class Dashboard(Page):
             el.click()
 
     class Modal(Region):
-        _decline_changes_locator = (By.CSS_SELECTOR, ".modal-dialog .btn-primary")
 
         def decline_changes(self):
             self.selenium.execute_script(
