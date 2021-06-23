@@ -80,7 +80,6 @@ class Dashboard(Page):
             el.click()
 
     class Modal(Region):
-
         def decline_changes(self):
             self.selenium.execute_script(
                 """
