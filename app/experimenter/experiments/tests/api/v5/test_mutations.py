@@ -5,6 +5,7 @@ from django.conf import settings
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import NimbusExperiment, NimbusFeatureConfig
 from experimenter.experiments.tests.factories.nimbus import (
@@ -409,6 +410,8 @@ class TestMutations(GraphQLTestCase):
 
     def test_update_experiment_audience(self):
         user_email = "user@example.com"
+        country = CountryFactory.create()
+        locale = LocaleFactory.create()
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -435,6 +438,8 @@ class TestMutations(GraphQLTestCase):
                     ),
                     "totalEnrolledClients": 100,
                     "changelogMessage": "test changelog message",
+                    "countries": [country.id],
+                    "locales": [locale.id],
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -453,6 +458,8 @@ class TestMutations(GraphQLTestCase):
             NimbusConstants.TargetingConfig.ALL_ENGLISH.value,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
+        self.assertEqual(list(experiment.countries.all()), [country])
+        self.assertEqual(list(experiment.locales.all()), [locale])
 
     def test_update_experiment_audience_error(self):
         user_email = "user@example.com"

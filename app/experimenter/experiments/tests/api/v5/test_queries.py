@@ -558,6 +558,41 @@ class TestNimbusQuery(GraphQLTestCase):
             ),
         )
 
+    def test_experiment_returns_country_and_locale(self):
+        user_email = "user@example.com"
+        NimbusExperimentFactory.create(publish_status=NimbusExperiment.PublishStatus.IDLE)
+
+        response = self.query(
+            """
+            query {
+                experiments {
+                    countries {
+                        code
+                        name
+                    }
+                    locales {
+                        code
+                        name
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experiments"][0]
+
+        for locale in Locale.objects.all():
+            self.assertIn(
+                {"code": locale.code, "name": locale.name}, experiment_data["locales"]
+            )
+
+        for country in Country.objects.all():
+            self.assertIn(
+                {"code": country.code, "name": country.name}, experiment_data["countries"]
+            )
+
     def test_nimbus_config(self):
         user_email = "user@example.com"
         feature_configs = NimbusFeatureConfigFactory.create_batch(10)
