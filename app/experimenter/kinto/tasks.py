@@ -93,7 +93,16 @@ def handle_pending_review(applications, kinto_client):
 
     if experiment:
         if experiment.should_timeout:
-            experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+            if (
+                experiment.status == NimbusExperiment.Status.LIVE
+                and experiment.status_next == NimbusExperiment.Status.LIVE
+            ):
+                # TODO EXP-1325 / EXP-1349: Temporarily handle automated updates to live
+                # experiment (i.e. pausing) as not reviewable, bounce back to idle.
+                experiment.status_next = None
+                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+            else:
+                experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
             experiment.save()
 
             generate_nimbus_changelog(
@@ -176,7 +185,7 @@ def nimbus_pause_experiment_in_kinto(collection, experiment_id):
 
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.info(f"Deleting {experiment.slug} from Kinto")
+        logger.info(f"Pausing enrollment for {experiment.slug} in Kinto")
 
         kinto_client = KintoClient(collection)
 
@@ -188,6 +197,7 @@ def nimbus_pause_experiment_in_kinto(collection, experiment_id):
 
             kinto_client.update_record(data)
 
+            experiment.status_next = NimbusExperiment.Status.LIVE
             experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
             experiment.save()
 
@@ -307,6 +317,7 @@ def nimbus_check_experiments_are_paused():
                     )
                 )
 
+                experiment.status_next = None
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.is_paused = True
                 experiment.published_dto = records[experiment.slug]

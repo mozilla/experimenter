@@ -794,10 +794,10 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            [False, 0, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING],
+            [False, 60, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING],
             [False, 60, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING],
             [False, 60, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING],
-            [False, 60, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING],
+            [True, 0, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING],
             [True, 0, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING],
             [True, 0, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING],
         ]

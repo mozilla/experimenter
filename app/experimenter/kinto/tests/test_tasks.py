@@ -250,6 +250,49 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             ).exists()
         )
 
+    # TODO EXP-1325 / EXP-1349: Temporarily handle automated updates to live
+    # experiment (i.e. pausing) as not reviewable, bounce back to idle.
+    @override_settings(KINTO_REVIEW_TIMEOUT=0)
+    def test_check_with_timeout_pause_rolls_back_to_idle_and_pushes(
+        self,
+    ):
+        pending_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.setup_kinto_pending_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
+        )
+
+        self.mock_push_task.assert_called_with(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
+        )
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            data={"status": "to-rollback"},
+            bucket="main-workspace",
+        )
+
+        pending_experiment = NimbusExperiment.objects.get(id=pending_experiment.id)
+        self.assertEqual(
+            pending_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+        self.assertTrue(
+            pending_experiment.changes.filter(
+                old_status=NimbusExperiment.Status.LIVE,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_status=NimbusExperiment.Status.LIVE,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            ).exists()
+        )
+
     def test_check_with_rejected_launch_rolls_back_and_pushes(self):
         rejected_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,

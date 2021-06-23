@@ -160,6 +160,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         )
         IS_PAUSING = Q(
             status=NimbusConstants.Status.LIVE,
+            status_next=NimbusConstants.Status.LIVE,
             publish_status=NimbusConstants.PublishStatus.WAITING,
             is_paused=False,
         )
@@ -173,7 +174,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             status_next=NimbusConstants.Status.COMPLETE,
             publish_status=NimbusConstants.PublishStatus.WAITING,
         )
-        SHOULD_TIMEOUT = Q(IS_LAUNCHING | IS_ENDING)
+        SHOULD_TIMEOUT = Q(IS_LAUNCHING | IS_ENDING | IS_PAUSING)
         SHOULD_ALLOCATE_BUCKETS = Q(
             Q(status=NimbusConstants.Status.PREVIEW)
             | Q(publish_status=NimbusConstants.PublishStatus.APPROVED)
