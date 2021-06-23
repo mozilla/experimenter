@@ -8,7 +8,6 @@ from nimbus.pages.summary import SummaryPage
 from nimbus.remote_settings.pages.dashboard import Dashboard
 from nimbus.remote_settings.pages.login import Login
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from selenium.common.exceptions import NoSuchElementException
 
 
 @pytest.mark.nondestructive
@@ -132,7 +131,7 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
         if experiment_name in item.text:
             item.click()
             break
-    review_page = ReviewPage(selenium, base_url).wait_for_page_to_load()
+    review_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
     assert "live" in review_page.experiment_status.lower()
 
 
@@ -236,8 +235,12 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
-    home.tabs[-1].click()  # Click drafts
-    current_experiments = len(home.tables[0].experiments)
+    # home.tabs[-1].click()  # Click drafts
+    # current_experiments = None
+    # try:
+    #     current_experiments = len(home.tables[0].experiments)
+    # except TimeoutException:
+    #     current_experiments = 0
     experiment = home.create_new_button()
     experiment.public_name = experiment_name
     experiment.hypothesis = "smart stuff here"
@@ -283,4 +286,4 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
             time.sleep(2)
             selenium.refresh()
         else:
-            assert review.timeout_text.is_displayed()
+            assert review.timeout_text.is_displayed(), "Timeout text not shown."
