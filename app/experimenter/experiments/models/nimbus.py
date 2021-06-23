@@ -331,7 +331,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     @property
     def review_url(self):
-        return "{base_url}/{collection_path}/{collection}/{review_path}".format(
+        return "{base_url}{collection_path}/{collection}/{review_path}".format(
             base_url=settings.KINTO_ADMIN_URL,
             collection_path="#/buckets/main-workspace/collections",
             collection=self.application_config.rs_experiments_collection,

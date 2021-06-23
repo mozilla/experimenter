@@ -49,14 +49,10 @@ const PageContent: React.FC<{
   experiment: getExperiment_experimentBySlug;
   refetch: () => void;
 }> = ({ experiment, refetch }) => {
-  const { reviewUrl } = experiment;
   const [showLaunchToReview, setShowLaunchToReview] = useState(false);
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
 
   const status = getStatus(experiment);
-  const startRemoteSettingsApproval = async () => {
-    window.open(reviewUrl!, "_blank");
-  };
 
   const {
     isLoading,
@@ -132,7 +128,7 @@ const PageContent: React.FC<{
             timeoutEvent,
             rejectChange: onReviewRejectedClicked,
             approveChange: onReviewApprovedClicked,
-            startRemoteSettingsApproval,
+            reviewUrl: experiment.reviewUrl!,
           }}
         >
           {status.draft &&

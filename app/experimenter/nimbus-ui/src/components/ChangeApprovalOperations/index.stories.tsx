@@ -20,14 +20,12 @@ import {
 const Subject = ({
   rejectChange = action("rejectChange"),
   approveChange = action("approveChange"),
-  startRemoteSettingsApproval = action("startRemoteSettingsApproval"),
   ...props
 }: React.ComponentProps<typeof BaseSubject>) => (
   <BaseSubject
     {...{
       rejectChange,
       approveChange,
-      startRemoteSettingsApproval,
       ...props,
     }}
   />
@@ -136,7 +134,8 @@ export const FormRemoteSettingsPendingStory = () => (
   <FormRemoteSettingsPending
     {...{
       isLoading: false,
-      onConfirm: action("confirm"),
+      reviewUrl:
+        "https://settings-writer.prod.mozaws.net/v1/admin/#/buckets/main-workspace/collections/nimbus-mobile-experiments/records",
       actionDescription: "frobulate",
     }}
   />

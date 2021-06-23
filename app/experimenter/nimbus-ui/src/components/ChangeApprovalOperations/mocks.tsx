@@ -22,7 +22,6 @@ export const BaseSubject = ({
   timeoutEvent,
   rejectChange = () => {},
   approveChange = () => {},
-  startRemoteSettingsApproval = () => {},
   ...props
 }: BaseSubjectProps) => (
   <ChangeApprovalOperations
@@ -36,7 +35,8 @@ export const BaseSubject = ({
       timeoutEvent,
       rejectChange,
       approveChange,
-      startRemoteSettingsApproval,
+      reviewUrl:
+        "http://localhost:8888/v1/admin/#/buckets/main-workspace/collections/nimbus-mobile-experiments/records",
       ...props,
     }}
   >

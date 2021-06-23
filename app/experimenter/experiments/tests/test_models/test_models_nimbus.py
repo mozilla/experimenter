@@ -503,12 +503,21 @@ class TestNimbusExperiment(TestCase):
     def test_review_url_stage_should_return_simple_review_url(self):
         with override_settings(
             IS_STAGING=True,
-            KINTO_ADMIN_URL="https://settings-writer.stage.mozaws.net/v1/admin",
+            KINTO_ADMIN_URL="https://settings-writer.stage.mozaws.net/v1/admin/",
         ):
-            expected = (
-                "https://settings-writer.stage.mozaws.net/v1/admin/#/buckets"
-                "/main-workspace/collections/nimbus-desktop-experiments/simple-review"
+            expected = "https://settings-writer.stage.mozaws.net/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                application=NimbusExperiment.Application.DESKTOP,
             )
+            self.assertEqual(experiment.review_url, expected)
+
+    def test_review_url_stage_should_return_simple_review_url_without_slash(self):
+        with override_settings(
+            IS_STAGING=True,
+            KINTO_ADMIN_URL="http://localhost:8888/v1/admin",
+        ):
+            expected = "http://localhost:8888/v1/admin#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
                 application=NimbusExperiment.Application.DESKTOP,
@@ -520,10 +529,7 @@ class TestNimbusExperiment(TestCase):
             IS_STAGING=False,
             KINTO_ADMIN_URL="https://settings-writer.prod.mozaws.net/v1/admin",
         ):
-            expected = (
-                "https://settings-writer.prod.mozaws.net/v1/admin/#/buckets"
-                "/main-workspace/collections/nimbus-mobile-experiments/records"
-            )
+            expected = "https://settings-writer.prod.mozaws.net/v1/admin#/buckets/main-workspace/collections/nimbus-mobile-experiments/records"  # noqa E501
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
                 application=NimbusExperiment.Application.FENIX,
