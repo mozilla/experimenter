@@ -235,12 +235,6 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
-    # home.tabs[-1].click()  # Click drafts
-    # current_experiments = None
-    # try:
-    #     current_experiments = len(home.tables[0].experiments)
-    # except TimeoutException:
-    #     current_experiments = 0
     experiment = home.create_new_button()
     experiment.public_name = experiment_name
     experiment.hypothesis = "smart stuff here"
@@ -287,3 +281,4 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
             selenium.refresh()
         else:
             assert review.timeout_text.is_displayed(), "Timeout text not shown."
+            break
