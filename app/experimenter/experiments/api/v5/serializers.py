@@ -5,6 +5,7 @@ from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
@@ -335,6 +336,18 @@ class NimbusExperimentSerializer(
     changelog_message = serializers.CharField(
         min_length=0, max_length=1024, required=True, allow_blank=False
     )
+    countries = serializers.PrimaryKeyRelatedField(
+        queryset=Country.objects.all(),
+        allow_null=True,
+        required=False,
+        many=True,
+    )
+    locales = serializers.PrimaryKeyRelatedField(
+        queryset=Locale.objects.all(),
+        allow_null=True,
+        required=False,
+        many=True,
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -365,6 +378,8 @@ class NimbusExperimentSerializer(
             "risk_partner_related",
             "risk_revenue",
             "risk_brand",
+            "countries",
+            "locales",
         ]
 
     def __init__(self, instance=None, data=None, **kwargs):

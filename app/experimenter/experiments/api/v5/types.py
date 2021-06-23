@@ -30,15 +30,21 @@ class ObjectField(graphene.Scalar):
 
 
 class NimbusCountryType(DjangoObjectType):
+    id = graphene.Int()
+    code = graphene.String()
+    name = graphene.String()
+
     class Meta:
         model = Country
-        exclude = ("id",)
 
 
 class NimbusLocaleType(DjangoObjectType):
+    id = graphene.Int()
+    code = graphene.String()
+    name = graphene.String()
+
     class Meta:
         model = Locale
-        exclude = ("id",)
 
 
 class NimbusUser(DjangoObjectType):

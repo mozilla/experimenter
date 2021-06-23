@@ -63,3 +63,5 @@ class ExperimentInput(graphene.InputObjectType):
     risk_partner_related = graphene.Boolean()
     risk_revenue = graphene.Boolean()
     risk_brand = graphene.Boolean()
+    countries = graphene.List(graphene.Int)
+    locales = graphene.List(graphene.Int)
