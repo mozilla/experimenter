@@ -85,6 +85,16 @@ export interface getExperiment_experimentBySlug_timeout {
   changedBy: getExperiment_experimentBySlug_timeout_changedBy;
 }
 
+export interface getExperiment_experimentBySlug_locales {
+  code: string | null;
+  name: string | null;
+}
+
+export interface getExperiment_experimentBySlug_countries {
+  code: string | null;
+  name: string | null;
+}
+
 export interface getExperiment_experimentBySlug {
   id: number | null;
   name: string;
@@ -130,6 +140,8 @@ export interface getExperiment_experimentBySlug {
   timeout: getExperiment_experimentBySlug_timeout | null;
   recipeJson: string | null;
   reviewUrl: string | null;
+  locales: getExperiment_experimentBySlug_locales[];
+  countries: getExperiment_experimentBySlug_countries[];
 }
 
 export interface getExperiment {

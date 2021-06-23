@@ -25,6 +25,8 @@ storiesOf("components/Summary/TableAudience", module)
     const { experiment } = mockExperimentQuery("demo-slug", {
       totalEnrolledClients: 0,
       targetingConfigSlug: null,
+      locales: [],
+      countries: [],
     });
     return (
       <Subject>
