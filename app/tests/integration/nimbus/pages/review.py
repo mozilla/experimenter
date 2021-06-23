@@ -14,6 +14,7 @@ class ReviewPage(Base):
         ".header-experiment-status .boarder-primary",
     )
     _launch_without_preview_locator = (By.CSS_SELECTOR, "#launch-to-review-button")
+    _rejected_text_alert_locator = (By.CSS_SELECTOR, "#PageRequestReview .alert-warning")
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._root_locator))
@@ -35,6 +36,11 @@ class ReviewPage(Base):
     def approve(self):
         el = self.find_element(*self._approve_request_button_locator)
         el.click()
+
+    @property
+    def rejected_text(self):
+        el = self.find_element(*self._rejected_text_alert_locator)
+        return el.is_displayed()
 
     class RequestReview(Region):
         _root_locator = (By.CSS_SELECTOR, "#request-launch-alert")
