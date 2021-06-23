@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import React from "react";
 import TableAudience from ".";
 import { MockedCache, mockExperimentQuery } from "../../../lib/mocks";
@@ -137,6 +137,50 @@ describe("TableAudience", () => {
       expect(
         screen.queryByTestId("experiment-recipe-json"),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("renders 'Targeted Locales' row as expected", () => {
+    it("when locales exist, displays them", () => {
+      const data = {
+        locales: [{ name: "Quebecois", code: "qc" }],
+      };
+      const { experiment } = mockExperimentQuery("demo-slug", data);
+      render(<Subject {...{ experiment }} />);
+      within(screen.getByTestId("experiment-locales")).findByText(
+        data.locales.map((l) => l.name).join(", "),
+      );
+    });
+    it("when locales don't exist, displays all", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        locales: [],
+      });
+      render(<Subject {...{ experiment }} />);
+      within(screen.getByTestId("experiment-locales")).findByText(
+        "All locales",
+      );
+    });
+  });
+
+  describe("renders 'Targeted Countries' row as expected", () => {
+    it("when countries exist, displays them", async () => {
+      const data = {
+        locales: [{ name: "Canada", code: "ca" }],
+      };
+      const { experiment } = mockExperimentQuery("demo-slug", data);
+      render(<Subject {...{ experiment }} />);
+      await within(screen.getByTestId("experiment-countries")).findByText(
+        data.locales.map((l) => l.name).join(", "),
+      );
+    });
+    it("when countries don't exist, displays all", async () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        countries: [],
+      });
+      render(<Subject {...{ experiment }} />);
+      await within(screen.getByTestId("experiment-countries")).findByText(
+        "All countries",
+      );
     });
   });
 });

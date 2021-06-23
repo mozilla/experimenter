@@ -334,6 +334,8 @@ export function mockExperiment<
       riskPartnerRelated: false,
       reviewUrl:
         "https://kinto.example.com/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review",
+      locales: [{ name: "Quebecois", code: "qc" }],
+      countries: [{ name: "Canada", code: "ca" }],
     },
     modifications,
   ) as T;
