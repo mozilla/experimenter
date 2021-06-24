@@ -346,7 +346,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "fetch_jetstream_data": {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
-        "schedule": 86400,
+        "schedule": 28800,
     },
 }
 
