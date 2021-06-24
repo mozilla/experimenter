@@ -48,7 +48,7 @@
     "react-helmet": "^6.1.0",
     "react-hook-form": "^6.12.2",
     "react-json-pretty": "^2.2.0",
-    "react-markdown": "^5.0.3",
+    "react-markdown": "^6.0.2",
     "react-scripts": "3.4.0",
     "react-scrollspy": "^3.4.3",
     "react-select": "^4.3.1",
