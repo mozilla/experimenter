@@ -3,7 +3,6 @@ import time
 
 import pytest
 from nimbus.pages.home import HomePage
-from nimbus.pages.review import ReviewPage
 from nimbus.pages.summary import SummaryPage
 from nimbus.remote_settings.pages.dashboard import Dashboard
 from nimbus.remote_settings.pages.login import Login
@@ -49,7 +48,7 @@ def test_create_new_experiment(selenium, base_url):
     audience.save_and_continue()
 
     # Review
-    selenium.find_element_by_css_selector("#PageRequestReview")
+    selenium.find_element_by_css_selector("#PageSummary")
 
 
 def test_create_new_experiment_remote_settings(selenium, base_url):
@@ -95,7 +94,7 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
     review = audience.save_and_continue()
 
     # Review and approve
-    selenium.find_element_by_css_selector("#PageRequestReview")
+    selenium.find_element_by_css_selector("#PageSummary")
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
@@ -131,8 +130,8 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
         if experiment_name in item.text:
             item.click()
             break
-    review_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
-    assert "live" in review_page.experiment_status.lower()
+    summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
+    assert "live" in summary_page.experiment_status.lower()
 
 
 def test_create_new_experiment_remote_settings_reject(selenium, base_url):
@@ -174,7 +173,7 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
     review = audience.save_and_continue()
 
     # Review and approve
-    selenium.find_element_by_css_selector("#PageRequestReview")
+    selenium.find_element_by_css_selector("#PageSummary")
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
@@ -217,10 +216,10 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
     else:
         raise AssertionError("Experiment was not found")
     experiment_url = experiment_name.replace(" ", "-")
-    selenium.get(f"{base_url}/{experiment_url}/request-review")
+    selenium.get(f"{base_url}/{experiment_url}")
     for attempt in range(30):
         try:
-            summary_page = ReviewPage(selenium, base_url).wait_for_page_to_load()
+            summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
             assert summary_page.rejected_text, "Rejected text box did not load"
             break
         except NoSuchElementException:
@@ -268,14 +267,14 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
     review = audience.save_and_continue()
 
     # Review and approve
-    selenium.find_element_by_css_selector("#PageRequestReview")
+    selenium.find_element_by_css_selector("#PageSummary")
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
     review.approve()
     for attempt in range(45):
         try:
-            review = ReviewPage(selenium, base_url).wait_for_page_to_load()
+            review = SummaryPage(selenium, base_url).wait_for_page_to_load()
             review.timeout_text
         except NoSuchElementException:
             time.sleep(2)

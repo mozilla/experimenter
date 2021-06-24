@@ -89,19 +89,16 @@ describe("AppLayoutWithExperiment", () => {
         mocks={[mock]}
         redirect={({ status }) => {
           if (status.review) {
-            return "request-review";
+            return "";
           }
         }}
       />,
     );
 
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
-        `${BASE_PATH}/${experiment.slug}/request-review`,
-        {
-          replace: true,
-        },
-      );
+      expect(navigate).toHaveBeenCalledWith(`${BASE_PATH}/${experiment.slug}`, {
+        replace: true,
+      });
     });
   });
 });

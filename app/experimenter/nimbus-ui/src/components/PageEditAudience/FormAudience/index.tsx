@@ -247,7 +247,7 @@ export const FormAudience = ({
             id="save-and-continue-button"
             disabled={isLoading}
             data-testid="next-button"
-            data-sb-kind="pages/RequestReview"
+            data-sb-kind="pages/Summary"
           >
             Save and Continue
           </button>

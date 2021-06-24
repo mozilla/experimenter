@@ -3,42 +3,156 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { withLinks } from "@storybook/addon-links";
-import { storiesOf } from "@storybook/react";
 import React from "react";
 import PageSummary from ".";
+import { SERVER_ERRORS } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
+import {
+  endReviewRequestedBaseProps,
+  mock,
+  reviewPendingBaseProps,
+  reviewRejectedBaseProps,
+  reviewRequestedBaseProps,
+  reviewTimedoutBaseProps,
+  Subject,
+} from "./mocks";
 
-storiesOf("pages/Summary", module)
-  .addDecorator(withLinks)
-  .add("with draft experiment", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
-    });
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <PageSummary polling={false} />
-      </RouterSlugProvider>
-    );
-  })
-  .add("with preview experiment", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.PREVIEW,
-    });
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <PageSummary polling={false} />
-      </RouterSlugProvider>
-    );
-  })
-  .add("with live experiment", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.LIVE,
-    });
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <PageSummary polling={false} />
-      </RouterSlugProvider>
-    );
-  });
+const storyWithExperimentProps = (
+  props: Partial<getExperiment_experimentBySlug | null>,
+  storyName?: string,
+) => {
+  const story = () => {
+    const { mock } = mockExperimentQuery("demo-slug", props);
+    return <Subject {...{ mocks: [mock] }} />;
+  };
+  story.storyName = storyName;
+  return story;
+};
+
+export default {
+  title: "pages/Summary",
+  component: Subject,
+  decorators: [withLinks],
+};
+
+export const missingRequiredFields = storyWithExperimentProps(
+  {
+    readyForReview: {
+      ready: false,
+      message: {
+        reference_branch: [SERVER_ERRORS.NULL_FIELD],
+        channel: [SERVER_ERRORS.EMPTY_LIST],
+      },
+    },
+  },
+  "Draft status, missing fields required for review",
+);
+
+export const draftStatus = storyWithExperimentProps(
+  {
+    status: NimbusExperimentStatus.DRAFT,
+    publishStatus: NimbusExperimentPublishStatus.IDLE,
+  },
+  "Draft status, no missing fields",
+);
+
+export const previewStatus = storyWithExperimentProps(
+  {
+    status: NimbusExperimentStatus.PREVIEW,
+    publishStatus: NimbusExperimentPublishStatus.IDLE,
+    signoffRecommendations: {
+      qaSignoff: true,
+      vpSignoff: false,
+      legalSignoff: false,
+    },
+  },
+  "Preview status, one recommended signoff",
+);
+
+export const reviewRequestedCanReview = storyWithExperimentProps(
+  { ...reviewRequestedBaseProps, canReview: true },
+  "Launch review requested, user can review",
+);
+
+export const reviewPendingCanReview = storyWithExperimentProps(
+  { ...reviewPendingBaseProps, canReview: true },
+  "Launch review pending in Remote Rettings, user can review",
+);
+
+export const reviewTimedoutCanReview = storyWithExperimentProps(
+  { ...reviewTimedoutBaseProps, canReview: true },
+  "Launch review timed out in Remote Settings, user can review",
+);
+
+export const reviewRequestedCannotReview = storyWithExperimentProps(
+  { ...reviewRequestedBaseProps, canReview: false },
+  "Launch review requested, user cannot review",
+);
+
+export const reviewPendingCannotReview = storyWithExperimentProps(
+  { ...reviewPendingBaseProps, canReview: false },
+  "Launch review pending in Remote Rettings, user cannot review",
+);
+
+export const reviewTimedoutCannotReview = storyWithExperimentProps(
+  { ...reviewTimedoutBaseProps, canReview: false },
+  "Launch review timed out in Remote Settings, user cannot review",
+);
+
+export const reviewRecommendedSignoffs = storyWithExperimentProps(
+  {
+    ...reviewRequestedBaseProps,
+    signoffRecommendations: {
+      qaSignoff: true,
+      vpSignoff: true,
+      legalSignoff: true,
+    },
+  },
+  "Review with all recommended sign offs",
+);
+
+export const reviewRejected = storyWithExperimentProps(
+  reviewRejectedBaseProps,
+  "Launch review rejected",
+);
+
+export const liveStatus = storyWithExperimentProps(
+  {
+    status: NimbusExperimentStatus.LIVE,
+  },
+  "Live status",
+);
+
+export const endReviewRequestedCannotReview = storyWithExperimentProps(
+  {
+    ...endReviewRequestedBaseProps,
+  },
+  "End review requested, user cannot review",
+);
+
+export const endReviewRequestedCanReview = storyWithExperimentProps(
+  {
+    ...endReviewRequestedBaseProps,
+    canReview: true,
+  },
+  "End review requested, user can review",
+);
+
+export const completeStatus = storyWithExperimentProps(
+  {
+    status: NimbusExperimentStatus.COMPLETE,
+  },
+  "Complete status",
+);
+
+export const error = () => (
+  <RouterSlugProvider mocks={[mock]}>
+    <PageSummary polling={false} />
+  </RouterSlugProvider>
+);

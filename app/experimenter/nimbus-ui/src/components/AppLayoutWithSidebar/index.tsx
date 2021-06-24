@@ -9,12 +9,11 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
 import { useReviewCheck } from "../../hooks";
-import { ReactComponent as Airplane } from "../../images/airplane.svg";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
-import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
 import { getStatus } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { LinkNav } from "../LinkNav";
+import LinkNavSummary from "../LinkNavSummary";
 import { ReactComponent as ChartArrow } from "./chart-arrow.svg";
 import { ReactComponent as Cog } from "./cog.svg";
 import "./index.scss";
@@ -59,6 +58,7 @@ export const AppLayoutWithSidebar = ({
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
   const status = getStatus(experiment);
   const reviewOrPreview = !status?.idle || status?.preview;
+  const hasMissingDetails = invalidPages.length > 0 && !reviewOrPreview;
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
@@ -80,16 +80,22 @@ export const AppLayoutWithSidebar = ({
                 Experiments
               </LinkNav>
 
-              <LinkNav
-                route={`${slug}`}
-                storiesOf={"pages/Summary"}
-                testid={"nav-summary"}
-              >
-                <Airplane className="sidebar-icon" />
-                Summary
-              </LinkNav>
+              <LinkNavSummary
+                {...{ status, slug }}
+                showSummaryAction={!hasMissingDetails}
+                canReview={experiment.canReview}
+              />
 
-              <p className="edit-divider position-relative small mb-2 mt-3">
+              {hasMissingDetails && (
+                <div className="mx-1 mb-2 d-flex text-muted font-weight-normal">
+                  <div className="sidebar-icon"></div>
+                  <p className="my-0 small">
+                    Missing details in: <InvalidPagesList />
+                  </p>
+                </div>
+              )}
+
+              <p className="edit-divider position-relative small my-2">
                 <span className="position-relative bg-light pl-1 pr-2 text-muted">
                   Edit Experiment
                 </span>
@@ -112,23 +118,6 @@ export const AppLayoutWithSidebar = ({
                   {page.name}
                 </LinkNav>
               ))}
-              <LinkNav
-                route={`${slug}/request-review`}
-                storiesOf="pages/RequestReview"
-                testid="nav-request-review"
-              >
-                <Clipboard className="sidebar-icon" />
-                Review &amp; Launch
-              </LinkNav>
-
-              {invalidPages.length > 0 && !reviewOrPreview && (
-                <div className="mx-1 mb-2 d-flex text-muted font-weight-normal">
-                  <div className="sidebar-icon"></div>
-                  <p className="my-0 small">
-                    Missing details in: <InvalidPagesList />
-                  </p>
-                </div>
-              )}
             </Nav>
           </nav>
         </Col>

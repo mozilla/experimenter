@@ -13,19 +13,17 @@ export const LinkMonitoring: React.FC<
     <h3 className="h5 mb-3" id="monitoring">
       Monitoring
     </h3>
-    {monitoringDashboardUrl ? (
-      <p>
-        <LinkExternal
-          href={monitoringDashboardUrl}
-          data-testid="link-monitoring-dashboard"
-        >
-          Click here
-        </LinkExternal>{" "}
-        to view the live monitoring dashboard.
-      </p>
-    ) : (
-      <p>No dashboard is available yet.</p>
-    )}
+    <p>
+      {/* monitoringDashboardUrl won't be null in practice because it's added 
+      created at experiment creation time */}
+      <LinkExternal
+        href={monitoringDashboardUrl!}
+        data-testid="link-monitoring-dashboard"
+      >
+        Click here
+      </LinkExternal>{" "}
+      to view the live monitoring dashboard.
+    </p>
   </>
 );
 
