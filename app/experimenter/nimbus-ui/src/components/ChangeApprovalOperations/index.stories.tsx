@@ -15,6 +15,7 @@ import {
   reviewRejectedBaseProps,
   reviewRequestedBaseProps,
   reviewTimedOutBaseProps,
+  REVIEW_URL,
 } from "./mocks";
 
 const Subject = ({
@@ -134,8 +135,7 @@ export const FormRemoteSettingsPendingStory = () => (
   <FormRemoteSettingsPending
     {...{
       isLoading: false,
-      reviewUrl:
-        "https://settings-writer.prod.mozaws.net/v1/admin/#/buckets/main-workspace/collections/nimbus-mobile-experiments/records",
+      reviewUrl: REVIEW_URL,
       actionDescription: "frobulate",
     }}
   />

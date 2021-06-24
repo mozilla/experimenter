@@ -12,22 +12,18 @@ import {
   reviewRequestedAfterRejectionBaseProps,
   reviewRequestedBaseProps,
   reviewTimedOutBaseProps,
+  REVIEW_URL,
 } from "./mocks";
-
-const REVIEW_URL =
-  "http://localhost:8888/v1/admin/#/buckets/main-workspace/collections/nimbus-mobile-experiments/records";
 
 const Subject = ({
   rejectChange = () => {},
   approveChange = () => {},
-  reviewUrl = REVIEW_URL,
   ...props
 }: React.ComponentProps<typeof BaseSubject>) => (
   <BaseSubject
     {...{
       rejectChange,
       approveChange,
-      reviewUrl,
       ...props,
     }}
   />
@@ -58,7 +54,6 @@ describe("ChangeApprovalOperations", () => {
     const openRemoteSettingsButton = await screen.findByTestId(
       "open-remote-settings",
     );
-    fireEvent.click(openRemoteSettingsButton);
     expect(openRemoteSettingsButton).toHaveProperty("href", REVIEW_URL);
   });
 
@@ -157,8 +152,10 @@ describe("ChangeApprovalOperations", () => {
 
   it("reports a rejection reason when review is rejected", async () => {
     const actionDescription = "gizmofy";
-    const { changedBy: rejectionUser, message: rejectionMessage } =
-      reviewRejectedBaseProps.rejectionEvent!;
+    const {
+      changedBy: rejectionUser,
+      message: rejectionMessage,
+    } = reviewRejectedBaseProps.rejectionEvent!;
     render(
       <Subject
         {...{
