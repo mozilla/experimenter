@@ -4,19 +4,19 @@
 
 import { storiesOf } from "@storybook/react";
 import React from "react";
-import TableSummary from ".";
+import TableOverview from ".";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import AppLayout from "../../AppLayout";
 
-storiesOf("components/Summary/TableSummary", module)
+storiesOf("components/Summary/TableOverview", module)
   .add("all fields filled out", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
       featureConfig: MOCK_CONFIG.featureConfig![1],
     });
     return (
       <Subject>
-        <TableSummary {...{ experiment }} />
+        <TableOverview {...{ experiment }} />
       </Subject>
     );
   })
@@ -28,7 +28,7 @@ storiesOf("components/Summary/TableSummary", module)
     });
     return (
       <Subject>
-        <TableSummary {...{ experiment }} />
+        <TableOverview {...{ experiment }} />
       </Subject>
     );
   })
@@ -40,7 +40,7 @@ storiesOf("components/Summary/TableSummary", module)
     });
     return (
       <Subject>
-        <TableSummary {...{ experiment }} />
+        <TableOverview {...{ experiment }} />
       </Subject>
     );
   })
@@ -57,7 +57,7 @@ storiesOf("components/Summary/TableSummary", module)
 
     return (
       <Subject>
-        <TableSummary {...{ experiment }} />
+        <TableOverview {...{ experiment }} />
       </Subject>
     );
   });

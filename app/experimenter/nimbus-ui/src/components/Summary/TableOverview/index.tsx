@@ -13,7 +13,7 @@ import LinkExternal from "../../LinkExternal";
 import NotSet from "../../NotSet";
 import RichText from "../../RichText";
 
-type TableSummaryProps = {
+type TableOverviewProps = {
   experiment: getExperiment_experimentBySlug;
 };
 
@@ -21,13 +21,13 @@ type TableSummaryProps = {
 
 const getRiskLabel = (answer: boolean) => (answer ? "Yes" : "No");
 
-const TableSummary = ({ experiment }: TableSummaryProps) => {
+const TableOverview = ({ experiment }: TableOverviewProps) => {
   const { application, documentationLink: configDocumentationLinks } =
     useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
   return (
-    <Table bordered data-testid="table-summary" className="mb-4">
+    <Table bordered data-testid="table-overview" className="mb-4">
       <tbody>
         <tr>
           <th className="w-33">Slug</th>
@@ -169,4 +169,4 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
   );
 };
 
-export default TableSummary;
+export default TableOverview;

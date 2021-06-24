@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import PageRequestReview from ".";
+import PageSummary from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import {
@@ -62,7 +62,7 @@ export const Subject = ({
 }) => {
   return (
     <RouterSlugProvider {...{ mocks }}>
-      <PageRequestReview polling={false} />
+      <PageSummary polling={false} />
     </RouterSlugProvider>
   );
 };
@@ -95,4 +95,11 @@ export const reviewRejectedBaseProps = {
   publishStatus: NimbusExperimentPublishStatus.IDLE,
   reviewRequest: mockChangelog(),
   rejection: mockChangelog("def@mozilla.com", "It's bad. Just start over."),
+};
+
+export const endReviewRequestedBaseProps = {
+  status: NimbusExperimentStatus.LIVE,
+  statusNext: NimbusExperimentStatus.COMPLETE,
+  publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  reviewRequest: mockChangelog(),
 };

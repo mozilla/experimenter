@@ -17,12 +17,13 @@ import {
 import ChangeApprovalOperations from "../ChangeApprovalOperations";
 import LinkMonitoring from "../LinkMonitoring";
 import NotSet from "../NotSet";
+import TableSignoff from "../PageSummary/TableSignoff";
 import PreviewURL from "../PreviewURL";
 import EndExperiment from "./EndExperiment";
 import SummaryTimeline from "./SummaryTimeline";
 import TableAudience from "./TableAudience";
 import TableBranches from "./TableBranches";
-import TableSummary from "./TableSummary";
+import TableOverview from "./TableOverview";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
@@ -33,21 +34,9 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
   const status = getStatus(experiment);
 
   const {
-    publishStatus,
-    canReview,
-    reviewRequest: reviewRequestEvent,
-    rejection: rejectionEvent,
-    timeout: timeoutEvent,
-  } = experiment;
-
-  const {
     isLoading,
     submitError,
-    callbacks: [
-      onConfirmEndClicked,
-      onReviewApprovedClicked,
-      onReviewRejectedClicked,
-    ],
+    callbacks: [onConfirmEndClicked],
   } = useChangeOperationMutation(
     experiment,
     refetch,
@@ -68,10 +57,10 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
 
   return (
     <div data-testid="summary" className="mb-5">
-      <h2 className="h5 mb-3">
+      <h3 className="h5 mb-3">
         Timeline
         {status.live && <StatusPills {...{ experiment }} />}
-      </h2>
+      </h3>
 
       <SummaryTimeline {...{ experiment }} />
 
@@ -81,45 +70,37 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
         </Alert>
       )}
 
-      {status.live && (
-        <ChangeApprovalOperations
-          {...{
-            actionDescription: "end",
-            isLoading,
-            publishStatus,
-            canReview: !!canReview,
-            reviewRequestEvent,
-            rejectionEvent,
-            timeoutEvent,
-            rejectChange: onReviewRejectedClicked,
-            approveChange: onReviewApprovedClicked,
-            reviewUrl: experiment.reviewUrl!,
-          }}
-        >
-          {experiment.statusNext !== NimbusExperimentStatus.COMPLETE && (
-            <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
-          )}
-        </ChangeApprovalOperations>
+      {status.live && !status.endRequested && (
+        <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
       )}
-
-      <hr />
 
       {(status.live || status.preview) && (
         <PreviewURL {...experiment} status={status} />
       )}
 
-      <LinkMonitoring {...experiment} />
+      {status.launched && <LinkMonitoring {...experiment} />}
 
       <div className="d-flex flex-row justify-content-between">
-        <h2 className="h5 mb-3">Summary</h2>
+        <h3 className="h5 mb-3">Overview</h3>
       </div>
-      <TableSummary {...{ experiment }} />
+      <TableOverview {...{ experiment }} />
 
-      <h2 className="h5 mb-3">Audience</h2>
+      <h3 className="h5 mb-3">Audience</h3>
       <TableAudience {...{ experiment }} />
 
       {/* Branches title is inside its table */}
       <TableBranches {...{ experiment }} />
+
+      {status.launched && (
+        <>
+          <h3 className="h5 mb-3">
+            Actions that were recommended before launch
+          </h3>
+          <TableSignoff
+            signoffRecommendations={experiment.signoffRecommendations}
+          />
+        </>
+      )}
     </div>
   );
 };
@@ -140,12 +121,6 @@ const StatusPills = ({
   experiment: getExperiment_experimentBySlug;
 }) => (
   <>
-    {experiment.statusNext === NimbusExperimentStatus.COMPLETE && (
-      <StatusPill
-        testId="pill-end-requested"
-        label="Experiment End Requested"
-      />
-    )}
     {experiment.isEnrollmentPaused === false && (
       <StatusPill
         testId="pill-enrolling-active"

@@ -41,6 +41,7 @@ type AppLayoutWithExperimentProps = {
   polling?: boolean;
   analysisRequired?: boolean; // the page and sidebar need analysis data
   analysisRequiredInSidebar?: boolean; // only the sidebar needs analysis data
+  setHead?: boolean; // set the browser tab title through this component
   redirect?: ({
     status,
     analysis,
@@ -57,6 +58,7 @@ const AppLayoutWithExperiment = ({
   polling = false,
   analysisRequired = false,
   analysisRequiredInSidebar = false,
+  setHead = true,
   redirect,
 }: AppLayoutWithExperimentProps) => {
   const { slug } = useParams();
@@ -134,9 +136,11 @@ const AppLayoutWithExperiment = ({
       }}
     >
       <section data-testid={testId} id={testId}>
-        <Head
-          title={title ? `${experiment.name} – ${title}` : experiment.name}
-        />
+        {setHead && (
+          <Head
+            title={title ? `${experiment.name} – ${title}` : experiment.name}
+          />
+        )}
 
         <HeaderExperiment
           {...{
@@ -148,7 +152,7 @@ const AppLayoutWithExperiment = ({
             computedDurationDays,
           }}
         />
-        {title && <h2 className="mt-3 mb-4 h4">{title}</h2>}
+        {title && <h2 className="mt-3 mb-4 h3">{title}</h2>}
         <div className="my-4">
           {children({ experiment, refetch, analysis })}
         </div>

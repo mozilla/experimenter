@@ -31,6 +31,7 @@ export function getStatus(
     approved: publishStatus === NimbusExperimentPublishStatus.APPROVED,
     review: publishStatus === NimbusExperimentPublishStatus.REVIEW,
     waiting: publishStatus === NimbusExperimentPublishStatus.WAITING,
+    endRequested: experiment?.statusNext === NimbusExperimentStatus.COMPLETE,
     launched,
   };
 }
@@ -39,13 +40,9 @@ export type StatusCheck = ReturnType<typeof getStatus>;
 
 // Common redirects used on all Edit page components
 export function editCommonRedirects({ status }: RedirectCheck) {
-  // If experiment is launched, send you to the summary page
-  if (status.launched) {
+  // If experiment is launched or the user can't edit the experiment,
+  // send them to the summary page
+  if (status.launched || !status.idle || status.preview) {
     return "";
-  }
-
-  // User still need to see the 'edit' sidebar but cannot be edited
-  if (!status.idle || status.preview) {
-    return "request-review";
   }
 }

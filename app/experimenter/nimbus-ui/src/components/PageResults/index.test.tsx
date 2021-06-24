@@ -54,7 +54,7 @@ describe("PageResults", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
     });
-    expect(screen.queryByTestId("table-summary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("summary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("table-highlights")).toBeInTheDocument();
     expect(screen.queryByTestId("table-overview")).toBeInTheDocument();
     expect(screen.queryByTestId("table-results")).toBeInTheDocument();
