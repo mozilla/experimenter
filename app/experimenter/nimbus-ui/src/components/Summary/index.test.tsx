@@ -10,14 +10,17 @@ import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
-import { createMutationMock, reviewRequestedBaseProps, Subject } from "./mocks";
+import { createMutationMock, Subject } from "./mocks";
 
 describe("Summary", () => {
   it("renders expected components", () => {
     render(<Subject />);
     expect(screen.getByTestId("summary-timeline")).toBeInTheDocument();
     expect(screen.queryByTestId("experiment-end")).not.toBeInTheDocument();
-    expect(screen.getByTestId("table-summary")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("link-monitoring-dashboard"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("table-overview")).toBeInTheDocument();
     expect(screen.getByTestId("table-audience")).toBeInTheDocument();
     expect(screen.queryAllByTestId("table-branch")).toHaveLength(2);
     expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
@@ -25,16 +28,54 @@ describe("Summary", () => {
     );
   });
 
-  it("renders end experiment badge if end is requested", async () => {
+  it("renders monitoring dashboard URL if experiment has been launched", async () => {
     render(
       <Subject
         props={{
           status: NimbusExperimentStatus.LIVE,
-          statusNext: NimbusExperimentStatus.COMPLETE,
         }}
       />,
     );
-    await screen.findByTestId("pill-end-requested");
+
+    await screen.findByTestId("link-monitoring-dashboard");
+  });
+
+  it("does not render monitoring dashboard URL if experiment has not been launched", () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatus.DRAFT,
+        }}
+      />,
+    );
+
+    expect(
+      screen.queryByTestId("link-monitoring-dashboard"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders signoff table if experiment has been launched", async () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatus.LIVE,
+        }}
+      />,
+    );
+
+    await screen.findByTestId("table-signoff");
+  });
+
+  it("does not render signoff table if experiment has not been launched", () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatus.DRAFT,
+        }}
+      />,
+    );
+
+    expect(screen.queryByTestId("table-signoff")).not.toBeInTheDocument();
   });
 
   it("renders enrollment active badge if enrollment is not paused", async () => {
@@ -140,54 +181,6 @@ describe("Summary", () => {
       fireEvent.click(screen.getByTestId("end-experiment-confirm"));
       const errorContainer = await screen.findByTestId("submit-error");
       expect(errorContainer).toHaveTextContent(errorMessage);
-    });
-
-    it("handles approval of end as expected", async () => {
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        ...reviewRequestedBaseProps,
-        canReview: true,
-      });
-      const mutationMock = createMutationMock(
-        experiment.id!,
-        NimbusExperimentPublishStatus.APPROVED,
-        { changelogMessage: CHANGELOG_MESSAGES.END_APPROVED },
-      );
-      render(<Subject props={experiment} mocks={[mutationMock]} />);
-      const approveButton = await screen.findByTestId("approve-request");
-      fireEvent.click(approveButton);
-      const openRemoteSettingsButton = await screen.findByTestId(
-        "open-remote-settings",
-      );
-      expect(openRemoteSettingsButton).toHaveProperty(
-        "href",
-        experiment.reviewUrl,
-      );
-    });
-
-    it("handles rejection of end as expected", async () => {
-      const expectedReason = "This smells bad.";
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        ...reviewRequestedBaseProps,
-        canReview: true,
-      });
-      const mutationMock = createMutationMock(
-        experiment.id!,
-        NimbusExperimentPublishStatus.IDLE,
-        { statusNext: null, changelogMessage: expectedReason },
-      );
-      render(<Subject props={experiment} mocks={[mutationMock]} />);
-      const rejectButton = await screen.findByTestId("reject-request");
-      fireEvent.click(rejectButton);
-      const rejectSubmitButton = await screen.findByTestId("reject-submit");
-      const rejectReasonField = await screen.findByTestId("reject-reason");
-      fireEvent.change(rejectReasonField, {
-        target: { value: expectedReason },
-      });
-      fireEvent.blur(rejectReasonField);
-      fireEvent.click(rejectSubmitButton);
-      await waitFor(() =>
-        expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument(),
-      );
     });
   });
 });

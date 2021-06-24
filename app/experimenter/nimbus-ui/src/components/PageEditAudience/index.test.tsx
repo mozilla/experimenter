@@ -65,7 +65,7 @@ describe("PageEditAudience", () => {
     await screen.findByTestId("PageEditAudience");
     await act(async () => void fireEvent.click(screen.getByTestId("next")));
     expect(mockSubmit).toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith("../request-review");
+    expect(navigate).toHaveBeenCalledWith("../");
   });
 
   it("handles form submission", async () => {

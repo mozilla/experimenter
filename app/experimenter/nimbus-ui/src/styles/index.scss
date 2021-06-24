@@ -75,6 +75,11 @@ select.form-control.is-warning {
   width: 33.33%;
 }
 
+// the green provided by Bootstrap does not pass ADA AA
+.text-success {
+  color: #058a00 !important;
+}
+
 .positive-significance {
   @extend .text-success;
   @extend .font-weight-bold;
