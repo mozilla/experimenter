@@ -15,19 +15,18 @@ import {
   reviewRejectedBaseProps,
   reviewRequestedBaseProps,
   reviewTimedOutBaseProps,
+  REVIEW_URL,
 } from "./mocks";
 
 const Subject = ({
   rejectChange = action("rejectChange"),
   approveChange = action("approveChange"),
-  startRemoteSettingsApproval = action("startRemoteSettingsApproval"),
   ...props
 }: React.ComponentProps<typeof BaseSubject>) => (
   <BaseSubject
     {...{
       rejectChange,
       approveChange,
-      startRemoteSettingsApproval,
       ...props,
     }}
   />
@@ -136,7 +135,7 @@ export const FormRemoteSettingsPendingStory = () => (
   <FormRemoteSettingsPending
     {...{
       isLoading: false,
-      onConfirm: action("confirm"),
+      reviewUrl: REVIEW_URL,
       actionDescription: "frobulate",
     }}
   />

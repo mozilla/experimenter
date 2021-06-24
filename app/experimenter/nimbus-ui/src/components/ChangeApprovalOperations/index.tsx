@@ -30,7 +30,7 @@ export type ChangeApprovalOperationsProps = {
   timeoutEvent?: getExperiment_experimentBySlug["timeout"];
   rejectChange: (fields: { changelogMessage: string }) => void;
   approveChange: () => void;
-  startRemoteSettingsApproval: () => void;
+  reviewUrl: string;
 };
 
 export const ChangeApprovalOperations: React.FC<
@@ -45,7 +45,7 @@ export const ChangeApprovalOperations: React.FC<
   timeoutEvent,
   rejectChange,
   approveChange,
-  startRemoteSettingsApproval,
+  reviewUrl,
   children,
 }) => {
   const defaultUIState = useMemo(() => {
@@ -114,7 +114,7 @@ export const ChangeApprovalOperations: React.FC<
         <FormRemoteSettingsPending
           {...{
             isLoading,
-            onConfirm: startRemoteSettingsApproval,
+            reviewUrl,
             actionDescription,
           }}
         />
