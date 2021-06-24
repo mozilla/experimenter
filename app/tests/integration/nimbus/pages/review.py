@@ -45,7 +45,7 @@ class ReviewPage(Base):
 
     @property
     def timeout_text(self):
-        return self.find_element(*self._timeout_alert_locator)
+        return self.selenium.find_element(*self._timeout_alert_locator)
 
     class RequestReview(Region):
         _root_locator = (By.CSS_SELECTOR, "#request-launch-alert")

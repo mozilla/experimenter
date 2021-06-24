@@ -273,12 +273,15 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
     review.approve()
-    for attempt in range(35):
+    for attempt in range(45):
         try:
-            review.timeout_text.is_displayed()
+            review = ReviewPage(selenium, base_url).wait_for_page_to_load()
+            review.timeout_text
         except NoSuchElementException:
             time.sleep(2)
             selenium.refresh()
         else:
-            assert review.timeout_text.is_displayed(), "Timeout text not shown."
+            assert review.timeout_text, "Timeout text not shown."
             break
+    else:
+        raise AssertionError("Timeout text was never shown.")
