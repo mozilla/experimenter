@@ -4,6 +4,8 @@ import urllib
 from django.conf import settings
 from django.urls import reverse
 
+from experimenter.base import app_version
+
 
 def google_analytics(request):
     """Context processor bits you need related to injecting Google Analytics
@@ -19,6 +21,7 @@ def features(request):
             json.dumps(
                 {
                     "sentry_dsn": settings.SENTRY_DSN_NIMBUS_UI,
+                    "version": app_version(),
                     "graphql_url": reverse("nimbus-api-graphql"),
                 }
             )
