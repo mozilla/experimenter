@@ -15,6 +15,7 @@ class ReviewPage(Base):
     )
     _launch_without_preview_locator = (By.CSS_SELECTOR, "#launch-to-review-button")
     _rejected_text_alert_locator = (By.CSS_SELECTOR, "#PageRequestReview .alert-warning")
+    _timeout_alert_locator = (By.CSS_SELECTOR, ".alert-danger")
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._root_locator))
@@ -41,6 +42,10 @@ class ReviewPage(Base):
     def rejected_text(self):
         el = self.find_element(*self._rejected_text_alert_locator)
         return el.is_displayed()
+
+    @property
+    def timeout_text(self):
+        return self.selenium.find_element(*self._timeout_alert_locator)
 
     class RequestReview(Region):
         _root_locator = (By.CSS_SELECTOR, "#request-launch-alert")
