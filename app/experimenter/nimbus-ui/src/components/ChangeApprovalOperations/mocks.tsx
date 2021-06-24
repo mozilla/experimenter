@@ -12,6 +12,9 @@ type BaseSubjectProps = Partial<
   React.ComponentProps<typeof ChangeApprovalOperations>
 >;
 
+export const REVIEW_URL =
+  "http://localhost:8888/v1/admin/#/buckets/main-workspace/collections/nimbus-mobile-experiments/records";
+
 export const BaseSubject = ({
   actionDescription = "frobulate",
   isLoading = false,
@@ -22,7 +25,6 @@ export const BaseSubject = ({
   timeoutEvent,
   rejectChange = () => {},
   approveChange = () => {},
-  startRemoteSettingsApproval = () => {},
   ...props
 }: BaseSubjectProps) => (
   <ChangeApprovalOperations
@@ -36,7 +38,7 @@ export const BaseSubject = ({
       timeoutEvent,
       rejectChange,
       approveChange,
-      startRemoteSettingsApproval,
+      reviewUrl: REVIEW_URL,
       ...props,
     }}
   >

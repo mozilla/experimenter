@@ -30,7 +30,6 @@ type SummaryProps = {
 } & Partial<React.ComponentProps<typeof ChangeApprovalOperations>>; // TODO EXP-1143: temporary page-level props, should be replaced by API data for experiment & current user
 
 const Summary = ({ experiment, refetch }: SummaryProps) => {
-  const { reviewUrl } = experiment;
   const status = getStatus(experiment);
 
   const {
@@ -40,10 +39,6 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
     rejection: rejectionEvent,
     timeout: timeoutEvent,
   } = experiment;
-
-  const startRemoteSettingsApproval = async () => {
-    window.open(reviewUrl!, "_blank");
-  };
 
   const {
     isLoading,
@@ -98,7 +93,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
             timeoutEvent,
             rejectChange: onReviewRejectedClicked,
             approveChange: onReviewApprovedClicked,
-            startRemoteSettingsApproval,
+            reviewUrl: experiment.reviewUrl!,
           }}
         >
           {experiment.statusNext !== NimbusExperimentStatus.COMPLETE && (

@@ -238,13 +238,10 @@ describe("PageRequestReview", () => {
     const openRemoteSettingsButton = await screen.findByTestId(
       "open-remote-settings",
     );
-    fireEvent.click(openRemoteSettingsButton);
-    await waitFor(() => {
-      expect(mockWindowOpen).toHaveBeenCalledWith(
-        experiment.reviewUrl,
-        "_blank",
-      );
-    });
+    expect(openRemoteSettingsButton).toHaveProperty(
+      "href",
+      experiment.reviewUrl,
+    );
   });
 
   it("handles rejection of launch as expected", async () => {
