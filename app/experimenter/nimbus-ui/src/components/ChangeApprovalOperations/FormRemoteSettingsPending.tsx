@@ -2,18 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import classNames from "classnames";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
-import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import LinkExternal from "../LinkExternal";
 
-const FormApproveConfirm = ({
+const FormRemoteSettingsPending = ({
   isLoading,
-  onConfirm,
+  reviewUrl,
   actionDescription,
 }: {
   isLoading: boolean;
-  onConfirm: () => void;
+  reviewUrl: string;
   actionDescription: string;
 }) => {
   return (
@@ -26,14 +27,16 @@ const FormApproveConfirm = ({
 
         <div className="d-flex bd-highlight">
           <div>
-            <Button
+            <LinkExternal
               data-testid="open-remote-settings"
-              className="mr-2 btn btn-primary"
-              disabled={isLoading}
-              onClick={onConfirm}
+              className={classNames(
+                "mr-2 btn btn-primary",
+                isLoading && "disabled",
+              )}
+              href={reviewUrl}
             >
               Open Remote Settings
-            </Button>
+            </LinkExternal>
           </div>
         </div>
       </Form>
@@ -41,4 +44,4 @@ const FormApproveConfirm = ({
   );
 };
 
-export default FormApproveConfirm;
+export default FormRemoteSettingsPending;
