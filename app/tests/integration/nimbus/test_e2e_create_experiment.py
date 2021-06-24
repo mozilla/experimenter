@@ -131,8 +131,8 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
         if experiment_name in item.text:
             item.click()
             break
-    summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
-    assert "live" in summary_page.experiment_status.lower()
+    review_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
+    assert "live" in review_page.experiment_status.lower()
 
 
 def test_create_new_experiment_remote_settings_reject(selenium, base_url):
@@ -228,3 +228,60 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
             selenium.refresh()
     else:
         raise AssertionError("Experiment page didn't load")
+
+
+def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
+    experiment_name = f"name here remote {random.randint(0, 1000)}"
+
+    selenium.get(base_url)
+    home = HomePage(selenium, base_url).wait_for_page_to_load()
+    experiment = home.create_new_button()
+    experiment.public_name = experiment_name
+    experiment.hypothesis = "smart stuff here"
+    experiment.application = "DESKTOP"
+
+    # Fill Overview Page
+    overview = experiment.save_and_continue()
+    overview.public_description = "description stuff"
+    overview.select_risk_brand_false()
+    overview.select_risk_revenue_false()
+    overview.select_risk_partner_false()
+
+    # Fill Branches page
+    branches = overview.save_and_continue()
+    branches.remove_branch()
+    branches.reference_branch_name = "name 1"
+    branches.reference_branch_description = "a nice experiment"
+    branches.feature_config = "No Feature Firefox Desktop"
+
+    # Fill Metrics page
+    metrics = branches.save_and_continue()
+
+    # Fill Audience page
+    audience = metrics.save_and_continue()
+    audience.channel = "Nightly"
+    audience.min_version = 80
+    audience.targeting = "US_ONLY"
+    audience.percentage = 50.0
+    audience.expected_clients = 50
+    audience.save_btn()
+    review = audience.save_and_continue()
+
+    # Review and approve
+    selenium.find_element_by_css_selector("#PageRequestReview")
+    review.launch_without_preview.click()
+    review.request_review.click_launch_checkboxes()
+    review.request_review.request_launch_button.click()
+    review.approve()
+    for attempt in range(45):
+        try:
+            review = ReviewPage(selenium, base_url).wait_for_page_to_load()
+            review.timeout_text
+        except NoSuchElementException:
+            time.sleep(2)
+            selenium.refresh()
+        else:
+            assert review.timeout_text, "Timeout text not shown."
+            break
+    else:
+        raise AssertionError("Timeout text was never shown.")
