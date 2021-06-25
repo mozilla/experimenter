@@ -56,8 +56,10 @@ const PageContent: React.FC<{
       onLaunchToPreviewClicked,
       onBackToDraftClicked,
       onLaunchClicked,
-      onReviewApprovedClicked,
-      onReviewRejectedClicked,
+      onLaunchReviewApprovedClicked,
+      onLaunchReviewRejectedClicked,
+      onEndReviewApprovedClicked,
+      onEndReviewRejectedClicked,
     ],
   } = useChangeOperationMutation(
     experiment,
@@ -84,6 +86,16 @@ const PageContent: React.FC<{
     },
     {
       status: NimbusExperimentStatus.DRAFT,
+      statusNext: null,
+      publishStatus: NimbusExperimentPublishStatus.IDLE,
+    },
+    {
+      status: NimbusExperimentStatus.LIVE,
+      statusNext: NimbusExperimentStatus.COMPLETE,
+      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      changelogMessage: CHANGELOG_MESSAGES.REVIEW_APPROVED,
+    },
+    {
       statusNext: null,
       publishStatus: NimbusExperimentPublishStatus.IDLE,
     },
@@ -128,8 +140,12 @@ const PageContent: React.FC<{
             reviewRequestEvent,
             rejectionEvent,
             timeoutEvent,
-            rejectChange: onReviewRejectedClicked,
-            approveChange: onReviewApprovedClicked,
+            rejectChange: status.live
+              ? onEndReviewRejectedClicked
+              : onLaunchReviewRejectedClicked,
+            approveChange: status.live
+              ? onEndReviewApprovedClicked
+              : onLaunchReviewApprovedClicked,
             reviewUrl: experiment.reviewUrl!,
           }}
         >
