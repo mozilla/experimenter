@@ -37,23 +37,11 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
     isLoading,
     submitError,
     callbacks: [onConfirmEndClicked],
-  } = useChangeOperationMutation(
-    experiment,
-    refetch,
-    {
-      publishStatus: NimbusExperimentPublishStatus.REVIEW,
-      statusNext: NimbusExperimentStatus.COMPLETE,
-      changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
-    },
-    {
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
-      changelogMessage: CHANGELOG_MESSAGES.END_APPROVED,
-    },
-    {
-      publishStatus: NimbusExperimentPublishStatus.IDLE,
-      statusNext: null,
-    },
-  );
+  } = useChangeOperationMutation(experiment, refetch, {
+    publishStatus: NimbusExperimentPublishStatus.REVIEW,
+    statusNext: NimbusExperimentStatus.COMPLETE,
+    changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
+  });
 
   return (
     <div data-testid="summary" className="mb-5">
