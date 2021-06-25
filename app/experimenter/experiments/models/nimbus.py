@@ -335,8 +335,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             base_url=settings.KINTO_ADMIN_URL,
             collection_path="#/buckets/main-workspace/collections",
             collection=self.application_config.rs_experiments_collection,
-            # TODO: Remove IS_STAGING https://github.com/mozilla/experimenter/issues/5451
-            review_path="simple-review" if settings.IS_STAGING else "records",
+            review_path="simple-review",
         )
 
     def delete_branches(self):
