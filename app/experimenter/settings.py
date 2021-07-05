@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     # Libraries
     "corsheaders",
     "django_markdown2",
+    "rangefilter",
     "raven.contrib.django.raven_compat",
     "rest_framework",
     "widget_tweaks",
