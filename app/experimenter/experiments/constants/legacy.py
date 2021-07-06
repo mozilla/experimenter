@@ -175,7 +175,6 @@ class ExperimentConstants(object):
         ("97.0", "Firefox 97.0"),
         ("98.0", "Firefox 98.0"),
         ("99.0", "Firefox 99.0"),
-        ("100.0", "Firefox 100.0"),
     )
 
     VERSION_REGEX = re.compile(r"[\d]+")
