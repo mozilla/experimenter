@@ -403,8 +403,8 @@ SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=False, cast=bool
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=False, cast=bool)
 SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="origin")
 
-# Silenced ssl_redirect and sts checks
-SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004"]
+# Silenced ssl_redirect, sts, django primary key checks
+SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004", "models.W042"]
 
 # Feature Flags
 FEATURE_MESSAGE_TYPE = config("FEATURE_MESSAGE_TYPE", default=False, cast=bool)
