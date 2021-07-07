@@ -5,13 +5,22 @@ updates:
   schedule:
     interval: weekly
   target-branch: main
+  ignore:
+    - dependency-name: "*"
+      update-types: ["version-update:semver-major", "version-update:semver-patch"]
 - package-ecosystem: pip
   directory: "/app"
   schedule:
     interval: weekly
   target-branch: main
+  ignore:
+    - dependency-name: "*"
+      update-types: ["version-update:semver-major", "version-update:semver-patch"]
 - package-ecosystem: pip
   directory: "/app/tests"
   schedule:
     interval: weekly
   target-branch: main
+  ignore:
+    - dependency-name: "*"
+      update-types: ["version-update:semver-major", "version-update:semver-patch"]
