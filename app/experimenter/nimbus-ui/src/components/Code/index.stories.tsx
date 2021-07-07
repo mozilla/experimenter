@@ -8,7 +8,9 @@ import { Code } from ".";
 export default {
   title: "components/Code",
   component: Code,
-  decorators: [(story: Function) => <div className="p-5">{story()}</div>],
+  decorators: [
+    (story: () => React.ReactNode) => <div className="p-5">{story()}</div>,
+  ],
 };
 
 const storyWithChildren = (codeString: string, storyName?: string) => {

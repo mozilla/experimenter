@@ -15,7 +15,7 @@ import { updateExperiment_updateExperiment as UpdateExperimentOverviewResult } f
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import FormOverview from "../FormOverview";
 
-type PageEditOverviewProps = {} & RouteComponentProps;
+type PageEditOverviewProps = Record<string, any> & RouteComponentProps;
 
 const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
   const [updateExperimentOverview, { loading }] = useMutation<

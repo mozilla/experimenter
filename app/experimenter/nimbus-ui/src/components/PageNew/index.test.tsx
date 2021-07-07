@@ -114,7 +114,7 @@ jest.mock("../FormOverview", () => ({
   default: (props: {
     isLoading: boolean;
     submitErrors?: Record<string, string[]>;
-    onSubmit: Function;
+    onSubmit: (data: Record<string, string>, mock: jest.Mock<any, any>) => void;
     onCancel: (ev: React.FormEvent) => void;
     applications: string[];
   }) => {
