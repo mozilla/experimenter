@@ -31,7 +31,7 @@
     "@fortawesome/fontawesome-free": "5.15.3",
     "@testing-library/dom": "8.1.0",
     "autobind-decorator": "2.4.0",
-    "bootstrap": "4.5.2",
+    "bootstrap": "4.6.0",
     "bootstrap-select": "1.13.18",
     "fontsource-fira-sans": "4.0.0",
     "immutable": "4.0.0-rc.12",
