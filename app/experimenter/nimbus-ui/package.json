@@ -81,7 +81,7 @@
     "@typescript-eslint/parser": "2.x",
     "babel-eslint": "10.x",
     "eslint": "7.30.0",
-    "eslint-config-prettier": "^7.0.0",
+    "eslint-config-prettier": "^7.2.0",
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-flowtype": "5.x",
     "eslint-plugin-import": "2.23.4",
