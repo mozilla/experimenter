@@ -44,7 +44,7 @@ import { OutcomesList, OutcomeSlugs } from "./types";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;
-  childProps?: object;
+  childProps?: Record<any, any>;
   children?: React.ReactElement;
   mocks?: MockedResponse<Record<string, any>>[];
   addTypename?: boolean;

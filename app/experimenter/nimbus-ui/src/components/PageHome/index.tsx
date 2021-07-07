@@ -19,7 +19,7 @@ import DirectoryTable, {
 } from "./DirectoryTable";
 import sortByStatus from "./sortByStatus";
 
-type PageHomeProps = {} & RouteComponentProps;
+type PageHomeProps = Record<string, any> & RouteComponentProps;
 
 export const Body = () => {
   const { data, loading, error } = useQuery<{

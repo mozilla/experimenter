@@ -19,7 +19,7 @@ import FormOverview from "../FormOverview";
 import Head from "../Head";
 import LinkExternal from "../LinkExternal";
 
-type PageNewProps = {} & RouteComponentProps;
+type PageNewProps = Record<string, any> & RouteComponentProps;
 
 const PageNew: React.FunctionComponent<PageNewProps> = () => {
   const [createExperiment, { loading }] = useMutation<

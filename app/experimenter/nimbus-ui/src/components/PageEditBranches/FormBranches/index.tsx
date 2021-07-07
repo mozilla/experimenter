@@ -25,8 +25,8 @@ type FormBranchesProps = {
   featureConfig: getConfig_nimbusConfig["featureConfig"];
   onSave: (
     state: FormBranchesSaveState,
-    setSubmitErrors: Function,
-    clearSubmitErrors: Function,
+    setSubmitErrors: (submitErrors: any) => void,
+    clearSubmitErrors: () => void,
     next: boolean,
   ) => void;
 };

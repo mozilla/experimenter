@@ -11,7 +11,7 @@ class AppErrorBoundary extends React.Component {
     error: undefined | Error;
   };
 
-  constructor(props: {}) {
+  constructor(props: Record<string, any>) {
     super(props);
     this.state = { error: undefined };
   }

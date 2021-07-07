@@ -37,7 +37,7 @@ export default {
   component: Subject,
   decorators: [
     withLinks,
-    (story: Function) => <div className="p-5">{story()}</div>,
+    (story: () => React.ReactNode) => <div className="p-5">{story()}</div>,
   ],
 };
 
