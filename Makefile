@@ -70,14 +70,14 @@ compose_build: build_dev ssl
 	$(COMPOSE)  build
 
 compose_stop:
-	$(COMPOSE) kill
-	$(COMPOSE_INTEGRATION) kill
-	$(COMPOSE_PROD) kill
+	$(COMPOSE) kill || true
+	$(COMPOSE_INTEGRATION) kill || true
+	$(COMPOSE_PROD) kill || true
 
 compose_rm:
-	$(COMPOSE) rm -f -v
-	$(COMPOSE_INTEGRATION) rm -f -v
-	$(COMPOSE_PROD) rm -f -v
+	$(COMPOSE) rm -f -v || true
+	$(COMPOSE_INTEGRATION) rm -f -v || true
+	$(COMPOSE_PROD) rm -f -v || true
 
 volumes_rm:
 	docker volume prune -f
