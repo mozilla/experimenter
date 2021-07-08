@@ -73,16 +73,14 @@ class TestTask(MockNormandyMixin, TestCase):
         self.assertEqual(str(reason), "New")
 
     def test_get_create_event_reason_returns_clone(self):
+        parent = ExperimentFactory.create()
+        experiment = ExperimentFactory.create(parent=parent)
         event = ReportLogConstants.Event.CREATE
-        create_log = ExperimentChangeLogFactory.create(message="Cloned Experiment")
+        create_log = ExperimentChangeLogFactory.create(
+            message="Cloned Experiment", experiment=experiment
+        )
         reason = get_event_reason(create_log, event)
         self.assertEqual(str(reason), "Clone")
-
-    def test_get_create_event_reason_returns_relaunch(self):
-        event = ReportLogConstants.Event.CREATE
-        create_log = ExperimentChangeLogFactory.create(message="Relaunch Experiment")
-        reason = get_event_reason(create_log, event)
-        self.assertEqual(str(reason), "Relaunch")
 
     def test_get_end_event_reason_returns_message_as_reason(self):
         event = ReportLogConstants.Event.END
@@ -156,10 +154,10 @@ class TestTask(MockNormandyMixin, TestCase):
             event=ReportLogConstants.Event.UPDATE,
             event_reason=ReportLogConstants.EventReason.RECIPE_CHANGE,
         )
+
+        later = timezone.now() + timezone.timedelta(hours=1)
         self.assertTrue(
-            is_duplicate_recipe_change(
-                timezone.now(), experiment, report_log.event_reason
-            )
+            is_duplicate_recipe_change(later, experiment, report_log.event_reason)
         )
 
     def test_create_reportlog_creates_a_create_reportlog(self):

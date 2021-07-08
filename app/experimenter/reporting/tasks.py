@@ -45,19 +45,19 @@ def get_latest_log_date():
 def create_reportlog(changelog):
 
     experiment = changelog.experiment
-    type = get_experiment_type(experiment)
+    experiment_type = get_experiment_type(experiment)
     timestamp = changelog.changed_on
     event = get_event_type(changelog)
     event_reason = get_event_reason(changelog, event)
-    message = changelog.message if changelog.message else ""
+    message = changelog.message or ""
 
     if event and not is_duplicate_recipe_change(timestamp, experiment, event_reason):
-        event_reason = get_event_reason(changelog, event)
+
         report_log = ReportLog.objects.create(
             timestamp=timestamp,
             experiment_slug=experiment.slug,
             experiment_name=experiment.name,
-            experiment_type=type,
+            experiment_type=experiment_type,
             experiment_old_status=changelog.old_status,
             experiment_new_status=changelog.new_status,
             event=event,
@@ -70,33 +70,33 @@ def create_reportlog(changelog):
 def create_reportlog_from_normandy_history(experiment):
 
     history = normandy.get_history_list(experiment.normandy_id)
-    # first normandy history is creation
-    if len(history) > 1:
-        for revision in history:
-            timestamp = parser.parse(revision.get("updated"))
-            event_reason = ReportLog.EventReason.RECIPE_CHANGE
-            if ReportLog.objects.filter(
-                timestamp__date=timestamp,
-                experiment_name=experiment.name,
-                event_reason=event_reason,
-            ).exists():
-                break
-            else:
-                type = get_experiment_type(experiment)
-                event = ReportLog.Event.UPDATE
-                message = ""
-                report_log = ReportLog.objects.create(
-                    timestamp=timestamp,
-                    experiment_slug=experiment.slug,
-                    experiment_name=experiment.name,
-                    experiment_type=type,
-                    experiment_old_status=ReportLog.ExperimentStatus.LIVE,
-                    experiment_new_status=ReportLog.ExperimentStatus.LIVE,
-                    event=event,
-                    event_reason=event_reason,
-                    comment=message,
-                )
-                report_log.projects.set(experiment.projects.all())
+
+    # first normandy history revision is creation
+    for revision in history[:-1]:
+        timestamp = parser.parse(revision.get("updated"))
+        event_reason = ReportLog.EventReason.RECIPE_CHANGE
+        experiment_type = get_experiment_type(experiment)
+        event = ReportLog.Event.UPDATE
+        message = ""
+        if ReportLog.objects.filter(
+            timestamp__date=timestamp,
+            experiment_name=experiment.name,
+            event_reason=event_reason,
+        ).exists():
+            break
+
+        report_log = ReportLog.objects.create(
+            timestamp=timestamp,
+            experiment_slug=experiment.slug,
+            experiment_name=experiment.name,
+            experiment_type=experiment_type,
+            experiment_old_status=ReportLog.ExperimentStatus.LIVE,
+            experiment_new_status=ReportLog.ExperimentStatus.LIVE,
+            event=event,
+            event_reason=event_reason,
+            comment=message,
+        )
+        report_log.projects.set(experiment.projects.all())
 
 
 def is_duplicate_recipe_change(date, experiment, event_reason):
@@ -149,17 +149,18 @@ def is_normandy_update(changelog):
 def get_event_reason(changelog, event):
     if event == ReportLog.Event.CREATE:
         return get_create_event_reason(changelog)
-    elif event == ReportLog.Event.UPDATE:
+    if event == ReportLog.Event.UPDATE:
         return get_update_event_reason(changelog)
-    return get_end_event_reason(changelog)
+    if event == ReportLog.Event.END:
+        return get_end_event_reason(changelog)
 
 
 def get_create_event_reason(changelog):
-    if changelog.message:
-        if "Cloned" in changelog.message:
+    experiment = changelog.experiment
+    if type(changelog) == ExperimentChangeLog:
+        if experiment.parent:
             return ReportLog.EventReason.CLONE
-        elif "Relaunch" in changelog.message:
-            return ReportLog.EventReason.RELAUNCH
+
     return ReportLog.EventReason.NEW
 
 
