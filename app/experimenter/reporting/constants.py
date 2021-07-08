@@ -1,6 +1,28 @@
 from django.db import models
 
 
+class Event(models.TextChoices):
+    CREATE = "Create"
+    UPDATE = "Update"
+    END = "End"
+
+
+class EventReason(models.TextChoices):
+    NEW = "New"
+    CLONE = "Clone"
+    RELAUNCH = "Relaunch"
+    STATUS_CHANGE = "Status Change"
+    PAUSE = "Pause"
+    RECIPE_CHANGE = "Recipe Change"
+    QA_LAUNCH = "QA Launch"
+    LAUNCH = "Launch"
+    EXPERIMENT_COMPLETE = "Experiment Complete"
+    FILTERING_ISSUE = "Filtering Issue"
+    ENROLLMENT_ISSUE = "Enrollment Issue"
+    EXPERIMENT_DESIGN_ISSUE = "Experiment Design Issue"
+    RESULTS_ADDED = "Results Added"
+
+
 class ReportLogConstants(object):
     class ExperimentStatus(models.TextChoices):
         DRAFT = "Draft"
@@ -19,40 +41,23 @@ class ReportLogConstants(object):
         NIMBUS_FENIX = "Nimbus Fenix"
         NIMBUS_IOS = "Nimbus IOS"
 
-    class Event(models.TextChoices):
-        CREATE = "Create"
-        UPDATE = "Update"
-        END = "End"
-
-    class EventReason(models.TextChoices):
-        NEW = "New"
-        CLONE = "Clone"
-        RELAUNCH = "Relaunch"
-        STATUS_CHANGE = "Status Change"
-        PAUSE = "Pause"
-        RECIPE_CHANGE = "Recipe Change"
-        QA_LAUNCH = "QA Launch"
-        LAUNCH = "Launch"
-        EXPERIMENT_COMPLETE = "Experiment Complete"
-        FILTERING_ISSUE = "Filtering Issue"
-        ENROLLMENT_ISSUE = "Enrollment Issue"
-        EXPERIMENT_DESIGN_ISSUE = "Experiment Design Issue"
-        RESULTS_ADDED = "Results Added"
+    Event = Event
+    EventReason = EventReason
 
     EVENT_PAIRS = {
-        "Create": ["New", "Clone", "Relaunch"],
-        "Update": [
-            "Status Change",
-            "Pause",
-            "Recipe Change",
-            "Qa Launch",
-            "Launch",
-            "Results Added",
+        Event.CREATE: [EventReason.NEW, EventReason.CLONE],
+        Event.UPDATE: [
+            EventReason.STATUS_CHANGE,
+            EventReason.PAUSE,
+            EventReason.RECIPE_CHANGE,
+            EventReason.QA_LAUNCH,
+            EventReason.LAUNCH,
+            EventReason.RESULTS_ADDED,
         ],
-        "End": [
-            "Experiment Complete",
-            "Filtering Issue",
-            "Enrollment Issue",
-            "Experiment Design Issue",
+        Event.END: [
+            EventReason.EXPERIMENT_COMPLETE,
+            EventReason.FILTERING_ISSUE,
+            EventReason.ENROLLMENT_ISSUE,
+            EventReason.EXPERIMENT_DESIGN_ISSUE,
         ],
     }
