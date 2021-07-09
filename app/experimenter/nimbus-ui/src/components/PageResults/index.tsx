@@ -104,21 +104,22 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             </div>
 
             <div>
-              {experiment.primaryOutcomes?.map((slug) => {
-                const outcome = configOutcomes!.find((set) => {
-                  return set?.slug === slug;
-                });
+              {analysis?.overall &&
+                experiment.primaryOutcomes?.map((slug) => {
+                  const outcome = configOutcomes!.find((set) => {
+                    return set?.slug === slug;
+                  });
 
-                return (
-                  <TableMetricPrimary
-                    key={slug}
-                    results={analysis?.overall!}
-                    outcome={outcome!}
-                    {...{ sortedBranches }}
-                  />
-                );
-              })}
-              {analysis &&
+                  return (
+                    <TableMetricPrimary
+                      key={slug}
+                      results={analysis?.overall!}
+                      outcome={outcome!}
+                      {...{ sortedBranches }}
+                    />
+                  );
+                })}
+              {analysis?.overall &&
                 experiment.secondaryOutcomes?.map((slug) => {
                   const outcome = configOutcomes!.find((set) => {
                     return set?.slug === slug;
