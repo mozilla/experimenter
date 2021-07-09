@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import React from "react";
 import {
   BaseSubject,
@@ -58,6 +64,12 @@ describe("ChangeApprovalOperations", () => {
   });
 
   it("when user cannot review, an approval pending notice is displayed", async () => {
+    Object.assign(navigator, {
+      clipboard: {
+        writeText: jest.fn(),
+      },
+    });
+
     render(
       <Subject
         {...{
@@ -66,9 +78,13 @@ describe("ChangeApprovalOperations", () => {
         }}
       />,
     );
-    await screen.findByTestId("approval-pending");
+    const pendingMessage = await screen.findByTestId("approval-pending");
     expect(screen.queryByTestId("approve-request")).not.toBeInTheDocument();
     expect(screen.queryByTestId("reject-request")).not.toBeInTheDocument();
+
+    const copyLink = within(pendingMessage).getByText("Click here");
+    fireEvent.click(copyLink);
+    expect(navigator.clipboard.writeText).toHaveBeenCalled();
   });
 
   it("when user can review and review has been approved, button to open remote settings is offered", async () => {
