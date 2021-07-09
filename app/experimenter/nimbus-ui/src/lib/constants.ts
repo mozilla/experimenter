@@ -44,6 +44,8 @@ export const EXTERNAL_URLS = {
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-VPSign-offsignVP",
   SIGNOFF_LEGAL:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-signLEGAL",
+  EXPERIMENTER_REVIEWERS:
+    "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Reviewers",
 };
 
 export const RISK_QUESTIONS = {
