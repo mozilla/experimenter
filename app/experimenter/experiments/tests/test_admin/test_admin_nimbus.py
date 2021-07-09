@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.test import TestCase
+from django.urls import reverse
 
 from experimenter.experiments.admin.nimbus import NimbusExperimentAdminForm
 from experimenter.experiments.models import NimbusExperiment
@@ -92,3 +94,19 @@ class TestNimbusExperimentAdminForm(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertNotIn("reference_branch", form.errors)
+
+
+class TestNimbusExperimentAdmin(TestCase):
+    def test_admin_form_renders(self):
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        response = self.client.get(
+            reverse(
+                "admin:experiments_nimbusexperiment_change",
+                args=(experiment.pk,),
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user.email}
+        )
+        self.assertEqual(response.status_code, 200)
