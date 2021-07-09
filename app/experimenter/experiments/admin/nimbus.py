@@ -4,6 +4,7 @@ from django.contrib.postgres.forms import SimpleArrayField
 
 from experimenter.experiments.models import (
     NimbusBranch,
+    NimbusBucketRange,
     NimbusChangeLog,
     NimbusDocumentationLink,
     NimbusExperiment,
@@ -24,6 +25,40 @@ class NimbusDocumentationLinkInlineAdmin(admin.TabularInline):
 class NimbusExperimentChangeLogInlineAdmin(admin.StackedInline):
     model = NimbusChangeLog
     extra = 1
+
+
+class NimbusExperimentBucketRangeInlineAdmin(admin.StackedInline):
+    model = NimbusBucketRange
+    extra = 0
+    fields = (
+        "isolation_group_name",
+        "isolation_group_instance",
+        "isolation_group_total",
+        "start",
+        "count",
+    )
+    readonly_fields = (
+        "isolation_group_name",
+        "isolation_group_instance",
+        "isolation_group_total",
+        "start",
+        "count",
+    )
+
+    @admin.display(description="Isolation Group Name")
+    def isolation_group_name(self, instance):
+        return instance.isolation_group.name
+
+    @admin.display(description="Isolation Group Instance")
+    def isolation_group_instance(self, instance):
+        return instance.isolation_group.instance
+
+    @admin.display(description="Isolation Group Total")
+    def isolation_group_total(self, instance):
+        return instance.isolation_group.total
+
+    def has_add_permission(self, request, obj):
+        return False
 
 
 class NimbusExperimentAdminForm(forms.ModelForm):
@@ -60,6 +95,7 @@ class NimbusExperimentAdmin(admin.ModelAdmin):
     inlines = (
         NimbusDocumentationLinkInlineAdmin,
         NimbusBranchInlineAdmin,
+        NimbusExperimentBucketRangeInlineAdmin,
         NimbusExperimentChangeLogInlineAdmin,
     )
     list_display = (
