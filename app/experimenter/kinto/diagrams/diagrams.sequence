@@ -112,7 +112,7 @@ end
 note over Experiment Reviewer:The experiment owner is ready\nto end enrollment for their live experiment and\nclicks the end enrollment button
 group #ff00ff Owner Ends Enrollment in Experimenter
 Experiment Owner->Experimenter UI:End Enrollment for Experiment
-Experimenter UI->Experimenter Backend:<align:center>Experiment:\nlive/review(live)\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Experiment:\nlive/review(live)/is_paused:True\n+changelog
 end
 note over Experiment Reviewer:The experiment reviewer reviews the\nexperiment's details on the summary\npage and clicks the approve button
 group #ffff00 Reviewer Approves in Experimenter
@@ -141,12 +141,12 @@ end
 note over Experiment Reviewer:The experiment owner is ready\nto end enrollment for their live experiment and\nclicks the end enrollment button
 group #ff00ff Owner Ends Enrollment in Experimenter
 Experiment Owner->Experimenter UI:End Enrollment for Experiment
-Experimenter UI->Experimenter Backend:<align:center>Experiment\nlive/review(live)\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Experiment:\nlive/review(live)/is_paused:True\n+changelog
 end
 note over Experiment Reviewer:The experiment reviewer reviews the\nexperiment's details on the summary\npage and clicks the reject button
 group #ffff00 Reviewer Rejects in Experimenter
 Experiment Reviewer->Experimenter UI:Reject
-Experimenter UI->Experimenter Backend:<align:center>Experiment\nlive/idle(none)\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Experiment\nlive/idle(none)/is_paused:False\n+changelog
 end
 
 
@@ -175,7 +175,7 @@ end
 note over Experimenter Backend: The scheduled background task is invoked\nand finds the change rejected in the\ncollection
 group #00ffff Worker Updates Experiment
 Experimenter Worker->Remote Settings Backend:Check collection after timeout
-Experimenter Worker->Experimenter Backend:<align:center>Experiment\nlive/idle(none)\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center>Experiment\nlive/idle(none)/is_paused:False\n+changelog
 end
 
 
@@ -183,7 +183,7 @@ end
 note over Experiment Reviewer:The experiment owner is ready\nto end enrollment for their live experiment and\nclicks the end enrollment button
 group #ff00ff Owner Ends Enrollment in Experimenter
 Experiment Owner->Experimenter UI:End Enrollment for Experiment
-Experimenter UI->Experimenter Backend:<align:center>Experiment\nlive/review(live)\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Experiment:\nlive/review(live)/is_paused:True\n+changelog
 end
 note over Experiment Reviewer:The experiment reviewer reviews the\nexperiment's details on the summary\npage and clicks the approve button
 group #ffff00 Reviewer Approves in Experimenter
