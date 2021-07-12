@@ -17,7 +17,10 @@ jobs:
       - run:
           name: Build docker images
           command: |
-            make build_prod
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            make build_write_dev
+            make build_write_test
+            make build_write_deploy
 
   check:
     machine:
@@ -113,9 +116,8 @@ jobs:
       - deploy:
           name: Deploy to latest
           command: |
-            ./scripts/store_git_info.sh
-            make build_prod
             docker login -u $DOCKER_USER -p $DOCKER_PASS
+            make build_prod
             docker tag app:deploy ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:latest
 
