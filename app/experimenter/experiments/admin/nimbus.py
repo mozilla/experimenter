@@ -9,7 +9,32 @@ from experimenter.experiments.models import (
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusFeatureConfig,
+    NimbusIsolationGroup,
 )
+
+
+class ReadOnlyAdminMixin:
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class NimbusBucketRangeInlineAdmin(ReadOnlyAdminMixin, admin.StackedInline):
+    model = NimbusBucketRange
+    extra = 0
+
+
+class NimbusIsolationGroupAdmin(ReadOnlyAdminMixin, admin.ModelAdmin):
+    inlines = (NimbusBucketRangeInlineAdmin,)
+
+    class Meta:
+        model = NimbusIsolationGroup
+        exclude = ("id",)
 
 
 class NimbusBranchInlineAdmin(admin.StackedInline):
@@ -27,7 +52,7 @@ class NimbusExperimentChangeLogInlineAdmin(admin.StackedInline):
     extra = 1
 
 
-class NimbusExperimentBucketRangeInlineAdmin(admin.StackedInline):
+class NimbusExperimentBucketRangeInlineAdmin(ReadOnlyAdminMixin, admin.StackedInline):
     model = NimbusBucketRange
     extra = 0
     fields = (
@@ -56,9 +81,6 @@ class NimbusExperimentBucketRangeInlineAdmin(admin.StackedInline):
     @admin.display(description="Isolation Group Total")
     def isolation_group_total(self, instance):
         return instance.isolation_group.total
-
-    def has_add_permission(self, request, obj):
-        return False
 
 
 class NimbusExperimentAdminForm(forms.ModelForm):
@@ -116,6 +138,7 @@ class NimbusFeatureConfigAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
 
+admin.site.register(NimbusIsolationGroup, NimbusIsolationGroupAdmin)
 admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
 admin.site.register(NimbusFeatureConfig, NimbusFeatureConfigAdmin)
 admin.site.register(NimbusDocumentationLink)
