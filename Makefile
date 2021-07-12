@@ -54,19 +54,34 @@ jetstream_config:
 	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip https://github.com/mozilla/jetstream-config/archive/main.zip
 	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/jetstream-config.zip
 
-build_dev: jetstream_config
-	docker build --target dev -f app/Dockerfile -t app:dev app/
+store_git_info:
+	./scripts/store_git_info.sh
 
-build_test: jetstream_config
-	docker build --target test -f app/Dockerfile -t app:test app/
+build_setup_builder:
+	docker buildx create --name shared_builder --use || true
 
-build_prod: jetstream_config
-	docker build --target deploy -f app/Dockerfile -t app:deploy app/
+build_write_dev: build_setup_builder store_git_info
+	docker buildx build -t mozilla/experimenter:shared-dev -f ./app/Dockerfile --target dev --cache-from=type=registry,ref=mozilla/experimenter:shared-dev --cache-to=type=registry,ref=mozilla/experimenter:shared-dev,mode=max --push --progress=plain ./app
+
+build_write_test: build_setup_builder store_git_info
+	docker buildx build -t mozilla/experimenter:shared-test -f ./app/Dockerfile --target test --cache-from=type=registry,ref=mozilla/experimenter:shared-test --cache-to=type=registry,ref=mozilla/experimenter:shared-test,mode=max --push --progress=plain ./app
+
+build_write_deploy: build_setup_builder store_git_info
+	docker buildx build -t mozilla/experimenter:shared-deploy -f ./app/Dockerfile --target deploy --cache-from=type=registry,ref=mozilla/experimenter:shared-deploy --cache-to=type=registry,ref=mozilla/experimenter:shared-deploy,mode=max --push --progress=plain ./app
+
+build_read_dev: build_setup_builder
+	docker buildx build -t app:dev -f ./app/Dockerfile --cache-from=type=registry,ref=mozilla/experimenter:shared-dev --load ./app
+
+build_read_test: build_setup_builder
+	docker buildx build -t app:test -f ./app/Dockerfile --cache-from=type=registry,ref=mozilla/experimenter:shared-test --load ./app
+
+build_read_deploy: build_setup_builder
+	docker buildx build -t app:deploy -f ./app/Dockerfile --cache-from=type=registry,ref=mozilla/experimenter:shared-deploy --load ./app
 
 compose_build_test: kill build_test
 	$(COMPOSE_TEST) build
 
-compose_build: build_dev ssl
+compose_build: build_read_dev ssl
 	$(COMPOSE)  build
 
 compose_stop:
@@ -119,7 +134,7 @@ up_detached: compose_build
 generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
 
-generate_types: build_dev
+generate_types: build_read_dev
 	$(COMPOSE) run app sh -c "$(NIMBUS_TYPES_GENERATE)"
 
 publish_storybooks: build_test
