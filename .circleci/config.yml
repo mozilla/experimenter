@@ -17,7 +17,11 @@ jobs:
       - run:
           name: Build docker images
           command: |
-            make build_prod
+            make build_dev
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker tag app:dev ${DOCKERHUB_REPO}:cached-dev
+            docker push ${DOCKERHUB_REPO}:cached-dev
+
 
   check:
     machine:
