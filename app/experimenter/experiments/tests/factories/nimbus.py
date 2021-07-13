@@ -11,6 +11,7 @@ from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
 from experimenter.base.models import Country, Locale
+from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import (
     NimbusExperimentChangeLogSerializer,
     generate_nimbus_changelog,
@@ -68,11 +69,29 @@ class LifecycleStates(Enum):
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
         "is_paused": False,
     }
-    LIVE_WAITING_ENROLLING = {
+    LIVE_REVIEW_PAUSING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+        "is_paused": True,
+    }
+    LIVE_IDLE_REJECT_PAUSING = {
         "status": NimbusExperiment.Status.LIVE,
         "status_next": None,
-        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
         "is_paused": False,
+    }
+    LIVE_APPROVED_PAUSING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+        "is_paused": True,
+    }
+    LIVE_WAITING_PAUSING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+        "is_paused": True,
     }
     LIVE_IDLE_PAUSED = {
         "status": NimbusExperiment.Status.LIVE,
@@ -117,7 +136,16 @@ class Lifecycles(Enum):
     LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
     LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
     LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE_ENROLLING,)
-    LIVE_ENROLLING_WAITING = LIVE_ENROLLING + (LifecycleStates.LIVE_WAITING_ENROLLING,)
+    PAUSING_REVIEW_REQUESTED = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
+    PAUSING_APPROVE = PAUSING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_PAUSING,)
+    PAUSING_APPROVE_WAITING = PAUSING_APPROVE + (LifecycleStates.LIVE_WAITING_PAUSING,)
+    PAUSING_APPROVE_APPROVE = PAUSING_APPROVE_WAITING + (LifecycleStates.COMPLETE_IDLE,)
+    PAUSING_APPROVE_REJECT = PAUSING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
+    )
+    PAUSING_APPROVE_TIMEOUT = PAUSING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_REVIEW_PAUSING,
+    )
     LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
     ENDING_REVIEW_REQUESTED = LIVE_PAUSED + (LifecycleStates.LIVE_REVIEW_ENDING,)
     ENDING_APPROVE = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_ENDING,)
@@ -261,6 +289,10 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
         for state in lifecycle.value:
             experiment.apply_lifecycle_state(state)
+
+            if experiment.status == experiment.Status.LIVE:
+                experiment.published_dto = NimbusExperimentSerializer(experiment).data
+
             experiment.save()
 
             if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
@@ -271,6 +303,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 experiment.owner,
                 f"set lifecycle {lifecycle} state {state}",
             )
+
             if with_random_timespan:
                 change.changed_on = now
                 change.save()

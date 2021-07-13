@@ -30,13 +30,10 @@ class NimbusExperimentManager(models.Manager):
             application__in=applications,
         )
 
-    def pause_queue(self, applications):
+    def update_queue(self, applications):
         return self.filter(
-            NimbusExperiment.Filters.IS_PAUSE_QUEUED,
+            NimbusExperiment.Filters.IS_UPDATE_QUEUED,
             application__in=applications,
-            id__in=[
-                experiment.id for experiment in self.all() if experiment.should_pause
-            ],
         )
 
     def end_queue(self, applications):
@@ -56,9 +53,9 @@ class NimbusExperimentManager(models.Manager):
             NimbusExperiment.Filters.IS_LAUNCHING, application__in=applications
         )
 
-    def waiting_to_pause_queue(self, applications):
+    def waiting_to_update_queue(self, applications):
         return self.filter(
-            NimbusExperiment.Filters.IS_PAUSING, application__in=applications
+            NimbusExperiment.Filters.IS_UPDATING, application__in=applications
         )
 
 
@@ -153,15 +150,15 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             status_next=NimbusConstants.Status.LIVE,
             publish_status=NimbusConstants.PublishStatus.WAITING,
         )
-        IS_PAUSE_QUEUED = Q(
+        IS_UPDATE_QUEUED = Q(
             status=NimbusConstants.Status.LIVE,
-            publish_status=NimbusConstants.PublishStatus.IDLE,
-            is_paused=False,
+            status_next=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.APPROVED,
         )
-        IS_PAUSING = Q(
+        IS_UPDATING = Q(
             status=NimbusConstants.Status.LIVE,
+            status_next=NimbusConstants.Status.LIVE,
             publish_status=NimbusConstants.PublishStatus.WAITING,
-            is_paused=False,
         )
         IS_END_QUEUED = Q(
             status=NimbusConstants.Status.LIVE,
@@ -173,7 +170,6 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             status_next=NimbusConstants.Status.COMPLETE,
             publish_status=NimbusConstants.PublishStatus.WAITING,
         )
-        SHOULD_TIMEOUT = Q(IS_LAUNCHING | IS_ENDING)
         SHOULD_ALLOCATE_BUCKETS = Q(
             Q(status=NimbusConstants.Status.PREVIEW)
             | Q(publish_status=NimbusConstants.PublishStatus.APPROVED)
@@ -302,14 +298,13 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             return self.proposed_duration
 
     @property
-    def should_pause(self):
-        if self.proposed_enrollment_end_date:
-            return datetime.date.today() >= self.proposed_enrollment_end_date
-
-    @property
     def should_end(self):
         if self.proposed_end_date:
             return datetime.date.today() >= self.proposed_end_date
+
+    @property
+    def is_paused_published(self):
+        return bool(self.published_dto and self.published_dto.get("isEnrollmentPaused"))
 
     @property
     def monitoring_dashboard_url(self):
@@ -398,7 +393,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         review_expired = (
             timezone.now() - self.changes.latest_change().changed_on
         ) >= datetime.timedelta(seconds=settings.KINTO_REVIEW_TIMEOUT)
-        return review_expired and self.has_filter(self.Filters.SHOULD_TIMEOUT)
+        return self.publish_status == self.PublishStatus.WAITING and review_expired
 
 
 class NimbusBranch(models.Model):

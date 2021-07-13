@@ -220,7 +220,7 @@ class NimbusExperimentType(DjangoObjectType):
         return self.targeting
 
     def resolve_is_enrollment_paused(self, info):
-        return self.is_paused
+        return self.is_paused_published
 
     def resolve_enrollment_end_date(self, info):
         return self.proposed_enrollment_end_date
