@@ -12,7 +12,11 @@ import {
 import React from "react";
 import { filterTargetingConfigSlug } from ".";
 import { snakeToCamelCase } from "../../../lib/caseConversions";
-import { EXTERNAL_URLS, FIELD_MESSAGES } from "../../../lib/constants";
+import {
+  EXTERNAL_URLS,
+  FIELD_MESSAGES,
+  TOOLTIP_DURATION,
+} from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import { assertSerializerMessages } from "../../../lib/test-utils";
 import {
@@ -80,6 +84,10 @@ describe("FormAudience", () => {
       const { label } = channel!;
       expect(screen.getByText(label!)).toBeInTheDocument();
     }
+
+    expect(
+      await screen.findByTestId("tooltip-duration-audience"),
+    ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
   });
 
   it("renders server errors", async () => {

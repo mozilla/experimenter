@@ -57,6 +57,9 @@ export const RISK_QUESTIONS = {
     "Does this experiment have a risk to negatively impact revenue (e.g. search, Pocket revenue)?",
 };
 
+export const TOOLTIP_DURATION =
+  "This is the total duration of the experiment, including the enrollment period.";
+
 export const CHANGELOG_MESSAGES = {
   CREATED_EXPERIMENT: "Created Experiment",
   UPDATED_BRANCHES: "Updated Branches",
