@@ -246,7 +246,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             new_status=NimbusExperiment.Status.LIVE,
         )
         if start_changelogs.exists():
-            return start_changelogs.order_by("-changed_on").first().changed_on
+            return start_changelogs.order_by("-changed_on").first().changed_on.date()
 
     @property
     def end_date(self):
@@ -254,21 +254,17 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             old_status=self.Status.LIVE, new_status=self.Status.COMPLETE
         )
         if end_changelogs.exists():
-            return end_changelogs.order_by("-changed_on").first().changed_on
+            return end_changelogs.order_by("-changed_on").first().changed_on.date()
 
     @property
     def proposed_enrollment_end_date(self):
         if self.start_date and self.proposed_enrollment is not None:
-            return (
-                self.start_date + datetime.timedelta(days=self.proposed_enrollment)
-            ).date()
+            return self.start_date + datetime.timedelta(days=self.proposed_enrollment)
 
     @property
     def proposed_end_date(self):
         if self.start_date and self.proposed_duration:
-            return (
-                self.start_date + datetime.timedelta(days=self.proposed_duration)
-            ).date()
+            return self.start_date + datetime.timedelta(days=self.proposed_duration)
 
     @property
     def computed_enrollment_days(self):
@@ -279,21 +275,21 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             .first()
         )
         if paused_change:
-            return (paused_change.changed_on - self.start_date).days + 1
+            return (paused_change.changed_on.date() - self.start_date).days
         else:
             return self.proposed_enrollment
 
     @property
     def computed_end_date(self):
         if self.end_date:
-            return self.end_date.date()
+            return self.end_date
         else:
             return self.proposed_end_date
 
     @property
     def computed_duration_days(self):
         if self.start_date:
-            return (self.computed_end_date - self.start_date.date()).days
+            return (self.computed_end_date - self.start_date).days
         else:
             return self.proposed_duration
 
