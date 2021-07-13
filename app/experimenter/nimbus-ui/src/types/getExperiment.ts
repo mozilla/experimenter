@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusExperimentTargetingConfigSlug, NimbusDocumentationLinkTitle } from "./globalTypes";
+import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusExperimentTargetingConfigSlug, NimbusDocumentationLinkTitle, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -72,6 +72,8 @@ export interface getExperiment_experimentBySlug_rejection_changedBy {
 
 export interface getExperiment_experimentBySlug_rejection {
   message: string | null;
+  oldStatus: NimbusChangeLogOldStatus | null;
+  oldStatusNext: NimbusChangeLogOldStatusNext | null;
   changedOn: DateTime;
   changedBy: getExperiment_experimentBySlug_rejection_changedBy;
 }
@@ -132,6 +134,7 @@ export interface getExperiment_experimentBySlug {
   riskPartnerRelated: boolean | null;
   signoffRecommendations: getExperiment_experimentBySlug_signoffRecommendations | null;
   documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
+  isEnrollmentPausePending: boolean | null;
   isEnrollmentPaused: boolean | null;
   enrollmentEndDate: DateTime | null;
   canReview: boolean | null;

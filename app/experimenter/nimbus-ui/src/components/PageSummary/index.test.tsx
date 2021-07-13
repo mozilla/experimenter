@@ -21,6 +21,8 @@ import { createMutationMock } from "../Summary/mocks";
 import {
   createFullStatusMutationMock,
   createStatusMutationMock,
+  endReviewRequestedBaseProps,
+  enrollmentPauseReviewRequestedBaseProps,
   reviewRequestedBaseProps,
   Subject,
 } from "./mocks";
@@ -220,6 +222,7 @@ describe("PageSummary", () => {
     );
     render(<Subject mocks={[mock, mutationMock]} />);
     const approveButton = await screen.findByTestId("approve-request");
+    expect(approveButton).toHaveTextContent("Approve and Launch Experiment");
     fireEvent.click(approveButton);
     const openRemoteSettingsButton = await screen.findByTestId(
       "open-remote-settings",
@@ -244,6 +247,7 @@ describe("PageSummary", () => {
       expectedReason,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
+    await screen.findByText("Approve and Launch Experiment");
     const rejectButton = await screen.findByTestId("reject-request");
     fireEvent.click(rejectButton);
     const rejectSubmitButton = await screen.findByTestId("reject-submit");
@@ -296,7 +300,7 @@ describe("PageSummary", () => {
   it("handles rejection of end as expected", async () => {
     const expectedReason = "This smells bad.";
     const { experiment, mock } = mockExperimentQuery("demo-slug", {
-      ...reviewRequestedBaseProps,
+      ...endReviewRequestedBaseProps,
       canReview: true,
     });
     const mutationMock = createMutationMock(
@@ -306,6 +310,7 @@ describe("PageSummary", () => {
     );
     render(<Subject mocks={[mock, mutationMock]} />);
     const rejectButton = await screen.findByTestId("reject-request");
+    await screen.findByText("Approve and End Experiment");
     fireEvent.click(rejectButton);
     const rejectSubmitButton = await screen.findByTestId("reject-submit");
     const rejectReasonField = await screen.findByTestId("reject-reason");
@@ -321,7 +326,7 @@ describe("PageSummary", () => {
 
   it("handles approval of end as expected", async () => {
     const { experiment, mock } = mockExperimentQuery("demo-slug", {
-      ...reviewRequestedBaseProps,
+      ...endReviewRequestedBaseProps,
       canReview: true,
     });
     const mutationMock = createMutationMock(
@@ -331,6 +336,58 @@ describe("PageSummary", () => {
     );
     render(<Subject mocks={[mock, mutationMock]} />);
     const approveButton = await screen.findByTestId("approve-request");
+    expect(approveButton).toHaveTextContent("Approve and End Experiment");
+    fireEvent.click(approveButton);
+    const openRemoteSettingsButton = await screen.findByTestId(
+      "open-remote-settings",
+    );
+    fireEvent.click(openRemoteSettingsButton);
+    expect(openRemoteSettingsButton).toHaveProperty(
+      "href",
+      experiment.reviewUrl,
+    );
+  });
+
+  it("handles rejection of end enrollment as expected", async () => {
+    const expectedReason = "Enroll more people first, yo.";
+    const { experiment, mock } = mockExperimentQuery("demo-slug", {
+      ...enrollmentPauseReviewRequestedBaseProps,
+      canReview: true,
+    });
+    const mutationMock = createMutationMock(
+      experiment.id!,
+      NimbusExperimentPublishStatus.IDLE,
+      { statusNext: null, changelogMessage: expectedReason },
+    );
+    render(<Subject mocks={[mock, mutationMock]} />);
+    const rejectButton = await screen.findByTestId("reject-request");
+    await screen.findByText("Approve and End Enrollment for Experiment");
+    fireEvent.click(rejectButton);
+    const rejectSubmitButton = await screen.findByTestId("reject-submit");
+    const rejectReasonField = await screen.findByTestId("reject-reason");
+    fireEvent.change(rejectReasonField, {
+      target: { value: expectedReason },
+    });
+    fireEvent.blur(rejectReasonField);
+    fireEvent.click(rejectSubmitButton);
+    await waitFor(() =>
+      expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument(),
+    );
+  });
+
+  it("handles approval of end enrollment as expected", async () => {
+    const { experiment, mock } = mockExperimentQuery("demo-slug", {
+      ...enrollmentPauseReviewRequestedBaseProps,
+      canReview: true,
+    });
+    const mutationMock = createMutationMock(
+      experiment.id!,
+      NimbusExperimentPublishStatus.APPROVED,
+      { changelogMessage: CHANGELOG_MESSAGES.END_APPROVED },
+    );
+    render(<Subject mocks={[mock, mutationMock]} />);
+    const approveButton = await screen.findByTestId("approve-request");
+    await screen.findByText("Approve and End Enrollment for Experiment");
     fireEvent.click(approveButton);
     const openRemoteSettingsButton = await screen.findByTestId(
       "open-remote-settings",

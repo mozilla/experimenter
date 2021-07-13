@@ -5,16 +5,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import { EXTERNAL_URLS } from "../../lib/constants";
-import { humanDate } from "../../lib/dateUtils";
+import { StatusCheck } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentPublishStatus } from "../../types/globalTypes";
 import LinkExternal from "../LinkExternal";
 import FormApproveOrReject from "./FormApproveOrReject";
 import FormRejectReason from "./FormRejectReason";
 import FormRemoteSettingsPending from "./FormRemoteSettingsPending";
+import RejectionReason from "./RejectionReason";
 
 export enum ChangeApprovalOperationsState {
   None,
+  InvalidPages,
   ApprovalPending,
   ShowFormApproveOrReject,
   ShowFormRejectReason,
@@ -22,9 +24,12 @@ export enum ChangeApprovalOperationsState {
 }
 
 export type ChangeApprovalOperationsProps = {
+  actionButtonTitle: string;
   actionDescription: string;
   isLoading: boolean;
   canReview: boolean;
+  // TODO: refactor to just take `experiment` rather than all these separate props?
+  status: StatusCheck;
   publishStatus: getExperiment_experimentBySlug["publishStatus"];
   reviewRequestEvent?: getExperiment_experimentBySlug["reviewRequest"];
   rejectionEvent?: getExperiment_experimentBySlug["rejection"];
@@ -32,14 +37,18 @@ export type ChangeApprovalOperationsProps = {
   rejectChange: (fields: { changelogMessage: string }) => void;
   approveChange: () => void;
   reviewUrl: string;
+  invalidPages: string[];
+  InvalidPagesList: React.FC<unknown>;
 };
 
 export const ChangeApprovalOperations: React.FC<
   React.PropsWithChildren<ChangeApprovalOperationsProps>
 > = ({
+  actionButtonTitle,
   actionDescription,
   isLoading,
   canReview,
+  status,
   publishStatus,
   reviewRequestEvent,
   rejectionEvent,
@@ -47,9 +56,15 @@ export const ChangeApprovalOperations: React.FC<
   rejectChange,
   approveChange,
   reviewUrl,
+  invalidPages,
+  InvalidPagesList,
   children,
 }) => {
   const defaultUIState = useMemo(() => {
+    if (invalidPages.length > 0 && (status.draft || status.preview)) {
+      return ChangeApprovalOperationsState.InvalidPages;
+    }
+
     switch (publishStatus) {
       case NimbusExperimentPublishStatus.APPROVED:
       case NimbusExperimentPublishStatus.WAITING:
@@ -63,7 +78,7 @@ export const ChangeApprovalOperations: React.FC<
       default:
         return ChangeApprovalOperationsState.None;
     }
-  }, [publishStatus, canReview]);
+  }, [status, publishStatus, canReview, invalidPages.length]);
 
   const [uiState, setUIState] =
     useState<ChangeApprovalOperationsState>(defaultUIState);
@@ -78,6 +93,14 @@ export const ChangeApprovalOperations: React.FC<
   useEffect(() => resetUIState(), [resetUIState, publishStatus, canReview]);
 
   switch (uiState) {
+    case ChangeApprovalOperationsState.InvalidPages:
+      return (
+        <Alert variant="warning">
+          Before this experiment can be reviewed or launched, all required
+          fields must be completed. Fields on the <InvalidPagesList />{" "}
+          {invalidPages.length === 1 ? "page" : "pages"} are missing details.
+        </Alert>
+      );
     case ChangeApprovalOperationsState.ApprovalPending:
       return (
         <Alert
@@ -90,7 +113,7 @@ export const ChangeApprovalOperations: React.FC<
             <LinkExternal href={EXTERNAL_URLS.EXPERIMENTER_REVIEWERS}>
               qualified reviewer
             </LinkExternal>
-            , to review and {actionDescription} your experiment.{" "}
+            , to review and {actionDescription}.{" "}
             <a
               href="#copy"
               className="cursor-copy"
@@ -109,6 +132,7 @@ export const ChangeApprovalOperations: React.FC<
       return (
         <FormApproveOrReject
           {...{
+            actionButtonTitle,
             actionDescription,
             isLoading,
             timeoutEvent,
@@ -139,34 +163,20 @@ export const ChangeApprovalOperations: React.FC<
         <FormRejectReason
           {...{
             isLoading,
+            actionDescription,
             onSubmit: rejectChange,
             onCancel: resetUIState,
           }}
         />
       );
-    default:
+    default: {
       return (
         <>
-          {rejectionEvent && (
-            <Alert variant="warning" data-testid="rejection-notice">
-              <div className="text-body">
-                <p className="mb-2">
-                  The request to {actionDescription} this experiment was{" "}
-                  <strong>Rejected</strong> due to:
-                </p>
-                <p className="mb-2">
-                  {rejectionEvent!.changedBy!.email} on{" "}
-                  {humanDate(rejectionEvent!.changedOn!)}:
-                </p>
-                <p className="bg-white rounded border p-2 mb-0">
-                  {rejectionEvent!.message}
-                </p>
-              </div>
-            </Alert>
-          )}
+          {rejectionEvent && <RejectionReason {...{ rejectionEvent }} />}
           {children}
         </>
       );
+    }
   }
 };
 

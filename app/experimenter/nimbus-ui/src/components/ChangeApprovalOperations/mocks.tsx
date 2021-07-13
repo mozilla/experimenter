@@ -5,8 +5,17 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import ChangeApprovalOperations from ".";
-import { mockChangelog } from "../../lib/mocks";
-import { NimbusExperimentPublishStatus } from "../../types/globalTypes";
+import { getStatus } from "../../lib/experiment";
+import {
+  mockChangelog,
+  mockExperimentQuery,
+  mockRejectionChangelog,
+} from "../../lib/mocks";
+import {
+  NimbusChangeLogOldStatus,
+  NimbusChangeLogOldStatusNext,
+  NimbusExperimentPublishStatus,
+} from "../../types/globalTypes";
 
 type BaseSubjectProps = Partial<
   React.ComponentProps<typeof ChangeApprovalOperations>
@@ -15,23 +24,31 @@ type BaseSubjectProps = Partial<
 export const REVIEW_URL =
   "http://localhost:8888/v1/admin/#/buckets/main-workspace/collections/nimbus-mobile-experiments/records";
 
+const { experiment } = mockExperimentQuery("boo");
+
 export const BaseSubject = ({
-  actionDescription = "frobulate",
+  actionButtonTitle = "Frobulate Thingy",
+  actionDescription = "frobulate the thingy",
   isLoading = false,
   canReview = false,
+  status = getStatus(experiment),
   publishStatus = NimbusExperimentPublishStatus.IDLE,
   reviewRequestEvent,
   rejectionEvent,
   timeoutEvent,
   rejectChange = () => {},
   approveChange = () => {},
+  invalidPages = [],
+  InvalidPagesList = () => <span />,
   ...props
 }: BaseSubjectProps) => (
   <ChangeApprovalOperations
     {...{
+      actionButtonTitle,
       actionDescription,
       isLoading,
       canReview,
+      status,
       publishStatus,
       reviewRequestEvent,
       rejectionEvent,
@@ -39,11 +56,13 @@ export const BaseSubject = ({
       rejectChange,
       approveChange,
       reviewUrl: REVIEW_URL,
+      invalidPages,
+      InvalidPagesList,
       ...props,
     }}
   >
     <Button data-testid="action-button" className="mr-2 btn btn-success">
-      Frobulate experiment
+      Frobulate Thingy
     </Button>
   </ChangeApprovalOperations>
 );
@@ -92,9 +111,11 @@ export const reviewRejectedBaseProps: BaseSubjectProps = {
     null,
     "2020-04-13T01:00:00Z",
   ),
-  rejectionEvent: mockChangelog(
+  rejectionEvent: mockRejectionChangelog(
     "ghi@mozilla.com",
     "It's bad. Just start over.",
+    NimbusChangeLogOldStatus.LIVE,
+    NimbusChangeLogOldStatusNext.COMPLETE,
     "2020-04-13T02:00:00Z",
   ),
 };

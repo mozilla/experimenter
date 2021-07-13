@@ -15,10 +15,12 @@ type RejectReasonFieldNames = typeof rejectReasonFieldNames[number];
 
 const FormRejectReason = ({
   isLoading,
+  actionDescription,
   onSubmit,
   onCancel,
 }: {
   isLoading: boolean;
+  actionDescription: string;
   onSubmit: (event: any, fields: { changelogMessage: string }) => void;
   onCancel: () => void;
 }) => {
@@ -49,8 +51,10 @@ const FormRejectReason = ({
       <FormProvider {...formMethods}>
         <Form className="text-body">
           <p>
-            <strong>You are rejecting this review.</strong> Please add some
-            comments:
+            <strong>
+              You are rejecting the request to {actionDescription}.
+            </strong>{" "}
+            Please add some comments:
           </p>
           <Form.Group controlId="changelogMessage">
             <Form.Control

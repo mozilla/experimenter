@@ -6,13 +6,7 @@ import { withLinks } from "@storybook/addon-links";
 import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
-import {
-  reviewPendingBaseProps,
-  reviewRejectedBaseProps,
-  reviewRequestedBaseProps,
-  reviewTimedoutBaseProps,
-  Subject,
-} from "./mocks";
+import { reviewRequestedBaseProps, Subject } from "./mocks";
 
 const storyWithExperimentProps = (
   props?: Partial<getExperiment_experimentBySlug | null>,
@@ -56,38 +50,3 @@ export const noBranches = storyWithExperimentProps({
   referenceBranch: null,
   treatmentBranches: null,
 });
-
-export const reviewRequestedCanReview = storyWithExperimentProps(
-  { ...reviewRequestedBaseProps, canReview: true },
-  "Review requested, user can review",
-);
-
-export const reviewPendingCanReview = storyWithExperimentProps(
-  { ...reviewPendingBaseProps, canReview: true },
-  "Review pending in Remote Rettings, user can review",
-);
-
-export const reviewTimedoutCanReview = storyWithExperimentProps(
-  { ...reviewTimedoutBaseProps, canReview: true },
-  "Review timed out in Remote Settings, user can review",
-);
-
-export const reviewRequestedCannotReview = storyWithExperimentProps(
-  { ...reviewRequestedBaseProps, canReview: false },
-  "Review requested, user cannot review",
-);
-
-export const reviewPendingCannotReview = storyWithExperimentProps(
-  { ...reviewPendingBaseProps, canReview: false },
-  "Review pending in Remote Rettings, user cannot review",
-);
-
-export const reviewTimedoutCannotReview = storyWithExperimentProps(
-  { ...reviewTimedoutBaseProps, canReview: false },
-  "Review timed out in Remote Settings, user cannot review",
-);
-
-export const reviewRejected = storyWithExperimentProps(
-  reviewRejectedBaseProps,
-  "Review rejected",
-);

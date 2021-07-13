@@ -12,15 +12,18 @@ import { updateExperiment_updateExperiment as UpdateExperiment } from "../types/
 
 export function useChangeOperationMutation(
   experiment: Experiment | undefined,
-  refetch: (() => void) | undefined,
+  refetch?: () => Promise<unknown>,
   ...dataSets: Partial<ExperimentInput>[]
 ) {
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isLoadingRefetch, setIsLoadingRefetch] = useState(false);
 
-  const [updateExperiment, { loading: isLoading }] = useMutation<
+  const [updateExperiment, { loading: isLoadingMutation }] = useMutation<
     { updateExperiment: UpdateExperiment },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_MUTATION);
+
+  const isLoading = isLoadingMutation || isLoadingRefetch;
 
   const callbacks = useMemo(
     () =>
@@ -58,7 +61,11 @@ export function useChangeOperationMutation(
                 return void setSubmitError(message.status.join(", "));
               }
 
-              refetch && refetch();
+              if (refetch) {
+                setIsLoadingRefetch(true);
+                await refetch();
+                setIsLoadingRefetch(false);
+              }
             } catch (error) {
               setSubmitError(SUBMIT_ERROR);
             }

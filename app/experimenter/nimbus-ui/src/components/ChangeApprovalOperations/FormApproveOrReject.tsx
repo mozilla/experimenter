@@ -9,6 +9,7 @@ import Form from "react-bootstrap/Form";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
 const FormApproveOrReject = ({
+  actionButtonTitle,
   actionDescription,
   timeoutEvent,
   reviewRequestEvent,
@@ -16,6 +17,7 @@ const FormApproveOrReject = ({
   onApprove,
   onReject,
 }: {
+  actionButtonTitle: string;
   actionDescription: string;
   timeoutEvent?: getExperiment_experimentBySlug["timeout"];
   reviewRequestEvent?: getExperiment_experimentBySlug["reviewRequest"];
@@ -23,8 +25,6 @@ const FormApproveOrReject = ({
   onApprove: () => void;
   onReject: () => void;
 }) => {
-  const ucActionDescription =
-    actionDescription.charAt(0).toUpperCase() + actionDescription.slice(1);
   return (
     <>
       {timeoutEvent && (
@@ -33,8 +33,8 @@ const FormApproveOrReject = ({
             <span role="img" aria-label="red X emoji">
               ❌
             </span>{" "}
-            Remote Settings request has timed out, please go through the{" "}
-            {actionDescription} request and approval flow again.
+            Remote Settings request has timed out, please go through the request{" "}
+            and approval flow to {actionDescription} again.
           </p>
         </Alert>
       )}
@@ -42,7 +42,7 @@ const FormApproveOrReject = ({
         <Form className="text-body">
           <p>
             <strong>{reviewRequestEvent!.changedBy!.email}</strong> requested to{" "}
-            {actionDescription} this experiment.
+            {actionDescription}.
           </p>
 
           <div className="d-flex bd-highlight">
@@ -54,7 +54,7 @@ const FormApproveOrReject = ({
                 disabled={isLoading}
                 onClick={onApprove}
               >
-                Approve and {ucActionDescription}
+                Approve and {actionButtonTitle}
               </Button>
               <Button
                 data-testid="reject-request"
