@@ -35,6 +35,7 @@ describe("EndExperiment", () => {
 
     const confirmEnd = await screen.findByTestId("end-experiment-confirm");
     fireEvent.click(confirmEnd);
+    expect(confirmEnd).toBeDisabled();
     expect(onSubmit).toHaveBeenCalled();
   });
 

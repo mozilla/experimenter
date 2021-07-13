@@ -195,7 +195,7 @@ const PageContent: React.FC<{
       )}
 
       <h2 className="mt-3 mb-4 h4">Summary</h2>
-      <Summary {...{ experiment }} />
+      <Summary {...{ experiment, refetch }} />
     </>
   );
 };
