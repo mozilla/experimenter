@@ -560,7 +560,12 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     proposed_duration = serializers.IntegerField(required=True, min_value=1)
     proposed_enrollment = serializers.IntegerField(required=True, min_value=1)
     population_percent = serializers.DecimalField(
-        7, 4, min_value=0.0001, max_value=100.0, required=True
+        7,
+        4,
+        min_value=0.00009,
+        max_value=100.0,
+        required=True,
+        error_messages={"min_value": NimbusConstants.ERROR_POPULATION_PERCENT_MIN},
     )
     total_enrolled_clients = serializers.IntegerField(required=True, min_value=1)
     firefox_min_version = serializers.ChoiceField(
