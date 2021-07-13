@@ -717,8 +717,7 @@ class TestNimbusQuery(GraphQLTestCase):
     def test_paused_experiment_returns_date(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            is_paused=True,
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
             proposed_enrollment=7,
         )
         live_change = experiment.changes.get(
