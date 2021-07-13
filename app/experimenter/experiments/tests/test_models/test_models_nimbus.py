@@ -265,7 +265,7 @@ class TestNimbusExperiment(TestCase):
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
-        self.assertEqual(experiment.start_date, start_change.changed_on)
+        self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
     def test_start_date_uses_most_recent_start_change(self):
         experiment = NimbusExperimentFactory.create()
@@ -279,7 +279,7 @@ class TestNimbusExperiment(TestCase):
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
-        self.assertEqual(experiment.start_date, start_change.changed_on)
+        self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
     def test_end_date_returns_datetime_for_ended_experiment(self):
         experiment = NimbusExperimentFactory.create()
@@ -288,7 +288,7 @@ class TestNimbusExperiment(TestCase):
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
         )
-        self.assertEqual(experiment.end_date, end_change.changed_on)
+        self.assertEqual(experiment.end_date, end_change.changed_on.date())
 
     def test_end_date_uses_most_recent_end_change(self):
         experiment = NimbusExperimentFactory.create()
@@ -302,7 +302,7 @@ class TestNimbusExperiment(TestCase):
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
         )
-        self.assertEqual(experiment.end_date, end_change.changed_on)
+        self.assertEqual(experiment.end_date, end_change.changed_on.date())
 
     def test_proposed_end_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -351,17 +351,6 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.computed_enrollment_days,
             3,
-        )
-
-    def test_computed_enrollment_days_returns_at_least_1(self):
-        # simulates an experiment that was started and ended on the same day
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-        )
-
-        self.assertEqual(
-            experiment.computed_enrollment_days,
-            1,
         )
 
     def test_computed_enrollment_days_returns_fallback(self):
@@ -417,7 +406,7 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(
             experiment.computed_end_date,
-            experiment.end_date.date(),
+            experiment.end_date,
         )
 
     def test_monitoring_dashboard_url_is_when_experiment_not_begun(self):
