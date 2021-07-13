@@ -3,7 +3,7 @@ jobs:
   build:
     machine:
       docker_layer_caching: true
-      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
+      image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
     resource_class: large
     working_directory: ~/experimenter
     steps:
@@ -17,12 +17,21 @@ jobs:
       - run:
           name: Build docker images
           command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            make build_dev
+            make build_test
             make build_prod
+            docker tag app:dev ${DOCKERHUB_REPO}:build_dev
+            docker tag app:test ${DOCKERHUB_REPO}:build_test
+            docker tag app:deploy ${DOCKERHUB_REPO}:build_deploy
+            docker push ${DOCKERHUB_REPO}:build_dev
+            docker push ${DOCKERHUB_REPO}:build_test
+            docker push ${DOCKERHUB_REPO}:build_deploy
 
   check:
     machine:
       docker_layer_caching: true
-      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
+      image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
     resource_class: large
     working_directory: ~/experimenter
     steps:
@@ -42,7 +51,7 @@ jobs:
   publish_storybooks:
     machine:
       docker_layer_caching: true
-      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
+      image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
     resource_class: medium
     working_directory: ~/experimenter
     steps:
@@ -62,7 +71,7 @@ jobs:
   integration_legacy:
     machine:
       docker_layer_caching: true
-      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
+      image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
     resource_class: xlarge
     working_directory: ~/experimenter
     steps:
@@ -84,7 +93,7 @@ jobs:
   integration_nimbus:
     machine:
       docker_layer_caching: true
-      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
+      image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
     resource_class: xlarge
     working_directory: ~/experimenter
     steps:
@@ -107,13 +116,12 @@ jobs:
     working_directory: ~/experimenter
     machine:
       docker_layer_caching: true
-      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
+      image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
     steps:
       - checkout
       - deploy:
           name: Deploy to latest
           command: |
-            ./scripts/store_git_info.sh
             make build_prod
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker tag app:deploy ${DOCKERHUB_REPO}:latest
