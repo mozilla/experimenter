@@ -4,6 +4,7 @@
 
 import { cleanup, render, screen } from "@testing-library/react";
 import React from "react";
+import { TOOLTIP_DURATION } from "../../../lib/constants";
 import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
@@ -35,7 +36,7 @@ describe("SummaryTimeline", () => {
     });
   });
 
-  it("renders with a live experiment", () => {
+  it("renders with a live experiment", async () => {
     render(<Subject status={NimbusExperimentStatus.LIVE} />);
 
     expect(innerBar().classList).toContain("progress-bar-animated");
@@ -46,6 +47,9 @@ describe("SummaryTimeline", () => {
     expect(screen.queryByTestId("label-end-date")).toBeInTheDocument();
     expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
     expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();
+    expect(
+      await screen.findByTestId("tooltip-duration-summary"),
+    ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
   });
 
   it("renders with a completed experiment", () => {
