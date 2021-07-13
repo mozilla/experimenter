@@ -350,7 +350,7 @@ class TestNimbusQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
             experiment_data["computedEndDate"],
-            str(experiment.end_date.date()),
+            str(experiment.end_date),
         )
 
     def test_experiment_in_review_can_review(self):
