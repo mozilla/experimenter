@@ -418,6 +418,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_REQUIRED_FEATURE_CONFIG = (
         "You must select a feature configuration from the drop down."
     )
+    ERROR_POPULATION_PERCENT_MIN = "Ensure this value is greater than or equal to 0.0001."
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
