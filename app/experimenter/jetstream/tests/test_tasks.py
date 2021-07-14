@@ -8,70 +8,13 @@ from parameterized import parameterized
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.jetstream import tasks
-from experimenter.jetstream.models import (
-    BranchComparisonData,
-    DataPoint,
-    Group,
-    JetstreamDataPoint,
-    MetricData,
-    SignificanceData,
-)
 from experimenter.jetstream.tests.constants import TestConstants
+from experimenter.jetstream.tests.factory import JetstreamDataFactory
 
 
 @override_settings(FEATURE_ANALYSIS=False)
 class TestFetchJetstreamDataTask(TestCase):
     maxDiff = None
-
-    def get_metric_data(self, data_point):
-        return MetricData(
-            absolute=BranchComparisonData(first=data_point, all=[data_point]),
-            difference=BranchComparisonData(),
-            relative_uplift=BranchComparisonData(),
-            significance=SignificanceData(),
-        ).dict(exclude_none=True)
-
-    def add_outcome_data(self, data, overall_data, weekly_data, primary_outcome):
-        range_data = DataPoint(lower=2, point=4, upper=8)
-        primary_metric = f"{primary_outcome}_ever_used"
-
-        for branch in ["control", "variant"]:
-            if Group.OTHER not in overall_data[branch]["branch_data"]:
-                overall_data[branch]["branch_data"][Group.OTHER] = {}
-            if Group.OTHER not in weekly_data[branch]["branch_data"]:
-                weekly_data[branch]["branch_data"][Group.OTHER] = {}
-
-            data_point_overall = range_data.copy()
-            data_point_overall.count = 48.0
-            overall_data[branch]["branch_data"][Group.OTHER][
-                primary_metric
-            ] = self.get_metric_data(data_point_overall)
-
-            data_point_weekly = range_data.copy()
-            data_point_weekly.window_index = "1"
-            weekly_data[branch]["branch_data"][Group.OTHER][
-                primary_metric
-            ] = self.get_metric_data(data_point_weekly)
-
-            data.append(
-                JetstreamDataPoint(
-                    **range_data.dict(exclude_none=True),
-                    metric=primary_metric,
-                    branch=branch,
-                    statistic="binomial",
-                    window_index="1",
-                ).dict(exclude_none=True)
-            )
-
-    def add_all_outcome_data(
-        self,
-        data,
-        overall_data,
-        weekly_data,
-        primary_outcomes,
-    ):
-        for primary_outcome in primary_outcomes:
-            self.add_outcome_data(data, overall_data, weekly_data, primary_outcome)
 
     @parameterized.expand(
         [
@@ -87,20 +30,6 @@ class TestFetchJetstreamDataTask(TestCase):
             WEEKLY_DATA,
             OVERALL_DATA,
         ) = TestConstants.get_test_data()
-
-        FULL_DATA = {
-            "daily": DAILY_DATA,
-            "weekly": WEEKLY_DATA,
-            "overall": OVERALL_DATA,
-            "other_metrics": {
-                Group.OTHER: {
-                    "some_count": "Some Count",
-                    "another_count": "Another Count",
-                },
-            },
-            "metadata": {},
-            "show_analysis": False,
-        }
 
         class File:
             def __init__(self, filename):
@@ -124,16 +53,13 @@ class TestFetchJetstreamDataTask(TestCase):
             secondary_outcomes=[secondary_outcome],
         )
 
-        self.add_all_outcome_data(
-            DAILY_DATA,
-            OVERALL_DATA,
-            WEEKLY_DATA,
-            experiment.primary_outcomes,
+        results_data = JetstreamDataFactory().generate_results_data(
+            experiment.primary_outcomes
         )
 
         tasks.fetch_experiment_data(experiment.id)
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.results_data, FULL_DATA)
+        self.assertEqual(experiment.results_data, results_data)
 
     @parameterized.expand(
         [
