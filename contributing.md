@@ -122,14 +122,27 @@ Dependencies are automatically updated by [Dependabot](https://dependabot.com/) 
 directly into GitHub.  Each week Dependabot will create a large number of individual PRs that update
 each dependency.  To merge those into main, use the following process:
 
-
 ### Merge Dependabot PRs
-1. Dependabot will create many individual PRs against the `main` branch, which has no
-branch protections and so each of those PRs can be merged automatically by approving each PR with the comment:
 
-        @dependabot squash and merge
+#### Manually
+1. Dependabot will create many individual PRs against the `main` branch, which must pass all CI checks and be approved before merging.  Approve each PR with the following comment and if they pass CI they will merge automatically:
+
+```
+@dependabot squash and merge
+```
 
 All done!
+
+#### Automatically
+1. Install and configure the [Github CLI](https://github.com/cli/cli)
+1. From your local Experimenter repo run
+
+```
+make dependabot_approve
+```
+
+### Failed Dependabot PRs
+If a Dependabot PR fails the CI checks you can either investigate the failure and see if it can be resolved quickly/easily, or close it altogether.
 
 
 ## Continuous Deployment Process

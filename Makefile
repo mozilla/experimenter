@@ -140,6 +140,10 @@ bash: compose_build
 refresh: kill compose_build
 	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY app bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
+dependabot_approve:
+	echo "Install and configure the Github CLI https://github.com/cli/cli"
+	gh pr list --author app/dependabot | awk '{print $$1}' | xargs -n1 gh pr review -a -b "@dependabot squash and merge"
+
 # integration tests
 integration_build: build_prod ssl
 	$(COMPOSE_INTEGRATION) build
