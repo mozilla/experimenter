@@ -668,3 +668,66 @@ class TestMutations(GraphQLTestCase):
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]
         self.assertEqual(result["message"], "success")
+
+    def test_request_end_enrollment(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
+        )
+        self.assertEqual(experiment.is_paused, False)
+        self.assertEqual(experiment.is_paused_published, False)
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "status": NimbusExperiment.Status.LIVE.name,
+                    "statusNext": NimbusExperiment.Status.LIVE.name,
+                    "publishStatus": NimbusExperiment.PublishStatus.REVIEW.name,
+                    "isEnrollmentPaused": True,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        # is_paused set to True in local DB, but is_paused_published is not yet True
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.is_paused, True)
+        self.assertEqual(experiment.is_paused_published, False)
+
+    def test_reject_end_enrollment(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED
+        )
+        self.assertEqual(experiment.is_paused, True)
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "status": NimbusExperiment.Status.LIVE.name,
+                    "statusNext": None,
+                    "publishStatus": NimbusExperiment.PublishStatus.IDLE.name,
+                    "isEnrollmentPaused": False,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.is_paused, False)

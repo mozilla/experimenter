@@ -10,9 +10,12 @@ import {
   mockChangelog,
   mockExperimentMutation,
   mockExperimentQuery,
+  mockRejectionChangelog,
 } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import {
+  NimbusChangeLogOldStatus,
+  NimbusChangeLogOldStatusNext,
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
@@ -94,12 +97,77 @@ export const reviewRejectedBaseProps = {
   statusNext: null,
   publishStatus: NimbusExperimentPublishStatus.IDLE,
   reviewRequest: mockChangelog(),
-  rejection: mockChangelog("def@mozilla.com", "It's bad. Just start over."),
+  rejection: mockRejectionChangelog(
+    "def@mozilla.com",
+    "It's bad. Just start over.",
+    NimbusChangeLogOldStatus.DRAFT,
+    NimbusChangeLogOldStatusNext.LIVE,
+  ),
 };
 
 export const endReviewRequestedBaseProps = {
+  ...reviewRequestedBaseProps,
   status: NimbusExperimentStatus.LIVE,
   statusNext: NimbusExperimentStatus.COMPLETE,
-  publishStatus: NimbusExperimentPublishStatus.REVIEW,
-  reviewRequest: mockChangelog(),
+};
+
+export const endPendingBaseProps = {
+  ...reviewPendingBaseProps,
+  status: NimbusExperimentStatus.LIVE,
+  statusNext: NimbusExperimentStatus.COMPLETE,
+};
+
+export const endTimedoutBaseProps = {
+  ...reviewTimedoutBaseProps,
+  status: NimbusExperimentStatus.LIVE,
+  statusNext: NimbusExperimentStatus.COMPLETE,
+};
+
+export const endRejectedBaseProps = {
+  ...reviewRejectedBaseProps,
+  status: NimbusExperimentStatus.LIVE,
+  rejection: mockRejectionChangelog(
+    "def@mozilla.com",
+    "Let this run a bit longer",
+    NimbusChangeLogOldStatus.LIVE,
+    NimbusChangeLogOldStatusNext.COMPLETE,
+  ),
+};
+
+export const enrollmentPauseReviewRequestedBaseProps = {
+  ...reviewRequestedBaseProps,
+  status: NimbusExperimentStatus.LIVE,
+  statusNext: NimbusExperimentStatus.LIVE,
+  isEnrollmentPaused: false,
+  isEnrollmentPausePending: true,
+};
+
+export const enrollmentPausePendingBaseProps = {
+  ...reviewPendingBaseProps,
+  status: NimbusExperimentStatus.LIVE,
+  statusNext: NimbusExperimentStatus.LIVE,
+  isEnrollmentPaused: false,
+  isEnrollmentPausePending: true,
+};
+
+export const enrollmentPauseTimedoutBaseProps = {
+  ...reviewTimedoutBaseProps,
+  status: NimbusExperimentStatus.LIVE,
+  statusNext: NimbusExperimentStatus.LIVE,
+  isEnrollmentPaused: false,
+  isEnrollmentPausePending: true,
+};
+
+export const enrollmentPauseRejectedBaseProps = {
+  ...reviewRejectedBaseProps,
+  status: NimbusExperimentStatus.LIVE,
+  statusNext: null,
+  isEnrollmentPaused: false,
+  isEnrollmentPausePending: false,
+  rejection: mockRejectionChangelog(
+    "def@mozilla.com",
+    "Some more enrollment would be nice",
+    NimbusChangeLogOldStatus.LIVE,
+    NimbusChangeLogOldStatusNext.LIVE,
+  ),
 };

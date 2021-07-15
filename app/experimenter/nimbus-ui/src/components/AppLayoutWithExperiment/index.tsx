@@ -18,7 +18,7 @@ import PageLoading from "../PageLoading";
 
 type AppLayoutWithExperimentChildrenProps = {
   experiment: getExperiment_experimentBySlug;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
   analysis?: AnalysisData;
 };
 

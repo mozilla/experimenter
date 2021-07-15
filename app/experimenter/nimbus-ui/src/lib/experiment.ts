@@ -9,12 +9,13 @@ import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../types/globalTypes";
+import { LIFECYCLE_REVIEW_FLOWS } from "./constants";
 
 export function getStatus(
   experiment?: getExperiment_experimentBySlug | getAllExperiments_experiments,
 ) {
-  const status = experiment?.status;
-  const publishStatus = experiment?.publishStatus;
+  const { status, statusNext, publishStatus, isEnrollmentPausePending } =
+    experiment || {};
 
   // The experiment is or was out in the wild (live or complete)
   const launched = [
@@ -31,7 +32,14 @@ export function getStatus(
     approved: publishStatus === NimbusExperimentPublishStatus.APPROVED,
     review: publishStatus === NimbusExperimentPublishStatus.REVIEW,
     waiting: publishStatus === NimbusExperimentPublishStatus.WAITING,
-    endRequested: experiment?.statusNext === NimbusExperimentStatus.COMPLETE,
+    // TODO: EXP-1325 Need to check something else here for end enrollment in particular?
+    pauseRequested:
+      status === NimbusExperimentStatus.LIVE &&
+      statusNext === NimbusExperimentStatus.LIVE &&
+      isEnrollmentPausePending === true,
+    endRequested:
+      status === NimbusExperimentStatus.LIVE &&
+      statusNext === NimbusExperimentStatus.COMPLETE,
     launched,
   };
 }
@@ -45,4 +53,27 @@ export function editCommonRedirects({ status }: RedirectCheck) {
   if (status.launched || !status.idle || status.preview) {
     return "";
   }
+}
+
+export function getSummaryAction(
+  status: StatusCheck,
+  canReview: boolean | null,
+) {
+  // has pending review approval
+  if (status.review || status.approved || status.waiting) {
+    const stringName = !canReview ? "requestSummary" : "reviewSummary";
+    if (status.pauseRequested) {
+      return LIFECYCLE_REVIEW_FLOWS.PAUSE[stringName];
+    }
+    if (status.endRequested) {
+      return LIFECYCLE_REVIEW_FLOWS.END[stringName];
+    } else {
+      return LIFECYCLE_REVIEW_FLOWS.LAUNCH[stringName];
+    }
+  }
+
+  if (!status.launched) {
+    return "Request Launch";
+  }
+  return "";
 }

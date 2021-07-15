@@ -103,7 +103,7 @@ describe("Summary", () => {
     await screen.findByTestId("pill-enrolling-complete");
   });
 
-  describe("ending an experiment", () => {
+  describe("ending an experiment request", () => {
     const origWindowOpen = global.window.open;
     let mockWindowOpen: any;
 
@@ -126,6 +126,7 @@ describe("Summary", () => {
         NimbusExperimentPublishStatus.REVIEW,
         {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
+          status: NimbusExperimentStatus.LIVE,
           statusNext: NimbusExperimentStatus.COMPLETE,
         },
       );
@@ -169,6 +170,7 @@ describe("Summary", () => {
         {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
           statusNext: NimbusExperimentStatus.COMPLETE,
+          status: NimbusExperimentStatus.LIVE,
         },
       );
       const errorMessage = "Something went very wrong.";
@@ -179,6 +181,99 @@ describe("Summary", () => {
       fireEvent.click(screen.getByTestId("end-experiment-start"));
       await screen.findByTestId("end-experiment-alert");
       fireEvent.click(screen.getByTestId("end-experiment-confirm"));
+      const errorContainer = await screen.findByTestId("submit-error");
+      expect(errorContainer).toHaveTextContent(errorMessage);
+    });
+  });
+
+  describe("ending enrollment for an experiment request", () => {
+    const origWindowOpen = global.window.open;
+    let mockWindowOpen: any;
+
+    beforeEach(() => {
+      mockWindowOpen = jest.fn();
+      global.window.open = mockWindowOpen;
+    });
+
+    afterEach(() => {
+      global.window.open = origWindowOpen;
+    });
+
+    it("can mark the experiment as requesting review on enrollment end confirmation", async () => {
+      const refetch = jest.fn();
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        status: NimbusExperimentStatus.LIVE,
+        statusNext: null,
+        isEnrollmentPaused: false,
+      });
+      const mutationMock = createMutationMock(
+        experiment.id!,
+        NimbusExperimentPublishStatus.REVIEW,
+        {
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
+          status: NimbusExperimentStatus.LIVE,
+          statusNext: NimbusExperimentStatus.LIVE,
+          isEnrollmentPaused: true,
+        },
+      );
+      render(
+        <Subject props={experiment} mocks={[mutationMock]} {...{ refetch }} />,
+      );
+      fireEvent.click(screen.getByTestId("end-enrollment-start"));
+      await screen.findByTestId("end-enrollment-alert");
+      fireEvent.click(screen.getByTestId("end-enrollment-confirm"));
+      await waitFor(() => {
+        expect(refetch).toHaveBeenCalled();
+        expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
+      });
+    });
+
+    it("handles submission with server API error", async () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        status: NimbusExperimentStatus.LIVE,
+        isEnrollmentPaused: false,
+        statusNext: null,
+      });
+      const mutationMock = createMutationMock(
+        experiment.id!,
+        NimbusExperimentPublishStatus.REVIEW,
+        {
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
+        },
+      );
+      mutationMock.result.errors = [new Error("Boo")];
+      render(<Subject props={experiment} mocks={[mutationMock]} />);
+      fireEvent.click(screen.getByTestId("end-enrollment-start"));
+      await screen.findByTestId("end-enrollment-alert");
+      fireEvent.click(screen.getByTestId("end-enrollment-confirm"));
+      const errorContainer = await screen.findByTestId("submit-error");
+      expect(errorContainer).toHaveTextContent(SUBMIT_ERROR);
+    });
+
+    it("handles submission with server-side validation errors", async () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        status: NimbusExperimentStatus.LIVE,
+        isEnrollmentPaused: false,
+        statusNext: null,
+      });
+      const mutationMock = createMutationMock(
+        experiment.id!,
+        NimbusExperimentPublishStatus.REVIEW,
+        {
+          changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
+          statusNext: NimbusExperimentStatus.LIVE,
+          status: NimbusExperimentStatus.LIVE,
+          isEnrollmentPaused: true,
+        },
+      );
+      const errorMessage = "Something went very wrong.";
+      mutationMock.result.data.updateExperiment.message = {
+        status: [errorMessage],
+      };
+      render(<Subject props={experiment} mocks={[mutationMock]} />);
+      fireEvent.click(screen.getByTestId("end-enrollment-start"));
+      await screen.findByTestId("end-enrollment-alert");
+      fireEvent.click(screen.getByTestId("end-enrollment-confirm"));
       const errorContainer = await screen.findByTestId("submit-error");
       expect(errorContainer).toHaveTextContent(errorMessage);
     });

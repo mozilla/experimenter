@@ -137,9 +137,12 @@ class Lifecycles(Enum):
     LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
     LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE_ENROLLING,)
     PAUSING_REVIEW_REQUESTED = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
+    PAUSING_REJECT = PAUSING_REVIEW_REQUESTED + (
+        LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
+    )
     PAUSING_APPROVE = PAUSING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_PAUSING,)
     PAUSING_APPROVE_WAITING = PAUSING_APPROVE + (LifecycleStates.LIVE_WAITING_PAUSING,)
-    PAUSING_APPROVE_APPROVE = PAUSING_APPROVE_WAITING + (LifecycleStates.COMPLETE_IDLE,)
+    PAUSING_APPROVE_APPROVE = PAUSING_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
     PAUSING_APPROVE_REJECT = PAUSING_APPROVE_WAITING + (
         LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
     )
@@ -290,7 +293,10 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         for state in lifecycle.value:
             experiment.apply_lifecycle_state(state)
 
-            if experiment.status == experiment.Status.LIVE:
+            if (
+                experiment.status == experiment.Status.LIVE
+                and experiment.status_next is None
+            ):
                 experiment.published_dto = NimbusExperimentSerializer(experiment).data
 
             experiment.save()

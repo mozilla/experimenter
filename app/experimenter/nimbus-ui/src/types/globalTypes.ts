@@ -7,6 +7,20 @@
 // START Enums and Input Objects
 //==============================================================
 
+export enum NimbusChangeLogOldStatus {
+  COMPLETE = "COMPLETE",
+  DRAFT = "DRAFT",
+  LIVE = "LIVE",
+  PREVIEW = "PREVIEW",
+}
+
+export enum NimbusChangeLogOldStatusNext {
+  COMPLETE = "COMPLETE",
+  DRAFT = "DRAFT",
+  LIVE = "LIVE",
+  PREVIEW = "PREVIEW",
+}
+
 export enum NimbusDocumentationLinkTitle {
   DESIGN_DOC = "DESIGN_DOC",
   DS_JIRA = "DS_JIRA",
@@ -166,6 +180,7 @@ export interface ExperimentInput {
   hypothesis?: string | null;
   application?: NimbusExperimentApplication | null;
   publicDescription?: string | null;
+  isEnrollmentPaused?: boolean | null;
   riskMitigationLink?: string | null;
   featureConfigId?: number | null;
   documentationLinks?: (DocumentationLinkType | null)[] | null;

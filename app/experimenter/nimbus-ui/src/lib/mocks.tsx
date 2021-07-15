@@ -34,6 +34,8 @@ import {
 } from "../types/getExperiment";
 import {
   ExperimentInput,
+  NimbusChangeLogOldStatus,
+  NimbusChangeLogOldStatusNext,
   NimbusDocumentationLinkTitle,
   NimbusExperimentApplication,
   NimbusExperimentPublishStatus,
@@ -424,7 +426,7 @@ export const mockGetStatus = (
   modifiers: Partial<
     Pick<
       getExperiment_experimentBySlug,
-      "status" | "publishStatus" | "statusNext"
+      "status" | "publishStatus" | "statusNext" | "isEnrollmentPausePending"
     >
   >,
 ) => {
@@ -455,6 +457,8 @@ export function mockSingleDirectoryExperiment(
       slug: "newtab",
       name: "New tab",
     },
+    isEnrollmentPaused: false,
+    isEnrollmentPausePending: false,
     proposedEnrollment: 7,
     proposedDuration: 28,
     startDate: fiveDaysAgo.toISOString(),
@@ -561,6 +565,22 @@ export const mockChangelog = (
   message: string | null = null,
   changedOn: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
+  oldStatus: NimbusChangeLogOldStatus.LIVE,
+  oldStatusNext: null,
+  changedBy: mockUser(email),
+  changedOn,
+  message,
+});
+
+export const mockRejectionChangelog = (
+  email = "abc@mozilla.com",
+  message: string | null = null,
+  oldStatus: NimbusChangeLogOldStatus = NimbusChangeLogOldStatus.LIVE,
+  oldStatusNext: NimbusChangeLogOldStatusNext | null = null,
+  changedOn: DateTime = new Date().toISOString(),
+): NimbusChangeLog => ({
+  oldStatus,
+  oldStatusNext,
   changedBy: mockUser(email),
   changedOn,
   message,

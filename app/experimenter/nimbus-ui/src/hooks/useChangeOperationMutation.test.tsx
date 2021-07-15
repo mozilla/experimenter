@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from "@apollo/client/testing";
-import { waitFor } from "@testing-library/dom";
-import { act, renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../gql/experiments";
 import {
@@ -20,28 +19,68 @@ import { useChangeOperationMutation } from "./useChangeOperationMutation";
 
 describe("hooks/useChangeOperationMutation", () => {
   it("can successfully execute mutation set callbacks", async () => {
-    const { callbacks, submitError } = setupTestHook();
+    const { result, invokeCallback, waitForNextUpdate } = setupTestHook();
 
-    for (const callback of callbacks) {
-      await act(async () => void callback());
-      await waitFor(() => expect(submitError).toBeNull());
+    const callbackCount = result.current.callbacks.length;
+    for (let idx = 0; idx < callbackCount; idx++) {
+      invokeCallback(idx);
+
+      await waitForNextUpdate();
+      expect(result.current.isLoading).toBeTruthy();
+
+      await waitForNextUpdate();
+      expect(result.current.isLoading).toBeFalsy();
+      expect(result.current.submitError).toBeNull();
     }
   });
 
-  it("indicates when loading", async () => {
-    const {
-      isLoading,
-      callbacks: [callback],
-    } = setupTestHook();
-    expect(isLoading).toBeFalsy();
-    await act(async () => void callback());
-    waitFor(() => expect(isLoading).toBeTruthy());
+  it("indicates when loading mutation", async () => {
+    const { result, invokeCallback, waitForNextUpdate } = setupTestHook();
+    expect(result.current.isLoading).toBeFalsy();
+    invokeCallback();
+
+    await waitForNextUpdate();
+    expect(result.current.isLoading).toBeTruthy();
+
+    await waitForNextUpdate();
+    expect(result.current.isLoading).toBeFalsy();
+  });
+
+  it("indicates when loading refetch", async () => {
+    const refetchState = {
+      called: false,
+      resolve: null as null | (() => void),
+    };
+    const refetch = () => {
+      refetchState.called = true;
+      return new Promise(
+        (resolve) => (refetchState.resolve = () => resolve(null)),
+      );
+    };
+
+    const { result, invokeCallback, waitForNextUpdate } =
+      setupTestHook(refetch);
+    expect(result.current.isLoading).toBeFalsy();
+    invokeCallback();
+
+    await waitForNextUpdate();
+    expect(refetchState.called).toBeFalsy();
+    expect(result.current.isLoading).toBeTruthy();
+
+    await waitForNextUpdate();
+    expect(refetchState.called).toBeTruthy();
+    expect(result.current.isLoading).toBeTruthy();
+
+    expect(refetchState.resolve).not.toBeNull();
+    refetchState.resolve!();
+
+    await waitForNextUpdate();
+    expect(result.current.isLoading).toBeFalsy();
   });
 });
 
-const setupTestHook = (customMocks: MockedResponse[] = []) => {
+const setupTestHook = (refetch?: () => Promise<unknown>) => {
   const experiment = mockExperiment();
-  const refetch = jest.fn();
   const mutationSets = [
     {
       statusNext: NimbusExperimentStatus.COMPLETE,
@@ -56,31 +95,25 @@ const setupTestHook = (customMocks: MockedResponse[] = []) => {
     },
   ];
 
-  const mocks = customMocks.length
-    ? customMocks
-    : mutationSets.reduce<MockedResponse[]>((acc, cur) => {
-        return acc.concat(
-          mockExperimentMutation(
-            UPDATE_EXPERIMENT_MUTATION,
-            {
-              id: experiment.id,
-              ...cur,
-            },
-            "updateExperiment",
-            {
-              experiment: {
-                ...cur,
-              },
-            },
-          ),
-        );
-      }, []);
+  const mocks = mutationSets.reduce<MockedResponse[]>((acc, cur) => {
+    return acc.concat(
+      mockExperimentMutation(
+        UPDATE_EXPERIMENT_MUTATION,
+        {
+          id: experiment.id,
+          ...cur,
+        },
+        "updateExperiment",
+        {
+          experiment: {
+            ...cur,
+          },
+        },
+      ),
+    );
+  }, []);
 
-  const {
-    result: {
-      current: { isLoading, submitError, callbacks },
-    },
-  } = renderHook(
+  const { result, waitForNextUpdate } = renderHook(
     () => useChangeOperationMutation(experiment, refetch, ...mutationSets),
     {
       wrapper,
@@ -88,7 +121,16 @@ const setupTestHook = (customMocks: MockedResponse[] = []) => {
     },
   );
 
-  return { isLoading, submitError, callbacks, mutationSets, refetch };
+  const invokeCallback = (callbackIdx = 0) =>
+    setTimeout(() => result.current.callbacks[callbackIdx](), 0.1);
+
+  return {
+    result,
+    invokeCallback,
+    waitForNextUpdate,
+    mutationSets,
+    refetch,
+  };
 };
 
 const wrapper = ({
