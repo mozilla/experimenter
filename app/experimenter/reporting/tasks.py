@@ -4,7 +4,6 @@ from dateutil import parser
 from django.utils import timezone
 
 from experimenter.celery import app
-from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.experiments.models.nimbus import NimbusChangeLog, NimbusExperiment
 from experimenter.normandy import client as normandy
@@ -112,7 +111,6 @@ def is_duplicate_recipe_change(date, experiment, event_reason):
 def get_experiment_type(experiment):
     if type(experiment) == NimbusExperiment:
         application = experiment.application_config.slug
-        application_str = application.title()
         return "Nimbus-{application}".format(application=str(application).title())
     else:
         return "Normandy-{type}".format(type=experiment.type.title())
