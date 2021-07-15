@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 WAIT_FOR_DB = /app/bin/wait-for-it.sh -t 30 db:5432 &&
 WAIT_FOR_RUNSERVER = /app/bin/wait-for-it.sh -t 30 localhost:7001 &&
 
