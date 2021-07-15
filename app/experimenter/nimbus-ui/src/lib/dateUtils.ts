@@ -12,9 +12,16 @@ export function humanDate(
 ): string {
   const today = new Date();
   const parsedDate = new Date(date);
+  // Dates currently arrive both with and without time and
+  // timezone, so reset time to start of day and force GMT
+  parsedDate.setUTCMinutes(0);
+  parsedDate.setUTCHours(0);
+  parsedDate.setUTCSeconds(0);
+  parsedDate.setUTCMilliseconds(0);
   const options: Intl.DateTimeFormatOptions = {
     month: "short",
     day: "numeric",
+    timeZone: "GMT",
   };
 
   // Only show the year if the date's year is not the current
@@ -33,19 +40,6 @@ export function addDaysToDate(datestring: string, days: number): string {
   const date = new Date(datestring);
   date.setDate(date.getDate() + days);
   return date.toDateString();
-}
-
-/**
- *  Subtract two dates (e.g. dateA - dateB) and return a string
- *  with their difference in days.
- */
-export function stringDateSubtract(dateA: string, dateB: string): string {
-  const DAY = 86400000; // Number of milliseconds in a day
-  const dateAConverted = +new Date(dateA);
-  const dateBConverted = +new Date(dateB);
-  const dateDifference = Math.abs(dateAConverted - dateBConverted);
-
-  return pluralize(Math.round(dateDifference / DAY), "day");
 }
 
 /**

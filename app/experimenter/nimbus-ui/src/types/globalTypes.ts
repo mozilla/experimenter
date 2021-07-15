@@ -160,6 +160,7 @@ export interface DocumentationLinkType {
 export interface ExperimentInput {
   id?: number | null;
   status?: NimbusExperimentStatus | null;
+  statusNext?: NimbusExperimentStatus | null;
   publishStatus?: NimbusExperimentPublishStatus | null;
   name?: string | null;
   hypothesis?: string | null;
@@ -179,11 +180,12 @@ export interface ExperimentInput {
   proposedEnrollment?: string | null;
   targetingConfigSlug?: NimbusExperimentTargetingConfigSlug | null;
   totalEnrolledClients?: number | null;
-  isEndRequested?: boolean | null;
   changelogMessage?: string | null;
   riskPartnerRelated?: boolean | null;
   riskRevenue?: boolean | null;
   riskBrand?: boolean | null;
+  countries?: (number | null)[] | null;
+  locales?: (number | null)[] | null;
 }
 
 export interface ReferenceBranchType {

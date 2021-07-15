@@ -56,17 +56,12 @@ describe("editCommonRedirects", () => {
     return editCommonRedirects({ status: getStatus(experiment) });
   };
 
-  it("returns 'request-review' if the experiment is in a non-idle or preview state", () => {
-    expect(
-      mockedCall({ publishStatus: NimbusExperimentPublishStatus.WAITING }),
-    ).toEqual("request-review");
-    expect(mockedCall({ status: NimbusExperimentStatus.PREVIEW })).toEqual(
-      "request-review",
-    );
-  });
-
-  it("returns '' (root) if the experiment is in a launched state", () => {
+  it("returns '' (root) if the experiment is in a launched, non-idle, or preview state", () => {
     expect(mockedCall({ status: NimbusExperimentStatus.LIVE })).toEqual("");
     expect(mockedCall({ status: NimbusExperimentStatus.COMPLETE })).toEqual("");
+    expect(
+      mockedCall({ publishStatus: NimbusExperimentPublishStatus.WAITING }),
+    ).toEqual("");
+    expect(mockedCall({ status: NimbusExperimentStatus.PREVIEW })).toEqual("");
   });
 });

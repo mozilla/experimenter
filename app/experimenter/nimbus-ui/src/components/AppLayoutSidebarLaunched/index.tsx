@@ -10,7 +10,6 @@ import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
 import Scrollspy from "react-scrollspy";
 import { useOutcomes } from "../../hooks";
-import { ReactComponent as Airplane } from "../../images/airplane.svg";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { StatusCheck } from "../../lib/experiment";
 import { OutcomesList } from "../../lib/types";
@@ -20,6 +19,7 @@ import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { DisabledItem } from "../DisabledItem";
 import LinkExternal from "../LinkExternal";
 import { LinkNav } from "../LinkNav";
+import LinkNavSummary from "../LinkNavSummary";
 import { ReactComponent as BarChart } from "./bar-chart.svg";
 
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
@@ -241,14 +241,12 @@ export const AppLayoutSidebarLaunched = ({
                 <ChevronLeft className="ml-n1" width="18" height="18" />
                 Experiments
               </LinkNav>
-              <LinkNav
-                route={slug}
-                storiesOf="pages/Summary"
-                testid="nav-summary"
-              >
-                <Airplane className="sidebar-icon" />
-                Summary
-              </LinkNav>
+
+              <LinkNavSummary
+                {...{ status, slug }}
+                canReview={experiment.canReview}
+              />
+
               {analysisAvailable(analysis) ? (
                 <ResultsAvailableNav />
               ) : (

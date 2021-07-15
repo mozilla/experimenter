@@ -18,6 +18,7 @@ input DocumentationLinkType {
 input ExperimentInput {
   id: Int
   status: NimbusExperimentStatus
+  statusNext: NimbusExperimentStatus
   publishStatus: NimbusExperimentPublishStatus
   name: String
   hypothesis: String
@@ -37,11 +38,12 @@ input ExperimentInput {
   proposedEnrollment: String
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
   totalEnrolledClients: Int
-  isEndRequested: Boolean
   changelogMessage: String
   riskPartnerRelated: Boolean
   riskRevenue: Boolean
   riskBrand: Boolean
+  countries: [Int]
+  locales: [Int]
 }
 
 scalar JSONString
@@ -80,6 +82,13 @@ enum NimbusChangeLogNewStatus {
   COMPLETE
 }
 
+enum NimbusChangeLogNewStatusNext {
+  DRAFT
+  PREVIEW
+  LIVE
+  COMPLETE
+}
+
 enum NimbusChangeLogOldPublishStatus {
   IDLE
   REVIEW
@@ -94,13 +103,22 @@ enum NimbusChangeLogOldStatus {
   COMPLETE
 }
 
+enum NimbusChangeLogOldStatusNext {
+  DRAFT
+  PREVIEW
+  LIVE
+  COMPLETE
+}
+
 type NimbusChangeLogType {
   experiment: NimbusExperimentType!
   changedOn: DateTime!
   changedBy: NimbusUser!
   oldStatus: NimbusChangeLogOldStatus
+  oldStatusNext: NimbusChangeLogOldStatusNext
   oldPublishStatus: NimbusChangeLogOldPublishStatus
   newStatus: NimbusChangeLogNewStatus!
+  newStatusNext: NimbusChangeLogNewStatusNext
   newPublishStatus: NimbusChangeLogNewPublishStatus!
   message: String
   experimentData: JSONString
@@ -117,14 +135,14 @@ type NimbusConfigurationType {
   hypothesisDefault: String
   maxPrimaryOutcomes: Int
   documentationLink: [NimbusLabelValueType]
-  kintoAdminUrl: String
   locales: [NimbusLocaleType]
   countries: [NimbusCountryType]
 }
 
 type NimbusCountryType {
-  code: String!
-  name: String!
+  id: Int
+  code: String
+  name: String
   nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
@@ -288,13 +306,13 @@ type NimbusExperimentType {
   id: Int
   owner: NimbusUser!
   status: NimbusExperimentStatus
+  statusNext: NimbusExperimentStatus
   publishStatus: NimbusExperimentPublishStatus
   name: String!
   slug: String!
   publicDescription: String!
   riskMitigationLink: String!
   isPaused: Boolean!
-  isEndRequested: Boolean!
   proposedDuration: Int!
   proposedEnrollment: Int!
   populationPercent: String
@@ -328,12 +346,15 @@ type NimbusExperimentType {
   computedEndDate: DateTime
   isEnrollmentPaused: Boolean
   enrollmentEndDate: DateTime
+  computedEnrollmentDays: Int
+  computedDurationDays: Int
   canReview: Boolean
   reviewRequest: NimbusChangeLogType
   rejection: NimbusChangeLogType
   timeout: NimbusChangeLogType
   signoffRecommendations: NimbusSignoffRecommendationsType
   recipeJson: String
+  reviewUrl: String
 }
 
 type NimbusFeatureConfigType {
@@ -367,8 +388,9 @@ type NimbusLabelValueType {
 }
 
 type NimbusLocaleType {
-  code: String!
-  name: String!
+  id: Int
+  code: String
+  name: String
   nimbusexperimentSet: [NimbusExperimentType!]!
 }
 

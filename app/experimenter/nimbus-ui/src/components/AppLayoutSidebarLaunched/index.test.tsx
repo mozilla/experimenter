@@ -62,15 +62,9 @@ const Subject = ({
 
 describe("AppLayoutSidebarLaunched", () => {
   describe("navigation links", () => {
-    it("when live, hides edit and review links, displays summary link and disabled results item", () => {
+    it("when live, hides edit links, displays summary link and disabled results item", () => {
       render(<Subject status={NimbusExperimentStatus.LIVE} />);
-      [
-        "Overview",
-        "Branches",
-        "Metrics",
-        "Audience",
-        "Review & Launch",
-      ].forEach((text) => {
+      ["Overview", "Branches", "Metrics", "Audience"].forEach((text) => {
         expect(
           screen.queryByText(text, { selector: navLinkSelector }),
         ).not.toBeInTheDocument();

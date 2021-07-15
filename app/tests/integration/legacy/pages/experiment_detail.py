@@ -13,7 +13,7 @@ class DetailPage(Base):
     _confirm_ship_btn_locator = (By.CSS_SELECTOR, ".proceed-status-color")
     _edit_branches_btn_locator = (By.CSS_SELECTOR, "#branches-edit-btn")
     _required_checklist_locator = (By.CSS_SELECTOR, ".checkbox")
-    _save_signoffs_btn_locator = (By.CSS_SELECTOR, ".btn-success")
+    _save_signoffs_btn_locator = (By.CSS_SELECTOR, "form .btn-success")
     _send_to_normandy_btn_locator = (By.CSS_SELECTOR, ".btn-danger")
 
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-detail-view")

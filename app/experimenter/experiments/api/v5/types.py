@@ -30,15 +30,21 @@ class ObjectField(graphene.Scalar):
 
 
 class NimbusCountryType(DjangoObjectType):
+    id = graphene.Int()
+    code = graphene.String()
+    name = graphene.String()
+
     class Meta:
         model = Country
-        exclude = ("id",)
 
 
 class NimbusLocaleType(DjangoObjectType):
+    id = graphene.Int()
+    code = graphene.String()
+    name = graphene.String()
+
     class Meta:
         model = Locale
-        exclude = ("id",)
 
 
 class NimbusUser(DjangoObjectType):
@@ -161,6 +167,7 @@ class NimbusSignoffRecommendationsType(graphene.ObjectType):
 class NimbusExperimentType(DjangoObjectType):
     id = graphene.Int()
     status = NimbusExperimentStatus()
+    status_next = NimbusExperimentStatus()
     publish_status = NimbusExperimentPublishStatus()
     application = NimbusExperimentApplication()
     firefox_min_version = NimbusExperimentFirefoxMinVersion()
@@ -179,12 +186,15 @@ class NimbusExperimentType(DjangoObjectType):
     computed_end_date = graphene.DateTime()
     is_enrollment_paused = graphene.Boolean()
     enrollment_end_date = graphene.DateTime()
+    computed_enrollment_days = graphene.Int()
+    computed_duration_days = graphene.Int()
     can_review = graphene.Boolean()
     review_request = graphene.Field(NimbusChangeLogType)
     rejection = graphene.Field(NimbusChangeLogType)
     timeout = graphene.Field(NimbusChangeLogType)
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
     recipe_json = graphene.String()
+    review_url = graphene.String()
 
     class Meta:
         model = NimbusExperiment
@@ -210,7 +220,7 @@ class NimbusExperimentType(DjangoObjectType):
         return self.targeting
 
     def resolve_is_enrollment_paused(self, info):
-        return self.is_paused
+        return self.is_paused_published
 
     def resolve_enrollment_end_date(self, info):
         return self.proposed_enrollment_end_date

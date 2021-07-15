@@ -44,7 +44,7 @@ import { OutcomesList, OutcomeSlugs } from "./types";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;
-  childProps?: object;
+  childProps?: Record<any, any>;
   children?: React.ReactElement;
   mocks?: MockedResponse<Record<string, any>>[];
   addTypename?: boolean;
@@ -165,7 +165,6 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
   ],
   maxPrimaryOutcomes: 2,
-  kintoAdminUrl: "https://kinto.example.com/v1/admin/",
 };
 
 // Disabling this rule for now because we'll eventually
@@ -275,8 +274,8 @@ export function mockExperiment<
       name: "Open-architected background installation",
       slug: "open-architected-background-installation",
       status: NimbusExperimentStatus.DRAFT,
+      statusNext: null,
       publishStatus: NimbusExperimentPublishStatus.IDLE,
-      isEndRequested: false,
       monitoringDashboardUrl: "https://grafana.telemetry.mozilla.org",
       hypothesis: "Realize material say pretty.",
       application: "DESKTOP",
@@ -315,8 +314,15 @@ export function mockExperiment<
         ready: true,
         message: {},
       },
+      signoffRecommendations: {
+        qaSignoff: true,
+        vpSignoff: false,
+        legalSignoff: false,
+      },
       startDate: new Date().toISOString(),
       computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
+      computedDurationDays: 14,
+      computedEnrollmentDays: 1,
       riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
       documentationLinks: [
         {
@@ -331,6 +337,10 @@ export function mockExperiment<
       riskBrand: false,
       riskRevenue: true,
       riskPartnerRelated: false,
+      reviewUrl:
+        "https://kinto.example.com/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review",
+      locales: [{ name: "Quebecois", code: "qc" }],
+      countries: [{ name: "Canada", code: "ca" }],
     },
     modifications,
   ) as T;
@@ -412,7 +422,10 @@ export const mockExperimentMutation = (
 
 export const mockGetStatus = (
   modifiers: Partial<
-    Pick<getExperiment_experimentBySlug, "status" | "publishStatus">
+    Pick<
+      getExperiment_experimentBySlug,
+      "status" | "publishStatus" | "statusNext"
+    >
   >,
 ) => {
   const { experiment } = mockExperimentQuery("boo", modifiers);
@@ -436,6 +449,7 @@ export function mockSingleDirectoryExperiment(
       "https://grafana.telemetry.mozilla.org/d/XspgvdxZz/experiment-enrollment?orgId=1&var-experiment_id=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
     name: "Open-architected background installation",
     status: NimbusExperimentStatus.COMPLETE,
+    statusNext: null,
     publishStatus: NimbusExperimentPublishStatus.IDLE,
     featureConfig: {
       slug: "newtab",
@@ -445,7 +459,6 @@ export function mockSingleDirectoryExperiment(
     proposedDuration: 28,
     startDate: fiveDaysAgo.toISOString(),
     computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
-    isEndRequested: false,
     resultsReady: false,
     ...overrides,
   };

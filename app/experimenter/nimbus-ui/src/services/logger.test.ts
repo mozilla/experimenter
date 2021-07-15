@@ -23,7 +23,7 @@ describe("services/logger", () => {
     describe(loggerMethodName, () => {
       const windowLogMethod = loggerMethodName;
       let origMethod: ValueOf<typeof global.console>;
-      let mockMethod: Function;
+      let mockMethod: jest.Mock<any, any>;
 
       beforeEach(() => {
         origMethod = global.console[windowLogMethod];

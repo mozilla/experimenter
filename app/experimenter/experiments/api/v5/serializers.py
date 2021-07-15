@@ -5,6 +5,7 @@ from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
@@ -335,11 +336,24 @@ class NimbusExperimentSerializer(
     changelog_message = serializers.CharField(
         min_length=0, max_length=1024, required=True, allow_blank=False
     )
+    countries = serializers.PrimaryKeyRelatedField(
+        queryset=Country.objects.all(),
+        allow_null=True,
+        required=False,
+        many=True,
+    )
+    locales = serializers.PrimaryKeyRelatedField(
+        queryset=Locale.objects.all(),
+        allow_null=True,
+        required=False,
+        many=True,
+    )
 
     class Meta:
         model = NimbusExperiment
         fields = [
             "status",
+            "status_next",
             "publish_status",
             "name",
             "slug",
@@ -360,11 +374,12 @@ class NimbusExperimentSerializer(
             "proposed_enrollment",
             "targeting_config_slug",
             "total_enrolled_clients",
-            "is_end_requested",
             "changelog_message",
             "risk_partner_related",
             "risk_revenue",
             "risk_brand",
+            "countries",
+            "locales",
         ]
 
     def __init__(self, instance=None, data=None, **kwargs):
@@ -458,12 +473,18 @@ class NimbusExperimentSerializer(
 
         return value
 
-    def validate_is_end_requested(self, value):
-        if self.instance.status != NimbusExperiment.Status.LIVE:
+    def validate_status_next(self, value):
+        valid_status_next = NimbusExperiment.VALID_STATUS_NEXT_VALUES.get(
+            self.instance.status, ()
+        )
+        if value not in valid_status_next:
+            choices_str = ", ".join(str(choice) for choice in valid_status_next)
             raise serializers.ValidationError(
-                f"Nimbus Experiment has status '{self.instance.status}', but can only "
-                "be ended when set to 'Live'.",
+                f"Invalid choice for status_next: '{value}' - with status "
+                f"'{self.instance.status}', the only valid choices are "
+                f"'{choices_str}'"
             )
+
         return value
 
     def validate(self, data):
@@ -539,7 +560,12 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     proposed_duration = serializers.IntegerField(required=True, min_value=1)
     proposed_enrollment = serializers.IntegerField(required=True, min_value=1)
     population_percent = serializers.DecimalField(
-        7, 4, min_value=0.0001, max_value=100.0, required=True
+        7,
+        4,
+        min_value=0.00009,
+        max_value=100.0,
+        required=True,
+        error_messages={"min_value": NimbusConstants.ERROR_POPULATION_PERCENT_MIN},
     )
     total_enrolled_clients = serializers.IntegerField(required=True, min_value=1)
     firefox_min_version = serializers.ChoiceField(

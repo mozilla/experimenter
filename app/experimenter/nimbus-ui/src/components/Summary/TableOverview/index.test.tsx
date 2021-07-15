@@ -4,7 +4,7 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import TableSummary from ".";
+import TableOverview from ".";
 import { RISK_QUESTIONS } from "../../../lib/constants";
 import {
   MockedCache,
@@ -14,7 +14,7 @@ import {
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import { NimbusDocumentationLinkTitle } from "../../../types/globalTypes";
 
-describe("TableSummary", () => {
+describe("TableOverview", () => {
   it("renders rows displaying required fields at experiment creation as expected", () => {
     const { experiment } = mockExperimentQuery("demo-slug");
     render(<Subject {...{ experiment }} />);
@@ -229,6 +229,6 @@ const Subject = ({
   experiment: getExperiment_experimentBySlug;
 }) => (
   <MockedCache>
-    <TableSummary {...{ experiment }} />
+    <TableOverview {...{ experiment }} />
   </MockedCache>
 );

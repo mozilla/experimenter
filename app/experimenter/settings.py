@@ -19,6 +19,8 @@ from decouple import config
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+APP_VERSION_JSON_PATH = os.path.join(BASE_DIR, "version.json")
+APP_VERSION = config("APP_VERSION", default=None)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -36,6 +38,8 @@ KINTO_DEFAULT_CHANGELOG_USER = "experimenter@experimenter.services.mozilla.com"
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 HOSTNAME = config("HOSTNAME")
+
+IS_STAGING = "stage." in HOSTNAME
 
 ALLOWED_HOSTS = [HOSTNAME]
 
@@ -329,8 +333,8 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_live",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
-    "nimbus_check_experiments_are_paused": {
-        "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_paused",
+    "nimbus_check_experiments_are_updated": {
+        "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_updated",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "nimbus_check_experiments_are_complete": {
@@ -343,7 +347,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "fetch_jetstream_data": {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
-        "schedule": 86400,
+        "schedule": 28800,
     },
     "reporting_generate_report_logs": {
         "task": "experimenter.reporting.tasks.generate_reportlogs",
@@ -405,8 +409,8 @@ SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=False, cast=bool
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=False, cast=bool)
 SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="origin")
 
-# Silenced ssl_redirect and sts checks
-SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004"]
+# Silenced ssl_redirect, sts, django primary key checks
+SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004", "models.W042"]
 
 # Feature Flags
 FEATURE_MESSAGE_TYPE = config("FEATURE_MESSAGE_TYPE", default=False, cast=bool)

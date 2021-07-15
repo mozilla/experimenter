@@ -5,6 +5,7 @@ from django.conf import settings
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import NimbusExperiment, NimbusFeatureConfig
 from experimenter.experiments.tests.factories.nimbus import (
@@ -409,6 +410,8 @@ class TestMutations(GraphQLTestCase):
 
     def test_update_experiment_audience(self):
         user_email = "user@example.com"
+        country = CountryFactory.create()
+        locale = LocaleFactory.create()
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -435,6 +438,8 @@ class TestMutations(GraphQLTestCase):
                     ),
                     "totalEnrolledClients": 100,
                     "changelogMessage": "test changelog message",
+                    "countries": [country.id],
+                    "locales": [locale.id],
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -453,6 +458,8 @@ class TestMutations(GraphQLTestCase):
             NimbusConstants.TargetingConfig.ALL_ENGLISH.value,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
+        self.assertEqual(list(experiment.countries.all()), [country])
+        self.assertEqual(list(experiment.locales.all()), [locale])
 
     def test_update_experiment_audience_error(self):
         user_email = "user@example.com"
@@ -566,7 +573,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "publishStatus": NimbusExperiment.PublishStatus.IDLE.name,
-                    "isEndRequested": False,
+                    "statusNext": NimbusExperiment.Status.COMPLETE.name,
                     "changelogMessage": "This is not good",
                 }
             },
@@ -579,7 +586,7 @@ class TestMutations(GraphQLTestCase):
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.assertFalse(experiment.is_end_requested)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
         rejection = experiment.changes.latest_rejection()
         self.assertEqual(rejection.changed_by.email, user_email)
         self.assertEqual(rejection.message, "This is not good")
@@ -588,14 +595,14 @@ class TestMutations(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.LIVE,
-            is_end_requested=False,
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
-                    "isEndRequested": True,
+                    "publishStatus": NimbusExperiment.PublishStatus.REVIEW.name,
+                    "statusNext": NimbusExperiment.Status.COMPLETE.name,
                     "changelogMessage": "test changelog message",
                 }
             },
@@ -604,20 +611,21 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.is_end_requested, True)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+        self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
 
     def test_end_experiment_fails_with_nonlive_status(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
-            is_end_requested=False,
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
-                    "isEndRequested": True,
+                    "publishStatus": NimbusExperiment.PublishStatus.REVIEW.name,
+                    "statusNext": NimbusExperiment.Status.COMPLETE.name,
                     "changelogMessage": "test changelog message",
                 }
             },
@@ -630,9 +638,33 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(
             result["message"],
             {
-                "is_end_requested": [
-                    "Nimbus Experiment has status 'Draft', but can only "
-                    "be ended when set to 'Live'.",
+                "status_next": [
+                    "Invalid choice for status_next: 'Complete' - with status 'Draft',"
+                    " the only valid choices are 'None, Live'"
                 ]
             },
         )
+
+    def test_launch_experiment_valid_with_preview_status(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.PREVIEW,
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "status": NimbusExperiment.Status.DRAFT.name,
+                    "statusNext": NimbusExperiment.Status.LIVE.name,
+                    "publishStatus": NimbusExperiment.PublishStatus.REVIEW.name,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")

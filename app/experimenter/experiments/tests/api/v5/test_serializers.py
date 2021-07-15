@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.utils.text import slugify
 from parameterized import parameterized
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.api.v5.serializers import (
     NimbusBranchSerializer,
     NimbusExperimentSerializer,
@@ -775,6 +776,8 @@ class TestNimbusExperimentSerializer(TestCase):
             "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
             "total_enrolled_clients": 0,
             "changelog_message": "test changelog message",
+            "countries": [],
+            "locales": [],
         }
 
         serializer = NimbusExperimentSerializer(
@@ -806,6 +809,8 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperiment.TargetingConfig.NO_TARGETING,
         )
         self.assertEqual(experiment.total_enrolled_clients, 0)
+        self.assertEqual(list(experiment.countries.all()), [])
+        self.assertEqual(list(experiment.locales.all()), [])
 
     def test_serializer_creates_experiment_and_sets_slug_and_owner(self):
         data = {
@@ -933,6 +938,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.public_description, "New public description")
 
     def test_serializer_updates_audience_on_experiment(self):
+        country = CountryFactory.create()
+        locale = LocaleFactory.create()
         experiment = NimbusExperimentFactory(
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             application=NimbusExperiment.Application.DESKTOP,
@@ -956,6 +963,8 @@ class TestNimbusExperimentSerializer(TestCase):
                 ),
                 "total_enrolled_clients": 100,
                 "changelog_message": "test changelog message",
+                "countries": [country.id],
+                "locales": [locale.id],
             },
             context={"user": self.user},
         )
@@ -975,6 +984,8 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusConstants.TargetingConfig.ALL_ENGLISH.value,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
+        self.assertEqual(list(experiment.countries.all()), [country])
+        self.assertEqual(list(experiment.locales.all()), [locale])
 
     @parameterized.expand(
         [
@@ -1596,6 +1607,21 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             str(serializer.errors["population_percent"][0]),
             "Ensure this value is greater than or equal to 0.0001.",
         )
+
+    def test_valid_experiment_minimum_population_percent(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            population_percent=0.0001,
+        )
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
 
     def test_invalid_experiment_treatment_branch_requires_description(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

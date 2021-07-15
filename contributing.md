@@ -120,17 +120,50 @@ Just as in the **subject**, use the imperative, present tense: "change" not "cha
 ## Dependency Management
 Dependencies are automatically updated by [Dependabot](https://dependabot.com/) which is now integrated
 directly into GitHub.  Each week Dependabot will create a large number of individual PRs that update
-each dependency.  To merge those into main, use the following process:
-
+each dependency in each of the [Experimenter](https://github.com/mozilla/experimenter) and
+[Experimenter Docs](https://github.com/mozilla/experimenter-docs) repos.  To merge those into the `main` branch, use the following process:
 
 ### Merge Dependabot PRs
-1. Dependabot will create many individual PRs against the `main` branch, which has no
-branch protections and so each of those PRs can be merged automatically by approving each PR with the comment:
 
-        @dependabot squash and merge
+#### Manually
+1. Dependabot will create many individual PRs against the `main` branch, which must pass all CI checks and be approved before merging.  Approve each PR with the following comment and if they pass CI they will merge automatically:
+
+```
+@dependabot squash and merge
+```
 
 All done!
 
+#### Automatically
+1. Install and configure the [Github CLI](https://github.com/cli/cli)
+1. From your local Experimenter repo run
+
+```
+make dependabot_approve
+```
+
+### Failed Dependabot PRs
+If a Dependabot PR fails the CI checks you can either investigate the failure and see if it can be resolved quickly/easily, or close it altogether.
+
+### Security Warnings
+Dependabot will also produce [Security Advisories](https://github.com/mozilla/experimenter/security/dependabot) for packages that have registered [CVE](https://en.wikipedia.org/wiki/Common_Vulnerabilities_and_Exposures) numbers.  These can not be resolved automatically.  To resolve the security warnings:
+
+1. Copy the **Remediation** version from the security warning into the `"resolutions"` section of `app/package.json`, example:
+
+    ```js
+    "resolutions": {
+      "postcss": "^7.0.36",
+    ```
+
+1. Update the `yarn.lock` file by running
+
+    ```sh
+    yarn install
+    ```
+
+1. Commit your changes in a PR titled `chore(deps): Security <list affected packages>`
+1. Create a PR and request review
+1. Merge when approved
 
 ## Continuous Deployment Process
 When a PR is merged into main it will automatically be deployed to the stage instance and if that

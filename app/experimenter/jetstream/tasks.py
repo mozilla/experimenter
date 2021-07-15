@@ -36,11 +36,12 @@ def fetch_jetstream_data():
             status__in=[NimbusExperiment.Status.DRAFT]
         ):
             if (
-                experiment.end_date
+                experiment.results_data is not None
+                and experiment.computed_end_date
                 and (
-                    experiment.end_date
+                    experiment.computed_end_date
                     + datetime.timedelta(days=NimbusConstants.DAYS_ANALYSIS_BUFFER)
-                ).date()
+                )
                 < datetime.date.today()
             ):
                 metrics.incr("fetch_jetstream_data.skipped")

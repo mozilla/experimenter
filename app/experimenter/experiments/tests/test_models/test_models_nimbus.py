@@ -51,16 +51,17 @@ class TestNimbusExperimentManager(TestCase):
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            is_end_requested=True,
+            status_next=NimbusExperiment.Status.COMPLETE,
             application=NimbusExperiment.Application.FENIX,
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_REJECT,
+            status_next=NimbusExperiment.Status.COMPLETE,
             application=NimbusExperiment.Application.DESKTOP,
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
-            is_end_requested=True,
+            status_next=NimbusExperiment.Status.COMPLETE,
             application=NimbusExperiment.Application.DESKTOP,
         )
         self.assertEqual(
@@ -70,53 +71,32 @@ class TestNimbusExperimentManager(TestCase):
             [experiment1],
         )
 
-    def test_pause_queue_returns_experiments_that_should_pause_by_application(self):
-        def rewind_launch(experiment):
-            launch_change = experiment.changes.get(
-                old_status=NimbusExperiment.Status.DRAFT,
-                new_status=NimbusExperiment.Status.LIVE,
-            )
-            launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(
-                days=11
-            )
-            launch_change.save()
-
-        # Should end, with the correct application
-        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            is_paused=False,
-            proposed_enrollment=10,
+    def test_update_queue_returns_experiments_that_should_update_by_application(self):
+        # Should update, correct application
+        experiment_should_update = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
-        rewind_launch(experiment1)
-        # Should end, but wrong application
-        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            proposed_enrollment=10,
+
+        # Should update, but wrong application
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
             application=NimbusExperiment.Application.FENIX,
         )
-        rewind_launch(experiment2)
-        # Should end, but already paused
-        experiment3 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            is_paused=True,
-            proposed_enrollment=10,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        rewind_launch(experiment3)
-        # Correct application, but should not end
+
+        # Shouldn't update, correct application
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            proposed_enrollment=10,
             application=NimbusExperiment.Application.DESKTOP,
         )
+
         self.assertEqual(
             list(
-                NimbusExperiment.objects.pause_queue(
+                NimbusExperiment.objects.update_queue(
                     [NimbusExperiment.Application.DESKTOP]
                 )
             ),
-            [experiment1],
+            [experiment_should_update],
         )
 
     def test_waiting_returns_any_waiting_experiments(self):
@@ -160,26 +140,32 @@ class TestNimbusExperimentManager(TestCase):
             [launching],
         )
 
-    def test_waiting_to_pause_only_returns_pausing_experiments(self):
+    def test_waiting_to_update_only_returns_updating_experiments(self):
+        application = NimbusExperiment.Application.DESKTOP
+
         pausing = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING,
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+            application=application,
             name="pausing",
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
             name="created",
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
             name="launch approve approve",
         )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,
+            application=application,
             name="ending approve waiting",
         )
 
         self.assertEqual(
-            list(NimbusExperiment.objects.waiting_to_pause_queue([pausing.application])),
+            list(NimbusExperiment.objects.waiting_to_update_queue([application])),
             [pausing],
         )
 
@@ -279,7 +265,7 @@ class TestNimbusExperiment(TestCase):
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
-        self.assertEqual(experiment.start_date, start_change.changed_on)
+        self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
     def test_start_date_uses_most_recent_start_change(self):
         experiment = NimbusExperimentFactory.create()
@@ -293,7 +279,7 @@ class TestNimbusExperiment(TestCase):
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         )
-        self.assertEqual(experiment.start_date, start_change.changed_on)
+        self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
     def test_end_date_returns_datetime_for_ended_experiment(self):
         experiment = NimbusExperimentFactory.create()
@@ -302,7 +288,7 @@ class TestNimbusExperiment(TestCase):
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
         )
-        self.assertEqual(experiment.end_date, end_change.changed_on)
+        self.assertEqual(experiment.end_date, end_change.changed_on.date())
 
     def test_end_date_uses_most_recent_end_change(self):
         experiment = NimbusExperimentFactory.create()
@@ -316,7 +302,7 @@ class TestNimbusExperiment(TestCase):
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
         )
-        self.assertEqual(experiment.end_date, end_change.changed_on)
+        self.assertEqual(experiment.end_date, end_change.changed_on.date())
 
     def test_proposed_end_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -351,6 +337,77 @@ class TestNimbusExperiment(TestCase):
             new_status=NimbusExperiment.Status.LIVE,
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
         self.assertTrue(experiment.should_end)
+
+    def test_computed_enrollment_days_returns_changed_on_minus_start_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=3))
+
+        self.assertEqual(
+            experiment.computed_enrollment_days,
+            3,
+        )
+
+    def test_computed_enrollment_days_returns_fallback(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        self.assertEqual(
+            experiment.computed_enrollment_days,
+            experiment.proposed_enrollment,
+        )
+
+    def test_computed_duration_days_returns_computed_end_date_minus_start_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            proposed_duration=10,
+        )
+
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=7))
+
+        self.assertEqual(
+            experiment.computed_duration_days,
+            7,
+        )
+
+    def test_computed_duration_days_returns_fallback(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        self.assertEqual(
+            experiment.computed_duration_days,
+            experiment.proposed_duration,
+        )
+
+    def test_computed_end_date_returns_proposed(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+        )
+
+        self.assertEqual(
+            experiment.computed_end_date,
+            experiment.proposed_end_date,
+        )
+
+    def test_computed_end_date_returns_actual(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        self.assertEqual(
+            experiment.computed_end_date,
+            experiment.end_date,
+        )
 
     def test_monitoring_dashboard_url_is_when_experiment_not_begun(self):
         experiment = NimbusExperimentFactory.create(
@@ -417,6 +474,28 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
+    def test_review_url_should_return_simple_review_url(self):
+        with override_settings(
+            KINTO_ADMIN_URL="https://settings-writer.stage.mozaws.net/v1/admin/",
+        ):
+            expected = "https://settings-writer.stage.mozaws.net/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                application=NimbusExperiment.Application.DESKTOP,
+            )
+            self.assertEqual(experiment.review_url, expected)
+
+    def test_review_url_stage_should_return_simple_review_url_without_slash(self):
+        with override_settings(
+            KINTO_ADMIN_URL="http://localhost:8888/v1/admin",
+        ):
+            expected = "http://localhost:8888/v1/admin#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                application=NimbusExperiment.Application.DESKTOP,
+            )
+            self.assertEqual(experiment.review_url, expected)
+
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -474,26 +553,6 @@ class TestNimbusExperiment(TestCase):
             experiment.proposed_enrollment_end_date,
             datetime.date.today() + datetime.timedelta(days=10),
         )
-
-    def test_should_pause_false_before_enrollment_end(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            proposed_enrollment=10,
-        )
-        self.assertFalse(experiment.should_pause)
-
-    def test_should_pause_true_after_enrollment_end(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            proposed_enrollment=10,
-        )
-        launch_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        )
-        launch_change.changed_on = datetime.datetime.now() - datetime.timedelta(days=11)
-        launch_change.save()
-        self.assertTrue(experiment.should_pause)
 
     def test_can_review_false_for_requesting_user(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -681,12 +740,12 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            [False, 0, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING],
-            [False, 60, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING],
             [False, 60, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING],
-            [False, 60, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_WAITING],
-            [True, 0, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING],
+            [False, 60, NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING],
+            [False, 60, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING],
             [True, 0, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING],
+            [True, 0, NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING],
+            [True, 0, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING],
         ]
     )
     def test_should_timeout(self, expected, timeout, lifecycle):

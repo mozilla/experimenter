@@ -30,10 +30,10 @@ export const GET_EXPERIMENT_QUERY = gql`
       name
       slug
       status
+      statusNext
       publishStatus
       monitoringDashboardUrl
       resultsReady
-      isEndRequested
 
       hypothesis
       application
@@ -90,6 +90,8 @@ export const GET_EXPERIMENT_QUERY = gql`
 
       startDate
       computedEndDate
+      computedEnrollmentDays
+      computedDurationDays
 
       riskMitigationLink
       riskRevenue
@@ -131,6 +133,16 @@ export const GET_EXPERIMENT_QUERY = gql`
         }
       }
       recipeJson
+      reviewUrl
+
+      locales {
+        code
+        name
+      }
+      countries {
+        code
+        name
+      }
     }
   }
 `;
@@ -148,8 +160,8 @@ export const GET_EXPERIMENTS_QUERY = gql`
       proposedEnrollment
       computedEndDate
       status
+      statusNext
       publishStatus
-      isEndRequested
       monitoringDashboardUrl
       resultsReady
       featureConfig {

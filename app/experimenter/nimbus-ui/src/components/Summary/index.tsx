@@ -5,23 +5,25 @@
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
-import { useChangeOperationMutation, useConfig } from "../../hooks";
-import { ReactComponent as ExternalIcon } from "../../images/external.svg";
+import { useChangeOperationMutation } from "../../hooks";
 import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentPublishStatus } from "../../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
 import ChangeApprovalOperations from "../ChangeApprovalOperations";
-import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
 import NotSet from "../NotSet";
+import TableSignoff from "../PageSummary/TableSignoff";
 import PreviewURL from "../PreviewURL";
 import EndExperiment from "./EndExperiment";
 import SummaryTimeline from "./SummaryTimeline";
 import TableAudience from "./TableAudience";
 import TableBranches from "./TableBranches";
-import TableSummary from "./TableSummary";
+import TableOverview from "./TableOverview";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
@@ -29,53 +31,24 @@ type SummaryProps = {
 } & Partial<React.ComponentProps<typeof ChangeApprovalOperations>>; // TODO EXP-1143: temporary page-level props, should be replaced by API data for experiment & current user
 
 const Summary = ({ experiment, refetch }: SummaryProps) => {
-  const { kintoAdminUrl } = useConfig();
   const status = getStatus(experiment);
-
-  const {
-    publishStatus,
-    canReview,
-    reviewRequest: reviewRequestEvent,
-    rejection: rejectionEvent,
-    timeout: timeoutEvent,
-  } = experiment;
-
-  const startRemoteSettingsApproval = async () => {
-    window.open(kintoAdminUrl!, "_blank");
-  };
 
   const {
     isLoading,
     submitError,
-    callbacks: [
-      onConfirmEndClicked,
-      onReviewApprovedClicked,
-      onReviewRejectedClicked,
-    ],
-  } = useChangeOperationMutation(
-    experiment,
-    refetch,
-    {
-      publishStatus: NimbusExperimentPublishStatus.REVIEW,
-      isEndRequested: true,
-      changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
-    },
-    {
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
-      changelogMessage: CHANGELOG_MESSAGES.END_APPROVED,
-    },
-    {
-      publishStatus: NimbusExperimentPublishStatus.IDLE,
-      isEndRequested: false,
-    },
-  );
+    callbacks: [onConfirmEndClicked],
+  } = useChangeOperationMutation(experiment, refetch, {
+    publishStatus: NimbusExperimentPublishStatus.REVIEW,
+    statusNext: NimbusExperimentStatus.COMPLETE,
+    changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
+  });
 
   return (
     <div data-testid="summary" className="mb-5">
-      <h2 className="h5 mb-3">
+      <h3 className="h5 mb-3">
         Timeline
         {status.live && <StatusPills {...{ experiment }} />}
-      </h2>
+      </h3>
 
       <SummaryTimeline {...{ experiment }} />
 
@@ -85,58 +58,37 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
         </Alert>
       )}
 
-      {status.live && (
-        <ChangeApprovalOperations
-          {...{
-            actionDescription: "end",
-            isLoading,
-            publishStatus,
-            canReview: !!canReview,
-            reviewRequestEvent,
-            rejectionEvent,
-            timeoutEvent,
-            rejectChange: onReviewRejectedClicked,
-            approveChange: onReviewApprovedClicked,
-            startRemoteSettingsApproval,
-          }}
-        >
-          {!experiment.isEndRequested && (
-            <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
-          )}
-        </ChangeApprovalOperations>
+      {status.live && !status.endRequested && (
+        <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
       )}
-
-      <hr />
 
       {(status.live || status.preview) && (
         <PreviewURL {...experiment} status={status} />
       )}
 
-      <LinkMonitoring {...experiment} />
+      {status.launched && <LinkMonitoring {...experiment} />}
 
       <div className="d-flex flex-row justify-content-between">
-        <h2 className="h5 mb-3">Summary</h2>
-        {!status.draft && (
-          <span>
-            <LinkExternal
-              href={`/api/v6/experiments/${experiment.slug}/`}
-              data-testid="link-json"
-            >
-              <span className="mr-1 align-middle">
-                See full JSON representation
-              </span>
-              <ExternalIcon />
-            </LinkExternal>
-          </span>
-        )}
+        <h3 className="h5 mb-3">Overview</h3>
       </div>
-      <TableSummary {...{ experiment }} />
+      <TableOverview {...{ experiment }} />
 
-      <h2 className="h5 mb-3">Audience</h2>
+      <h3 className="h5 mb-3">Audience</h3>
       <TableAudience {...{ experiment }} />
 
       {/* Branches title is inside its table */}
       <TableBranches {...{ experiment }} />
+
+      {status.launched && (
+        <>
+          <h3 className="h5 mb-3">
+            Actions that were recommended before launch
+          </h3>
+          <TableSignoff
+            signoffRecommendations={experiment.signoffRecommendations}
+          />
+        </>
+      )}
     </div>
   );
 };
@@ -157,12 +109,6 @@ const StatusPills = ({
   experiment: getExperiment_experimentBySlug;
 }) => (
   <>
-    {experiment.isEndRequested && (
-      <StatusPill
-        testId="pill-end-requested"
-        label="Experiment End Requested"
-      />
-    )}
     {experiment.isEnrollmentPaused === false && (
       <StatusPill
         testId="pill-enrolling-active"

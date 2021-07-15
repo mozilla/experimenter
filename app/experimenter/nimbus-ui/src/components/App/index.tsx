@@ -13,7 +13,6 @@ import PageEditOverview from "../PageEditOverview";
 import PageHome from "../PageHome";
 import PageLoading from "../PageLoading";
 import PageNew from "../PageNew";
-import PageRequestReview from "../PageRequestReview";
 import PageResults from "../PageResults";
 import PageSummary from "../PageSummary";
 
@@ -42,7 +41,6 @@ const App = ({ basepath }: { basepath: string }) => {
         <PageEditMetrics path="metrics" />
         <PageEditAudience path="audience" />
       </Root>
-      <PageRequestReview path=":slug/request-review" />
       <PageResults path=":slug/results" />
     </Router>
   );

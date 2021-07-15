@@ -44,6 +44,8 @@ export const EXTERNAL_URLS = {
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-VPSign-offsignVP",
   SIGNOFF_LEGAL:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-signLEGAL",
+  EXPERIMENTER_REVIEWERS:
+    "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Reviewers",
 };
 
 export const RISK_QUESTIONS = {
@@ -54,6 +56,9 @@ export const RISK_QUESTIONS = {
   REVENUE:
     "Does this experiment have a risk to negatively impact revenue (e.g. search, Pocket revenue)?",
 };
+
+export const TOOLTIP_DURATION =
+  "This is the total duration of the experiment, including the enrollment period.";
 
 export const CHANGELOG_MESSAGES = {
   CREATED_EXPERIMENT: "Created Experiment",

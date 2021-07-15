@@ -7,11 +7,14 @@ import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
+import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig, useReviewCheck } from "../../../hooks";
+import { ReactComponent as Info } from "../../../images/info.svg";
 import {
   EXTERNAL_URLS,
   POSITIVE_NUMBER_FIELD,
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
+  TOOLTIP_DURATION,
 } from "../../../lib/constants";
 import {
   getConfig_nimbusConfig,
@@ -220,6 +223,14 @@ export const FormAudience = ({
           <Form.Group as={Col} className="mx-5" controlId="proposedDuration">
             <Form.Label className="d-flex align-items-center">
               Experiment duration
+              <Info
+                data-tip={TOOLTIP_DURATION}
+                data-testid="tooltip-duration-audience"
+                width="20"
+                height="20"
+                className="ml-1"
+              />
+              <ReactTooltip />
             </Form.Label>
             <InputGroup className="mb-3">
               <Form.Control
@@ -247,7 +258,7 @@ export const FormAudience = ({
             id="save-and-continue-button"
             disabled={isLoading}
             data-testid="next-button"
-            data-sb-kind="pages/RequestReview"
+            data-sb-kind="pages/Summary"
           >
             Save and Continue
           </button>

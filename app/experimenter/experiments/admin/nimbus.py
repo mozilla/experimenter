@@ -4,11 +4,37 @@ from django.contrib.postgres.forms import SimpleArrayField
 
 from experimenter.experiments.models import (
     NimbusBranch,
+    NimbusBucketRange,
     NimbusChangeLog,
     NimbusDocumentationLink,
     NimbusExperiment,
     NimbusFeatureConfig,
+    NimbusIsolationGroup,
 )
+
+
+class ReadOnlyAdminMixin:
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class NimbusBucketRangeInlineAdmin(ReadOnlyAdminMixin, admin.StackedInline):
+    model = NimbusBucketRange
+    extra = 0
+
+
+class NimbusIsolationGroupAdmin(ReadOnlyAdminMixin, admin.ModelAdmin):
+    inlines = (NimbusBucketRangeInlineAdmin,)
+
+    class Meta:
+        model = NimbusIsolationGroup
+        exclude = ("id",)
 
 
 class NimbusBranchInlineAdmin(admin.StackedInline):
@@ -24,6 +50,37 @@ class NimbusDocumentationLinkInlineAdmin(admin.TabularInline):
 class NimbusExperimentChangeLogInlineAdmin(admin.StackedInline):
     model = NimbusChangeLog
     extra = 1
+
+
+class NimbusExperimentBucketRangeInlineAdmin(ReadOnlyAdminMixin, admin.StackedInline):
+    model = NimbusBucketRange
+    extra = 0
+    fields = (
+        "isolation_group_name",
+        "isolation_group_instance",
+        "isolation_group_total",
+        "start",
+        "count",
+    )
+    readonly_fields = (
+        "isolation_group_name",
+        "isolation_group_instance",
+        "isolation_group_total",
+        "start",
+        "count",
+    )
+
+    @admin.display(description="Isolation Group Name")
+    def isolation_group_name(self, instance):
+        return instance.isolation_group.name
+
+    @admin.display(description="Isolation Group Instance")
+    def isolation_group_instance(self, instance):
+        return instance.isolation_group.instance
+
+    @admin.display(description="Isolation Group Total")
+    def isolation_group_total(self, instance):
+        return instance.isolation_group.total
 
 
 class NimbusExperimentAdminForm(forms.ModelForm):
@@ -60,12 +117,14 @@ class NimbusExperimentAdmin(admin.ModelAdmin):
     inlines = (
         NimbusDocumentationLinkInlineAdmin,
         NimbusBranchInlineAdmin,
+        NimbusExperimentBucketRangeInlineAdmin,
         NimbusExperimentChangeLogInlineAdmin,
     )
     list_display = (
         "name",
         "status",
         "publish_status",
+        "status_next",
         "application",
         "channel",
         "firefox_min_version",
@@ -79,6 +138,7 @@ class NimbusFeatureConfigAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
 
+admin.site.register(NimbusIsolationGroup, NimbusIsolationGroupAdmin)
 admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
 admin.site.register(NimbusFeatureConfig, NimbusFeatureConfigAdmin)
 admin.site.register(NimbusDocumentationLink)

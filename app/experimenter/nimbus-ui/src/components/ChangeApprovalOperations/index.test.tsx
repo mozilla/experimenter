@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import React from "react";
 import {
   BaseSubject,
@@ -12,19 +18,18 @@ import {
   reviewRequestedAfterRejectionBaseProps,
   reviewRequestedBaseProps,
   reviewTimedOutBaseProps,
+  REVIEW_URL,
 } from "./mocks";
 
 const Subject = ({
   rejectChange = () => {},
   approveChange = () => {},
-  startRemoteSettingsApproval = () => {},
   ...props
 }: React.ComponentProps<typeof BaseSubject>) => (
   <BaseSubject
     {...{
       rejectChange,
       approveChange,
-      startRemoteSettingsApproval,
       ...props,
     }}
   />
@@ -38,14 +43,12 @@ describe("ChangeApprovalOperations", () => {
 
   it("when user can review, supports approval and opening remote settings", async () => {
     const approveChange = jest.fn();
-    const startRemoteSettingsApproval = jest.fn();
     render(
       <Subject
         {...{
           ...reviewRequestedBaseProps,
           canReview: true,
           approveChange,
-          startRemoteSettingsApproval,
         }}
       />,
     );
@@ -57,11 +60,16 @@ describe("ChangeApprovalOperations", () => {
     const openRemoteSettingsButton = await screen.findByTestId(
       "open-remote-settings",
     );
-    fireEvent.click(openRemoteSettingsButton);
-    expect(startRemoteSettingsApproval).toHaveBeenCalled();
+    expect(openRemoteSettingsButton).toHaveProperty("href", REVIEW_URL);
   });
 
   it("when user cannot review, an approval pending notice is displayed", async () => {
+    Object.assign(navigator, {
+      clipboard: {
+        writeText: jest.fn(),
+      },
+    });
+
     render(
       <Subject
         {...{
@@ -70,37 +78,36 @@ describe("ChangeApprovalOperations", () => {
         }}
       />,
     );
-    await screen.findByTestId("approval-pending");
+    const pendingMessage = await screen.findByTestId("approval-pending");
     expect(screen.queryByTestId("approve-request")).not.toBeInTheDocument();
     expect(screen.queryByTestId("reject-request")).not.toBeInTheDocument();
+
+    const copyLink = within(pendingMessage).getByText("Click here");
+    fireEvent.click(copyLink);
+    expect(navigator.clipboard.writeText).toHaveBeenCalled();
   });
 
   it("when user can review and review has been approved, button to open remote settings is offered", async () => {
-    const startRemoteSettingsApproval = jest.fn();
     render(
       <Subject
         {...{
           ...reviewPendingInRemoteSettingsBaseProps,
           canReview: true,
-          startRemoteSettingsApproval,
         }}
       />,
     );
     const openRemoteSettingsButton = await screen.findByTestId(
       "open-remote-settings",
     );
-    fireEvent.click(openRemoteSettingsButton);
-    expect(startRemoteSettingsApproval).toHaveBeenCalled();
+    expect(openRemoteSettingsButton).toHaveProperty("href", REVIEW_URL);
   });
 
   it("when user cannot review and review has been approved, an approval pending notice is displayed", async () => {
-    const startRemoteSettingsApproval = jest.fn();
     render(
       <Subject
         {...{
           ...reviewPendingInRemoteSettingsBaseProps,
           canReview: false,
-          startRemoteSettingsApproval,
         }}
       />,
     );

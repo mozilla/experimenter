@@ -15,19 +15,18 @@ import {
   reviewRejectedBaseProps,
   reviewRequestedBaseProps,
   reviewTimedOutBaseProps,
+  REVIEW_URL,
 } from "./mocks";
 
 const Subject = ({
   rejectChange = action("rejectChange"),
   approveChange = action("approveChange"),
-  startRemoteSettingsApproval = action("startRemoteSettingsApproval"),
   ...props
 }: React.ComponentProps<typeof BaseSubject>) => (
   <BaseSubject
     {...{
       rejectChange,
       approveChange,
-      startRemoteSettingsApproval,
       ...props,
     }}
   />
@@ -38,7 +37,7 @@ export default {
   component: Subject,
   decorators: [
     withLinks,
-    (story: Function) => <div className="p-5">{story()}</div>,
+    (story: () => React.ReactNode) => <div className="p-5">{story()}</div>,
   ],
 };
 
@@ -136,7 +135,7 @@ export const FormRemoteSettingsPendingStory = () => (
   <FormRemoteSettingsPending
     {...{
       isLoading: false,
-      onConfirm: action("confirm"),
+      reviewUrl: REVIEW_URL,
       actionDescription: "frobulate",
     }}
   />

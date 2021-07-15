@@ -4,6 +4,9 @@
 
 import React from "react";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import ReactTooltip from "react-tooltip";
+import { ReactComponent as Info } from "../../../images/info.svg";
+import { TOOLTIP_DURATION } from "../../../lib/constants";
 import { humanDate } from "../../../lib/dateUtils";
 import { getStatus, StatusCheck } from "../../../lib/experiment";
 import { pluralize } from "../../../lib/utils";
@@ -37,8 +40,8 @@ const SummaryTimeline = ({
 
       <Duration
         {...{
-          duration: experiment.proposedDuration,
-          enrollment: experiment.proposedEnrollment,
+          duration: experiment.computedDurationDays,
+          enrollment: experiment.computedEnrollmentDays,
         }}
       />
     </div>
@@ -116,7 +119,17 @@ const Duration = ({
   <span>
     Total duration:{" "}
     {duration !== null ? (
-      <b data-testid="label-duration-days">{pluralize(duration, "day")}</b>
+      <>
+        <b data-testid="label-duration-days">{pluralize(duration, "day")}</b>
+        <Info
+          data-tip={TOOLTIP_DURATION}
+          data-testid="tooltip-duration-summary"
+          width="20"
+          height="20"
+          className="ml-1"
+        />
+        <ReactTooltip />
+      </>
     ) : (
       <NotSet data-testid="label-duration-not-set" />
     )}{" "}

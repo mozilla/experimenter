@@ -4,10 +4,11 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
-import { ReactComponent as Check } from "../../images/check.svg";
+import { EXTERNAL_URLS } from "../../lib/constants";
 import { humanDate } from "../../lib/dateUtils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentPublishStatus } from "../../types/globalTypes";
+import LinkExternal from "../LinkExternal";
 import FormApproveOrReject from "./FormApproveOrReject";
 import FormRejectReason from "./FormRejectReason";
 import FormRemoteSettingsPending from "./FormRemoteSettingsPending";
@@ -30,7 +31,7 @@ export type ChangeApprovalOperationsProps = {
   timeoutEvent?: getExperiment_experimentBySlug["timeout"];
   rejectChange: (fields: { changelogMessage: string }) => void;
   approveChange: () => void;
-  startRemoteSettingsApproval: () => void;
+  reviewUrl: string;
 };
 
 export const ChangeApprovalOperations: React.FC<
@@ -45,7 +46,7 @@ export const ChangeApprovalOperations: React.FC<
   timeoutEvent,
   rejectChange,
   approveChange,
-  startRemoteSettingsApproval,
+  reviewUrl,
   children,
 }) => {
   const defaultUIState = useMemo(() => {
@@ -85,8 +86,22 @@ export const ChangeApprovalOperations: React.FC<
           className="bg-transparent text-success"
         >
           <p className="my-1" data-testid="in-review-label">
-            <Check className="align-top" /> All set! This experiment will{" "}
-            {actionDescription} as soon as it is approved.
+            Please ask someone on your team with review privileges, or a{" "}
+            <LinkExternal href={EXTERNAL_URLS.EXPERIMENTER_REVIEWERS}>
+              qualified reviewer
+            </LinkExternal>
+            , to review and {actionDescription} your experiment.{" "}
+            <a
+              href="#copy"
+              className="cursor-copy"
+              onClick={(event) => {
+                event.preventDefault();
+                navigator.clipboard.writeText(window.location.toString());
+              }}
+            >
+              Click here
+            </a>{" "}
+            to copy the URL to send them.
           </p>
         </Alert>
       );
@@ -114,7 +129,7 @@ export const ChangeApprovalOperations: React.FC<
         <FormRemoteSettingsPending
           {...{
             isLoading,
-            onConfirm: startRemoteSettingsApproval,
+            reviewUrl,
             actionDescription,
           }}
         />

@@ -45,7 +45,6 @@ export const GET_CONFIG_QUERY = gql`
         value
       }
       maxPrimaryOutcomes
-      kintoAdminUrl
     }
   }
 `;
