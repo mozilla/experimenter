@@ -292,6 +292,7 @@ class NimbusExperimentSerializer(
     public_description = serializers.CharField(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
+    is_enrollment_paused = serializers.BooleanField(source="is_paused", required=False)
     risk_mitigation_link = serializers.URLField(
         min_length=0, max_length=255, required=False, allow_blank=True
     )
@@ -362,6 +363,7 @@ class NimbusExperimentSerializer(
             "hypothesis",
             "application",
             "public_description",
+            "is_enrollment_paused",
             "feature_config",
             "reference_branch",
             "treatment_branches",

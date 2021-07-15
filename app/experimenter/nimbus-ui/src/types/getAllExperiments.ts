@@ -23,6 +23,8 @@ export interface getAllExperiments_experiments {
   owner: getAllExperiments_experiments_owner;
   slug: string;
   startDate: DateTime | null;
+  isEnrollmentPausePending: boolean | null;
+  isEnrollmentPaused: boolean | null;
   proposedDuration: number;
   proposedEnrollment: number;
   computedEndDate: DateTime | null;

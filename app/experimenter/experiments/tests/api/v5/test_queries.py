@@ -5,6 +5,7 @@ from django.conf import settings
 from django.urls import reverse
 from graphene.utils.str_converters import to_snake_case
 from graphene_django.utils.testing import GraphQLTestCase
+from parameterized import parameterized
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -744,6 +745,38 @@ class TestNimbusQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(experiment_data["isEnrollmentPaused"], True)
         self.assertEqual(experiment_data["enrollmentEndDate"], "2021-01-08")
+
+    @parameterized.expand(
+        [
+            [NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED, False, True],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE, False, True],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING, False, True],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_TIMEOUT, False, True],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE, True, False],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_REJECT, False, False],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_REJECT, False, False],
+        ]
+    )
+    def test_experiment_pause_pending(self, lifecycle, expected_paused, expected_pending):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    isEnrollmentPaused
+                    isEnrollmentPausePending
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["isEnrollmentPaused"], expected_paused)
+        self.assertEqual(experiment_data["isEnrollmentPausePending"], expected_pending)
 
     def test_signoff_recommendations(self):
         user_email = "user@example.com"

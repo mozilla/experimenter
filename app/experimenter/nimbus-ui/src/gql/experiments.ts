@@ -109,6 +109,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         link
       }
 
+      isEnrollmentPausePending
       isEnrollmentPaused
       enrollmentEndDate
 
@@ -121,6 +122,8 @@ export const GET_EXPERIMENT_QUERY = gql`
       }
       rejection {
         message
+        oldStatus
+        oldStatusNext
         changedOn
         changedBy {
           email
@@ -156,6 +159,8 @@ export const GET_EXPERIMENTS_QUERY = gql`
       }
       slug
       startDate
+      isEnrollmentPausePending
+      isEnrollmentPaused
       proposedDuration
       proposedEnrollment
       computedEndDate

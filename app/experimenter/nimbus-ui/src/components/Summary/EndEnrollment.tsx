@@ -5,7 +5,7 @@
 import React, { useCallback, useState } from "react";
 import { Alert, Button } from "react-bootstrap";
 
-const EndExperiment = ({
+const EndEnrollment = ({
   onSubmit,
   isLoading,
 }: {
@@ -20,22 +20,19 @@ const EndExperiment = ({
   );
 
   return (
-    <div className="mb-4" data-testid="experiment-end">
+    <div className="mb-4" data-testid="enrollment-end">
       {showEndConfirmation ? (
-        <Alert variant="secondary" data-testid="end-experiment-alert">
-          <p>
-            Are you sure you want to end your experiment? It will turn off the
-            experiment for all users in production.
-          </p>
+        <Alert variant="secondary" data-testid="end-enrollment-alert">
+          <p>Are you sure you want to end enrollment for your experiment?</p>
 
           <div>
             <Button
               variant="primary"
               onClick={onSubmit}
               disabled={isLoading}
-              data-testid="end-experiment-confirm"
+              data-testid="end-enrollment-confirm"
             >
-              Yes, end the experiment
+              Yes, end enrollment for the experiment
             </Button>
 
             <Button
@@ -43,7 +40,7 @@ const EndExperiment = ({
               className="ml-2"
               onClick={toggleShowEndConfirmation}
               disabled={isLoading}
-              data-testid="end-experiment-cancel"
+              data-testid="end-enrollment-cancel"
             >
               Cancel
             </Button>
@@ -54,13 +51,13 @@ const EndExperiment = ({
           variant="primary"
           onClick={toggleShowEndConfirmation}
           disabled={isLoading}
-          data-testid="end-experiment-start"
+          data-testid="end-enrollment-start"
         >
-          End Experiment
+          End Enrollment for Experiment
         </Button>
       )}
     </div>
   );
 };
 
-export default EndExperiment;
+export default EndEnrollment;

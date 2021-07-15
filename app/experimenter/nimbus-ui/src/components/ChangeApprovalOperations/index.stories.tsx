@@ -111,7 +111,8 @@ export const ReviewTimedOutInRemoteSettingsUserCannotReview = storyWithProps(
 export const FormApproveOrRejectStory = () => (
   <FormApproveOrReject
     {...{
-      actionDescription: "froblulate",
+      actionButtonTitle: "Frobulate",
+      actionDescription: "frobulate the thingy",
       isLoading: false,
       reviewRequestEvent: mockChangelog(),
       timeoutEvent: mockChangelog("ghi@mozilla.com"),
@@ -125,6 +126,7 @@ export const FormRejectReasonStory = () => (
   <FormRejectReason
     {...{
       isLoading: false,
+      actionDescription: "frobulate the thingy",
       onSubmit: action("submit"),
       onCancel: action("cancel"),
     }}
@@ -136,7 +138,7 @@ export const FormRemoteSettingsPendingStory = () => (
     {...{
       isLoading: false,
       reviewUrl: REVIEW_URL,
-      actionDescription: "frobulate",
+      actionDescription: "frobulate the thingy",
     }}
   />
 );

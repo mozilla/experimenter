@@ -24,6 +24,7 @@ input ExperimentInput {
   hypothesis: String
   application: NimbusExperimentApplication
   publicDescription: String
+  isEnrollmentPaused: Boolean
   riskMitigationLink: String
   featureConfigId: Int
   documentationLinks: [DocumentationLinkType]
@@ -345,6 +346,7 @@ type NimbusExperimentType {
   startDate: DateTime
   computedEndDate: DateTime
   isEnrollmentPaused: Boolean
+  isEnrollmentPausePending: Boolean
   enrollmentEndDate: DateTime
   computedEnrollmentDays: Int
   computedDurationDays: Int

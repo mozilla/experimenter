@@ -10,6 +10,11 @@ import {
   within,
 } from "@testing-library/react";
 import React from "react";
+import { LIFECYCLE_REVIEW_FLOWS } from "../../lib/constants";
+import {
+  NimbusChangeLogOldStatus,
+  NimbusChangeLogOldStatusNext,
+} from "../../types/globalTypes";
 import {
   BaseSubject,
   reviewApprovedAfterTimeoutBaseProps,
@@ -166,26 +171,63 @@ describe("ChangeApprovalOperations", () => {
     expect(rejectChange).not.toHaveBeenCalled();
   });
 
-  it("reports a rejection reason when review is rejected", async () => {
-    const actionDescription = "gizmofy";
-    const { changedBy: rejectionUser, message: rejectionMessage } =
-      reviewRejectedBaseProps.rejectionEvent!;
-    render(
-      <Subject
-        {...{
-          ...reviewRejectedBaseProps,
-          actionDescription,
-        }}
-      />,
-    );
-    await screen.findByTestId("action-button");
-    await screen.findByText(
-      `The request to ${actionDescription} this experiment was`,
-      { exact: false },
-    );
-    await screen.findByText(rejectionMessage!, { exact: false });
-    await screen.findByText(rejectionUser!.email, { exact: false });
-  });
+  const commonRejectionCase =
+    (
+      actionDescription: string,
+      oldStatus: NimbusChangeLogOldStatus,
+      oldStatusNext: NimbusChangeLogOldStatusNext,
+    ) =>
+    async () => {
+      const rejectionEvent = {
+        ...reviewRejectedBaseProps.rejectionEvent!,
+        oldStatus,
+        oldStatusNext,
+      };
+      const { changedBy: rejectionUser, message: rejectionMessage } =
+        rejectionEvent;
+      render(
+        <Subject
+          {...{
+            ...reviewRejectedBaseProps,
+            rejectionEvent,
+            actionDescription,
+          }}
+        />,
+      );
+      await screen.findByTestId("action-button");
+      await screen.findByText(`The request to ${actionDescription} was`, {
+        exact: false,
+      });
+      await screen.findByText(rejectionMessage!, { exact: false });
+      await screen.findByText(rejectionUser!.email, { exact: false });
+    };
+
+  it(
+    "reports a rejection reason when launch review is rejected",
+    commonRejectionCase(
+      LIFECYCLE_REVIEW_FLOWS.LAUNCH.description,
+      NimbusChangeLogOldStatus.DRAFT,
+      NimbusChangeLogOldStatusNext.LIVE,
+    ),
+  );
+
+  it(
+    "reports a rejection reason when end enrollment review is rejected",
+    commonRejectionCase(
+      LIFECYCLE_REVIEW_FLOWS.PAUSE.description,
+      NimbusChangeLogOldStatus.LIVE,
+      NimbusChangeLogOldStatusNext.LIVE,
+    ),
+  );
+
+  it(
+    "reports a rejection reason when end experiment review is rejected",
+    commonRejectionCase(
+      LIFECYCLE_REVIEW_FLOWS.END.description,
+      NimbusChangeLogOldStatus.LIVE,
+      NimbusChangeLogOldStatusNext.COMPLETE,
+    ),
+  );
 
   it("when user can review and review has timed out, a timeout notice is displayed", async () => {
     render(

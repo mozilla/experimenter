@@ -45,6 +45,7 @@ class ExperimentInput(graphene.InputObjectType):
     hypothesis = graphene.String()
     application = NimbusExperimentApplication()
     public_description = graphene.String()
+    is_enrollment_paused = graphene.Boolean()
     risk_mitigation_link = graphene.String()
     feature_config_id = graphene.Int()
     documentation_links = graphene.List(DocumentationLinkType)

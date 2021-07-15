@@ -14,7 +14,14 @@ import {
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
 import {
+  endPendingBaseProps,
+  endRejectedBaseProps,
   endReviewRequestedBaseProps,
+  endTimedoutBaseProps,
+  enrollmentPausePendingBaseProps,
+  enrollmentPauseRejectedBaseProps,
+  enrollmentPauseReviewRequestedBaseProps,
+  enrollmentPauseTimedoutBaseProps,
   mock,
   reviewPendingBaseProps,
   reviewRejectedBaseProps,
@@ -125,23 +132,79 @@ export const reviewRejected = storyWithExperimentProps(
 export const liveStatus = storyWithExperimentProps(
   {
     status: NimbusExperimentStatus.LIVE,
+    isEnrollmentPaused: false,
   },
   "Live status",
 );
 
-export const endReviewRequestedCannotReview = storyWithExperimentProps(
-  {
-    ...endReviewRequestedBaseProps,
-  },
-  "End review requested, user cannot review",
+export const liveUpdateRequestedCanReview = storyWithExperimentProps(
+  { ...enrollmentPauseReviewRequestedBaseProps, canReview: true },
+  "Enrollment end requested, user can review",
 );
 
-export const endReviewRequestedCanReview = storyWithExperimentProps(
-  {
-    ...endReviewRequestedBaseProps,
-    canReview: true,
-  },
-  "End review requested, user can review",
+export const liveUpdatePendingCanReview = storyWithExperimentProps(
+  { ...enrollmentPausePendingBaseProps, canReview: true },
+  "Enrollment end pending in Remote Rettings, user can review",
+);
+
+export const liveUpdateTimedoutCanReview = storyWithExperimentProps(
+  { ...enrollmentPauseTimedoutBaseProps, canReview: true },
+  "Enrollment end timed out in Remote Settings, user can review",
+);
+
+export const liveUpdateRejected = storyWithExperimentProps(
+  enrollmentPauseRejectedBaseProps,
+  "Enrollment end rejected",
+);
+
+export const liveUpdateRequestedCannotReview = storyWithExperimentProps(
+  { ...enrollmentPauseReviewRequestedBaseProps },
+  "Enrollment end requested, user cannot review",
+);
+
+export const liveUpdatePendingCannotReview = storyWithExperimentProps(
+  { ...enrollmentPausePendingBaseProps },
+  "Enrollment end pending in Remote Rettings, user cannot review",
+);
+
+export const liveUpdateTimedoutCannotReview = storyWithExperimentProps(
+  { ...enrollmentPauseTimedoutBaseProps },
+  "Enrollment end timed out in Remote Settings, user cannot review",
+);
+
+export const endRequestedCanReview = storyWithExperimentProps(
+  { ...endReviewRequestedBaseProps, canReview: true },
+  "End experiment requested, user can review",
+);
+
+export const endPendingCanReview = storyWithExperimentProps(
+  { ...endPendingBaseProps, canReview: true },
+  "End experiment pending in Remote Rettings, user can review",
+);
+
+export const endTimedoutCanReview = storyWithExperimentProps(
+  { ...endTimedoutBaseProps, canReview: true },
+  "End experiment timed out in Remote Settings, user can review",
+);
+
+export const endRejected = storyWithExperimentProps(
+  endRejectedBaseProps,
+  "End experiment rejected",
+);
+
+export const endRequestedCannotReview = storyWithExperimentProps(
+  { ...endReviewRequestedBaseProps },
+  "End experiment requested, user cannot review",
+);
+
+export const endPendingCannotReview = storyWithExperimentProps(
+  { ...endPendingBaseProps },
+  "End experiment pending in Remote Rettings, user cannot review",
+);
+
+export const endTimedoutCannotReview = storyWithExperimentProps(
+  { ...endTimedoutBaseProps },
+  "End experiment timed out in Remote Settings, user cannot review",
 );
 
 export const completeStatus = storyWithExperimentProps(
