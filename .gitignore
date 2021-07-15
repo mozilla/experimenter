@@ -103,8 +103,6 @@ google-credentials.json
 app/experimenter/outcomes/jetstream-config*
 
 # Versioning assets generated on build
-app/commit-description.txt
-app/commit-summary.txt
-app/experimenter/version.json
-app/version.json
-
+**/commit-description.txt
+**/commit-summary.txt
+**/version.json
