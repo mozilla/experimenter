@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as apollo from "@apollo/client";
 import { MockedResponse } from "@apollo/client/testing";
 import { navigate } from "@reach/router";
 import { act, render, screen, waitFor } from "@testing-library/react";
@@ -30,6 +31,20 @@ describe("AppLayoutWithExperiment", () => {
   it("renders loading screen to start", async () => {
     render(<Subject />);
     await screen.findByText("Loading...");
+  });
+
+  it("renders the error alert when an error occurs querying the experiment", async () => {
+    const { mock } = mockExperimentQuery("demo-slug");
+    const error = new Error("boop");
+    const stopPolling = jest.fn();
+
+    (jest.spyOn(apollo, "useQuery") as jest.Mock).mockReturnValueOnce({
+      error,
+      stopPolling,
+    });
+
+    render(<Subject mocks={[mock]} />);
+    expect(screen.queryByTestId("apollo-error-alert")).toBeInTheDocument();
   });
 
   it("renders not found if an experiment isn't found", async () => {

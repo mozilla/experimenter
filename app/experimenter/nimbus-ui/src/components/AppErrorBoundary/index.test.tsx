@@ -7,9 +7,12 @@ import React from "react";
 import AppErrorBoundary, { AppErrorAlert } from ".";
 
 describe("AppErrorAlert", () => {
-  it("renders a general error dialog", () => {
-    const { queryByTestId } = render(<AppErrorAlert />);
+  it("renders a general error dialog", async () => {
+    const { queryByTestId } = render(
+      <AppErrorAlert error={new Error("boop")} />,
+    );
     expect(queryByTestId("error-loading-app")).toBeInTheDocument();
+    await screen.findByText("boop");
   });
 });
 
@@ -37,7 +40,7 @@ describe("AppErrorBoundary", () => {
     expect(screen.queryByTestId("error-loading-app")).not.toBeInTheDocument();
   });
 
-  it("renders a general error dialog on exception in child component", () => {
+  it("renders a general error dialog on exception in child component", async () => {
     const BadComponent = () => {
       throw new Error("bad");
     };
@@ -49,5 +52,6 @@ describe("AppErrorBoundary", () => {
     );
 
     expect(screen.queryByTestId("error-loading-app")).toBeInTheDocument();
+    await screen.findByText("bad");
   });
 });
