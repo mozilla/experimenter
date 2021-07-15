@@ -11,6 +11,7 @@
   },
   "devDependencies": {},
   "resolutions": {
+    "trim": "^0.0.3",
     "postcss": "^7.0.36",
     "trim-newlines": "^3.0.1",
     "glob-parent": "^5.1.2",
