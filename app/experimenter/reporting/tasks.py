@@ -111,9 +111,9 @@ def is_duplicate_recipe_change(date, experiment, event_reason):
 
 def get_experiment_type(experiment):
     if type(experiment) == NimbusExperiment:
-        application = experiment.application
-        application_slug = NimbusConstants.APPLICATION_CONFIGS[application].slug
-        return "Nimbus-{application}".format(application=application_slug.title())
+        application = experiment.application_config.slug
+        application_str = application.title()
+        return "Nimbus-{application}".format(application=str(application).title())
     else:
         return "Normandy-{type}".format(type=experiment.type.title())
 
