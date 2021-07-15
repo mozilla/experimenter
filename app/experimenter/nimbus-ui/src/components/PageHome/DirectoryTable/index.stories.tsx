@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { withLinks } from "@storybook/addon-links";
-import { storiesOf } from "@storybook/react";
 import React from "react";
 import DirectoryTable, {
   DirectoryCompleteTable,
@@ -12,59 +11,42 @@ import DirectoryTable, {
 } from ".";
 import { mockDirectoryExperiments } from "../../../lib/mocks";
 
-storiesOf("pages/Home/DirectoryTable", module)
-  .addDecorator(withLinks)
-  .add("basic", () => {
-    return (
-      <DirectoryTable
-        title="Mocked Experiments"
-        experiments={mockDirectoryExperiments()}
-      />
-    );
-  })
-  .add("live", () => {
-    return (
-      <DirectoryLiveTable
-        title="Mocked Experiments"
-        experiments={mockDirectoryExperiments()}
-      />
-    );
-  })
-  .add("complete", () => {
-    return (
-      <DirectoryCompleteTable
-        title="Mocked Experiments"
-        experiments={mockDirectoryExperiments()}
-      />
-    );
-  })
-  .add("drafts", () => {
-    return (
-      <DirectoryDraftsTable
-        title="Mocked Experiments"
-        experiments={mockDirectoryExperiments()}
-      />
-    );
-  })
-  .add("custom components", () => {
-    return (
-      <DirectoryTable
-        title="Mocked Experiments"
-        experiments={mockDirectoryExperiments()}
-        columns={[
-          {
-            label: "Testing column",
-            component: ({ status }) => <td>Hello {status}</td>,
-          },
-        ]}
-      />
-    );
-  })
-  .add("no feature", () => {
-    return (
-      <DirectoryTable
-        title="Mocked Experiments"
-        experiments={mockDirectoryExperiments([{ featureConfig: null }])}
-      />
-    );
-  });
+export default {
+  title: "pages/Home/DirectoryTable",
+  component: DirectoryTable,
+  decorators: [withLinks],
+};
+
+export const Basic = () => (
+  <DirectoryTable experiments={mockDirectoryExperiments()} />
+);
+
+export const Live = () => (
+  <DirectoryLiveTable experiments={mockDirectoryExperiments()} />
+);
+
+export const Completed = () => (
+  <DirectoryCompleteTable experiments={mockDirectoryExperiments()} />
+);
+
+export const Drafts = () => (
+  <DirectoryDraftsTable experiments={mockDirectoryExperiments()} />
+);
+
+export const CustomComponent = () => (
+  <DirectoryTable
+    experiments={mockDirectoryExperiments()}
+    columns={[
+      {
+        label: "Testing column",
+        component: ({ status }) => <td>Hello {status}</td>,
+      },
+    ]}
+  />
+);
+
+export const NoFeature = () => (
+  <DirectoryTable
+    experiments={mockDirectoryExperiments([{ featureConfig: null }])}
+  />
+);

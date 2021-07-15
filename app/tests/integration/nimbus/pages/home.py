@@ -7,7 +7,7 @@ class HomePage(Page):
     """Nimbus Home page."""
 
     _create_new_btn_locator = (By.CSS_SELECTOR, "#create-new-button")
-    _page_wait_locator = (By.CSS_SELECTOR, ".table")
+    _page_wait_locator = (By.CSS_SELECTOR, ".directory-table")
 
     def __init__(self, selenium, base_url, **kwargs):
         super(HomePage, self).__init__(selenium, base_url, timeout=30, **kwargs)
@@ -19,7 +19,7 @@ class HomePage(Page):
 
     @property
     def tables(self):
-        _table_locator = (By.CSS_SELECTOR, ".active .directory-table .table")
+        _table_locator = (By.CSS_SELECTOR, ".active .directory-table")
         self.wait.until(EC.presence_of_element_located(_table_locator))
         tables = self.find_elements(*_table_locator)
         return [self.Tables(self, el) for el in tables]
@@ -28,6 +28,12 @@ class HomePage(Page):
     def tabs(self):
         _tabs_locator = (By.CSS_SELECTOR, ".nav-item")
         return self.find_elements(*_tabs_locator)
+
+    @property
+    def active_tab_text(self):
+        _active_tab_locator = (By.CSS_SELECTOR, ".nav-item.active")
+        el = self.find_element(*_active_tab_locator)
+        return el.text
 
     def create_new_button(self):
         el = self.find_element(*self._create_new_btn_locator)
@@ -38,13 +44,7 @@ class HomePage(Page):
 
     class Tables(Region):
 
-        _table_name_locator = (By.CSS_SELECTOR, ".font-weight-bold")
         _experiment_link_locator = (By.CSS_SELECTOR, "tr a")
-
-        @property
-        def table_name(self):
-            el = self.find_element(*self._table_name_locator)
-            return el.text
 
         @property
         def experiments(self):

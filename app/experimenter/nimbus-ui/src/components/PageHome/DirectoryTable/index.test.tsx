@@ -107,12 +107,8 @@ function expectTableCells(testId: string, cellTexts: string[]) {
 describe("DirectoryTable", () => {
   it("renders as expected with default columns", () => {
     const experiments = [experiment];
-    render(<DirectoryTable title="Woozle Wuzzle" {...{ experiments }} />);
-    expectTableCells("directory-table-header", [
-      "Woozle Wuzzle",
-      "Owner",
-      "Feature",
-    ]);
+    render(<DirectoryTable {...{ experiments }} />);
+    expectTableCells("directory-table-header", ["Name", "Owner", "Feature"]);
     expectTableCells("directory-table-cell", [
       experiment.name,
       experiment.owner!.username,
@@ -124,17 +120,13 @@ describe("DirectoryTable", () => {
   });
 
   it("renders as expected without experiments", () => {
-    render(<DirectoryTable title="Sweet Pea" experiments={[]} />);
-    expectTableCells("directory-table-header", ["Sweet Pea"]);
-    expect(
-      screen.getByTestId("directory-table-no-experiments"),
-    ).toBeInTheDocument();
+    render(<DirectoryTable experiments={[]} />);
+    expect(screen.getByTestId("no-experiments")).toBeInTheDocument();
   });
 
   it("renders as expected with custom columns", () => {
     render(
       <DirectoryTable
-        title="Record Numbers"
         experiments={[experiment]}
         columns={[
           { label: "Cant think", component: DirectoryColumnTitle },
@@ -157,14 +149,9 @@ describe("DirectoryTable", () => {
 
 describe("DirectoryLiveTable", () => {
   it("renders as expected with custom columns", () => {
-    render(
-      <DirectoryLiveTable
-        title="Live Experiments"
-        experiments={[experiment]}
-      />,
-    );
+    render(<DirectoryLiveTable experiments={[experiment]} />);
     expectTableCells("directory-table-header", [
-      "Live Experiments",
+      "Name",
       "Owner",
       "Feature",
       "Enrolling",
@@ -186,11 +173,9 @@ describe("DirectoryLiveTable", () => {
 
 describe("DirectoryCompleteTable", () => {
   it("renders as expected with custom columns", () => {
-    render(
-      <DirectoryCompleteTable title="Completed" experiments={[experiment]} />,
-    );
+    render(<DirectoryCompleteTable experiments={[experiment]} />);
     expectTableCells("directory-table-header", [
-      "Completed",
+      "Name",
       "Owner",
       "Feature",
       "Started",
@@ -210,8 +195,8 @@ describe("DirectoryCompleteTable", () => {
 
 describe("DirectoryDraftsTable", () => {
   it("renders as expected with custom columns", () => {
-    render(<DirectoryDraftsTable title="Drafts" experiments={[experiment]} />);
-    expectTableCells("directory-table-header", ["Drafts", "Owner", "Feature"]);
+    render(<DirectoryDraftsTable experiments={[experiment]} />);
+    expectTableCells("directory-table-header", ["Name", "Owner", "Feature"]);
     expectTableCells("directory-table-cell", [
       experiment.name,
       experiment.owner!.username,
