@@ -54,6 +54,9 @@ jetstream_config:
 	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip https://github.com/mozilla/jetstream-config/archive/main.zip
 	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/jetstream-config.zip
 
+update_kinto:
+	docker pull mozilla/kinto-dist:latest
+
 build_dev: jetstream_config ssl
 	DOCKER_BUILDKIT=1 docker build --target dev -f app/Dockerfile -t app:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
