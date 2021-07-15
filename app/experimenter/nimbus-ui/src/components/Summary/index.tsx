@@ -14,11 +14,11 @@ import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
-import ChangeApprovalOperations from "../ChangeApprovalOperations";
 import LinkMonitoring from "../LinkMonitoring";
 import NotSet from "../NotSet";
 import TableSignoff from "../PageSummary/TableSignoff";
 import PreviewURL from "../PreviewURL";
+import EndEnrollment from "./EndEnrollment";
 import EndExperiment from "./EndExperiment";
 import SummaryTimeline from "./SummaryTimeline";
 import TableAudience from "./TableAudience";
@@ -27,8 +27,8 @@ import TableOverview from "./TableOverview";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
-  refetch?: () => void;
-} & Partial<React.ComponentProps<typeof ChangeApprovalOperations>>; // TODO EXP-1143: temporary page-level props, should be replaced by API data for experiment & current user
+  refetch?: () => Promise<unknown>;
+};
 
 const Summary = ({ experiment, refetch }: SummaryProps) => {
   const status = getStatus(experiment);
@@ -36,12 +36,24 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
   const {
     isLoading,
     submitError,
-    callbacks: [onConfirmEndClicked],
-  } = useChangeOperationMutation(experiment, refetch, {
-    publishStatus: NimbusExperimentPublishStatus.REVIEW,
-    statusNext: NimbusExperimentStatus.COMPLETE,
-    changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
-  });
+    callbacks: [onConfirmEndClicked, onConfirmEndEnrollmentClicked],
+  } = useChangeOperationMutation(
+    experiment,
+    refetch,
+    {
+      publishStatus: NimbusExperimentPublishStatus.REVIEW,
+      status: NimbusExperimentStatus.LIVE,
+      statusNext: NimbusExperimentStatus.COMPLETE,
+      changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
+    },
+    {
+      publishStatus: NimbusExperimentPublishStatus.REVIEW,
+      status: NimbusExperimentStatus.LIVE,
+      statusNext: NimbusExperimentStatus.LIVE,
+      isEnrollmentPaused: true,
+      changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
+    },
+  );
 
   return (
     <div data-testid="summary" className="mb-5">
@@ -58,7 +70,16 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
         </Alert>
       )}
 
-      {status.live && !status.endRequested && (
+      {status.live &&
+        !status.review &&
+        !status.pauseRequested &&
+        !experiment.isEnrollmentPaused && (
+          <EndEnrollment
+            {...{ isLoading, onSubmit: onConfirmEndEnrollmentClicked }}
+          />
+        )}
+
+      {status.live && !status.review && !status.endRequested && (
         <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
       )}
 

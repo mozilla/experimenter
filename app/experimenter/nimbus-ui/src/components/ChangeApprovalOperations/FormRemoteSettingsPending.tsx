@@ -22,7 +22,7 @@ const FormRemoteSettingsPending = ({
       <Form className="text-body">
         <p>
           <strong>Action required —</strong> Please review this change in Remote
-          Settings to {actionDescription} this experiment
+          Settings to {actionDescription}
         </p>
 
         <div className="d-flex bd-highlight">

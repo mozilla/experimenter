@@ -3,11 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from "@reach/router";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import { useChangeOperationMutation, useReviewCheck } from "../../hooks";
-import { CHANGELOG_MESSAGES } from "../../lib/constants";
-import { getStatus } from "../../lib/experiment";
+import {
+  CHANGELOG_MESSAGES,
+  LIFECYCLE_REVIEW_FLOWS,
+} from "../../lib/constants";
+import { getStatus, getSummaryAction } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   NimbusExperimentPublishStatus,
@@ -20,7 +23,6 @@ import Summary from "../Summary";
 import FormLaunchDraftToPreview from "./FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "./FormLaunchDraftToReview";
 import FormLaunchPreviewToReview from "./FormLaunchPreviewToReview";
-import getSummaryAction from "./getSummaryAction";
 import TableSignoff from "./TableSignoff";
 
 type PageSummaryProps = {
@@ -42,7 +44,7 @@ const PageSummary = ({
 
 const PageContent: React.FC<{
   experiment: getExperiment_experimentBySlug;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
 }> = ({ experiment, refetch }) => {
   const [showLaunchToReview, setShowLaunchToReview] = useState(false);
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
@@ -60,6 +62,8 @@ const PageContent: React.FC<{
       onLaunchReviewRejectedClicked,
       onEndReviewApprovedClicked,
       onEndReviewRejectedClicked,
+      onPauseReviewApprovedClicked,
+      onPauseReviewRejectedClicked,
     ],
   } = useChangeOperationMutation(
     experiment,
@@ -93,10 +97,24 @@ const PageContent: React.FC<{
       status: NimbusExperimentStatus.LIVE,
       statusNext: NimbusExperimentStatus.COMPLETE,
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
-      changelogMessage: CHANGELOG_MESSAGES.REVIEW_APPROVED,
+      changelogMessage: CHANGELOG_MESSAGES.END_APPROVED,
     },
     {
+      status: NimbusExperimentStatus.LIVE,
       statusNext: null,
+      publishStatus: NimbusExperimentPublishStatus.IDLE,
+    },
+    {
+      status: NimbusExperimentStatus.LIVE,
+      statusNext: NimbusExperimentStatus.LIVE,
+      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      isEnrollmentPaused: true,
+      changelogMessage: CHANGELOG_MESSAGES.END_ENROLLMENT_APPROVED,
+    },
+    {
+      status: NimbusExperimentStatus.LIVE,
+      statusNext: null,
+      isEnrollmentPaused: false,
       publishStatus: NimbusExperimentPublishStatus.IDLE,
     },
   );
@@ -112,6 +130,47 @@ const PageContent: React.FC<{
   const summaryAction = getSummaryAction(status, experiment.canReview);
   const summaryTitle = summaryAction ? `Summary, ${summaryAction}` : "Summary";
 
+  const {
+    rejectChange,
+    approveChange,
+    buttonTitle: actionButtonTitle,
+    description: actionDescription,
+  } = useMemo(() => {
+    if (status.pauseRequested) {
+      return {
+        rejectChange: onPauseReviewRejectedClicked,
+        approveChange: onPauseReviewApprovedClicked,
+        ...LIFECYCLE_REVIEW_FLOWS.PAUSE,
+      };
+    } else if (status.endRequested) {
+      return {
+        rejectChange: onEndReviewRejectedClicked,
+        approveChange: onEndReviewApprovedClicked,
+        ...LIFECYCLE_REVIEW_FLOWS.END,
+      };
+    } else if (status.draft) {
+      return {
+        rejectChange: onLaunchReviewRejectedClicked,
+        approveChange: onLaunchReviewApprovedClicked,
+        ...LIFECYCLE_REVIEW_FLOWS.LAUNCH,
+      };
+    }
+    // HACK: These values shouldn't end up being used, but it makes typechecking happy
+    return {
+      rejectChange: () => {},
+      approveChange: () => {},
+      ...LIFECYCLE_REVIEW_FLOWS.NONE,
+    };
+  }, [
+    status,
+    onEndReviewApprovedClicked,
+    onEndReviewRejectedClicked,
+    onLaunchReviewApprovedClicked,
+    onLaunchReviewRejectedClicked,
+    onPauseReviewApprovedClicked,
+    onPauseReviewRejectedClicked,
+  ]);
+
   return (
     <>
       <Head title={`${experiment.name} – ${summaryTitle}`} />
@@ -124,62 +183,55 @@ const PageContent: React.FC<{
 
       {summaryAction && <h2 className="mt-3 mb-4 h4">{summaryAction}</h2>}
 
-      {(status.draft || status.preview) && invalidPages.length > 0 ? (
-        <Alert variant="warning">
-          Before this experiment can be reviewed or launched, all required
-          fields must be completed. Fields on the <InvalidPagesList />{" "}
-          {invalidPages.length === 1 ? "page" : "pages"} are missing details.
-        </Alert>
-      ) : (
-        <ChangeApprovalOperations
-          {...{
-            actionDescription: status.live ? "end" : "launch",
-            isLoading,
-            publishStatus,
-            canReview: !!canReview,
-            reviewRequestEvent,
-            rejectionEvent,
-            timeoutEvent,
-            rejectChange: status.live
-              ? onEndReviewRejectedClicked
-              : onLaunchReviewRejectedClicked,
-            approveChange: status.live
-              ? onEndReviewApprovedClicked
-              : onLaunchReviewApprovedClicked,
-            reviewUrl: experiment.reviewUrl!,
-          }}
-        >
-          {status.draft &&
-            (showLaunchToReview ? (
-              <FormLaunchDraftToReview
-                {...{
-                  isLoading,
-                  onSubmit: onLaunchClicked,
-                  onCancel: () => setShowLaunchToReview(false),
-                  onLaunchToPreview: onLaunchToPreviewClicked,
-                }}
-              />
-            ) : (
-              <FormLaunchDraftToPreview
-                {...{
-                  isLoading,
-                  onSubmit: onLaunchToPreviewClicked,
-                  onLaunchWithoutPreview: () => setShowLaunchToReview(true),
-                }}
-              />
-            ))}
-
-          {status.preview && status.idle && (
-            <FormLaunchPreviewToReview
+      <ChangeApprovalOperations
+        {...{
+          actionButtonTitle,
+          actionDescription,
+          isLoading,
+          status,
+          // TODO: refactor to just take `experiment` rather than all these separate props?
+          publishStatus,
+          canReview: !!canReview,
+          reviewRequestEvent,
+          rejectionEvent,
+          timeoutEvent,
+          rejectChange,
+          approveChange,
+          reviewUrl: experiment.reviewUrl!,
+          invalidPages,
+          InvalidPagesList,
+        }}
+      >
+        {status.draft &&
+          (showLaunchToReview ? (
+            <FormLaunchDraftToReview
               {...{
                 isLoading,
                 onSubmit: onLaunchClicked,
-                onBackToDraft: onBackToDraftClicked,
+                onCancel: () => setShowLaunchToReview(false),
+                onLaunchToPreview: onLaunchToPreviewClicked,
               }}
             />
-          )}
-        </ChangeApprovalOperations>
-      )}
+          ) : (
+            <FormLaunchDraftToPreview
+              {...{
+                isLoading,
+                onSubmit: onLaunchToPreviewClicked,
+                onLaunchWithoutPreview: () => setShowLaunchToReview(true),
+              }}
+            />
+          ))}
+
+        {status.preview && status.idle && (
+          <FormLaunchPreviewToReview
+            {...{
+              isLoading,
+              onSubmit: onLaunchClicked,
+              onBackToDraft: onBackToDraftClicked,
+            }}
+          />
+        )}
+      </ChangeApprovalOperations>
 
       {!status.launched && (
         <>

@@ -136,7 +136,7 @@ jest.mock("../AppLayoutWithExperiment", () => ({
         {props.children({
           experiment,
           analysis,
-          refetch: () => {},
+          refetch: () => Promise.resolve(),
         })}
       </div>
     );

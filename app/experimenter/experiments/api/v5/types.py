@@ -185,6 +185,7 @@ class NimbusExperimentType(DjangoObjectType):
     start_date = graphene.DateTime()
     computed_end_date = graphene.DateTime()
     is_enrollment_paused = graphene.Boolean()
+    is_enrollment_pause_pending = graphene.Boolean()
     enrollment_end_date = graphene.DateTime()
     computed_enrollment_days = graphene.Int()
     computed_duration_days = graphene.Int()
@@ -221,6 +222,9 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_is_enrollment_paused(self, info):
         return self.is_paused_published
+
+    def resolve_is_enrollment_pause_pending(self, info):
+        return self.is_paused and not self.is_paused_published
 
     def resolve_enrollment_end_date(self, info):
         return self.proposed_enrollment_end_date
