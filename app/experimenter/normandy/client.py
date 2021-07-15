@@ -67,3 +67,8 @@ def get_recipe_state_enabler(recipe_data):
         email=enabler_email, username=enabler_email
     )
     return enabler
+
+
+def get_history_list(recipe_id):
+    recipe_url = settings.NORMANDY_API_HISTORY_URL.format(id=recipe_id)
+    return make_normandy_call(recipe_url)
