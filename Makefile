@@ -66,7 +66,6 @@ build_test: jetstream_config ssl
 	DOCKER_BUILDKIT=1 docker build --target test -f app/Dockerfile -t app:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
 build_prod: jetstream_config ssl
-	./scripts/store_git_info.sh
 	DOCKER_BUILDKIT=1 docker build --target deploy -f app/Dockerfile -t app:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
 compose_stop:
