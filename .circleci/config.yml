@@ -97,6 +97,7 @@ jobs:
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             make build_dev
             make build_test
+            ./scripts/store_git_info.sh
             make build_prod
             docker tag app:dev ${DOCKERHUB_REPO}:build_dev
             docker tag app:test ${DOCKERHUB_REPO}:build_test
