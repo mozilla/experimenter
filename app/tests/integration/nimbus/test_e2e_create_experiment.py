@@ -1,4 +1,3 @@
-import random
 import time
 
 import pytest
@@ -11,7 +10,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 @pytest.mark.nondestructive
 def test_create_new_experiment(selenium, base_url):
-    experiment_name = f"name here remote {random.randint(0, 100)}"
+    experiment_name = "test_create_new_experiment"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
@@ -52,7 +51,7 @@ def test_create_new_experiment(selenium, base_url):
 
 
 def test_create_new_experiment_remote_settings(selenium, base_url):
-    experiment_name = f"name here remote {random.randint(0, 1000)}"
+    experiment_name = "test_create_new_experiment_remote_settings"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
@@ -135,7 +134,7 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
 
 
 def test_create_new_experiment_remote_settings_reject(selenium, base_url):
-    experiment_name = f"name here remote {random.randint(0, 1000)}"
+    experiment_name = "test_create_new_experiment_remote_settings_reject"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
@@ -230,7 +229,7 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
 
 
 def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
-    experiment_name = f"name here remote {random.randint(0, 1000)}"
+    experiment_name = "test_create_new_experiment_remote_settings_timeout"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
@@ -272,7 +271,7 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
     review.approve()
-    for attempt in range(45):
+    for attempt in range(60):
         try:
             review = SummaryPage(selenium, base_url).wait_for_page_to_load()
             review.timeout_text
