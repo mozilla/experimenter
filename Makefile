@@ -59,15 +59,20 @@ jetstream_config:
 update_kinto:
 	docker pull mozilla/kinto-dist:latest
 
-build_dev: jetstream_config ssl
-	DOCKER_BUILDKIT=1 docker build --target dev -f app/Dockerfile -t app:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
+build_dev: jetstream_config
+	docker build --target dev -f app/Dockerfile -t app:dev app/
 
-build_test: jetstream_config ssl
-	DOCKER_BUILDKIT=1 docker build --target test -f app/Dockerfile -t app:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
+build_test: jetstream_config
+	docker build --target test -f app/Dockerfile -t app:test app/
 
-build_prod: jetstream_config ssl
-	./scripts/store_git_info.sh
-	DOCKER_BUILDKIT=1 docker build --target deploy -f app/Dockerfile -t app:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
+build_prod: jetstream_config
+	docker build --target deploy -f app/Dockerfile -t app:deploy app/
+
+compose_build_test: kill build_test
+	$(COMPOSE_TEST) build
+
+compose_build: build_dev ssl
+	$(COMPOSE)  build
 
 compose_stop:
 	$(COMPOSE) kill || true
@@ -92,31 +97,31 @@ static_rm:
 kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
-check: build_test
+check: compose_build_test
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_CORE)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)") ${COLOR_CHECK}'
 
-pytest: build_test
+pytest: compose_build_test
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
 
-up: build_dev
+up: compose_build
 	$(COMPOSE) up
 
-up_prod: build_prod
+up_prod: compose_build build_prod
 	$(COMPOSE_PROD) up
 
-up_prod_detached: build_prod
+up_prod_detached: compose_build build_prod
 	$(COMPOSE_PROD) up -d
 
-up_db: build_dev
+up_db: compose_build
 	$(COMPOSE) up db redis kinto autograph
 
-up_django: build_dev
+up_django: compose_build
 	$(COMPOSE) up nginx app worker beat db redis kinto autograph
 
-up_detached: build_dev
+up_detached: compose_build
 	$(COMPOSE) up -d
 
-generate_docs: build_dev
+generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
 
 generate_types: build_dev
@@ -125,19 +130,19 @@ generate_types: build_dev
 publish_storybooks: build_test
 	$(COMPOSE_TEST) run app sh -c "$(PUBLISH_STORYBOOKS)"
 
-code_format: build_dev
+code_format: compose_build
 	$(COMPOSE) run app sh -c '${PARALLEL} "${PY_IMPORT_SORT};$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)"'
 
-makemigrations: build_dev
+makemigrations: compose_build
 	$(COMPOSE) run app python manage.py makemigrations
 
-migrate: build_dev
+migrate: compose_build
 	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_MIGRATE)"
 
-bash: build_dev
+bash: compose_build
 	$(COMPOSE) run app bash
 
-refresh: kill build_dev
+refresh: kill compose_build
 	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY app bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 dependabot_approve:
@@ -145,17 +150,20 @@ dependabot_approve:
 	gh pr list --author app/dependabot | awk '{print $$1}' | xargs -n1 gh pr review -a -b "@dependabot squash and merge"
 
 # integration tests
-integration_shell:
+integration_build: build_prod ssl
+	$(COMPOSE_INTEGRATION) build
+
+integration_shell: integration_build
 	$(COMPOSE_INTEGRATION) run firefox bash
 
-integration_vnc_up:
+integration_vnc_up: integration_build
 	$(COMPOSE_INTEGRATION) up
 
-integration_vnc_up_detached:
+integration_vnc_up_detached: integration_build
 	$(COMPOSE_INTEGRATION) up -d firefox
 
-integration_test_legacy:
+integration_test_legacy: integration_build
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-legacy $(TOX_ARGS) -- -n 4 $(PYTEST_ARGS)"
 
-integration_test_nimbus:
+integration_test_nimbus: integration_build
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
