@@ -17,6 +17,18 @@ def nimbus_send_experiment_ending_email(experiment):
     )
 
 
+def nimbus_send_enrollment_ending_email(experiment):
+    nimbus_format_and_send_html_email(
+        experiment,
+        "nimbus/emails/enrollment_ending_email.html",
+        {
+            "experiment": experiment,
+        },
+        NimbusExperiment.EMAIL_ENROLLMENT_END_SUBJECT,
+        NimbusExperiment.EmailType.ENROLLMENT_END,
+    )
+
+
 def nimbus_format_and_send_html_email(
     experiment, file_string, template_vars, subject, email_type, cc_recipients=None
 ):
