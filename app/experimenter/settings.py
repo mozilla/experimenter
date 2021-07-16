@@ -333,10 +333,6 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_live",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
-    "nimbus_check_experiments_are_updated": {
-        "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_updated",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
     "nimbus_check_experiments_are_complete": {
         "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_complete",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
