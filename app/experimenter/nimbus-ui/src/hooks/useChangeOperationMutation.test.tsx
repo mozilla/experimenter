@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from "@apollo/client/testing";
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook, RenderResult } from "@testing-library/react-hooks";
 import React from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../gql/experiments";
 import {
@@ -19,65 +19,52 @@ import { useChangeOperationMutation } from "./useChangeOperationMutation";
 
 describe("hooks/useChangeOperationMutation", () => {
   it("can successfully execute mutation set callbacks", async () => {
-    const { result, invokeCallback, waitForNextUpdate } = setupTestHook();
-
+    const { result } = setupTestHook();
     const callbackCount = result.current.callbacks.length;
+    const expectedIsLoading = [false];
     for (let idx = 0; idx < callbackCount; idx++) {
-      invokeCallback(idx);
-
-      await waitForNextUpdate();
-      expect(result.current.isLoading).toBeTruthy();
-
-      await waitForNextUpdate();
-      expect(result.current.isLoading).toBeFalsy();
-      expect(result.current.submitError).toBeNull();
+      await act(result.current.callbacks[idx]);
+      expectedIsLoading.push(true, false);
     }
+    assertHookStates(result, expectedIsLoading);
   });
 
   it("indicates when loading mutation", async () => {
-    const { result, invokeCallback, waitForNextUpdate } = setupTestHook();
-    expect(result.current.isLoading).toBeFalsy();
-    invokeCallback();
-
-    await waitForNextUpdate();
-    expect(result.current.isLoading).toBeTruthy();
-
-    await waitForNextUpdate();
-    expect(result.current.isLoading).toBeFalsy();
+    const { result } = setupTestHook();
+    await act(result.current.callbacks[0]);
+    assertHookStates(result, [false, true, false]);
   });
 
   it("indicates when loading refetch", async () => {
-    const refetchState = {
-      called: false,
-      resolve: null as null | (() => void),
-    };
+    const refetchState = { called: false, resolved: false };
     const refetch = () => {
       refetchState.called = true;
-      return new Promise(
-        (resolve) => (refetchState.resolve = () => resolve(null)),
-      );
+      return new Promise((resolve) => {
+        refetchState.resolved = true;
+        resolve(null);
+      });
     };
-
-    const { result, invokeCallback, waitForNextUpdate } =
-      setupTestHook(refetch);
-    expect(result.current.isLoading).toBeFalsy();
-    invokeCallback();
-
-    await waitForNextUpdate();
-    expect(refetchState.called).toBeFalsy();
-    expect(result.current.isLoading).toBeTruthy();
-
-    await waitForNextUpdate();
-    expect(refetchState.called).toBeTruthy();
-    expect(result.current.isLoading).toBeTruthy();
-
-    expect(refetchState.resolve).not.toBeNull();
-    refetchState.resolve!();
-
-    await waitForNextUpdate();
-    expect(result.current.isLoading).toBeFalsy();
+    const { result } = setupTestHook(refetch);
+    await act(result.current.callbacks[0]);
+    expect(refetchState).toEqual({ called: true, resolved: true });
+    assertHookStates(result, [false, true, false, true, false]);
   });
 });
+
+function assertHookStates(
+  result: RenderResult<ReturnType<typeof useChangeOperationMutation>>,
+  expectedIsLoading: Array<boolean>,
+) {
+  expect(result.all.length).toEqual(expectedIsLoading.length);
+  for (let idx = 0; idx < expectedIsLoading.length; idx++) {
+    const step = result.all[idx];
+    if (step instanceof Error) {
+      fail(`unexpected error in hook: ${step}`);
+    }
+    expect(step.isLoading).toEqual(expectedIsLoading[idx]);
+    expect(step.submitError).toBeNull();
+  }
+}
 
 const setupTestHook = (refetch?: () => Promise<unknown>) => {
   const experiment = mockExperiment();
@@ -113,24 +100,13 @@ const setupTestHook = (refetch?: () => Promise<unknown>) => {
     );
   }, []);
 
-  const { result, waitForNextUpdate } = renderHook(
+  return renderHook(
     () => useChangeOperationMutation(experiment, refetch, ...mutationSets),
     {
       wrapper,
       initialProps: { mocks },
     },
   );
-
-  const invokeCallback = (callbackIdx = 0) =>
-    setTimeout(() => result.current.callbacks[callbackIdx](), 0.1);
-
-  return {
-    result,
-    invokeCallback,
-    waitForNextUpdate,
-    mutationSets,
-    refetch,
-  };
 };
 
 const wrapper = ({
