@@ -341,6 +341,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_kinto",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
+    "nimbus_send_end_enrollment_email": {
+        "task": "experimenter.kinto.tasks.nimbus_send_end_enrollment_email",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
     "fetch_jetstream_data": {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
         "schedule": 28800,
