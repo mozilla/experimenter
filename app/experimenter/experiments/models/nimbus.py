@@ -263,7 +263,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     @property
     def proposed_end_date(self):
-        if self.start_date and self.proposed_duration:
+        if self.start_date and self.proposed_duration is not None:
             return self.start_date + datetime.timedelta(days=self.proposed_duration)
 
     @property
