@@ -145,8 +145,9 @@ class TestTask(MockNormandyMixin, TestCase):
 
     def test_is_duplicate_recipe_change_returns_true(self):
         experiment = ExperimentFactory.create()
+        timestamp = timezone.datetime(2021, 8, 18, 8, 15, 12)
         report_log = ReportLogFactory.create(
-            timestamp=timezone.now(),
+            timestamp=timestamp,
             experiment_type="Normandy-Pref",
             experiment_name=experiment.name,
             experiment_old_status=Experiment.STATUS_LIVE,
@@ -155,7 +156,7 @@ class TestTask(MockNormandyMixin, TestCase):
             event_reason=ReportLogConstants.EventReason.RECIPE_CHANGE,
         )
 
-        later = timezone.now() + timezone.timedelta(hours=1)
+        later = timestamp + timezone.timedelta(hours=1)
         self.assertTrue(
             is_duplicate_recipe_change(later, experiment, report_log.event_reason)
         )
