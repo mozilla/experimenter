@@ -349,8 +349,10 @@ class NimbusConstants(object):
 
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
+        ENROLLMENT_END = "enrollment end"
 
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
+    EMAIL_ENROLLMENT_END_SUBJECT = "Action required: Please end experiment enrollment"
 
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
     TARGETING_CHANNEL = 'browserSettings.update.channel == "{channel}"'

@@ -338,6 +338,26 @@ class TestNimbusExperiment(TestCase):
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
         self.assertTrue(experiment.should_end)
 
+    def test_should_end_enrollment_returns_False_before_proposed_enrollment_end_date(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+        )
+        self.assertFalse(experiment.should_end_enrollment)
+
+    def test_should_end_enrollment_returns_True_after_proposed_enrollment_end_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+        )
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
+        self.assertTrue(experiment.should_end_enrollment)
+
     def test_computed_enrollment_days_returns_changed_on_minus_start_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,

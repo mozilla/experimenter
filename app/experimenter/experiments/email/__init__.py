@@ -9,5 +9,6 @@ from experimenter.experiments.email.legacy import (  # noqa: F401
     send_period_ending_emails_task,
 )
 from experimenter.experiments.email.nimbus import (  # noqa: F401
+    nimbus_send_enrollment_ending_email,
     nimbus_send_experiment_ending_email,
 )

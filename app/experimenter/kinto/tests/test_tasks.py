@@ -7,7 +7,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
+from experimenter.experiments.models import (
+    NimbusChangeLog,
+    NimbusEmail,
+    NimbusExperiment,
+)
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.kinto import tasks
 from experimenter.kinto.client import KINTO_REVIEW_STATUS, KINTO_ROLLBACK_STATUS
@@ -839,3 +843,56 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestC
         self.mock_kinto_client.create_record.side_effect = Exception
         with self.assertRaises(Exception):
             tasks.nimbus_synchronize_preview_experiments_in_kinto()
+
+
+class TestNimbusSendEndEnrollmentEmail(MockKintoClientMixin, TestCase):
+    def test_sends_emails_for_live_experiments_past_proposed_enrollment_end_date(
+        self,
+    ):
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            proposed_enrollment=10,
+        )
+        experiment3 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+        )
+        experiment3.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
+
+        tasks.nimbus_send_end_enrollment_email()
+
+        self.assertEqual(experiment1.emails.count(), 0)
+        self.assertEqual(experiment2.emails.count(), 0)
+
+        self.assertTrue(
+            experiment3.emails.filter(
+                type=NimbusExperiment.EmailType.ENROLLMENT_END
+            ).exists()
+        )
+        self.assertEqual(experiment3.emails.count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_does_not_send_email_if_already_sent(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+        )
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
+        NimbusEmail.objects.create(
+            experiment=experiment, type=NimbusExperiment.EmailType.ENROLLMENT_END
+        )
+
+        tasks.nimbus_send_end_enrollment_email()
+
+        self.assertEqual(experiment.emails.count(), 1)
+        self.assertEqual(len(mail.outbox), 0)
