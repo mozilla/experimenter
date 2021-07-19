@@ -6,7 +6,10 @@ from django.contrib.auth import get_user_model
 from experimenter.celery import app
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.email import nimbus_send_experiment_ending_email
+from experimenter.experiments.email import (
+    nimbus_send_enrollment_ending_email,
+    nimbus_send_experiment_ending_email,
+)
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.kinto.client import KintoClient
 
@@ -397,3 +400,29 @@ def nimbus_synchronize_preview_experiments_in_kinto():
         metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.failed")
         logger.info(f"Synchronizing preview experiments failed: {e}")
         raise e
+
+
+@app.task
+@metrics.timer_decorator("send_end_enrollment_email")
+def nimbus_send_end_enrollment_email():
+    """
+    A scheduled task that checks for any experiments that
+    should have their enrollment turned off and fires off
+    a reminder email
+    """
+    metrics.incr("send_end_enrollment_email.started")
+
+    experiments = NimbusExperiment.objects.filter(
+        status=NimbusExperiment.Status.LIVE,
+    )
+
+    for experiment in experiments:
+        if (
+            experiment.should_end_enrollment
+            and not experiment.emails.filter(
+                type=NimbusExperiment.EmailType.ENROLLMENT_END
+            ).exists()
+        ):
+            nimbus_send_enrollment_ending_email(experiment)
+
+    metrics.incr("send_end_enrollment_email.completed")

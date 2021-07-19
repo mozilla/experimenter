@@ -299,6 +299,11 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             return datetime.date.today() >= self.proposed_end_date
 
     @property
+    def should_end_enrollment(self):
+        if self.proposed_enrollment_end_date:
+            return datetime.date.today() >= self.proposed_enrollment_end_date
+
+    @property
     def is_paused_published(self):
         return bool(self.published_dto and self.published_dto.get("isEnrollmentPaused"))
 
