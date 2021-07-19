@@ -182,7 +182,9 @@ class TestTask(MockNormandyMixin, TestCase):
         mock_response.raise_for_status.side_effect = None
         mock_response.status_code = 200
         self.mock_normandy_requests_get.return_value = mock_response
-        ExperimentFactory.create_with_status(target_status=Experiment.STATUS_LIVE)
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE
+        )
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
@@ -196,13 +198,17 @@ class TestTask(MockNormandyMixin, TestCase):
         )
         self.assertEqual(ReportLog.objects.count(), 8)
 
-        ExperimentChangeLogFactory.create(changed_on=timezone.now())
+        ExperimentChangeLogFactory.create(
+            changed_on=timezone.now(),
+            experiment=experiment,
+            old_status=Experiment.STATUS_LIVE,
+            new_status=Experiment.STATUS_COMPLETE,
+        )
 
         self.assertEqual(ExperimentChangeLog.objects.count(), 6)
         generate_reportlogs()
 
-        # Disable until https://github.com/mozilla/experimenter/issues/5976 lands
-        # self.assertEqual(ReportLog.objects.count(), 9)
+        self.assertEqual(ReportLog.objects.count(), 9)
 
     def test_generate_reportlogs_creates_for_normandy_changes(self):
         mock_response_data = [
