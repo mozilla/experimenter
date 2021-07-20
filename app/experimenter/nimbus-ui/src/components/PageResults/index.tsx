@@ -9,10 +9,12 @@ import { useConfig } from "../../hooks";
 import { ReactComponent as CollapseMinus } from "../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
 import {
+  BRANCH_COMPARISON,
   GROUP,
   HIGHLIGHTS_METRICS_LIST,
   METRIC_TYPE,
 } from "../../lib/visualization/constants";
+import { BranchComparisonValues } from "../../lib/visualization/types";
 import {
   analysisUnavailable,
   getSortedBranches,
@@ -33,6 +35,23 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     search_metrics: useState(true),
     other_metrics: useState(true),
   };
+
+  // show relative comparison by default
+  // TODO: expand this functionality to other tables, EXP-1551
+  const [branchComparison, setBranchComparison] =
+    useState<BranchComparisonValues>(BRANCH_COMPARISON.UPLIFT);
+  const branchComparisonIsRelative =
+    branchComparison === BRANCH_COMPARISON.UPLIFT;
+  const toggleBranchComparison = () => {
+    if (branchComparisonIsRelative) {
+      setBranchComparison(BRANCH_COMPARISON.ABSOLUTE);
+    } else {
+      setBranchComparison(BRANCH_COMPARISON.UPLIFT);
+    }
+  };
+  const toggleBranchComparisonText = branchComparisonIsRelative
+    ? "absolute"
+    : "relative";
 
   return (
     <AppLayoutWithExperiment
@@ -85,10 +104,19 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             <TableHighlightsOverview {...{ experiment }} />
 
             <div id="results_summary">
-              <h2 className="h5 mb-3">Results Summary</h2>
+              <div className="d-flex justify-content-between mb-3">
+                <h2 className="h5">Results Summary</h2>
+                <button
+                  data-testid="toggle-branch-comparison"
+                  className="btn btn-secondary"
+                  onClick={toggleBranchComparison}
+                >
+                  <small>See {toggleBranchComparisonText} comparison </small>
+                </button>
+              </div>
               {analysis?.overall && (
                 <TableResults
-                  {...{ experiment, sortedBranches }}
+                  {...{ experiment, sortedBranches, branchComparison }}
                   results={analysis!}
                 />
               )}
@@ -98,7 +126,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   weeklyResults={analysis.weekly}
                   hasOverallResults={!!analysis?.overall}
                   metricsList={HIGHLIGHTS_METRICS_LIST}
-                  {...{ sortedBranches }}
+                  {...{ sortedBranches, branchComparison }}
                 />
               )}
             </div>

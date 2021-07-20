@@ -5,8 +5,14 @@ import React, { useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
 import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../../images/plus.svg";
-import { GENERAL_TIPS } from "../../../lib/visualization/constants";
-import { AnalysisDataWeekly } from "../../../lib/visualization/types";
+import {
+  BRANCH_COMPARISON,
+  GENERAL_TIPS,
+} from "../../../lib/visualization/constants";
+import {
+  AnalysisDataWeekly,
+  BranchComparisonValues,
+} from "../../../lib/visualization/types";
 import TableWeekly from "../TableWeekly";
 
 type TableResultsWeeklyProps = {
@@ -19,6 +25,7 @@ type TableResultsWeeklyProps = {
     group: string;
   }[];
   sortedBranches: string[];
+  branchComparison?: BranchComparisonValues;
 };
 
 const TableResultsWeekly = ({
@@ -26,6 +33,7 @@ const TableResultsWeekly = ({
   hasOverallResults = false,
   metricsList,
   sortedBranches,
+  branchComparison = BRANCH_COMPARISON.UPLIFT,
 }: TableResultsWeeklyProps) => {
   const [open, setOpen] = useState(!hasOverallResults);
 
@@ -63,9 +71,9 @@ const TableResultsWeekly = ({
                 <TableWeekly
                   metricKey={metric.value}
                   metricName={metric.name}
-                  metricGroup={metric.group}
+                  group={metric.group}
                   results={weeklyResults}
-                  {...{ sortedBranches }}
+                  {...{ sortedBranches, branchComparison }}
                 />
               </div>
             );

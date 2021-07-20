@@ -9,6 +9,7 @@ import {
 } from "../../../lib/visualization/constants";
 import {
   AnalysisDataWeekly,
+  BranchComparisonValues,
   BranchDescription,
   FormattedAnalysisPoint,
 } from "../../../lib/visualization/types";
@@ -18,9 +19,10 @@ import TableVisualizationRow from "../TableVisualizationRow";
 type TableWeeklyProps = {
   metricKey: string;
   metricName: string;
-  metricGroup: string;
+  group: string;
   results: AnalysisDataWeekly;
   sortedBranches: string[];
+  branchComparison?: BranchComparisonValues;
 };
 
 const getWeekIndexList = (
@@ -50,11 +52,13 @@ const getWeekIndexList = (
 const TableWeekly = ({
   metricKey,
   metricName,
-  metricGroup,
+  group,
   results = {},
   sortedBranches,
+  branchComparison = BRANCH_COMPARISON.UPLIFT,
 }: TableWeeklyProps) => {
-  const weekIndexList = getWeekIndexList(metricKey, metricGroup, results);
+  const weekIndexList = getWeekIndexList(metricKey, group, results);
+  const tableLabel = TABLE_LABEL.RESULTS;
 
   return (
     <table
@@ -77,26 +81,49 @@ const TableWeekly = ({
       </thead>
       <tbody>
         {sortedBranches.map((branch) => {
+          const isControlBranch = results[branch]["is_control"];
           const displayType = getTableDisplayType(
             metricKey,
-            TABLE_LABEL.RESULTS,
-            results[branch]["is_control"],
+            tableLabel,
+            isControlBranch,
           );
           return (
             <tr key={`${branch}-${metricKey}`}>
               <th className="align-middle" scope="row">
                 {branch}
               </th>
-              <TableVisualizationRow
-                key={`${displayType}-${metricKey}`}
-                metricName={metricName}
-                results={results[branch]}
-                group={metricGroup}
-                tableLabel={TABLE_LABEL.RESULTS}
-                {...{ metricKey }}
-                {...{ displayType }}
-                window="weekly"
-              />
+              {/* This case returns the default (baseline) text, and we need the number of
+              cells to match the number of weeks */}
+              {isControlBranch &&
+              branchComparison === BRANCH_COMPARISON.UPLIFT ? (
+                weekIndexList.map((weekIndex) => (
+                  <TableVisualizationRow
+                    key={`${displayType}-${metricKey}-${weekIndex}}`}
+                    results={results[branch]}
+                    {...{
+                      tableLabel,
+                      group,
+                      metricName,
+                      metricKey,
+                      displayType,
+                      branchComparison,
+                    }}
+                  />
+                ))
+              ) : (
+                <TableVisualizationRow
+                  key={`${displayType}-${metricKey}`}
+                  results={results[branch]}
+                  {...{
+                    tableLabel,
+                    group,
+                    metricName,
+                    metricKey,
+                    displayType,
+                    branchComparison,
+                  }}
+                />
+              )}
             </tr>
           );
         })}

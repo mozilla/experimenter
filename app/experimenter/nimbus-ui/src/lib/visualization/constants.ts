@@ -92,7 +92,7 @@ export const BRANCH_COMPARISON = {
   ABSOLUTE: "absolute",
   DIFFERENCE: "difference",
   UPLIFT: "relative_uplift",
-};
+} as const;
 
 export const BRANCH_COMPARISON_TITLE = {
   ABSOLUTE: "Absolute",

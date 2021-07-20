@@ -6,13 +6,17 @@ import React from "react";
 import { useOutcomes } from "../../../hooks";
 import { OutcomesList } from "../../../lib/types";
 import {
+  BRANCH_COMPARISON,
   GROUP,
   METRICS_TIPS,
   METRIC_TYPE,
   RESULTS_METRICS_LIST,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { AnalysisData } from "../../../lib/visualization/types";
+import {
+  AnalysisData,
+  BranchComparisonValues,
+} from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
@@ -22,6 +26,7 @@ type TableResultsProps = {
   experiment: getExperiment_experimentBySlug;
   results: AnalysisData;
   sortedBranches: string[];
+  branchComparison?: BranchComparisonValues;
 };
 
 const getResultMetrics = (outcomes: OutcomesList) => {
@@ -53,6 +58,7 @@ const TableResults = ({
     show_analysis: false,
   },
   sortedBranches,
+  branchComparison = BRANCH_COMPARISON.UPLIFT,
 }: TableResultsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
   const resultsMetricsList = getResultMetrics(primaryOutcomes);
@@ -113,8 +119,7 @@ const TableResults = ({
                     results={overallResults[branch]}
                     group={metric.group}
                     tableLabel={TABLE_LABEL.RESULTS}
-                    {...{ metricKey }}
-                    {...{ displayType }}
+                    {...{ metricKey, displayType, branchComparison }}
                   />
                 );
               })}
