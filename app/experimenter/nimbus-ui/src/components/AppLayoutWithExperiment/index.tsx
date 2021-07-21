@@ -9,6 +9,7 @@ import { BASE_PATH } from "../../lib/constants";
 import { getStatus, StatusCheck } from "../../lib/experiment";
 import { AnalysisData } from "../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import ApolloErrorAlert from "../ApolloErrorAlert";
 import AppLayoutSidebarLaunched from "../AppLayoutSidebarLaunched";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 import Head from "../Head";
@@ -62,8 +63,16 @@ const AppLayoutWithExperiment = ({
   redirect,
 }: AppLayoutWithExperimentProps) => {
   const { slug } = useParams();
-  const { experiment, notFound, loading, startPolling, stopPolling, refetch } =
-    useExperiment(slug);
+  const {
+    experiment,
+    notFound,
+    loading,
+    startPolling,
+    stopPolling,
+    refetch,
+    error,
+  } = useExperiment(slug);
+
   const {
     execute: fetchAnalysis,
     result: analysis,
@@ -110,6 +119,10 @@ const AppLayoutWithExperiment = ({
       stopPolling();
     };
   }, [startPolling, stopPolling, experiment, polling]);
+
+  if (error) {
+    return <ApolloErrorAlert {...{ error }} />;
+  }
 
   // If the analysis is required for the sidebar and page, show the loader
   // until experiment data and analysis data have finished fetching

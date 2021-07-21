@@ -220,7 +220,7 @@ describe("PageSummary", () => {
       NimbusExperimentPublishStatus.APPROVED,
       CHANGELOG_MESSAGES.REVIEW_APPROVED,
     );
-    render(<Subject mocks={[mock, mutationMock]} />);
+    render(<Subject mocks={[mock, mock, mutationMock]} />);
     const approveButton = await screen.findByTestId("approve-request");
     expect(approveButton).toHaveTextContent("Approve and Launch Experiment");
     fireEvent.click(approveButton);
