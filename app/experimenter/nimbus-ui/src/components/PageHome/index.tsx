@@ -46,23 +46,21 @@ export const Body = () => {
     data.experiments,
   );
   return (
-    <Tabs defaultActiveKey="active">
-      <Tab eventKey="active" title="Active">
-        <div className="mt-4">
-          <DirectoryLiveTable title="Live Experiments" experiments={live} />
-          <DirectoryTable title="In Review" experiments={review} />
-          <DirectoryTable title="In Preview" experiments={preview} />
-        </div>
+    <Tabs defaultActiveKey="live">
+      <Tab eventKey="live" title="Live">
+        <DirectoryLiveTable experiments={live} />
+      </Tab>
+      <Tab eventKey="review" title="Review">
+        <DirectoryTable experiments={review} />
+      </Tab>
+      <Tab eventKey="preview" title="Preview">
+        <DirectoryTable experiments={preview} />
       </Tab>
       <Tab eventKey="completed" title="Completed">
-        <div className="mt-4">
-          <DirectoryCompleteTable title="Completed" experiments={complete} />
-        </div>
+        <DirectoryCompleteTable experiments={complete} />
       </Tab>
       <Tab eventKey="drafts" title="Drafts">
-        <div className="mt-4">
-          <DirectoryDraftsTable title="Drafts" experiments={draft} />
-        </div>
+        <DirectoryDraftsTable experiments={draft} />
       </Tab>
     </Tabs>
   );
