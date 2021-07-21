@@ -75,7 +75,11 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
     if should_rollback:
         kinto_client.rollback_changes()
 
-    handle_updating_experiments(applications, kinto_client)
+    records = kinto_client.get_main_records()
+    handle_launching_experiments(applications, records)
+    handle_updating_experiments(applications, records)
+    handle_ending_experiments(applications, records)
+    handle_waiting_experiments(applications)
 
     if queued_launch_experiment := NimbusExperiment.objects.launch_queue(
         applications
@@ -107,7 +111,7 @@ def handle_pending_review(applications):
                 message=NimbusChangeLog.Messages.TIMED_OUT_IN_KINTO,
             )
 
-            logger.info(f"{experiment} timed out")
+            logger.info(f"{experiment.slug} timed out")
         else:
             # There is a pending review but it shouldn't time out
             return True
@@ -129,21 +133,49 @@ def handle_rejection(applications, kinto_client):
             message=collection_data["last_reviewer_comment"],
         )
 
-        logger.info(f"{experiment} rejected")
+        logger.info(f"{experiment.slug} rejected")
 
 
-def handle_updating_experiments(applications, kinto_client):
-    updating_experiments = NimbusExperiment.objects.filter(
-        NimbusExperiment.Filters.IS_UPDATING,
-        application__in=applications,
-    )
-    if updating_experiments.exists():
-        records = kinto_client.get_main_records()
+def handle_launching_experiments(applications, records):
+    for experiment in NimbusExperiment.objects.waiting_to_launch_queue(applications):
+        if experiment.slug in records:
+            logger.info(
+                f"{experiment} status is being updated to live".format(
+                    experiment=experiment
+                )
+            )
 
-        for experiment in updating_experiments:
+            published_record = records[experiment.slug].copy()
+            published_record.pop("last_modified")
+
+            experiment.status = NimbusExperiment.Status.LIVE
+            experiment.status_next = None
+            experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+            experiment.published_dto = published_record
+            experiment.save()
+
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.LIVE,
+            )
+
+            logger.info(f"{experiment.slug} launched")
+
+
+def handle_updating_experiments(applications, records):
+    for experiment in NimbusExperiment.objects.waiting_to_update_queue(applications):
+        published_record = records.get(experiment.slug).copy()
+        published_record.pop("last_modified")
+
+        stored_record = experiment.published_dto.copy()
+        stored_record.pop("last_modified", None)
+
+        if published_record != stored_record:
+            logger.info(f"{experiment} is updated in Kinto".format(experiment=experiment))
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
             experiment.status_next = None
-            experiment.published_dto = records.get(experiment.slug)
+            experiment.published_dto = published_record
             experiment.save()
 
             generate_nimbus_changelog(
@@ -152,7 +184,49 @@ def handle_updating_experiments(applications, kinto_client):
                 message=NimbusChangeLog.Messages.UPDATED_IN_KINTO,
             )
 
-            logger.info(f"{experiment} updated")
+            logger.info(f"{experiment.slug} updated")
+
+
+def handle_ending_experiments(applications, records):
+    for experiment in NimbusExperiment.objects.waiting_to_end_queue(applications):
+        if experiment.slug not in records:
+            logger.info(
+                f"{experiment.slug} status is being updated to complete".format(
+                    experiment=experiment
+                )
+            )
+
+            experiment.status = NimbusExperiment.Status.COMPLETE
+            experiment.status_next = None
+            experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+            experiment.save()
+
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=NimbusChangeLog.Messages.COMPLETED,
+            )
+
+            logger.info(f"{experiment.slug} ended")
+
+
+def handle_waiting_experiments(applications):
+    waiting_experiments = NimbusExperiment.objects.filter(
+        publish_status=NimbusExperiment.PublishStatus.WAITING,
+        application__in=applications,
+    )
+    for experiment in waiting_experiments:
+        experiment.status_next = None
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        experiment.save()
+
+        generate_nimbus_changelog(
+            experiment,
+            get_kinto_user(),
+            message=NimbusChangeLog.Messages.REJECTED_FROM_KINTO,
+        )
+
+        logger.info(f"{experiment.slug} rejected without reason(rollback)")
 
 
 @app.task
@@ -182,7 +256,7 @@ def nimbus_push_experiment_to_kinto(collection, experiment_id):
         generate_nimbus_changelog(
             experiment,
             get_kinto_user(),
-            message=NimbusChangeLog.Messages.PUSHED_TO_KINTO,
+            message=NimbusChangeLog.Messages.LAUNCHING_TO_KINTO,
         )
 
         logger.info(f"{experiment.slug} pushed to Kinto")
@@ -219,7 +293,7 @@ def nimbus_update_experiment_in_kinto(collection, experiment_id):
         generate_nimbus_changelog(
             experiment,
             get_kinto_user(),
-            message=NimbusChangeLog.Messages.UPDATED_IN_KINTO,
+            message=NimbusChangeLog.Messages.UPDATING_IN_KINTO,
         )
 
         logger.info(f"{experiment.slug} updated in Kinto")
@@ -254,7 +328,7 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
         generate_nimbus_changelog(
             experiment,
             get_kinto_user(),
-            message=NimbusChangeLog.Messages.DELETED_FROM_KINTO,
+            message=NimbusChangeLog.Messages.DELETING_FROM_KINTO,
         )
 
         logger.info(f"{experiment.slug} deleted from Kinto")
@@ -263,103 +337,6 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
         metrics.incr("end_experiment_in_kinto.failed")
         logger.info(f"Deleting experiment {experiment.slug} from Kinto failed: {e}")
         raise e
-
-
-@app.task
-@metrics.timer_decorator("check_experiments_are_live")
-def nimbus_check_experiments_are_live():
-    """
-    A scheduled task that checks the kinto collection for any experiment slugs that are
-    present in the collection but are not yet marked as live in the database and marks
-    them as live.
-    """
-    metrics.incr("check_experiments_are_live.started")
-
-    for (
-        collection,
-        applications,
-    ) in NimbusExperiment.KINTO_COLLECTION_APPLICATIONS.items():
-        kinto_client = KintoClient(collection)
-        records = kinto_client.get_main_records()
-
-        for experiment in NimbusExperiment.objects.waiting_to_launch_queue(applications):
-            if experiment.slug in records:
-                logger.info(
-                    f"{experiment} status is being updated to live".format(
-                        experiment=experiment
-                    )
-                )
-
-                experiment.status = NimbusExperiment.Status.LIVE
-                experiment.status_next = None
-                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-                experiment.published_dto = records[experiment.slug]
-                experiment.save()
-
-                generate_nimbus_changelog(
-                    experiment,
-                    get_kinto_user(),
-                    message=NimbusChangeLog.Messages.LIVE,
-                )
-
-                logger.info(f"{experiment.slug} status is set to Live")
-
-    metrics.incr("check_experiments_are_live.completed")
-
-
-@app.task
-@metrics.timer_decorator("check_experiments_are_complete")
-def nimbus_check_experiments_are_complete():
-    """
-    A scheduled task that checks the kinto collection for any experiment slugs that are
-    marked as live in the database but missing from the collection, indicating that they
-    are no longer live and can be marked as complete.
-    """
-    metrics.incr("check_experiments_are_complete.started")
-
-    for (
-        collection,
-        applications,
-    ) in NimbusExperiment.KINTO_COLLECTION_APPLICATIONS.items():
-        kinto_client = KintoClient(collection)
-
-        live_experiments = NimbusExperiment.objects.filter(
-            status=NimbusExperiment.Status.LIVE,
-            application__in=applications,
-        )
-
-        records = kinto_client.get_main_records()
-
-        for experiment in live_experiments:
-            if (
-                experiment.should_end
-                and not experiment.emails.filter(
-                    type=NimbusExperiment.EmailType.EXPERIMENT_END
-                ).exists()
-            ):
-                nimbus_send_experiment_ending_email(experiment)
-
-            if experiment.slug not in records:
-                logger.info(
-                    f"{experiment.slug} status is being updated to complete".format(
-                        experiment=experiment
-                    )
-                )
-
-                experiment.status = NimbusExperiment.Status.COMPLETE
-                experiment.status_next = None
-                experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
-                experiment.save()
-
-                generate_nimbus_changelog(
-                    experiment,
-                    get_kinto_user(),
-                    message=NimbusChangeLog.Messages.COMPLETED,
-                )
-
-                logger.info(f"{experiment.slug} status is set to Complete")
-
-    metrics.incr("check_experiments_are_complete.completed")
 
 
 @app.task
@@ -403,14 +380,14 @@ def nimbus_synchronize_preview_experiments_in_kinto():
 
 
 @app.task
-@metrics.timer_decorator("send_end_enrollment_email")
-def nimbus_send_end_enrollment_email():
+@metrics.timer_decorator("nimbus_send_emails")
+def nimbus_send_emails():
     """
     A scheduled task that checks for any experiments that
-    should have their enrollment turned off and fires off
+    should end enrollment or end the experiment and sends
     a reminder email
     """
-    metrics.incr("send_end_enrollment_email.started")
+    metrics.incr("nimbus_send_emails.started")
 
     experiments = NimbusExperiment.objects.filter(
         status=NimbusExperiment.Status.LIVE,
@@ -424,5 +401,15 @@ def nimbus_send_end_enrollment_email():
             ).exists()
         ):
             nimbus_send_enrollment_ending_email(experiment)
+            logger.info(f"{experiment} end enrollment email sent")
 
-    metrics.incr("send_end_enrollment_email.completed")
+        if (
+            experiment.should_end
+            and not experiment.emails.filter(
+                type=NimbusExperiment.EmailType.EXPERIMENT_END
+            ).exists()
+        ):
+            nimbus_send_experiment_ending_email(experiment)
+            logger.info(f"{experiment} end email sent")
+
+    metrics.incr("nimbus_send_emails.completed")

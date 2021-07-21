@@ -73,9 +73,38 @@ end
 note over Experiment Reviewer:The experiment reviewer opens\nRemote Settings and rejects\nthe change in the collection
 group #ffff00 Reviewer Rejects in Remote Settings
 Experiment Reviewer->Remote Settings UI:Reject
+end
+note over Experimenter Backend: The scheduled background task is invoked\nand finds the collection in work-in-progress,\ncollects the rejection message, and rolls back
+group #00ffff Worker Updates Experiment
+Experimenter Worker->Remote Settings Backend:Check collection after timeout
+Experimenter Worker->Remote Settings Backend:<align:center>Rollback\nStatus: to-rollback
+Experimenter Worker->Experimenter Backend:<align:center>Experiment\ndraft/idle(none)\n+changelog
+end
+
+
+# Publish New Experiment (approve/reject+rollback)
+note over Experiment Reviewer:The experiment owner is ready\nto launch their experiment and\nclicks the launch button
+group #ff00ff Owner Launches in Experimenter
+Experiment Owner->Experimenter UI:Launch Experiment
+Experimenter UI->Experimenter Backend:<align:center>Experiment\ndraft/review(live)\n+changelog
+end
+note over Experiment Reviewer:The experiment reviewer reviews the\nexperiment's details on the summary\npage and clicks the approve button
+group #ffff00 Reviewer Approves in Experimenter
+Experiment Reviewer->Experimenter UI:Approve
+Experimenter UI->Experimenter Backend:<align:center>Experiment\ndraft/approved(live)\n+changelog
+end
+note over Experimenter Backend:The scheduled background task is\ninvoked, finds an approved experiment\nto launch, and creates a new record\nwith the serialized DTO
+group #00ffff Worker Publishes to Remote Settings
+Experimenter Backend->Experimenter Worker:<align:center>Find Experiments:\ndraft/approved(live)
+Experimenter Worker->Remote Settings Backend:<align:center>Create Record\nStatus: to-review
+Experimenter Worker->Experimenter Backend:<align:center>Experiment\ndraft/waiting(live)
+end
+note over Experiment Reviewer:The experiment reviewer opens\nRemote Settings and rejects\nthe change in the collection\nand rolls the collection back
+group #ffff00 Reviewer Rejects in Remote Settings
+Experiment Reviewer->Remote Settings UI:Reject
 Remote Settings UI->Remote Settings Backend:<align:center>Reject\nStatus: to-rollback
 end
-note over Experimenter Backend: The scheduled background task is invoked\nand finds the change rejected in the\ncollection
+note over Experimenter Backend: The scheduled background task is invoked\nand finds the collection in to-sign with\nno record of the rejection
 group #00ffff Worker Updates Experiment
 Experimenter Worker->Remote Settings Backend:Check collection after timeout
 Experimenter Worker->Experimenter Backend:<align:center>Experiment\ndraft/idle(none)\n+changelog
@@ -170,9 +199,37 @@ end
 note over Experiment Reviewer:The experiment reviewer opens\nRemote Settings and rejects\nthe change in the collection
 group #ffff00 Reviewer Rejects in Remote Settings
 Experiment Reviewer->Remote Settings UI:Reject
+end
+note over Experimenter Backend: The scheduled background task is invoked\nand finds the collection in work-in-progress,\ncollects the rejection message, and rolls back
+group #00ffff Worker Updates Experiment
+Experimenter Worker->Remote Settings Backend:Check collection after timeout
+Experimenter Worker->Remote Settings Backend:<align:center>Rollback\nStatus: to-rollback
+Experimenter Worker->Experimenter Backend:<align:center>Experiment\nlive/idle(none)/is_paused:False\n+changelog
+end
+
+# End Enrollment for Live Experiment (approve/reject+rollback)
+note over Experiment Reviewer:The experiment owner is ready\nto end enrollment for their live experiment and\nclicks the end enrollment button
+group #ff00ff Owner Ends Enrollment in Experimenter
+Experiment Owner->Experimenter UI:End Enrollment for Experiment
+Experimenter UI->Experimenter Backend:<align:center>Experiment\nlive/review(live)\n+changelog
+end
+note over Experiment Reviewer:The experiment reviewer reviews the\nexperiment's details on the summary\npage and clicks the approve button
+group #ffff00 Reviewer Approves in Experimenter
+Experiment Reviewer->Experimenter UI:Approve
+Experimenter UI->Experimenter Backend:<align:center>Experiment\nlive/approved(live)\n+changelog
+end
+note over Experimenter Backend:The scheduled background task is\ninvoked, finds an approved experiment\nto update, and updates its record\nwith the serialized DTO
+group #00ffff Worker Publishes to Remote Settings
+Experimenter Backend->Experimenter Worker:<align:center>Find Experiments:\nlive/approved(live)
+Experimenter Worker->Remote Settings Backend:<align:center>Update Record\nStatus: to-review
+Experimenter Worker->Experimenter Backend:<align:center>Experiment\nlive/waiting(live)
+end
+note over Experiment Reviewer:The experiment reviewer opens\nRemote Settings and rejects\nthe change in the collection\nand rolls the collection back
+group #ffff00 Reviewer Rejects in Remote Settings
+Experiment Reviewer->Remote Settings UI:Reject
 Remote Settings UI->Remote Settings Backend:<align:center>Reject\nStatus: to-rollback
 end
-note over Experimenter Backend: The scheduled background task is invoked\nand finds the change rejected in the\ncollection
+note over Experimenter Backend: The scheduled background task is invoked\nand finds the collection in to-sign with\nno record of the rejection
 group #00ffff Worker Updates Experiment
 Experimenter Worker->Remote Settings Backend:Check collection after timeout
 Experimenter Worker->Experimenter Backend:<align:center>Experiment\nlive/idle(none)/is_paused:False\n+changelog
@@ -269,9 +326,38 @@ end
 note over Experiment Reviewer:The experiment reviewer opens\nRemote Settings and rejects\nthe change in the collection
 group #ffff00 Reviewer Rejects in Remote Settings
 Experiment Reviewer->Remote Settings UI:Reject
+end
+note over Experimenter Backend: The scheduled background task is invoked\nand finds the collection in work-in-progress,\ncollects the rejection message, and rolls back
+group #00ffff Worker Updates Experiment
+Experimenter Worker->Remote Settings Backend:Check collection after timeout
+Experimenter Worker->Remote Settings Backend:<align:center>Rollback\nStatus: to-rollback
+Experimenter Worker->Experimenter Backend:<align:center>Experiment\nlive/idle(none)\n+changelog
+end
+
+
+# End Experiment (approve/reject+rollback)
+note over Experiment Reviewer:The experiment owner is ready to end\ntheir experiment and clicks the end\nexperiment button
+group #ff00ff Owner Ends in Experimenter
+Experiment Owner->Experimenter UI:End Experiment
+Experimenter UI->Experimenter Backend:<align:center>Experiment\nlive/review(complete)\n+changelog
+end
+note over Experiment Reviewer:The experiment reviewer reviews the\nexperiment's end request and approves\nin Experimenter
+group #ffff00 Reviewer Approves in Experimenter
+Experiment Reviewer->Experimenter UI:Approve
+Experimenter UI->Experimenter Backend:<align:center>Experiment\nlive/approved(complete)\n+changelog
+end
+note over Experimenter Backend:The scheduled background task is\ninvoked, finds an approved experiment\nto end, and deletes the record in\nRemote Settings
+group #00ffff Worker Deletes from Remote Settings
+Experimenter Backend->Experimenter Worker:<align:center>Find Experiments:\nlive/approved(complete)
+Experimenter Worker->Remote Settings Backend:<align:center>Delete Record\nStatus: to-review
+Experimenter Worker->Experimenter Backend:<align:center>Experiment\nlive/waiting(complete)
+end
+note over Experiment Reviewer:The experiment reviewer opens\nRemote Settings and rejects\nthe change in the collection\nand rolls the collection back
+group #ffff00 Reviewer Rejects in Remote Settings
+Experiment Reviewer->Remote Settings UI:Reject
 Remote Settings UI->Remote Settings Backend:<align:center>Reject\nStatus: to-rollback
 end
-note over Experimenter Backend: The scheduled background task is invoked\nand finds the experiment rejected in the\ncollection
+note over Experimenter Backend: The scheduled background task is invoked\nand finds the collection in to-sign with\nno record of the rejection
 group #00ffff Worker Updates Experiment
 Experimenter Worker->Remote Settings Backend:Check collection after timeout
 Experimenter Worker->Experimenter Backend:<align:center>Experiment\nlive/idle(none)\n+changelog
