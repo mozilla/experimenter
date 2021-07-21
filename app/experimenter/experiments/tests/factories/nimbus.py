@@ -296,6 +296,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             if (
                 experiment.status == experiment.Status.LIVE
                 and experiment.status_next is None
+                and "published_dto" not in kwargs
             ):
                 experiment.published_dto = NimbusExperimentSerializer(experiment).data
 

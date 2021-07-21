@@ -58,6 +58,11 @@ class NimbusExperimentManager(models.Manager):
             NimbusExperiment.Filters.IS_UPDATING, application__in=applications
         )
 
+    def waiting_to_end_queue(self, applications):
+        return self.filter(
+            NimbusExperiment.Filters.IS_ENDING, application__in=applications
+        )
+
 
 class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     owner = models.ForeignKey(
@@ -637,11 +642,12 @@ class NimbusChangeLog(FilterMixin, models.Model):
 
     class Messages:
         TIMED_OUT_IN_KINTO = "Timed Out"
-        PUSHED_TO_KINTO = "Pushed to Kinto"
-        UPDATED_IN_KINTO = "Updated in Kinto"
-        DELETED_FROM_KINTO = "Deleted from Kinto"
-        LIVE = "Experiment is now live!"
-        PAUSED = "Enrollment was paused"
+        LAUNCHING_TO_KINTO = "Launching to Remote Settings"
+        UPDATING_IN_KINTO = "Updating in Remote Settings"
+        UPDATED_IN_KINTO = "Updated in Remote Settings"
+        DELETING_FROM_KINTO = "Deleting from Remote Settings"
+        REJECTED_FROM_KINTO = "Rejected from Remote Settings"
+        LIVE = "Experiment is live"
         COMPLETED = "Experiment is complete"
 
     def __str__(self):

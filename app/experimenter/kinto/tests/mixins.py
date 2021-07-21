@@ -34,4 +34,6 @@ class MockKintoClientMixin(object):
         }
 
     def setup_kinto_get_main_records(self, slugs):
-        self.mock_kinto_client.get_records.return_value = [{"id": slug} for slug in slugs]
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": slug, "last_modified": "0"} for slug in slugs
+        ]
