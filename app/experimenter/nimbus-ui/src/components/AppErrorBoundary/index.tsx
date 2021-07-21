@@ -26,17 +26,21 @@ class AppErrorBoundary extends React.Component {
 
   render() {
     const { error } = this.state;
-    return error ? <AppErrorAlert /> : this.props.children;
+    return error ? <AppErrorAlert {...{ error }} /> : this.props.children;
   }
 }
 
-export const AppErrorAlert = () => {
-  return (
-    <Alert variant="warning" data-testid="error-loading-app">
-      <Alert.Heading>General application error</Alert.Heading>
-      <p>Something went wrong. Please try again later.</p>
-    </Alert>
-  );
-};
+export const AppErrorAlert = ({ error }: { error: Error }) => (
+  <Alert variant="danger" data-testid="error-loading-app">
+    <Alert.Heading>General application error</Alert.Heading>
+    <p>Something went wrong. Please try again later.</p>
+    {error?.message && (
+      <>
+        <hr />
+        <small>{"" + error.message}</small>
+      </>
+    )}
+  </Alert>
+);
 
 export default AppErrorBoundary;

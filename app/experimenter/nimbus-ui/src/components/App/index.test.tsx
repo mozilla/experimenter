@@ -25,6 +25,21 @@ describe("App", () => {
     expect(screen.getByTestId("page-loading")).toBeInTheDocument();
   });
 
+  it("renders the error alert when an error occurs querying the config", () => {
+    const error = new Error("boop");
+
+    (jest.spyOn(apollo, "useQuery") as jest.Mock).mockReturnValueOnce({
+      error,
+    });
+
+    renderWithRouter(
+      <MockedCache mocks={[]}>
+        <App basepath="/" />
+      </MockedCache>,
+    );
+    expect(screen.queryByTestId("apollo-error-alert")).toBeInTheDocument();
+  });
+
   it("routes to PageHome page", () => {
     renderWithRouter(
       <MockedCache>
