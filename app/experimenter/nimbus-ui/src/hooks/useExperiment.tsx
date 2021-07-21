@@ -29,16 +29,18 @@ import { getExperiment } from "../types/getExperiment";
  */
 
 export function useExperiment(slug: string) {
-  const { data, loading, startPolling, stopPolling, refetch } = useQuery<{
-    experimentBySlug: getExperiment["experimentBySlug"];
-  }>(GET_EXPERIMENT_QUERY, {
-    variables: { slug },
-    fetchPolicy: "network-only",
-  });
+  const { data, loading, startPolling, stopPolling, refetch, error } =
+    useQuery<{
+      experimentBySlug: getExperiment["experimentBySlug"];
+    }>(GET_EXPERIMENT_QUERY, {
+      variables: { slug },
+      fetchPolicy: "network-only",
+    });
 
   const experiment = data?.experimentBySlug;
 
   return {
+    error,
     experiment: experiment!,
     notFound: !loading && experiment === null,
     loading,

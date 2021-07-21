@@ -8,6 +8,7 @@ import React from "react";
 import { Alert, Tab, Tabs } from "react-bootstrap";
 import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
+import ApolloErrorAlert from "../ApolloErrorAlert";
 import AppLayout from "../AppLayout";
 import Head from "../Head";
 import LinkExternal from "../LinkExternal";
@@ -31,11 +32,7 @@ export const Body = () => {
   }
 
   if (error) {
-    return (
-      <Alert variant="warning">
-        An error occurred while looking up experiments: {error.message}
-      </Alert>
-    );
+    return <ApolloErrorAlert {...{ error }} />;
   }
 
   if (!data) {
