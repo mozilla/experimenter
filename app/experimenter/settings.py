@@ -329,20 +329,12 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.kinto.tasks.nimbus_check_kinto_push_queue",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
-    "nimbus_check_experiments_are_live": {
-        "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_live",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
-    "nimbus_check_experiments_are_complete": {
-        "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_complete",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
     "nimbus_synchronize_preview_experiments_in_kinto": {
         "task": "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_kinto",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
-    "nimbus_send_end_enrollment_email": {
-        "task": "experimenter.kinto.tasks.nimbus_send_end_enrollment_email",
+    "nimbus_send_emails": {
+        "task": "experimenter.kinto.tasks.nimbus_send_emails",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "fetch_jetstream_data": {
