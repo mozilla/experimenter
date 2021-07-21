@@ -16,12 +16,19 @@ from experimenter.jetstream.models import (
     MetricData,
     SignificanceData,
 )
+from experimenter.jetstream.tests import mock_valid_outcomes
 from experimenter.jetstream.tests.constants import TestConstants
+from experimenter.outcomes import Outcomes
 
 
+@mock_valid_outcomes
 @override_settings(FEATURE_ANALYSIS=False)
 class TestFetchJetstreamDataTask(TestCase):
     maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+        Outcomes.clear_cache()
 
     def get_metric_data(self, data_point):
         return MetricData(
@@ -32,36 +39,37 @@ class TestFetchJetstreamDataTask(TestCase):
         ).dict(exclude_none=True)
 
     def add_outcome_data(self, data, overall_data, weekly_data, primary_outcome):
+        primary_metrics = ["mozilla_default_browser", "default_browser_action"]
         range_data = DataPoint(lower=2, point=4, upper=8)
-        primary_metric = f"{primary_outcome}_ever_used"
 
-        for branch in ["control", "variant"]:
-            if Group.OTHER not in overall_data[branch]["branch_data"]:
-                overall_data[branch]["branch_data"][Group.OTHER] = {}
-            if Group.OTHER not in weekly_data[branch]["branch_data"]:
-                weekly_data[branch]["branch_data"][Group.OTHER] = {}
+        for primary_metric in primary_metrics:
+            for branch in ["control", "variant"]:
+                if Group.OTHER not in overall_data[branch]["branch_data"]:
+                    overall_data[branch]["branch_data"][Group.OTHER] = {}
+                if Group.OTHER not in weekly_data[branch]["branch_data"]:
+                    weekly_data[branch]["branch_data"][Group.OTHER] = {}
 
-            data_point_overall = range_data.copy()
-            data_point_overall.count = 48.0
-            overall_data[branch]["branch_data"][Group.OTHER][
-                primary_metric
-            ] = self.get_metric_data(data_point_overall)
+                data_point_overall = range_data.copy()
+                data_point_overall.count = 48.0
+                overall_data[branch]["branch_data"][Group.OTHER][
+                    primary_metric
+                ] = self.get_metric_data(data_point_overall)
 
-            data_point_weekly = range_data.copy()
-            data_point_weekly.window_index = "1"
-            weekly_data[branch]["branch_data"][Group.OTHER][
-                primary_metric
-            ] = self.get_metric_data(data_point_weekly)
+                data_point_weekly = range_data.copy()
+                data_point_weekly.window_index = "1"
+                weekly_data[branch]["branch_data"][Group.OTHER][
+                    primary_metric
+                ] = self.get_metric_data(data_point_weekly)
 
-            data.append(
-                JetstreamDataPoint(
-                    **range_data.dict(exclude_none=True),
-                    metric=primary_metric,
-                    branch=branch,
-                    statistic="binomial",
-                    window_index="1",
-                ).dict(exclude_none=True)
-            )
+                data.append(
+                    JetstreamDataPoint(
+                        **range_data.dict(exclude_none=True),
+                        metric=primary_metric,
+                        branch=branch,
+                        statistic="binomial",
+                        window_index="1",
+                    ).dict(exclude_none=True)
+                )
 
     def add_all_outcome_data(
         self,
@@ -116,7 +124,7 @@ class TestFetchJetstreamDataTask(TestCase):
 
         mock_open.side_effect = open_file
         mock_exists.return_value = True
-        primary_outcome = "primary_outcome"
+        primary_outcome = "default-browser"
         secondary_outcome = "secondary_outcome"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
@@ -144,7 +152,7 @@ class TestFetchJetstreamDataTask(TestCase):
     @patch("django.core.files.storage.default_storage.exists")
     def test_results_data_null(self, lifecycle, mock_exists):
         mock_exists.return_value = False
-        primary_outcome = "outcome"
+        primary_outcome = "default-browser"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, primary_outcomes=[primary_outcome]
         )

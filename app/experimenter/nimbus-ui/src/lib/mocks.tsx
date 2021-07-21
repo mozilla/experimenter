@@ -124,24 +124,56 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       slug: "picture_in_picture",
       application: NimbusExperimentApplication.DESKTOP,
       description: "foo",
+      isDefault: true,
+      metrics: [
+        {
+          slug: "picture_in_picture",
+          friendlyName: "Picture-in-Picture",
+          description: "Test",
+        },
+      ],
     },
     {
       friendlyName: "Feature B",
       slug: "feature_b",
       application: NimbusExperimentApplication.DESKTOP,
       description: "bar",
+      isDefault: false,
+      metrics: [
+        {
+          slug: "feature_b",
+          friendlyName: "Feature B",
+          description: "Test",
+        },
+      ],
     },
     {
       friendlyName: "Feature C",
       slug: "feature_c",
       application: NimbusExperimentApplication.DESKTOP,
       description: "baz",
+      isDefault: false,
+      metrics: [
+        {
+          slug: "feature_c",
+          friendlyName: "Feature C",
+          description: "Test",
+        },
+      ],
     },
     {
       friendlyName: "Feature D",
       slug: "feature_d",
       application: NimbusExperimentApplication.FENIX,
-      description: "blah",
+      description: "feature_d",
+      isDefault: false,
+      metrics: [
+        {
+          slug: "uri_count",
+          friendlyName: "Feature D",
+          description: "Test",
+        },
+      ],
     },
   ],
   targetingConfigSlug: [
@@ -302,7 +334,7 @@ export function mockExperiment<
           featureEnabled: true,
         },
       ],
-      primaryOutcomes: ["picture_in_picture"],
+      primaryOutcomes: ["picture_in_picture", "feature_c"],
       secondaryOutcomes: ["feature_b"],
       channel: "NIGHTLY",
       firefoxMinVersion: "FIREFOX_83",

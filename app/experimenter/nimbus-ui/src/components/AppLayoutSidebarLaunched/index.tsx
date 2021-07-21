@@ -31,10 +31,17 @@ const analysisNotRequiredLinkProps = {
 };
 
 const outcomeToMapping = (outcomes: OutcomesList) => {
-  return outcomes.reduce((acc: { [key: string]: string }, outcome) => {
-    acc[outcome?.slug as string] = outcome?.friendlyName!;
-    return acc;
-  }, {});
+  const response = outcomes.reduce(
+    (acc: { [key: string]: string }, outcome) => {
+      outcome?.metrics?.forEach((metric) => {
+        acc[metric?.slug as string] = metric?.friendlyName!;
+      });
+
+      return acc;
+    },
+    {},
+  );
+  return response;
 };
 
 const otherMetricsToFriendlyName = (
@@ -76,6 +83,7 @@ export const AppLayoutSidebarLaunched = ({
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
   const primaryMetrics = outcomeToMapping(primaryOutcomes);
   const secondaryMetrics = outcomeToMapping(secondaryOutcomes);
+
   const otherMetrics = otherMetricsToFriendlyName(
     analysis?.other_metrics || {},
     analysis?.metadata?.metrics || {},
@@ -173,9 +181,9 @@ export const AppLayoutSidebarLaunched = ({
             </li>
 
             {Object.keys(primaryMetrics).length > 0 &&
-              getNestedSidebarItems(primaryMetrics, "Primary Metrics")}
+              getNestedSidebarItems(primaryMetrics, "Primary Outcomes")}
             {Object.keys(secondaryMetrics).length > 0 &&
-              getNestedSidebarItems(secondaryMetrics, "Secondary Metrics")}
+              getNestedSidebarItems(secondaryMetrics, "Secondary Outcomes")}
             {otherMetrics &&
               analysis?.overall &&
               getNestedSidebarItems(otherMetrics, "Default Metrics")}
@@ -204,9 +212,9 @@ export const AppLayoutSidebarLaunched = ({
             </LinkNav>
 
             {Object.keys(primaryMetrics).length > 0 &&
-              getNestedSidebarItems(primaryMetrics, "Primary Metrics")}
+              getNestedSidebarItems(primaryMetrics, "Primary Outcomes")}
             {Object.keys(secondaryMetrics).length > 0 &&
-              getNestedSidebarItems(secondaryMetrics, "Secondary Metrics")}
+              getNestedSidebarItems(secondaryMetrics, "Secondary Outcomes")}
             {otherMetrics &&
               analysis?.overall &&
               getNestedSidebarItems(otherMetrics, "Default Metrics")}

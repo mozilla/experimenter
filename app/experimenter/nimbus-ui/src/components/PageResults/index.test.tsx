@@ -58,8 +58,7 @@ describe("PageResults", () => {
     expect(screen.queryByTestId("table-highlights")).toBeInTheDocument();
     expect(screen.queryByTestId("table-overview")).toBeInTheDocument();
     expect(screen.queryByTestId("table-results")).toBeInTheDocument();
-    expect(screen.queryByTestId("table-metric-primary")).toBeInTheDocument();
-    expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(2);
+    expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(4);
     expect(screen.queryByTestId("link-external-results")).toHaveAttribute(
       "href",
       "https://protosaur.dev/partybal/demo_slug.html",

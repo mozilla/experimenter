@@ -7,7 +7,7 @@ import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableMetricSecondary from ".";
 import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
-import { GROUP } from "../../../lib/visualization/constants";
+import { GROUP, METRIC_TYPE } from "../../../lib/visualization/constants";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 import { getSortedBranches } from "../../../lib/visualization/utils";
 
@@ -28,7 +28,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
         outcomeSlug={secondaryOutcomes![0]!.slug!}
         outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         group={GROUP.OTHER}
-        isDefault={false}
+        metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
       />
     );
   })
@@ -42,7 +42,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
         outcomeSlug={secondaryOutcomes![0]!.slug!}
         outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         group={GROUP.OTHER}
-        isDefault={false}
+        metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
       />
     );
   })
@@ -58,7 +58,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
         outcomeSlug={secondaryOutcomes![0]!.slug!}
         outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
         group={GROUP.OTHER}
-        isDefault={false}
+        metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
       />
     );
   });

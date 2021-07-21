@@ -23,12 +23,18 @@ type SecondaryMetricStatistic = {
   value?: string;
 };
 
+type MetricTypes =
+  | typeof METRIC_TYPE.PRIMARY
+  | typeof METRIC_TYPE.USER_SELECTED_SECONDARY
+  | typeof METRIC_TYPE.DEFAULT_SECONDARY
+  | typeof METRIC_TYPE.GUARDRAIL;
+
 type TableMetricSecondaryProps = {
   results: AnalysisData;
   outcomeSlug: string;
   outcomeDefaultName: string;
   group: string;
-  isDefault?: boolean;
+  metricType?: MetricTypes;
   sortedBranches: string[];
 };
 
@@ -55,13 +61,10 @@ const TableMetricSecondary = ({
   outcomeSlug,
   outcomeDefaultName,
   group,
-  isDefault = true,
+  metricType = METRIC_TYPE.DEFAULT_SECONDARY,
   sortedBranches,
 }: TableMetricSecondaryProps) => {
   const secondaryMetricStatistics = getStatistics(outcomeSlug);
-  const secondaryType = isDefault
-    ? METRIC_TYPE.DEFAULT_SECONDARY
-    : METRIC_TYPE.USER_SELECTED_SECONDARY;
 
   const overallResults = results?.overall!;
   const bounds = getExtremeBounds(
@@ -97,10 +100,10 @@ const TableMetricSecondary = ({
           </div>
         </div>
         <div
-          className={`badge ${secondaryType.badge}`}
-          data-tip={secondaryType.tooltip}
+          className={`badge ${metricType.badge}`}
+          data-tip={metricType.tooltip}
         >
-          {secondaryType.label}
+          {metricType.label}
         </div>
       </h2>
 
