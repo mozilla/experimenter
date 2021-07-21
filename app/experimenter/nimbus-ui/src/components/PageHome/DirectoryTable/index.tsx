@@ -71,70 +71,49 @@ interface Column {
 }
 
 interface DirectoryTableProps {
-  title: string;
   experiments: getAllExperiments_experiments[];
   columns?: Column[];
 }
 
 const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
-  title,
   experiments,
   columns: customColumns,
 }) => {
   const columns = customColumns || [
-    { label: title, component: DirectoryColumnTitle },
+    { label: "Name", component: DirectoryColumnTitle },
     { label: "Owner", component: DirectoryColumnOwner },
     { label: "Feature", component: DirectoryColumnFeature },
   ];
   return (
-    <div className="directory-table pb-2" data-testid="DirectoryTable">
-      <table className="table">
-        <thead>
-          <tr>
-            {experiments.length ? (
-              columns.map(({ label }, i) => (
+    <div className="directory-table pb-2 mt-4">
+      {experiments.length ? (
+        <table className="table" data-testid="DirectoryTable">
+          <thead>
+            <tr>
+              {columns.map(({ label }, i) => (
                 <th
-                  className={`border-top-0 ${
-                    i === 0 ? "font-weight-bold" : "font-weight-normal"
-                  }`}
+                  className="border-top-0"
                   key={label}
                   data-testid="directory-table-header"
                 >
                   {label}
                 </th>
-              ))
-            ) : (
-              <th
-                colSpan={columns.length}
-                className="border-top-0 font-weight-bold"
-                data-testid="directory-table-header"
-              >
-                {columns[0].label}
-              </th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {experiments.length ? (
-            experiments.map((experiment) => (
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {experiments.map((experiment) => (
               <tr key={experiment.slug} data-testid="directory-table-row">
                 {columns.map(({ label, component: ColumnComponent }, i) => {
                   return <ColumnComponent key={label + i} {...experiment} />;
                 })}
               </tr>
-            ))
-          ) : (
-            <tr data-testid="directory-table-row">
-              <td
-                colSpan={columns.length}
-                data-testid="directory-table-no-experiments"
-              >
-                No experiments found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p data-testid="no-experiments">No experiments found.</p>
+      )}
     </div>
   );
 };
@@ -143,7 +122,7 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
   <DirectoryTable
     {...props}
     columns={[
-      { label: props.title, component: DirectoryColumnTitle },
+      { label: "Name", component: DirectoryColumnTitle },
       { label: "Owner", component: DirectoryColumnOwner },
       { label: "Feature", component: DirectoryColumnFeature },
       {
@@ -204,7 +183,7 @@ export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
   <DirectoryTable
     {...props}
     columns={[
-      { label: props.title, component: DirectoryColumnTitle },
+      { label: "Name", component: DirectoryColumnTitle },
       { label: "Owner", component: DirectoryColumnOwner },
       { label: "Feature", component: DirectoryColumnFeature },
       {
@@ -238,7 +217,7 @@ export const DirectoryDraftsTable: React.FC<DirectoryTableProps> = (props) => (
     {...props}
     columns={[
       {
-        label: props.title,
+        label: "Name",
         component: (experiment) => <DirectoryColumnTitle {...experiment} />,
       },
       { label: "Owner", component: DirectoryColumnOwner },
