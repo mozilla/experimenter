@@ -124,7 +124,7 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
     # Check it's live
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     live_experiments = home.tables[0]
-    assert "live experiments" in live_experiments.table_name.lower()
+    assert "Live" in home.active_tab_text
     for item in live_experiments.experiments:
         if experiment_name in item.text:
             item.click()
