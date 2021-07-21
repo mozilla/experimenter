@@ -8,6 +8,7 @@ from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.models import NimbusExperiment, NimbusIsolationGroup
 from experimenter.experiments.tests.factories import (
@@ -244,6 +245,69 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             "'app.shield.optoutstudies.enabled'|preferenceValue",
+        )
+
+    def test_targeting_with_locales(self):
+        locale_ca = LocaleFactory.create(code="en-CA")
+        locale_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[locale_ca, locale_us],
+            countries=[],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "'app.shield.optoutstudies.enabled'|preferenceValue "
+                "&& locale in ['en-CA', 'en-US']"
+            ),
+        )
+
+    def test_targeting_with_countries(self):
+        country_ca = CountryFactory.create(code="CA")
+        country_us = CountryFactory.create(code="US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[],
+            countries=[country_ca, country_us],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "'app.shield.optoutstudies.enabled'|preferenceValue "
+                "&& region in ['CA', 'US']"
+            ),
+        )
+
+    def test_targeting_with_locales_and_countries(self):
+        locale_ca = LocaleFactory.create(code="en-CA")
+        locale_us = LocaleFactory.create(code="en-US")
+        country_ca = CountryFactory.create(code="CA")
+        country_us = CountryFactory.create(code="US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[locale_ca, locale_us],
+            countries=[country_ca, country_us],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "'app.shield.optoutstudies.enabled'|preferenceValue "
+                "&& locale in ['en-CA', 'en-US'] "
+                "&& region in ['CA', 'US']"
+            ),
         )
 
     def test_start_date_returns_None_for_not_started_experiment(self):
