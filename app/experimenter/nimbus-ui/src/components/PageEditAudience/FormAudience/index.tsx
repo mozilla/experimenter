@@ -137,7 +137,7 @@ export const FormAudience = ({
 
       <Form.Group>
         <Form.Row>
-          <Form.Group as={Col} controlId="channel" md={8} lg={8}>
+          <Form.Group as={Col} controlId="channel">
             <Form.Label className="d-flex align-items-center">
               Channel
             </Form.Label>
@@ -173,8 +173,6 @@ export const FormAudience = ({
             </Form.Text>
             <FormErrors name="locales" />
           </Form.Group>
-        </Form.Row>
-        <Form.Row>
           <Form.Group as={Col} controlId="countries" data-testid="countries">
             <Form.Label>Countries</Form.Label>
             <Select
