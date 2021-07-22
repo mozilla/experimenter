@@ -34,11 +34,19 @@ export interface getConfig_nimbusConfig_firefoxMinVersion {
   value: string | null;
 }
 
+export interface getConfig_nimbusConfig_outcomes_metrics {
+  slug: string | null;
+  friendlyName: string | null;
+  description: string | null;
+}
+
 export interface getConfig_nimbusConfig_outcomes {
   friendlyName: string | null;
   slug: string | null;
   application: NimbusExperimentApplication | null;
   description: string | null;
+  isDefault: boolean | null;
+  metrics: (getConfig_nimbusConfig_outcomes_metrics | null)[] | null;
 }
 
 export interface getConfig_nimbusConfig_targetingConfigSlug {

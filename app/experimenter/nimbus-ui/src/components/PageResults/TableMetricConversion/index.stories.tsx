@@ -5,7 +5,7 @@
 import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
-import TableMetricPrimary from ".";
+import TableMetricConversion from ".";
 import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 import { getSortedBranches } from "../../../lib/visualization/utils";
@@ -13,7 +13,7 @@ import { getSortedBranches } from "../../../lib/visualization/utils";
 const results = mockAnalysis().overall;
 const sortedBranches = getSortedBranches(mockAnalysis());
 
-storiesOf("pages/Results/TableMetricPrimary", module)
+storiesOf("pages/Results/TableMetricConversion", module)
   .addDecorator(withLinks)
   .add("with positive primary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
@@ -22,7 +22,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
-      <TableMetricPrimary
+      <TableMetricConversion
         {...{ results, sortedBranches }}
         outcome={primaryOutcomes![0]!}
       />
@@ -35,7 +35,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
-      <TableMetricPrimary
+      <TableMetricConversion
         {...{ results, sortedBranches }}
         outcome={primaryOutcomes![0]!}
       />
@@ -48,7 +48,7 @@ storiesOf("pages/Results/TableMetricPrimary", module)
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
-      <TableMetricPrimary
+      <TableMetricConversion
         {...{ results, sortedBranches }}
         outcome={primaryOutcomes![0]!}
       />

@@ -197,8 +197,8 @@ export const RESULTS_METRICS_LIST = [
 ];
 
 // This is used as an ordered list of items to
-// display in the primary metric table from left to right.
-export const PRIMARY_METRIC_COLUMNS = [
+// display in the conversion metric table from left to right.
+export const CONVERSION_METRIC_COLUMNS = [
   {
     name: "Conversions / Total Users",
     displayType: DISPLAY_TYPE.CONVERSION_COUNT,
@@ -216,8 +216,8 @@ export const PRIMARY_METRIC_COLUMNS = [
 ];
 
 // This is used as an ordered list of items to
-// display in the secondary metric table from left to right.
-export const SECONDARY_METRIC_COLUMNS = [
+// display in the count metric table from left to right.
+export const COUNT_METRIC_COLUMNS = [
   {
     name: "Count",
     displayType: DISPLAY_TYPE.COUNT,

@@ -4,7 +4,7 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import TableMetricPrimary from ".";
+import TableMetricConversion from ".";
 import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
@@ -13,7 +13,7 @@ import { getSortedBranches } from "../../../lib/visualization/utils";
 const results = mockAnalysis().overall;
 const sortedBranches = getSortedBranches(mockAnalysis());
 
-describe("TableMetricPrimary", () => {
+describe("TableMetricConversion", () => {
   it("has the correct headings", () => {
     const EXPECTED_HEADINGS = [
       "Conversions / Total Users",
@@ -25,7 +25,7 @@ describe("TableMetricPrimary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricPrimary
+        <TableMetricConversion
           {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
@@ -43,7 +43,7 @@ describe("TableMetricPrimary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricPrimary
+        <TableMetricConversion
           {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
@@ -64,7 +64,7 @@ describe("TableMetricPrimary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricPrimary
+        <TableMetricConversion
           {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
@@ -81,7 +81,7 @@ describe("TableMetricPrimary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricPrimary
+        <TableMetricConversion
           {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
@@ -104,7 +104,7 @@ describe("TableMetricPrimary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricPrimary
+        <TableMetricConversion
           {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
@@ -127,7 +127,7 @@ describe("TableMetricPrimary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricPrimary
+        <TableMetricConversion
           {...{ results, sortedBranches }}
           outcome={primaryOutcomes![0]!}
         />
