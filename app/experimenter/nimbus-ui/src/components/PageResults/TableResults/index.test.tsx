@@ -25,7 +25,6 @@ describe("TableResults", () => {
       </RouterSlugProvider>,
     );
     const EXPECTED_HEADINGS = [
-      "Picture-in-Picture Conversion",
       "2-Week Browser Retention",
       "Mean Searches Per User",
       "Overall Mean Days of Use Per User",

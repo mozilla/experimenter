@@ -397,11 +397,19 @@ type NimbusLocaleType {
   nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
+type NimbusOutcomeMetricType {
+  slug: String
+  friendlyName: String
+  description: String
+}
+
 type NimbusOutcomeType {
   friendlyName: String
   slug: String
   application: NimbusExperimentApplication
   description: String
+  isDefault: Boolean
+  metrics: [NimbusOutcomeMetricType]
 }
 
 type NimbusReadyForReviewType {

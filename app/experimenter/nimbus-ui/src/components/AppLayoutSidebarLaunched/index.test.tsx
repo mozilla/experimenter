@@ -133,9 +133,9 @@ describe("AppLayoutSidebarLaunched", () => {
         "Monitoring",
         "Overview",
         "Results Summary",
-        "Primary Metrics",
+        "Primary Outcomes",
         "Picture-in-Picture",
-        "Secondary Metrics",
+        "Secondary Outcomes",
         "Feature B",
       ].forEach((item) => {
         expect(screen.getByText(item)).toBeInTheDocument();
@@ -151,9 +151,9 @@ describe("AppLayoutSidebarLaunched", () => {
         "Monitoring",
         "Overview",
         "Results Summary",
-        "Primary Metrics",
+        "Primary Outcomes",
         "Picture-in-Picture",
-        "Secondary Metrics",
+        "Secondary Outcomes",
         "Feature B",
       ].forEach((item) => {
         expect(screen.getByText(item)).toBeInTheDocument();

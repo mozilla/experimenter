@@ -11,6 +11,7 @@ import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
 import {
   GROUP,
   HIGHLIGHTS_METRICS_LIST,
+  METRIC_TYPE,
 } from "../../lib/visualization/constants";
 import {
   analysisUnavailable,
@@ -21,8 +22,7 @@ import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
 import TableHighlights from "./TableHighlights";
 import TableHighlightsOverview from "./TableHighlightsOverview";
-import TableMetricPrimary from "./TableMetricPrimary";
-import TableMetricSecondary from "./TableMetricSecondary";
+import TableMetricCount from "./TableMetricCount";
 import TableResults from "./TableResults";
 import TableResultsWeekly from "./TableResultsWeekly";
 
@@ -109,15 +109,17 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   const outcome = configOutcomes!.find((set) => {
                     return set?.slug === slug;
                   });
-
-                  return (
-                    <TableMetricPrimary
-                      key={slug}
-                      results={analysis?.overall!}
-                      outcome={outcome!}
+                  return outcome?.metrics?.map((metric) => (
+                    <TableMetricCount
+                      key={metric?.slug}
+                      results={analysis}
+                      outcomeSlug={metric?.slug!}
+                      outcomeDefaultName={metric?.friendlyName!}
+                      group={GROUP.OTHER}
+                      metricType={METRIC_TYPE.PRIMARY}
                       {...{ sortedBranches }}
                     />
-                  );
+                  ));
                 })}
               {analysis?.overall &&
                 experiment.secondaryOutcomes?.map((slug) => {
@@ -126,13 +128,13 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   });
 
                   return (
-                    <TableMetricSecondary
+                    <TableMetricCount
                       key={outcome!.slug}
                       results={analysis}
                       outcomeSlug={outcome!.slug!}
                       outcomeDefaultName={outcome!.friendlyName!}
                       group={GROUP.OTHER}
-                      isDefault={false}
+                      metricType={METRIC_TYPE.DEFAULT_SECONDARY}
                       {...{ sortedBranches }}
                     />
                   );
@@ -173,7 +175,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                           {analysis.other_metrics?.[group] &&
                             Object.keys(analysis.other_metrics[group]).map(
                               (metric: string) => (
-                                <TableMetricSecondary
+                                <TableMetricCount
                                   key={metric}
                                   results={analysis}
                                   outcomeSlug={metric}

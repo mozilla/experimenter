@@ -28,6 +28,9 @@ const getResultMetrics = (outcomes: OutcomesList) => {
   // Make a copy of `RESULTS_METRICS_LIST` since we modify it.
   const resultsMetricsList = [...RESULTS_METRICS_LIST];
   outcomes?.forEach((outcome) => {
+    if (!outcome?.isDefault) {
+      return;
+    }
     resultsMetricsList.unshift({
       value: `${outcome!.slug}_ever_used`,
       name: `${outcome!.friendlyName} Conversion`,

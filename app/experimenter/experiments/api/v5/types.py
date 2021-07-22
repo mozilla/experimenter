@@ -135,11 +135,19 @@ class NimbusBucketRangeType(DjangoObjectType):
         exclude = ("id", "experiment")
 
 
+class NimbusOutcomeMetricType(graphene.ObjectType):
+    slug = graphene.String()
+    friendly_name = graphene.String()
+    description = graphene.String()
+
+
 class NimbusOutcomeType(graphene.ObjectType):
     friendly_name = graphene.String()
     slug = graphene.String()
     application = NimbusExperimentApplication()
     description = graphene.String()
+    isDefault = graphene.Boolean()
+    metrics = graphene.List(NimbusOutcomeMetricType)
 
 
 class NimbusLabelValueType(graphene.ObjectType):
