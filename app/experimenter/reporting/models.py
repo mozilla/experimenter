@@ -43,6 +43,21 @@ class ReportLog(ReportLogConstants, models.Model):
         self.clean()
         super().save(*args, **kwargs)
 
+    @property
+    def is_nimbus_type(self):
+        return self.experiment_type in (
+            ReportLog.ExperimentType.NIMBUS_IOS,
+            ReportLog.ExperimentType.NIMBUS_FENIX,
+            ReportLog.ExperimentType.NIMBUS_DESKTOP,
+        )
+
+    @property
+    def is_normandy_experiment_type(self):
+        return self.experiment_type in (
+            ReportLog.ExperimentType.NORMANDY_ADDON,
+            ReportLog.ExperimentType.NORMANDY_PREF,
+        )
+
     def __str__(self):
         return f"{self.timestamp} - {self.experiment_type} - {self.event_reason} "
 
