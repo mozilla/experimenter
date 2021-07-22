@@ -46,6 +46,11 @@ describe("PageHome", () => {
   it("displays five Directory Tables (one for each status type)", async () => {
     await renderAndWaitForLoaded();
     expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(5);
+    expect(screen.getByText("Live (3)")).toBeInTheDocument();
+    expect(screen.getByText("Review (1)")).toBeInTheDocument();
+    expect(screen.getByText("Preview (1)")).toBeInTheDocument();
+    expect(screen.getByText("Completed (4)")).toBeInTheDocument();
+    expect(screen.getByText("Draft (1)")).toBeInTheDocument();
   });
 });
 
