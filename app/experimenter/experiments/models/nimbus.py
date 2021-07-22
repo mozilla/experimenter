@@ -221,6 +221,16 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         if self.targeting_config and self.targeting_config.targeting:
             expressions.append(self.targeting_config.targeting)
 
+        if self.locales.count():
+            locales = [locale.code for locale in self.locales.all().order_by("code")]
+            expressions.append(f"locale in {locales}")
+
+        if self.countries.count():
+            countries = [
+                country.code for country in self.countries.all().order_by("code")
+            ]
+            expressions.append(f"region in {countries}")
+
         #  If there is no targeting defined all clients should match, so we return "true"
         if len(expressions) == 0:
             return "true"
