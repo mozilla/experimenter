@@ -1,5 +1,6 @@
 import json
 import os
+from itertools import chain
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -12,9 +13,9 @@ from experimenter.jetstream.models import (
     Statistic,
     create_results_object_model,
 )
+from experimenter.outcomes import Outcomes
 
 BRANCH_DATA = "branch_data"
-PRIMARY_METRIC_SUFFIX = "_ever_used"
 STATISTICS_FOLDER = "statistics"
 METADATA_FOLDER = "metadata"
 
@@ -36,7 +37,7 @@ def get_metadata(slug):
     return load_data_from_gcs(path)
 
 
-def get_results_metrics_map(data, primary_outcomes, secondary_outcomes):
+def get_results_metrics_map(data, primary_outcome_slugs, secondary_outcome_slugs):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
     RESULTS_METRICS_MAP = {
@@ -46,12 +47,21 @@ def get_results_metrics_map(data, primary_outcomes, secondary_outcomes):
         Metric.USER_COUNT: set([Statistic.COUNT, Statistic.PERCENT]),
     }
     primary_metrics_set = set()
-    for outcome_slug in primary_outcomes:
-        metric_id = f"{outcome_slug}{PRIMARY_METRIC_SUFFIX}"
-        RESULTS_METRICS_MAP[metric_id] = set([Statistic.BINOMIAL])
-        primary_metrics_set.add(metric_id)
+    primary_outcome_metrics = list(
+        chain.from_iterable(
+            [
+                outcome.metrics
+                for outcome in Outcomes.all()
+                if outcome.slug in primary_outcome_slugs
+            ]
+        )
+    )
 
-    for outcome_slug in secondary_outcomes:
+    for metric in primary_outcome_metrics:
+        RESULTS_METRICS_MAP[metric.slug] = set([Statistic.BINOMIAL])
+        primary_metrics_set.add(metric.slug)
+
+    for outcome_slug in secondary_outcome_slugs:
         RESULTS_METRICS_MAP[outcome_slug] = set([Statistic.MEAN])
 
     other_metrics_map, other_metrics = get_other_metrics_names_and_map(

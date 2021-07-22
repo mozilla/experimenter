@@ -202,6 +202,12 @@ class TestConstants:
                         ),
                         "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
                         "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "mozilla_default_browser": EMPTY_METRIC_DATA.dict(
+                            exclude_none=True
+                        ),
+                        "default_browser_action": EMPTY_METRIC_DATA.dict(
+                            exclude_none=True
+                        ),
                         "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL.dict(
                             exclude_none=True
                         ),

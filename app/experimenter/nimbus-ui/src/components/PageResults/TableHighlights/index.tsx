@@ -36,6 +36,9 @@ const getHighlightMetrics = (outcomes: OutcomesList) => {
   // Make a copy of `HIGHLIGHTS_METRICS_LIST` since we modify it.
   const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
   outcomes?.forEach((outcome) => {
+    if (!outcome?.isDefault) {
+      return;
+    }
     highlightMetricsList.unshift({
       value: `${outcome!.slug}_ever_used`,
       name: `${outcome!.friendlyName} conversion`,

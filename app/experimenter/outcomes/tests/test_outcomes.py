@@ -2,7 +2,7 @@ from django.core.checks import Error
 from django.test import TestCase
 
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.outcomes import Outcome, Outcomes, check_outcome_tomls
+from experimenter.outcomes import Metric, Outcome, Outcomes, check_outcome_tomls
 from experimenter.outcomes.tests import mock_invalid_outcomes, mock_valid_outcomes
 
 
@@ -22,6 +22,14 @@ class TestOutcomes(TestCase):
                 description="Fenix config used for testing",
                 friendly_name="Fenix config",
                 slug="fenix_outcome",
+                is_default=False,
+                metrics=[
+                    Metric(
+                        slug="uri_count",
+                        friendly_name=None,
+                        description=None,
+                    )
+                ],
             ),
             outcomes,
         )
@@ -32,6 +40,19 @@ class TestOutcomes(TestCase):
                     description="Firefox desktop config used for testing",
                     friendly_name=f"Desktop config {i}",
                     slug=f"desktop_outcome_{i}",
+                    is_default=False,
+                    metrics=[
+                        Metric(
+                            slug="urlbar_amazon_search_count",
+                            friendly_name=None,
+                            description=None,
+                        ),
+                        Metric(
+                            slug="total_amazon_search_count",
+                            friendly_name=None,
+                            description=None,
+                        ),
+                    ],
                 ),
                 outcomes,
             )
@@ -46,6 +67,19 @@ class TestOutcomes(TestCase):
                     description="Firefox desktop config used for testing",
                     friendly_name=f"Desktop config {i}",
                     slug=f"desktop_outcome_{i}",
+                    is_default=False,
+                    metrics=[
+                        Metric(
+                            slug="urlbar_amazon_search_count",
+                            friendly_name=None,
+                            description=None,
+                        ),
+                        Metric(
+                            slug="total_amazon_search_count",
+                            friendly_name=None,
+                            description=None,
+                        ),
+                    ],
                 ),
                 desktop_outcomes,
             )

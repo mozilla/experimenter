@@ -33,6 +33,12 @@ export const GET_CONFIG_QUERY = gql`
         slug
         application
         description
+        isDefault
+        metrics {
+          slug
+          friendlyName
+          description
+        }
       }
       targetingConfigSlug {
         label
