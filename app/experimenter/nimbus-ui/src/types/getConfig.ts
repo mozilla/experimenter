@@ -52,6 +52,16 @@ export interface getConfig_nimbusConfig_documentationLink {
   value: string | null;
 }
 
+export interface getConfig_nimbusConfig_locales {
+  code: string | null;
+  name: string | null;
+}
+
+export interface getConfig_nimbusConfig_countries {
+  code: string | null;
+  name: string | null;
+}
+
 export interface getConfig_nimbusConfig {
   application: (getConfig_nimbusConfig_application | null)[] | null;
   channel: (getConfig_nimbusConfig_channel | null)[] | null;
@@ -62,6 +72,8 @@ export interface getConfig_nimbusConfig {
   hypothesisDefault: string | null;
   documentationLink: (getConfig_nimbusConfig_documentationLink | null)[] | null;
   maxPrimaryOutcomes: number | null;
+  locales: (getConfig_nimbusConfig_locales | null)[] | null;
+  countries: (getConfig_nimbusConfig_countries | null)[] | null;
 }
 
 export interface getConfig {

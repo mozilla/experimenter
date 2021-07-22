@@ -16,6 +16,8 @@ storiesOf("pages/EditAudience/FormAudience", module)
         "*": ["Big bad server thing happened"],
         channel: ["Cannot tune in this channel"],
         firefox_min_version: ["Bad min version"],
+        countries: ["This place doesn't even exist"],
+        locales: ["We don't have that locale"],
         targeting_config_slug: ["This slug is icky"],
         population_percent: ["This is not a percentage"],
         total_enrolled_clients: ["Need a number here, bud."],

@@ -167,6 +167,34 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
   ],
   maxPrimaryOutcomes: 2,
+  locales: [
+    {
+      code: "ach",
+      name: "Acholi",
+    },
+    {
+      code: "af",
+      name: "Afrikaans",
+    },
+    {
+      code: "sq",
+      name: "Albanian",
+    },
+  ],
+  countries: [
+    {
+      code: "ER",
+      name: "Eritrea",
+    },
+    {
+      code: "EE",
+      name: "Estonia",
+    },
+    {
+      code: "SZ",
+      name: "Eswatini",
+    },
+  ],
 };
 
 // Disabling this rule for now because we'll eventually
