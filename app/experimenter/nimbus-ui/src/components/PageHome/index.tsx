@@ -44,19 +44,19 @@ export const Body = () => {
   );
   return (
     <Tabs defaultActiveKey="live">
-      <Tab eventKey="live" title="Live">
+      <Tab eventKey="live" title={`Live (${live.length})`}>
         <DirectoryLiveTable experiments={live} />
       </Tab>
-      <Tab eventKey="review" title="Review">
+      <Tab eventKey="review" title={`Review (${review.length})`}>
         <DirectoryTable experiments={review} />
       </Tab>
-      <Tab eventKey="preview" title="Preview">
+      <Tab eventKey="preview" title={`Preview (${preview.length})`}>
         <DirectoryTable experiments={preview} />
       </Tab>
-      <Tab eventKey="completed" title="Completed">
+      <Tab eventKey="completed" title={`Completed (${complete.length})`}>
         <DirectoryCompleteTable experiments={complete} />
       </Tab>
-      <Tab eventKey="drafts" title="Drafts">
+      <Tab eventKey="drafts" title={`Draft (${draft.length})`}>
         <DirectoryDraftsTable experiments={draft} />
       </Tab>
     </Tabs>
