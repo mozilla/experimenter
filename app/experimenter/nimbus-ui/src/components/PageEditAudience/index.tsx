@@ -35,6 +35,8 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
         totalEnrolledClients,
         proposedEnrollment,
         proposedDuration,
+        countries,
+        locales,
       }: Record<string, any>,
       next: boolean,
     ) => {
@@ -53,6 +55,8 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
               totalEnrolledClients,
               proposedEnrollment,
               proposedDuration,
+              countries,
+              locales,
             },
           },
         });

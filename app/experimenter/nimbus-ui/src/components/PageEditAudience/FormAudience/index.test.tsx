@@ -153,23 +153,26 @@ describe("FormAudience", () => {
       totalEnrolledClients: MOCK_EXPERIMENT.totalEnrolledClients,
       proposedEnrollment: "" + MOCK_EXPERIMENT.proposedEnrollment,
       proposedDuration: "" + MOCK_EXPERIMENT.proposedDuration,
+      countries: MOCK_EXPERIMENT.countries.map((v) => "" + v.id),
+      locales: MOCK_EXPERIMENT.locales.map((v) => "" + v.id),
     };
     render(<Subject {...{ onSubmit }} />);
     await screen.findByTestId("FormAudience");
     const submitButton = screen.getByTestId("submit-button");
     const nextButton = screen.getByTestId("next-button");
 
-    await act(async () => {
-      fireEvent.click(submitButton);
-      fireEvent.click(nextButton);
+    fireEvent.click(submitButton);
+    fireEvent.click(nextButton);
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledTimes(2);
+      expect(onSubmit.mock.calls).toEqual([
+        // Save button just saves
+        [expected, false],
+        // Next button advances to next page
+        [expected, true],
+      ]);
     });
-    expect(onSubmit).toHaveBeenCalledTimes(2);
-    expect(onSubmit.mock.calls).toEqual([
-      // Save button just saves
-      [expected, false],
-      // Next button advances to next page
-      [expected, true],
-    ]);
   });
 
   it("accepts commas in the expected number of clients field (EXP-761)", async () => {
