@@ -88,12 +88,12 @@ export interface getExperiment_experimentBySlug_timeout {
 }
 
 export interface getExperiment_experimentBySlug_locales {
-  code: string | null;
+  id: number | null;
   name: string | null;
 }
 
 export interface getExperiment_experimentBySlug_countries {
-  code: string | null;
+  id: number | null;
   name: string | null;
 }
 

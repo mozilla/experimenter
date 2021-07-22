@@ -53,12 +53,12 @@ export interface getConfig_nimbusConfig_documentationLink {
 }
 
 export interface getConfig_nimbusConfig_locales {
-  code: string | null;
+  id: number | null;
   name: string | null;
 }
 
 export interface getConfig_nimbusConfig_countries {
-  code: string | null;
+  id: number | null;
   name: string | null;
 }
 

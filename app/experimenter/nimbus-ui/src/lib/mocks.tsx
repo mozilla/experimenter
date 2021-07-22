@@ -169,30 +169,30 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   maxPrimaryOutcomes: 2,
   locales: [
     {
-      code: "ach",
       name: "Acholi",
+      id: 1,
     },
     {
-      code: "af",
       name: "Afrikaans",
+      id: 2,
     },
     {
-      code: "sq",
       name: "Albanian",
+      id: 3,
     },
   ],
   countries: [
     {
-      code: "ER",
       name: "Eritrea",
+      id: 1,
     },
     {
-      code: "EE",
       name: "Estonia",
+      id: 2,
     },
     {
-      code: "SZ",
       name: "Eswatini",
+      id: 3,
     },
   ],
 };
@@ -369,8 +369,8 @@ export function mockExperiment<
       riskPartnerRelated: false,
       reviewUrl:
         "https://kinto.example.com/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review",
-      locales: [{ name: "Quebecois", code: "qc" }],
-      countries: [{ name: "Canada", code: "ca" }],
+      locales: [{ name: "Quebecois", id: 1 }],
+      countries: [{ name: "Canada", id: 1 }],
     },
     modifications,
   ) as T;

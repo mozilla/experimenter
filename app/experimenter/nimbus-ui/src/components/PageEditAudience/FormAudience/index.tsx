@@ -34,8 +34,8 @@ type FormAudienceProps = {
 };
 
 type AudienceFieldName = typeof audienceFieldNames[number];
-type SelectCodeItems = {
-  code: string;
+type SelectIdItems = {
+  id: number;
   name: string;
 }[];
 
@@ -51,10 +51,10 @@ export const audienceFieldNames = [
   "locales",
 ] as const;
 
-const selectOptions = (items: SelectCodeItems) =>
+const selectOptions = (items: SelectIdItems) =>
   items.map((item) => ({
     label: item.name!,
-    value: item.code!,
+    value: item.id!,
   }));
 
 export const FormAudience = ({
@@ -69,10 +69,10 @@ export const FormAudience = ({
   const { fieldMessages } = useReviewCheck(experiment);
 
   const [locales, setLocales] = useState<string[]>(
-    experiment!.locales.map((v) => v.code!),
+    experiment!.locales.map((v) => "" + v.id!),
   );
   const [countries, setCountries] = useState<string[]>(
-    experiment!.countries.map((v) => v.code!),
+    experiment!.countries.map((v) => "" + v.id!),
   );
 
   const defaultValues = {
@@ -83,8 +83,8 @@ export const FormAudience = ({
     totalEnrolledClients: experiment.totalEnrolledClients,
     proposedEnrollment: experiment.proposedEnrollment,
     proposedDuration: experiment.proposedDuration,
-    countries: selectOptions(experiment.countries as SelectCodeItems),
-    locales: selectOptions(experiment.locales as SelectCodeItems),
+    countries: selectOptions(experiment.countries as SelectIdItems),
+    locales: selectOptions(experiment.locales as SelectIdItems),
   };
 
   const {
@@ -107,10 +107,19 @@ export const FormAudience = ({
     () =>
       [false, true].map((next) =>
         handleSubmit(
-          (dataIn: DefaultValues) => !isLoading && onSubmit(dataIn, next),
+          (dataIn: DefaultValues) =>
+            !isLoading &&
+            onSubmit(
+              {
+                ...dataIn,
+                locales,
+                countries,
+              },
+              next,
+            ),
         ),
       ),
-    [isLoading, onSubmit, handleSubmit],
+    [isLoading, onSubmit, handleSubmit, locales, countries],
   );
 
   const targetingConfigSlugOptions = useMemo(
@@ -166,11 +175,8 @@ export const FormAudience = ({
               placeholder="All Locales"
               isMulti
               {...formSelectAttrs("locales", setLocales)}
-              options={selectOptions(config.locales as SelectCodeItems)}
+              options={selectOptions(config.locales as SelectIdItems)}
             />
-            <Form.Text className="text-muted">
-              In development - this field does not save selections yet.
-            </Form.Text>
             <FormErrors name="locales" />
           </Form.Group>
           <Form.Group as={Col} controlId="countries" data-testid="countries">
@@ -179,11 +185,8 @@ export const FormAudience = ({
               placeholder="All Countries"
               isMulti
               {...formSelectAttrs("countries", setCountries)}
-              options={selectOptions(config.countries as SelectCodeItems)}
+              options={selectOptions(config.countries as SelectIdItems)}
             />
-            <Form.Text className="text-muted">
-              In development - this field does not save selections yet.
-            </Form.Text>
             <FormErrors name="countries" />
           </Form.Group>
         </Form.Row>
