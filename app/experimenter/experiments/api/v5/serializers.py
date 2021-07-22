@@ -637,3 +637,12 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
         if value == NimbusExperiment.HYPOTHESIS_DEFAULT.strip():
             raise serializers.ValidationError("Hypothesis cannot be the default value.")
         return value
+
+    def validate(self, attrs):
+        application = attrs.get("application")
+        channel = attrs.get("channel")
+        if application != NimbusExperiment.Application.DESKTOP and not channel:
+            raise serializers.ValidationError(
+                {"channel": "Channel is required for this application."}
+            )
+        return super().validate(attrs)

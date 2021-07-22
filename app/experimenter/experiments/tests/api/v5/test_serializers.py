@@ -1699,6 +1699,33 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             NimbusConstants.ERROR_REQUIRED_QUESTION,
         )
 
+    @parameterized.expand(
+        [
+            (True, NimbusExperiment.Application.DESKTOP),
+            (False, NimbusExperiment.Application.FENIX),
+            (False, NimbusExperiment.Application.IOS),
+        ]
+    )
+    def test_channel_required_for_mobile(self, expected_valid, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertEqual(serializer.is_valid(), expected_valid)
+        if not expected_valid:
+            self.assertIn("channel", serializer.errors)
+
 
 class TestNimbusStatusTransitionValidator(TestCase):
     maxDiff = None
