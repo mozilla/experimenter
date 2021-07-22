@@ -60,23 +60,21 @@ describe("FormAudience", () => {
         }}
       />,
     );
-    await waitFor(() => {
-      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
-    });
+    await screen.findByTestId("FormAudience");
     expect(screen.getByTestId("learn-more-link")).toHaveAttribute(
       "href",
       EXTERNAL_URLS.WORKFLOW_MANA_DOC,
     );
-    const targetingConfigSlug = screen.queryByTestId("targetingConfigSlug");
-    expect(targetingConfigSlug).toBeInTheDocument();
-    const targetingConfigSlugSelect = targetingConfigSlug as HTMLSelectElement;
-    expect(targetingConfigSlugSelect.value).toEqual(
+    const targetingConfigSlug = (await screen.findByTestId(
+      "targetingConfigSlug",
+    )) as HTMLSelectElement;
+    expect(targetingConfigSlug.value).toEqual(
       MOCK_CONFIG!.targetingConfigSlug![0]!.value,
     );
 
     // Assert that the targeting choices are filtered for application
     expect(
-      Array.from(targetingConfigSlugSelect.options).map((node) => node.value),
+      Array.from(targetingConfigSlug.options).map((node) => node.value),
     ).toEqual(["NO_TARGETING", "US_ONLY"]);
 
     // Assert that we have all the channels available
@@ -88,6 +86,14 @@ describe("FormAudience", () => {
     expect(
       await screen.findByTestId("tooltip-duration-audience"),
     ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
+
+    expect(screen.getByTestId("locales")).toHaveTextContent(
+      MOCK_EXPERIMENT.locales[0]!.name!,
+    );
+
+    expect(screen.getByTestId("countries")).toHaveTextContent(
+      MOCK_EXPERIMENT.countries[0]!.name!,
+    );
   });
 
   it("renders server errors", async () => {
@@ -96,32 +102,30 @@ describe("FormAudience", () => {
       channel: ["Cannot tune in this channel"],
       firefox_min_version: ["Bad min version"],
       targeting_config_slug: ["This slug is icky"],
+      countries: ["This place doesn't even exist"],
+      locales: ["We don't have that locale"],
       population_percent: ["This is not a percentage"],
       total_enrolled_clients: ["Need a number here, bud."],
       proposed_enrollment: ["Emoji are not numbers"],
       proposed_duration: ["No negative numbers"],
     };
-    const { container } = render(<Subject submitErrors={submitErrors} />);
-    await waitFor(() => {
-      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
-    });
+    render(<Subject submitErrors={submitErrors} />);
+    await screen.findByTestId("FormAudience");
     for (const [submitErrorName, [error]] of Object.entries(submitErrors)) {
       const fieldName = snakeToCamelCase(submitErrorName);
       if (fieldName === "*") {
         expect(screen.getByTestId("submit-error")).toHaveTextContent(error);
       } else {
-        expect(
-          container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
-        ).toHaveTextContent(error);
+        await screen.findByText(error, {
+          selector: `.invalid-feedback[data-for=${fieldName}]`,
+        });
       }
     }
   });
 
   it("renders without error with default values", async () => {
     renderSubjectWithDefaultValues();
-    await waitFor(() => {
-      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
-    });
+    await screen.findByTestId("FormAudience");
 
     for (const [fieldName, expected] of [
       ["firefoxMinVersion", NimbusExperimentFirefoxMinVersion.NO_VERSION],
@@ -134,6 +138,9 @@ describe("FormAudience", () => {
       expect(field).toBeInTheDocument();
       expect((field as HTMLInputElement).value).toEqual(expected);
     }
+
+    expect(screen.getByTestId("locales")).toHaveTextContent("All Locales");
+    expect(screen.getByTestId("countries")).toHaveTextContent("All Countries");
   });
 
   it("calls onSubmit when save and next buttons are clicked", async () => {
@@ -281,6 +288,8 @@ describe("FormAudience", () => {
         "Where we can dance the whole night away",
       ],
       channel: ["Underneath the electric stars."],
+      countries: ["Just come with me"],
+      locales: ["We can shake it loose right away"],
     });
   });
 });
@@ -365,6 +374,8 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         proposedDuration: 0,
         proposedEnrollment: 0,
         targetingConfigSlug: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
+        countries: [],
+        locales: [],
       }}
     />,
   );

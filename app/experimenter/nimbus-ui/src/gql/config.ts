@@ -45,6 +45,14 @@ export const GET_CONFIG_QUERY = gql`
         value
       }
       maxPrimaryOutcomes
+      locales {
+        code
+        name
+      }
+      countries {
+        code
+        name
+      }
     }
   }
 `;

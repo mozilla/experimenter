@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
+import Select from "react-select";
 import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig, useReviewCheck } from "../../../hooks";
 import { ReactComponent as Info } from "../../../images/info.svg";
@@ -33,6 +34,10 @@ type FormAudienceProps = {
 };
 
 type AudienceFieldName = typeof audienceFieldNames[number];
+type SelectCodeItems = {
+  code: string;
+  name: string;
+}[];
 
 export const audienceFieldNames = [
   "channel",
@@ -42,7 +47,15 @@ export const audienceFieldNames = [
   "totalEnrolledClients",
   "proposedEnrollment",
   "proposedDuration",
+  "countries",
+  "locales",
 ] as const;
+
+const selectOptions = (items: SelectCodeItems) =>
+  items.map((item) => ({
+    label: item.name!,
+    value: item.code!,
+  }));
 
 export const FormAudience = ({
   experiment,
@@ -55,6 +68,13 @@ export const FormAudience = ({
   const config = useConfig();
   const { fieldMessages } = useReviewCheck(experiment);
 
+  const [locales, setLocales] = useState<string[]>(
+    experiment!.locales.map((v) => v.code!),
+  );
+  const [countries, setCountries] = useState<string[]>(
+    experiment!.countries.map((v) => v.code!),
+  );
+
   const defaultValues = {
     channel: experiment.channel,
     firefoxMinVersion: experiment.firefoxMinVersion,
@@ -63,16 +83,24 @@ export const FormAudience = ({
     totalEnrolledClients: experiment.totalEnrolledClients,
     proposedEnrollment: experiment.proposedEnrollment,
     proposedDuration: experiment.proposedDuration,
+    countries: selectOptions(experiment.countries as SelectCodeItems),
+    locales: selectOptions(experiment.locales as SelectCodeItems),
   };
 
-  const { FormErrors, formControlAttrs, isValid, handleSubmit, isSubmitted } =
-    useCommonForm<AudienceFieldName>(
-      defaultValues,
-      isServerValid,
-      submitErrors,
-      setSubmitErrors,
-      fieldMessages,
-    );
+  const {
+    FormErrors,
+    formControlAttrs,
+    formSelectAttrs,
+    isValid,
+    handleSubmit,
+    isSubmitted,
+  } = useCommonForm<AudienceFieldName>(
+    defaultValues,
+    isServerValid,
+    submitErrors,
+    setSubmitErrors,
+    fieldMessages,
+  );
 
   type DefaultValues = typeof defaultValues;
   const [handleSave, handleSaveNext] = useMemo(
@@ -109,7 +137,7 @@ export const FormAudience = ({
 
       <Form.Group>
         <Form.Row>
-          <Form.Group as={Col} controlId="channel" md={8} lg={8}>
+          <Form.Group as={Col} controlId="channel">
             <Form.Label className="d-flex align-items-center">
               Channel
             </Form.Label>
@@ -129,6 +157,34 @@ export const FormAudience = ({
               <SelectOptions options={config.firefoxMinVersion} />
             </Form.Control>
             <FormErrors name="firefoxMinVersion" />
+          </Form.Group>
+        </Form.Row>
+        <Form.Row>
+          <Form.Group as={Col} controlId="locales" data-testid="locales">
+            <Form.Label>Locales</Form.Label>
+            <Select
+              placeholder="All Locales"
+              isMulti
+              {...formSelectAttrs("locales", setLocales)}
+              options={selectOptions(config.locales as SelectCodeItems)}
+            />
+            <Form.Text className="text-muted">
+              In development - this field does not save selections yet.
+            </Form.Text>
+            <FormErrors name="locales" />
+          </Form.Group>
+          <Form.Group as={Col} controlId="countries" data-testid="countries">
+            <Form.Label>Countries</Form.Label>
+            <Select
+              placeholder="All Countries"
+              isMulti
+              {...formSelectAttrs("countries", setCountries)}
+              options={selectOptions(config.countries as SelectCodeItems)}
+            />
+            <Form.Text className="text-muted">
+              In development - this field does not save selections yet.
+            </Form.Text>
+            <FormErrors name="countries" />
           </Form.Group>
         </Form.Row>
         <Form.Row>

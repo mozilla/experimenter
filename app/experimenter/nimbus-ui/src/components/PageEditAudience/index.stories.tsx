@@ -47,7 +47,8 @@ export const MissingFields = () =>
           "Well, I know a place",
           "Where we can dance the whole night away",
         ],
-        channel: ["Underneath the electric stars."],
+        countries: ["Just come with me"],
+        locales: ["We can shake it loose right away"],
       },
     },
   });
