@@ -106,6 +106,8 @@ const MOCK_FORM_DATA = {
   totalEnrolledClients: 68000,
   proposedEnrollment: "1.0",
   proposedDuration: 28,
+  countries: [1],
+  locales: [1],
 };
 
 const Subject = ({

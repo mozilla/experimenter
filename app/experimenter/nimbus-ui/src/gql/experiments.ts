@@ -139,11 +139,11 @@ export const GET_EXPERIMENT_QUERY = gql`
       reviewUrl
 
       locales {
-        code
+        id
         name
       }
       countries {
-        code
+        id
         name
       }
     }

@@ -143,7 +143,7 @@ describe("TableAudience", () => {
   describe("renders 'Targeted Locales' row as expected", () => {
     it("when locales exist, displays them", () => {
       const data = {
-        locales: [{ name: "Quebecois", code: "qc" }],
+        locales: [{ name: "Quebecois", id: 1 }],
       };
       const { experiment } = mockExperimentQuery("demo-slug", data);
       render(<Subject {...{ experiment }} />);
@@ -165,7 +165,7 @@ describe("TableAudience", () => {
   describe("renders 'Targeted Countries' row as expected", () => {
     it("when countries exist, displays them", async () => {
       const data = {
-        locales: [{ name: "Canada", code: "ca" }],
+        locales: [{ name: "Canada", id: 1 }],
       };
       const { experiment } = mockExperimentQuery("demo-slug", data);
       render(<Subject {...{ experiment }} />);

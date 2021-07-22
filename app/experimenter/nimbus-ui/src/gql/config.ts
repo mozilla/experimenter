@@ -52,11 +52,11 @@ export const GET_CONFIG_QUERY = gql`
       }
       maxPrimaryOutcomes
       locales {
-        code
+        id
         name
       }
       countries {
-        code
+        id
         name
       }
     }
