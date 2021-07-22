@@ -92,7 +92,7 @@ describe("TableAudience", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-target")).toHaveTextContent(
-        "Us Only",
+        "Mac Only",
       );
     });
     it("when not set", () => {
