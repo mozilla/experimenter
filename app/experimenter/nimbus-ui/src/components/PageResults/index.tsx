@@ -22,7 +22,7 @@ import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
 import TableHighlights from "./TableHighlights";
 import TableHighlightsOverview from "./TableHighlightsOverview";
-import TableMetricSecondary from "./TableMetricSecondary";
+import TableMetricCount from "./TableMetricCount";
 import TableResults from "./TableResults";
 import TableResultsWeekly from "./TableResultsWeekly";
 
@@ -110,7 +110,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                     return set?.slug === slug;
                   });
                   return outcome?.metrics?.map((metric) => (
-                    <TableMetricSecondary
+                    <TableMetricCount
                       key={metric?.slug}
                       results={analysis}
                       outcomeSlug={metric?.slug!}
@@ -128,7 +128,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   });
 
                   return (
-                    <TableMetricSecondary
+                    <TableMetricCount
                       key={outcome!.slug}
                       results={analysis}
                       outcomeSlug={outcome!.slug!}
@@ -175,7 +175,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                           {analysis.other_metrics?.[group] &&
                             Object.keys(analysis.other_metrics[group]).map(
                               (metric: string) => (
-                                <TableMetricSecondary
+                                <TableMetricCount
                                   key={metric}
                                   results={analysis}
                                   outcomeSlug={metric}

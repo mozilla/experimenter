@@ -5,7 +5,7 @@
 import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
-import TableMetricSecondary from ".";
+import TableMetricCount from ".";
 import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { GROUP, METRIC_TYPE } from "../../../lib/visualization/constants";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
@@ -14,7 +14,7 @@ import { getSortedBranches } from "../../../lib/visualization/utils";
 const results = mockAnalysis();
 const sortedBranches = getSortedBranches(results);
 
-storiesOf("pages/Results/TableMetricSecondary", module)
+storiesOf("pages/Results/TableMetricCount", module)
   .addDecorator(withLinks)
   .add("with positive secondary metric", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
@@ -23,7 +23,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
     const { secondaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
-      <TableMetricSecondary
+      <TableMetricCount
         {...{ results, sortedBranches }}
         outcomeSlug={secondaryOutcomes![0]!.slug!}
         outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
@@ -37,7 +37,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
     const { secondaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
-      <TableMetricSecondary
+      <TableMetricCount
         {...{ results, sortedBranches }}
         outcomeSlug={secondaryOutcomes![0]!.slug!}
         outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
@@ -53,7 +53,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
     const { secondaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
-      <TableMetricSecondary
+      <TableMetricCount
         {...{ results, sortedBranches }}
         outcomeSlug={secondaryOutcomes![0]!.slug!}
         outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}

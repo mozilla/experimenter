@@ -4,7 +4,7 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import TableMetricSecondary from ".";
+import TableMetricCount from ".";
 import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { GROUP, METRIC_TYPE } from "../../../lib/visualization/constants";
@@ -14,7 +14,7 @@ import { getSortedBranches } from "../../../lib/visualization/utils";
 const results = mockAnalysis();
 const sortedBranches = getSortedBranches(results);
 
-describe("TableMetricSecondary", () => {
+describe("TableMetricCount", () => {
   it("has the correct headings", () => {
     const EXPECTED_HEADINGS = ["Count", "Relative Improvement"];
     const { mock, experiment } = mockExperimentQuery("demo-slug");
@@ -22,7 +22,7 @@ describe("TableMetricSecondary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricSecondary
+        <TableMetricCount
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
@@ -43,7 +43,7 @@ describe("TableMetricSecondary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricSecondary
+        <TableMetricCount
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           group={GROUP.OTHER}
@@ -67,7 +67,7 @@ describe("TableMetricSecondary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricSecondary
+        <TableMetricCount
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           group={GROUP.OTHER}
@@ -87,7 +87,7 @@ describe("TableMetricSecondary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricSecondary
+        <TableMetricCount
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           group={GROUP.OTHER}
@@ -111,7 +111,7 @@ describe("TableMetricSecondary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricSecondary
+        <TableMetricCount
           outcomeSlug={secondaryOutcomes![0]!.slug!}
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           group={GROUP.OTHER}
@@ -131,7 +131,7 @@ describe("TableMetricSecondary", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricSecondary
+        <TableMetricCount
           outcomeSlug="feature_d"
           outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
           group={GROUP.OTHER}
