@@ -6,13 +6,19 @@ import React from "react";
 import JSONPretty from "react-json-pretty";
 import "../../styles/react-json-pretty-theme.scss";
 
-export const Code = ({ codeString }: { codeString: string }) => {
+export const Code = ({
+  codeString,
+  className,
+}: {
+  codeString: string;
+  className?: string;
+}) => {
   try {
     JSON.parse(codeString);
   } catch (e) {
     return (
       <pre className="mb-0 code-color">
-        <code>{codeString}</code>
+        <code {...{ className }}>{codeString}</code>
       </pre>
     );
   }
