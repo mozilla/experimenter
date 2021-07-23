@@ -11,16 +11,25 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusIsolationGroup,
 )
+from experimenter.jetstream import tasks
 
 
-class ReadOnlyAdminMixin:
+@admin.action(description="Force jetstream data fetch.")
+def force_fetch_jetstream_data(modeladmin, request, queryset):
+    for experiment in queryset:
+        tasks.fetch_experiment_data.delay(experiment.id)
+
+
+class NoDeleteAdminMixin:
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class ReadOnlyAdminMixin(NoDeleteAdminMixin):
     def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
         return False
 
 
@@ -37,17 +46,17 @@ class NimbusIsolationGroupAdmin(ReadOnlyAdminMixin, admin.ModelAdmin):
         exclude = ("id",)
 
 
-class NimbusBranchInlineAdmin(admin.StackedInline):
+class NimbusBranchInlineAdmin(NoDeleteAdminMixin, admin.StackedInline):
     model = NimbusBranch
     extra = 0
 
 
-class NimbusDocumentationLinkInlineAdmin(admin.TabularInline):
+class NimbusDocumentationLinkInlineAdmin(NoDeleteAdminMixin, admin.TabularInline):
     model = NimbusDocumentationLink
     extra = 1
 
 
-class NimbusExperimentChangeLogInlineAdmin(admin.StackedInline):
+class NimbusExperimentChangeLogInlineAdmin(NoDeleteAdminMixin, admin.StackedInline):
     model = NimbusChangeLog
     extra = 1
 
@@ -113,7 +122,7 @@ class NimbusExperimentAdminForm(forms.ModelForm):
         exclude = ("id",)
 
 
-class NimbusExperimentAdmin(admin.ModelAdmin):
+class NimbusExperimentAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
     inlines = (
         NimbusDocumentationLinkInlineAdmin,
         NimbusBranchInlineAdmin,
@@ -132,9 +141,10 @@ class NimbusExperimentAdmin(admin.ModelAdmin):
     list_filter = ("status", "publish_status", "application")
     prepopulated_fields = {"slug": ("name",)}
     form = NimbusExperimentAdminForm
+    actions = [force_fetch_jetstream_data]
 
 
-class NimbusFeatureConfigAdmin(admin.ModelAdmin):
+class NimbusFeatureConfigAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
 
