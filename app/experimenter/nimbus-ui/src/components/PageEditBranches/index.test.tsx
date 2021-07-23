@@ -3,13 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { navigate } from "@reach/router";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
@@ -81,10 +75,8 @@ describe("PageEditBranches", () => {
     );
     render(<Subject mocks={[mock, mockMutation]} />);
     await screen.findByTestId("PageEditBranches");
-    await act(
-      async () => void fireEvent.click(screen.getByTestId("next-button")),
-    );
-    expect(navigate).toHaveBeenCalledWith("metrics");
+    fireEvent.click(screen.getByTestId("next-button"));
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith("metrics"));
   });
 
   it("handles onSave from FormBranches", async () => {
@@ -100,10 +92,8 @@ describe("PageEditBranches", () => {
     );
     render(<Subject mocks={[mock, mockMutation, mock]} />);
     await screen.findByTestId("PageEditBranches");
-    await act(
-      async () => void fireEvent.click(screen.getByTestId("save-button")),
-    );
-    expect(mockSetSubmitErrors).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("save-button"));
+    await waitFor(() => expect(mockSetSubmitErrors).not.toHaveBeenCalled());
   });
 
   it("sets a global submit error when updateExperimentBranches fails", async () => {
@@ -122,18 +112,16 @@ describe("PageEditBranches", () => {
     delete mockMutation.result.data.updateExperiment;
 
     render(<Subject mocks={[mock, mockMutation, mock]} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
-    });
+    await screen.findByTestId("PageEditBranches");
 
-    await act(async () => {
-      const saveButton = screen.getByTestId("save-button");
-      fireEvent.click(saveButton);
-    });
+    const saveButton = screen.getByTestId("save-button");
+    fireEvent.click(saveButton);
 
-    expect(mockSetSubmitErrors).toHaveBeenCalledWith({
-      "*": [SUBMIT_ERROR_MESSAGE],
-    });
+    await waitFor(() =>
+      expect(mockSetSubmitErrors).toHaveBeenCalledWith({
+        "*": [SUBMIT_ERROR_MESSAGE],
+      }),
+    );
   });
 
   it("sets submit errors when updateExperimentBranches is not a success", async () => {
@@ -156,17 +144,15 @@ describe("PageEditBranches", () => {
     };
 
     render(<Subject mocks={[mock, mockMutation, mock]} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
-    });
+    await screen.findByTestId("PageEditBranches");
 
-    await act(async () => {
-      const saveButton = screen.getByTestId("save-button");
-      fireEvent.click(saveButton);
-    });
+    const saveButton = screen.getByTestId("save-button");
+    fireEvent.click(saveButton);
 
-    expect(mockSetSubmitErrors).toHaveBeenCalledWith(
-      mockMutation.result.data.updateExperiment.message,
+    await waitFor(() =>
+      expect(mockSetSubmitErrors).toHaveBeenCalledWith(
+        mockMutation.result.data.updateExperiment.message,
+      ),
     );
   });
 });
