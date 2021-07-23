@@ -412,7 +412,7 @@ class NimbusConstants(object):
             TARGETING_URLBAR_FIREFOX_SUGGEST.name,
         )
         TARGETING_MAC_ONLY = (TARGETING_MAC_ONLY.slug, TARGETING_MAC_ONLY.name)
-        TARGETING_US_ONLY_NO_ENTERPRISE = (
+        TARGETING_NO_ENTERPRISE = (
             TARGETING_NO_ENTERPRISE.slug,
             TARGETING_NO_ENTERPRISE.name,
         )
