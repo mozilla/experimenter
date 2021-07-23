@@ -61,3 +61,18 @@ class ReportLogConstants(object):
             EventReason.EXPERIMENT_DESIGN_ISSUE,
         ],
     }
+
+    REPORT_HEADINGS = [
+        "name",
+        "url",
+        "type",
+        "projects",
+        "time_in_draft",
+        "time_in_preview",
+        "time_in_review",
+        "time_in_ship",
+        "time_in_accepted",
+        "time_in_live",
+    ]
+
+    EXCLUDED_PROJECTS = ["experiment tools"]
