@@ -206,13 +206,11 @@ TARGETING_MAC_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_US_ONLY_NO_ENTERPRISE = NimbusTargetingConfig(
-    name="US users (en) no enterprise users",
-    slug="us_no_enterprise",
-    description="US region, en locale, no enterpries policies active",
-    targeting="{us_en} && !hasActiveEnterprisePolicies".format(
-        us_en=TARGETING_US_ONLY.targeting,
-    ),
+TARGETING_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="No enterprise users",
+    slug="no_enterprise_users",
+    description="Exclude users with active enterpries policies",
+    targeting="!hasActiveEnterprisePolicies",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -391,7 +389,7 @@ class NimbusConstants(object):
         TARGETING_HOMEPAGE_GOOGLE.slug: TARGETING_HOMEPAGE_GOOGLE,
         TARGETING_URLBAR_FIREFOX_SUGGEST.slug: TARGETING_URLBAR_FIREFOX_SUGGEST,
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
-        TARGETING_US_ONLY_NO_ENTERPRISE.slug: TARGETING_US_ONLY_NO_ENTERPRISE,
+        TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
     }
 
     class TargetingConfig(models.TextChoices):
@@ -415,8 +413,8 @@ class NimbusConstants(object):
         )
         TARGETING_MAC_ONLY = (TARGETING_MAC_ONLY.slug, TARGETING_MAC_ONLY.name)
         TARGETING_US_ONLY_NO_ENTERPRISE = (
-            TARGETING_US_ONLY_NO_ENTERPRISE.slug,
-            TARGETING_US_ONLY_NO_ENTERPRISE.name,
+            TARGETING_NO_ENTERPRISE.slug,
+            TARGETING_NO_ENTERPRISE.name,
         )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
