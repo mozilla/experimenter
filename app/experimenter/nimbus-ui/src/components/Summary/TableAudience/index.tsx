@@ -57,7 +57,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
         )}
         {experiment.targetingConfigSlug && (
           <tr>
-            <th>Custom audience</th>
+            <th>Advanced Targeting</th>
             <td data-testid="experiment-target">
               {displayConfigLabelOrNotSet(
                 experiment.targetingConfigSlug,

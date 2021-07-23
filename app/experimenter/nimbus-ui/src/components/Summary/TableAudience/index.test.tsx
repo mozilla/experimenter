@@ -87,7 +87,7 @@ describe("TableAudience", () => {
     });
   });
 
-  describe("renders 'Custom audience' row as expected", () => {
+  describe("renders 'Advanced Targeting' row as expected", () => {
     it("when set", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
