@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { SERVER_ERRORS } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
@@ -154,7 +148,7 @@ describe("FormBranches", () => {
   it("sets all branch ratios to 1 when equal ratio checkbox enabled", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
-    act(() => void fireEvent.click(screen.getByTestId("equal-ratio-checkbox")));
+    fireEvent.click(screen.getByTestId("equal-ratio-checkbox"));
     await clickAndWaitForSave(onSave);
     const saveResult = onSave.mock.calls[0][0];
     expect(saveResult.referenceBranch.ratio).toEqual(1);
@@ -219,10 +213,8 @@ describe("FormBranches", () => {
     );
 
     const field = screen.getByTestId("referenceBranch.name");
-    act(() => {
-      fireEvent.change(field, { target: { value: "Big beautiful branch" } });
-      fireEvent.blur(field);
-    });
+    fireEvent.change(field, { target: { value: "Big beautiful branch" } });
+    fireEvent.blur(field);
 
     await clickAndWaitForSave(onSave);
   });
@@ -251,9 +243,7 @@ describe("FormBranches", () => {
     expect(saveResultBefore.treatmentBranches).toEqual([]);
 
     onSave.mockClear();
-    act(() => {
-      fireEvent.click(screen.getByTestId("add-branch"));
-    });
+    fireEvent.click(screen.getByTestId("add-branch"));
     await fillInBranch(container, "treatmentBranches[0]");
     await clickAndWaitForSave(onSave);
 
@@ -265,9 +255,7 @@ describe("FormBranches", () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
     const removeFirst = screen.queryAllByTestId("remove-branch")![0];
-    act(() => {
-      fireEvent.click(removeFirst);
-    });
+    fireEvent.click(removeFirst);
     await clickAndWaitForSave(onSave);
     const saveResult = onSave.mock.calls[0][0];
     const expectedDeletedBranch = MOCK_EXPERIMENT.treatmentBranches![0]!;
@@ -462,10 +450,7 @@ describe("FormBranches", () => {
   });
 });
 
-const clickSave = () =>
-  act(() => {
-    fireEvent.click(screen.getByTestId("save-button"));
-  });
+const clickSave = () => fireEvent.click(screen.getByTestId("save-button"));
 
 const clickAndWaitForSave = async (pendingOnSave: jest.Mock<any, any>) => {
   clickSave();
@@ -488,11 +473,9 @@ async function fillInBranch(
       `[name="${fieldNamePrefix}.${name}"]`,
     ) as HTMLInputElement;
     expect(field).not.toBeNull();
-    act(() => {
-      fireEvent.focus(field!);
-      fireEvent.change(field!, { target: { value } });
-      fireEvent.blur(field!);
-    });
+    fireEvent.focus(field!);
+    fireEvent.change(field!, { target: { value } });
+    fireEvent.blur(field!);
     await waitFor(() => {
       // HACK: the field value is always a string, regardless of input value type
       expect(field.value).toEqual("" + value);
