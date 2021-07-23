@@ -166,6 +166,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
 
 
 class TestGenerateNimbusChangeLog(TestCase):
+    maxDiff = None
+
     def setUp(self):
         self.user = UserFactory.create()
 
