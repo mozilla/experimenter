@@ -206,6 +206,15 @@ TARGETING_MAC_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="No enterprise users",
+    slug="no_enterprise_users",
+    description="Exclude users with active enterpries policies",
+    targeting="!hasActiveEnterprisePolicies",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class NimbusConstants(object):
     class Status(models.TextChoices):
@@ -380,6 +389,7 @@ class NimbusConstants(object):
         TARGETING_HOMEPAGE_GOOGLE.slug: TARGETING_HOMEPAGE_GOOGLE,
         TARGETING_URLBAR_FIREFOX_SUGGEST.slug: TARGETING_URLBAR_FIREFOX_SUGGEST,
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
+        TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
     }
 
     class TargetingConfig(models.TextChoices):
@@ -402,6 +412,10 @@ class NimbusConstants(object):
             TARGETING_URLBAR_FIREFOX_SUGGEST.name,
         )
         TARGETING_MAC_ONLY = (TARGETING_MAC_ONLY.slug, TARGETING_MAC_ONLY.name)
+        TARGETING_NO_ENTERPRISE = (
+            TARGETING_NO_ENTERPRISE.slug,
+            TARGETING_NO_ENTERPRISE.name,
+        )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
