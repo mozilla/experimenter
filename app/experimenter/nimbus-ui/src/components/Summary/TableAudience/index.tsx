@@ -90,7 +90,10 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
               data-testid="experiment-target-expression"
               className="text-monospace"
             >
-              <Code codeString={experiment.jexlTargetingExpression} />
+              <Code
+                className="text-wrap"
+                codeString={experiment.jexlTargetingExpression}
+              />
             </td>
           </tr>
         ) : null}
