@@ -450,7 +450,6 @@ class NimbusDocumentationLink(models.Model):
     class Meta:
         verbose_name = "Nimbus Documentation Link"
         verbose_name_plural = "Nimbus Documentation Links"
-        unique_together = (("title", "experiment"),)
         ordering = ("id",)
 
     def __str__(self):
