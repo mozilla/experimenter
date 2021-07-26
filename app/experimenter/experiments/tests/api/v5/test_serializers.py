@@ -305,6 +305,31 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
         serializer.save()
         self.assert_documentation_links(experiment.id, links_before)
 
+    def test_serializer_supports_multiple_links_of_same_type(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        data = {
+            "changelog_message": "test changelog message",
+            "public_description": "changed",
+            "documentation_links": [
+                {
+                    "title": NimbusExperiment.DocumentationLink.ENG_TICKET,
+                    "link": "https://example.com/1",
+                },
+                {
+                    "title": NimbusExperiment.DocumentationLink.ENG_TICKET,
+                    "link": "https://example.com/2",
+                },
+            ],
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        self.assert_documentation_links(experiment.id, data["documentation_links"])
+
     def assert_documentation_links(self, experiment_id, links_data):
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         documentation_links = experiment.documentation_links.all()
