@@ -207,10 +207,22 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusExperiment
-        exclude = ("Lifecycles", "LifecycleStates")
+        exclude = ("Lifecycles", "LifecycleStates", "LocalLifecycles")
 
     Lifecycles = Lifecycles
     LifecycleStates = LifecycleStates
+
+    # EXP-1527: lifecycle states that do not assume an experiment currently
+    # exists in Remote Settings
+    LocalLifecycles = [
+        Lifecycles.CREATED,
+        # Preview should be okay because the Celery task will synchronize
+        Lifecycles.PREVIEW,
+        Lifecycles.LAUNCH_REVIEW_REQUESTED,
+        Lifecycles.LAUNCH_REJECT,
+        Lifecycles.LAUNCH_APPROVE_TIMEOUT,
+        Lifecycles.ENDING_APPROVE_APPROVE,
+    ]
 
     @factory.post_generation
     def projects(self, create, extracted, **kwargs):
