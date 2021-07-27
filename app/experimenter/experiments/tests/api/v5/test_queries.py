@@ -260,7 +260,7 @@ class TestNimbusQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             application=NimbusExperiment.Application.DESKTOP,
         )
         response = self.query(

@@ -54,7 +54,7 @@ class AudiencePage(Base):
         return self.find_element(*self._targeting_select_locator).text
 
     @targeting.setter
-    def targeting(self, targeting="TARGETING_MAC_ONLY"):
+    def targeting(self, targeting="US_ONLY"):
         el = self.find_element(*self._targeting_select_locator)
         select = Select(el)
         select.select_by_value(targeting)
