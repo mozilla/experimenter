@@ -5,45 +5,49 @@
 import { withLinks } from "@storybook/addon-links";
 import React from "react";
 import PageHome from ".";
-import { mockDirectoryExperimentsQuery, MockedCache } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
+import { mockDirectoryExperimentsQuery } from "../../lib/mocks";
+import { CurrentLocation, RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
+
+interface StoryContext {
+  args: {
+    mocks: Parameters<typeof RouterSlugProvider>[0]["mocks"];
+  };
+}
+
+const withRouterAndCurrentUrl = (
+  Story: React.FC,
+  { args: { mocks = [mockDirectoryExperimentsQuery()] } }: StoryContext,
+) => (
+  <RouterSlugProvider mocks={mocks}>
+    <>
+      <CurrentLocation />
+      <Story />
+    </>
+  </RouterSlugProvider>
+);
 
 export default {
   title: "pages/Home",
   component: PageHome,
-  decorators: [withLinks],
+  decorators: [withRouterAndCurrentUrl, withLinks],
 };
 
-export const Basic = () => (
-  <RouterSlugProvider mocks={[mockDirectoryExperimentsQuery()]}>
-    <PageHome />
-  </RouterSlugProvider>
-);
+const storyTemplate = (mocks: StoryContext["args"]["mocks"]) => {
+  return Object.assign(() => <PageHome />, { args: { mocks } });
+};
 
-export const Loading = () => (
-  <RouterSlugProvider mocks={[]}>
-    <PageHome />
-  </RouterSlugProvider>
-);
+export const Basic = storyTemplate([mockDirectoryExperimentsQuery()]);
 
-export const NoExperiments = () => (
-  <MockedCache mocks={[mockDirectoryExperimentsQuery([])]}>
-    <PageHome />
-  </MockedCache>
-);
+export const Loading = storyTemplate([]);
 
-export const OnlyDrafts = () => (
-  <MockedCache
-    mocks={[
-      mockDirectoryExperimentsQuery([
-        { status: NimbusExperimentStatus.DRAFT },
-        { status: NimbusExperimentStatus.DRAFT },
-        { status: NimbusExperimentStatus.DRAFT },
-        { status: NimbusExperimentStatus.DRAFT },
-      ]),
-    ]}
-  >
-    <PageHome />
-  </MockedCache>
-);
+export const NoExperiments = storyTemplate([mockDirectoryExperimentsQuery([])]);
+
+export const OnlyDrafts = storyTemplate([
+  mockDirectoryExperimentsQuery([
+    { status: NimbusExperimentStatus.DRAFT },
+    { status: NimbusExperimentStatus.DRAFT },
+    { status: NimbusExperimentStatus.DRAFT },
+    { status: NimbusExperimentStatus.DRAFT },
+  ]),
+]);

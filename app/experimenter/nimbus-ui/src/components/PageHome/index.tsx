@@ -4,9 +4,10 @@
 
 import { useQuery } from "@apollo/client";
 import { Link, RouteComponentProps } from "@reach/router";
-import React from "react";
+import React, { useCallback } from "react";
 import { Alert, Tab, Tabs } from "react-bootstrap";
 import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
+import { useSearchParamsState } from "../../hooks";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 import ApolloErrorAlert from "../ApolloErrorAlert";
 import AppLayout from "../AppLayout";
@@ -23,9 +24,16 @@ import sortByStatus from "./sortByStatus";
 type PageHomeProps = Record<string, any> & RouteComponentProps;
 
 export const Body = () => {
+  const [searchParams, updateSearchParams] = useSearchParamsState();
   const { data, loading, error } = useQuery<{
     experiments: getAllExperiments_experiments[];
   }>(GET_EXPERIMENTS_QUERY);
+
+  const selectedTab = searchParams.get("tab") || "live";
+  const onSelectTab = useCallback(
+    (nextTab) => updateSearchParams((params) => params.set("tab", nextTab)),
+    [updateSearchParams],
+  );
 
   if (loading) {
     return <PageLoading />;
@@ -43,7 +51,7 @@ export const Body = () => {
     data.experiments,
   );
   return (
-    <Tabs defaultActiveKey="live">
+    <Tabs activeKey={selectedTab} onSelect={onSelectTab}>
       <Tab eventKey="live" title={`Live (${live.length})`}>
         <DirectoryLiveTable experiments={live} />
       </Tab>

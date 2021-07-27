@@ -3,13 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Link } from "@reach/router";
-import React from "react";
+import classNames from "classnames";
+import React, { useCallback, useMemo } from "react";
+import { Button } from "react-bootstrap";
+import { UpdateSearchParams, useSearchParamsState } from "../../../hooks";
 import { getProposedEnrollmentRange, humanDate } from "../../../lib/dateUtils";
+import {
+  enrollmentSortSelector,
+  experimentSortComparator,
+  ExperimentSortSelector,
+  featureConfigNameSortSelector,
+  ownerUsernameSortSelector,
+  resultsReadySortSelector,
+} from "../../../lib/experiment";
 import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
 import LinkExternal from "../../LinkExternal";
 import NotSet from "../../NotSet";
 
-// These are all render functions for column type sin the table.
+// These are all render functions for column types in the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;
 
 export const DirectoryColumnTitle: React.FC<getAllExperiments_experiments> = ({
@@ -36,10 +47,12 @@ export const DirectoryColumnTitle: React.FC<getAllExperiments_experiments> = ({
   );
 };
 
-export const DirectoryColumnOwner: ColumnComponent = ({ owner }) => (
+export const DirectoryColumnOwner: ColumnComponent = (experiment) => (
   // #4380 made it so owner is never null, but we have experiments pre-this
   // that may be absent an owner, so keep this fallback in place.
-  <td data-testid="directory-table-cell">{owner?.username || <NotSet />}</td>
+  <td data-testid="directory-table-cell">
+    {experiment.owner?.username || <NotSet />}
+  </td>
 );
 
 export const DirectoryColumnFeature: ColumnComponent = ({ featureConfig }) => (
@@ -63,46 +76,139 @@ export const DirectoryColumnFeature: ColumnComponent = ({ featureConfig }) => (
   </td>
 );
 
-interface Column {
+export interface Column {
   /** The label of the column, which shows up in <th/> */
   label: string;
+  /** Experiment property selector used for sorting the column */
+  sortBy: ExperimentSortSelector;
   /** A component that renders a <td/> given the experiment data */
   component: ColumnComponent;
 }
+
+export interface ColumnSortOrder {
+  column: Column | undefined;
+  descending: boolean;
+}
+
+interface SortableColumnTitleProps {
+  column: Column;
+  columnSortOrder: ColumnSortOrder;
+  updateSearchParams: UpdateSearchParams;
+}
+
+export const SortableColumnTitle: React.FunctionComponent<SortableColumnTitleProps> =
+  ({ column, columnSortOrder, updateSearchParams }) => {
+    const { label } = column;
+    const { descending } = columnSortOrder;
+    const selected = columnSortOrder.column === column;
+
+    const onClick = useCallback(() => {
+      updateSearchParams((params) => {
+        // tri-state sort: ascending -> descending -> reset
+        if (!selected) {
+          // 1) ascending
+          params.set("sortByLabel", label);
+          params.delete("descending");
+        } else {
+          if (!descending) {
+            // 2) descending
+            params.set("sortByLabel", label);
+            params.set("descending", "1");
+          } else {
+            // 3) reset
+            params.delete("sortByLabel");
+            params.delete("descending");
+          }
+        }
+      });
+    }, [label, selected, updateSearchParams]);
+
+    return (
+      <th
+        className={classNames("border-top-0", {
+          "sort-selected": selected,
+          "sort-descending": selected && descending,
+        })}
+        key={label}
+        data-testid="directory-table-header"
+      >
+        <Button
+          variant="link"
+          className="p-0"
+          style={{ whiteSpace: "nowrap" }}
+          onClick={onClick}
+          title={label}
+          data-testid="sort-select"
+        >
+          {label}
+          <span style={{ display: "inline-block", width: "2em" }}>
+            {selected ? (descending ? "▼" : "▲") : " "}
+          </span>
+        </Button>
+      </th>
+    );
+  };
 
 interface DirectoryTableProps {
   experiments: getAllExperiments_experiments[];
   columns?: Column[];
 }
 
+const commonColumns: Column[] = [
+  { label: "Name", sortBy: "name", component: DirectoryColumnTitle },
+  {
+    label: "Owner",
+    sortBy: ownerUsernameSortSelector,
+    component: DirectoryColumnOwner,
+  },
+  {
+    label: "Feature",
+    sortBy: featureConfigNameSortSelector,
+    component: DirectoryColumnFeature,
+  },
+];
+
 const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
   experiments,
-  columns: customColumns,
+  columns = commonColumns,
 }) => {
-  const columns = customColumns || [
-    { label: "Name", component: DirectoryColumnTitle },
-    { label: "Owner", component: DirectoryColumnOwner },
-    { label: "Feature", component: DirectoryColumnFeature },
-  ];
+  const [searchParams, updateSearchParams] = useSearchParamsState();
+  const columnSortOrder = useMemo(
+    () => ({
+      column: columns.find(
+        (column) => column.label === searchParams.get("sortByLabel"),
+      ),
+      descending: searchParams.get("descending") === "1",
+    }),
+    [searchParams, columns],
+  );
+
+  const sortedExperiments = [...experiments];
+  if (columnSortOrder.column) {
+    sortedExperiments.sort(
+      experimentSortComparator(
+        columnSortOrder.column.sortBy,
+        columnSortOrder.descending,
+      ),
+    );
+  }
+
   return (
     <div className="directory-table pb-2 mt-4">
       {experiments.length ? (
         <table className="table" data-testid="DirectoryTable">
           <thead>
             <tr>
-              {columns.map(({ label }, i) => (
-                <th
-                  className="border-top-0"
-                  key={label}
-                  data-testid="directory-table-header"
-                >
-                  {label}
-                </th>
+              {columns.map((column, i) => (
+                <SortableColumnTitle
+                  key={column.label + i}
+                  {...{ column, columnSortOrder, updateSearchParams }}
+                />
               ))}
             </tr>
           </thead>
           <tbody>
-            {experiments.map((experiment) => (
+            {sortedExperiments.map((experiment) => (
               <tr key={experiment.slug} data-testid="directory-table-row">
                 {columns.map(({ label, component: ColumnComponent }, i) => {
                   return <ColumnComponent key={label + i} {...experiment} />;
@@ -122,17 +228,17 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
   <DirectoryTable
     {...props}
     columns={[
-      { label: "Name", component: DirectoryColumnTitle },
-      { label: "Owner", component: DirectoryColumnOwner },
-      { label: "Feature", component: DirectoryColumnFeature },
+      ...commonColumns,
       {
         label: "Started",
+        sortBy: "startDate",
         component: ({ startDate: d }) => (
           <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
         ),
       },
       {
         label: "Enrolling",
+        sortBy: enrollmentSortSelector,
         component: (experiment) => (
           <td data-testid="directory-table-cell">
             {getProposedEnrollmentRange(experiment)}
@@ -141,6 +247,7 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
       },
       {
         label: "Ending",
+        sortBy: "computedEndDate",
         component: (experiment) => (
           <td data-testid="directory-table-cell">
             {humanDate(experiment.computedEndDate!)}
@@ -149,6 +256,7 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
       },
       {
         label: "Monitoring",
+        sortBy: "monitoringDashboardUrl",
         component: ({ monitoringDashboardUrl }) => (
           <td data-testid="directory-table-cell">
             {monitoringDashboardUrl && (
@@ -164,6 +272,7 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
       },
       {
         label: "Results",
+        sortBy: resultsReadySortSelector,
         component: (experiment) => (
           <td data-testid="directory-table-cell">
             {experiment.resultsReady ? (
@@ -189,23 +298,24 @@ export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
   <DirectoryTable
     {...props}
     columns={[
-      { label: "Name", component: DirectoryColumnTitle },
-      { label: "Owner", component: DirectoryColumnOwner },
-      { label: "Feature", component: DirectoryColumnFeature },
+      ...commonColumns,
       {
         label: "Started",
+        sortBy: "startDate",
         component: ({ startDate: d }) => (
           <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
         ),
       },
       {
         label: "Ended",
+        sortBy: "computedEndDate",
         component: ({ computedEndDate: d }) => (
           <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
         ),
       },
       {
         label: "Results",
+        sortBy: resultsReadySortSelector,
         component: ({ slug }) => (
           <td data-testid="directory-table-cell">
             <Link to={`${slug}/results`} data-sb-kind="pages/Results">
@@ -219,17 +329,7 @@ export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
 );
 
 export const DirectoryDraftsTable: React.FC<DirectoryTableProps> = (props) => (
-  <DirectoryTable
-    {...props}
-    columns={[
-      {
-        label: "Name",
-        component: (experiment) => <DirectoryColumnTitle {...experiment} />,
-      },
-      { label: "Owner", component: DirectoryColumnOwner },
-      { label: "Feature", component: DirectoryColumnFeature },
-    ]}
-  />
+  <DirectoryTable {...props} />
 );
 
 export default DirectoryTable;
