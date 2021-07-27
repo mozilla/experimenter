@@ -179,15 +179,15 @@ class TestMutations(GraphQLTestCase):
 
         documentation_links = [
             {
-                "title": NimbusExperiment.DocumentationLink.DS_JIRA.value,
+                "title": NimbusExperiment.DocumentationLink.DS_JIRA,
                 "link": "https://example.com/bar",
             },
             {
-                "title": NimbusExperiment.DocumentationLink.ENG_TICKET.value,
+                "title": NimbusExperiment.DocumentationLink.ENG_TICKET,
                 "link": "https://example.com/quux",
             },
             {
-                "title": NimbusExperiment.DocumentationLink.DESIGN_DOC.value,
+                "title": NimbusExperiment.DocumentationLink.DESIGN_DOC,
                 "link": "https://example.com/plotz",
             },
         ]
@@ -446,16 +446,16 @@ class TestMutations(GraphQLTestCase):
         )
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA.value)
+        self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA)
         self.assertEqual(
-            experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83.value
+            experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83
         )
         self.assertEqual(experiment.population_percent, 10.0)
         self.assertEqual(experiment.proposed_duration, 42)
         self.assertEqual(experiment.proposed_enrollment, 120)
         self.assertEqual(
             experiment.targeting_config_slug,
-            NimbusConstants.TargetingConfig.ALL_ENGLISH.value,
+            NimbusConstants.TargetingConfig.ALL_ENGLISH,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
         self.assertEqual(list(experiment.countries.all()), [country])
