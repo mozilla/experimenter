@@ -19,7 +19,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
@@ -52,7 +52,8 @@ class TestNimbusExperimentSerializer(TestCase):
                 "targeting": (
                     'browserSettings.update.channel == "nightly" '
                     "&& version|versionCompare('83.!') >= 0 "
-                    "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+                    "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
+                    "&& localeLanguageCode == 'en'"
                 ),
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,
@@ -219,7 +220,7 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
