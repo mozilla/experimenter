@@ -179,11 +179,9 @@ class TestNimbusExperiment(TestCase):
     def test_targeting_for_experiment_without_channels(self):
         experiment = NimbusExperimentFactory.create(
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            locales=[],
-            countries=[],
         )
 
         self.assertEqual(
@@ -191,9 +189,19 @@ class TestNimbusExperiment(TestCase):
             (
                 "version|versionCompare('83.!') >= 0 "
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac"
+                "&& localeLanguageCode == 'en'"
             ),
         )
+
+    def test_targeting_for_mobile(self):
+        experiment = NimbusExperimentFactory.create(
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+        )
+
+        self.assertEqual(experiment.targeting, "localeLanguageCode == 'en'")
 
     def test_empty_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -202,8 +210,6 @@ class TestNimbusExperiment(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            locales=[],
-            countries=[],
         )
 
         self.assertEqual(experiment.targeting, "true")
@@ -214,11 +220,9 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NIGHTLY,
-            locales=[],
-            countries=[],
         )
 
         self.assertEqual(
@@ -226,7 +230,7 @@ class TestNimbusExperiment(TestCase):
             (
                 'browserSettings.update.channel == "nightly" '
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac"
+                "&& localeLanguageCode == 'en'"
             ),
         )
 
@@ -234,15 +238,13 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            locales=[],
-            countries=[],
         )
         self.assertEqual(
             experiment.targeting,
-            "'app.shield.optoutstudies.enabled'|preferenceValue && os.isMac",
+            "'app.shield.optoutstudies.enabled'|preferenceValue",
         )
 
     def test_targeting_with_locales(self):
@@ -252,7 +254,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[locale_ca, locale_us],
             countries=[],
@@ -261,7 +263,6 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 "'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac "
                 "&& locale in ['en-CA', 'en-US']"
             ),
         )
@@ -273,7 +274,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[],
             countries=[country_ca, country_us],
@@ -282,7 +283,6 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 "'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac "
                 "&& region in ['CA', 'US']"
             ),
         )
@@ -296,7 +296,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[locale_ca, locale_us],
             countries=[country_ca, country_us],
@@ -305,7 +305,6 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 "'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac "
                 "&& locale in ['en-CA', 'en-US'] "
                 "&& region in ['CA', 'US']"
             ),

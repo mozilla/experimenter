@@ -178,8 +178,8 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   ],
   targetingConfigSlug: [
     {
-      label: "Mac Only",
-      value: "MAC_ONLY",
+      label: "Us Only",
+      value: "US_ONLY",
       applicationValues: ["DESKTOP"],
     },
   ],
@@ -366,7 +366,7 @@ export function mockExperiment<
       secondaryOutcomes: ["feature_b"],
       channel: "NIGHTLY",
       firefoxMinVersion: "FIREFOX_83",
-      targetingConfigSlug: "MAC_ONLY",
+      targetingConfigSlug: "US_ONLY",
       jexlTargetingExpression: "localeLanguageCode == 'en' && region == 'US'",
       populationPercent: "40",
       totalEnrolledClients: 68000,

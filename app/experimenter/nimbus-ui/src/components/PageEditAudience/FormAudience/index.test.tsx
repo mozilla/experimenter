@@ -47,8 +47,8 @@ describe("FormAudience", () => {
               ],
             },
             {
-              label: "Mac Only",
-              value: "MAC_ONLY",
+              label: "Us Only",
+              value: "US_ONLY",
               applicationValues: [NimbusExperimentApplication.DESKTOP],
             },
             {
@@ -75,7 +75,7 @@ describe("FormAudience", () => {
     // Assert that the targeting choices are filtered for application
     expect(
       Array.from(targetingConfigSlug.options).map((node) => node.value),
-    ).toEqual(["NO_TARGETING", "MAC_ONLY"]);
+    ).toEqual(["NO_TARGETING", "US_ONLY"]);
 
     // Assert that we have all the channels available
     for (const channel of MOCK_CONFIG.channel!) {
@@ -345,8 +345,8 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
             applicationValues: [NimbusExperimentApplication.DESKTOP, "TOASTER"],
           },
           {
-            label: "Mac Only",
-            value: "MAC_ONLY",
+            label: "Us Only",
+            value: "US_ONLY",
             applicationValues: [NimbusExperimentApplication.DESKTOP],
           },
           {

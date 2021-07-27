@@ -434,7 +434,7 @@ class TestMutations(GraphQLTestCase):
                     "proposedDuration": 42,
                     "proposedEnrollment": 120,
                     "targetingConfigSlug": (
-                        NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN.name
+                        NimbusConstants.TargetingConfig.ALL_ENGLISH.name
                     ),
                     "totalEnrolledClients": 100,
                     "changelogMessage": "test changelog message",
@@ -455,7 +455,7 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(experiment.proposed_enrollment, 120)
         self.assertEqual(
             experiment.targeting_config_slug,
-            NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN.value,
+            NimbusConstants.TargetingConfig.ALL_ENGLISH.value,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
         self.assertEqual(list(experiment.countries.all()), [country])
