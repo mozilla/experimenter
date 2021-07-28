@@ -9,7 +9,7 @@ import {
 } from "./dateUtils";
 import { mockSingleDirectoryExperiment as expFactory } from "./mocks";
 
-const FAKE_DATE = "Thu Dec 12 2020";
+const FAKE_DATE = "Sat Dec 12 2020";
 const FAKE_ISO_DATE = "2020-12-25T15:28:01.821657+00:00";
 
 describe("humanDate", () => {
@@ -29,12 +29,6 @@ describe("humanDate", () => {
     expect(humanDate("2021-06-21T10:00:00Z")).toEqual("Jun 21");
     expect(humanDate("2021-06-21T00:00:00Z")).toEqual("Jun 21");
     expect(humanDate("2021-06-21")).toEqual("Jun 21");
-  });
-});
-
-describe("addDaysToDate", () => {
-  it("should add days to a date and return a date string", () => {
-    expect(addDaysToDate(FAKE_DATE, 2)).toEqual("Mon Dec 14 2020");
   });
 });
 
