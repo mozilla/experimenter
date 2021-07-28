@@ -63,7 +63,10 @@ class CPRReportListFilterTest(TestCase):
     def test_cpr_filtering_filters_normandy_updates_only(self):
 
         filter = CPRReportListFilter(
-            None, {"CPR ReportLogs": "cpr"}, ReportLog, ReportLogAdmin
+            None,
+            {"Normandy Launch Update ReportLogs": "Normandy Launch Updates"},
+            ReportLog,
+            ReportLogAdmin,
         )
         query_result = filter.queryset(None, ReportLog.objects.all())
         self.assertEqual(
@@ -86,7 +89,7 @@ class CPRReportListFilterTest(TestCase):
             experiment_new_status=ReportLogConstants.ExperimentStatus.LIVE,
         )
         filter = CPRReportListFilter(
-            None, {"CPR ReportLogs": "all"}, ReportLog, ReportLogAdmin
+            None, {"Normandy Launch Updates": "all"}, ReportLog, ReportLogAdmin
         )
         query_result = filter.queryset(None, ReportLog.objects.all())
         self.assertEqual(query_result.count(), 7)

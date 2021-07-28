@@ -10,7 +10,7 @@ from experimenter.reporting.models import ReportLog
 
 def download_csv(modeladmin, request, queryset):
     response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment;" "filename=reportlog.csv"
+    response["Content-Disposition"] = "attachment; filename=reportlog.csv"
     writer = csv.writer(response)
     writer.writerow(
         [
@@ -48,14 +48,14 @@ def download_csv(modeladmin, request, queryset):
 
 
 class CPRReportListFilter(admin.SimpleListFilter):
-    title = "CPR Related Report Log Filter"
-    parameter_name = "CPR ReportLogs"
+    title = "Normandy Launch Update Report Log Filter"
+    parameter_name = "Normandy Launch Update ReportLogs"
 
     def lookups(self, request, model_admin):
-        return [("cpr", "CPR Only")]
+        return [("Normandy Launch Updates", "Normandy Launch Updates Only")]
 
     def queryset(self, request, queryset):
-        if self.value() == "cpr":
+        if self.value() == "Normandy Launch Updates":
             return queryset.filter(
                 Q(experiment_type__startswith="Normandy")
                 & Q(
@@ -95,8 +95,8 @@ class ReportLogAdmin(admin.ModelAdmin):
     )
     list_filter = (
         ("timestamp", DateTimeRangeFilter),
-        CPRReportListFilter,
         "event_reason",
+        CPRReportListFilter,
     )
 
     actions = [download_csv]
