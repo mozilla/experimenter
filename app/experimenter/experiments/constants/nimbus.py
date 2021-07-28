@@ -77,11 +77,47 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     supports_locale_country=False,
 )
 
+APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
+    name="Focus for Android",
+    slug="focus-android",
+    app_name="focus_android",
+    channel_app_id={
+        Channel.NIGHTLY: "org.mozilla.focus.nightly",
+        Channel.BETA: "org.mozilla.focus.beta",
+        Channel.RELEASE: "org.mozilla.focus",
+    },
+    default_app_id="",
+    rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    randomization_unit=BucketRandomizationUnit.NIMBUS,
+    supports_locale_country=False,
+)
+
+APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
+    name="Klar for Android",
+    slug="klar-android",
+    app_name="klar_android",
+    channel_app_id={
+        Channel.RELEASE: "org.mozilla.klar",
+    },
+    default_app_id="",
+    rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    randomization_unit=BucketRandomizationUnit.NIMBUS,
+    supports_locale_country=False,
+)
+
 
 class Application(models.TextChoices):
     DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
     FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.name)
     IOS = (APPLICATION_CONFIG_IOS.slug, APPLICATION_CONFIG_IOS.name)
+    FOCUS_ANDROID = (
+        APPLICATION_CONFIG_FOCUS_ANDROID.slug,
+        APPLICATION_CONFIG_FOCUS_ANDROID.name,
+    )
+    KLAR_ANDROID = (
+        APPLICATION_CONFIG_KLAR_ANDROID.slug,
+        APPLICATION_CONFIG_KLAR_ANDROID.name,
+    )
 
 
 @dataclass
@@ -100,11 +136,7 @@ TARGETING_NO_TARGETING = NimbusTargetingConfig(
     description="All users",
     targeting="",
     desktop_telemetry="",
-    application_choice_names=(
-        Application.DESKTOP.name,
-        Application.FENIX.name,
-        Application.IOS.name,
-    ),
+    application_choice_names=[a.name for a in Application],
 )
 
 TARGETING_FIRST_RUN = NimbusTargetingConfig(
@@ -237,6 +269,8 @@ class NimbusConstants(object):
         Application.DESKTOP: APPLICATION_CONFIG_DESKTOP,
         Application.FENIX: APPLICATION_CONFIG_FENIX,
         Application.IOS: APPLICATION_CONFIG_IOS,
+        Application.FOCUS_ANDROID: APPLICATION_CONFIG_FOCUS_ANDROID,
+        Application.KLAR_ANDROID: APPLICATION_CONFIG_KLAR_ANDROID,
     }
 
     Channel = Channel

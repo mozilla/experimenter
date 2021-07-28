@@ -163,6 +163,8 @@ enum NimbusExperimentApplication {
   DESKTOP
   FENIX
   IOS
+  FOCUS_ANDROID
+  KLAR_ANDROID
 }
 
 type NimbusExperimentApplicationConfig {
@@ -381,6 +383,8 @@ enum NimbusIsolationGroupApplication {
   FIREFOX_DESKTOP
   FENIX
   IOS
+  FOCUS_ANDROID
+  KLAR_ANDROID
 }
 
 type NimbusIsolationGroupType {
