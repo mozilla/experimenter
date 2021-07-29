@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { BRANCH_COMPARISON } from "./constants";
+
 export interface AnalysisData {
   daily: AnalysisPoint[] | null;
   weekly: { [branch: string]: BranchDescription } | null;
@@ -71,3 +73,7 @@ export interface BranchDescription {
     };
   };
 }
+
+type BranchComparison = typeof BRANCH_COMPARISON;
+type BranchComparisons = keyof BranchComparison;
+export type BranchComparisonValues = BranchComparison[BranchComparisons];

@@ -6,7 +6,10 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableResultsWeekly from ".";
-import { HIGHLIGHTS_METRICS_LIST } from "../../../lib/visualization/constants";
+import {
+  BRANCH_COMPARISON,
+  HIGHLIGHTS_METRICS_LIST,
+} from "../../../lib/visualization/constants";
 import { weeklyMockAnalysis } from "../../../lib/visualization/mocks";
 import { getSortedBranches } from "../../../lib/visualization/utils";
 
@@ -20,12 +23,22 @@ const sortedBranches = getSortedBranches({
 
 storiesOf("pages/Results/TableResultsWeekly", module)
   .addDecorator(withLinks)
-  .add("basic", () => {
+  .add("with relative uplift comparison", () => {
     return (
       <TableResultsWeekly
         {...{ weeklyResults, sortedBranches }}
         hasOverallResults
         metricsList={HIGHLIGHTS_METRICS_LIST}
+      />
+    );
+  })
+  .add("with absolute comparison", () => {
+    return (
+      <TableResultsWeekly
+        {...{ weeklyResults, sortedBranches }}
+        hasOverallResults
+        metricsList={HIGHLIGHTS_METRICS_LIST}
+        branchComparison={BRANCH_COMPARISON.ABSOLUTE}
       />
     );
   });
