@@ -8,6 +8,7 @@ import React from "react";
 import TableResults from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 import { getSortedBranches } from "../../../lib/visualization/utils";
 
@@ -16,7 +17,7 @@ const sortedBranches = getSortedBranches(results);
 
 storiesOf("pages/Results/TableResults", module)
   .addDecorator(withLinks)
-  .add("basic, with one primary outcome", () => {
+  .add("relative uplift comparison, with one primary outcome", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
@@ -24,13 +25,37 @@ storiesOf("pages/Results/TableResults", module)
       </RouterSlugProvider>
     );
   })
-  .add("with multiple primary outcomes", () => {
+  .add("relative uplift comparison, with multiple primary outcomes", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       primaryOutcomes: ["picture_in_picture", "feature_b", "feature_c"],
     });
     return (
       <RouterSlugProvider mocks={[mock]}>
         <TableResults {...{ experiment, results, sortedBranches }} />
+      </RouterSlugProvider>
+    );
+  })
+  .add("absolute uplift comparison, with one primary outcome", () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <TableResults
+          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+          {...{ experiment, results, sortedBranches }}
+        />
+      </RouterSlugProvider>
+    );
+  })
+  .add("absolute uplift comparison, with multiple primary outcomes", () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      primaryOutcomes: ["picture_in_picture", "feature_b", "feature_c"],
+    });
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <TableResults
+          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+          {...{ experiment, results, sortedBranches }}
+        />
       </RouterSlugProvider>
     );
   });
