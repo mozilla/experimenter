@@ -199,6 +199,9 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     # This is the full JEXL expression processed by clients
     @property
     def targeting(self):
+        if self.published_dto:
+            return self.published_dto.get("targeting", self.PUBLISHED_TARGETING_MISSING)
+
         expressions = []
 
         if self.application == self.Application.DESKTOP:
@@ -244,7 +247,10 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     @property
     def targeting_config(self):
-        if self.targeting_config_slug:
+        if (
+            self.targeting_config_slug is not None
+            and self.targeting_config_slug in self.TARGETING_CONFIGS
+        ):
             return self.TARGETING_CONFIGS[self.targeting_config_slug]
 
     @property

@@ -183,7 +183,7 @@ class NimbusExperimentType(DjangoObjectType):
     channel = NimbusExperimentChannel()
     documentation_links = DjangoListField(NimbusDocumentationLinkType)
     treatment_branches = graphene.List(NimbusBranchType)
-    targeting_config_slug = NimbusExperimentTargetingConfigSlug()
+    targeting_config_slug = graphene.String()
     jexl_targeting_expression = graphene.String()
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)

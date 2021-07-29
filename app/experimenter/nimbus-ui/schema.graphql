@@ -330,7 +330,7 @@ type NimbusExperimentType {
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
   featureConfig: NimbusFeatureConfigType
-  targetingConfigSlug: NimbusExperimentTargetingConfigSlug
+  targetingConfigSlug: String
   referenceBranch: NimbusBranchType
   publishedDto: JSONString
   resultsData: JSONString

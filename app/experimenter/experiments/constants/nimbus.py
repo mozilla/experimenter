@@ -471,3 +471,5 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         for (collection, applications) in KINTO_COLLECTION_APPLICATIONS.items()
         for application in applications
     }
+
+    PUBLISHED_TARGETING_MISSING = "Published targeting JEXL not found"
