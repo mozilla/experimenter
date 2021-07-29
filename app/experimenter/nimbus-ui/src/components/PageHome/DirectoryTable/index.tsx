@@ -126,6 +126,12 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
       { label: "Owner", component: DirectoryColumnOwner },
       { label: "Feature", component: DirectoryColumnFeature },
       {
+        label: "Started",
+        component: ({ startDate: d }) => (
+          <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
+        ),
+      },
+      {
         label: "Enrolling",
         component: (experiment) => (
           <td data-testid="directory-table-cell">
