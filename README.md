@@ -38,7 +38,14 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 
 1.  Install [docker](https://www.docker.com/) on your machine
 
-- On linux, [setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
+- On Linux [setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
+- On MacOS
+  - [Install Docker Desktop 3.3.2](https://docs.docker.com/docker-for-mac/release-notes/#docker-desktop-332) (Newer versions have been buggy)
+  - Adjust resource settings
+    - CPU: Max number of cores
+    - Memory: 50% of system memory
+    - Swap: Max 4gb
+    - Disk: 100gb+
 
 1.  Clone the repo
 
