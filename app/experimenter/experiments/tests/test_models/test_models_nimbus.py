@@ -310,6 +310,38 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
+    def test_targeting_uses_published_targeting_string(self):
+        published_targeting = "published targeting jexl"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            published_dto={"targeting": published_targeting},
+        )
+        self.assertEqual(experiment.targeting, published_targeting)
+
+    def test_targeting_with_missing_published_targeting(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            published_dto={"other_field": "some value"},
+        )
+        self.assertEqual(
+            experiment.targeting, NimbusExperiment.PUBLISHED_TARGETING_MISSING
+        )
+
+    def test_targeting_config_returns_config_with_valid_slug(self):
+        experiment = NimbusExperimentFactory.create(
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING
+        )
+        self.assertEqual(
+            experiment.targeting_config,
+            NimbusExperiment.TARGETING_CONFIGS[
+                NimbusExperiment.TargetingConfig.NO_TARGETING
+            ],
+        )
+
+    def test_targeting_config_returns_None_with_invalid_slug(self):
+        experiment = NimbusExperimentFactory.create(targeting_config_slug="invalid slug")
+        self.assertIsNone(experiment.targeting_config)
+
     def test_start_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
