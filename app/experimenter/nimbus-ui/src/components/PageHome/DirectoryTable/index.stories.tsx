@@ -10,6 +10,10 @@ import DirectoryTable, {
   DirectoryLiveTable,
 } from ".";
 import { mockDirectoryExperiments } from "../../../lib/mocks";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../../types/globalTypes";
 
 export default {
   title: "pages/Home/DirectoryTable",
@@ -17,20 +21,33 @@ export default {
   decorators: [withLinks],
 };
 
-export const Basic = () => (
-  <DirectoryTable experiments={mockDirectoryExperiments()} />
+const experiments = mockDirectoryExperiments();
+const draftExperiments = experiments.filter(
+  ({ status, publishStatus }) =>
+    status === NimbusExperimentStatus.DRAFT &&
+    publishStatus === NimbusExperimentPublishStatus.IDLE,
+);
+const liveExperiments = experiments.filter(
+  ({ status, publishStatus }) =>
+    status === NimbusExperimentStatus.LIVE &&
+    publishStatus === NimbusExperimentPublishStatus.IDLE,
+);
+const completedExperiments = experiments.filter(
+  ({ status, publishStatus }) =>
+    status === NimbusExperimentStatus.COMPLETE &&
+    publishStatus === NimbusExperimentPublishStatus.IDLE,
 );
 
-export const Live = () => (
-  <DirectoryLiveTable experiments={mockDirectoryExperiments()} />
-);
+export const Basic = () => <DirectoryTable experiments={experiments} />;
+
+export const Live = () => <DirectoryLiveTable experiments={liveExperiments} />;
 
 export const Completed = () => (
-  <DirectoryCompleteTable experiments={mockDirectoryExperiments()} />
+  <DirectoryCompleteTable experiments={completedExperiments} />
 );
 
 export const Drafts = () => (
-  <DirectoryDraftsTable experiments={mockDirectoryExperiments()} />
+  <DirectoryDraftsTable experiments={draftExperiments} />
 );
 
 export const CustomComponent = () => (
