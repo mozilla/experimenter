@@ -7,7 +7,6 @@
 
 import React from "react";
 
-const BUFFER = 5;
 const MIN_BOUNDS_WIDTH = 22;
 
 const renderBounds = (
@@ -16,6 +15,7 @@ const renderBounds = (
   leftPercent: number,
   barWidth: number,
   significance: string,
+  buffer: number,
 ) => {
   if (barWidth < MIN_BOUNDS_WIDTH) {
     leftPercent -= (MIN_BOUNDS_WIDTH - barWidth) / 2;
@@ -26,8 +26,8 @@ const renderBounds = (
       className="position-absolute"
       style={{
         // Add some buffer to space out the rendered bound values.
-        left: `${leftPercent - BUFFER * 2}%`,
-        width: `${Math.max(barWidth, MIN_BOUNDS_WIDTH) + BUFFER * 3}%`,
+        left: `${leftPercent - buffer * 1.5}%`,
+        width: `${Math.max(barWidth, MIN_BOUNDS_WIDTH) + buffer * 3}%`,
       }}
     >
       <div
@@ -67,7 +67,15 @@ const ConfidenceInterval: React.FC<{
   range: number;
   significance: string;
 }> = ({ upper, lower, range, significance }) => {
-  range += BUFFER;
+  // number of total digits
+  let buffer =
+    Math.abs(upper).toString().replace(".", "").length +
+    Math.abs(lower).toString().replace(".", "").length;
+  // give additional buffer if there's 4+ digits and a small significance
+  if (buffer >= 4 && lower / upper > 0.5) {
+    buffer += (lower / upper) * 2;
+  }
+  range += buffer;
   const fullWidth = range * 2;
   const barWidth = ((upper - lower) / fullWidth) * 100;
   const leftPercent = (Math.abs(lower - range * -1) / fullWidth) * 100;
@@ -78,6 +86,7 @@ const ConfidenceInterval: React.FC<{
     leftPercent,
     barWidth,
     significance,
+    buffer,
   );
   const line = renderLine(leftPercent, barWidth, significance);
 
