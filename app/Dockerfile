@@ -72,7 +72,7 @@ COPY --from=file-loader /app/ /app/
 
 
 # Build image
-FROM dev AS build
+FROM dev AS ui
 
 
 # Build assets
@@ -107,5 +107,5 @@ COPY --from=dev /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9
 COPY --from=dev /app/bin/ /app/bin/
 COPY --from=file-loader /app/manage.py /app/manage.py
 COPY --from=file-loader /app/experimenter/ /app/experimenter/
-COPY --from=build /app/experimenter/legacy-ui/assets/ /app/experimenter/legacy-ui/assets/
-COPY --from=build /app/experimenter/nimbus-ui/build/ /app/experimenter/nimbus-ui/build/
+COPY --from=ui /app/experimenter/legacy-ui/assets/ /app/experimenter/legacy-ui/assets/
+COPY --from=ui /app/experimenter/nimbus-ui/build/ /app/experimenter/nimbus-ui/build/
