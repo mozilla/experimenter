@@ -610,6 +610,13 @@ class TestNimbusQuery(GraphQLTestCase):
                         label
                         value
                     }
+                    applicationChannels {
+                        application
+                        channels {
+                            label
+                            value
+                        }
+                    }
                     firefoxMinVersion {
                         label
                         value
@@ -665,6 +672,18 @@ class TestNimbusQuery(GraphQLTestCase):
         assertChoices(config["firefoxMinVersion"], NimbusExperiment.Version)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
         self.assertEqual(len(config["featureConfig"]), 13)
+
+        for application_channels in config["applicationChannels"]:
+            application_config = NimbusExperiment.APPLICATION_CONFIGS[
+                NimbusExperiment.Application[application_channels["application"]]
+            ]
+            channels = [channel["value"] for channel in application_channels["channels"]]
+            self.assertEqual(
+                set(channels),
+                set(
+                    [channel.name for channel in application_config.channel_app_id.keys()]
+                ),
+            )
 
         for outcome in Outcomes.all():
             self.assertIn(

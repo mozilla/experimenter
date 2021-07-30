@@ -34,9 +34,20 @@ describe("FormAudience", () => {
         experiment={{
           ...MOCK_EXPERIMENT,
           application: NimbusExperimentApplication.DESKTOP,
+          channel: NimbusExperimentChannel.NIGHTLY,
         }}
         config={{
           ...MOCK_CONFIG,
+          channel: [
+            { label: "Nightly", value: "NIGHTLY" },
+            { label: "Release", value: "RELEASE" },
+          ],
+          applicationChannels: [
+            {
+              application: NimbusExperimentApplication.DESKTOP,
+              channels: [{ label: "Nightly", value: "NIGHTLY" }],
+            },
+          ],
           targetingConfigSlug: [
             {
               label: "No Targeting",
@@ -77,11 +88,9 @@ describe("FormAudience", () => {
       Array.from(targetingConfigSlug.options).map((node) => node.value),
     ).toEqual(["NO_TARGETING", "MAC_ONLY"]);
 
-    // Assert that we have all the channels available
-    for (const channel of MOCK_CONFIG.channel!) {
-      const { label } = channel!;
-      expect(screen.getByText(label!)).toBeInTheDocument();
-    }
+    // Assert that we have only the application channels available
+    expect(screen.getByText("Nightly")).toBeInTheDocument();
+    expect(screen.queryByText("Release")).not.toBeInTheDocument();
 
     expect(
       await screen.findByTestId("tooltip-duration-audience"),
