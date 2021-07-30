@@ -279,7 +279,7 @@ const TableVisualizationRow: React.FC<{
       // Total number of users is present in the absolute branch comparison data. This displays
       // that number on the results table even if comparison is to the relative uplift.
     } else if (
-      tableLabel == TABLE_LABEL.RESULTS &&
+      tableLabel === TABLE_LABEL.RESULTS &&
       branchComparison === BRANCH_COMPARISON.UPLIFT &&
       displayType === DISPLAY_TYPE.POPULATION
     ) {
