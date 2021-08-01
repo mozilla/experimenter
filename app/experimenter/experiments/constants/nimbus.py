@@ -101,50 +101,25 @@ TARGETING_NO_TARGETING = NimbusTargetingConfig(
     ),
 )
 
-TARGETING_ALL_ENGLISH = NimbusTargetingConfig(
-    name="All English users",
-    slug="all_english",
-    description="All users in en-* locales.",
-    targeting="localeLanguageCode == 'en'",
-    desktop_telemetry="STARTS_WITH(environment.settings.locale, 'en')",
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
-TARGETING_US_ONLY = NimbusTargetingConfig(
-    name="US users (en)",
-    slug="us_only",
-    description="All users in the US with an en-* locale.",
-    targeting="localeLanguageCode == 'en' && region == 'US'",
-    desktop_telemetry=(
-        "STARTS_WITH(environment.settings.locale, 'en') "
-        "AND normalized_country_code = 'US'"
-    ),
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
 TARGETING_FIRST_RUN = NimbusTargetingConfig(
-    name="First start-up users (en)",
+    name="First start-up users",
     slug="first_run",
-    description=("First start-up users (e.g. for about:welcome) with an en-* " "locale."),
-    targeting=("{en} && (({is_first_startup} && {not_see_aw}) || {sticky})").format(
-        en=TARGETING_ALL_ENGLISH.targeting,
+    description=("First start-up users (e.g. for about:welcome)"),
+    targeting=("(({is_first_startup} && {not_see_aw}) || {sticky})").format(
         is_first_startup="isFirstStartup",
         not_see_aw="!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)",
         sticky="experiment.slug in activeExperiments",
     ),
-    desktop_telemetry=(
-        "STARTS_WITH(environment.settings.locale, 'en') "
-        "AND payload.info.profile_subsession_counter = 1"
-    ),
+    desktop_telemetry=("payload.info.profile_subsession_counter = 1"),
     application_choice_names=(Application.DESKTOP.name,),
 )
 
 TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
-    name="First start-up users (en) from Chrome",
+    name="First start-up users from Chrome",
     slug="first_run_chrome",
     description=(
         "First start-up users (e.g. for about:welcome) who download Firefox "
-        "from Chrome with an en-* locale."
+        "from Chrome"
     ),
     targeting=("{first_run} && attributionData.ua == 'chrome'").format(
         first_run=TARGETING_FIRST_RUN.targeting
@@ -156,11 +131,9 @@ TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
 )
 
 TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
-    name="First start-up users (en) on Windows 10 1903 (build 18362) or newer",
+    name="First start-up users on Windows 10 1903 (build 18362) or newer",
     slug="first_run_win1903",
-    description=(
-        "First start-up users (e.g. for about:welcome) on Win 18362+ with an en-* locale."
-    ),
+    description=("First start-up users (e.g. for about:welcome) on Win 18362+"),
     targeting=("{first_run} && os.windowsBuildNumber >= 18362").format(
         first_run=TARGETING_FIRST_RUN.targeting
     ),
@@ -173,10 +146,8 @@ TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
 TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
     name="Homepage set to google.com",
     slug="homepage_google_dot_com",
-    description="US users (en) with their Homepage set to google.com",
+    description="Users with their Homepage set to google.com",
     targeting=(
-        "localeLanguageCode == 'en' && "
-        "region == 'US' && "
         "!homePageSettings.isDefault && "
         "homePageSettings.isCustomUrl && "
         "homePageSettings.urls[.host == 'google.com']|length > 0"
@@ -186,13 +157,10 @@ TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
 )
 
 TARGETING_URLBAR_FIREFOX_SUGGEST = NimbusTargetingConfig(
-    name="Urlbar (Firefox Suggest) US users (en)",
-    slug="urlbar_firefox_suggest_us_en",
-    description="US (en) users with the default search suggestion showing order",
-    targeting="{us_en} && {default_order}".format(
-        us_en=TARGETING_US_ONLY.targeting,
-        default_order="'browser.urlbar.showSearchSuggestionsFirst'|preferenceValue",
-    ),
+    name="Urlbar (Firefox Suggest)",
+    slug="urlbar_firefox_suggest",
+    description="Users with the default search suggestion showing order",
+    targeting="'browser.urlbar.showSearchSuggestionsFirst'|preferenceValue",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -377,8 +345,6 @@ class NimbusConstants(object):
 
     TARGETING_CONFIGS = {
         TARGETING_NO_TARGETING.slug: TARGETING_NO_TARGETING,
-        TARGETING_ALL_ENGLISH.slug: TARGETING_ALL_ENGLISH,
-        TARGETING_US_ONLY.slug: TARGETING_US_ONLY,
         TARGETING_FIRST_RUN.slug: TARGETING_FIRST_RUN,
         TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug: (
             TARGETING_FIRST_RUN_CHROME_ATTRIBUTION
@@ -394,8 +360,6 @@ class NimbusConstants(object):
 
     class TargetingConfig(models.TextChoices):
         NO_TARGETING = TARGETING_NO_TARGETING.slug, TARGETING_NO_TARGETING.name
-        ALL_ENGLISH = TARGETING_ALL_ENGLISH.slug, TARGETING_ALL_ENGLISH.name
-        US_ONLY = TARGETING_US_ONLY.slug, TARGETING_US_ONLY.name
         TARGETING_FIRST_RUN = TARGETING_FIRST_RUN.slug, TARGETING_FIRST_RUN.name
         TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = (
             TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug
@@ -471,3 +435,5 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         for (collection, applications) in KINTO_COLLECTION_APPLICATIONS.items()
         for application in applications
     }
+
+    PUBLISHED_TARGETING_MISSING = "Published targeting JEXL not found"

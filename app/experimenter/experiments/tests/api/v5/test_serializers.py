@@ -983,7 +983,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "population_percent": 10,
                 "proposed_duration": 42,
                 "proposed_enrollment": 120,
-                "targeting_config_slug": NimbusConstants.TargetingConfig.ALL_ENGLISH,
+                "targeting_config_slug": NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN,
                 "total_enrolled_clients": 100,
                 "changelog_message": "test changelog message",
                 "countries": [country.id],
@@ -1004,7 +1004,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.proposed_enrollment, 120)
         self.assertEqual(
             experiment.targeting_config_slug,
-            NimbusConstants.TargetingConfig.ALL_ENGLISH,
+            NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
         self.assertEqual(list(experiment.countries.all()), [country])
@@ -1508,7 +1508,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(
             serializer.errors["targeting_config_slug"],
             [
-                "Targeting config 'First start-up users (en) on Windows 10 1903 "
+                "Targeting config 'First start-up users on Windows 10 1903 "
                 "(build 18362) or newer' is not available for application "
                 "'Firefox for iOS'",
             ],

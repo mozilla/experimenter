@@ -7,6 +7,7 @@ import React from "react";
 import TableResults from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
 import {
   mockAnalysis,
   mockIncompleteAnalysis,
@@ -36,16 +37,41 @@ describe("TableResults", () => {
     });
   });
 
-  it("renders the expected variant and user count", () => {
+  it("with relative comparison, renders the expected variant, comparison, and user count", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableResults {...{ experiment, results, sortedBranches }} />
       </RouterSlugProvider>,
     );
 
+    expect(screen.getAllByText("-45.5% to 51%", { exact: false })).toHaveLength(
+      2,
+    );
+    expect(screen.getByText("198")).toBeInTheDocument();
+    expect(screen.getByText("45%")).toBeInTheDocument();
+    expect(screen.getByText("200")).toBeInTheDocument();
+    expect(screen.getByText("55%")).toBeInTheDocument();
     expect(screen.getByText("control")).toBeInTheDocument();
     expect(screen.getByText("treatment")).toBeInTheDocument();
+  });
+
+  it("with absolute comparison, renders the expected variant, comparison, and user count", async () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableResults
+          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+          {...{ experiment, results, sortedBranches }}
+        />
+      </RouterSlugProvider>,
+    );
+    expect(screen.getByText("88.6%", { exact: false })).toBeInTheDocument();
     expect(screen.getByText("198")).toBeInTheDocument();
+    expect(screen.getByText("200")).toBeInTheDocument();
+    expect(
+      screen.getByText("2.4% to 8.4% (baseline)", { exact: false }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("control")).toBeInTheDocument();
+    expect(screen.getByText("treatment")).toBeInTheDocument();
   });
 
   it("renders correctly labelled result significance", () => {
@@ -54,7 +80,6 @@ describe("TableResults", () => {
         <TableResults {...{ experiment, results, sortedBranches }} />
       </RouterSlugProvider>,
     );
-
     expect(screen.getByTestId("positive-significance")).toBeInTheDocument();
     expect(screen.getByTestId("negative-significance")).toBeInTheDocument();
     expect(screen.queryAllByTestId("neutral-significance")).toHaveLength(2);

@@ -288,8 +288,6 @@ enum NimbusExperimentStatus {
 
 enum NimbusExperimentTargetingConfigSlug {
   NO_TARGETING
-  ALL_ENGLISH
-  US_ONLY
   TARGETING_FIRST_RUN
   TARGETING_FIRST_RUN_CHROME_ATTRIBUTION
   TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
@@ -330,7 +328,7 @@ type NimbusExperimentType {
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
   featureConfig: NimbusFeatureConfigType
-  targetingConfigSlug: NimbusExperimentTargetingConfigSlug
+  targetingConfigSlug: String
   referenceBranch: NimbusBranchType
   publishedDto: JSONString
   resultsData: JSONString

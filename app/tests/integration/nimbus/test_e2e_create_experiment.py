@@ -40,7 +40,7 @@ def test_create_new_experiment(selenium, base_url):
     audience = metrics.save_and_continue()
     audience.channel = "Nightly"
     audience.min_version = 80
-    audience.targeting = "US_ONLY"
+    audience.targeting = "TARGETING_MAC_ONLY"
     audience.percentage = 50.0
     audience.expected_clients = 50
     audience.save_btn()
@@ -86,7 +86,7 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
     audience = metrics.save_and_continue()
     audience.channel = "Nightly"
     audience.min_version = 80
-    audience.targeting = "US_ONLY"
+    audience.targeting = "TARGETING_MAC_ONLY"
     audience.percentage = 50.0
     audience.expected_clients = 50
     audience.save_btn()
@@ -165,7 +165,7 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
     audience = metrics.save_and_continue()
     audience.channel = "Nightly"
     audience.min_version = 80
-    audience.targeting = "US_ONLY"
+    audience.targeting = "TARGETING_MAC_ONLY"
     audience.percentage = 50.0
     audience.expected_clients = 50
     audience.save_btn()
@@ -259,7 +259,7 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
     audience = metrics.save_and_continue()
     audience.channel = "Nightly"
     audience.min_version = 80
-    audience.targeting = "US_ONLY"
+    audience.targeting = "TARGETING_MAC_ONLY"
     audience.percentage = 50.0
     audience.expected_clients = 50
     audience.save_btn()

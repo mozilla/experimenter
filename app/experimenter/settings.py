@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     # Libraries
     "corsheaders",
     "django_markdown2",
+    "rangefilter",
     "raven.contrib.django.raven_compat",
     "rest_framework",
     "widget_tweaks",
@@ -306,7 +307,7 @@ BUGZILLA_COMMENT_URL = "{path}?api_key={api_key}".format(
 )
 
 # DS Issue URL
-DS_ISSUE_HOST = config("DS_ISSUE_HOST")
+DS_ISSUE_HOST = "https://mozilla-hub.atlassian.net/browse/"
 
 REDIS_HOST = config("REDIS_HOST")
 REDIS_PORT = config("REDIS_PORT")
