@@ -983,7 +983,9 @@ class TestNimbusExperimentSerializer(TestCase):
                 "population_percent": 10,
                 "proposed_duration": 42,
                 "proposed_enrollment": 120,
-                "targeting_config_slug": NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN,
+                "targeting_config_slug": (
+                    NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN
+                ),
                 "total_enrolled_clients": 100,
                 "changelog_message": "test changelog message",
                 "countries": [country.id],
