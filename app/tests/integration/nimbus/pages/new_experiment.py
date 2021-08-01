@@ -19,6 +19,11 @@ class NewExperiment(Base):
 
         return self
 
+    def fill(self, experiment):
+        self.public_name = experiment.public_name
+        self.hypothesis = experiment.hypothesis
+        self.application = experiment.application
+
     @property
     def public_name(self):
         return self.find_element(*self._public_name_locator).text

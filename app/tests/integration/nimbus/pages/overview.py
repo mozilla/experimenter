@@ -18,6 +18,12 @@ class OverviewPage(Base):
 
         return self
 
+    def fill(self, experiment):
+        self.public_description = experiment.public_description
+        self.select_risk_brand_false()
+        self.select_risk_revenue_false()
+        self.select_risk_partner_false()
+
     def save_and_continue(self):
         element = self.selenium.find_element(*self._save_continue_btn_locator)
         element.click()

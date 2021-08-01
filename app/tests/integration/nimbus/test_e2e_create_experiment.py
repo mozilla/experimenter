@@ -6,52 +6,72 @@ from nimbus.pages.summary import SummaryPage
 from nimbus.remote_settings.pages.dashboard import Dashboard
 from nimbus.remote_settings.pages.login import Login
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from nimbus.models.base_dataclass import BaseDataClass, BaseBranchDataClass, BaseAudienceDataClass
 
 
-@pytest.mark.nondestructive
-def test_create_new_experiment(selenium, base_url):
-    experiment_name = "test_create_new_experiment"
+@pytest.fixture(name="default_data", scope="module")
+def fixture_default_data():
+    return BaseDataClass(
+        hypothesis="smart stuff here",
+        application="DESKTOP",
+        public_description="description stuff",
+        branches=[
+            BaseBranchDataClass(
+                name="name 1",
+                description="a nice experiment",
+                config="No Feature Firefox Desktop"
+            )
+        ],
+        audience=BaseAudienceDataClass(
+            channel="Nightly",
+            min_version=80,
+            targeting="TARGETING_MAC_ONLY",
+            percentage=50.0,
+            expected_clients=50
+        )
+    )
 
-    selenium.get(base_url)
-    home = HomePage(selenium, base_url).wait_for_page_to_load()
-    experiment = home.create_new_button()
-    experiment.public_name = experiment_name
-    experiment.hypothesis = "smart stuff here"
-    experiment.application = "DESKTOP"
+
+def create_experiment(selenium, home_page, data):
+    experiment = home_page.create_new_button()
+    experiment.fill(data)
 
     # Fill Overview Page
     overview = experiment.save_and_continue()
-    overview.public_description = "description stuff"
-    overview.select_risk_brand_false()
-    overview.select_risk_revenue_false()
-    overview.select_risk_partner_false()
+    overview.fill(data)
 
     # Fill Branches page
     branches = overview.save_and_continue()
-    branches.remove_branch()
-    branches.reference_branch_name = "name 1"
-    branches.reference_branch_description = "a nice experiment"
-    branches.feature_config = "No Feature Firefox Desktop"
+    branches.fill(data.branches)
 
     # Fill Metrics page
     metrics = branches.save_and_continue()
 
     # Fill Audience page
     audience = metrics.save_and_continue()
-    audience.channel = "Nightly"
-    audience.min_version = 80
-    audience.targeting = "TARGETING_MAC_ONLY"
-    audience.percentage = 50.0
-    audience.expected_clients = 50
+    audience.fill(data.audience)
     audience.save_btn()
-    audience.save_and_continue()
+    review = audience.save_and_continue()
 
     # Review
     selenium.find_element_by_css_selector("#PageSummary")
+    review.launch_without_preview.click()
+    review.request_review.click_launch_checkboxes()
+    review.request_review.request_launch_button.click()
+    review.approve()
 
 
-def test_create_new_experiment_remote_settings(selenium, base_url):
-    experiment_name = "test_create_new_experiment_remote_settings"
+@pytest.mark.nondestructive
+def test_create_new_experiment(selenium, base_url, default_data):
+    default_data.public_name = "test_create_new_experiment"
+
+    selenium.get(base_url)
+    home = HomePage(selenium, base_url).wait_for_page_to_load()
+    create_experiment(selenium, home, default_data)
+
+
+def test_create_new_experiment_remote_settings(selenium, base_url, default_data):
+    default_data.public_name = "test_create_new_experiment_remote_settings"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
@@ -60,44 +80,9 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
         current_experiments = len(home.tables[0].experiments)
     except TimeoutException:
         current_experiments = 0
-    experiment = home.create_new_button()
-    experiment.public_name = experiment_name
-    experiment.hypothesis = "smart stuff here"
-    experiment.application = "DESKTOP"
 
-    # Fill Overview Page
-    overview = experiment.save_and_continue()
-    overview.public_description = "description stuff"
-    overview.select_risk_brand_false()
-    overview.select_risk_revenue_false()
-    overview.select_risk_partner_false()
+    create_experiment(selenium, home, default_data)
 
-    # Fill Branches page
-    branches = overview.save_and_continue()
-    branches.remove_branch()
-    branches.reference_branch_name = "name 1"
-    branches.reference_branch_description = "a nice experiment"
-    branches.feature_config = "No Feature Firefox Desktop"
-
-    # Fill Metrics page
-    metrics = branches.save_and_continue()
-
-    # Fill Audience page
-    audience = metrics.save_and_continue()
-    audience.channel = "Nightly"
-    audience.min_version = 80
-    audience.targeting = "TARGETING_MAC_ONLY"
-    audience.percentage = 50.0
-    audience.expected_clients = 50
-    audience.save_btn()
-    review = audience.save_and_continue()
-
-    # Review and approve
-    selenium.find_element_by_css_selector("#PageSummary")
-    review.launch_without_preview.click()
-    review.request_review.click_launch_checkboxes()
-    review.request_review.request_launch_button.click()
-    review.approve()
     selenium.get("http://kinto:8888/v1/admin")
     kinto_login = Login(selenium, base_url).wait_for_page_to_load()
     kinto_login.kinto_auth.click()
@@ -126,57 +111,21 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
     live_experiments = home.tables[0]
     assert "Live" in home.active_tab_text
     for item in live_experiments.experiments:
-        if experiment_name in item.text:
+        if default_data.public_name in item.text:
             item.click()
             break
     summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
     assert "live" in summary_page.experiment_status.lower()
 
 
-def test_create_new_experiment_remote_settings_reject(selenium, base_url):
-    experiment_name = "test_create_new_experiment_remote_settings_reject"
+def test_create_new_experiment_remote_settings_reject(selenium, base_url, default_data):
+    default_data.public_name = "test_create_new_experiment_remote_settings_reject"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     home.tabs[-1].click()  # Click drafts
-    experiment = home.create_new_button()
-    experiment.public_name = experiment_name
-    experiment.hypothesis = "smart stuff here"
-    experiment.application = "DESKTOP"
+    create_experiment(selenium, home, default_data)
 
-    # Fill Overview Page
-    overview = experiment.save_and_continue()
-    overview.public_description = "description stuff"
-    overview.select_risk_brand_false()
-    overview.select_risk_revenue_false()
-    overview.select_risk_partner_false()
-
-    # Fill Branches page
-    branches = overview.save_and_continue()
-    branches.remove_branch()
-    branches.reference_branch_name = "name 1"
-    branches.reference_branch_description = "a nice experiment"
-    branches.feature_config = "No Feature Firefox Desktop"
-
-    # Fill Metrics page
-    metrics = branches.save_and_continue()
-
-    # Fill Audience page
-    audience = metrics.save_and_continue()
-    audience.channel = "Nightly"
-    audience.min_version = 80
-    audience.targeting = "TARGETING_MAC_ONLY"
-    audience.percentage = 50.0
-    audience.expected_clients = 50
-    audience.save_btn()
-    review = audience.save_and_continue()
-
-    # Review and approve
-    selenium.find_element_by_css_selector("#PageSummary")
-    review.launch_without_preview.click()
-    review.request_review.click_launch_checkboxes()
-    review.request_review.request_launch_button.click()
-    review.approve()
     selenium.get("http://kinto:8888/v1/admin")
     kinto_login = Login(selenium, base_url).wait_for_page_to_load()
     kinto_login.kinto_auth.click()
@@ -201,7 +150,7 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
             home = HomePage(selenium, drafts_tab_url)
             new_experiments = home.tables[0].experiments
             for item in new_experiments:
-                if experiment_name in item.text:
+                if default_data.public_name in item.text:
                     experiment_found = True
                     item.click()
                     break
@@ -214,7 +163,7 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
             break
     else:
         raise AssertionError("Experiment was not found")
-    experiment_url = experiment_name.replace(" ", "-")
+    experiment_url = default_data.public_name.replace(" ", "-")
     selenium.get(f"{base_url}/{experiment_url}")
     for attempt in range(30):
         try:
@@ -228,49 +177,12 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
         raise AssertionError("Experiment page didn't load")
 
 
-def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
-    experiment_name = "test_create_new_experiment_remote_settings_timeout"
+def test_create_new_experiment_remote_settings_timeout(selenium, base_url, default_data):
+    default_data.public_name = "test_create_new_experiment_remote_settings_timeout"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
-    experiment = home.create_new_button()
-    experiment.public_name = experiment_name
-    experiment.hypothesis = "smart stuff here"
-    experiment.application = "DESKTOP"
-
-    # Fill Overview Page
-    overview = experiment.save_and_continue()
-    overview.public_description = "description stuff"
-    overview.select_risk_brand_false()
-    overview.select_risk_revenue_false()
-    overview.select_risk_partner_false()
-
-    # Fill Branches page
-    branches = overview.save_and_continue()
-    branches.remove_branch()
-    branches.reference_branch_name = "name 1"
-    branches.reference_branch_description = "a nice experiment"
-    branches.feature_config = "No Feature Firefox Desktop"
-
-    # Fill Metrics page
-    metrics = branches.save_and_continue()
-
-    # Fill Audience page
-    audience = metrics.save_and_continue()
-    audience.channel = "Nightly"
-    audience.min_version = 80
-    audience.targeting = "TARGETING_MAC_ONLY"
-    audience.percentage = 50.0
-    audience.expected_clients = 50
-    audience.save_btn()
-    review = audience.save_and_continue()
-
-    # Review and approve
-    selenium.find_element_by_css_selector("#PageSummary")
-    review.launch_without_preview.click()
-    review.request_review.click_launch_checkboxes()
-    review.request_review.request_launch_button.click()
-    review.approve()
+    create_experiment(selenium, home, default_data)
     for attempt in range(60):
         try:
             review = SummaryPage(selenium, base_url).wait_for_page_to_load()
