@@ -1,12 +1,16 @@
 import time
 
 import pytest
+from nimbus.models.base_dataclass import (
+    BaseAudienceDataClass,
+    BaseBranchDataClass,
+    BaseDataClass,
+)
 from nimbus.pages.home import HomePage
 from nimbus.pages.summary import SummaryPage
 from nimbus.remote_settings.pages.dashboard import Dashboard
 from nimbus.remote_settings.pages.login import Login
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from nimbus.models.base_dataclass import BaseDataClass, BaseBranchDataClass, BaseAudienceDataClass
 
 
 @pytest.fixture(name="default_data", scope="module")
@@ -19,7 +23,7 @@ def fixture_default_data():
             BaseBranchDataClass(
                 name="name 1",
                 description="a nice experiment",
-                config="No Feature Firefox Desktop"
+                config="No Feature Firefox Desktop",
             )
         ],
         audience=BaseAudienceDataClass(
@@ -27,8 +31,8 @@ def fixture_default_data():
             min_version=80,
             targeting="TARGETING_MAC_ONLY",
             percentage=50.0,
-            expected_clients=50
-        )
+            expected_clients=50,
+        ),
     )
 
 
