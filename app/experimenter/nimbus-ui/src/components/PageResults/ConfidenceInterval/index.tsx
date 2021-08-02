@@ -15,31 +15,30 @@ const renderBounds = (
   leftPercent: number,
   barWidth: number,
   significance: string,
-  buffer: number,
 ) => {
+  const numberOfDigits =
+    Math.abs(upper).toString().replace(".", "").length +
+    Math.abs(lower).toString().replace(".", "").length;
+
   if (barWidth < MIN_BOUNDS_WIDTH) {
     leftPercent -= (MIN_BOUNDS_WIDTH - barWidth) / 2;
   }
 
   return (
     <div
-      className="position-absolute"
+      className="position-absolute d-flex justify-content-between"
       style={{
-        // Add some buffer to space out the rendered bound values.
-        left: `${leftPercent - buffer * 1.5}%`,
-        width: `${Math.max(barWidth, MIN_BOUNDS_WIDTH) + buffer * 3}%`,
+        left: `${leftPercent - numberOfDigits * 1.5}%`,
+        width: `${Math.max(barWidth, MIN_BOUNDS_WIDTH) + numberOfDigits * 3}%`,
       }}
     >
-      <div
-        className={`${significance}-significance text-left p-0 h6 font-weight-normal position-absolute`}
-      >
+      <span className={`${significance}-significance h6 font-weight-normal`}>
         {lower}%
-      </div>
-      <div
-        className={`${significance}-significance text-right p-0 h6 font-weight-normal`}
-      >
+      </span>
+      &nbsp;&nbsp;&nbsp;
+      <span className={`${significance}-significance h6 font-weight-normal`}>
         {upper}%
-      </div>
+      </span>
     </div>
   );
 };
@@ -67,15 +66,6 @@ const ConfidenceInterval: React.FC<{
   range: number;
   significance: string;
 }> = ({ upper, lower, range, significance }) => {
-  // number of total digits
-  let buffer =
-    Math.abs(upper).toString().replace(".", "").length +
-    Math.abs(lower).toString().replace(".", "").length;
-  // give additional buffer if there's 4+ digits and a small significance
-  if (buffer >= 4 && lower / upper > 0.5) {
-    buffer += (lower / upper) * 2;
-  }
-  range += buffer;
   const fullWidth = range * 2;
   const barWidth = ((upper - lower) / fullWidth) * 100;
   const leftPercent = (Math.abs(lower - range * -1) / fullWidth) * 100;
@@ -86,7 +76,6 @@ const ConfidenceInterval: React.FC<{
     leftPercent,
     barWidth,
     significance,
-    buffer,
   );
   const line = renderLine(leftPercent, barWidth, significance);
 
