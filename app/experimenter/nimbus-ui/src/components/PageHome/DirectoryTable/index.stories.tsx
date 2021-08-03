@@ -10,15 +10,25 @@ import DirectoryTable, {
   DirectoryLiveTable,
 } from ".";
 import { mockDirectoryExperiments } from "../../../lib/mocks";
+import { CurrentLocation, RouterSlugProvider } from "../../../lib/test-utils";
 import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../../types/globalTypes";
 
+const withRouterAndCurrentUrl = (Story: React.FC) => (
+  <RouterSlugProvider mocks={[]}>
+    <div className="p-3">
+      <CurrentLocation />
+      <Story />
+    </div>
+  </RouterSlugProvider>
+);
+
 export default {
   title: "pages/Home/DirectoryTable",
   component: DirectoryTable,
-  decorators: [withLinks],
+  decorators: [withRouterAndCurrentUrl, withLinks],
 };
 
 const experiments = mockDirectoryExperiments();
@@ -56,6 +66,7 @@ export const CustomComponent = () => (
     columns={[
       {
         label: "Testing column",
+        sortBy: ({ status }) => `Hello ${status}`,
         component: ({ status }) => <td>Hello {status}</td>,
       },
     ]}

@@ -193,12 +193,12 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
     modal.decline_changes()
 
     # Load home page and wait for experiment to show in the Drafts tab
-    selenium.get(base_url)
+    drafts_tab_url = f"{base_url}?tab=drafts"
+    selenium.get(drafts_tab_url)
     experiment_found = False
     for attempt in range(45):
         try:
-            home = HomePage(selenium, base_url).wait_for_page_to_load()
-            home.tabs[-1].click()
+            home = HomePage(selenium, drafts_tab_url)
             new_experiments = home.tables[0].experiments
             for item in new_experiments:
                 if experiment_name in item.text:
