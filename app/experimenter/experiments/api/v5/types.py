@@ -225,6 +225,11 @@ class NimbusExperimentType(DjangoObjectType):
         ready = serializer.is_valid()
         return NimbusReadyForReviewType(message=serializer.errors, ready=ready)
 
+    def resolve_targeting_config_slug(self, info):
+        if self.targeting_config_slug in self.TargetingConfig:
+            return self.TargetingConfig(self.targeting_config_slug).name
+        return self.targeting_config_slug
+
     def resolve_jexl_targeting_expression(self, info):
         return self.targeting
 
