@@ -18,6 +18,7 @@ from experimenter.experiments.models.nimbus import (
     NimbusFeatureConfig,
     NimbusIsolationGroup,
 )
+from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 
 
@@ -27,6 +28,11 @@ class ObjectField(graphene.Scalar):
     @staticmethod
     def serialize(dt):
         return dt
+
+
+class NimbusLabelValueType(graphene.ObjectType):
+    label = graphene.String()
+    value = graphene.String()
 
 
 class NimbusCountryType(DjangoObjectType):
@@ -70,9 +76,19 @@ class NimbusExperimentFirefoxMinVersion(graphene.Enum):
         enum = NimbusConstants.Version
 
 
+class NimbusExperimentApplication(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Application
+
+
 class NimbusExperimentChannel(graphene.Enum):
     class Meta:
         enum = NimbusConstants.Channel
+
+
+class NimbusExperimentApplicationChannels(graphene.ObjectType):
+    application = NimbusExperimentApplication()
+    channels = graphene.List(NimbusLabelValueType)
 
 
 class NimbusExperimentTargetingConfigSlug(graphene.Enum):
@@ -84,11 +100,6 @@ class NimbusExperimentTargetingConfigSlugChoice(graphene.ObjectType):
     label = graphene.String()
     value = graphene.String()
     application_values = graphene.List(graphene.String)
-
-
-class NimbusExperimentApplication(graphene.Enum):
-    class Meta:
-        enum = NimbusConstants.Application
 
 
 class NimbusExperimentDocumentationLink(graphene.Enum):
@@ -150,11 +161,6 @@ class NimbusOutcomeType(graphene.ObjectType):
     metrics = graphene.List(NimbusOutcomeMetricType)
 
 
-class NimbusLabelValueType(graphene.ObjectType):
-    label = graphene.String()
-    value = graphene.String()
-
-
 class NimbusReadyForReviewType(graphene.ObjectType):
     message = ObjectField()
     ready = graphene.Boolean()
@@ -170,6 +176,86 @@ class NimbusSignoffRecommendationsType(graphene.ObjectType):
     qa_signoff = graphene.Boolean()
     vp_signoff = graphene.Boolean()
     legal_signoff = graphene.Boolean()
+
+
+class NimbusConfigurationType(graphene.ObjectType):
+    application = graphene.List(NimbusLabelValueType)
+    channel = graphene.List(NimbusLabelValueType)
+    application_channels = graphene.List(NimbusExperimentApplicationChannels)
+    feature_config = graphene.List(NimbusFeatureConfigType)
+    firefox_min_version = graphene.List(NimbusLabelValueType)
+    outcomes = graphene.List(NimbusOutcomeType)
+    targeting_config_slug = graphene.List(NimbusExperimentTargetingConfigSlugChoice)
+    hypothesis_default = graphene.String()
+    max_primary_outcomes = graphene.Int()
+    documentation_link = graphene.List(NimbusLabelValueType)
+    locales = graphene.List(NimbusLocaleType)
+    countries = graphene.List(NimbusCountryType)
+
+    def _text_choices_to_label_value_list(root, text_choices):
+        return [
+            NimbusLabelValueType(
+                label=text_choices[name].label,
+                value=name,
+            )
+            for name in text_choices.names
+        ]
+
+    def resolve_application(root, info):
+        return root._text_choices_to_label_value_list(NimbusExperiment.Application)
+
+    def resolve_channel(root, info):
+        return root._text_choices_to_label_value_list(NimbusExperiment.Channel)
+
+    def resolve_application_channels(root, info):
+        return [
+            NimbusExperimentApplicationChannels(
+                application=application,
+                channels=[
+                    NimbusLabelValueType(label=channel.label, value=channel.name)
+                    for channel in NimbusExperiment.Channel
+                    if channel
+                    in NimbusExperiment.APPLICATION_CONFIGS[application].channel_app_id
+                ],
+            )
+            for application in NimbusExperiment.Application
+        ]
+
+    def resolve_feature_config(root, info):
+        return NimbusFeatureConfig.objects.all()
+
+    def resolve_firefox_min_version(root, info):
+        return root._text_choices_to_label_value_list(NimbusExperiment.Version)
+
+    def resolve_outcomes(root, info):
+        return Outcomes.all()
+
+    def resolve_targeting_config_slug(root, info):
+        return [
+            NimbusExperimentTargetingConfigSlugChoice(
+                label=choice.label,
+                value=choice.name,
+                application_values=NimbusExperiment.TARGETING_CONFIGS[
+                    choice.value
+                ].application_choice_names,
+            )
+            for choice in NimbusExperiment.TargetingConfig
+        ]
+
+    def resolve_hypothesis_default(root, info):
+        return NimbusExperiment.HYPOTHESIS_DEFAULT
+
+    def resolve_max_primary_outcomes(root, info):
+        return NimbusExperiment.MAX_PRIMARY_OUTCOMES
+
+    def resolve_documentation_link(root, info):
+        return root._text_choices_to_label_value_list(NimbusExperiment.DocumentationLink)
+
+    def resolve_locales(root, info):
+        return Locale.objects.all().order_by("name")
+
+    def resolve_countries(root, info):
+        return Country.objects.all().order_by("name")
 
 
 class NimbusExperimentType(DjangoObjectType):

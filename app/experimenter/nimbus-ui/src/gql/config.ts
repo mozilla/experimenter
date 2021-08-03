@@ -15,6 +15,13 @@ export const GET_CONFIG_QUERY = gql`
         label
         value
       }
+      applicationChannels {
+        application
+        channels {
+          label
+          value
+        }
+      }
       featureConfig {
         id
         name

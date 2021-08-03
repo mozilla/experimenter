@@ -3009,6 +3009,7 @@
         },
         "required": [
           "slug",
+          "channel",
           "bucketConfig",
           "branches",
           "startDate",

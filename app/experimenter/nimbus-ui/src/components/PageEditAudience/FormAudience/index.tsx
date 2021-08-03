@@ -75,6 +75,10 @@ export const FormAudience = ({
     experiment!.countries.map((v) => "" + v.id!),
   );
 
+  const applicationConfig = config.applicationChannels?.find(
+    (application) => application?.application === experiment.application,
+  );
+
   const defaultValues = {
     channel: experiment.channel,
     firefoxMinVersion: experiment.firefoxMinVersion,
@@ -151,7 +155,7 @@ export const FormAudience = ({
               Channel
             </Form.Label>
             <Form.Control {...formControlAttrs("channel")} as="select">
-              <SelectOptions options={config.channel} />
+              <SelectOptions options={applicationConfig!.channels!} />
             </Form.Control>
             <FormErrors name="channel" />
           </Form.Group>

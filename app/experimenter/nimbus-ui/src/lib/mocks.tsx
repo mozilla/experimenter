@@ -82,6 +82,59 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "PLATYPUS_DOORSTOP",
     },
   ],
+  applicationChannels: [
+    {
+      application: NimbusExperimentApplication.DESKTOP,
+      channels: [
+        {
+          label: "Desktop Beta",
+          value: "BETA",
+        },
+        {
+          label: "Desktop Nightly",
+          value: "NIGHTLY",
+        },
+        {
+          label: "Platypus Doorstop",
+          value: "PLATYPUS_DOORSTOP",
+        },
+      ],
+    },
+    {
+      application: NimbusExperimentApplication.FENIX,
+      channels: [
+        {
+          label: "Desktop Beta",
+          value: "BETA",
+        },
+        {
+          label: "Desktop Nightly",
+          value: "NIGHTLY",
+        },
+        {
+          label: "Platypus Doorstop",
+          value: "PLATYPUS_DOORSTOP",
+        },
+      ],
+    },
+    {
+      application: NimbusExperimentApplication.IOS,
+      channels: [
+        {
+          label: "Desktop Beta",
+          value: "BETA",
+        },
+        {
+          label: "Desktop Nightly",
+          value: "NIGHTLY",
+        },
+        {
+          label: "Platypus Doorstop",
+          value: "PLATYPUS_DOORSTOP",
+        },
+      ],
+    },
+  ],
   featureConfig: [
     {
       id: 1,

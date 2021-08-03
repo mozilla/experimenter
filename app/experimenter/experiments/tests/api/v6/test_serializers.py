@@ -122,85 +122,18 @@ class TestNimbusExperimentSerializer(TestCase):
 
     @parameterized.expand(
         [
-            [
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Channel.NIGHTLY,
-                "org.mozilla.fenix",
-                "org.mozilla.fenix",
-                "fenix",
-            ],
-            [
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Channel.BETA,
-                "org.mozilla.firefox_beta",
-                "org.mozilla.firefox_beta",
-                "fenix",
-            ],
-            [
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Channel.RELEASE,
-                "org.mozilla.firefox",
-                "org.mozilla.firefox",
-                "fenix",
-            ],
-            [
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Channel.UNBRANDED,
-                "",
-                "",
-                "fenix",
-            ],
-            [
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Channel.NO_CHANNEL,
-                "",
-                "",
-                "fenix",
-            ],
-            [
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Channel.NIGHTLY,
-                "firefox-desktop",
-                "firefox-desktop",
-                "firefox_desktop",
-            ],
-            [
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Channel.BETA,
-                "firefox-desktop",
-                "firefox-desktop",
-                "firefox_desktop",
-            ],
-            [
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Channel.RELEASE,
-                "firefox-desktop",
-                "firefox-desktop",
-                "firefox_desktop",
-            ],
-            [
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Channel.UNBRANDED,
-                "firefox-desktop",
-                "firefox-desktop",
-                "firefox_desktop",
-            ],
-            [
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Channel.NO_CHANNEL,
-                "firefox-desktop",
-                "firefox-desktop",
-                "firefox_desktop",
-            ],
+            (application, channel, channel_app_id)
+            for application in NimbusExperiment.Application
+            for (channel, channel_app_id) in NimbusExperiment.APPLICATION_CONFIGS[
+                application
+            ].channel_app_id.items()
         ]
     )
     def test_sets_app_id_name_channel_for_application(
         self,
         application,
         channel,
-        expected_application,
-        expected_appId,
-        expected_appName,
+        channel_app_id,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
@@ -209,10 +142,13 @@ class TestNimbusExperimentSerializer(TestCase):
         )
 
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(serializer.data["application"], expected_application)
+        self.assertEqual(serializer.data["application"], channel_app_id)
         self.assertEqual(serializer.data["channel"], channel)
-        self.assertEqual(serializer.data["appName"], expected_appName)
-        self.assertEqual(serializer.data["appId"], expected_appId)
+        self.assertEqual(
+            serializer.data["appName"],
+            NimbusExperiment.APPLICATION_CONFIGS[application].app_name,
+        )
+        self.assertEqual(serializer.data["appId"], channel_app_id)
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_serializer_outputs_targeting(self):
