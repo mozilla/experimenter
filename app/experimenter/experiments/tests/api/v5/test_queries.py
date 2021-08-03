@@ -15,7 +15,7 @@ from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigF
 from experimenter.outcomes import Outcomes
 
 
-class TestNimbusQuery(GraphQLTestCase):
+class TestNimbusExperimentsQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
 
     def test_experiments(self):
@@ -164,6 +164,45 @@ class TestNimbusQuery(GraphQLTestCase):
             experiment_data["publishStatus"],
             experiment.publish_status.name,
         )
+
+    def test_experiment_returns_country_and_locale(self):
+        user_email = "user@example.com"
+        NimbusExperimentFactory.create(publish_status=NimbusExperiment.PublishStatus.IDLE)
+
+        response = self.query(
+            """
+            query {
+                experiments {
+                    countries {
+                        code
+                        name
+                    }
+                    locales {
+                        code
+                        name
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experiments"][0]
+
+        for locale in Locale.objects.all():
+            self.assertIn(
+                {"code": locale.code, "name": locale.name}, experiment_data["locales"]
+            )
+
+        for country in Country.objects.all():
+            self.assertIn(
+                {"code": country.code, "name": country.name}, experiment_data["countries"]
+            )
+
+
+class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
+    GRAPHQL_URL = reverse("nimbus-api-graphql")
 
     def test_experiment_by_slug_ready_for_review(self):
         user_email = "user@example.com"
@@ -559,40 +598,157 @@ class TestNimbusQuery(GraphQLTestCase):
             ),
         )
 
-    def test_experiment_returns_country_and_locale(self):
+    def test_paused_experiment_returns_date(self):
         user_email = "user@example.com"
-        NimbusExperimentFactory.create(publish_status=NimbusExperiment.PublishStatus.IDLE)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            proposed_enrollment=7,
+        )
+        live_change = experiment.changes.get(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        )
+        live_change.changed_on = datetime.datetime(2021, 1, 1)
+        live_change.save()
 
         response = self.query(
             """
-            query {
-                experiments {
-                    countries {
-                        code
-                        name
-                    }
-                    locales {
-                        code
-                        name
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    isEnrollmentPaused
+                    enrollmentEndDate
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["isEnrollmentPaused"], True)
+        self.assertEqual(experiment_data["enrollmentEndDate"], "2021-01-08")
+
+    @parameterized.expand(
+        [
+            [NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED, False, True],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE, False, True],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING, False, True],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_TIMEOUT, False, True],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE, True, False],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_REJECT, False, False],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_REJECT, False, False],
+        ]
+    )
+    def test_experiment_pause_pending(self, lifecycle, expected_paused, expected_pending):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    isEnrollmentPaused
+                    isEnrollmentPausePending
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["isEnrollmentPaused"], expected_paused)
+        self.assertEqual(experiment_data["isEnrollmentPausePending"], expected_pending)
+
+    def test_signoff_recommendations(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            risk_brand=True,
+            risk_revenue=True,
+            risk_partner_related=True,
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    signoffRecommendations {
+                        qaSignoff
+                        vpSignoff
+                        legalSignoff
                     }
                 }
             }
             """,
+            variables={"slug": experiment.slug},
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
-        experiment_data = content["data"]["experiments"][0]
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["signoffRecommendations"]["qaSignoff"], True)
+        self.assertEqual(experiment_data["signoffRecommendations"]["vpSignoff"], True)
+        self.assertEqual(experiment_data["signoffRecommendations"]["legalSignoff"], True)
 
-        for locale in Locale.objects.all():
-            self.assertIn(
-                {"code": locale.code, "name": locale.name}, experiment_data["locales"]
-            )
+    def test_targeting_config_slug_for_valid_targeting_config_returns_name(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN,
+        )
 
-        for country in Country.objects.all():
-            self.assertIn(
-                {"code": country.code, "name": country.name}, experiment_data["countries"]
-            )
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    targetingConfigSlug
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["targetingConfigSlug"],
+            NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.name,
+        )
+
+    def test_targeting_config_slug_for_deprecated_targeting_config_returns_slug(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug="deprecated_targeting",
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    targetingConfigSlug
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["targetingConfigSlug"],
+            "deprecated_targeting",
+        )
+
+
+class TestNimbusConfigQuery(GraphQLTestCase):
+    GRAPHQL_URL = reverse("nimbus-api-graphql")
 
     def test_nimbus_config(self):
         user_email = "user@example.com"
@@ -714,97 +870,3 @@ class TestNimbusQuery(GraphQLTestCase):
             self.assertIn(
                 {"code": country.code, "name": country.name}, config["countries"]
             )
-
-    def test_paused_experiment_returns_date(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
-            proposed_enrollment=7,
-        )
-        live_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        )
-        live_change.changed_on = datetime.datetime(2021, 1, 1)
-        live_change.save()
-
-        response = self.query(
-            """
-            query experimentBySlug($slug: String!) {
-                experimentBySlug(slug: $slug) {
-                    isEnrollmentPaused
-                    enrollmentEndDate
-                }
-            }
-            """,
-            variables={"slug": experiment.slug},
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-        experiment_data = content["data"]["experimentBySlug"]
-        self.assertEqual(experiment_data["isEnrollmentPaused"], True)
-        self.assertEqual(experiment_data["enrollmentEndDate"], "2021-01-08")
-
-    @parameterized.expand(
-        [
-            [NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED, False, True],
-            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE, False, True],
-            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING, False, True],
-            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_TIMEOUT, False, True],
-            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE, True, False],
-            [NimbusExperimentFactory.Lifecycles.PAUSING_REJECT, False, False],
-            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_REJECT, False, False],
-        ]
-    )
-    def test_experiment_pause_pending(self, lifecycle, expected_paused, expected_pending):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
-        response = self.query(
-            """
-            query experimentBySlug($slug: String!) {
-                experimentBySlug(slug: $slug) {
-                    isEnrollmentPaused
-                    isEnrollmentPausePending
-                }
-            }
-            """,
-            variables={"slug": experiment.slug},
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-        experiment_data = content["data"]["experimentBySlug"]
-        self.assertEqual(experiment_data["isEnrollmentPaused"], expected_paused)
-        self.assertEqual(experiment_data["isEnrollmentPausePending"], expected_pending)
-
-    def test_signoff_recommendations(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            risk_brand=True,
-            risk_revenue=True,
-            risk_partner_related=True,
-        )
-
-        response = self.query(
-            """
-            query experimentBySlug($slug: String!) {
-                experimentBySlug(slug: $slug) {
-                    signoffRecommendations {
-                        qaSignoff
-                        vpSignoff
-                        legalSignoff
-                    }
-                }
-            }
-            """,
-            variables={"slug": experiment.slug},
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-        experiment_data = content["data"]["experimentBySlug"]
-        self.assertEqual(experiment_data["signoffRecommendations"]["qaSignoff"], True)
-        self.assertEqual(experiment_data["signoffRecommendations"]["vpSignoff"], True)
-        self.assertEqual(experiment_data["signoffRecommendations"]["legalSignoff"], True)
