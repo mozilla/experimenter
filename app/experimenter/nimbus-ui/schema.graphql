@@ -129,6 +129,7 @@ type NimbusChangeLogType {
 type NimbusConfigurationType {
   application: [NimbusLabelValueType]
   channel: [NimbusLabelValueType]
+  applicationChannels: [NimbusExperimentApplicationChannels]
   featureConfig: [NimbusFeatureConfigType]
   firefoxMinVersion: [NimbusLabelValueType]
   outcomes: [NimbusOutcomeType]
@@ -162,6 +163,11 @@ enum NimbusExperimentApplication {
   DESKTOP
   FENIX
   IOS
+}
+
+type NimbusExperimentApplicationChannels {
+  application: NimbusExperimentApplication
+  channels: [NimbusLabelValueType]
 }
 
 enum NimbusExperimentChannel {
