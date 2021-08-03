@@ -157,7 +157,18 @@ export const GET_EXPERIMENTS_QUERY = gql`
       owner {
         username
       }
+      featureConfig {
+        id
+        slug
+        name
+        description
+        application
+        ownerEmail
+        schema
+      }
       slug
+      application
+      firefoxMinVersion
       startDate
       isEnrollmentPausePending
       isEnrollmentPaused

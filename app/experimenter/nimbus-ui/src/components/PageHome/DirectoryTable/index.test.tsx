@@ -176,6 +176,7 @@ describe("DirectoryTable", () => {
   });
 
   // TODO: not exhaustively testing all sort orders here, might be worth adding more?
+  // Sorting is more fully covered in lib/experiment.test.ts
   it("supports sorting by name", async () => {
     const experiments = mockDirectoryExperiments();
     const experimentNames = experiments.map((experiment) => experiment.name);

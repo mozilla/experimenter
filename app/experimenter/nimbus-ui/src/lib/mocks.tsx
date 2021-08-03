@@ -38,6 +38,7 @@ import {
   NimbusChangeLogOldStatusNext,
   NimbusDocumentationLinkTitle,
   NimbusExperimentApplication,
+  NimbusExperimentFirefoxMinVersion,
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../types/globalTypes";
@@ -172,6 +173,18 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       label: "Firefox 80",
       value: "FIREFOX_83",
+    },
+    {
+      label: "Firefox 16",
+      value: "FIREFOX_16",
+    },
+    {
+      label: "Firefox 32",
+      value: "FIREFOX_32",
+    },
+    {
+      label: "Firefox 64",
+      value: "FIREFOX_64",
     },
   ],
   outcomes: [
@@ -565,16 +578,17 @@ export function mockSingleDirectoryExperiment(
     owner: {
       username: "example@mozilla.com",
     },
+    application: MOCK_CONFIG.application![0]!
+      .value as NimbusExperimentApplication,
+    firefoxMinVersion: MOCK_CONFIG.firefoxMinVersion![0]!
+      .value as NimbusExperimentFirefoxMinVersion,
     monitoringDashboardUrl:
       "https://grafana.telemetry.mozilla.org/d/XspgvdxZz/experiment-enrollment?orgId=1&var-experiment_id=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
     name: "Open-architected background installation",
     status: NimbusExperimentStatus.COMPLETE,
     statusNext: null,
     publishStatus: NimbusExperimentPublishStatus.IDLE,
-    featureConfig: {
-      slug: "newtab",
-      name: "New tab",
-    },
+    featureConfig: MOCK_CONFIG.featureConfig![0],
     isEnrollmentPaused: false,
     isEnrollmentPausePending: false,
     proposedEnrollment: 7,
@@ -599,7 +613,9 @@ export function mockDirectoryExperiments(
       name: "Ipsum dolor sit amet",
       status: NimbusExperimentStatus.DRAFT,
       owner: { username: "gamma-example@mozilla.com" },
-      featureConfig: { slug: "foo", name: "Foo" },
+      featureConfig: MOCK_CONFIG.featureConfig![0],
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
       startDate: null,
       computedEndDate: null,
     },
@@ -607,7 +623,7 @@ export function mockDirectoryExperiments(
       name: "Dolor sit amet",
       status: NimbusExperimentStatus.DRAFT,
       owner: { username: "beta-example@mozilla.com" },
-      featureConfig: { slug: "bar", name: "Bar" },
+      featureConfig: MOCK_CONFIG.featureConfig![1],
       startDate: null,
       computedEndDate: null,
     },
@@ -615,32 +631,38 @@ export function mockDirectoryExperiments(
       name: "Consectetur adipiscing elit",
       status: NimbusExperimentStatus.PREVIEW,
       owner: { username: "alpha-example@mozilla.com" },
-      featureConfig: { slug: "baz", name: "Baz" },
+      featureConfig: MOCK_CONFIG.featureConfig![2],
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
       computedEndDate: null,
     },
     {
       name: "Aliquam interdum ac lacus at dictum",
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
       owner: { username: "beta-example@mozilla.com" },
-      featureConfig: { slug: "foo", name: "Foo" },
+      featureConfig: MOCK_CONFIG.featureConfig![0],
       computedEndDate: null,
     },
     {
       name: "Nam semper sit amet orci in imperdiet",
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
       owner: { username: "gamma-example@mozilla.com" },
     },
     {
       name: "Duis ornare mollis sem.",
       status: NimbusExperimentStatus.LIVE,
       owner: { username: "alpha-example@mozilla.com" },
-      featureConfig: { slug: "bar", name: "Bar" },
+      featureConfig: MOCK_CONFIG.featureConfig![1],
     },
     {
       name: "Nec suscipit mi accumsan id",
       status: NimbusExperimentStatus.LIVE,
       owner: { username: "beta-example@mozilla.com" },
-      featureConfig: { slug: "baz", name: "Baz" },
+      featureConfig: MOCK_CONFIG.featureConfig![2],
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
       resultsReady: true,
     },
     {
@@ -652,19 +674,23 @@ export function mockDirectoryExperiments(
       name: "Nam gravida",
       status: NimbusExperimentStatus.COMPLETE,
       owner: { username: "alpha-example@mozilla.com" },
-      featureConfig: { slug: "foo", name: "Foo" },
+      featureConfig: MOCK_CONFIG.featureConfig![0],
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
       resultsReady: false,
     },
     {
       name: "Quam quis volutpat ornare",
       status: NimbusExperimentStatus.DRAFT,
       publishStatus: NimbusExperimentPublishStatus.REVIEW,
-      featureConfig: { slug: "Baz", name: "Bar" },
+      featureConfig: MOCK_CONFIG.featureConfig![1],
       owner: { username: "beta-example@mozilla.com" },
     },
     {
       name: "Lorem arcu faucibus tortor",
       featureConfig: null,
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
       owner: { username: "gamma-example@mozilla.com" },
     },
   ],
