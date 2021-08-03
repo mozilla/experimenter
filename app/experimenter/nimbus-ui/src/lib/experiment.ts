@@ -77,3 +77,51 @@ export function getSummaryAction(
   }
   return "";
 }
+
+export type ExperimentSortSelector =
+  | keyof getAllExperiments_experiments
+  | ((experiment: getAllExperiments_experiments) => string | undefined);
+
+export const featureConfigNameSortSelector: ExperimentSortSelector = (
+  experiment,
+) => experiment.featureConfig?.name;
+
+export const ownerUsernameSortSelector: ExperimentSortSelector = (experiment) =>
+  experiment.owner?.username;
+
+export const enrollmentSortSelector: ExperimentSortSelector = ({
+  startDate,
+  proposedEnrollment,
+}) => {
+  if (startDate) {
+    const startTime = new Date(startDate).getTime();
+    const enrollmentMS = proposedEnrollment * (1000 * 60 * 60 * 24);
+    return new Date(startTime + enrollmentMS).toISOString();
+  } else {
+    return "" + proposedEnrollment;
+  }
+};
+
+export const resultsReadySortSelector: ExperimentSortSelector = (experiment) =>
+  experiment.resultsReady ? "1" : "0";
+
+export const selectFromExperiment = (
+  experiment: getAllExperiments_experiments,
+  selectBy: ExperimentSortSelector,
+) =>
+  "" +
+  (typeof selectBy === "function"
+    ? selectBy(experiment)
+    : experiment[selectBy]);
+
+export const experimentSortComparator =
+  (sortBy: ExperimentSortSelector, descending: boolean) =>
+  (
+    experimentA: getAllExperiments_experiments,
+    experimentB: getAllExperiments_experiments,
+  ) => {
+    const orderBy = descending ? -1 : 1;
+    const propertyA = selectFromExperiment(experimentA, sortBy);
+    const propertyB = selectFromExperiment(experimentB, sortBy);
+    return orderBy * propertyA.localeCompare(propertyB);
+  };

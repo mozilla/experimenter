@@ -6,8 +6,21 @@ import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../types/globalTypes";
-import { editCommonRedirects, getStatus } from "./experiment";
-import { mockExperimentQuery } from "./mocks";
+import {
+  editCommonRedirects,
+  enrollmentSortSelector,
+  experimentSortComparator,
+  featureConfigNameSortSelector,
+  getStatus,
+  ownerUsernameSortSelector,
+  resultsReadySortSelector,
+  selectFromExperiment,
+} from "./experiment";
+import {
+  mockDirectoryExperiments,
+  mockExperimentQuery,
+  mockSingleDirectoryExperiment,
+} from "./mocks";
 
 const { experiment } = mockExperimentQuery("boo");
 
@@ -63,5 +76,67 @@ describe("editCommonRedirects", () => {
       mockedCall({ publishStatus: NimbusExperimentPublishStatus.WAITING }),
     ).toEqual("");
     expect(mockedCall({ status: NimbusExperimentStatus.PREVIEW })).toEqual("");
+  });
+});
+
+describe("selectFromExperiment", () => {
+  const experiment = mockSingleDirectoryExperiment({
+    startDate: "2021-06-29T00:00:00Z",
+    proposedEnrollment: 8,
+  });
+
+  it("returns a property selected by string name", () => {
+    expect(selectFromExperiment(experiment, "name")).toEqual(experiment.name);
+  });
+
+  it("returns a property selected via function", () => {
+    const selectorCases = [
+      [featureConfigNameSortSelector, "New tab"],
+      [ownerUsernameSortSelector, "example@mozilla.com"],
+      [resultsReadySortSelector, "0"],
+      [enrollmentSortSelector, "2021-07-07T00:00:00.000Z"],
+    ] as const;
+    selectorCases.forEach(([selectBy, expected]) =>
+      expect(selectFromExperiment(experiment, selectBy)).toEqual(expected),
+    );
+
+    expect(
+      selectFromExperiment(
+        { ...experiment, startDate: null },
+        enrollmentSortSelector,
+      ),
+    ).toEqual("8");
+  });
+});
+
+describe("experimentSortComparator", () => {
+  const experiments = mockDirectoryExperiments().slice(0, 5);
+
+  it("sorts by name ascending as expected", () => {
+    const sortedExperiments = [...experiments].sort(
+      experimentSortComparator("name", false),
+    );
+    const names = sortedExperiments.map(({ name }) => name);
+    expect(names).toEqual([
+      "Aliquam interdum ac lacus at dictum",
+      "Consectetur adipiscing elit",
+      "Dolor sit amet",
+      "Ipsum dolor sit amet",
+      "Lorem ipsum dolor sit amet",
+    ]);
+  });
+
+  it("sorts by name descending as expected", () => {
+    const sortedExperiments = [...experiments].sort(
+      experimentSortComparator("name", true),
+    );
+    const names = sortedExperiments.map(({ name }) => name);
+    expect(names).toEqual([
+      "Lorem ipsum dolor sit amet",
+      "Ipsum dolor sit amet",
+      "Dolor sit amet",
+      "Consectetur adipiscing elit",
+      "Aliquam interdum ac lacus at dictum",
+    ]);
   });
 });

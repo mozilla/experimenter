@@ -9,6 +9,7 @@ import {
   LocationProvider,
   RouteComponentProps,
   Router,
+  useLocation,
 } from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
@@ -115,4 +116,17 @@ export const assertSerializerMessages = async (
       }
     }
   }
+};
+
+export const CurrentLocation = () => {
+  const location = useLocation();
+  return (
+    <p className="p-3">
+      Location:{" "}
+      <code data-testid="location">
+        {location.pathname}
+        {location.search}
+      </code>
+    </p>
+  );
 };
