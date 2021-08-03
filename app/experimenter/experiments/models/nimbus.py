@@ -72,7 +72,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     )
     status = models.CharField(
         max_length=255,
-        default=NimbusConstants.Status.DRAFT.value,
+        default=NimbusConstants.Status.DRAFT,
         choices=NimbusConstants.Status.choices,
     )
     status_next = models.CharField(
@@ -83,7 +83,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     )
     publish_status = models.CharField(
         max_length=255,
-        default=NimbusConstants.PublishStatus.IDLE.value,
+        default=NimbusConstants.PublishStatus.IDLE,
         choices=NimbusConstants.PublishStatus.choices,
     )
     name = models.CharField(max_length=255, unique=True)
