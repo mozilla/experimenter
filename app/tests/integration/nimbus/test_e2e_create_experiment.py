@@ -43,10 +43,7 @@ def create_experiment(selenium, home_page, data):
 
     # Review
     selenium.find_element_by_css_selector("#PageSummary")
-    review.launch_without_preview.click()
-    review.request_review.click_launch_checkboxes()
-    review.request_review.request_launch_button.click()
-    review.approve()
+    return review
 
 
 @pytest.mark.nondestructive
@@ -69,7 +66,11 @@ def test_create_new_experiment_remote_settings(selenium, base_url, default_data)
     except TimeoutException:
         current_experiments = 0
 
-    create_experiment(selenium, home, default_data)
+    review = create_experiment(selenium, home, default_data)
+    review.launch_without_preview.click()
+    review.request_review.click_launch_checkboxes()
+    review.request_review.request_launch_button.click()
+    review.approve()
 
     selenium.get("http://kinto:8888/v1/admin")
     kinto_login = Login(selenium, base_url).wait_for_page_to_load()
@@ -112,7 +113,11 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url, defaul
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     home.tabs[-1].click()  # Click drafts
-    create_experiment(selenium, home, default_data)
+    review = create_experiment(selenium, home, default_data)
+    review.launch_without_preview.click()
+    review.request_review.click_launch_checkboxes()
+    review.request_review.request_launch_button.click()
+    review.approve()
 
     selenium.get("http://kinto:8888/v1/admin")
     kinto_login = Login(selenium, base_url).wait_for_page_to_load()
@@ -170,7 +175,12 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url, defau
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
-    create_experiment(selenium, home, default_data)
+    review = create_experiment(selenium, home, default_data)
+    review.launch_without_preview.click()
+    review.request_review.click_launch_checkboxes()
+    review.request_review.request_launch_button.click()
+    review.approve()
+
     for attempt in range(60):
         try:
             review = SummaryPage(selenium, base_url).wait_for_page_to_load()
