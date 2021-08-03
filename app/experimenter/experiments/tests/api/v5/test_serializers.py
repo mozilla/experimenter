@@ -214,7 +214,7 @@ class TestNimbusBranchSerializer(TestCase):
             "description": "a control",
             "ratio": 1,
             "feature_enabled": True,
-            "feature_value": "stuff",
+            "feature_value": "{}",
         }
         branch_serializer = NimbusBranchSerializer(data=branch_data)
         self.assertTrue(branch_serializer.is_valid())
@@ -230,11 +230,7 @@ class TestNimbusBranchSerializer(TestCase):
         self.assertFalse(branch_serializer.is_valid())
         self.assertEqual(
             branch_serializer.errors,
-            {
-                "feature_enabled": [
-                    "feature_value must be specified if feature_enabled is True."
-                ]
-            },
+            {"feature_value": ["A value must be supplied for an enabled feature."]},
         )
 
     def test_branch_missing_feature_enabled(self):
@@ -267,6 +263,18 @@ class TestNimbusBranchSerializer(TestCase):
             branch_serializer.errors,
             {"name": ["Name needs to contain alphanumeric characters."]},
         )
+
+    def test_branch_with_invalid_feature_value_jso(self):
+        branch_data = {
+            "name": "control",
+            "description": "a control",
+            "ratio": 1,
+            "feature_enabled": True,
+            "feature_value": "invalid json",
+        }
+        branch_serializer = NimbusBranchSerializer(data=branch_data)
+        self.assertFalse(branch_serializer.is_valid())
+        self.assertIn("feature_value", branch_serializer.errors)
 
 
 class TestNimbusExperimentDocumentationLinkMixin(TestCase):
@@ -525,15 +533,12 @@ class TestNimbusExperimentBranchMixin(TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
         )
-        reference_feature_value = """\
-            {"directMigrateSingleProfile: true
-        """.strip()
         reference_branch = {
             "name": "control",
             "description": "a control",
             "ratio": 1,
             "feature_enabled": True,
-            "feature_value": reference_feature_value,
+            "feature_value": '{"directMigrateSingleProfile: true',
         }
         treatment_branches = [
             {"name": "treatment1", "description": "desc1", "ratio": 1},
@@ -554,10 +559,9 @@ class TestNimbusExperimentBranchMixin(TestCase):
             experiment, data=data, partial=True, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
-        self.assert_(
-            serializer.errors["reference_branch"]["feature_value"][0].startswith(
-                "Unterminated string"
-            )
+        self.assertIn(
+            "Unterminated string",
+            serializer.errors["reference_branch"]["feature_value"][0],
         )
         self.assertEqual(len(serializer.errors), 1)
 
@@ -566,15 +570,12 @@ class TestNimbusExperimentBranchMixin(TestCase):
             status=NimbusExperiment.Status.DRAFT,
             feature_config=None,
         )
-        reference_feature_value = """\
-            {"directMigrateSingleProfile: true
-        """.strip()
         reference_branch = {
             "name": "control",
             "description": "a control",
             "ratio": 1,
             "feature_enabled": True,
-            "feature_value": reference_feature_value,
+            "feature_value": "{}",
         }
         treatment_branches = [
             {"name": "treatment1", "description": "desc1", "ratio": 1},
