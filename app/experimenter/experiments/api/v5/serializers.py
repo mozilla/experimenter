@@ -289,6 +289,9 @@ class NimbusExperimentSerializer(
     application = serializers.ChoiceField(
         choices=NimbusExperiment.Application.choices, required=False
     )
+    channel = serializers.ChoiceField(
+        choices=NimbusExperiment.Channel.choices, required=False
+    )
     public_description = serializers.CharField(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
@@ -527,6 +530,11 @@ class NimbusExperimentSerializer(
             {
                 "slug": slugify(validated_data["name"]),
                 "owner": self.context["user"],
+                "channel": list(
+                    NimbusExperiment.APPLICATION_CONFIGS[
+                        validated_data["application"]
+                    ].channel_app_id.keys()
+                )[0],
             }
         )
         self.changelog_message = validated_data.pop("changelog_message")

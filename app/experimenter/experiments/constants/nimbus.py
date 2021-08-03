@@ -34,6 +34,8 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     slug="firefox-desktop",
     app_name="firefox_desktop",
     channel_app_id={
+        Channel.NO_CHANNEL: "firefox-desktop",
+        Channel.UNBRANDED: "firefox-desktop",
         Channel.NIGHTLY: "firefox-desktop",
         Channel.BETA: "firefox-desktop",
         Channel.RELEASE: "firefox-desktop",

@@ -113,7 +113,6 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     channel = models.CharField(
         max_length=255,
         choices=NimbusConstants.Channel.choices,
-        default=NimbusConstants.Channel.NO_CHANNEL,
     )
     locales = models.ManyToManyField(Locale, blank=True)
     countries = models.ManyToManyField(Country, blank=True)
