@@ -22,14 +22,6 @@ class BranchesPage(Base):
 
         return self
 
-    def fill(self, branches):
-        if len(branches) != 1:
-            raise Exception("Only 1 branch is supported right now.")
-        self.remove_branch()
-        self.reference_branch_name = branches[0].name
-        self.reference_branch_description = branches[0].description
-        self.feature_config = branches[0].config
-
     def save_and_continue(self):
         element = self.selenium.find_element(*self._save_continue_btn_locator)
         element.click()
