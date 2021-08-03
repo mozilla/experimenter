@@ -6,6 +6,7 @@ from nimbus.models.base_dataclass import (
     BaseAudienceDataClass,
     BaseBranchDataClass,
     BaseDataClass,
+    BaseMetricsDataClass,
 )
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -58,6 +59,7 @@ def default_data():
                 config="No Feature Firefox Desktop",
             )
         ],
+        metrics=BaseMetricsDataClass(primary_outcomes=[], secondary_outcomes=[]),
         audience=BaseAudienceDataClass(
             channel="Nightly",
             min_version=80,

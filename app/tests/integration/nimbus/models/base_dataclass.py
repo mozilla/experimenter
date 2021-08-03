@@ -19,10 +19,17 @@ class BaseAudienceDataClass:
 
 
 @dataclass
+class BaseMetricsDataClass:
+    primary_outcomes: Optional[List[str]]
+    secondary_outcomes: Optional[List[str]]
+
+
+@dataclass
 class BaseDataClass:
     hypothesis: str
     application: str
     public_description: str
     branches: Optional[List[BaseBranchDataClass]]
+    metrics: BaseMetricsDataClass
     audience: BaseAudienceDataClass
     public_name: Optional[str] = None
