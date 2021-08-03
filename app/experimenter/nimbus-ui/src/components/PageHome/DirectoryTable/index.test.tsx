@@ -2,28 +2,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render, screen } from "@testing-library/react";
+import { fireEvent } from "@testing-library/dom";
+import { render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import DirectoryTable, {
+  Column,
+  ColumnComponent,
+  ColumnSortOrder,
   DirectoryColumnFeature,
   DirectoryColumnOwner,
   DirectoryColumnTitle,
   DirectoryCompleteTable,
   DirectoryDraftsTable,
   DirectoryLiveTable,
+  SortableColumnTitle,
 } from ".";
+import { UpdateSearchParams } from "../../../hooks/useSearchParamsState";
 import { getProposedEnrollmentRange, humanDate } from "../../../lib/dateUtils";
-import { mockSingleDirectoryExperiment } from "../../../lib/mocks";
+import {
+  mockDirectoryExperiments,
+  mockSingleDirectoryExperiment,
+} from "../../../lib/mocks";
+import { RouterSlugProvider } from "../../../lib/test-utils";
 
 const experiment = mockSingleDirectoryExperiment();
 
-const TestTable = ({ children }: { children: React.ReactNode }) => (
-  <table>
-    <tbody>
-      <tr>{children}</tr>
-    </tbody>
-  </table>
-);
+const TestTable = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <RouterSlugProvider>
+      <table>
+        <tbody>
+          <tr>{children}</tr>
+        </tbody>
+      </table>
+    </RouterSlugProvider>
+  );
+};
 
 describe("DirectoryColumnTitle", () => {
   it("renders the experiment name and slug", () => {
@@ -107,7 +121,11 @@ function expectTableCells(testId: string, cellTexts: string[]) {
 describe("DirectoryTable", () => {
   it("renders as expected with default columns", () => {
     const experiments = [experiment];
-    render(<DirectoryTable {...{ experiments }} />);
+    render(
+      <RouterSlugProvider>
+        <DirectoryTable {...{ experiments }} />
+      </RouterSlugProvider>,
+    );
     expectTableCells("directory-table-header", ["Name", "Owner", "Feature"]);
     expectTableCells("directory-table-cell", [
       experiment.name,
@@ -120,24 +138,35 @@ describe("DirectoryTable", () => {
   });
 
   it("renders as expected without experiments", () => {
-    render(<DirectoryTable experiments={[]} />);
+    render(
+      <RouterSlugProvider>
+        <DirectoryTable experiments={[]} />
+      </RouterSlugProvider>,
+    );
     expect(screen.getByTestId("no-experiments")).toBeInTheDocument();
   });
 
   it("renders as expected with custom columns", () => {
     render(
-      <DirectoryTable
-        experiments={[experiment]}
-        columns={[
-          { label: "Cant think", component: DirectoryColumnTitle },
-          {
-            label: "Of a title",
-            component: ({ status }) => (
-              <td data-testid="directory-table-cell">{status}</td>
-            ),
-          },
-        ]}
-      />,
+      <RouterSlugProvider>
+        <DirectoryTable
+          experiments={[experiment]}
+          columns={[
+            {
+              label: "Cant think",
+              sortBy: "name",
+              component: DirectoryColumnTitle,
+            },
+            {
+              label: "Of a title",
+              sortBy: "status",
+              component: ({ status }) => (
+                <td data-testid="directory-table-cell">{status}</td>
+              ),
+            },
+          ]}
+        />
+      </RouterSlugProvider>,
     );
     expectTableCells("directory-table-header", ["Cant think", "Of a title"]);
     expectTableCells("directory-table-cell", [
@@ -145,11 +174,55 @@ describe("DirectoryTable", () => {
       experiment.status!,
     ]);
   });
+
+  // TODO: not exhaustively testing all sort orders here, might be worth adding more?
+  it("supports sorting by name", async () => {
+    const experiments = mockDirectoryExperiments();
+    const experimentNames = experiments.map((experiment) => experiment.name);
+    const getExperimentNamesFromTable = () =>
+      screen.getAllByTestId("directory-title-name").map((el) => el.textContent);
+
+    render(
+      <RouterSlugProvider>
+        <DirectoryTable {...{ experiments }} />
+      </RouterSlugProvider>,
+    );
+
+    expect(getExperimentNamesFromTable()).toEqual(experimentNames);
+
+    const nameSortButton = screen
+      .getAllByTestId("sort-select")
+      .find((el) => el.title === "Name")!;
+    expect(nameSortButton).toBeDefined();
+
+    fireEvent.click(nameSortButton);
+    await waitFor(() =>
+      expect(getExperimentNamesFromTable()).toEqual(
+        [...experimentNames].sort((a, b) => a.localeCompare(b)),
+      ),
+    );
+
+    fireEvent.click(nameSortButton);
+    await waitFor(() =>
+      expect(getExperimentNamesFromTable()).toEqual(
+        [...experimentNames].sort((a, b) => b.localeCompare(a)),
+      ),
+    );
+
+    fireEvent.click(nameSortButton);
+    await waitFor(() =>
+      expect(getExperimentNamesFromTable()).toEqual(experimentNames),
+    );
+  });
 });
 
 describe("DirectoryLiveTable", () => {
   it("renders as expected with custom columns", () => {
-    render(<DirectoryLiveTable experiments={[experiment]} />);
+    render(
+      <RouterSlugProvider>
+        <DirectoryLiveTable experiments={[experiment]} />
+      </RouterSlugProvider>,
+    );
     expectTableCells("directory-table-header", [
       "Name",
       "Owner",
@@ -175,7 +248,11 @@ describe("DirectoryLiveTable", () => {
 
 describe("DirectoryCompleteTable", () => {
   it("renders as expected with custom columns", () => {
-    render(<DirectoryCompleteTable experiments={[experiment]} />);
+    render(
+      <RouterSlugProvider>
+        <DirectoryCompleteTable experiments={[experiment]} />
+      </RouterSlugProvider>,
+    );
     expectTableCells("directory-table-header", [
       "Name",
       "Owner",
@@ -197,7 +274,11 @@ describe("DirectoryCompleteTable", () => {
 
 describe("DirectoryDraftsTable", () => {
   it("renders as expected with custom columns", () => {
-    render(<DirectoryDraftsTable experiments={[experiment]} />);
+    render(
+      <RouterSlugProvider>
+        <DirectoryDraftsTable experiments={[experiment]} />
+      </RouterSlugProvider>,
+    );
     expectTableCells("directory-table-header", ["Name", "Owner", "Feature"]);
     expectTableCells("directory-table-cell", [
       experiment.name,
@@ -205,4 +286,86 @@ describe("DirectoryDraftsTable", () => {
       experiment.featureConfig!.name,
     ]);
   });
+});
+
+describe("SortableColumnTitle", () => {
+  const columnComponent: ColumnComponent = ({ name }) => (
+    <td data-testid="directory-table-cell">{name}</td>
+  );
+
+  const column: Column = {
+    label: "Name",
+    sortBy: "name",
+    component: columnComponent,
+  };
+
+  let nextParams: URLSearchParams, updateSearchParams: UpdateSearchParams;
+
+  beforeEach(() => {
+    nextParams = new URLSearchParams();
+    updateSearchParams = jest.fn((updaterFn) => updaterFn(nextParams));
+  });
+
+  const Subject = (props: { columnSortOrder: ColumnSortOrder }) => (
+    <TestTable>
+      <SortableColumnTitle {...{ ...props, column, updateSearchParams }} />
+    </TestTable>
+  );
+
+  const expectClass = (element: HTMLElement, cls: string, toHave = true) => {
+    const matcher = toHave ? expect(element) : expect(element).not;
+    matcher.toHaveClass(cls);
+  };
+
+  const commonTestCase =
+    (
+      initiallySelected = false,
+      initiallyDescending = false,
+      paramsWillHaveSelected = true,
+      paramsWillHaveDescending = false,
+    ) =>
+    () => {
+      render(
+        <Subject
+          columnSortOrder={{
+            column: initiallySelected ? column : undefined,
+            descending: initiallyDescending,
+          }}
+        />,
+      );
+
+      const header = screen.getByTestId("directory-table-header");
+      expectClass(header, "sort-selected", initiallySelected);
+      expectClass(header, "sort-descending", initiallyDescending);
+
+      const button = screen.getByTestId("sort-select");
+      expect(button).toHaveTextContent(column.label);
+
+      fireEvent.click(button);
+      expect(updateSearchParams).toHaveBeenCalled();
+
+      if (paramsWillHaveSelected) {
+        expect(nextParams.get("sortByLabel")).toEqual(column.label);
+      } else {
+        expect(nextParams.has("sortByLabel")).toBeFalsy();
+      }
+      expect(nextParams.has("descending"))[
+        paramsWillHaveDescending ? "toBeTruthy" : "toBeFalsy"
+      ]();
+    };
+
+  it(
+    "renders default as expected and supports ascending sort selection",
+    commonTestCase(false, false, true, false),
+  );
+
+  it(
+    "renders ascending sort as expected and support descending sort selection",
+    commonTestCase(true, false, true, true),
+  );
+
+  it(
+    "renders descending sort as expected and support sort reset",
+    commonTestCase(true, true, false, false),
+  );
 });

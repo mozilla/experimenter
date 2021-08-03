@@ -547,14 +547,16 @@ export const mockGetStatus = (
   return getStatus(experiment);
 };
 
-const fiveDaysAgo = new Date();
-fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
-
 /** Creates a single mock experiment suitable for getAllExperiments queries.  */
 export function mockSingleDirectoryExperiment(
   overrides: Partial<getAllExperiments_experiments> = {},
   slugIndex: number = Math.round(Math.random() * 100),
 ): getAllExperiments_experiments {
+  const now = Date.now();
+  const oneDay = 1000 * 60 * 60 * 24;
+  const startTime = now - oneDay * 60 - 21 * oneDay * Math.random();
+  const endTime = now - oneDay * 30 + 21 * oneDay * Math.random();
+
   return {
     slug: `some-experiment-${slugIndex}`,
     owner: {
@@ -574,8 +576,8 @@ export function mockSingleDirectoryExperiment(
     isEnrollmentPausePending: false,
     proposedEnrollment: 7,
     proposedDuration: 28,
-    startDate: fiveDaysAgo.toISOString(),
-    computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
+    startDate: new Date(startTime).toISOString(),
+    computedEndDate: new Date(endTime).toISOString(),
     resultsReady: false,
     ...overrides,
   };
@@ -584,42 +586,83 @@ export function mockSingleDirectoryExperiment(
 export function mockDirectoryExperiments(
   overrides: Partial<getAllExperiments_experiments>[] = [
     {
+      name: "Lorem ipsum dolor sit amet",
       status: NimbusExperimentStatus.DRAFT,
+      owner: { username: "alpha-example@mozilla.com" },
       startDate: null,
       computedEndDate: null,
     },
     {
+      name: "Ipsum dolor sit amet",
+      status: NimbusExperimentStatus.DRAFT,
+      owner: { username: "gamma-example@mozilla.com" },
+      featureConfig: { slug: "foo", name: "Foo" },
+      startDate: null,
+      computedEndDate: null,
+    },
+    {
+      name: "Dolor sit amet",
+      status: NimbusExperimentStatus.DRAFT,
+      owner: { username: "beta-example@mozilla.com" },
+      featureConfig: { slug: "bar", name: "Bar" },
+      startDate: null,
+      computedEndDate: null,
+    },
+    {
+      name: "Consectetur adipiscing elit",
       status: NimbusExperimentStatus.PREVIEW,
+      owner: { username: "alpha-example@mozilla.com" },
+      featureConfig: { slug: "baz", name: "Baz" },
       computedEndDate: null,
     },
     {
+      name: "Aliquam interdum ac lacus at dictum",
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      owner: { username: "beta-example@mozilla.com" },
+      featureConfig: { slug: "foo", name: "Foo" },
       computedEndDate: null,
     },
     {
+      name: "Nam semper sit amet orci in imperdiet",
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      owner: { username: "gamma-example@mozilla.com" },
     },
     {
+      name: "Duis ornare mollis sem.",
       status: NimbusExperimentStatus.LIVE,
-      computedEndDate: null,
+      owner: { username: "alpha-example@mozilla.com" },
+      featureConfig: { slug: "bar", name: "Bar" },
     },
     {
+      name: "Nec suscipit mi accumsan id",
       status: NimbusExperimentStatus.LIVE,
-      computedEndDate: null,
+      owner: { username: "beta-example@mozilla.com" },
+      featureConfig: { slug: "baz", name: "Baz" },
+      resultsReady: true,
     },
     {
+      name: "Etiam congue risus quis aliquet eleifend",
       status: NimbusExperimentStatus.LIVE,
-      computedEndDate: null,
+      owner: { username: "gamma-example@mozilla.com" },
     },
     {
+      name: "Nam gravida",
       status: NimbusExperimentStatus.COMPLETE,
+      owner: { username: "alpha-example@mozilla.com" },
+      featureConfig: { slug: "foo", name: "Foo" },
+      resultsReady: false,
     },
     {
+      name: "Quam quis volutpat ornare",
       status: NimbusExperimentStatus.DRAFT,
       publishStatus: NimbusExperimentPublishStatus.REVIEW,
+      featureConfig: { slug: "Baz", name: "Bar" },
+      owner: { username: "beta-example@mozilla.com" },
     },
     {
+      name: "Lorem arcu faucibus tortor",
       featureConfig: null,
+      owner: { username: "gamma-example@mozilla.com" },
     },
   ],
 ): getAllExperiments_experiments[] {
