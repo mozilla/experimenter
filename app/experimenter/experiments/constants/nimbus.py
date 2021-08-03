@@ -27,6 +27,7 @@ class ApplicationConfig:
     default_app_id: str
     rs_experiments_collection: str
     randomization_unit: str
+    supports_locale_country: bool
 
 
 APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
@@ -43,6 +44,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     default_app_id="firefox-desktop",
     rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
+    supports_locale_country=True,
 )
 
 APPLICATION_CONFIG_FENIX = ApplicationConfig(
@@ -57,6 +59,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
     default_app_id="",
     rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
+    supports_locale_country=False,
 )
 
 APPLICATION_CONFIG_IOS = ApplicationConfig(
@@ -71,6 +74,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     default_app_id="",
     rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
+    supports_locale_country=False,
 )
 
 

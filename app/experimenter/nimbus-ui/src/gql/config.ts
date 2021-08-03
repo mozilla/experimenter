@@ -15,12 +15,13 @@ export const GET_CONFIG_QUERY = gql`
         label
         value
       }
-      applicationChannels {
+      applicationConfigs {
         application
         channels {
           label
           value
         }
+        supportsLocaleCountry
       }
       featureConfig {
         id

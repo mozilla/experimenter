@@ -42,10 +42,11 @@ describe("FormAudience", () => {
             { label: "Nightly", value: "NIGHTLY" },
             { label: "Release", value: "RELEASE" },
           ],
-          applicationChannels: [
+          applicationConfigs: [
             {
               application: NimbusExperimentApplication.DESKTOP,
               channels: [{ label: "Nightly", value: "NIGHTLY" }],
+              supportsLocaleCountry: true,
             },
           ],
           targetingConfigSlug: [
@@ -103,6 +104,42 @@ describe("FormAudience", () => {
     expect(screen.getByTestId("countries")).toHaveTextContent(
       MOCK_EXPERIMENT.countries[0]!.name!,
     );
+  });
+
+  it("renders with disabled locale/country for applications that don't support them", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplication.DESKTOP,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          applicationConfigs: [
+            {
+              application: NimbusExperimentApplication.DESKTOP,
+              channels: [{ label: "Nightly", value: "NIGHTLY" }],
+              supportsLocaleCountry: false,
+            },
+          ],
+        }}
+      />,
+    );
+    await screen.findByTestId("FormAudience");
+    expect(screen.getByTestId("locales").querySelector("input")).toBeDisabled();
+    expect(
+      screen.getByTestId("countries").querySelector("input"),
+    ).toBeDisabled();
+    expect(
+      screen.getByText(
+        "This application does not currently support targeting by locale.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "This application does not currently support targeting by country.",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("renders server errors", async () => {

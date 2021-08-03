@@ -75,8 +75,9 @@ export const FormAudience = ({
     experiment!.countries.map((v) => "" + v.id!),
   );
 
-  const applicationConfig = config.applicationChannels?.find(
-    (application) => application?.application === experiment.application,
+  const applicationConfig = config.applicationConfigs?.find(
+    (applicationConfig) =>
+      applicationConfig?.application === experiment.application,
   );
 
   const defaultValues = {
@@ -180,7 +181,13 @@ export const FormAudience = ({
               isMulti
               {...formSelectAttrs("locales", setLocales)}
               options={selectOptions(config.locales as SelectIdItems)}
+              isDisabled={!applicationConfig?.supportsLocaleCountry}
             />
+            {!applicationConfig?.supportsLocaleCountry && (
+              <p className="text-secondary">
+                This application does not currently support targeting by locale.
+              </p>
+            )}
             <FormErrors name="locales" />
           </Form.Group>
           <Form.Group as={Col} controlId="countries" data-testid="countries">
@@ -190,7 +197,14 @@ export const FormAudience = ({
               isMulti
               {...formSelectAttrs("countries", setCountries)}
               options={selectOptions(config.countries as SelectIdItems)}
+              isDisabled={!applicationConfig?.supportsLocaleCountry}
             />
+            {!applicationConfig?.supportsLocaleCountry && (
+              <p className="text-secondary">
+                This application does not currently support targeting by
+                country.
+              </p>
+            )}
             <FormErrors name="countries" />
           </Form.Group>
         </Form.Row>
