@@ -998,8 +998,8 @@ class TestNimbusExperimentSerializer(TestCase):
                 "channel": NimbusConstants.Channel.BETA,
                 "firefox_min_version": NimbusConstants.Version.FIREFOX_83,
                 "population_percent": 10,
-                "proposed_duration": 42,
-                "proposed_enrollment": 120,
+                "proposed_duration": 120,
+                "proposed_enrollment": 42,
                 "targeting_config_slug": (
                     NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN
                 ),
@@ -1019,8 +1019,8 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83
         )
         self.assertEqual(experiment.population_percent, 10)
-        self.assertEqual(experiment.proposed_duration, 42)
-        self.assertEqual(experiment.proposed_enrollment, 120)
+        self.assertEqual(experiment.proposed_duration, 120)
+        self.assertEqual(experiment.proposed_enrollment, 42)
         self.assertEqual(
             experiment.targeting_config_slug,
             NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN,
@@ -1530,6 +1530,29 @@ class TestNimbusExperimentSerializer(TestCase):
                 "Targeting config 'First start-up users on Windows 10 1903 "
                 "(build 18362) or newer' is not available for application "
                 "'Firefox for iOS'",
+            ],
+        )
+
+    def test_enrollment_must_be_less_or_equal_experiment_duration(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        data = {
+            "proposed_duration": 3,
+            "proposed_enrollment": 4,
+            "changelog_message": "updating durations",
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["proposed_enrollment"],
+            [
+                "The enrollment duration must be less than or "
+                "equal to the experiment duration."
             ],
         )
 
