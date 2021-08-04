@@ -93,6 +93,7 @@ class NimbusExperimentBucketRangeInlineAdmin(ReadOnlyAdminMixin, admin.StackedIn
 
 
 class NimbusExperimentAdminForm(forms.ModelForm):
+    application = forms.ChoiceField(choices=NimbusExperiment.Application.choices)
     channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices)
     public_description = forms.CharField(required=False, widget=forms.Textarea())
     firefox_min_version = forms.ChoiceField(
