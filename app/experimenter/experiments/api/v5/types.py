@@ -86,9 +86,10 @@ class NimbusExperimentChannel(graphene.Enum):
         enum = NimbusConstants.Channel
 
 
-class NimbusExperimentApplicationChannels(graphene.ObjectType):
+class NimbusExperimentApplicationConfig(graphene.ObjectType):
     application = NimbusExperimentApplication()
     channels = graphene.List(NimbusLabelValueType)
+    supports_locale_country = graphene.Boolean()
 
 
 class NimbusExperimentTargetingConfigSlug(graphene.Enum):
@@ -181,7 +182,7 @@ class NimbusSignoffRecommendationsType(graphene.ObjectType):
 class NimbusConfigurationType(graphene.ObjectType):
     application = graphene.List(NimbusLabelValueType)
     channel = graphene.List(NimbusLabelValueType)
-    application_channels = graphene.List(NimbusExperimentApplicationChannels)
+    application_configs = graphene.List(NimbusExperimentApplicationConfig)
     feature_config = graphene.List(NimbusFeatureConfigType)
     firefox_min_version = graphene.List(NimbusLabelValueType)
     outcomes = graphene.List(NimbusOutcomeType)
@@ -207,19 +208,22 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_channel(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Channel)
 
-    def resolve_application_channels(root, info):
-        return [
-            NimbusExperimentApplicationChannels(
-                application=application,
-                channels=[
-                    NimbusLabelValueType(label=channel.label, value=channel.name)
-                    for channel in NimbusExperiment.Channel
-                    if channel
-                    in NimbusExperiment.APPLICATION_CONFIGS[application].channel_app_id
-                ],
+    def resolve_application_configs(root, info):
+        configs = []
+        for application in NimbusExperiment.Application:
+            application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
+            configs.append(
+                NimbusExperimentApplicationConfig(
+                    application=application,
+                    channels=[
+                        NimbusLabelValueType(label=channel.label, value=channel.name)
+                        for channel in NimbusExperiment.Channel
+                        if channel in application_config.channel_app_id
+                    ],
+                    supports_locale_country=application_config.supports_locale_country,
+                )
             )
-            for application in NimbusExperiment.Application
-        ]
+        return configs
 
     def resolve_feature_config(root, info):
         return NimbusFeatureConfig.objects.all()

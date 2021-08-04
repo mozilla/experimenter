@@ -766,12 +766,13 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         label
                         value
                     }
-                    applicationChannels {
+                    applicationConfigs {
                         application
                         channels {
                             label
                             value
                         }
+                        supportsLocaleCountry
                     }
                     firefoxMinVersion {
                         label
@@ -829,16 +830,22 @@ class TestNimbusConfigQuery(GraphQLTestCase):
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
         self.assertEqual(len(config["featureConfig"]), 13)
 
-        for application_channels in config["applicationChannels"]:
+        for application_config_data in config["applicationConfigs"]:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[
-                NimbusExperiment.Application[application_channels["application"]]
+                NimbusExperiment.Application[application_config_data["application"]]
             ]
-            channels = [channel["value"] for channel in application_channels["channels"]]
+            channels = [
+                channel["value"] for channel in application_config_data["channels"]
+            ]
             self.assertEqual(
                 set(channels),
                 set(
                     [channel.name for channel in application_config.channel_app_id.keys()]
                 ),
+            )
+            self.assertEqual(
+                application_config_data["supportsLocaleCountry"],
+                application_config.supports_locale_country,
             )
 
         for outcome in Outcomes.all():

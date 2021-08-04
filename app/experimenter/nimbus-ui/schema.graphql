@@ -129,7 +129,7 @@ type NimbusChangeLogType {
 type NimbusConfigurationType {
   application: [NimbusLabelValueType]
   channel: [NimbusLabelValueType]
-  applicationChannels: [NimbusExperimentApplicationChannels]
+  applicationConfigs: [NimbusExperimentApplicationConfig]
   featureConfig: [NimbusFeatureConfigType]
   firefoxMinVersion: [NimbusLabelValueType]
   outcomes: [NimbusOutcomeType]
@@ -165,9 +165,10 @@ enum NimbusExperimentApplication {
   IOS
 }
 
-type NimbusExperimentApplicationChannels {
+type NimbusExperimentApplicationConfig {
   application: NimbusExperimentApplication
   channels: [NimbusLabelValueType]
+  supportsLocaleCountry: Boolean
 }
 
 enum NimbusExperimentChannel {
