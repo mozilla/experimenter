@@ -423,7 +423,7 @@ class TestMutations(GraphQLTestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
         )
-        self.query(
+        response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
@@ -431,8 +431,8 @@ class TestMutations(GraphQLTestCase):
                     "channel": NimbusConstants.Channel.BETA.name,
                     "firefoxMinVersion": NimbusConstants.Version.FIREFOX_83.name,
                     "populationPercent": "10",
-                    "proposedDuration": 42,
-                    "proposedEnrollment": 120,
+                    "proposedDuration": 120,
+                    "proposedEnrollment": 42,
                     "targetingConfigSlug": (
                         NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN.name
                     ),
@@ -444,6 +444,9 @@ class TestMutations(GraphQLTestCase):
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        self.assertEqual(content["data"]["updateExperiment"]["message"], "success")
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA)
@@ -451,8 +454,8 @@ class TestMutations(GraphQLTestCase):
             experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83
         )
         self.assertEqual(experiment.population_percent, 10.0)
-        self.assertEqual(experiment.proposed_duration, 42)
-        self.assertEqual(experiment.proposed_enrollment, 120)
+        self.assertEqual(experiment.proposed_duration, 120)
+        self.assertEqual(experiment.proposed_enrollment, 42)
         self.assertEqual(
             experiment.targeting_config_slug,
             NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN,
