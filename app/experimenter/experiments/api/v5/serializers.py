@@ -30,17 +30,21 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate_feature_value(self, value):
+        if value:
+            try:
+                json.loads(value)
+            except Exception as e:
+                raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
+        return value
+
     def validate(self, data):
         data = super().validate(data)
-        if data.get("feature_enabled", False) and "feature_value" not in data:
+        if data.get("feature_enabled") and not data.get("feature_value"):
             raise serializers.ValidationError(
-                {
-                    "feature_enabled": (
-                        "feature_value must be specified if feature_enabled is True."
-                    )
-                }
+                {"feature_value": "A value must be supplied for an enabled feature."}
             )
-        if data.get("feature_value") and "feature_enabled" not in data:
+        if data.get("feature_value") and not data.get("feature_enabled"):
             raise serializers.ValidationError(
                 {
                     "feature_value": (
@@ -63,10 +67,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 
 class NimbusExperimentBranchMixin:
     def _validate_feature_value_against_schema(self, schema, value):
-        try:
-            json_value = json.loads(value)
-        except json.JSONDecodeError as exc:
-            return [exc.msg]
+        json_value = json.loads(value)
         try:
             jsonschema.validate(json_value, schema)
         except jsonschema.ValidationError as exc:
