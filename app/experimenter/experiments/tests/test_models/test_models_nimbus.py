@@ -10,7 +10,11 @@ from parameterized.parameterized import parameterized
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
-from experimenter.experiments.models import NimbusExperiment, NimbusIsolationGroup
+from experimenter.experiments.models import (
+    NimbusExperiment,
+    NimbusFeatureConfig,
+    NimbusIsolationGroup,
+)
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
@@ -1159,3 +1163,19 @@ class TestNimbusChangeLog(TestCase):
             message=None,
         )
         self.assertEqual(str(changelog), f"Draft > Preview by {user.email} on {now}")
+
+
+class TestNimbusFeatureConfig(TestCase):
+    @parameterized.expand(list(NimbusExperiment.Application))
+    def test_no_feature_fixture_exists(self, application):
+        application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
+        self.assertTrue(
+            NimbusFeatureConfig.objects.filter(
+                name__startswith="No Feature", application=application
+            ).exists(),
+            (
+                f"A 'No Feature {application_config.name}' FeatureConfig fixture "
+                "must be added in a migration.  See 0166_add_missing_feature_config "
+                "for examples."
+            ),
+        )
