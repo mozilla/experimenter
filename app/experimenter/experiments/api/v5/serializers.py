@@ -519,6 +519,21 @@ class NimbusExperimentSerializer(
                     }
                 )
 
+        proposed_enrollment = data.get("proposed_enrollment")
+        proposed_duration = data.get("proposed_duration")
+        if (
+            None not in (proposed_enrollment, proposed_duration)
+            and proposed_enrollment > proposed_duration
+        ):
+            raise serializers.ValidationError(
+                {
+                    "proposed_enrollment": (
+                        "The enrollment duration must be less than or "
+                        "equal to the experiment duration."
+                    )
+                }
+            )
+
         return data
 
     def update(self, experiment, validated_data):
