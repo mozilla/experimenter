@@ -82,7 +82,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "PLATYPUS_DOORSTOP",
     },
   ],
-  applicationChannels: [
+  applicationConfigs: [
     {
       application: NimbusExperimentApplication.DESKTOP,
       channels: [
@@ -99,6 +99,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
           value: "PLATYPUS_DOORSTOP",
         },
       ],
+      supportsLocaleCountry: true,
     },
     {
       application: NimbusExperimentApplication.FENIX,
@@ -116,6 +117,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
           value: "PLATYPUS_DOORSTOP",
         },
       ],
+      supportsLocaleCountry: false,
     },
     {
       application: NimbusExperimentApplication.IOS,
@@ -133,6 +135,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
           value: "PLATYPUS_DOORSTOP",
         },
       ],
+      supportsLocaleCountry: false,
     },
   ],
   featureConfig: [
