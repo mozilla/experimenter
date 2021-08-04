@@ -750,6 +750,16 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestC
 
         data = NimbusExperimentSerializer(should_publish_experiment).data
 
+        should_publish_experiment = NimbusExperiment.objects.get(
+            id=should_publish_experiment.id
+        )
+        self.assertEqual(should_publish_experiment.published_dto, data)
+
+        should_unpublish_experiment = NimbusExperiment.objects.get(
+            id=should_unpublish_experiment.id
+        )
+        self.assertIsNone(should_unpublish_experiment.published_dto)
+
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
             collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
