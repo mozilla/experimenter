@@ -14,7 +14,6 @@ import { FIELD_MESSAGES } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import {
   MOCK_ANNOTATED_BRANCH,
-  MOCK_FEATURE_CONFIG,
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
   SubjectBranch,
 } from "./mocks";
@@ -55,18 +54,6 @@ describe("FormBranch", () => {
       'label[for="referenceBranch.featureEnabled"]',
     );
     expect(featureSwitchLabel).toHaveTextContent("Off");
-  });
-
-  it("hides feature value edit when schema is null", () => {
-    render(
-      <SubjectBranch
-        branch={{
-          ...MOCK_ANNOTATED_BRANCH,
-        }}
-        experimentFeatureConfig={MOCK_FEATURE_CONFIG}
-      />,
-    );
-    expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
   });
 
   it("hides feature value edit when feature disabled", () => {

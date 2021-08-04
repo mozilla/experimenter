@@ -214,9 +214,7 @@ export const FormBranch = ({
             />
           </Form.Group>
         </Form.Row>
-        {experimentFeatureConfig !== null &&
-        !!experimentFeatureConfig.schema &&
-        featureEnabled ? (
+        {experimentFeatureConfig !== null && featureEnabled ? (
           <Form.Row data-testid="feature-value-edit">
             <Form.Group as={Col} controlId={`${id}-featureValue`}>
               <Form.Label>Value</Form.Label>
