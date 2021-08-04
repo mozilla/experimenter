@@ -100,10 +100,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         return obj.application_config.app_name
 
     def get_appId(self, obj):
-        return (
-            obj.application_config.channel_app_id.get(obj.channel)
-            or obj.application_config.default_app_id
-        )
+        return obj.application_config.channel_app_id.get(obj.channel, "")
 
     def get_outcomes(self, obj):
         prioritized_outcomes = (

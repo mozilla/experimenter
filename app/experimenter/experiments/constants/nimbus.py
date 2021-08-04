@@ -24,7 +24,6 @@ class ApplicationConfig:
     slug: str
     app_name: str
     channel_app_id: Dict[str, str]
-    default_app_id: str
     rs_experiments_collection: str
     randomization_unit: str
     supports_locale_country: bool
@@ -41,7 +40,6 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
         Channel.BETA: "firefox-desktop",
         Channel.RELEASE: "firefox-desktop",
     },
-    default_app_id="firefox-desktop",
     rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
     supports_locale_country=True,
@@ -56,7 +54,6 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
         Channel.BETA: "org.mozilla.firefox_beta",
         Channel.RELEASE: "org.mozilla.firefox",
     },
-    default_app_id="",
     rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     supports_locale_country=False,
@@ -71,7 +68,6 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
         Channel.BETA: "org.mozilla.ios.FirefoxBeta",
         Channel.RELEASE: "org.mozilla.ios.Firefox",
     },
-    default_app_id="",
     rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     supports_locale_country=False,
@@ -86,7 +82,6 @@ APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
         Channel.BETA: "org.mozilla.focus.beta",
         Channel.RELEASE: "org.mozilla.focus",
     },
-    default_app_id="",
     rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     supports_locale_country=False,
@@ -99,7 +94,6 @@ APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
     channel_app_id={
         Channel.RELEASE: "org.mozilla.klar",
     },
-    default_app_id="",
     rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     supports_locale_country=False,
