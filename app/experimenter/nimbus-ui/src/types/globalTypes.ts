@@ -30,7 +30,9 @@ export enum NimbusDocumentationLinkTitle {
 export enum NimbusExperimentApplication {
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
+  FOCUS_ANDROID = "FOCUS_ANDROID",
   IOS = "IOS",
+  KLAR_ANDROID = "KLAR_ANDROID",
 }
 
 export enum NimbusExperimentChannel {
