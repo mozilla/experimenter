@@ -361,6 +361,8 @@ def nimbus_synchronize_preview_experiments_in_kinto():
         for experiment in should_publish_experiments:
             data = NimbusExperimentSerializer(experiment).data
             kinto_client.create_record(data)
+            experiment.published_dto = data
+            experiment.save()
             logger.info(f"{experiment.slug} is being pushed to preview")
 
         should_unpublish_experiments = NimbusExperiment.objects.filter(
@@ -369,6 +371,8 @@ def nimbus_synchronize_preview_experiments_in_kinto():
 
         for experiment in should_unpublish_experiments:
             kinto_client.delete_record(experiment.slug)
+            experiment.published_dto = None
+            experiment.save()
             logger.info(f"{experiment.slug} is being removed from preview")
 
         metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.completed")

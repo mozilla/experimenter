@@ -345,4 +345,8 @@ class NimbusExperimentType(DjangoObjectType):
         return self.changes.latest_timeout()
 
     def resolve_recipe_json(self, info):
-        return json.dumps(NimbusExperimentSerializer(self).data, indent=2, sort_keys=True)
+        return json.dumps(
+            self.published_dto or NimbusExperimentSerializer(self).data,
+            indent=2,
+            sort_keys=True,
+        )

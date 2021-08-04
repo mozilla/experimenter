@@ -572,7 +572,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             experiment_data["timeout"]["changedBy"]["email"], experiment.owner.email
         )
 
-    def test_recipe_json_returns_serialized_data(self):
+    def test_recipe_json_returns_serialized_data_for_unpublished_experiment(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
@@ -596,6 +596,31 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             json.dumps(
                 NimbusExperimentSerializer(experiment).data, indent=2, sort_keys=True
             ),
+        )
+
+    def test_recipe_json_returns_published_dto_for_published_experiment(self):
+        user_email = "user@example.com"
+        published_dto = {"field": "value"}
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, published_dto=published_dto
+        )
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    recipeJson
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["recipeJson"],
+            json.dumps(published_dto, indent=2, sort_keys=True),
         )
 
     def test_paused_experiment_returns_date(self):
