@@ -19,14 +19,15 @@ export interface getConfig_nimbusConfig_channel {
   value: string | null;
 }
 
-export interface getConfig_nimbusConfig_applicationChannels_channels {
+export interface getConfig_nimbusConfig_applicationConfigs_channels {
   label: string | null;
   value: string | null;
 }
 
-export interface getConfig_nimbusConfig_applicationChannels {
+export interface getConfig_nimbusConfig_applicationConfigs {
   application: NimbusExperimentApplication | null;
-  channels: (getConfig_nimbusConfig_applicationChannels_channels | null)[] | null;
+  channels: (getConfig_nimbusConfig_applicationConfigs_channels | null)[] | null;
+  supportsLocaleCountry: boolean | null;
 }
 
 export interface getConfig_nimbusConfig_featureConfig {
@@ -83,7 +84,7 @@ export interface getConfig_nimbusConfig_countries {
 export interface getConfig_nimbusConfig {
   application: (getConfig_nimbusConfig_application | null)[] | null;
   channel: (getConfig_nimbusConfig_channel | null)[] | null;
-  applicationChannels: (getConfig_nimbusConfig_applicationChannels | null)[] | null;
+  applicationConfigs: (getConfig_nimbusConfig_applicationConfigs | null)[] | null;
   featureConfig: (getConfig_nimbusConfig_featureConfig | null)[] | null;
   firefoxMinVersion: (getConfig_nimbusConfig_firefoxMinVersion | null)[] | null;
   outcomes: (getConfig_nimbusConfig_outcomes | null)[] | null;
