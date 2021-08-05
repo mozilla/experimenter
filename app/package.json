@@ -27,7 +27,8 @@
     "is-svg": "^4.2.2",
     "react-dev-utils": "^11.0.4",
     "prismjs": "^1.23.0",
-    "object-path": "^0.11.5"
+    "object-path": "^0.11.5",
+    "tar": "^6.1.2"
   },
   "repository": {
     "type": "git",
