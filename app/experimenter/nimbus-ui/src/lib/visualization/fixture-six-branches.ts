@@ -38383,7 +38383,7 @@ export const FIXTURE_ANALYSIS_SIX_BRANCHES = {
       },
     },
     msw_control: {
-      is_control: false,
+      is_control: true,
       branch_data: {
         other_metrics: {
           identity: {
@@ -38798,7 +38798,7 @@ export const FIXTURE_ANALYSIS_SIX_BRANCHES = {
       },
     },
     "control-no-show": {
-      is_control: true,
+      is_control: false,
       branch_data: {
         other_metrics: {
           identity: {
