@@ -61,7 +61,7 @@ export const ChangeApprovalOperations: React.FC<
   children,
 }) => {
   const defaultUIState = useMemo(() => {
-    if (invalidPages.length > 0 && (status.draft || status.preview)) {
+    if (invalidPages.length > 0 && status.draft) {
       return ChangeApprovalOperationsState.InvalidPages;
     }
 

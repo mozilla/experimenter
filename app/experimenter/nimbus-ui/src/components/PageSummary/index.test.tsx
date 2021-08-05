@@ -208,6 +208,22 @@ describe("PageSummary", () => {
     await act(async () => void fireEvent.click(launchButton));
   });
 
+  it("can go back to Draft from Preview with invalid experiment info", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.PREVIEW,
+      readyForReview: {
+        ready: false,
+        message: {
+          targeting_config_slug: [
+            '"urlbar_firefox_suggest_us_en" is not a valid choice.',
+          ],
+        },
+      },
+    });
+    render(<Subject mocks={[mock]} />);
+    await screen.findByTestId("launch-preview-to-draft");
+  });
+
   it("handles approval of launch as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       ...reviewRequestedBaseProps,
