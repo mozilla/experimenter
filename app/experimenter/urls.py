@@ -5,6 +5,7 @@ from django.contrib import admin
 
 from experimenter.experiments.views import (
     ExperimentListView,
+    ExperimentReportView,
     NimbusUIView,
     PageNotFoundView,
 )
@@ -20,6 +21,7 @@ urlpatterns = [
     re_path(r"^experiments/", include("experimenter.experiments.urls")),
     re_path(r"^nimbus/", NimbusUIView.as_view(), name="nimbus-list"),
     re_path(r"^nimbus/(?P<slug>[\w-]+)/", NimbusUIView.as_view(), name="nimbus-detail"),
+    re_path(r"^reporting/", ExperimentReportView.as_view(), name="reporting"),
     re_path(r"^$", ExperimentListView.as_view(), name="home"),
 ]
 

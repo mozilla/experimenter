@@ -25,8 +25,13 @@ ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
 ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint
 ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint-fix
 TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
+ESLINT_REPORTING = yarn workspace @experimenter/reporting lint:eslint
+ESLINT_FIX_REPORTING = yarn workspace @experimenter/reporting lint:eslint --fix
+TYPECHECK_REPORTING = yarn workspace @experimenter/reporting lint:tsc
+
 JS_TEST_CORE = yarn workspace @experimenter/core test
 JS_TEST_NIMBUS_UI = CI=yes yarn workspace @experimenter/nimbus-ui test:cov
+JS_TEST_REPORTING = yarn workspace @experimenter/reporting test
 NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-ui/test_schema.graphql&&diff experimenter/nimbus-ui/test_schema.graphql experimenter/nimbus-ui/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
 NIMBUS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/nimbus-ui/schema.graphql&&yarn workspace @experimenter/nimbus-ui generate-types
 FLAKE8 = flake8 .
@@ -128,7 +133,7 @@ publish_storybooks: build_test
 	$(COMPOSE_TEST) run app sh -c "$(PUBLISH_STORYBOOKS)"
 
 code_format: build_dev
-	$(COMPOSE) run app sh -c '${PARALLEL} "${PY_IMPORT_SORT};$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)"'
+	$(COMPOSE) run app sh -c '${PARALLEL} "${PY_IMPORT_SORT};$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)" "$(ESLINT_FIX_REPORTING)"'
 
 makemigrations: build_dev
 	$(COMPOSE) run app python manage.py makemigrations

@@ -246,3 +246,7 @@ class PageNotFoundView(TemplateView):
             return response
 
         return view_fn
+
+
+class ExperimentReportView(TemplateView):
+    template_name = "experiments/reporting.html"
