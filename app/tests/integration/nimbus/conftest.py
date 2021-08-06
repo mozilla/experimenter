@@ -3,13 +3,13 @@ import os
 import pytest
 import requests
 from nimbus.models.base_dataclass import (
+    BaseExperimentApplications,
+    BaseExperimentAudienceChannels,
     BaseExperimentAudienceDataClass,
+    BaseExperimentAudienceTargetingOptions,
     BaseExperimentBranchDataClass,
     BaseExperimentDataClass,
     BaseExperimentMetricsDataClass,
-    BaseExperimentApplications,
-    BaseExperimentAudienceChannels,
-    BaseExperimentAudienceTargetingOptions,
 )
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -63,7 +63,9 @@ def default_data():
                 feature_config="No Feature Firefox Desktop",
             )
         ],
-        metrics=BaseExperimentMetricsDataClass(primary_outcomes=[], secondary_outcomes=[]),
+        metrics=BaseExperimentMetricsDataClass(
+            primary_outcomes=[], secondary_outcomes=[]
+        ),
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.NIGHTLY,
             min_version=80,
