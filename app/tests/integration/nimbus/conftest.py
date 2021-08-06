@@ -3,10 +3,13 @@ import os
 import pytest
 import requests
 from nimbus.models.base_dataclass import (
-    BaseAudienceDataClass,
-    BaseBranchDataClass,
-    BaseDataClass,
-    BaseMetricsDataClass,
+    BaseExperimentAudienceDataClass,
+    BaseExperimentBranchDataClass,
+    BaseExperimentDataClass,
+    BaseExperimentMetricsDataClass,
+    BaseExperimentApplications,
+    BaseExperimentAudienceChannels,
+    BaseExperimentAudienceTargetingOptions,
 )
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -48,22 +51,23 @@ def _verify_url(request, base_url):
 
 @pytest.fixture
 def default_data():
-    return BaseDataClass(
+    return BaseExperimentDataClass(
+        public_name="test_experiment",
         hypothesis="smart stuff here",
-        application="DESKTOP",
+        application=BaseExperimentApplications.DESKTOP,
         public_description="description stuff",
         branches=[
-            BaseBranchDataClass(
+            BaseExperimentBranchDataClass(
                 name="name 1",
                 description="a nice experiment",
-                config="No Feature Firefox Desktop",
+                feature_config="No Feature Firefox Desktop",
             )
         ],
-        metrics=BaseMetricsDataClass(primary_outcomes=[], secondary_outcomes=[]),
-        audience=BaseAudienceDataClass(
-            channel="Nightly",
+        metrics=BaseExperimentMetricsDataClass(primary_outcomes=[], secondary_outcomes=[]),
+        audience=BaseExperimentAudienceDataClass(
+            channel=BaseExperimentAudienceChannels.NIGHTLY,
             min_version=80,
-            targeting="TARGETING_MAC_ONLY",
+            targeting=BaseExperimentAudienceTargetingOptions.TARGETING_MAC_ONLY,
             percentage=50.0,
             expected_clients=50,
         ),

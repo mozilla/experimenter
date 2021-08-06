@@ -12,7 +12,7 @@ def create_experiment(selenium, home_page, data):
     experiment = home_page.create_new_button()
     experiment.public_name = data.public_name
     experiment.hypothesis = data.hypothesis
-    experiment.application = data.application
+    experiment.application = data.application.value
 
     # Fill Overview Page
     overview = experiment.save_and_continue()
@@ -26,16 +26,16 @@ def create_experiment(selenium, home_page, data):
     branches.remove_branch()
     branches.reference_branch_name = data.branches[0].name
     branches.reference_branch_description = data.branches[0].description
-    branches.feature_config = data.branches[0].config
+    branches.feature_config = data.branches[0].feature_config
 
     # Fill Metrics page
     metrics = branches.save_and_continue()
 
     # Fill Audience page
     audience = metrics.save_and_continue()
-    audience.channel = data.audience.channel
+    audience.channel = data.audience.channel.value
     audience.min_version = data.audience.min_version
-    audience.targeting = data.audience.targeting
+    audience.targeting = data.audience.targeting.value
     audience.percentage = data.audience.percentage
     audience.expected_clients = data.audience.expected_clients
     audience.save_btn()
