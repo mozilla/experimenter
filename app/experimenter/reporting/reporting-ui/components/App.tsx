@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Form, Table } from "react-bootstrap";
+import { Alert, Button, Form, Table } from "react-bootstrap";
 import { CSVLink } from "react-csv";
 
 const App: React.FC = () => {
@@ -20,7 +20,7 @@ const App: React.FC = () => {
     }
   };
 
-  let summaryTable;
+  let summaryTable = <Alert variant="primary">There are no results to show with the time range selected</Alert>;
   if (data?.length && headers?.length) {
     summaryTable = (
       <SummaryTable
@@ -36,24 +36,24 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <h1>Experiment Reporting</h1>
-      <Form inline>
+      <Form inline className="mb-3">
         <Form.Group>
-          <Form.Label className="mr-2" htmlFor="startDate">
+          <Form.Label className="mr-3" htmlFor="startDate">
             From:
           </Form.Label>
           <Form.Control
-            className="mr-2"
+            className="mr-3"
             id="startDate"
             type="date"
             onChange={(event): void => setStartDate(event.target.value)}
           />
         </Form.Group>
         <Form.Group>
-          <Form.Label className="mr-2" htmlFor="endDate">
+          <Form.Label className="mr-3" htmlFor="endDate">
             To:
           </Form.Label>
           <Form.Control
-            className="mr-2"
+            className="mr-3"
             id="endDate"
             type="date"
             onChange={(event): void => setEndDate(event.target.value)}
@@ -70,7 +70,7 @@ const App: React.FC = () => {
 export const SummaryTable = (props): React.ReactElement => {
   const { data, headers, statistics, startDate, endDate } = props;
   const columnHeadings = headers.map((heading: string, i: number) => {
-    return <th key={i}>{heading}</th>;
+    return <th key={i}><strong>{heading}</strong></th>;
   });
 
   const tableRows = data.map(

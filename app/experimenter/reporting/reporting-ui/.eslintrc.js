@@ -10,6 +10,8 @@ const baseSettings = {
     "eslint:recommended",
     "plugin:react/recommended",
   ],
+
+  ignorePatterns: ["**/assets/*.js"],
   rules: {
     "import/order": [
       "error",

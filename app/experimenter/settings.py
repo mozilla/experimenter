@@ -189,6 +189,7 @@ STATICFILES_DIRS = [
     ("scripts", os.path.join(BASE_DIR, "legacy-ui", "scripts")),
     ("imgs", os.path.join(BASE_DIR, "legacy-ui", "imgs")),
     ("nimbus", os.path.join(BASE_DIR, "nimbus-ui", "build")),
+    ("reporting", os.path.join(BASE_DIR, "reporting", "reporting-ui", "assets")),
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")

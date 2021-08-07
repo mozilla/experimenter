@@ -25,8 +25,8 @@ ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
 ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint
 ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint-fix
 TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
-ESLINT_REPORTING = yarn workspace @experimenter/reporting lint:eslint
-ESLINT_FIX_REPORTING = yarn workspace @experimenter/reporting lint:eslint --fix
+ESLINT_REPORTING = yarn workspace @experimenter/reporting lint:eslint --max-warnings=1
+ESLINT_FIX_REPORTING = yarn workspace @experimenter/reporting lint:eslint --fix --max-warnings=1
 TYPECHECK_REPORTING = yarn workspace @experimenter/reporting lint:tsc
 
 JS_TEST_CORE = yarn workspace @experimenter/core test
