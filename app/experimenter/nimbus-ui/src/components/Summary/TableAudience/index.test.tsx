@@ -149,7 +149,7 @@ describe("TableAudience", () => {
     });
   });
 
-  describe("renders 'Targeted Locales' row as expected", () => {
+  describe("renders 'Locales' row as expected", () => {
     it("when locales exist, displays them", () => {
       const data = {
         locales: [{ name: "Quebecois", id: 1 }],
@@ -171,7 +171,7 @@ describe("TableAudience", () => {
     });
   });
 
-  describe("renders 'Targeted Countries' row as expected", () => {
+  describe("renders 'Countries' row as expected", () => {
     it("when countries exist, displays them", async () => {
       const data = {
         locales: [{ name: "Canada", id: 1 }],
