@@ -25,6 +25,14 @@ describe("useRefetchOnError", () => {
     });
     await screen.findByText("No errors!");
   });
+
+  it("does not refetch in development env", async () => {
+    Object.defineProperty(process.env, "NODE_ENV", {
+      value: "development",
+    });
+    render(<Subject />);
+    await screen.findByTestId("apollo-error-alert");
+  });
 });
 
 jest.useFakeTimers();
