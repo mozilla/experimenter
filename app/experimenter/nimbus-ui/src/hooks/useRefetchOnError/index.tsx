@@ -8,6 +8,8 @@ import ApolloErrorAlert from "../../components/ApolloErrorAlert";
 import RefetchAlert from "../../components/RefetchAlert";
 
 export const REFETCH_DELAY = 5000;
+const IS_DEV =
+  process.env.NODE_ENV === "development" && process.env.STORYBOOK !== "true";
 
 export const useRefetchOnError = (
   error: ApolloError | undefined,
@@ -18,7 +20,7 @@ export const useRefetchOnError = (
   const [ReactEl, setReactEl] = useState<ReactElement>(<></>);
   useEffect(() => {
     if (!error) return;
-    if (!hasRefetched) {
+    if (!hasRefetched && !IS_DEV) {
       const timeout = setTimeout(() => {
         refetch();
         setHasRefetched(true);
