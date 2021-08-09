@@ -1,6 +1,6 @@
 Components.utils.import("resource://gre/modules/components-utils/FilterExpressions.jsm");
 Components.utils.import("resource://gre/modules/components-utils/ClientEnvironment.jsm");
-Components.utils.import("resource://messaging-system/lib/RemoteSettingsExperimentLoader.jsm");
+// Components.utils.import("resource://messaging-system/lib/RemoteSettingsExperimentLoader.jsm");
 
 // Targeting
 
