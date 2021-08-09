@@ -12,5 +12,6 @@ export * from "./useExitWarning";
 export * from "./useExperiment";
 export * from "./useFakeMutation";
 export * from "./useOutcomes";
+export * from "./useRefetchOnError";
 export * from "./useReviewCheck";
 export * from "./useSearchParamsState";

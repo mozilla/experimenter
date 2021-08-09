@@ -5,7 +5,7 @@
 import { withLinks } from "@storybook/addon-links";
 import React from "react";
 import PageHome from ".";
-import { mockDirectoryExperimentsQuery } from "../../lib/mocks";
+import { mockDirectoryExperimentsQuery, MockedCache } from "../../lib/mocks";
 import { CurrentLocation, RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
@@ -40,6 +40,20 @@ const storyTemplate = (mocks: StoryContext["args"]["mocks"]) => {
 export const Basic = storyTemplate([mockDirectoryExperimentsQuery()]);
 
 export const Loading = storyTemplate([]);
+
+export const QueryError = () => {
+  const mockWithError = {
+    ...mockDirectoryExperimentsQuery(),
+    error: new Error("boop, something's actually wrong"),
+  };
+  return (
+    <MockedCache mocks={[mockWithError, mockWithError]}>
+      <PageHome />
+    </MockedCache>
+  );
+};
+QueryError.storyName =
+  "Error on fetch with error after refetch (wait 5 seconds)";
 
 export const NoExperiments = storyTemplate([mockDirectoryExperimentsQuery([])]);
 

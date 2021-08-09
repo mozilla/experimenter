@@ -4,6 +4,7 @@
 
 import { navigate, RouteComponentProps, useParams } from "@reach/router";
 import React, { useEffect } from "react";
+import { Alert } from "react-bootstrap";
 import { useAnalysis, useExperiment } from "../../hooks";
 import { BASE_PATH } from "../../lib/constants";
 import { getStatus, StatusCheck } from "../../lib/experiment";
@@ -33,13 +34,14 @@ export type RedirectCheck = {
   analysisError?: Error;
 };
 
-type AppLayoutWithExperimentProps = {
+export type AppLayoutWithExperimentProps = {
   children: (
     props: AppLayoutWithExperimentChildrenProps,
   ) => React.ReactNode | null;
-  testId: string;
+  testId?: string;
   title?: string;
   polling?: boolean;
+  pollInterval?: number; // for Storybook
   analysisRequired?: boolean; // the page and sidebar need analysis data
   analysisRequiredInSidebar?: boolean; // only the sidebar needs analysis data
   setHead?: boolean; // set the browser tab title through this component
@@ -54,9 +56,10 @@ export const POLL_INTERVAL = 30000;
 
 const AppLayoutWithExperiment = ({
   children,
-  testId,
+  testId = "AppLayoutWithExperiment",
   title,
   polling = false,
+  pollInterval = POLL_INTERVAL,
   analysisRequired = false,
   analysisRequiredInSidebar = false,
   setHead = true,
@@ -83,6 +86,9 @@ const AppLayoutWithExperiment = ({
   const analysisLoading = analysisFetchStatus === "loading";
   const analysisFetched = analysisFetchStatus !== "not-requested";
   const analysisLoadingInSidebar = analysisRequiredInSidebar && analysisLoading;
+  const pollExperiment = Boolean(polling && experiment);
+  // if an error occurs after the experiment data is present, it's a polling error
+  const hasPollError = error && pollExperiment;
 
   // If the redirect prop function is supplied let's call it with
   // experiment status, and analysis details. If it returns
@@ -112,15 +118,15 @@ const AppLayoutWithExperiment = ({
   }, [fetchAnalysis, loading, experiment, analysisFetched, status]);
 
   useEffect(() => {
-    if (polling && experiment) {
-      startPolling(POLL_INTERVAL);
+    if (pollExperiment) {
+      startPolling(pollInterval);
     }
     return () => {
       stopPolling();
     };
-  }, [startPolling, stopPolling, experiment, polling]);
+  }, [startPolling, stopPolling, pollExperiment, pollInterval]);
 
-  if (error) {
+  if (error && !hasPollError) {
     return <ApolloErrorAlert {...{ error }} />;
   }
 
@@ -165,6 +171,24 @@ const AppLayoutWithExperiment = ({
             computedDurationDays,
           }}
         />
+        {hasPollError && (
+          <Alert
+            variant="warning"
+            data-testid="polling-error-alert"
+            className="mt-4"
+          >
+            <Alert.Heading>Polling Error</Alert.Heading>
+            <p>
+              This page attempted to poll the server for fresh experiment data
+              but ran into an error. This usually happens when Experimenter is
+              mid-deploy.
+            </p>
+            <p>
+              Polling will be retried automatically in {pollInterval / 1000}{" "}
+              seconds.
+            </p>
+          </Alert>
+        )}
         {title && <h2 className="mt-3 mb-4 h3">{title}</h2>}
         <div className="my-4">
           {children({ experiment, refetch, analysis })}

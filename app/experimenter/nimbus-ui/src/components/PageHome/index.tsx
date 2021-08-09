@@ -7,9 +7,8 @@ import { Link, RouteComponentProps } from "@reach/router";
 import React, { useCallback } from "react";
 import { Alert, Tab, Tabs } from "react-bootstrap";
 import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
-import { useSearchParamsState } from "../../hooks";
+import { useRefetchOnError, useSearchParamsState } from "../../hooks";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
-import ApolloErrorAlert from "../ApolloErrorAlert";
 import AppLayout from "../AppLayout";
 import Head from "../Head";
 import LinkExternal from "../LinkExternal";
@@ -25,9 +24,10 @@ type PageHomeProps = Record<string, any> & RouteComponentProps;
 
 export const Body = () => {
   const [searchParams, updateSearchParams] = useSearchParamsState();
-  const { data, loading, error } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     experiments: getAllExperiments_experiments[];
   }>(GET_EXPERIMENTS_QUERY);
+  const ErrorAlert = useRefetchOnError(error, refetch);
 
   const selectedTab = searchParams.get("tab") || "live";
   const onSelectTab = useCallback(
@@ -40,7 +40,7 @@ export const Body = () => {
   }
 
   if (error) {
-    return <ApolloErrorAlert {...{ error }} />;
+    return ErrorAlert;
   }
 
   if (!data) {
