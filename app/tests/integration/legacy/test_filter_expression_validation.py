@@ -1,7 +1,3 @@
-import pytest
-
-
-@pytest.mark.skip(reason="temporarily failing")
 def test_filter_expressions_with_matching_firefox_versions(base_url, selenium):
     selenium.get("about:blank")
     with open("legacy/utils/filter_expression.js") as js:
@@ -10,7 +6,6 @@ def test_filter_expressions_with_matching_firefox_versions(base_url, selenium):
     assert script is True
 
 
-@pytest.mark.skip(reason="temporarily failing")
 def test_filter_expressions_with_mismatching_firefox_versions(base_url, selenium):
     selenium.get("about:blank")
     with open("legacy/utils/filter_expression.js") as js:
