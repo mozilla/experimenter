@@ -54,6 +54,7 @@ describe("AppLayoutWithExperiment", () => {
   });
 
   describe("polling", () => {
+    jest.useFakeTimers();
     const { mock: initialMock } = mockExperimentQuery("demo-slug");
     const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
       publishStatus: NimbusExperimentPublishStatus.WAITING,
@@ -92,6 +93,30 @@ describe("AppLayoutWithExperiment", () => {
       // Review would be the next state, so ensure Draft is still "primary"
       await screen.findByText("Draft", { selector: ".text-primary" });
     });
+
+    it("renders the error warning when an error occurs polling the experiment", async () => {
+      const mockWithError = { ...initialMock, error: new Error("boop") };
+      render(
+        <Subject mocks={[initialMock, mockWithError, updatedMock]} polling />,
+      );
+      await screen.findByText("Draft", { selector: ".text-primary" });
+      expect(
+        screen.queryByTestId("polling-error-alert"),
+      ).not.toBeInTheDocument();
+
+      jest.advanceTimersByTime(POLL_INTERVAL);
+      await screen.findByTestId("polling-error-alert");
+      expect(
+        screen.queryByText("30 seconds", { exact: false }),
+      ).toBeInTheDocument();
+
+      // error is hidden when polling works as expected, should show updatedMock
+      jest.advanceTimersByTime(POLL_INTERVAL);
+      await screen.findByText("Review", { selector: ".text-primary" });
+      expect(
+        screen.queryByTestId("polling-error-alert"),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it("can redirect you somewhere else", async () => {
@@ -118,8 +143,6 @@ describe("AppLayoutWithExperiment", () => {
   });
 });
 
-jest.useFakeTimers();
-
 jest.mock("@reach/router", () => ({
   ...(jest.requireActual("@reach/router") as any),
   navigate: jest.fn(),
@@ -137,10 +160,7 @@ const Subject = ({
   redirect?: (check: RedirectCheck) => void;
 }) => (
   <RouterSlugProvider {...{ mocks }}>
-    <AppLayoutWithExperiment
-      testId="AppLayoutWithExperiment"
-      {...{ title, polling, redirect }}
-    >
+    <AppLayoutWithExperiment {...{ title, polling, redirect }}>
       {({ experiment }) => <p>{experiment.slug}</p>}
     </AppLayoutWithExperiment>
   </RouterSlugProvider>
