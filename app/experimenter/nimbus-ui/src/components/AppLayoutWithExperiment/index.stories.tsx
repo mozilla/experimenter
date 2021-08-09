@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { withLinks } from "@storybook/addon-links";
-import { storiesOf } from "@storybook/react";
 import React from "react";
-import AppLayoutWithExperiment from ".";
+import AppLayoutWithExperiment, { AppLayoutWithExperimentProps } from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import {
@@ -13,63 +12,61 @@ import {
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
 
-storiesOf("components/AppLayoutWithExperiment", module)
-  .addDecorator(withLinks)
-  .add("status: draft", () => {
-    const { mock } = mockExperimentQuery("demo-slug");
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <AppLayoutWithExperiment
-          title="Howdy!"
-          testId="AppLayoutWithExperiment"
-        >
-          {({ experiment }) => <p>{experiment.name}</p>}
-        </AppLayoutWithExperiment>
-      </RouterSlugProvider>
-    );
-  })
-  .add("status: preview", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.PREVIEW,
-    });
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <AppLayoutWithExperiment
-          title="Howdy!"
-          testId="AppLayoutWithExperiment"
-        >
-          {({ experiment }) => <p>{experiment.name}</p>}
-        </AppLayoutWithExperiment>
-      </RouterSlugProvider>
-    );
-  })
-  .add('status: launched ("live" or "complete")', () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.LIVE,
-    });
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <AppLayoutWithExperiment
-          title="Howdy!"
-          testId="AppLayoutWithExperiment"
-        >
-          {({ experiment }) => <p>{experiment.name}</p>}
-        </AppLayoutWithExperiment>
-      </RouterSlugProvider>
-    );
-  })
-  .add("publish status: review", () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      publishStatus: NimbusExperimentPublishStatus.REVIEW,
-    });
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <AppLayoutWithExperiment
-          title="Howdy!"
-          testId="AppLayoutWithExperiment"
-        >
-          {({ experiment }) => <p>{experiment.name}</p>}
-        </AppLayoutWithExperiment>
-      </RouterSlugProvider>
-    );
-  });
+const Subject = ({
+  ...props
+}: Omit<AppLayoutWithExperimentProps, "children">) => (
+  <AppLayoutWithExperiment title="Howdy!" {...props}>
+    {({ experiment }) => <p>{experiment.name}</p>}
+  </AppLayoutWithExperiment>
+);
+
+export default {
+  title: "components/AppLayoutWithExperiment",
+  component: Subject,
+  decorators: [withLinks],
+};
+
+const storyWithProps = (
+  { mock } = mockExperimentQuery("demo-slug"),
+  props: React.ComponentProps<typeof Subject> = {},
+  storyName?: string,
+) => {
+  const story = () => (
+    <RouterSlugProvider mocks={[mock]}>
+      <Subject {...props} />
+    </RouterSlugProvider>
+  );
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+export const StatusDraft = storyWithProps();
+
+export const StatusPreview = storyWithProps(
+  mockExperimentQuery("demo-slug", {
+    status: NimbusExperimentStatus.PREVIEW,
+  }),
+);
+
+export const StatusLaunched = storyWithProps(
+  mockExperimentQuery("demo-slug", {
+    status: NimbusExperimentStatus.LIVE,
+  }),
+  {},
+  'Status: Launched ("Live" or "Complete")',
+);
+
+export const PublishStatusReview = storyWithProps(
+  mockExperimentQuery("demo-slug", {
+    publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  }),
+);
+
+export const PollingError = storyWithProps(
+  mockExperimentQuery("demo-slug"),
+  {
+    polling: true,
+    pollInterval: 2000,
+  },
+  "Polling error (wait 2 seconds)",
+);
