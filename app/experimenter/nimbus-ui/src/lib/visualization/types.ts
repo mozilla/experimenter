@@ -19,6 +19,7 @@ export type AnalysisDataWeekly = Exclude<AnalysisData["weekly"], null>;
 export interface Metadata {
   metrics: { [metric: string]: MetadataPoint };
   outcomes: { [outcome: string]: MetadataPoint };
+  reference_branch?: string;
 }
 
 export interface MetadataPoint {

@@ -6,18 +6,19 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import GraphsWeekly from ".";
+import { MockResultsContextProvider } from "../../../lib/mocks";
 import { GROUP } from "../../../lib/visualization/constants";
-import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 storiesOf("pages/Results/GraphsWeekly", module)
   .addDecorator(withLinks)
   .add("with two data points", () => {
     return (
-      <GraphsWeekly
-        weeklyResults={mockAnalysis().weekly}
-        outcomeSlug="feature_d"
-        outcomeName="Feature D"
-        group={GROUP.OTHER}
-      />
+      <MockResultsContextProvider>
+        <GraphsWeekly
+          outcomeSlug="feature_d"
+          outcomeName="Feature D"
+          group={GROUP.OTHER}
+        />
+      </MockResultsContextProvider>
     );
   });

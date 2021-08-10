@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { useOutcomes } from "../../../hooks";
+import { ResultsContext } from "../../../lib/contexts";
 import { OutcomesList } from "../../../lib/types";
 import {
   BRANCH_COMPARISON,
@@ -13,7 +14,6 @@ import {
   METRICS_TIPS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { AnalysisData } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import {
   getExperiment_experimentBySlug,
@@ -23,9 +23,7 @@ import {
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type TableHighlightsProps = {
-  results: AnalysisData;
   experiment: getExperiment_experimentBySlug;
-  sortedBranches: string[];
 };
 
 type Branch =
@@ -67,24 +65,22 @@ const getBranchDescriptions = (
   );
 };
 
-const TableHighlights = ({
-  results = {
-    daily: [],
-    weekly: {},
-    overall: {},
-    metadata: { metrics: {}, outcomes: {} },
-    show_analysis: false,
-  },
-  experiment,
-  sortedBranches,
-}: TableHighlightsProps) => {
+const TableHighlights = ({ experiment }: TableHighlightsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
   const highlightMetricsList = getHighlightMetrics(primaryOutcomes);
   const branchDescriptions = getBranchDescriptions(
     experiment.referenceBranch,
     experiment.treatmentBranches,
   );
-  const overallResults = results?.overall!;
+  const {
+    analysis: { metadata, overall },
+    sortedBranches,
+  } = useContext(ResultsContext);
+  const overallResults = overall!;
+  // const controlBranchName = getControlBranchName(
+  //   results?.metadata!,
+  //   overallResults,
+  // );
 
   return (
     <table data-testid="table-highlights" className="table mt-4 mb-0">
@@ -122,7 +118,7 @@ const TableHighlights = ({
                       overallResults[branch]["is_control"],
                     );
                     const tooltip =
-                      results.metadata?.metrics[metricKey]?.description ||
+                      metadata?.metrics[metricKey]?.description ||
                       metric.tooltip;
                     return (
                       <TableVisualizationRow

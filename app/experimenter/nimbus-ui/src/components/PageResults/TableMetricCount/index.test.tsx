@@ -5,14 +5,13 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import TableMetricCount from ".";
-import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
+import {
+  mockExperimentQuery,
+  mockOutcomeSets,
+  MockResultsContextProvider,
+} from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { GROUP, METRIC_TYPE } from "../../../lib/visualization/constants";
-import { mockAnalysis } from "../../../lib/visualization/mocks";
-import { getSortedBranches } from "../../../lib/visualization/utils";
-
-const results = mockAnalysis();
-const sortedBranches = getSortedBranches(results);
 
 describe("TableMetricCount", () => {
   it("has the correct headings", () => {
@@ -22,13 +21,14 @@ describe("TableMetricCount", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricCount
-          outcomeSlug={secondaryOutcomes![0]!.slug!}
-          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
-          metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
-          group={GROUP.OTHER}
-          {...{ results, sortedBranches }}
-        />
+        <MockResultsContextProvider>
+          <TableMetricCount
+            outcomeSlug={secondaryOutcomes![0]!.slug!}
+            outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+            metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+            group={GROUP.OTHER}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 
@@ -43,13 +43,14 @@ describe("TableMetricCount", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricCount
-          outcomeSlug={secondaryOutcomes![0]!.slug!}
-          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
-          group={GROUP.OTHER}
-          metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
-          {...{ results, sortedBranches }}
-        />
+        <MockResultsContextProvider>
+          <TableMetricCount
+            outcomeSlug={secondaryOutcomes![0]!.slug!}
+            outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+            group={GROUP.OTHER}
+            metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 
@@ -67,13 +68,14 @@ describe("TableMetricCount", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricCount
-          outcomeSlug={secondaryOutcomes![0]!.slug!}
-          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
-          group={GROUP.OTHER}
-          metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
-          {...{ results, sortedBranches }}
-        />
+        <MockResultsContextProvider>
+          <TableMetricCount
+            outcomeSlug={secondaryOutcomes![0]!.slug!}
+            outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+            group={GROUP.OTHER}
+            metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 
@@ -87,13 +89,14 @@ describe("TableMetricCount", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricCount
-          outcomeSlug={secondaryOutcomes![0]!.slug!}
-          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
-          group={GROUP.OTHER}
-          metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
-          {...{ results, sortedBranches }}
-        />
+        <MockResultsContextProvider>
+          <TableMetricCount
+            outcomeSlug={secondaryOutcomes![0]!.slug!}
+            outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+            group={GROUP.OTHER}
+            metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 
@@ -111,13 +114,14 @@ describe("TableMetricCount", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricCount
-          outcomeSlug={secondaryOutcomes![0]!.slug!}
-          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
-          group={GROUP.OTHER}
-          metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
-          {...{ results, sortedBranches }}
-        />
+        <MockResultsContextProvider>
+          <TableMetricCount
+            outcomeSlug={secondaryOutcomes![0]!.slug!}
+            outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+            group={GROUP.OTHER}
+            metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 
@@ -131,13 +135,14 @@ describe("TableMetricCount", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableMetricCount
-          outcomeSlug="feature_d"
-          outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
-          group={GROUP.OTHER}
-          metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
-          {...{ results, sortedBranches }}
-        />
+        <MockResultsContextProvider>
+          <TableMetricCount
+            outcomeSlug="feature_d"
+            outcomeDefaultName={secondaryOutcomes![0]!.friendlyName!}
+            group={GROUP.OTHER}
+            metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 

@@ -11,16 +11,39 @@ import {
 import {
   AnalysisData,
   AnalysisDataOverall,
+  AnalysisDataWeekly,
   FormattedAnalysisPoint,
+  Metadata,
 } from "./types";
 
 // `show_analysis` is the feature flag for turning visualization on/off.
-// `overall` will be `null` if the analysis isn't available yet.
+// `overall` and `weekly` will be `null` if the analysis isn't available yet.
 export const analysisAvailable = (analysis: AnalysisData | undefined) =>
   analysis?.show_analysis && (analysis?.overall || analysis?.weekly);
 
 export const analysisUnavailable = (analysis: AnalysisData | undefined) =>
-  analysis && !analysisAvailable(analysis);
+  !analysisAvailable(analysis);
+
+/**
+ * The control/reference branch can be overridden in the Jetstream config. It's exposed in the
+ * metadata in schema version 3+ and should be considered the "true" control branch used
+ * when the analysis occurs.
+ */
+export const getControlBranchName = (
+  { reference_branch }: { reference_branch: Metadata["reference_branch"] },
+  results: AnalysisDataOverall | AnalysisDataWeekly,
+) => {
+  if (reference_branch) {
+    return reference_branch;
+  }
+  for (const [branchName, branchData] of Object.entries(results)) {
+    if (branchData.is_control) {
+      return branchName;
+    }
+  }
+  // we should never get here in practice
+  return "";
+};
 
 export const getTableDisplayType = (
   metricKey: string,
@@ -47,8 +70,9 @@ export const getTableDisplayType = (
   return displayType;
 };
 
+// Ensures the control branch is first
 export const getSortedBranches = (analysis: AnalysisData) => {
-  if (analysis?.overall) {
+  if (analysis.overall) {
     return Object.keys(analysis.overall)
       .filter((branch) => analysis.overall?.[branch].is_control)
       .concat(
@@ -56,7 +80,7 @@ export const getSortedBranches = (analysis: AnalysisData) => {
           (branch) => !analysis.overall?.[branch].is_control,
         ),
       );
-  } else if (analysis?.weekly) {
+  } else if (analysis.weekly) {
     return Object.keys(analysis.weekly)
       .filter((branch) => analysis.weekly?.[branch].is_control)
       .concat(
