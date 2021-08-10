@@ -12,6 +12,7 @@ import {
 } from "@testing-library/react";
 import { act } from "@testing-library/react-hooks";
 import React from "react";
+import selectEvent from "react-select-event";
 import PageHome from ".";
 import { REFETCH_DELAY } from "../../hooks";
 import {
@@ -102,6 +103,24 @@ describe("PageHome", () => {
     await screen.findByText("Draft (3)");
     expect(screen.queryByTestId("refetch-alert")).not.toBeInTheDocument();
     expect(screen.queryByTestId("apollo-error-alert")).not.toBeInTheDocument();
+  });
+
+  // TODO: not exhaustively testing all filters here, might be worth adding more?
+  // Filtering itself is more fully covered in filterExperiments.test.tsx
+  it("supports filtering by feature", async () => {
+    await renderAndWaitForLoaded();
+    const expectedFeatureConfigName = "Picture-in-Picture";
+    await selectEvent.select(screen.getByLabelText("Feature"), [
+      expectedFeatureConfigName,
+    ]);
+    await waitFor(() => {
+      const featureConfigNames = screen
+        .getAllByTestId("directory-feature-config-name")
+        .map((el) => el.textContent);
+      expect(
+        featureConfigNames.every((name) => name === expectedFeatureConfigName),
+      ).toBeTruthy();
+    });
   });
 });
 
