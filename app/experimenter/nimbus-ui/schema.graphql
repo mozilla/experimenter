@@ -314,6 +314,7 @@ type NimbusExperimentTargetingConfigSlugChoice {
 
 type NimbusExperimentType {
   id: Int
+  isArchived: Boolean
   owner: NimbusUser!
   status: NimbusExperimentStatus
   statusNext: NimbusExperimentStatus
