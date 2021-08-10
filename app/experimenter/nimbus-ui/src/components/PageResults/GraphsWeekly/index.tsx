@@ -1,18 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
 import vegaEmbed, { VisualizationSpec } from "vega-embed";
 import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../../images/plus.svg";
+import { ResultsContext } from "../../../lib/contexts";
 import {
   BRANCH_COMPARISON,
   BRANCH_COMPARISON_TITLE,
 } from "../../../lib/visualization/constants";
 import { lineGraphConfig } from "../../../lib/visualization/graphConfig";
 import {
-  AnalysisDataWeekly,
   BranchDescription,
   FormattedAnalysisPoint,
 } from "../../../lib/visualization/types";
@@ -84,18 +84,21 @@ const embedGraphs = (
 };
 
 type GraphsWeeklyProps = {
-  weeklyResults: AnalysisDataWeekly;
   outcomeSlug: string;
   outcomeName: string;
   group: string;
 };
 
 const GraphsWeekly = ({
-  weeklyResults = {},
   outcomeSlug,
   outcomeName,
   group,
 }: GraphsWeeklyProps) => {
+  const {
+    analysis: { weekly },
+  } = useContext(ResultsContext);
+  const weeklyResults = weekly!;
+
   const mergedBranchData = getMergedBranchData(
     outcomeSlug,
     group,
@@ -104,8 +107,8 @@ const GraphsWeekly = ({
 
   const [open, setOpen] = useState(false);
   const [embedded, setEmbedded] = useState(false);
-  const graphsVisibleClass = !open ? "d-none" : "";
-  const graphsHiddenClass = open ? "d-none" : "";
+  const graphsVisibleClass = !open ? "d-none" : undefined;
+  const graphsHiddenClass = open ? "d-none" : undefined;
 
   const handleCollapse = () => {
     setOpen(!open);

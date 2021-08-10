@@ -8,6 +8,7 @@ import Collapse from "react-bootstrap/Collapse";
 import { useConfig } from "../../hooks";
 import { ReactComponent as CollapseMinus } from "../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
+import { ResultsContext, ResultsContextType } from "../../lib/contexts";
 import {
   BRANCH_COMPARISON,
   GROUP,
@@ -73,12 +74,17 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
         // For testing - users will be redirected if the analysis is unavailable
         // before reaching this return, but tests reach this return and
         // analysis.overall is expected to be an object (EXP-800)
-        if (analysisUnavailable(analysis)) return;
+        if (!analysis || analysisUnavailable(analysis)) return;
+
+        const resultsContextValue: ResultsContextType = {
+          analysis,
+          sortedBranches: getSortedBranches(analysis),
+        };
 
         const slugUnderscored = experiment.slug.replace(/-/g, "_");
-        const sortedBranches = getSortedBranches(analysis!);
+
         return (
-          <>
+          <ResultsContext.Provider value={resultsContextValue}>
             <LinkMonitoring {...experiment} />
             <h3 className="h5 mb-3 mt-4" id="overview">
               Overview
@@ -95,12 +101,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             </p>
             <h3 className="h6">Hypothesis</h3>
             <p>{experiment.hypothesis}</p>
-            {analysis?.overall && (
-              <TableHighlights
-                results={analysis}
-                {...{ experiment, sortedBranches }}
-              />
-            )}
+            {analysis.overall && <TableHighlights {...{ experiment }} />}
             <TableHighlightsOverview {...{ experiment }} />
 
             <div id="results_summary">
@@ -114,25 +115,20 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   <small>See {toggleBranchComparisonText} comparison </small>
                 </button>
               </div>
-              {analysis?.overall && (
-                <TableResults
-                  {...{ experiment, sortedBranches, branchComparison }}
-                  results={analysis!}
-                />
+              {analysis.overall && (
+                <TableResults {...{ experiment, branchComparison }} />
               )}
 
-              {analysis?.weekly && (
+              {analysis.weekly && (
                 <TableResultsWeekly
-                  weeklyResults={analysis.weekly}
-                  hasOverallResults={!!analysis?.overall}
                   metricsList={HIGHLIGHTS_METRICS_LIST}
-                  {...{ sortedBranches, branchComparison }}
+                  {...{ branchComparison }}
                 />
               )}
             </div>
 
             <div>
-              {analysis?.overall &&
+              {analysis.overall &&
                 experiment.primaryOutcomes?.map((slug) => {
                   const outcome = configOutcomes!.find((set) => {
                     return set?.slug === slug;
@@ -140,16 +136,14 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   return outcome?.metrics?.map((metric) => (
                     <TableMetricCount
                       key={metric?.slug}
-                      results={analysis}
                       outcomeSlug={metric?.slug!}
                       outcomeDefaultName={metric?.friendlyName!}
                       group={GROUP.OTHER}
                       metricType={METRIC_TYPE.PRIMARY}
-                      {...{ sortedBranches }}
                     />
                   ));
                 })}
-              {analysis?.overall &&
+              {analysis.overall &&
                 experiment.secondaryOutcomes?.map((slug) => {
                   const outcome = configOutcomes!.find((set) => {
                     return set?.slug === slug;
@@ -158,16 +152,14 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   return (
                     <TableMetricCount
                       key={outcome!.slug}
-                      results={analysis}
                       outcomeSlug={outcome!.slug!}
                       outcomeDefaultName={outcome!.friendlyName!}
                       group={GROUP.OTHER}
                       metricType={METRIC_TYPE.DEFAULT_SECONDARY}
-                      {...{ sortedBranches }}
                     />
                   );
                 })}
-              {analysis?.other_metrics &&
+              {analysis.other_metrics &&
                 Object.keys(analysis.other_metrics).map((group: string) => {
                   const [open, setOpen] = groupStates[group];
                   const groupName = group.replace("_", " ");
@@ -205,13 +197,11 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                               (metric: string) => (
                                 <TableMetricCount
                                   key={metric}
-                                  results={analysis}
                                   outcomeSlug={metric}
                                   outcomeDefaultName={
-                                    analysis!.other_metrics![group][metric]
+                                    analysis.other_metrics![group][metric]
                                   }
-                                  group={group}
-                                  {...{ sortedBranches }}
+                                  {...{ group }}
                                 />
                               ),
                             )}
@@ -221,7 +211,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   );
                 })}
             </div>
-          </>
+          </ResultsContext.Provider>
         );
       }}
     </AppLayoutWithExperiment>

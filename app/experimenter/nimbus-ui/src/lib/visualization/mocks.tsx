@@ -13,7 +13,7 @@ export const MOCK_UNAVAILABLE_ANALYSIS = {
   },
 };
 
-export const MOCK_METADATA = {
+export const MOCK_METADATA_NO_REF_BRANCH = {
   metrics: {
     feature_b: {
       bigger_is_better: true,
@@ -35,6 +35,12 @@ export const MOCK_METADATA = {
     },
   },
   outcomes: {},
+  reference_branch: "control",
+};
+
+export const MOCK_METADATA = {
+  ...MOCK_METADATA_NO_REF_BRANCH,
+  reference_branch: "control",
 };
 
 export const CONTROL_NEUTRAL = {

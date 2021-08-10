@@ -5,10 +5,12 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import GraphsWeekly from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import {
+  mockExperimentQuery,
+  MockResultsContextProvider,
+} from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { GROUP } from "../../../lib/visualization/constants";
-import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 describe("GraphsWeekly", () => {
   it("Displays 'Show Graphs' button and updates its label when clicked", async () => {
@@ -16,12 +18,13 @@ describe("GraphsWeekly", () => {
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <GraphsWeekly
-          weeklyResults={mockAnalysis().weekly}
-          outcomeSlug="feature_d"
-          outcomeName="Feature D"
-          group={GROUP.OTHER}
-        />
+        <MockResultsContextProvider>
+          <GraphsWeekly
+            outcomeSlug="feature_d"
+            outcomeName="Feature D"
+            group={GROUP.OTHER}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
     expect(screen.getByText("Show Graphs")).toBeInTheDocument();

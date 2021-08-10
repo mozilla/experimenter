@@ -5,20 +5,21 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import TableWeekly from ".";
+import { MockResultsContextProvider } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { BRANCH_COMPARISON, GROUP } from "../../../lib/visualization/constants";
 import {
+  mockAnalysis,
   weeklyMockAnalysis,
   WEEKLY_IDENTITY,
   WEEKLY_TREATMENT,
   WONKY_WEEKLY_TREATMENT,
 } from "../../../lib/visualization/mocks";
-import { getSortedBranches } from "../../../lib/visualization/utils";
 
 describe("TableWeekly", () => {
   it("has the correct headings", () => {
     const EXPECTED_HEADINGS = ["Week 1", "Week 2", "Week 5"];
-    const modified_treatment = {
+    const modifications = {
       treatment: {
         is_control: false,
         branch_data: {
@@ -35,22 +36,19 @@ describe("TableWeekly", () => {
       },
     };
 
-    const results = weeklyMockAnalysis(modified_treatment);
-    const sortedBranches = getSortedBranches({
-      show_analysis: true,
-      daily: null,
-      weekly: results,
-      overall: null,
+    const analysis = mockAnalysis({
+      weekly: weeklyMockAnalysis(modifications),
     });
 
     render(
       <RouterSlugProvider>
-        <TableWeekly
-          metricKey="retained"
-          metricName="Retention"
-          group={GROUP.OTHER}
-          {...{ results, sortedBranches }}
-        />
+        <MockResultsContextProvider {...{ analysis }}>
+          <TableWeekly
+            metricKey="retained"
+            metricName="Retention"
+            group={GROUP.OTHER}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 
@@ -61,23 +59,17 @@ describe("TableWeekly", () => {
 
   it("shows error text when metric data isn't available", () => {
     const ERROR_TEXT = "Some Made Up Metric is not available";
-    const results = weeklyMockAnalysis();
-    const sortedBranches = getSortedBranches({
-      show_analysis: true,
-      daily: null,
-      weekly: results,
-      overall: null,
-    });
 
     render(
       <RouterSlugProvider>
-        <TableWeekly
-          metricKey="fake"
-          metricName="Some Made Up Metric"
-          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
-          group={GROUP.OTHER}
-          {...{ results, sortedBranches }}
-        />
+        <MockResultsContextProvider>
+          <TableWeekly
+            metricKey="fake"
+            metricName="Some Made Up Metric"
+            branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+            group={GROUP.OTHER}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 

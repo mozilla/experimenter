@@ -14,7 +14,7 @@ import { MockedResponse, MockLink } from "@apollo/client/testing";
 import { Observable } from "@apollo/client/utilities";
 import { equal } from "@wry/equality";
 import { DocumentNode, print } from "graphql";
-import React from "react";
+import React, { ReactNode } from "react";
 import { GET_CONFIG_QUERY } from "../gql/config";
 import {
   GET_EXPERIMENTS_QUERY,
@@ -41,8 +41,12 @@ import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../types/globalTypes";
+import { ResultsContext } from "./contexts";
 import { getStatus } from "./experiment";
 import { OutcomesList, OutcomeSlugs } from "./types";
+import { mockAnalysis } from "./visualization/mocks";
+import { AnalysisData } from "./visualization/types";
+import { getSortedBranches } from "./visualization/utils";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;
@@ -744,3 +748,20 @@ export const mockRejectionChangelog = (
   changedOn,
   message,
 });
+
+export const MockResultsContextProvider = ({
+  children,
+  analysis = mockAnalysis(),
+}: {
+  children: ReactNode;
+  analysis?: AnalysisData;
+}) => {
+  const value = {
+    analysis,
+    sortedBranches: getSortedBranches(analysis),
+  };
+
+  return (
+    <ResultsContext.Provider {...{ value }}>{children}</ResultsContext.Provider>
+  );
+};
