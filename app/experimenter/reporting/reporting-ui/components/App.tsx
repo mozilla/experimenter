@@ -35,7 +35,7 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <h1>Experiment Reporting</h1>
+      <h3>Experiment Reporting</h3>
       <Form inline className="mb-3">
         <Form.Group>
           <Form.Label className="mr-3" htmlFor="startDate">
