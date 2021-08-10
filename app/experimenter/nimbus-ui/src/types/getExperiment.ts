@@ -99,6 +99,7 @@ export interface getExperiment_experimentBySlug_countries {
 
 export interface getExperiment_experimentBySlug {
   id: number | null;
+  isArchived: boolean | null;
   name: string;
   slug: string;
   status: NimbusExperimentStatus | null;

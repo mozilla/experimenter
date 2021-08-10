@@ -27,6 +27,7 @@ export const GET_EXPERIMENT_QUERY = gql`
   query getExperiment($slug: String!) {
     experimentBySlug(slug: $slug) {
       id
+      isArchived
       name
       slug
       status
@@ -153,6 +154,7 @@ export const GET_EXPERIMENT_QUERY = gql`
 export const GET_EXPERIMENTS_QUERY = gql`
   query getAllExperiments {
     experiments {
+      isArchived
       name
       owner {
         username
