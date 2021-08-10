@@ -357,35 +357,36 @@ class NimbusExperimentSerializer(
     class Meta:
         model = NimbusExperiment
         fields = [
-            "status",
-            "status_next",
-            "publish_status",
-            "name",
-            "slug",
-            "risk_mitigation_link",
-            "documentation_links",
-            "hypothesis",
             "application",
-            "public_description",
-            "is_enrollment_paused",
-            "feature_config",
-            "reference_branch",
-            "treatment_branches",
-            "primary_outcomes",
-            "secondary_outcomes",
+            "changelog_message",
             "channel",
+            "countries",
+            "documentation_links",
+            "feature_config",
             "firefox_min_version",
+            "hypothesis",
+            "is_archived",
+            "is_enrollment_paused",
+            "locales",
+            "name",
             "population_percent",
+            "primary_outcomes",
             "proposed_duration",
             "proposed_enrollment",
-            "targeting_config_slug",
-            "total_enrolled_clients",
-            "changelog_message",
+            "public_description",
+            "publish_status",
+            "reference_branch",
+            "risk_brand",
+            "risk_mitigation_link",
             "risk_partner_related",
             "risk_revenue",
-            "risk_brand",
-            "countries",
-            "locales",
+            "secondary_outcomes",
+            "slug",
+            "status_next",
+            "status",
+            "targeting_config_slug",
+            "total_enrolled_clients",
+            "treatment_branches",
         ]
 
     def __init__(self, instance=None, data=None, **kwargs):
@@ -403,6 +404,22 @@ class NimbusExperimentSerializer(
             data.get("publish_status") == NimbusExperiment.PublishStatus.APPROVED
         )
         super().__init__(instance=instance, data=data, **kwargs)
+
+    def validate_is_archived(self, is_archived):
+        if self.instance.status not in (
+            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.COMPLETE,
+        ):
+            raise serializers.ValidationError(
+                f"An experiment in status {self.instance.status} can not be archived"
+            )
+
+        if self.instance.publish_status != NimbusExperiment.PublishStatus.IDLE:
+            raise serializers.ValidationError(
+                f"An experiment in publish status {self.instance.publish_status} "
+                "can not be archived"
+            )
+        return is_archived
 
     def validate_publish_status(self, publish_status):
         if publish_status == NimbusExperiment.PublishStatus.APPROVED and (
@@ -495,6 +512,18 @@ class NimbusExperimentSerializer(
 
     def validate(self, data):
         data = super().validate(data)
+
+        non_is_archived_fields = set(data.keys()) - set(
+            NimbusExperiment.ARCHIVE_UPDATE_EXEMPT_FIELDS
+        )
+        if self.instance and self.instance.is_archived and non_is_archived_fields:
+            raise serializers.ValidationError(
+                {
+                    field: f"{field} can't be updated while an experiment is archived"
+                    for field in non_is_archived_fields
+                }
+            )
+
         primary_outcomes = set(data.get("primary_outcomes", []))
         secondary_outcomes = set(data.get("secondary_outcomes", []))
         if primary_outcomes.intersection(secondary_outcomes):
