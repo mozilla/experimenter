@@ -24,6 +24,7 @@ export interface getAllExperiments_experiments_featureConfig {
 }
 
 export interface getAllExperiments_experiments {
+  isArchived: boolean | null;
   name: string;
   owner: getAllExperiments_experiments_owner;
   featureConfig: getAllExperiments_experiments_featureConfig | null;

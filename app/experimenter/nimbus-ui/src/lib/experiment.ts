@@ -14,8 +14,13 @@ import { LIFECYCLE_REVIEW_FLOWS } from "./constants";
 export function getStatus(
   experiment?: getExperiment_experimentBySlug | getAllExperiments_experiments,
 ) {
-  const { status, statusNext, publishStatus, isEnrollmentPausePending } =
-    experiment || {};
+  const {
+    status,
+    statusNext,
+    publishStatus,
+    isEnrollmentPausePending,
+    isArchived,
+  } = experiment || {};
 
   // The experiment is or was out in the wild (live or complete)
   const launched = [
@@ -24,6 +29,7 @@ export function getStatus(
   ].includes(status!);
 
   return {
+    archived: isArchived,
     draft: status === NimbusExperimentStatus.DRAFT,
     preview: status === NimbusExperimentStatus.PREVIEW,
     live: status === NimbusExperimentStatus.LIVE,

@@ -76,7 +76,7 @@ export const Body = () => {
     ),
   };
 
-  const { live, complete, preview, review, draft } = sortByStatus(
+  const { live, complete, preview, review, draft, archived } = sortByStatus(
     filterExperiments(data.experiments, filterValue),
   );
 
@@ -104,6 +104,9 @@ export const Body = () => {
         </Tab>
         <Tab eventKey="drafts" title={`Draft (${draft.length})`}>
           <DirectoryDraftsTable experiments={draft} />
+        </Tab>
+        <Tab eventKey="archived" title={`Archived (${archived.length})`}>
+          <DirectoryDraftsTable experiments={archived} />
         </Tab>
       </Tabs>
     </>
