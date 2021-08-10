@@ -52,11 +52,12 @@ describe("PageHome", () => {
       ["completed", screen.getByText("Completed (4)")],
       ["drafts", screen.getByText("Draft (3)")],
       ["live", screen.getByText("Live (3)")],
+      ["archived", screen.getByText("Archived (1)")],
     ] as const;
 
   it("displays five Directory Tables (one for each status type)", async () => {
     await renderAndWaitForLoaded();
-    expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(5);
+    expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(6);
     for (const [tabKey, tab] of findTabs()) {
       expect(tab).toBeInTheDocument();
     }

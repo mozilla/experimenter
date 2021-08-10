@@ -574,6 +574,7 @@ export function mockSingleDirectoryExperiment(
   const endTime = now - oneDay * 30 + 21 * oneDay * Math.random();
 
   return {
+    isArchived: false,
     slug: `some-experiment-${slugIndex}`,
     owner: {
       username: "example@mozilla.com",
@@ -688,6 +689,14 @@ export function mockDirectoryExperiments(
     },
     {
       name: "Lorem arcu faucibus tortor",
+      featureConfig: null,
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
+      owner: { username: "gamma-example@mozilla.com" },
+    },
+    {
+      isArchived: true,
+      name: "Archived Experiment",
       featureConfig: null,
       application: MOCK_CONFIG.application![1]!
         .value as NimbusExperimentApplication,
