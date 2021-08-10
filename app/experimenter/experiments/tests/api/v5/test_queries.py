@@ -3,7 +3,6 @@ import json
 
 from django.conf import settings
 from django.urls import reverse
-from graphene.utils.str_converters import to_snake_case
 from graphene_django.utils.testing import GraphQLTestCase
 from parameterized import parameterized
 
@@ -28,6 +27,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             """
             query {
                 experiments {
+                    isArchived
                     name
                     slug
                     publicDescription
@@ -41,10 +41,16 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         content = json.loads(response.content)
         experiments = content["data"]["experiments"]
         self.assertEqual(len(experiments), 1)
-        for key in experiments[0]:
-            self.assertEqual(
-                experiments[0][key], str(getattr(experiment, to_snake_case(key)))
-            )
+        experiment_data = experiments[0]
+        self.assertEqual(experiment_data["isArchived"], experiment.is_archived)
+        self.assertEqual(experiment_data["name"], experiment.name)
+        self.assertEqual(experiment_data["slug"], experiment.slug)
+        self.assertEqual(
+            experiment_data["publicDescription"], experiment.public_description
+        )
+        self.assertEqual(
+            experiment_data["riskMitigationLink"], experiment.risk_mitigation_link
+        )
 
     def test_experiments_with_no_branches_returns_empty_treatment_values(self):
         user_email = "user@example.com"
