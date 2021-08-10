@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 import "@testing-library/jest-dom/extend-expect";
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";

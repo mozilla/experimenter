@@ -33,6 +33,7 @@ services:
       - /app/experimenter/legacy-ui/core/.cache/
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/reporting/reporting-ui/node_modules/
       - /app/experimenter/served/
       - /app/node_modules/
     command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus-ui start | cat"
@@ -46,6 +47,7 @@ services:
       - /app/experimenter/legacy-ui/core/.cache/
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/reporting/reporting-ui/node_modules/
       - /app/experimenter/served/
       - /app/node_modules/
     command: bash -c "yarn workspace @experimenter/core watch"
@@ -63,7 +65,7 @@ services:
       - /app/experimenter/served/
       - /app/node_modules/
     command: bash -c "yarn workspace @experimenter/reporting watch"
-  
+
   worker:
     image: app:dev
     env_file: .env

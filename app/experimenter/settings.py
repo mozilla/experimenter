@@ -104,6 +104,7 @@ TEMPLATES = [
         "DIRS": [
             os.path.join(BASE_DIR, "legacy-ui", "templates"),
             os.path.join(BASE_DIR, "nimbus-ui", "templates"),
+            os.path.join(BASE_DIR, "reporting", "reporting-ui", "templates"),
             os.path.join(BASE_DIR, "docs"),
         ],
         "APP_DIRS": True,

@@ -249,4 +249,4 @@ class PageNotFoundView(TemplateView):
 
 
 class ExperimentReportView(TemplateView):
-    template_name = "experiments/reporting.html"
+    template_name = "reporting.html"

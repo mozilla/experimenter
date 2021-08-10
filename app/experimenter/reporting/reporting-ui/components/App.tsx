@@ -10,7 +10,7 @@ const App: React.FC = () => {
   const [headers, setHeaders] = useState([]);
   const onSubmit = async (): Promise<void> => {
     const response = await fetch(
-      `${window.location.origin}/api/v7/${startDate}/${endDate}`,
+      `${window.location.origin}/api/v7/${startDate}/${endDate}/`,
     );
     if (response.ok) {
       const { data, headings, statistics } = await response.json();
