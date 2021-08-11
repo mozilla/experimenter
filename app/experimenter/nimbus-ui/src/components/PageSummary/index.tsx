@@ -203,6 +203,7 @@ const PageContent: React.FC<{
         }}
       >
         {status.draft &&
+          !experiment.isArchived &&
           (showLaunchToReview ? (
             <FormLaunchDraftToReview
               {...{

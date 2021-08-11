@@ -3,7 +3,16 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusDocumentationLinkTitle, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
+import {
+  NimbusChangeLogOldStatus,
+  NimbusChangeLogOldStatusNext,
+  NimbusDocumentationLinkTitle,
+  NimbusExperimentApplication,
+  NimbusExperimentChannel,
+  NimbusExperimentFirefoxMinVersion,
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -100,6 +109,7 @@ export interface getExperiment_experimentBySlug_countries {
 export interface getExperiment_experimentBySlug {
   id: number | null;
   isArchived: boolean | null;
+  canEdit: boolean | null;
   name: string;
   slug: string;
   status: NimbusExperimentStatus | null;
@@ -112,7 +122,9 @@ export interface getExperiment_experimentBySlug {
   publicDescription: string;
   owner: getExperiment_experimentBySlug_owner;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
-  treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
+  treatmentBranches:
+    | (getExperiment_experimentBySlug_treatmentBranches | null)[]
+    | null;
   featureConfig: getExperiment_experimentBySlug_featureConfig | null;
   primaryOutcomes: (string | null)[] | null;
   secondaryOutcomes: (string | null)[] | null;
@@ -134,7 +146,9 @@ export interface getExperiment_experimentBySlug {
   riskBrand: boolean | null;
   riskPartnerRelated: boolean | null;
   signoffRecommendations: getExperiment_experimentBySlug_signoffRecommendations | null;
-  documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
+  documentationLinks:
+    | getExperiment_experimentBySlug_documentationLinks[]
+    | null;
   isEnrollmentPausePending: boolean | null;
   isEnrollmentPaused: boolean | null;
   enrollmentEndDate: DateTime | null;

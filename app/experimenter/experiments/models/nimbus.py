@@ -373,6 +373,14 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             ),
         )
 
+    @property
+    def can_edit(self):
+        return (
+            self.status == self.Status.DRAFT
+            and self.publish_status == self.PublishStatus.IDLE
+            and not self.is_archived
+        )
+
     def can_review(self, reviewer):
         if (
             settings.SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER
