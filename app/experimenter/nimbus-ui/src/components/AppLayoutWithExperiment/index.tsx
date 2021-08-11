@@ -140,7 +140,8 @@ const AppLayoutWithExperiment = ({
     return <PageExperimentNotFound {...{ slug }} />;
   }
 
-  const { name, startDate, computedEndDate, computedDurationDays } = experiment;
+  const { name, startDate, computedEndDate, computedDurationDays, isArchived } =
+    experiment;
 
   return (
     <Layout
@@ -169,6 +170,7 @@ const AppLayoutWithExperiment = ({
             computedEndDate,
             status,
             computedDurationDays,
+            isArchived,
           }}
         />
         {hasPollError && (
