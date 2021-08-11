@@ -29,6 +29,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 experiments {
                     isArchived
                     canEdit
+                    canArchive
                     name
                     slug
                     publicDescription
@@ -44,6 +45,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         self.assertEqual(len(experiments), 1)
         experiment_data = experiments[0]
         self.assertEqual(experiment_data["isArchived"], experiment.is_archived)
+        self.assertEqual(experiment_data["canArchive"], experiment.can_archive)
         self.assertEqual(experiment_data["name"], experiment.name)
         self.assertEqual(experiment_data["slug"], experiment.slug)
         self.assertEqual(

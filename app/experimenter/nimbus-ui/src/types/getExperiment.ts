@@ -110,6 +110,7 @@ export interface getExperiment_experimentBySlug {
   id: number | null;
   isArchived: boolean | null;
   canEdit: boolean | null;
+  canArchive: boolean | null;
   name: string;
   slug: string;
   status: NimbusExperimentStatus | null;

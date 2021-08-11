@@ -401,6 +401,7 @@ export function mockExperiment<
       id: 1,
       isArchived: false,
       canEdit: true,
+      canArchive: true,
       owner: {
         email: "example@mozilla.com",
       },
