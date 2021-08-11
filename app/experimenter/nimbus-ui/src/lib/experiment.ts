@@ -9,12 +9,18 @@ import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../types/globalTypes";
+import { LIFECYCLE_REVIEW_FLOWS } from "./constants";
 
 export function getStatus(
   experiment?: getExperiment_experimentBySlug | getAllExperiments_experiments,
 ) {
-  const status = experiment?.status;
-  const publishStatus = experiment?.publishStatus;
+  const {
+    status,
+    statusNext,
+    publishStatus,
+    isEnrollmentPausePending,
+    isArchived,
+  } = experiment || {};
 
   // The experiment is or was out in the wild (live or complete)
   const launched = [
@@ -23,6 +29,7 @@ export function getStatus(
   ].includes(status!);
 
   return {
+    archived: isArchived,
     draft: status === NimbusExperimentStatus.DRAFT,
     preview: status === NimbusExperimentStatus.PREVIEW,
     live: status === NimbusExperimentStatus.LIVE,
@@ -31,7 +38,14 @@ export function getStatus(
     approved: publishStatus === NimbusExperimentPublishStatus.APPROVED,
     review: publishStatus === NimbusExperimentPublishStatus.REVIEW,
     waiting: publishStatus === NimbusExperimentPublishStatus.WAITING,
-    endRequested: experiment?.statusNext === NimbusExperimentStatus.COMPLETE,
+    // TODO: EXP-1325 Need to check something else here for end enrollment in particular?
+    pauseRequested:
+      status === NimbusExperimentStatus.LIVE &&
+      statusNext === NimbusExperimentStatus.LIVE &&
+      isEnrollmentPausePending === true,
+    endRequested:
+      status === NimbusExperimentStatus.LIVE &&
+      statusNext === NimbusExperimentStatus.COMPLETE,
     launched,
   };
 }
@@ -46,3 +60,74 @@ export function editCommonRedirects({ status }: RedirectCheck) {
     return "";
   }
 }
+
+export function getSummaryAction(
+  status: StatusCheck,
+  canReview: boolean | null,
+) {
+  // has pending review approval
+  if (status.review || status.approved || status.waiting) {
+    const stringName = !canReview ? "requestSummary" : "reviewSummary";
+    if (status.pauseRequested) {
+      return LIFECYCLE_REVIEW_FLOWS.PAUSE[stringName];
+    }
+    if (status.endRequested) {
+      return LIFECYCLE_REVIEW_FLOWS.END[stringName];
+    } else {
+      return LIFECYCLE_REVIEW_FLOWS.LAUNCH[stringName];
+    }
+  }
+
+  if (!status.launched) {
+    return "Request Launch";
+  }
+  return "";
+}
+
+export type ExperimentSortSelector =
+  | keyof getAllExperiments_experiments
+  | ((experiment: getAllExperiments_experiments) => string | undefined);
+
+export const featureConfigNameSortSelector: ExperimentSortSelector = (
+  experiment,
+) => experiment.featureConfig?.name;
+
+export const ownerUsernameSortSelector: ExperimentSortSelector = (experiment) =>
+  experiment.owner?.username;
+
+export const enrollmentSortSelector: ExperimentSortSelector = ({
+  startDate,
+  proposedEnrollment,
+}) => {
+  if (startDate) {
+    const startTime = new Date(startDate).getTime();
+    const enrollmentMS = proposedEnrollment * (1000 * 60 * 60 * 24);
+    return new Date(startTime + enrollmentMS).toISOString();
+  } else {
+    return "" + proposedEnrollment;
+  }
+};
+
+export const resultsReadySortSelector: ExperimentSortSelector = (experiment) =>
+  experiment.resultsReady ? "1" : "0";
+
+export const selectFromExperiment = (
+  experiment: getAllExperiments_experiments,
+  selectBy: ExperimentSortSelector,
+) =>
+  "" +
+  (typeof selectBy === "function"
+    ? selectBy(experiment)
+    : experiment[selectBy]);
+
+export const experimentSortComparator =
+  (sortBy: ExperimentSortSelector, descending: boolean) =>
+  (
+    experimentA: getAllExperiments_experiments,
+    experimentB: getAllExperiments_experiments,
+  ) => {
+    const orderBy = descending ? -1 : 1;
+    const propertyA = selectFromExperiment(experimentA, sortBy);
+    const propertyB = selectFromExperiment(experimentB, sortBy);
+    return orderBy * propertyA.localeCompare(propertyB);
+  };

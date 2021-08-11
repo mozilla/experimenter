@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatus, NimbusExperimentPublishStatus } from "./globalTypes";
+import { NimbusExperimentApplication, NimbusExperimentFirefoxMinVersion, NimbusExperimentStatus, NimbusExperimentPublishStatus } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getAllExperiments
@@ -14,15 +14,26 @@ export interface getAllExperiments_experiments_owner {
 }
 
 export interface getAllExperiments_experiments_featureConfig {
+  id: number | null;
   slug: string;
   name: string;
+  description: string | null;
+  application: NimbusExperimentApplication | null;
+  ownerEmail: string | null;
+  schema: string | null;
 }
 
 export interface getAllExperiments_experiments {
+  isArchived: boolean | null;
   name: string;
   owner: getAllExperiments_experiments_owner;
+  featureConfig: getAllExperiments_experiments_featureConfig | null;
   slug: string;
+  application: NimbusExperimentApplication | null;
+  firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;
   startDate: DateTime | null;
+  isEnrollmentPausePending: boolean | null;
+  isEnrollmentPaused: boolean | null;
   proposedDuration: number;
   proposedEnrollment: number;
   computedEndDate: DateTime | null;
@@ -31,7 +42,6 @@ export interface getAllExperiments_experiments {
   publishStatus: NimbusExperimentPublishStatus | null;
   monitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
-  featureConfig: getAllExperiments_experiments_featureConfig | null;
 }
 
 export interface getAllExperiments {

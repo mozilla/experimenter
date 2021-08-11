@@ -39,7 +39,7 @@ export const EXTERNAL_URLS = {
   RISK_REVENUE:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-riskREV",
   SIGNOFF_QA:
-    "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-QAsign-offsignQA",
+    "https://docs.google.com/document/d/1oz1YyaaBI-oHUDsktWA-dLtX7WzhYqs7C121yOPKo2w/edit",
   SIGNOFF_VP:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-VPSign-offsignVP",
   SIGNOFF_LEGAL:
@@ -60,6 +60,33 @@ export const RISK_QUESTIONS = {
 export const TOOLTIP_DURATION =
   "This is the total duration of the experiment, including the enrollment period.";
 
+export const LIFECYCLE_REVIEW_FLOWS = {
+  LAUNCH: {
+    buttonTitle: "Launch Experiment",
+    description: "launch this experiment",
+    requestSummary: "Requested Launch",
+    reviewSummary: "Review Launch Request",
+  },
+  PAUSE: {
+    buttonTitle: "End Enrollment for Experiment",
+    description: "end enrollment for this experiment",
+    requestSummary: "Requested End Enrollment",
+    reviewSummary: "Review End Enrollment Request",
+  },
+  END: {
+    buttonTitle: "End Experiment",
+    description: "end this experiment",
+    requestSummary: "Requested End",
+    reviewSummary: "Review End Request",
+  },
+  NONE: {
+    buttonTitle: "",
+    description: "",
+    requestSummary: "",
+    reviewSummary: "",
+  },
+} as const;
+
 export const CHANGELOG_MESSAGES = {
   CREATED_EXPERIMENT: "Created Experiment",
   UPDATED_BRANCHES: "Updated Branches",
@@ -70,6 +97,8 @@ export const CHANGELOG_MESSAGES = {
   RETURNED_TO_DRAFT: "Returned to Draft Status",
   REQUESTED_REVIEW: "Review Requested for Launch",
   REVIEW_APPROVED: "Launch Review Approved",
+  REQUESTED_REVIEW_END_ENROLLMENT: "Requested Review to End Enrollment",
+  END_ENROLLMENT_APPROVED: "End Enrollment Approved",
   REQUESTED_REVIEW_END: "Requested Review to End",
   END_APPROVED: "End Review Approved",
 } as const;

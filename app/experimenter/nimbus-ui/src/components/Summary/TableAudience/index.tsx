@@ -57,7 +57,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
         )}
         {experiment.targetingConfigSlug && (
           <tr>
-            <th>Custom audience</th>
+            <th>Advanced Targeting</th>
             <td data-testid="experiment-target">
               {displayConfigLabelOrNotSet(
                 experiment.targetingConfigSlug,
@@ -67,7 +67,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
           </tr>
         )}
         <tr>
-          <th>Targeted Locales</th>
+          <th>Locales</th>
           <td data-testid="experiment-locales">
             {experiment.locales.length > 0
               ? experiment.locales.map((l) => l.name).join(", ")
@@ -75,7 +75,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
           </td>
         </tr>
         <tr>
-          <th>Targeted Countries</th>
+          <th>Countries</th>
           <td data-testid="experiment-countries">
             {experiment.countries.length > 0
               ? experiment.countries.map((c) => c.name).join(", ")
@@ -90,7 +90,10 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
               data-testid="experiment-target-expression"
               className="text-monospace"
             >
-              <Code codeString={experiment.jexlTargetingExpression} />
+              <Code
+                className="text-wrap"
+                codeString={experiment.jexlTargetingExpression}
+              />
             </td>
           </tr>
         ) : null}

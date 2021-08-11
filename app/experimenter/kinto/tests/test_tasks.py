@@ -1,5 +1,3 @@
-import datetime
-
 import mock
 from django.conf import settings
 from django.core import mail
@@ -7,7 +5,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
+from experimenter.experiments.models import (
+    NimbusChangeLog,
+    NimbusEmail,
+    NimbusExperiment,
+)
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.kinto import tasks
 from experimenter.kinto.client import KINTO_REVIEW_STATUS, KINTO_ROLLBACK_STATUS
@@ -51,10 +53,13 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         self.addCleanup(mock_end_task_patcher.stop)
 
     def test_check_with_empty_queue_pushes_nothing(self):
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_no_pending_review()
+
         tasks.nimbus_check_kinto_push_queue_by_collection(
             settings.KINTO_COLLECTION_NIMBUS_DESKTOP
         )
+
         self.mock_kinto_client.patch_collection.assert_not_called()
         self.mock_push_task.assert_not_called()
         self.mock_update_task.assert_not_called()
@@ -67,9 +72,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,
-            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
             NimbusExperimentFactory.Lifecycles.ENDING_REVIEW_REQUESTED,
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,
         ]:
             NimbusExperimentFactory.create_with_lifecycle(
                 lifecycle,
@@ -96,6 +99,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_pending_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -114,6 +118,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_no_pending_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -131,6 +136,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_no_pending_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -146,6 +152,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_no_pending_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -168,6 +175,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_pending_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -209,6 +217,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_pending_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -250,6 +259,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_pending_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -288,6 +298,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_rejected_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -330,6 +341,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_rejected_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -373,6 +385,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_rejected_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -409,7 +422,12 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         updated_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
-            published_dto=None,
+            slug="updated_experiment",
+            published_dto={
+                "id": "updated_experiment",
+                "something": "else",
+                "last_modified": "123",
+            },
         )
 
         self.setup_kinto_get_main_records([updated_experiment.slug])
@@ -426,7 +444,8 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             updated_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
         self.assertEqual(
-            updated_experiment.published_dto, {"id": updated_experiment.slug}
+            updated_experiment.published_dto,
+            {"id": updated_experiment.slug},
         )
         self.assertTrue(
             updated_experiment.changes.filter(
@@ -444,6 +463,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_pending_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -465,6 +485,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
+        self.setup_kinto_get_main_records([])
         self.setup_kinto_rejected_review()
 
         tasks.nimbus_check_kinto_push_queue_by_collection(
@@ -478,6 +499,97 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             data={"status": "to-rollback"},
             bucket="main-workspace",
+        )
+
+    def test_check_waiting_experiment_with_signed_collection_becomes_rejection(self):
+        waiting_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.setup_kinto_get_main_records([])
+        self.setup_kinto_no_pending_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
+        )
+
+        waiting_experiment = NimbusExperiment.objects.get(id=waiting_experiment.id)
+        self.assertEqual(waiting_experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertIsNone(waiting_experiment.status_next)
+        self.assertEqual(
+            waiting_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+        self.assertTrue(
+            waiting_experiment.changes.filter(
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=NimbusExperiment.Status.DRAFT,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_status=NimbusExperiment.Status.DRAFT,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                message=NimbusChangeLog.Messages.REJECTED_FROM_KINTO,
+            ).exists()
+        )
+
+    def test_launching_experiment_live_when_record_is_in_main(self):
+        launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.setup_kinto_get_main_records([launching_experiment.slug])
+        self.setup_kinto_no_pending_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
+        )
+
+        launching_experiment = NimbusExperiment.objects.get(id=launching_experiment.id)
+        self.assertEqual(launching_experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertIsNone(launching_experiment.status_next)
+        self.assertEqual(
+            launching_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
+        )
+        self.assertEqual(
+            launching_experiment.published_dto, {"id": launching_experiment.slug}
+        )
+
+        self.assertTrue(
+            launching_experiment.changes.filter(
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=NimbusExperiment.Status.DRAFT,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_status=NimbusExperiment.Status.LIVE,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            ).exists()
+        )
+
+    def test_ending_experiment_completed_when_record_is_not_in_main(self):
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        self.setup_kinto_get_main_records([experiment1.slug])
+        self.setup_kinto_no_pending_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
+        )
+
+        self.assertTrue(
+            experiment2.changes.filter(
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=NimbusExperiment.Status.LIVE,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_status=NimbusExperiment.Status.COMPLETE,
+                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                message=NimbusChangeLog.Messages.COMPLETED,
+            ).exists()
         )
 
 
@@ -511,27 +623,8 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             experiment.changes.filter(
                 old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
                 new_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                message="Pushed to Kinto",
+                message=NimbusChangeLog.Messages.LAUNCHING_TO_KINTO,
             ).exists()
-        )
-
-    def test_push_experiment_to_kinto_sends_fenix_experiment_data(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-
-        tasks.nimbus_push_experiment_to_kinto(
-            settings.KINTO_COLLECTION_NIMBUS_DESKTOP, experiment.id
-        )
-
-        data = NimbusExperimentSerializer(experiment).data
-
-        self.mock_kinto_client.create_record.assert_called_with(
-            data=data,
-            collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
-            if_not_exists=True,
         )
 
     def test_push_experiment_to_kinto_reraises_exception(self):
@@ -548,7 +641,7 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
 class TestNimbusUpdateExperimentInKinto(MockKintoClientMixin, TestCase):
     def test_updates_experiment_record_in_kinto(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -575,11 +668,12 @@ class TestNimbusUpdateExperimentInKinto(MockKintoClientMixin, TestCase):
         self.assertEqual(
             experiment.publish_status, NimbusExperiment.PublishStatus.WAITING
         )
+
         self.assertTrue(
             experiment.changes.filter(
-                old_publish_status=NimbusExperiment.PublishStatus.IDLE,
+                old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
                 new_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                message="Updated in Kinto",
+                message=NimbusChangeLog.Messages.UPDATING_IN_KINTO,
             ).exists()
         )
 
@@ -636,174 +730,7 @@ class TestNimbusEndExperimentInKinto(MockKintoClientMixin, TestCase):
             experiment.changes.filter(
                 old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
                 new_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                message=NimbusChangeLog.Messages.DELETED_FROM_KINTO,
-            ).exists()
-        )
-
-
-class TestNimbusCheckExperimentsAreLive(MockKintoClientMixin, TestCase):
-    def test_experiment_updates_when_record_is_in_main(self):
-        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
-        )
-        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
-        )
-        experiment3 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-        )
-
-        initial_change_count = experiment3.changes.count()
-
-        self.setup_kinto_get_main_records([experiment1.slug])
-        tasks.nimbus_check_experiments_are_live()
-
-        self.assertEqual(experiment3.changes.count(), initial_change_count)
-
-        experiment1 = NimbusExperiment.objects.get(id=experiment1.id)
-        self.assertEqual(experiment1.published_dto, {"id": experiment1.slug})
-
-        self.assertTrue(
-            experiment1.changes.filter(
-                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.DRAFT,
-                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                new_status=NimbusExperiment.Status.LIVE,
-                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
-            ).exists()
-        )
-
-        self.assertFalse(
-            experiment2.changes.filter(
-                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.DRAFT,
-                new_status=NimbusExperiment.Status.LIVE,
-            ).exists()
-        )
-
-
-class TestNimbusCheckExperimentsAreComplete(MockKintoClientMixin, TestCase):
-    def test_experiment_updates_when_record_is_not_in_main(self):
-        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-        )
-        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,
-        )
-        experiment3 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-        )
-
-        initial_change_count = experiment3.changes.count()
-
-        self.setup_kinto_get_main_records([experiment1.slug])
-        tasks.nimbus_check_experiments_are_complete()
-
-        self.assertEqual(experiment3.changes.count(), initial_change_count)
-
-        self.assertTrue(
-            NimbusExperiment.objects.filter(
-                id=experiment1.id,
-                status=NimbusExperiment.Status.LIVE,
-                publish_status=NimbusExperiment.PublishStatus.IDLE,
-            ).exists()
-        )
-        self.assertTrue(
-            NimbusExperiment.objects.filter(
-                id=experiment2.id,
-                status=NimbusExperiment.Status.COMPLETE,
-                publish_status=NimbusExperiment.PublishStatus.IDLE,
-            ).exists()
-        )
-        self.assertTrue(
-            NimbusExperiment.objects.filter(
-                id=experiment3.id,
-                status=NimbusExperiment.Status.DRAFT,
-                publish_status=NimbusExperiment.PublishStatus.IDLE,
-            ).exists()
-        )
-
-        self.assertFalse(
-            experiment1.changes.filter(
-                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.LIVE,
-                new_status=NimbusExperiment.Status.COMPLETE,
-                message=NimbusChangeLog.Messages.COMPLETED,
-            ).exists()
-        )
-
-        self.assertTrue(
-            experiment2.changes.filter(
-                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=NimbusExperiment.Status.LIVE,
-                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                new_status=NimbusExperiment.Status.COMPLETE,
-                new_publish_status=NimbusExperiment.PublishStatus.IDLE,
-                message=NimbusChangeLog.Messages.COMPLETED,
-            ).exists()
-        )
-
-    def test_experiment_ending_email_not_sent_for_experiments_before_proposed_end_date(
-        self,
-    ):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            proposed_duration=10,
-        )
-        self.assertEqual(experiment.emails.count(), 0)
-        self.setup_kinto_get_main_records([experiment.slug])
-        tasks.nimbus_check_experiments_are_complete()
-        self.assertEqual(experiment.emails.count(), 0)
-
-    def test_experiment_ending_email_sent_for_experiments_past_proposed_end_date(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            proposed_duration=10,
-        )
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
-
-        self.assertEqual(experiment.emails.count(), 0)
-
-        self.setup_kinto_get_main_records([experiment.slug])
-        tasks.nimbus_check_experiments_are_complete()
-
-        self.assertTrue(
-            experiment.emails.filter(
-                type=NimbusExperiment.EmailType.EXPERIMENT_END
-            ).exists()
-        )
-        self.assertEqual(len(mail.outbox), 1)
-
-    def test_only_completes_experiments_with_matching_application_collection(self):
-        desktop_experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        fenix_experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
-            application=NimbusExperiment.Application.FENIX,
-        )
-
-        def get_records(bucket, collection):
-            if collection == settings.KINTO_COLLECTION_NIMBUS_DESKTOP:
-                return [{"id": desktop_experiment.slug}]
-            if collection == settings.KINTO_COLLECTION_NIMBUS_MOBILE:
-                return [{"id": fenix_experiment.slug}]
-
-        self.mock_kinto_client.get_records.side_effect = get_records
-        tasks.nimbus_check_experiments_are_complete()
-
-        self.assertTrue(
-            NimbusExperiment.objects.filter(
-                id=desktop_experiment.id, status=NimbusExperiment.Status.LIVE
-            ).exists()
-        )
-        self.assertTrue(
-            NimbusExperiment.objects.filter(
-                id=fenix_experiment.id, status=NimbusExperiment.Status.LIVE
+                message=NimbusChangeLog.Messages.DELETING_FROM_KINTO,
             ).exists()
         )
 
@@ -823,6 +750,16 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestC
 
         data = NimbusExperimentSerializer(should_publish_experiment).data
 
+        should_publish_experiment = NimbusExperiment.objects.get(
+            id=should_publish_experiment.id
+        )
+        self.assertEqual(should_publish_experiment.published_dto, data)
+
+        should_unpublish_experiment = NimbusExperiment.objects.get(
+            id=should_unpublish_experiment.id
+        )
+        self.assertIsNone(should_unpublish_experiment.published_dto)
+
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
             collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
@@ -839,3 +776,103 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestC
         self.mock_kinto_client.create_record.side_effect = Exception
         with self.assertRaises(Exception):
             tasks.nimbus_synchronize_preview_experiments_in_kinto()
+
+
+class TestNimbusSendEndEnrollmentEmail(MockKintoClientMixin, TestCase):
+    def test_enrollment_ending_email_not_sent_for_experiments_before_enrollment_end_date(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+            proposed_duration=20,
+        )
+
+        tasks.nimbus_send_emails()
+
+        self.assertEqual(experiment.emails.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_enrollment_ending_email_not_sent_for_experiments_already_sent(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=0,
+            proposed_duration=20,
+        )
+
+        NimbusEmail.objects.create(
+            experiment=experiment, type=NimbusExperiment.EmailType.ENROLLMENT_END
+        )
+
+        tasks.nimbus_send_emails()
+
+        self.assertEqual(experiment.emails.count(), 1)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_enrollment_ending_email_sent_for_experiments_after_enrollment_end_date(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=0,
+            proposed_duration=20,
+        )
+
+        tasks.nimbus_send_emails()
+
+        self.assertTrue(
+            experiment.emails.filter(
+                type=NimbusExperiment.EmailType.ENROLLMENT_END
+            ).exists()
+        )
+        self.assertEqual(experiment.emails.count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_experiment_ending_email_not_sent_for_experiments_before_enrollment_end_date(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+            proposed_duration=20,
+        )
+
+        tasks.nimbus_send_emails()
+
+        self.assertEqual(experiment.emails.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_experiment_ending_email_not_sent_for_experiments_already_sent(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+            proposed_duration=0,
+        )
+
+        NimbusEmail.objects.create(
+            experiment=experiment, type=NimbusExperiment.EmailType.EXPERIMENT_END
+        )
+
+        tasks.nimbus_send_emails()
+
+        self.assertEqual(experiment.emails.count(), 1)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_experiment_ending_email_sent_for_experiments_after_enrollment_end_date(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+            proposed_duration=0,
+        )
+
+        tasks.nimbus_send_emails()
+
+        self.assertTrue(
+            experiment.emails.filter(
+                type=NimbusExperiment.EmailType.EXPERIMENT_END
+            ).exists()
+        )
+        self.assertEqual(experiment.emails.count(), 1)
+        self.assertEqual(len(mail.outbox), 1)

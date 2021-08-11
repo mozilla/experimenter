@@ -2,8 +2,7 @@ version: 2.1
 jobs:
   check:
     machine:
-      docker_layer_caching: true
-      image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
+      image: ubuntu-2004:202105-01 # Ubuntu 20.04, Docker v20.10.8, Docker Compose v1.29.2
     resource_class: large
     working_directory: ~/experimenter
     steps:
@@ -42,8 +41,7 @@ jobs:
 
   integration_legacy:
     machine:
-      docker_layer_caching: true
-      image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
+      image: ubuntu-2004:202105-01 # Ubuntu 20.04, Docker v20.10.8, Docker Compose v1.29.2
     resource_class: xlarge
     working_directory: ~/experimenter
     steps:
@@ -64,8 +62,7 @@ jobs:
 
   integration_nimbus:
     machine:
-      docker_layer_caching: true
-      image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
+      image: ubuntu-2004:202105-01 # Ubuntu 20.04, Docker v20.10.8, Docker Compose v1.29.2
     resource_class: xlarge
     working_directory: ~/experimenter
     steps:
@@ -87,8 +84,7 @@ jobs:
   deploy:
     working_directory: ~/experimenter
     machine:
-      docker_layer_caching: true
-      image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
+      image: ubuntu-2004:202105-01 # Ubuntu 20.04, Docker v20.10.8, Docker Compose v1.29.2
     steps:
       - checkout
       - deploy:
@@ -97,12 +93,16 @@ jobs:
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             make build_dev
             make build_test
+            make build_ui
+            ./scripts/store_git_info.sh
             make build_prod
             docker tag app:dev ${DOCKERHUB_REPO}:build_dev
             docker tag app:test ${DOCKERHUB_REPO}:build_test
+            docker tag app:ui ${DOCKERHUB_REPO}:build_ui
             docker tag app:deploy ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:build_dev
             docker push ${DOCKERHUB_REPO}:build_test
+            docker push ${DOCKERHUB_REPO}:build_ui
             docker push ${DOCKERHUB_REPO}:latest
 
 workflows:

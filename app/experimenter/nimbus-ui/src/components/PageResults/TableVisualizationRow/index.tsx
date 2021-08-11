@@ -24,10 +24,6 @@ import { ReactComponent as SignificancePositive } from "./significance-positive.
 // This is a mapping for which view on the analysis
 // to display given the branch and table type.
 const dataTypeMapping = {
-  [TABLE_LABEL.RESULTS]: {
-    [VARIANT_TYPE.CONTROL]: BRANCH_COMPARISON.ABSOLUTE,
-    [VARIANT_TYPE.VARIANT]: BRANCH_COMPARISON.ABSOLUTE,
-  },
   [TABLE_LABEL.HIGHLIGHTS]: {
     [VARIANT_TYPE.CONTROL]: BRANCH_COMPARISON.ABSOLUTE,
     [VARIANT_TYPE.VARIANT]: BRANCH_COMPARISON.UPLIFT,
@@ -238,55 +234,66 @@ const TableVisualizationRow: React.FC<{
     userCountsList.sort(formattedAnalysisPointComparator);
     metricDataList.sort(formattedAnalysisPointComparator);
 
-    metricDataList.forEach((dataPoint: FormattedAnalysisPoint, i: number) => {
-      const { lower, upper, point, count } = dataPoint;
-      const userCountMetric = userCountsList[i]["point"];
-      const significance = metricData["significance"]?.[window][i + 1];
+    if (metricDataList.length > 0) {
+      metricDataList.forEach((dataPoint: FormattedAnalysisPoint, i: number) => {
+        const { lower, upper, point, count } = dataPoint;
+        const userCountMetric = userCountsList[i]["point"];
+        const significance = metricData["significance"]?.[window][i + 1];
 
-      switch (displayType) {
-        case DISPLAY_TYPE.POPULATION:
-          field = populationField(point!, percent);
-          break;
-        case DISPLAY_TYPE.COUNT:
-          field = countField(
-            lower!,
-            upper!,
-            significance,
-            metricName,
-            tableLabel,
-            tooltipText,
-            is_control,
-          );
-          break;
-        case DISPLAY_TYPE.PERCENT:
-        case DISPLAY_TYPE.CONVERSION_RATE:
-          field = percentField(
-            lower!,
-            upper!,
-            significance,
-            metricName,
-            tableLabel,
-            tooltipText,
-            is_control,
-          );
-          break;
-        case DISPLAY_TYPE.CONVERSION_COUNT:
-          field = conversionCountField(count!, userCountMetric);
-          break;
-        case DISPLAY_TYPE.CONVERSION_CHANGE:
-          field = conversionChangeField(lower!, upper!, bounds, significance);
-          break;
-      }
-      fieldList.push({ field, tooltipText, className });
-    });
+        switch (displayType) {
+          case DISPLAY_TYPE.POPULATION:
+            field = populationField(point!, percent);
+            break;
+          case DISPLAY_TYPE.COUNT:
+            field = countField(
+              lower!,
+              upper!,
+              significance,
+              metricName,
+              tableLabel,
+              tooltipText,
+              is_control,
+            );
+            break;
+          case DISPLAY_TYPE.PERCENT:
+          case DISPLAY_TYPE.CONVERSION_RATE:
+            field = percentField(
+              lower!,
+              upper!,
+              significance,
+              metricName,
+              tableLabel,
+              tooltipText,
+              is_control,
+            );
+            break;
+          case DISPLAY_TYPE.CONVERSION_COUNT:
+            field = conversionCountField(count!, userCountMetric!);
+            break;
+          case DISPLAY_TYPE.CONVERSION_CHANGE:
+            field = conversionChangeField(lower!, upper!, bounds, significance);
+            break;
+        }
+        fieldList.push({ field, tooltipText, className });
+      });
+      // Total number of users is present in the absolute branch comparison data. This displays
+      // that number on the results table even if comparison is to the relative uplift.
+    } else if (
+      tableLabel === TABLE_LABEL.RESULTS &&
+      branchComparison === BRANCH_COMPARISON.UPLIFT &&
+      displayType === DISPLAY_TYPE.POPULATION
+    ) {
+      const { point } = userCountsList[0];
+      field = populationField(point!, percent);
+    }
   }
   /**
-   * If fieldList is still empty then we either had no metric
-   * data at all, or no metric data for the specific branchComparison requested.
+   * If fieldList is still empty then we either had no metric data at all, or no
+   * metric data for the specific branchComparison requested.
    *
    * The former happens when there is not enough data for retention, for example.
-   * The latter happens when we try to look at uplift for control and this should
-   * fall back to "baseline".
+   * The latter happens when we try to look at relative uplift for control and this
+   * should fall back to "baseline".
    *
    * In either case, we need to push the current values below to be displayed.
    **/

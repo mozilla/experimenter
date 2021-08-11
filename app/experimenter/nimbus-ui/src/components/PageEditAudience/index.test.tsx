@@ -101,11 +101,13 @@ describe("PageEditAudience", () => {
 const MOCK_FORM_DATA = {
   channel: NimbusExperimentChannel.NIGHTLY,
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion.FIREFOX_83,
-  targetingConfigSlug: NimbusExperimentTargetingConfigSlug.US_ONLY,
+  targetingConfigSlug: NimbusExperimentTargetingConfigSlug.TARGETING_FIRST_RUN,
   populationPercent: "40",
   totalEnrolledClients: 68000,
   proposedEnrollment: "1.0",
   proposedDuration: 28,
+  countries: [1],
+  locales: [1],
 };
 
 const Subject = ({

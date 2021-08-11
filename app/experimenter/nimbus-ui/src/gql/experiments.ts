@@ -27,6 +27,7 @@ export const GET_EXPERIMENT_QUERY = gql`
   query getExperiment($slug: String!) {
     experimentBySlug(slug: $slug) {
       id
+      isArchived
       name
       slug
       status
@@ -109,6 +110,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         link
       }
 
+      isEnrollmentPausePending
       isEnrollmentPaused
       enrollmentEndDate
 
@@ -121,6 +123,8 @@ export const GET_EXPERIMENT_QUERY = gql`
       }
       rejection {
         message
+        oldStatus
+        oldStatusNext
         changedOn
         changedBy {
           email
@@ -136,11 +140,11 @@ export const GET_EXPERIMENT_QUERY = gql`
       reviewUrl
 
       locales {
-        code
+        id
         name
       }
       countries {
-        code
+        id
         name
       }
     }
@@ -150,12 +154,26 @@ export const GET_EXPERIMENT_QUERY = gql`
 export const GET_EXPERIMENTS_QUERY = gql`
   query getAllExperiments {
     experiments {
+      isArchived
       name
       owner {
         username
       }
+      featureConfig {
+        id
+        slug
+        name
+        description
+        application
+        ownerEmail
+        schema
+      }
       slug
+      application
+      firefoxMinVersion
       startDate
+      isEnrollmentPausePending
+      isEnrollmentPaused
       proposedDuration
       proposedEnrollment
       computedEndDate

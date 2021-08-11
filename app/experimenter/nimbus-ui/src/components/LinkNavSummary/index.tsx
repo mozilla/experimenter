@@ -4,9 +4,8 @@
 
 import React, { useEffect, useState } from "react";
 import { ReactComponent as Airplane } from "../../images/airplane.svg";
-import { StatusCheck } from "../../lib/experiment";
+import { getSummaryAction, StatusCheck } from "../../lib/experiment";
 import { LinkNav } from "../LinkNav";
-import getSummaryAction from "../PageSummary/getSummaryAction";
 
 type LinkNavSummaryProps = {
   slug: string;

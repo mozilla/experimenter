@@ -13,7 +13,6 @@ const EndExperiment = ({
   onSubmit: () => void;
 }) => {
   const [showEndConfirmation, setShowEndConfirmation] = useState(false);
-  const [isLoadingOverride, setIsLoadingOverride] = useState(false);
 
   const toggleShowEndConfirmation = useCallback(
     () => setShowEndConfirmation(!showEndConfirmation),
@@ -32,11 +31,8 @@ const EndExperiment = ({
           <div>
             <Button
               variant="primary"
-              onClick={() => {
-                setIsLoadingOverride(true);
-                onSubmit();
-              }}
-              disabled={isLoading || isLoadingOverride}
+              onClick={onSubmit}
+              disabled={isLoading}
               data-testid="end-experiment-confirm"
             >
               Yes, end the experiment
@@ -46,7 +42,7 @@ const EndExperiment = ({
               variant="secondary"
               className="ml-2"
               onClick={toggleShowEndConfirmation}
-              disabled={isLoading || isLoadingOverride}
+              disabled={isLoading}
               data-testid="end-experiment-cancel"
             >
               Cancel

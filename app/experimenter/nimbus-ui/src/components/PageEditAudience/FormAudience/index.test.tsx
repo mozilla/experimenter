@@ -34,9 +34,21 @@ describe("FormAudience", () => {
         experiment={{
           ...MOCK_EXPERIMENT,
           application: NimbusExperimentApplication.DESKTOP,
+          channel: NimbusExperimentChannel.NIGHTLY,
         }}
         config={{
           ...MOCK_CONFIG,
+          channel: [
+            { label: "Nightly", value: "NIGHTLY" },
+            { label: "Release", value: "RELEASE" },
+          ],
+          applicationConfigs: [
+            {
+              application: NimbusExperimentApplication.DESKTOP,
+              channels: [{ label: "Nightly", value: "NIGHTLY" }],
+              supportsLocaleCountry: true,
+            },
+          ],
           targetingConfigSlug: [
             {
               label: "No Targeting",
@@ -47,8 +59,8 @@ describe("FormAudience", () => {
               ],
             },
             {
-              label: "Us Only",
-              value: "US_ONLY",
+              label: "Mac Only",
+              value: "MAC_ONLY",
               applicationValues: [NimbusExperimentApplication.DESKTOP],
             },
             {
@@ -60,34 +72,74 @@ describe("FormAudience", () => {
         }}
       />,
     );
-    await waitFor(() => {
-      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
-    });
+    await screen.findByTestId("FormAudience");
     expect(screen.getByTestId("learn-more-link")).toHaveAttribute(
       "href",
       EXTERNAL_URLS.WORKFLOW_MANA_DOC,
     );
-    const targetingConfigSlug = screen.queryByTestId("targetingConfigSlug");
-    expect(targetingConfigSlug).toBeInTheDocument();
-    const targetingConfigSlugSelect = targetingConfigSlug as HTMLSelectElement;
-    expect(targetingConfigSlugSelect.value).toEqual(
+    const targetingConfigSlug = (await screen.findByTestId(
+      "targetingConfigSlug",
+    )) as HTMLSelectElement;
+    expect(targetingConfigSlug.value).toEqual(
       MOCK_CONFIG!.targetingConfigSlug![0]!.value,
     );
 
     // Assert that the targeting choices are filtered for application
     expect(
-      Array.from(targetingConfigSlugSelect.options).map((node) => node.value),
-    ).toEqual(["NO_TARGETING", "US_ONLY"]);
+      Array.from(targetingConfigSlug.options).map((node) => node.value),
+    ).toEqual(["NO_TARGETING", "MAC_ONLY"]);
 
-    // Assert that we have all the channels available
-    for (const channel of MOCK_CONFIG.channel!) {
-      const { label } = channel!;
-      expect(screen.getByText(label!)).toBeInTheDocument();
-    }
+    // Assert that we have only the application channels available
+    expect(screen.getByText("Nightly")).toBeInTheDocument();
+    expect(screen.queryByText("Release")).not.toBeInTheDocument();
 
     expect(
       await screen.findByTestId("tooltip-duration-audience"),
     ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
+
+    expect(screen.getByTestId("locales")).toHaveTextContent(
+      MOCK_EXPERIMENT.locales[0]!.name!,
+    );
+
+    expect(screen.getByTestId("countries")).toHaveTextContent(
+      MOCK_EXPERIMENT.countries[0]!.name!,
+    );
+  });
+
+  it("renders with disabled locale/country for applications that don't support them", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplication.DESKTOP,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          applicationConfigs: [
+            {
+              application: NimbusExperimentApplication.DESKTOP,
+              channels: [{ label: "Nightly", value: "NIGHTLY" }],
+              supportsLocaleCountry: false,
+            },
+          ],
+        }}
+      />,
+    );
+    await screen.findByTestId("FormAudience");
+    expect(screen.getByTestId("locales").querySelector("input")).toBeDisabled();
+    expect(
+      screen.getByTestId("countries").querySelector("input"),
+    ).toBeDisabled();
+    expect(
+      screen.getByText(
+        "This application does not currently support targeting by locale.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "This application does not currently support targeting by country.",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("renders server errors", async () => {
@@ -96,32 +148,30 @@ describe("FormAudience", () => {
       channel: ["Cannot tune in this channel"],
       firefox_min_version: ["Bad min version"],
       targeting_config_slug: ["This slug is icky"],
+      countries: ["This place doesn't even exist"],
+      locales: ["We don't have that locale"],
       population_percent: ["This is not a percentage"],
       total_enrolled_clients: ["Need a number here, bud."],
       proposed_enrollment: ["Emoji are not numbers"],
       proposed_duration: ["No negative numbers"],
     };
-    const { container } = render(<Subject submitErrors={submitErrors} />);
-    await waitFor(() => {
-      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
-    });
+    render(<Subject submitErrors={submitErrors} />);
+    await screen.findByTestId("FormAudience");
     for (const [submitErrorName, [error]] of Object.entries(submitErrors)) {
       const fieldName = snakeToCamelCase(submitErrorName);
       if (fieldName === "*") {
         expect(screen.getByTestId("submit-error")).toHaveTextContent(error);
       } else {
-        expect(
-          container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
-        ).toHaveTextContent(error);
+        await screen.findByText(error, {
+          selector: `.invalid-feedback[data-for=${fieldName}]`,
+        });
       }
     }
   });
 
   it("renders without error with default values", async () => {
     renderSubjectWithDefaultValues();
-    await waitFor(() => {
-      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
-    });
+    await screen.findByTestId("FormAudience");
 
     for (const [fieldName, expected] of [
       ["firefoxMinVersion", NimbusExperimentFirefoxMinVersion.NO_VERSION],
@@ -134,6 +184,9 @@ describe("FormAudience", () => {
       expect(field).toBeInTheDocument();
       expect((field as HTMLInputElement).value).toEqual(expected);
     }
+
+    expect(screen.getByTestId("locales")).toHaveTextContent("All Locales");
+    expect(screen.getByTestId("countries")).toHaveTextContent("All Countries");
   });
 
   it("calls onSubmit when save and next buttons are clicked", async () => {
@@ -146,23 +199,26 @@ describe("FormAudience", () => {
       totalEnrolledClients: MOCK_EXPERIMENT.totalEnrolledClients,
       proposedEnrollment: "" + MOCK_EXPERIMENT.proposedEnrollment,
       proposedDuration: "" + MOCK_EXPERIMENT.proposedDuration,
+      countries: MOCK_EXPERIMENT.countries.map((v) => "" + v.id),
+      locales: MOCK_EXPERIMENT.locales.map((v) => "" + v.id),
     };
     render(<Subject {...{ onSubmit }} />);
     await screen.findByTestId("FormAudience");
     const submitButton = screen.getByTestId("submit-button");
     const nextButton = screen.getByTestId("next-button");
 
-    await act(async () => {
-      fireEvent.click(submitButton);
-      fireEvent.click(nextButton);
+    fireEvent.click(submitButton);
+    fireEvent.click(nextButton);
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledTimes(2);
+      expect(onSubmit.mock.calls).toEqual([
+        // Save button just saves
+        [expected, false],
+        // Next button advances to next page
+        [expected, true],
+      ]);
     });
-    expect(onSubmit).toHaveBeenCalledTimes(2);
-    expect(onSubmit.mock.calls).toEqual([
-      // Save button just saves
-      [expected, false],
-      // Next button advances to next page
-      [expected, true],
-    ]);
   });
 
   it("accepts commas in the expected number of clients field (EXP-761)", async () => {
@@ -281,6 +337,8 @@ describe("FormAudience", () => {
         "Where we can dance the whole night away",
       ],
       channel: ["Underneath the electric stars."],
+      countries: ["Just come with me"],
+      locales: ["We can shake it loose right away"],
     });
   });
 });
@@ -333,8 +391,8 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
             applicationValues: [NimbusExperimentApplication.DESKTOP, "TOASTER"],
           },
           {
-            label: "Us Only",
-            value: "US_ONLY",
+            label: "Mac Only",
+            value: "MAC_ONLY",
             applicationValues: [NimbusExperimentApplication.DESKTOP],
           },
           {
@@ -365,6 +423,8 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         proposedDuration: 0,
         proposedEnrollment: 0,
         targetingConfigSlug: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
+        countries: [],
+        locales: [],
       }}
     />,
   );

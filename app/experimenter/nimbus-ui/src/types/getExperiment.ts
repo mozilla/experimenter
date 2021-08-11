@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusExperimentTargetingConfigSlug, NimbusDocumentationLinkTitle } from "./globalTypes";
+import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusDocumentationLinkTitle, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -72,6 +72,8 @@ export interface getExperiment_experimentBySlug_rejection_changedBy {
 
 export interface getExperiment_experimentBySlug_rejection {
   message: string | null;
+  oldStatus: NimbusChangeLogOldStatus | null;
+  oldStatusNext: NimbusChangeLogOldStatusNext | null;
   changedOn: DateTime;
   changedBy: getExperiment_experimentBySlug_rejection_changedBy;
 }
@@ -86,17 +88,18 @@ export interface getExperiment_experimentBySlug_timeout {
 }
 
 export interface getExperiment_experimentBySlug_locales {
-  code: string | null;
+  id: number | null;
   name: string | null;
 }
 
 export interface getExperiment_experimentBySlug_countries {
-  code: string | null;
+  id: number | null;
   name: string | null;
 }
 
 export interface getExperiment_experimentBySlug {
   id: number | null;
+  isArchived: boolean | null;
   name: string;
   slug: string;
   status: NimbusExperimentStatus | null;
@@ -115,7 +118,7 @@ export interface getExperiment_experimentBySlug {
   secondaryOutcomes: (string | null)[] | null;
   channel: NimbusExperimentChannel | null;
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;
-  targetingConfigSlug: NimbusExperimentTargetingConfigSlug | null;
+  targetingConfigSlug: string | null;
   jexlTargetingExpression: string | null;
   populationPercent: string | null;
   totalEnrolledClients: number;
@@ -132,6 +135,7 @@ export interface getExperiment_experimentBySlug {
   riskPartnerRelated: boolean | null;
   signoffRecommendations: getExperiment_experimentBySlug_signoffRecommendations | null;
   documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
+  isEnrollmentPausePending: boolean | null;
   isEnrollmentPaused: boolean | null;
   enrollmentEndDate: DateTime | null;
   canReview: boolean | null;

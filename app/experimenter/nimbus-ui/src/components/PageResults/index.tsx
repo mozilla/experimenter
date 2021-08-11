@@ -9,9 +9,12 @@ import { useConfig } from "../../hooks";
 import { ReactComponent as CollapseMinus } from "../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
 import {
+  BRANCH_COMPARISON,
   GROUP,
   HIGHLIGHTS_METRICS_LIST,
+  METRIC_TYPE,
 } from "../../lib/visualization/constants";
+import { BranchComparisonValues } from "../../lib/visualization/types";
 import {
   analysisUnavailable,
   getSortedBranches,
@@ -21,8 +24,7 @@ import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
 import TableHighlights from "./TableHighlights";
 import TableHighlightsOverview from "./TableHighlightsOverview";
-import TableMetricPrimary from "./TableMetricPrimary";
-import TableMetricSecondary from "./TableMetricSecondary";
+import TableMetricCount from "./TableMetricCount";
 import TableResults from "./TableResults";
 import TableResultsWeekly from "./TableResultsWeekly";
 
@@ -33,6 +35,23 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     search_metrics: useState(true),
     other_metrics: useState(true),
   };
+
+  // show relative comparison by default
+  // TODO: expand this functionality to other tables, EXP-1551
+  const [branchComparison, setBranchComparison] =
+    useState<BranchComparisonValues>(BRANCH_COMPARISON.UPLIFT);
+  const branchComparisonIsRelative =
+    branchComparison === BRANCH_COMPARISON.UPLIFT;
+  const toggleBranchComparison = () => {
+    if (branchComparisonIsRelative) {
+      setBranchComparison(BRANCH_COMPARISON.ABSOLUTE);
+    } else {
+      setBranchComparison(BRANCH_COMPARISON.UPLIFT);
+    }
+  };
+  const toggleBranchComparisonText = branchComparisonIsRelative
+    ? "absolute"
+    : "relative";
 
   return (
     <AppLayoutWithExperiment
@@ -85,10 +104,19 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             <TableHighlightsOverview {...{ experiment }} />
 
             <div id="results_summary">
-              <h2 className="h5 mb-3">Results Summary</h2>
+              <div className="d-flex justify-content-between mb-3">
+                <h2 className="h5">Results Summary</h2>
+                <button
+                  data-testid="toggle-branch-comparison"
+                  className="btn btn-secondary"
+                  onClick={toggleBranchComparison}
+                >
+                  <small>See {toggleBranchComparisonText} comparison </small>
+                </button>
+              </div>
               {analysis?.overall && (
                 <TableResults
-                  {...{ experiment, sortedBranches }}
+                  {...{ experiment, sortedBranches, branchComparison }}
                   results={analysis!}
                 />
               )}
@@ -98,7 +126,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   weeklyResults={analysis.weekly}
                   hasOverallResults={!!analysis?.overall}
                   metricsList={HIGHLIGHTS_METRICS_LIST}
-                  {...{ sortedBranches }}
+                  {...{ sortedBranches, branchComparison }}
                 />
               )}
             </div>
@@ -109,15 +137,17 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   const outcome = configOutcomes!.find((set) => {
                     return set?.slug === slug;
                   });
-
-                  return (
-                    <TableMetricPrimary
-                      key={slug}
-                      results={analysis?.overall!}
-                      outcome={outcome!}
+                  return outcome?.metrics?.map((metric) => (
+                    <TableMetricCount
+                      key={metric?.slug}
+                      results={analysis}
+                      outcomeSlug={metric?.slug!}
+                      outcomeDefaultName={metric?.friendlyName!}
+                      group={GROUP.OTHER}
+                      metricType={METRIC_TYPE.PRIMARY}
                       {...{ sortedBranches }}
                     />
-                  );
+                  ));
                 })}
               {analysis?.overall &&
                 experiment.secondaryOutcomes?.map((slug) => {
@@ -126,13 +156,13 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   });
 
                   return (
-                    <TableMetricSecondary
+                    <TableMetricCount
                       key={outcome!.slug}
                       results={analysis}
                       outcomeSlug={outcome!.slug!}
                       outcomeDefaultName={outcome!.friendlyName!}
                       group={GROUP.OTHER}
-                      isDefault={false}
+                      metricType={METRIC_TYPE.DEFAULT_SECONDARY}
                       {...{ sortedBranches }}
                     />
                   );
@@ -173,7 +203,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                           {analysis.other_metrics?.[group] &&
                             Object.keys(analysis.other_metrics[group]).map(
                               (metric: string) => (
-                                <TableMetricSecondary
+                                <TableMetricCount
                                   key={metric}
                                   results={analysis}
                                   outcomeSlug={metric}

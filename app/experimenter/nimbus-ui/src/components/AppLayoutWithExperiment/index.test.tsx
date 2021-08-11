@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as apollo from "@apollo/client";
 import { MockedResponse } from "@apollo/client/testing";
 import { navigate } from "@reach/router";
 import { act, render, screen, waitFor } from "@testing-library/react";
@@ -32,6 +33,20 @@ describe("AppLayoutWithExperiment", () => {
     await screen.findByText("Loading...");
   });
 
+  it("renders the error alert when an error occurs querying the experiment", async () => {
+    const { mock } = mockExperimentQuery("demo-slug");
+    const error = new Error("boop");
+    const stopPolling = jest.fn();
+
+    (jest.spyOn(apollo, "useQuery") as jest.Mock).mockReturnValueOnce({
+      error,
+      stopPolling,
+    });
+
+    render(<Subject mocks={[mock]} />);
+    expect(screen.queryByTestId("apollo-error-alert")).toBeInTheDocument();
+  });
+
   it("renders not found if an experiment isn't found", async () => {
     const { mock } = mockExperimentQuery("demo-slug", null);
     render(<Subject mocks={[mock]} />);
@@ -39,6 +54,7 @@ describe("AppLayoutWithExperiment", () => {
   });
 
   describe("polling", () => {
+    jest.useFakeTimers();
     const { mock: initialMock } = mockExperimentQuery("demo-slug");
     const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
       publishStatus: NimbusExperimentPublishStatus.WAITING,
@@ -77,6 +93,30 @@ describe("AppLayoutWithExperiment", () => {
       // Review would be the next state, so ensure Draft is still "primary"
       await screen.findByText("Draft", { selector: ".text-primary" });
     });
+
+    it("renders the error warning when an error occurs polling the experiment", async () => {
+      const mockWithError = { ...initialMock, error: new Error("boop") };
+      render(
+        <Subject mocks={[initialMock, mockWithError, updatedMock]} polling />,
+      );
+      await screen.findByText("Draft", { selector: ".text-primary" });
+      expect(
+        screen.queryByTestId("polling-error-alert"),
+      ).not.toBeInTheDocument();
+
+      jest.advanceTimersByTime(POLL_INTERVAL);
+      await screen.findByTestId("polling-error-alert");
+      expect(
+        screen.queryByText("30 seconds", { exact: false }),
+      ).toBeInTheDocument();
+
+      // error is hidden when polling works as expected, should show updatedMock
+      jest.advanceTimersByTime(POLL_INTERVAL);
+      await screen.findByText("Review", { selector: ".text-primary" });
+      expect(
+        screen.queryByTestId("polling-error-alert"),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it("can redirect you somewhere else", async () => {
@@ -103,8 +143,6 @@ describe("AppLayoutWithExperiment", () => {
   });
 });
 
-jest.useFakeTimers();
-
 jest.mock("@reach/router", () => ({
   ...(jest.requireActual("@reach/router") as any),
   navigate: jest.fn(),
@@ -122,10 +160,7 @@ const Subject = ({
   redirect?: (check: RedirectCheck) => void;
 }) => (
   <RouterSlugProvider {...{ mocks }}>
-    <AppLayoutWithExperiment
-      testId="AppLayoutWithExperiment"
-      {...{ title, polling, redirect }}
-    >
+    <AppLayoutWithExperiment {...{ title, polling, redirect }}>
       {({ experiment }) => <p>{experiment.slug}</p>}
     </AppLayoutWithExperiment>
   </RouterSlugProvider>

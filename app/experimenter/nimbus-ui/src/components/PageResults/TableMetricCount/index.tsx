@@ -5,9 +5,9 @@
 import React from "react";
 import { ReactComponent as Info } from "../../../images/info.svg";
 import {
+  COUNT_METRIC_COLUMNS,
   DISPLAY_TYPE,
   METRIC_TYPE,
-  SECONDARY_METRIC_COLUMNS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import { AnalysisData } from "../../../lib/visualization/types";
@@ -16,35 +16,41 @@ import GraphsWeekly from "../GraphsWeekly";
 import TableVisualizationRow from "../TableVisualizationRow";
 import TooltipWithMarkdown from "../TooltipWithMarkdown";
 
-type SecondaryMetricStatistic = {
+type CountMetricStatistic = {
   name: string;
   displayType: DISPLAY_TYPE;
   branchComparison?: string;
   value?: string;
 };
 
-type TableMetricSecondaryProps = {
+type MetricTypes =
+  | typeof METRIC_TYPE.PRIMARY
+  | typeof METRIC_TYPE.USER_SELECTED_SECONDARY
+  | typeof METRIC_TYPE.DEFAULT_SECONDARY
+  | typeof METRIC_TYPE.GUARDRAIL;
+
+type TableMetricCountProps = {
   results: AnalysisData;
   outcomeSlug: string;
   outcomeDefaultName: string;
   group: string;
-  isDefault?: boolean;
+  metricType?: MetricTypes;
   sortedBranches: string[];
 };
 
-const getStatistics = (slug: string): Array<SecondaryMetricStatistic> => {
-  // Make a copy of `SECONDARY_METRIC_COLUMNS` since we modify it.
-  const secondaryMetricStatisticsList = SECONDARY_METRIC_COLUMNS.map(
-    (statistic: SecondaryMetricStatistic) => {
+const getStatistics = (slug: string): Array<CountMetricStatistic> => {
+  // Make a copy of `COUNT_METRIC_COLUMNS` since we modify it.
+  const countMetricStatisticsList = COUNT_METRIC_COLUMNS.map(
+    (statistic: CountMetricStatistic) => {
       statistic["value"] = slug;
       return statistic;
     },
   );
 
-  return secondaryMetricStatisticsList;
+  return countMetricStatisticsList;
 };
 
-const TableMetricSecondary = ({
+const TableMetricCount = ({
   results = {
     daily: [],
     weekly: {},
@@ -55,13 +61,10 @@ const TableMetricSecondary = ({
   outcomeSlug,
   outcomeDefaultName,
   group,
-  isDefault = true,
+  metricType = METRIC_TYPE.DEFAULT_SECONDARY,
   sortedBranches,
-}: TableMetricSecondaryProps) => {
-  const secondaryMetricStatistics = getStatistics(outcomeSlug);
-  const secondaryType = isDefault
-    ? METRIC_TYPE.DEFAULT_SECONDARY
-    : METRIC_TYPE.USER_SELECTED_SECONDARY;
+}: TableMetricCountProps) => {
+  const countMetricStatistics = getStatistics(outcomeSlug);
 
   const overallResults = results?.overall!;
   const bounds = getExtremeBounds(
@@ -97,10 +100,10 @@ const TableMetricSecondary = ({
           </div>
         </div>
         <div
-          className={`badge ${secondaryType.badge}`}
-          data-tip={secondaryType.tooltip}
+          className={`badge ${metricType.badge}`}
+          data-tip={metricType.tooltip}
         >
-          {secondaryType.label}
+          {metricType.label}
         </div>
       </h2>
 
@@ -108,7 +111,7 @@ const TableMetricSecondary = ({
         <thead>
           <tr>
             <th scope="col" className="border-bottom-0 bg-light" />
-            {SECONDARY_METRIC_COLUMNS.map((value) => (
+            {COUNT_METRIC_COLUMNS.map((value) => (
               <th
                 key={value.name}
                 className="border-bottom-0 bg-light"
@@ -128,7 +131,7 @@ const TableMetricSecondary = ({
                     <th className="align-middle" scope="row">
                       {branch}
                     </th>
-                    {secondaryMetricStatistics.map(
+                    {countMetricStatistics.map(
                       ({ displayType, branchComparison, value }) => (
                         <TableVisualizationRow
                           key={`${displayType}-${value}`}
@@ -157,4 +160,4 @@ const TableMetricSecondary = ({
   );
 };
 
-export default TableMetricSecondary;
+export default TableMetricCount;

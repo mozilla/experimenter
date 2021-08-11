@@ -13,4 +13,6 @@ export type ConfigOptions =
 export const getConfigLabel = (
   value: string | null,
   configOptions: ConfigOptions,
-) => configOptions?.find((option: any) => option.value === value)?.label;
+) =>
+  configOptions?.find((option: any) => option.value === value)?.label ||
+  `Deprecated: ${value}`;

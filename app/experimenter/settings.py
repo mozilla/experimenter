@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     # Libraries
     "corsheaders",
     "django_markdown2",
+    "rangefilter",
     "raven.contrib.django.raven_compat",
     "rest_framework",
     "widget_tweaks",
@@ -306,7 +307,7 @@ BUGZILLA_COMMENT_URL = "{path}?api_key={api_key}".format(
 )
 
 # DS Issue URL
-DS_ISSUE_HOST = config("DS_ISSUE_HOST")
+DS_ISSUE_HOST = "https://mozilla-hub.atlassian.net/browse/"
 
 REDIS_HOST = config("REDIS_HOST")
 REDIS_PORT = config("REDIS_PORT")
@@ -329,25 +330,21 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.kinto.tasks.nimbus_check_kinto_push_queue",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
-    "nimbus_check_experiments_are_live": {
-        "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_live",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
-    "nimbus_check_experiments_are_updated": {
-        "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_updated",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
-    "nimbus_check_experiments_are_complete": {
-        "task": "experimenter.kinto.tasks.nimbus_check_experiments_are_complete",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
     "nimbus_synchronize_preview_experiments_in_kinto": {
         "task": "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_kinto",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
+    "nimbus_send_emails": {
+        "task": "experimenter.kinto.tasks.nimbus_send_emails",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "fetch_jetstream_data": {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
         "schedule": 28800,
+    },
+    "reporting_generate_report_logs": {
+        "task": "experimenter.reporting.tasks.generate_reportlogs",
+        "schedule": config("CELERY_REPORTING_INTERVAL", default=86400, cast=int),
     },
 }
 
@@ -384,6 +381,7 @@ MARKUS_BACKEND = [
 NORMANDY_API_HOST = config("NORMANDY_API_HOST")
 NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
 NORMANDY_API_RECIPES_LIST_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/")
+NORMANDY_API_HISTORY_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/history")
 
 NORMANDY_DEVTOOLS_HOST = config("NORMANDY_DEVTOOLS_HOST")
 NORMANDY_DEVTOOLS_RECIPE_URL = "{root}{recipe_url}".format(

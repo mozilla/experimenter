@@ -15,6 +15,14 @@ export const GET_CONFIG_QUERY = gql`
         label
         value
       }
+      applicationConfigs {
+        application
+        channels {
+          label
+          value
+        }
+        supportsLocaleCountry
+      }
       featureConfig {
         id
         name
@@ -33,6 +41,12 @@ export const GET_CONFIG_QUERY = gql`
         slug
         application
         description
+        isDefault
+        metrics {
+          slug
+          friendlyName
+          description
+        }
       }
       targetingConfigSlug {
         label
@@ -45,6 +59,14 @@ export const GET_CONFIG_QUERY = gql`
         value
       }
       maxPrimaryOutcomes
+      locales {
+        id
+        name
+      }
+      countries {
+        id
+        name
+      }
     }
   }
 `;

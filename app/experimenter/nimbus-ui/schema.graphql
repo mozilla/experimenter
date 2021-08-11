@@ -24,6 +24,7 @@ input ExperimentInput {
   hypothesis: String
   application: NimbusExperimentApplication
   publicDescription: String
+  isEnrollmentPaused: Boolean
   riskMitigationLink: String
   featureConfigId: Int
   documentationLinks: [DocumentationLinkType]
@@ -128,6 +129,7 @@ type NimbusChangeLogType {
 type NimbusConfigurationType {
   application: [NimbusLabelValueType]
   channel: [NimbusLabelValueType]
+  applicationConfigs: [NimbusExperimentApplicationConfig]
   featureConfig: [NimbusFeatureConfigType]
   firefoxMinVersion: [NimbusLabelValueType]
   outcomes: [NimbusOutcomeType]
@@ -161,6 +163,14 @@ enum NimbusExperimentApplication {
   DESKTOP
   FENIX
   IOS
+  FOCUS_ANDROID
+  KLAR_ANDROID
+}
+
+type NimbusExperimentApplicationConfig {
+  application: NimbusExperimentApplication
+  channels: [NimbusLabelValueType]
+  supportsLocaleCountry: Boolean
 }
 
 enum NimbusExperimentChannel {
@@ -287,13 +297,13 @@ enum NimbusExperimentStatus {
 
 enum NimbusExperimentTargetingConfigSlug {
   NO_TARGETING
-  ALL_ENGLISH
-  US_ONLY
   TARGETING_FIRST_RUN
   TARGETING_FIRST_RUN_CHROME_ATTRIBUTION
   TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
   TARGETING_HOMEPAGE_GOOGLE
   TARGETING_URLBAR_FIREFOX_SUGGEST
+  TARGETING_MAC_ONLY
+  TARGETING_NO_ENTERPRISE
 }
 
 type NimbusExperimentTargetingConfigSlugChoice {
@@ -304,6 +314,7 @@ type NimbusExperimentTargetingConfigSlugChoice {
 
 type NimbusExperimentType {
   id: Int
+  isArchived: Boolean
   owner: NimbusUser!
   status: NimbusExperimentStatus
   statusNext: NimbusExperimentStatus
@@ -327,7 +338,7 @@ type NimbusExperimentType {
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
   featureConfig: NimbusFeatureConfigType
-  targetingConfigSlug: NimbusExperimentTargetingConfigSlug
+  targetingConfigSlug: String
   referenceBranch: NimbusBranchType
   publishedDto: JSONString
   resultsData: JSONString
@@ -345,6 +356,7 @@ type NimbusExperimentType {
   startDate: DateTime
   computedEndDate: DateTime
   isEnrollmentPaused: Boolean
+  isEnrollmentPausePending: Boolean
   enrollmentEndDate: DateTime
   computedEnrollmentDays: Int
   computedDurationDays: Int
@@ -372,6 +384,8 @@ enum NimbusIsolationGroupApplication {
   FIREFOX_DESKTOP
   FENIX
   IOS
+  FOCUS_ANDROID
+  KLAR_ANDROID
 }
 
 type NimbusIsolationGroupType {
@@ -394,11 +408,19 @@ type NimbusLocaleType {
   nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
+type NimbusOutcomeMetricType {
+  slug: String
+  friendlyName: String
+  description: String
+}
+
 type NimbusOutcomeType {
   friendlyName: String
   slug: String
   application: NimbusExperimentApplication
   description: String
+  isDefault: Boolean
+  metrics: [NimbusOutcomeMetricType]
 }
 
 type NimbusReadyForReviewType {

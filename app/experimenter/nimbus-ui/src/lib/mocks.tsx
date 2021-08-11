@@ -34,8 +34,11 @@ import {
 } from "../types/getExperiment";
 import {
   ExperimentInput,
+  NimbusChangeLogOldStatus,
+  NimbusChangeLogOldStatusNext,
   NimbusDocumentationLinkTitle,
   NimbusExperimentApplication,
+  NimbusExperimentFirefoxMinVersion,
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../types/globalTypes";
@@ -80,6 +83,62 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "PLATYPUS_DOORSTOP",
     },
   ],
+  applicationConfigs: [
+    {
+      application: NimbusExperimentApplication.DESKTOP,
+      channels: [
+        {
+          label: "Desktop Beta",
+          value: "BETA",
+        },
+        {
+          label: "Desktop Nightly",
+          value: "NIGHTLY",
+        },
+        {
+          label: "Platypus Doorstop",
+          value: "PLATYPUS_DOORSTOP",
+        },
+      ],
+      supportsLocaleCountry: true,
+    },
+    {
+      application: NimbusExperimentApplication.FENIX,
+      channels: [
+        {
+          label: "Desktop Beta",
+          value: "BETA",
+        },
+        {
+          label: "Desktop Nightly",
+          value: "NIGHTLY",
+        },
+        {
+          label: "Platypus Doorstop",
+          value: "PLATYPUS_DOORSTOP",
+        },
+      ],
+      supportsLocaleCountry: false,
+    },
+    {
+      application: NimbusExperimentApplication.IOS,
+      channels: [
+        {
+          label: "Desktop Beta",
+          value: "BETA",
+        },
+        {
+          label: "Desktop Nightly",
+          value: "NIGHTLY",
+        },
+        {
+          label: "Platypus Doorstop",
+          value: "PLATYPUS_DOORSTOP",
+        },
+      ],
+      supportsLocaleCountry: false,
+    },
+  ],
   featureConfig: [
     {
       id: 1,
@@ -115,6 +174,18 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       label: "Firefox 80",
       value: "FIREFOX_83",
     },
+    {
+      label: "Firefox 16",
+      value: "FIREFOX_16",
+    },
+    {
+      label: "Firefox 32",
+      value: "FIREFOX_32",
+    },
+    {
+      label: "Firefox 64",
+      value: "FIREFOX_64",
+    },
   ],
   outcomes: [
     {
@@ -122,30 +193,62 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       slug: "picture_in_picture",
       application: NimbusExperimentApplication.DESKTOP,
       description: "foo",
+      isDefault: true,
+      metrics: [
+        {
+          slug: "picture_in_picture",
+          friendlyName: "Picture-in-Picture",
+          description: "Test",
+        },
+      ],
     },
     {
       friendlyName: "Feature B",
       slug: "feature_b",
       application: NimbusExperimentApplication.DESKTOP,
       description: "bar",
+      isDefault: false,
+      metrics: [
+        {
+          slug: "feature_b",
+          friendlyName: "Feature B",
+          description: "Test",
+        },
+      ],
     },
     {
       friendlyName: "Feature C",
       slug: "feature_c",
       application: NimbusExperimentApplication.DESKTOP,
       description: "baz",
+      isDefault: false,
+      metrics: [
+        {
+          slug: "feature_c",
+          friendlyName: "Feature C",
+          description: "Test",
+        },
+      ],
     },
     {
       friendlyName: "Feature D",
       slug: "feature_d",
       application: NimbusExperimentApplication.FENIX,
-      description: "blah",
+      description: "feature_d",
+      isDefault: false,
+      metrics: [
+        {
+          slug: "uri_count",
+          friendlyName: "Feature D",
+          description: "Test",
+        },
+      ],
     },
   ],
   targetingConfigSlug: [
     {
-      label: "Us Only",
-      value: "US_ONLY",
+      label: "Mac Only",
+      value: "MAC_ONLY",
       applicationValues: ["DESKTOP"],
     },
   ],
@@ -165,6 +268,34 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
   ],
   maxPrimaryOutcomes: 2,
+  locales: [
+    {
+      name: "Acholi",
+      id: 1,
+    },
+    {
+      name: "Afrikaans",
+      id: 2,
+    },
+    {
+      name: "Albanian",
+      id: 3,
+    },
+  ],
+  countries: [
+    {
+      name: "Eritrea",
+      id: 1,
+    },
+    {
+      name: "Estonia",
+      id: 2,
+    },
+    {
+      name: "Eswatini",
+      id: 3,
+    },
+  ],
 };
 
 // Disabling this rule for now because we'll eventually
@@ -300,11 +431,11 @@ export function mockExperiment<
           featureEnabled: true,
         },
       ],
-      primaryOutcomes: ["picture_in_picture"],
+      primaryOutcomes: ["picture_in_picture", "feature_c"],
       secondaryOutcomes: ["feature_b"],
       channel: "NIGHTLY",
       firefoxMinVersion: "FIREFOX_83",
-      targetingConfigSlug: "US_ONLY",
+      targetingConfigSlug: "MAC_ONLY",
       jexlTargetingExpression: "localeLanguageCode == 'en' && region == 'US'",
       populationPercent: "40",
       totalEnrolledClients: 68000,
@@ -339,8 +470,8 @@ export function mockExperiment<
       riskPartnerRelated: false,
       reviewUrl:
         "https://kinto.example.com/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review",
-      locales: [{ name: "Quebecois", code: "qc" }],
-      countries: [{ name: "Canada", code: "ca" }],
+      locales: [{ name: "Quebecois", id: 1 }],
+      countries: [{ name: "Canada", id: 1 }],
     },
     modifications,
   ) as T;
@@ -424,7 +555,7 @@ export const mockGetStatus = (
   modifiers: Partial<
     Pick<
       getExperiment_experimentBySlug,
-      "status" | "publishStatus" | "statusNext"
+      "status" | "publishStatus" | "statusNext" | "isEnrollmentPausePending"
     >
   >,
 ) => {
@@ -432,33 +563,39 @@ export const mockGetStatus = (
   return getStatus(experiment);
 };
 
-const fiveDaysAgo = new Date();
-fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
-
 /** Creates a single mock experiment suitable for getAllExperiments queries.  */
 export function mockSingleDirectoryExperiment(
   overrides: Partial<getAllExperiments_experiments> = {},
   slugIndex: number = Math.round(Math.random() * 100),
 ): getAllExperiments_experiments {
+  const now = Date.now();
+  const oneDay = 1000 * 60 * 60 * 24;
+  const startTime = now - oneDay * 60 - 21 * oneDay * Math.random();
+  const endTime = now - oneDay * 30 + 21 * oneDay * Math.random();
+
   return {
+    isArchived: false,
     slug: `some-experiment-${slugIndex}`,
     owner: {
       username: "example@mozilla.com",
     },
+    application: MOCK_CONFIG.application![0]!
+      .value as NimbusExperimentApplication,
+    firefoxMinVersion: MOCK_CONFIG.firefoxMinVersion![0]!
+      .value as NimbusExperimentFirefoxMinVersion,
     monitoringDashboardUrl:
       "https://grafana.telemetry.mozilla.org/d/XspgvdxZz/experiment-enrollment?orgId=1&var-experiment_id=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
     name: "Open-architected background installation",
     status: NimbusExperimentStatus.COMPLETE,
     statusNext: null,
     publishStatus: NimbusExperimentPublishStatus.IDLE,
-    featureConfig: {
-      slug: "newtab",
-      name: "New tab",
-    },
+    featureConfig: MOCK_CONFIG.featureConfig![0],
+    isEnrollmentPaused: false,
+    isEnrollmentPausePending: false,
     proposedEnrollment: 7,
     proposedDuration: 28,
-    startDate: fiveDaysAgo.toISOString(),
-    computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
+    startDate: new Date(startTime).toISOString(),
+    computedEndDate: new Date(endTime).toISOString(),
     resultsReady: false,
     ...overrides,
   };
@@ -467,42 +604,103 @@ export function mockSingleDirectoryExperiment(
 export function mockDirectoryExperiments(
   overrides: Partial<getAllExperiments_experiments>[] = [
     {
+      name: "Lorem ipsum dolor sit amet",
       status: NimbusExperimentStatus.DRAFT,
+      owner: { username: "alpha-example@mozilla.com" },
       startDate: null,
       computedEndDate: null,
     },
     {
+      name: "Ipsum dolor sit amet",
+      status: NimbusExperimentStatus.DRAFT,
+      owner: { username: "gamma-example@mozilla.com" },
+      featureConfig: MOCK_CONFIG.featureConfig![0],
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
+      startDate: null,
+      computedEndDate: null,
+    },
+    {
+      name: "Dolor sit amet",
+      status: NimbusExperimentStatus.DRAFT,
+      owner: { username: "beta-example@mozilla.com" },
+      featureConfig: MOCK_CONFIG.featureConfig![1],
+      startDate: null,
+      computedEndDate: null,
+    },
+    {
+      name: "Consectetur adipiscing elit",
       status: NimbusExperimentStatus.PREVIEW,
+      owner: { username: "alpha-example@mozilla.com" },
+      featureConfig: MOCK_CONFIG.featureConfig![2],
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
       computedEndDate: null,
     },
     {
+      name: "Aliquam interdum ac lacus at dictum",
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      owner: { username: "beta-example@mozilla.com" },
+      featureConfig: MOCK_CONFIG.featureConfig![0],
       computedEndDate: null,
     },
     {
+      name: "Nam semper sit amet orci in imperdiet",
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
+      owner: { username: "gamma-example@mozilla.com" },
     },
     {
+      name: "Duis ornare mollis sem.",
       status: NimbusExperimentStatus.LIVE,
-      computedEndDate: null,
+      owner: { username: "alpha-example@mozilla.com" },
+      featureConfig: MOCK_CONFIG.featureConfig![1],
     },
     {
+      name: "Nec suscipit mi accumsan id",
       status: NimbusExperimentStatus.LIVE,
-      computedEndDate: null,
+      owner: { username: "beta-example@mozilla.com" },
+      featureConfig: MOCK_CONFIG.featureConfig![2],
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
+      resultsReady: true,
     },
     {
+      name: "Etiam congue risus quis aliquet eleifend",
       status: NimbusExperimentStatus.LIVE,
-      computedEndDate: null,
+      owner: { username: "gamma-example@mozilla.com" },
     },
     {
+      name: "Nam gravida",
       status: NimbusExperimentStatus.COMPLETE,
+      owner: { username: "alpha-example@mozilla.com" },
+      featureConfig: MOCK_CONFIG.featureConfig![0],
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
+      resultsReady: false,
     },
     {
+      name: "Quam quis volutpat ornare",
       status: NimbusExperimentStatus.DRAFT,
       publishStatus: NimbusExperimentPublishStatus.REVIEW,
+      featureConfig: MOCK_CONFIG.featureConfig![1],
+      owner: { username: "beta-example@mozilla.com" },
     },
     {
+      name: "Lorem arcu faucibus tortor",
       featureConfig: null,
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
+      owner: { username: "gamma-example@mozilla.com" },
+    },
+    {
+      isArchived: true,
+      name: "Archived Experiment",
+      featureConfig: null,
+      application: MOCK_CONFIG.application![1]!
+        .value as NimbusExperimentApplication,
+      owner: { username: "gamma-example@mozilla.com" },
     },
   ],
 ): getAllExperiments_experiments[] {
@@ -561,6 +759,22 @@ export const mockChangelog = (
   message: string | null = null,
   changedOn: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
+  oldStatus: NimbusChangeLogOldStatus.LIVE,
+  oldStatusNext: null,
+  changedBy: mockUser(email),
+  changedOn,
+  message,
+});
+
+export const mockRejectionChangelog = (
+  email = "abc@mozilla.com",
+  message: string | null = null,
+  oldStatus: NimbusChangeLogOldStatus = NimbusChangeLogOldStatus.LIVE,
+  oldStatusNext: NimbusChangeLogOldStatusNext | null = null,
+  changedOn: DateTime = new Date().toISOString(),
+): NimbusChangeLog => ({
+  oldStatus,
+  oldStatusNext,
   changedBy: mockUser(email),
   changedOn,
   message,

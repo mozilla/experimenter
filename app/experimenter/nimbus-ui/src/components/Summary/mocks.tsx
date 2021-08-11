@@ -44,11 +44,11 @@ export function createMutationMock(
 export const Subject = ({
   props = {},
   mocks = [],
-  refetch = () => {},
+  refetch = () => Promise.resolve(),
 }: {
   props?: Partial<getExperiment_experimentBySlug | null>;
   mocks?: MockedResponse<Record<string, any>>[];
-  refetch?: () => void;
+  refetch?: () => Promise<unknown>;
 }) => {
   const { experiment, mock } = mockExperimentQuery("demo-slug", props);
 

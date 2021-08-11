@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
+import Select from "react-select";
 import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig, useReviewCheck } from "../../../hooks";
 import { ReactComponent as Info } from "../../../images/info.svg";
@@ -33,6 +34,10 @@ type FormAudienceProps = {
 };
 
 type AudienceFieldName = typeof audienceFieldNames[number];
+type SelectIdItems = {
+  id: number;
+  name: string;
+}[];
 
 export const audienceFieldNames = [
   "channel",
@@ -42,7 +47,15 @@ export const audienceFieldNames = [
   "totalEnrolledClients",
   "proposedEnrollment",
   "proposedDuration",
+  "countries",
+  "locales",
 ] as const;
+
+const selectOptions = (items: SelectIdItems) =>
+  items.map((item) => ({
+    label: item.name!,
+    value: item.id!,
+  }));
 
 export const FormAudience = ({
   experiment,
@@ -55,6 +68,18 @@ export const FormAudience = ({
   const config = useConfig();
   const { fieldMessages } = useReviewCheck(experiment);
 
+  const [locales, setLocales] = useState<string[]>(
+    experiment!.locales.map((v) => "" + v.id!),
+  );
+  const [countries, setCountries] = useState<string[]>(
+    experiment!.countries.map((v) => "" + v.id!),
+  );
+
+  const applicationConfig = config.applicationConfigs?.find(
+    (applicationConfig) =>
+      applicationConfig?.application === experiment.application,
+  );
+
   const defaultValues = {
     channel: experiment.channel,
     firefoxMinVersion: experiment.firefoxMinVersion,
@@ -63,26 +88,43 @@ export const FormAudience = ({
     totalEnrolledClients: experiment.totalEnrolledClients,
     proposedEnrollment: experiment.proposedEnrollment,
     proposedDuration: experiment.proposedDuration,
+    countries: selectOptions(experiment.countries as SelectIdItems),
+    locales: selectOptions(experiment.locales as SelectIdItems),
   };
 
-  const { FormErrors, formControlAttrs, isValid, handleSubmit, isSubmitted } =
-    useCommonForm<AudienceFieldName>(
-      defaultValues,
-      isServerValid,
-      submitErrors,
-      setSubmitErrors,
-      fieldMessages,
-    );
+  const {
+    FormErrors,
+    formControlAttrs,
+    formSelectAttrs,
+    isValid,
+    handleSubmit,
+    isSubmitted,
+  } = useCommonForm<AudienceFieldName>(
+    defaultValues,
+    isServerValid,
+    submitErrors,
+    setSubmitErrors,
+    fieldMessages,
+  );
 
   type DefaultValues = typeof defaultValues;
   const [handleSave, handleSaveNext] = useMemo(
     () =>
       [false, true].map((next) =>
         handleSubmit(
-          (dataIn: DefaultValues) => !isLoading && onSubmit(dataIn, next),
+          (dataIn: DefaultValues) =>
+            !isLoading &&
+            onSubmit(
+              {
+                ...dataIn,
+                locales,
+                countries,
+              },
+              next,
+            ),
         ),
       ),
-    [isLoading, onSubmit, handleSubmit],
+    [isLoading, onSubmit, handleSubmit, locales, countries],
   );
 
   const targetingConfigSlugOptions = useMemo(
@@ -109,12 +151,12 @@ export const FormAudience = ({
 
       <Form.Group>
         <Form.Row>
-          <Form.Group as={Col} controlId="channel" md={8} lg={8}>
+          <Form.Group as={Col} controlId="channel">
             <Form.Label className="d-flex align-items-center">
               Channel
             </Form.Label>
             <Form.Control {...formControlAttrs("channel")} as="select">
-              <SelectOptions options={config.channel} />
+              <SelectOptions options={applicationConfig!.channels!} />
             </Form.Control>
             <FormErrors name="channel" />
           </Form.Group>
@@ -129,6 +171,41 @@ export const FormAudience = ({
               <SelectOptions options={config.firefoxMinVersion} />
             </Form.Control>
             <FormErrors name="firefoxMinVersion" />
+          </Form.Group>
+        </Form.Row>
+        <Form.Row>
+          <Form.Group as={Col} controlId="locales" data-testid="locales">
+            <Form.Label>Locales</Form.Label>
+            <Select
+              placeholder="All Locales"
+              isMulti
+              {...formSelectAttrs("locales", setLocales)}
+              options={selectOptions(config.locales as SelectIdItems)}
+              isDisabled={!applicationConfig?.supportsLocaleCountry}
+            />
+            {!applicationConfig?.supportsLocaleCountry && (
+              <p className="text-secondary">
+                This application does not currently support targeting by locale.
+              </p>
+            )}
+            <FormErrors name="locales" />
+          </Form.Group>
+          <Form.Group as={Col} controlId="countries" data-testid="countries">
+            <Form.Label>Countries</Form.Label>
+            <Select
+              placeholder="All Countries"
+              isMulti
+              {...formSelectAttrs("countries", setCountries)}
+              options={selectOptions(config.countries as SelectIdItems)}
+              isDisabled={!applicationConfig?.supportsLocaleCountry}
+            />
+            {!applicationConfig?.supportsLocaleCountry && (
+              <p className="text-secondary">
+                This application does not currently support targeting by
+                country.
+              </p>
+            )}
+            <FormErrors name="countries" />
           </Form.Group>
         </Form.Row>
         <Form.Row>

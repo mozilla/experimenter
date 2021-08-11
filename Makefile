@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 WAIT_FOR_DB = /app/bin/wait-for-it.sh -t 30 db:5432 &&
 WAIT_FOR_RUNSERVER = /app/bin/wait-for-it.sh -t 30 localhost:7001 &&
 
@@ -54,14 +56,19 @@ jetstream_config:
 	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip https://github.com/mozilla/jetstream-config/archive/main.zip
 	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/jetstream-config.zip
 
+update_kinto:
+	docker pull mozilla/kinto-dist:latest
+
 build_dev: jetstream_config ssl
 	DOCKER_BUILDKIT=1 docker build --target dev -f app/Dockerfile -t app:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
 build_test: jetstream_config ssl
 	DOCKER_BUILDKIT=1 docker build --target test -f app/Dockerfile -t app:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
-build_prod: jetstream_config ssl
-	./scripts/store_git_info.sh
+build_ui: jetstream_config ssl
+	DOCKER_BUILDKIT=1 docker build --target ui -f app/Dockerfile -t app:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
+
+build_prod: build_ui jetstream_config ssl
 	DOCKER_BUILDKIT=1 docker build --target deploy -f app/Dockerfile -t app:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
 compose_stop:

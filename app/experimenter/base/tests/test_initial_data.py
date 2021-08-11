@@ -14,7 +14,7 @@ class TestInitialData(TestCase):
         for status, _ in Experiment.STATUS_CHOICES:
             self.assertTrue(Experiment.objects.filter(status=status).exists())
 
-        for lifecycle in NimbusExperimentFactory.Lifecycles:
+        for lifecycle in NimbusExperimentFactory.LocalLifecycles:
             states = lifecycle.value
             final_state = states[-1].value
             self.assertTrue(NimbusExperiment.objects.filter(**final_state).exists())

@@ -1,4 +1,3 @@
-import random
 import time
 
 import pytest
@@ -11,7 +10,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 @pytest.mark.nondestructive
 def test_create_new_experiment(selenium, base_url):
-    experiment_name = f"name here remote {random.randint(0, 100)}"
+    experiment_name = "test_create_new_experiment"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
@@ -41,7 +40,7 @@ def test_create_new_experiment(selenium, base_url):
     audience = metrics.save_and_continue()
     audience.channel = "Nightly"
     audience.min_version = 80
-    audience.targeting = "US_ONLY"
+    audience.targeting = "TARGETING_MAC_ONLY"
     audience.percentage = 50.0
     audience.expected_clients = 50
     audience.save_btn()
@@ -52,7 +51,7 @@ def test_create_new_experiment(selenium, base_url):
 
 
 def test_create_new_experiment_remote_settings(selenium, base_url):
-    experiment_name = f"name here remote {random.randint(0, 1000)}"
+    experiment_name = "test_create_new_experiment_remote_settings"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
@@ -87,7 +86,7 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
     audience = metrics.save_and_continue()
     audience.channel = "Nightly"
     audience.min_version = 80
-    audience.targeting = "US_ONLY"
+    audience.targeting = "TARGETING_MAC_ONLY"
     audience.percentage = 50.0
     audience.expected_clients = 50
     audience.save_btn()
@@ -125,7 +124,7 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
     # Check it's live
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     live_experiments = home.tables[0]
-    assert "live experiments" in live_experiments.table_name.lower()
+    assert "Live" in home.active_tab_text
     for item in live_experiments.experiments:
         if experiment_name in item.text:
             item.click()
@@ -135,7 +134,7 @@ def test_create_new_experiment_remote_settings(selenium, base_url):
 
 
 def test_create_new_experiment_remote_settings_reject(selenium, base_url):
-    experiment_name = f"name here remote {random.randint(0, 1000)}"
+    experiment_name = "test_create_new_experiment_remote_settings_reject"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
@@ -166,7 +165,7 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
     audience = metrics.save_and_continue()
     audience.channel = "Nightly"
     audience.min_version = 80
-    audience.targeting = "US_ONLY"
+    audience.targeting = "TARGETING_MAC_ONLY"
     audience.percentage = 50.0
     audience.expected_clients = 50
     audience.save_btn()
@@ -194,12 +193,12 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
     modal.decline_changes()
 
     # Load home page and wait for experiment to show in the Drafts tab
-    selenium.get(base_url)
+    drafts_tab_url = f"{base_url}?tab=drafts"
+    selenium.get(drafts_tab_url)
     experiment_found = False
     for attempt in range(45):
         try:
-            home = HomePage(selenium, base_url).wait_for_page_to_load()
-            home.tabs[-1].click()
+            home = HomePage(selenium, drafts_tab_url)
             new_experiments = home.tables[0].experiments
             for item in new_experiments:
                 if experiment_name in item.text:
@@ -230,7 +229,7 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url):
 
 
 def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
-    experiment_name = f"name here remote {random.randint(0, 1000)}"
+    experiment_name = "test_create_new_experiment_remote_settings_timeout"
 
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
@@ -260,7 +259,7 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
     audience = metrics.save_and_continue()
     audience.channel = "Nightly"
     audience.min_version = 80
-    audience.targeting = "US_ONLY"
+    audience.targeting = "TARGETING_MAC_ONLY"
     audience.percentage = 50.0
     audience.expected_clients = 50
     audience.save_btn()
@@ -272,7 +271,7 @@ def test_create_new_experiment_remote_settings_timeout(selenium, base_url):
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
     review.approve()
-    for attempt in range(45):
+    for attempt in range(60):
         try:
             review = SummaryPage(selenium, base_url).wait_for_page_to_load()
             review.timeout_text

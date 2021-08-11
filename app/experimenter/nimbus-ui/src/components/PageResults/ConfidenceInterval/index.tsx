@@ -7,7 +7,6 @@
 
 import React from "react";
 
-const BUFFER = 5;
 const MIN_BOUNDS_WIDTH = 22;
 
 const renderBounds = (
@@ -17,29 +16,29 @@ const renderBounds = (
   barWidth: number,
   significance: string,
 ) => {
+  const numberOfDigits =
+    Math.abs(upper).toString().replace(".", "").length +
+    Math.abs(lower).toString().replace(".", "").length;
+
   if (barWidth < MIN_BOUNDS_WIDTH) {
     leftPercent -= (MIN_BOUNDS_WIDTH - barWidth) / 2;
   }
 
   return (
     <div
-      className="position-absolute"
+      className="position-absolute d-flex justify-content-between"
       style={{
-        // Add some buffer to space out the rendered bound values.
-        left: `${leftPercent - BUFFER * 2}%`,
-        width: `${Math.max(barWidth, MIN_BOUNDS_WIDTH) + BUFFER * 3}%`,
+        left: `${leftPercent - numberOfDigits * 1.5}%`,
+        width: `${Math.max(barWidth, MIN_BOUNDS_WIDTH) + numberOfDigits * 3}%`,
       }}
     >
-      <div
-        className={`${significance}-significance text-left p-0 h6 font-weight-normal position-absolute`}
-      >
+      <span className={`${significance}-significance h6 font-weight-normal`}>
         {lower}%
-      </div>
-      <div
-        className={`${significance}-significance text-right p-0 h6 font-weight-normal`}
-      >
+      </span>
+      &nbsp;&nbsp;&nbsp;
+      <span className={`${significance}-significance h6 font-weight-normal`}>
         {upper}%
-      </div>
+      </span>
     </div>
   );
 };
@@ -67,7 +66,6 @@ const ConfidenceInterval: React.FC<{
   range: number;
   significance: string;
 }> = ({ upper, lower, range, significance }) => {
-  range += BUFFER;
   const fullWidth = range * 2;
   const barWidth = ((upper - lower) / fullWidth) * 100;
   const leftPercent = (Math.abs(lower - range * -1) / fullWidth) * 100;

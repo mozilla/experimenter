@@ -7,6 +7,20 @@
 // START Enums and Input Objects
 //==============================================================
 
+export enum NimbusChangeLogOldStatus {
+  COMPLETE = "COMPLETE",
+  DRAFT = "DRAFT",
+  LIVE = "LIVE",
+  PREVIEW = "PREVIEW",
+}
+
+export enum NimbusChangeLogOldStatusNext {
+  COMPLETE = "COMPLETE",
+  DRAFT = "DRAFT",
+  LIVE = "LIVE",
+  PREVIEW = "PREVIEW",
+}
+
 export enum NimbusDocumentationLinkTitle {
   DESIGN_DOC = "DESIGN_DOC",
   DS_JIRA = "DS_JIRA",
@@ -16,7 +30,9 @@ export enum NimbusDocumentationLinkTitle {
 export enum NimbusExperimentApplication {
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
+  FOCUS_ANDROID = "FOCUS_ANDROID",
   IOS = "IOS",
+  KLAR_ANDROID = "KLAR_ANDROID",
 }
 
 export enum NimbusExperimentChannel {
@@ -142,14 +158,14 @@ export enum NimbusExperimentStatus {
 }
 
 export enum NimbusExperimentTargetingConfigSlug {
-  ALL_ENGLISH = "ALL_ENGLISH",
   NO_TARGETING = "NO_TARGETING",
   TARGETING_FIRST_RUN = "TARGETING_FIRST_RUN",
   TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = "TARGETING_FIRST_RUN_CHROME_ATTRIBUTION",
   TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = "TARGETING_FIRST_RUN_WINDOWS_1903_NEWER",
   TARGETING_HOMEPAGE_GOOGLE = "TARGETING_HOMEPAGE_GOOGLE",
+  TARGETING_MAC_ONLY = "TARGETING_MAC_ONLY",
+  TARGETING_NO_ENTERPRISE = "TARGETING_NO_ENTERPRISE",
   TARGETING_URLBAR_FIREFOX_SUGGEST = "TARGETING_URLBAR_FIREFOX_SUGGEST",
-  US_ONLY = "US_ONLY",
 }
 
 export interface DocumentationLinkType {
@@ -166,6 +182,7 @@ export interface ExperimentInput {
   hypothesis?: string | null;
   application?: NimbusExperimentApplication | null;
   publicDescription?: string | null;
+  isEnrollmentPaused?: boolean | null;
   riskMitigationLink?: string | null;
   featureConfigId?: number | null;
   documentationLinks?: (DocumentationLinkType | null)[] | null;

@@ -87,12 +87,12 @@ describe("TableAudience", () => {
     });
   });
 
-  describe("renders 'Custom audience' row as expected", () => {
+  describe("renders 'Advanced Targeting' row as expected", () => {
     it("when set", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-target")).toHaveTextContent(
-        "Us Only",
+        "Mac Only",
       );
     });
     it("when not set", () => {
@@ -101,6 +101,15 @@ describe("TableAudience", () => {
       });
       render(<Subject {...{ experiment }} />);
       expect(screen.queryByTestId("experiment-target")).not.toBeInTheDocument();
+    });
+    it("when set with deprecated value", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        targetingConfigSlug: "deprecated_slug",
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-target")).toHaveTextContent(
+        "Deprecated: deprecated_slug",
+      );
     });
   });
 
@@ -140,10 +149,10 @@ describe("TableAudience", () => {
     });
   });
 
-  describe("renders 'Targeted Locales' row as expected", () => {
+  describe("renders 'Locales' row as expected", () => {
     it("when locales exist, displays them", () => {
       const data = {
-        locales: [{ name: "Quebecois", code: "qc" }],
+        locales: [{ name: "Quebecois", id: 1 }],
       };
       const { experiment } = mockExperimentQuery("demo-slug", data);
       render(<Subject {...{ experiment }} />);
@@ -162,10 +171,10 @@ describe("TableAudience", () => {
     });
   });
 
-  describe("renders 'Targeted Countries' row as expected", () => {
+  describe("renders 'Countries' row as expected", () => {
     it("when countries exist, displays them", async () => {
       const data = {
-        locales: [{ name: "Canada", code: "ca" }],
+        locales: [{ name: "Canada", id: 1 }],
       };
       const { experiment } = mockExperimentQuery("demo-slug", data);
       render(<Subject {...{ experiment }} />);

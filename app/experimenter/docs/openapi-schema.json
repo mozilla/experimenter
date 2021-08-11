@@ -1395,6 +1395,45 @@
         ]
       }
     },
+    "/api/v7/{start_date}/{end_date}": {
+      "get": {
+        "operationId": "retrieveReportData",
+        "description": "",
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
     "/api/v2/experiments/{slug}/intent-to-ship-email": {
       "put": {
         "operationId": "updateExperiment",
@@ -2970,6 +3009,7 @@
         },
         "required": [
           "slug",
+          "channel",
           "bucketConfig",
           "branches",
           "startDate",

@@ -30,17 +30,21 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate_feature_value(self, value):
+        if value:
+            try:
+                json.loads(value)
+            except Exception as e:
+                raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
+        return value
+
     def validate(self, data):
         data = super().validate(data)
-        if data.get("feature_enabled", False) and "feature_value" not in data:
+        if data.get("feature_enabled") and not data.get("feature_value"):
             raise serializers.ValidationError(
-                {
-                    "feature_enabled": (
-                        "feature_value must be specified if feature_enabled is True."
-                    )
-                }
+                {"feature_value": "A value must be supplied for an enabled feature."}
             )
-        if data.get("feature_value") and "feature_enabled" not in data:
+        if data.get("feature_value") and not data.get("feature_enabled"):
             raise serializers.ValidationError(
                 {
                     "feature_value": (
@@ -63,10 +67,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 
 class NimbusExperimentBranchMixin:
     def _validate_feature_value_against_schema(self, schema, value):
-        try:
-            json_value = json.loads(value)
-        except json.JSONDecodeError as exc:
-            return [exc.msg]
+        json_value = json.loads(value)
         try:
             jsonschema.validate(json_value, schema)
         except jsonschema.ValidationError as exc:
@@ -289,9 +290,13 @@ class NimbusExperimentSerializer(
     application = serializers.ChoiceField(
         choices=NimbusExperiment.Application.choices, required=False
     )
+    channel = serializers.ChoiceField(
+        choices=NimbusExperiment.Channel.choices, required=False
+    )
     public_description = serializers.CharField(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
+    is_enrollment_paused = serializers.BooleanField(source="is_paused", required=False)
     risk_mitigation_link = serializers.URLField(
         min_length=0, max_length=255, required=False, allow_blank=True
     )
@@ -362,6 +367,7 @@ class NimbusExperimentSerializer(
             "hypothesis",
             "application",
             "public_description",
+            "is_enrollment_paused",
             "feature_config",
             "reference_branch",
             "treatment_branches",
@@ -514,6 +520,21 @@ class NimbusExperimentSerializer(
                     }
                 )
 
+        proposed_enrollment = data.get("proposed_enrollment")
+        proposed_duration = data.get("proposed_duration")
+        if (
+            None not in (proposed_enrollment, proposed_duration)
+            and proposed_enrollment > proposed_duration
+        ):
+            raise serializers.ValidationError(
+                {
+                    "proposed_enrollment": (
+                        "The enrollment duration must be less than or "
+                        "equal to the experiment duration."
+                    )
+                }
+            )
+
         return data
 
     def update(self, experiment, validated_data):
@@ -525,6 +546,11 @@ class NimbusExperimentSerializer(
             {
                 "slug": slugify(validated_data["name"]),
                 "owner": self.context["user"],
+                "channel": list(
+                    NimbusExperiment.APPLICATION_CONFIGS[
+                        validated_data["application"]
+                    ].channel_app_id.keys()
+                )[0],
             }
         )
         self.changelog_message = validated_data.pop("changelog_message")
@@ -635,3 +661,12 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
         if value == NimbusExperiment.HYPOTHESIS_DEFAULT.strip():
             raise serializers.ValidationError("Hypothesis cannot be the default value.")
         return value
+
+    def validate(self, attrs):
+        application = attrs.get("application")
+        channel = attrs.get("channel")
+        if application != NimbusExperiment.Application.DESKTOP and not channel:
+            raise serializers.ValidationError(
+                {"channel": "Channel is required for this application."}
+            )
+        return super().validate(attrs)

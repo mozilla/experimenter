@@ -58,8 +58,14 @@ class NimbusExperimentManager(models.Manager):
             NimbusExperiment.Filters.IS_UPDATING, application__in=applications
         )
 
+    def waiting_to_end_queue(self, applications):
+        return self.filter(
+            NimbusExperiment.Filters.IS_ENDING, application__in=applications
+        )
+
 
 class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
+    is_archived = models.BooleanField(default=False)
     owner = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
@@ -67,7 +73,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     )
     status = models.CharField(
         max_length=255,
-        default=NimbusConstants.Status.DRAFT.value,
+        default=NimbusConstants.Status.DRAFT,
         choices=NimbusConstants.Status.choices,
     )
     status_next = models.CharField(
@@ -78,7 +84,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     )
     publish_status = models.CharField(
         max_length=255,
-        default=NimbusConstants.PublishStatus.IDLE.value,
+        default=NimbusConstants.PublishStatus.IDLE,
         choices=NimbusConstants.PublishStatus.choices,
     )
     name = models.CharField(max_length=255, unique=True)
@@ -108,7 +114,6 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     channel = models.CharField(
         max_length=255,
         choices=NimbusConstants.Channel.choices,
-        default=NimbusConstants.Channel.NO_CHANNEL,
     )
     locales = models.ManyToManyField(Locale, blank=True)
     countries = models.ManyToManyField(Country, blank=True)
@@ -194,6 +199,9 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     # This is the full JEXL expression processed by clients
     @property
     def targeting(self):
+        if self.published_dto:
+            return self.published_dto.get("targeting", self.PUBLISHED_TARGETING_MISSING)
+
         expressions = []
 
         if self.application == self.Application.DESKTOP:
@@ -216,6 +224,16 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         if self.targeting_config and self.targeting_config.targeting:
             expressions.append(self.targeting_config.targeting)
 
+        if self.locales.count():
+            locales = [locale.code for locale in self.locales.all().order_by("code")]
+            expressions.append(f"locale in {locales}")
+
+        if self.countries.count():
+            countries = [
+                country.code for country in self.countries.all().order_by("code")
+            ]
+            expressions.append(f"region in {countries}")
+
         #  If there is no targeting defined all clients should match, so we return "true"
         if len(expressions) == 0:
             return "true"
@@ -229,7 +247,10 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     @property
     def targeting_config(self):
-        if self.targeting_config_slug:
+        if (
+            self.targeting_config_slug is not None
+            and self.targeting_config_slug in self.TARGETING_CONFIGS
+        ):
             return self.TARGETING_CONFIGS[self.targeting_config_slug]
 
     @property
@@ -263,7 +284,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     @property
     def proposed_end_date(self):
-        if self.start_date and self.proposed_duration:
+        if self.start_date and self.proposed_duration is not None:
             return self.start_date + datetime.timedelta(days=self.proposed_duration)
 
     @property
@@ -297,6 +318,11 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     def should_end(self):
         if self.proposed_end_date:
             return datetime.date.today() >= self.proposed_end_date
+
+    @property
+    def should_end_enrollment(self):
+        if self.proposed_enrollment_end_date:
+            return datetime.date.today() >= self.proposed_enrollment_end_date
 
     @property
     def is_paused_published(self):
@@ -430,7 +456,6 @@ class NimbusDocumentationLink(models.Model):
     class Meta:
         verbose_name = "Nimbus Documentation Link"
         verbose_name_plural = "Nimbus Documentation Links"
-        unique_together = (("title", "experiment"),)
         ordering = ("id",)
 
     def __str__(self):
@@ -632,11 +657,12 @@ class NimbusChangeLog(FilterMixin, models.Model):
 
     class Messages:
         TIMED_OUT_IN_KINTO = "Timed Out"
-        PUSHED_TO_KINTO = "Pushed to Kinto"
-        UPDATED_IN_KINTO = "Updated in Kinto"
-        DELETED_FROM_KINTO = "Deleted from Kinto"
-        LIVE = "Experiment is now live!"
-        PAUSED = "Enrollment was paused"
+        LAUNCHING_TO_KINTO = "Launching to Remote Settings"
+        UPDATING_IN_KINTO = "Updating in Remote Settings"
+        UPDATED_IN_KINTO = "Updated in Remote Settings"
+        DELETING_FROM_KINTO = "Deleting from Remote Settings"
+        REJECTED_FROM_KINTO = "Rejected from Remote Settings"
+        LIVE = "Experiment is live"
         COMPLETED = "Experiment is complete"
 
     def __str__(self):

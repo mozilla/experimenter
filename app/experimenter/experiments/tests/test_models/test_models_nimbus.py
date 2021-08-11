@@ -8,8 +8,13 @@ from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
-from experimenter.experiments.models import NimbusExperiment, NimbusIsolationGroup
+from experimenter.experiments.models import (
+    NimbusExperiment,
+    NimbusFeatureConfig,
+    NimbusIsolationGroup,
+)
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
@@ -178,9 +183,11 @@ class TestNimbusExperiment(TestCase):
     def test_targeting_for_experiment_without_channels(self):
         experiment = NimbusExperimentFactory.create(
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[],
+            countries=[],
         )
 
         self.assertEqual(
@@ -188,19 +195,9 @@ class TestNimbusExperiment(TestCase):
             (
                 "version|versionCompare('83.!') >= 0 "
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& localeLanguageCode == 'en'"
+                "&& os.isMac"
             ),
         )
-
-    def test_targeting_for_mobile(self):
-        experiment = NimbusExperimentFactory.create(
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
-            application=NimbusExperiment.Application.FENIX,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-        )
-
-        self.assertEqual(experiment.targeting, "localeLanguageCode == 'en'")
 
     def test_empty_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -209,6 +206,8 @@ class TestNimbusExperiment(TestCase):
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[],
+            countries=[],
         )
 
         self.assertEqual(experiment.targeting, "true")
@@ -219,9 +218,11 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NIGHTLY,
+            locales=[],
+            countries=[],
         )
 
         self.assertEqual(
@@ -229,7 +230,7 @@ class TestNimbusExperiment(TestCase):
             (
                 'browserSettings.update.channel == "nightly" '
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& localeLanguageCode == 'en'"
+                "&& os.isMac"
             ),
         )
 
@@ -237,14 +238,114 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[],
+            countries=[],
         )
         self.assertEqual(
             experiment.targeting,
-            "'app.shield.optoutstudies.enabled'|preferenceValue",
+            "'app.shield.optoutstudies.enabled'|preferenceValue && os.isMac",
         )
+
+    def test_targeting_with_locales(self):
+        locale_ca = LocaleFactory.create(code="en-CA")
+        locale_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[locale_ca, locale_us],
+            countries=[],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "'app.shield.optoutstudies.enabled'|preferenceValue "
+                "&& os.isMac "
+                "&& locale in ['en-CA', 'en-US']"
+            ),
+        )
+
+    def test_targeting_with_countries(self):
+        country_ca = CountryFactory.create(code="CA")
+        country_us = CountryFactory.create(code="US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[],
+            countries=[country_ca, country_us],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "'app.shield.optoutstudies.enabled'|preferenceValue "
+                "&& os.isMac "
+                "&& region in ['CA', 'US']"
+            ),
+        )
+
+    def test_targeting_with_locales_and_countries(self):
+        locale_ca = LocaleFactory.create(code="en-CA")
+        locale_us = LocaleFactory.create(code="en-US")
+        country_ca = CountryFactory.create(code="CA")
+        country_us = CountryFactory.create(code="US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[locale_ca, locale_us],
+            countries=[country_ca, country_us],
+        )
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "'app.shield.optoutstudies.enabled'|preferenceValue "
+                "&& os.isMac "
+                "&& locale in ['en-CA', 'en-US'] "
+                "&& region in ['CA', 'US']"
+            ),
+        )
+
+    def test_targeting_uses_published_targeting_string(self):
+        published_targeting = "published targeting jexl"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            published_dto={"targeting": published_targeting},
+        )
+        self.assertEqual(experiment.targeting, published_targeting)
+
+    def test_targeting_with_missing_published_targeting(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            published_dto={"other_field": "some value"},
+        )
+        self.assertEqual(
+            experiment.targeting, NimbusExperiment.PUBLISHED_TARGETING_MISSING
+        )
+
+    def test_targeting_config_returns_config_with_valid_slug(self):
+        experiment = NimbusExperimentFactory.create(
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING
+        )
+        self.assertEqual(
+            experiment.targeting_config,
+            NimbusExperiment.TARGETING_CONFIGS[
+                NimbusExperiment.TargetingConfig.NO_TARGETING
+            ],
+        )
+
+    def test_targeting_config_returns_None_with_invalid_slug(self):
+        experiment = NimbusExperimentFactory.create(targeting_config_slug="invalid slug")
+        self.assertIsNone(experiment.targeting_config)
 
     def test_start_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -337,6 +438,26 @@ class TestNimbusExperiment(TestCase):
             new_status=NimbusExperiment.Status.LIVE,
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
         self.assertTrue(experiment.should_end)
+
+    def test_should_end_enrollment_returns_False_before_proposed_enrollment_end_date(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+        )
+        self.assertFalse(experiment.should_end_enrollment)
+
+    def test_should_end_enrollment_returns_True_after_proposed_enrollment_end_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            proposed_enrollment=10,
+        )
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
+        self.assertTrue(experiment.should_end_enrollment)
 
     def test_computed_enrollment_days_returns_changed_on_minus_start_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1042,3 +1163,19 @@ class TestNimbusChangeLog(TestCase):
             message=None,
         )
         self.assertEqual(str(changelog), f"Draft > Preview by {user.email} on {now}")
+
+
+class TestNimbusFeatureConfig(TestCase):
+    @parameterized.expand(list(NimbusExperiment.Application))
+    def test_no_feature_fixture_exists(self, application):
+        application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
+        self.assertTrue(
+            NimbusFeatureConfig.objects.filter(
+                name__startswith="No Feature", application=application
+            ).exists(),
+            (
+                f"A 'No Feature {application_config.name}' FeatureConfig fixture "
+                "must be added in a migration.  See 0166_add_missing_feature_config "
+                "for examples."
+            ),
+        )

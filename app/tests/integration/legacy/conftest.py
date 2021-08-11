@@ -1,5 +1,4 @@
 import datetime
-import os
 from urllib.parse import urlparse
 
 import pytest
@@ -21,7 +20,7 @@ from requests.packages.urllib3.util.retry import Retry
 
 @pytest.fixture
 def ds_issue_host():
-    return os.environ["DS_ISSUE_HOST"]
+    return "https://mozilla-hub.atlassian.net/browse/"
 
 
 @pytest.fixture

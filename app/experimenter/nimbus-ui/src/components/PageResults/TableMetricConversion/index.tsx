@@ -4,9 +4,9 @@
 
 import React from "react";
 import {
+  CONVERSION_METRIC_COLUMNS,
   DISPLAY_TYPE,
   GROUP,
-  PRIMARY_METRIC_COLUMNS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import { AnalysisDataOverall } from "../../../lib/visualization/types";
@@ -14,39 +14,39 @@ import { getExtremeBounds } from "../../../lib/visualization/utils";
 import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
 import TableVisualizationRow from "../TableVisualizationRow";
 
-type PrimaryMetricStatistic = {
+type ConversionMetricStatistic = {
   name: string;
   displayType: DISPLAY_TYPE;
   branchComparison?: string;
   value?: string;
 };
 
-type TableMetricPrimaryProps = {
+type TableMetricConversionProps = {
   results: AnalysisDataOverall;
   outcome: getConfig_nimbusConfig_outcomes;
   sortedBranches: string[];
 };
 
-const getStatistics = (slug: string): Array<PrimaryMetricStatistic> => {
+const getStatistics = (slug: string): Array<ConversionMetricStatistic> => {
   const outcomeMetricID = `${slug}_ever_used`;
 
-  // Make a copy of `PRIMARY_METRIC_COLUMNS` since we modify it.
-  const primaryMetricStatisticsList = PRIMARY_METRIC_COLUMNS.map(
-    (statistic: PrimaryMetricStatistic) => {
+  // Make a copy of `CONVERSION_METRIC_COLUMNS` since we modify it.
+  const conversionMetricStatisticsList = CONVERSION_METRIC_COLUMNS.map(
+    (statistic: ConversionMetricStatistic) => {
       statistic["value"] = outcomeMetricID;
       return statistic;
     },
   );
 
-  return primaryMetricStatisticsList;
+  return conversionMetricStatisticsList;
 };
 
-const TableMetricPrimary = ({
+const TableMetricConversion = ({
   results = {},
   outcome,
   sortedBranches,
-}: TableMetricPrimaryProps) => {
-  const primaryMetricStatistics = getStatistics(outcome.slug!);
+}: TableMetricConversionProps) => {
+  const conversionMetricStatistics = getStatistics(outcome.slug!);
   const metricKey = `${outcome.slug}_ever_used`;
   const bounds = getExtremeBounds(
     sortedBranches,
@@ -64,7 +64,7 @@ const TableMetricPrimary = ({
         <thead>
           <tr>
             <th scope="col" className="border-bottom-0 bg-light" />
-            {PRIMARY_METRIC_COLUMNS.map((value) => (
+            {CONVERSION_METRIC_COLUMNS.map((value) => (
               <th
                 className="border-bottom-0 bg-light"
                 key={value.name}
@@ -82,7 +82,7 @@ const TableMetricPrimary = ({
                 <th className="align-middle" scope="row">
                   {branch}
                 </th>
-                {primaryMetricStatistics.map(
+                {conversionMetricStatistics.map(
                   ({ displayType, branchComparison, value }) => (
                     <TableVisualizationRow
                       key={`${displayType}-${value}`}
@@ -102,4 +102,4 @@ const TableMetricPrimary = ({
   );
 };
 
-export default TableMetricPrimary;
+export default TableMetricConversion;

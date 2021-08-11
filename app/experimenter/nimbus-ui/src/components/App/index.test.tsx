@@ -5,7 +5,9 @@
 import * as apollo from "@apollo/client";
 import { screen, waitFor } from "@testing-library/react";
 import React, { ReactNode } from "react";
+import { act } from "react-dom/test-utils";
 import App from ".";
+import { REFETCH_DELAY } from "../../hooks";
 import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
 import { renderWithRouter } from "../../lib/test-utils";
 
@@ -23,6 +25,29 @@ describe("App", () => {
       </MockedCache>,
     );
     expect(screen.getByTestId("page-loading")).toBeInTheDocument();
+  });
+
+  it("renders the error alerts when an error occurs querying the config", async () => {
+    jest.useFakeTimers();
+    const error = new Error("boop");
+    const refetch = jest.fn();
+
+    const spy = (jest.spyOn(apollo, "useQuery") as jest.Mock).mockReturnValue({
+      error,
+      refetch,
+    });
+
+    renderWithRouter(
+      <MockedCache mocks={[]}>
+        <App basepath="/" />
+      </MockedCache>,
+    );
+    expect(screen.queryByTestId("refetch-alert")).toBeInTheDocument();
+    act(() => {
+      jest.advanceTimersByTime(REFETCH_DELAY);
+    });
+    await screen.findByTestId("apollo-error-alert");
+    spy.mockRestore();
   });
 
   it("routes to PageHome page", () => {
