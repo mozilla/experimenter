@@ -26,6 +26,7 @@ storiesOf("components/HeaderExperiment", module)
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
+        isArchived={false}
       />
     </AppLayout>
   ))
@@ -38,6 +39,7 @@ storiesOf("components/HeaderExperiment", module)
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({ status: NimbusExperimentStatus.PREVIEW })}
+        isArchived={false}
       />
     </AppLayout>
   ))
@@ -52,6 +54,7 @@ storiesOf("components/HeaderExperiment", module)
         status={mockGetStatus({
           publishStatus: NimbusExperimentPublishStatus.REVIEW,
         })}
+        isArchived={false}
       />
     </AppLayout>
   ))
@@ -64,6 +67,7 @@ storiesOf("components/HeaderExperiment", module)
         computedEndDate={null}
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+        isArchived={false}
       />
     </AppLayout>
   ))
@@ -76,6 +80,20 @@ storiesOf("components/HeaderExperiment", module)
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
+        isArchived={false}
+      />
+    </AppLayout>
+  ))
+  .add("archived", () => (
+    <AppLayout>
+      <HeaderExperiment
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
+        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
+        isArchived={true}
       />
     </AppLayout>
   ));

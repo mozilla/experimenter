@@ -11,7 +11,12 @@ import "./index.scss";
 
 type HeaderExperimentProps = Pick<
   getExperiment_experimentBySlug,
-  "name" | "slug" | "startDate" | "computedEndDate" | "computedDurationDays"
+  | "name"
+  | "slug"
+  | "startDate"
+  | "computedEndDate"
+  | "computedDurationDays"
+  | "isArchived"
 > & { status: StatusCheck };
 
 const HeaderExperiment = ({
@@ -21,11 +26,23 @@ const HeaderExperiment = ({
   computedEndDate = "",
   status,
   computedDurationDays,
+  isArchived,
 }: HeaderExperimentProps) => (
   <header className="border-bottom" data-testid="header-experiment">
-    <h1 className="h5 font-weight-normal" data-testid="header-experiment-name">
+    <h1
+      className="h5 font-weight-normal d-inline"
+      data-testid="header-experiment-name"
+    >
       {name}
     </h1>
+    {isArchived && (
+      <StatusPill
+        className="ml-2"
+        label="Archived"
+        color="danger"
+        active={true}
+      />
+    )}
     <p
       className="text-monospace text-secondary mb-1 small"
       data-testid="header-experiment-slug"
@@ -74,17 +91,25 @@ const StatusPill = ({
   label,
   active,
   padded = true,
+  color = "primary",
+  className = "",
 }: {
   label: string;
   active: boolean;
   padded?: boolean;
+  color?: string;
+  className?: string;
 }) => (
   <span
-    className={classNames(
-      "border rounded-pill px-2 bg-white position-relative",
-      active ? "border-primary text-primary" : "border-muted text-muted",
-      padded && "mr-3",
-    )}
+    className={
+      classNames(
+        "border rounded-pill px-2 bg-white position-relative",
+        active ? `border-${color} text-${color}` : "border-muted text-muted",
+        padded && "mr-3",
+      ) +
+      " " +
+      className
+    }
     data-testid={
       active ? "header-experiment-status-active" : "header-experiment-status"
     }
