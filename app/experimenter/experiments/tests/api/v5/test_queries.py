@@ -28,6 +28,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             query {
                 experiments {
                     isArchived
+                    canEdit
                     name
                     slug
                     publicDescription
@@ -51,6 +52,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         self.assertEqual(
             experiment_data["riskMitigationLink"], experiment.risk_mitigation_link
         )
+        self.assertEqual(experiment_data["canEdit"], experiment.can_edit)
 
     def test_experiments_with_no_branches_returns_empty_treatment_values(self):
         user_email = "user@example.com"
