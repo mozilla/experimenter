@@ -381,6 +381,14 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             and not self.is_archived
         )
 
+    @property
+    def can_archive(self):
+        return (
+            self.status
+            in (NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.COMPLETE)
+            and self.publish_status == self.PublishStatus.IDLE
+        )
+
     def can_review(self, reviewer):
         if (
             settings.SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER

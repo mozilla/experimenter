@@ -362,6 +362,7 @@ type NimbusExperimentType {
   computedEnrollmentDays: Int
   computedDurationDays: Int
   canEdit: Boolean
+  canArchive: Boolean
   canReview: Boolean
   reviewRequest: NimbusChangeLogType
   rejection: NimbusChangeLogType
