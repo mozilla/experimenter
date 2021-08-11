@@ -289,6 +289,7 @@ class NimbusExperimentType(DjangoObjectType):
     computed_enrollment_days = graphene.Int()
     computed_duration_days = graphene.Int()
     can_edit = graphene.Boolean()
+    can_archive = graphene.Boolean()
     can_review = graphene.Boolean()
     review_request = graphene.Field(NimbusChangeLogType)
     rejection = graphene.Field(NimbusChangeLogType)
@@ -336,6 +337,9 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_can_edit(self, info):
         return self.can_edit
+
+    def resolve_can_archive(self, info):
+        return self.can_archive
 
     def resolve_can_review(self, info):
         return self.can_review(info.context.user)

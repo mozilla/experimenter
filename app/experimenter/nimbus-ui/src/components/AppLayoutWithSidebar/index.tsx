@@ -14,6 +14,7 @@ import { getStatus } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { LinkNav } from "../LinkNav";
 import LinkNavSummary from "../LinkNavSummary";
+import SidebarActions from "../SidebarActions";
 import { ReactComponent as ChartArrow } from "./chart-arrow.svg";
 import { ReactComponent as Cog } from "./cog.svg";
 import "./index.scss";
@@ -104,7 +105,7 @@ export const AppLayoutWithSidebar = ({
 
               <p className="edit-divider position-relative small my-2">
                 <span className="position-relative bg-light pl-1 pr-2 text-muted">
-                  Edit Experiment
+                  Edit
                 </span>
               </p>
 
@@ -125,6 +126,8 @@ export const AppLayoutWithSidebar = ({
                   {page.name}
                 </LinkNav>
               ))}
+
+              <SidebarActions {...{ experiment }} />
             </Nav>
           </nav>
         </Col>

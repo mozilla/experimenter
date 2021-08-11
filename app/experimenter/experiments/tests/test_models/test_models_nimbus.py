@@ -747,6 +747,21 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
         self.assertEqual(experiment.can_edit, expected_can_edit)
 
+    @parameterized.expand(
+        [
+            (True, NimbusExperimentFactory.Lifecycles.CREATED),
+            (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
+        ]
+    )
+    def test_can_archive(self, expected_can_archive, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        self.assertEqual(experiment.can_archive, expected_can_archive)
+
     @parameterized.expand([(settings.DEV_USER_EMAIL, True), ("jdoe@mozilla.org", False)])
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
     def test_can_review_for_requesting_user_if_dev_user_and_setting_enabled(

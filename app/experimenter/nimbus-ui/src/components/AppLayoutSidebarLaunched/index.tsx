@@ -20,6 +20,7 @@ import { DisabledItem } from "../DisabledItem";
 import LinkExternal from "../LinkExternal";
 import { LinkNav } from "../LinkNav";
 import LinkNavSummary from "../LinkNavSummary";
+import SidebarActions from "../SidebarActions";
 import { ReactComponent as BarChart } from "./bar-chart.svg";
 
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
@@ -274,6 +275,7 @@ export const AppLayoutSidebarLaunched = ({
                   )}
                 </DisabledItem>
               )}
+              <SidebarActions {...{ experiment }} />
             </Nav>
           </nav>
         </Col>
