@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { Table } from "react-bootstrap";
+import { LenseContext } from "../../../hooks";
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
@@ -68,6 +69,8 @@ const TableBranch = ({
   hasSchema: boolean;
   branch: Branch;
 }) => {
+  const { isEngineer } = useContext(LenseContext);
+
   return (
     <Table bordered data-testid="table-branch" className="mb-4" id={slug}>
       <thead className="thead-light">
@@ -98,7 +101,7 @@ const TableBranch = ({
             {featureEnabled ? "True" : "False"}
           </td>
         </tr>
-        {hasSchema && featureEnabled && (
+        {isEngineer && hasSchema && featureEnabled && (
           <tr>
             <th>Value</th>
             <td data-testid="branch-featureValue">

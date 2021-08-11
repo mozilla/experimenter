@@ -5,7 +5,12 @@
 import { navigate, RouteComponentProps, useParams } from "@reach/router";
 import React, { useEffect } from "react";
 import { Alert } from "react-bootstrap";
-import { useAnalysis, useExperiment } from "../../hooks";
+import {
+  LenseContext,
+  useAnalysis,
+  useExperiment,
+  useLense,
+} from "../../hooks";
 import { BASE_PATH } from "../../lib/constants";
 import { getStatus, StatusCheck } from "../../lib/experiment";
 import { AnalysisData } from "../../lib/visualization/types";
@@ -65,6 +70,7 @@ const AppLayoutWithExperiment = ({
   setHead = true,
   redirect,
 }: AppLayoutWithExperimentProps) => {
+  const { lenseContextValues } = useLense();
   const { slug } = useParams();
   const {
     experiment,
@@ -143,58 +149,60 @@ const AppLayoutWithExperiment = ({
   const { name, startDate, computedEndDate, computedDurationDays } = experiment;
 
   return (
-    <Layout
-      {...{
-        children,
-        analysisRequired,
-        analysis,
-        analysisLoadingInSidebar,
-        analysisError,
-        status,
-        experiment,
-      }}
-    >
-      <section data-testid={testId} id={testId}>
-        {setHead && (
-          <Head
-            title={title ? `${experiment.name} – ${title}` : experiment.name}
-          />
-        )}
+    <LenseContext.Provider value={lenseContextValues()}>
+      <Layout
+        {...{
+          children,
+          analysisRequired,
+          analysis,
+          analysisLoadingInSidebar,
+          analysisError,
+          status,
+          experiment,
+        }}
+      >
+        <section data-testid={testId} id={testId}>
+          {setHead && (
+            <Head
+              title={title ? `${experiment.name} – ${title}` : experiment.name}
+            />
+          )}
 
-        <HeaderExperiment
-          {...{
-            slug,
-            name,
-            startDate,
-            computedEndDate,
-            status,
-            computedDurationDays,
-          }}
-        />
-        {hasPollError && (
-          <Alert
-            variant="warning"
-            data-testid="polling-error-alert"
-            className="mt-4"
-          >
-            <Alert.Heading>Polling Error</Alert.Heading>
-            <p>
-              This page attempted to poll the server for fresh experiment data
-              but ran into an error. This usually happens when Experimenter is
-              mid-deploy.
-            </p>
-            <p>
-              Polling will be retried automatically in {pollInterval / 1000}{" "}
-              seconds.
-            </p>
-          </Alert>
-        )}
-        {title && <h2 className="mt-3 mb-4 h3">{title}</h2>}
-        <div className="my-4">
-          {children({ experiment, refetch, analysis })}
-        </div>
-      </section>
-    </Layout>
+          <HeaderExperiment
+            {...{
+              slug,
+              name,
+              startDate,
+              computedEndDate,
+              status,
+              computedDurationDays,
+            }}
+          />
+          {hasPollError && (
+            <Alert
+              variant="warning"
+              data-testid="polling-error-alert"
+              className="mt-4"
+            >
+              <Alert.Heading>Polling Error</Alert.Heading>
+              <p>
+                This page attempted to poll the server for fresh experiment data
+                but ran into an error. This usually happens when Experimenter is
+                mid-deploy.
+              </p>
+              <p>
+                Polling will be retried automatically in {pollInterval / 1000}{" "}
+                seconds.
+              </p>
+            </Alert>
+          )}
+          {title && <h2 className="mt-3 mb-4 h3">{title}</h2>}
+          <div className="my-4">
+            {children({ experiment, refetch, analysis })}
+          </div>
+        </section>
+      </Layout>
+    </LenseContext.Provider>
   );
 };
 

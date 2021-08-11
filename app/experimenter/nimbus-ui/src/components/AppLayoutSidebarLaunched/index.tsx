@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useParams } from "@reach/router";
-import React from "react";
+import classNames from "classnames";
+import React, { useContext } from "react";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
 import Scrollspy from "react-scrollspy";
-import { useOutcomes } from "../../hooks";
+import { LenseContext, LenseType, useOutcomes } from "../../hooks";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { StatusCheck } from "../../lib/experiment";
 import { OutcomesList } from "../../lib/types";
@@ -83,6 +84,7 @@ export const AppLayoutSidebarLaunched = ({
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
   const primaryMetrics = outcomeToMapping(primaryOutcomes);
   const secondaryMetrics = outcomeToMapping(secondaryOutcomes);
+  const { setLense, isStakeholder, isEngineer } = useContext(LenseContext);
 
   const otherMetrics = otherMetricsToFriendlyName(
     analysis?.other_metrics || {},
@@ -276,6 +278,26 @@ export const AppLayoutSidebarLaunched = ({
               )}
             </Nav>
           </nav>
+          <div className="mx-4 p-2 bg-white small border rounded text-center text-muted">
+            <p className="font-weight-bold mb-0">Choose a lense</p>
+            <p className="mb-0">
+              <a
+                href="#"
+                onClick={() => setLense(LenseType.Engineer)}
+                className={classNames(isEngineer && "font-weight-bold")}
+              >
+                Engineer
+              </a>{" "}
+              •{" "}
+              <a
+                href="#"
+                onClick={() => setLense(LenseType.Stakeholder)}
+                className={classNames(isStakeholder && "font-weight-bold")}
+              >
+                Stakeholder
+              </a>
+            </p>
+          </div>
         </Col>
         <Col className="ml-auto mr-auto col-md-9 col-xl-10 pt-5 px-md-3 px-lg-5">
           <main className="container-lg mx-auto">{children}</main>
