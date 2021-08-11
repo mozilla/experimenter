@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
-import { useConfig } from "../../../hooks";
+import { LenseContext, useConfig } from "../../../hooks";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import { Code } from "../../Code";
 import NotSet from "../../NotSet";
@@ -18,6 +18,7 @@ type TableAudienceProps = {
 
 const TableAudience = ({ experiment }: TableAudienceProps) => {
   const { firefoxMinVersion, channel, targetingConfigSlug } = useConfig();
+  const { isEngineer } = useContext(LenseContext);
 
   return (
     <Table bordered data-testid="table-audience" className="mb-4 table-fixed">
@@ -82,7 +83,8 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
               : "All countries"}
           </td>
         </tr>
-        {experiment.jexlTargetingExpression &&
+        {isEngineer &&
+        experiment.jexlTargetingExpression &&
         experiment.jexlTargetingExpression !== "" ? (
           <tr>
             <th>Full targeting expression</th>
@@ -97,7 +99,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
             </td>
           </tr>
         ) : null}
-        {experiment.recipeJson && (
+        {isEngineer && experiment.recipeJson && (
           <tr>
             <th>Recipe JSON</th>
             <td data-testid="experiment-recipe-json">

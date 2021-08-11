@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
-import { useConfig, useOutcomes } from "../../../hooks";
+import { LenseContext, useConfig, useOutcomes } from "../../../hooks";
 import { ReactComponent as ExternalIcon } from "../../../images/external.svg";
 import { RISK_QUESTIONS } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
@@ -25,16 +25,19 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
   const { application, documentationLink: configDocumentationLinks } =
     useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
+  const { isEngineer } = useContext(LenseContext);
 
   return (
     <Table bordered data-testid="table-overview" className="mb-4">
       <tbody>
-        <tr>
-          <th className="w-33">Slug</th>
-          <td data-testid="experiment-slug" className="text-monospace">
-            {experiment.slug}
-          </td>
-        </tr>
+        {isEngineer && (
+          <tr>
+            <th className="w-33">Slug</th>
+            <td data-testid="experiment-slug" className="text-monospace">
+              {experiment.slug}
+            </td>
+          </tr>
+        )}
         <tr>
           <th>Experiment owner</th>
           <td data-testid="experiment-owner">

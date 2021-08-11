@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
-import { useChangeOperationMutation } from "../../hooks";
+import { LenseContext, useChangeOperationMutation } from "../../hooks";
 import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
@@ -32,6 +32,7 @@ type SummaryProps = {
 
 const Summary = ({ experiment, refetch }: SummaryProps) => {
   const status = getStatus(experiment);
+  const { isEngineer } = useContext(LenseContext);
 
   const {
     isLoading,
@@ -83,7 +84,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
         <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
       )}
 
-      {(status.live || status.preview) && (
+      {isEngineer && (status.live || status.preview) && (
         <PreviewURL {...experiment} status={status} />
       )}
 
