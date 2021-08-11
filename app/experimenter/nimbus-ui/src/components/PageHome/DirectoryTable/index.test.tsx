@@ -234,6 +234,10 @@ describe("DirectoryLiveTable", () => {
       "Monitoring",
       "Results",
     ]);
+    const header = screen
+      .getAllByTestId("directory-table-header")
+      .find((el) => el.textContent == "Monitoring");
+    expect(header!.tagName).not.toEqual("BUTTON");
     expectTableCells("directory-table-cell", [
       experiment.name,
       experiment.owner!.username,
@@ -262,6 +266,10 @@ describe("DirectoryCompleteTable", () => {
       "Ended",
       "Results",
     ]);
+    const header = screen
+      .getAllByTestId("directory-table-header")
+      .find((el) => el.textContent == "Results");
+    expect(header!.tagName).not.toEqual("BUTTON");
     expectTableCells("directory-table-cell", [
       experiment.name,
       experiment.owner!.username,
