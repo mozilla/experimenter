@@ -76,6 +76,15 @@ describe("PageSummary", () => {
     screen.getByRole("navigation");
   });
 
+  it("renders without launch controls when archived", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", { isArchived: true });
+    render(<Subject mocks={[mock]} />);
+    await screen.findByTestId("PageSummary");
+    expect(
+      await screen.queryByTestId("start-launch-draft-to-review"),
+    ).not.toBeInTheDocument();
+  });
+
   it("hides signoff section if experiment is launched", async () => {
     // this table is shown in the Summary component instead
     const { mock } = mockExperimentQuery("demo-slug", {

@@ -7,18 +7,8 @@ import React from "react";
 import { BASE_PATH, SERVER_ERRORS } from "../../lib/constants";
 import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
 import { renderWithRouter } from "../../lib/test-utils";
-import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
-} from "../../types/globalTypes";
 import App from "../App";
 import { Subject } from "./mocks";
-
-const assertDisabledNav = () => {
-  for (const slug of ["overview", "branches", "metrics", "audience"]) {
-    expect(screen.getByTestId(`nav-edit-${slug}`).tagName).toEqual("SPAN");
-  }
-};
 
 describe("AppLayoutWithSidebar", () => {
   it("renders app layout content with children", () => {
@@ -111,42 +101,13 @@ describe("AppLayoutWithSidebar", () => {
       await screen.findByText(/Missing details in:/);
     });
 
-    it("when in preview, disables all edit page links", async () => {
-      render(
-        <Subject experiment={{ status: NimbusExperimentStatus.PREVIEW }} />,
-      );
+    it("when canEdit false, disables all edit page links", async () => {
+      render(<Subject experiment={{ canEdit: false }} />);
 
       // In preview these should all not be <a> tags, but instead <span>s
       ["overview", "branches", "metrics", "audience"].forEach((slug) => {
         expect(screen.getByTestId(`nav-edit-${slug}`).tagName).toEqual("SPAN");
       });
-    });
-
-    it("when in draft and publish status review, disables all edit page links", async () => {
-      render(
-        <Subject
-          experiment={{ publishStatus: NimbusExperimentPublishStatus.REVIEW }}
-        />,
-      );
-      assertDisabledNav();
-    });
-
-    it("when in draft and publish status approved, disables all edit page links", async () => {
-      render(
-        <Subject
-          experiment={{ publishStatus: NimbusExperimentPublishStatus.APPROVED }}
-        />,
-      );
-      assertDisabledNav();
-    });
-
-    it("when in in draft and publish status waiting, disables all edit page links", async () => {
-      render(
-        <Subject
-          experiment={{ publishStatus: NimbusExperimentPublishStatus.WAITING }}
-        />,
-      );
-      assertDisabledNav();
     });
   });
 });

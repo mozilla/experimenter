@@ -57,8 +57,15 @@ export const AppLayoutWithSidebar = ({
   const { slug } = useParams();
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
   const status = getStatus(experiment);
-  const reviewOrPreview = !status?.idle || status?.preview;
-  const hasMissingDetails = invalidPages.length > 0 && !reviewOrPreview;
+  const hasMissingDetails = invalidPages.length > 0 && experiment.canEdit;
+  let lockedReason: string;
+  if (status.review) {
+    lockedReason = "in Review";
+  } else if (status.preview) {
+    lockedReason = "in Preview";
+  } else if (experiment.isArchived) {
+    lockedReason = "Archived";
+  }
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
@@ -108,11 +115,11 @@ export const AppLayoutWithSidebar = ({
                   storiesOf={`pages/Edit${page.name}`}
                   testid={`nav-edit-${page.slug}`}
                   title={
-                    reviewOrPreview
-                      ? "Experiments cannot be edited while in Review or Preview"
-                      : undefined
+                    experiment.canEdit
+                      ? undefined
+                      : `Experiments cannot be edited while ${lockedReason}`
                   }
-                  disabled={reviewOrPreview}
+                  disabled={!experiment.canEdit}
                 >
                   {page.icon}
                   {page.name}
