@@ -254,9 +254,15 @@ class NimbusConstants(object):
     PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
 
     STATUS_UPDATE_EXEMPT_FIELDS = (
-        "status",
-        "status_next",
+        "is_archived",
         "publish_status",
+        "status_next",
+        "status",
+    )
+
+    ARCHIVE_UPDATE_EXEMPT_FIELDS = (
+        "is_archived",
+        "changelog_message",
     )
 
     APPLICATION_CONFIGS = {
