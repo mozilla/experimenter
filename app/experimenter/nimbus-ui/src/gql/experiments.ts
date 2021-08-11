@@ -29,6 +29,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       id
       isArchived
       canEdit
+      canArchive
       name
       slug
       status

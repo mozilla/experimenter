@@ -12,7 +12,7 @@ type LinkNavProps = {
   children: React.ReactNode;
   disabled?: boolean;
   route?: string;
-  storiesOf: string;
+  storiesOf?: string;
   testid?: string;
   className?: string;
   textColor?: string;
@@ -23,7 +23,7 @@ export const LinkNav = ({
   route,
   children,
   disabled = false,
-  storiesOf,
+  storiesOf = "",
   testid = "nav-home",
   className = "mx-1 my-2",
   textColor,
