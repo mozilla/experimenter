@@ -184,10 +184,6 @@ WARNING: this will remove your database and all data. Use this to reset your dev
 
 Apply all django migrations to the database.  This must be run after removing database volumes before starting a dev instance.
 
-#### make load_locales_countries
-
-Populates locales and countries in the database from the [Firefox Product Details package](https://pypi.org/project/django-mozilla-product-details/)
-
 #### make load_dummy_experiments
 
 Populates the database with dummy experiments of all types/statuses using the test factories
