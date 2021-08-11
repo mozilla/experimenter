@@ -1557,6 +1557,61 @@ class TestNimbusExperimentSerializer(TestCase):
             ],
         )
 
+    @parameterized.expand(
+        [
+            (True, NimbusExperimentFactory.Lifecycles.CREATED),
+            (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
+        ]
+    )
+    def test_can_update_is_archived(self, can_update, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            is_archived=False,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {"is_archived": True, "changelog_message": "archiving"},
+            context={"user": self.user},
+        )
+        self.assertEqual(serializer.is_valid(), can_update, serializer.errors)
+        if can_update:
+            experiment = serializer.save()
+            self.assertTrue(experiment.is_archived, serializer.errors)
+        else:
+            self.assertIn("is_archived", serializer.errors, serializer.errors)
+
+    def test_cant_update_other_fields_while_archived(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_archived=True,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {"name": "New Name", "changelog_message": "updating name"},
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("name", serializer.errors)
+
+    def test_can_unarchive_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_archived=True,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {"is_archived": False, "changelog_message": "unarchiving"},
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertFalse(experiment.is_archived)
+
 
 class TestNimbusReadyForReviewSerializer(TestCase):
     maxDiff = None

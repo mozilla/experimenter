@@ -17,6 +17,7 @@ input DocumentationLinkType {
 
 input ExperimentInput {
   id: Int
+  isArchived: Boolean
   status: NimbusExperimentStatus
   statusNext: NimbusExperimentStatus
   publishStatus: NimbusExperimentPublishStatus
