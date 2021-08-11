@@ -69,6 +69,14 @@ export const draftStatus = storyWithExperimentProps(
   "Draft status, no missing fields",
 );
 
+export const draftArchived = storyWithExperimentProps(
+  {
+    isArchived: true,
+    canEdit: false,
+  },
+  "Draft status, archived",
+);
+
 export const previewStatus = storyWithExperimentProps(
   {
     status: NimbusExperimentStatus.PREVIEW,

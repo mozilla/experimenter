@@ -399,6 +399,8 @@ export function mockExperiment<
   return Object.assign(
     {
       id: 1,
+      isArchived: false,
+      canEdit: true,
       owner: {
         email: "example@mozilla.com",
       },
