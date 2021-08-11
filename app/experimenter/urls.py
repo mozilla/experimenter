@@ -5,10 +5,13 @@ from django.contrib import admin
 
 from experimenter.experiments.views import (
     ExperimentListView,
-    ExperimentReportView,
     NimbusUIView,
     PageNotFoundView,
 )
+from experimenter.reporting.views import (
+    ExperimentReportView,
+)
+
 
 urlpatterns = [
     re_path(r"^api/v1/experiments/", include("experimenter.experiments.api.v1.urls")),
