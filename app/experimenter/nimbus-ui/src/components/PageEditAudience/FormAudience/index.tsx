@@ -248,7 +248,7 @@ export const FormAudience = ({
                 type="number"
                 min="0"
                 max="100"
-                step="0.0001"
+                step="1"
               />
               <InputGroup.Append>
                 <InputGroup.Text id="populationPercent-unit">%</InputGroup.Text>
