@@ -85,7 +85,7 @@ export const AppLayoutWithSidebar = ({
                 textColor="text-secondary"
               >
                 <ChevronLeft className="ml-n1" width="18" height="18" />
-                Experiments
+                Back to Experiments
               </LinkNav>
 
               <LinkNavSummary
