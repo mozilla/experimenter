@@ -153,6 +153,7 @@ const AppLayoutWithExperiment = ({
         analysisError,
         status,
         experiment,
+        refetch,
       }}
     >
       <section data-testid={testId} id={testId}>
@@ -208,6 +209,7 @@ type LayoutProps = {
   analysisLoadingInSidebar: boolean;
   analysisError?: Error;
   experiment: getExperiment_experimentBySlug;
+  refetch: () => Promise<any>;
 };
 
 const Layout = ({
@@ -218,6 +220,7 @@ const Layout = ({
   analysisLoadingInSidebar,
   analysisError,
   experiment,
+  refetch,
 }: LayoutProps) =>
   status?.launched ? (
     <AppLayoutSidebarLaunched
@@ -228,12 +231,15 @@ const Layout = ({
         analysisLoadingInSidebar,
         analysisError,
         experiment,
+        refetch,
       }}
     >
       {children}
     </AppLayoutSidebarLaunched>
   ) : (
-    <AppLayoutWithSidebar {...{ experiment }}>{children}</AppLayoutWithSidebar>
+    <AppLayoutWithSidebar {...{ experiment, refetch }}>
+      {children}
+    </AppLayoutWithSidebar>
   );
 
 export default AppLayoutWithExperiment;

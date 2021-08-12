@@ -4,6 +4,7 @@
 
 import { RouteComponentProps } from "@reach/router";
 import React from "react";
+import { useArchive } from "../../hooks/useArchive";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as Trash } from "./trash.svg";
@@ -11,11 +12,18 @@ import { ReactComponent as Trash } from "./trash.svg";
 type SidebarModifyExperimentProps = {
   testid?: string;
   experiment: getExperiment_experimentBySlug;
+  refetch: () => Promise<any>;
 } & RouteComponentProps;
 
 export const SidebarActions = ({
   experiment,
+  refetch,
 }: SidebarModifyExperimentProps) => {
+  const { isLoading, callback: onUpdateArchived } = useArchive(
+    experiment,
+    refetch,
+  );
+
   return (
     <div data-testid={"SidebarActions"}>
       <p className="edit-divider position-relative small my-2">
@@ -27,8 +35,9 @@ export const SidebarActions = ({
         <LinkNav
           key="sidebar-actions-archive"
           route={`${experiment.slug}/#`}
-          disabled={!experiment.canArchive}
+          disabled={!experiment.canArchive || isLoading}
           testid="action-archive"
+          onClick={onUpdateArchived}
         >
           <Trash className="sidebar-icon" />
           {experiment.isArchived

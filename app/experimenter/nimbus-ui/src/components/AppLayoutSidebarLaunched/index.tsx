@@ -68,6 +68,7 @@ type AppLayoutSidebarLaunchedProps = {
   analysisLoadingInSidebar?: boolean; // only the sidebar needs analysis data & is loading
   analysisError?: Error;
   experiment: getExperiment_experimentBySlug;
+  refetch?: () => Promise<any>;
 } & RouteComponentProps;
 
 export const AppLayoutSidebarLaunched = ({
@@ -79,6 +80,7 @@ export const AppLayoutSidebarLaunched = ({
   analysisLoadingInSidebar = false,
   analysisError,
   experiment,
+  refetch = async () => {},
 }: AppLayoutSidebarLaunchedProps) => {
   const { slug } = useParams();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
@@ -275,7 +277,7 @@ export const AppLayoutSidebarLaunched = ({
                   )}
                 </DisabledItem>
               )}
-              <SidebarActions {...{ experiment }} />
+              <SidebarActions {...{ experiment, refetch }} />
             </Nav>
           </nav>
         </Col>
