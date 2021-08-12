@@ -63,6 +63,13 @@ class NimbusExperimentManager(models.Manager):
             NimbusExperiment.Filters.IS_ENDING, application__in=applications
         )
 
+    def with_related(self):
+        return self.get_queryset().prefetch_related(
+            "owner",
+            "changes",
+            "feature_config",
+        )
+
 
 class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     is_archived = models.BooleanField(default=False)
@@ -262,20 +269,29 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     @property
     def start_date(self):
-        start_changelogs = self.changes.filter(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        )
-        if start_changelogs.exists():
-            return start_changelogs.order_by("-changed_on").first().changed_on.date()
+        start_changelogs = [
+            c
+            for c in self.changes.all()
+            if c.old_status == NimbusExperiment.Status.DRAFT
+            and c.new_status == NimbusExperiment.Status.LIVE
+        ]
+        if start_changelogs:
+            return sorted(start_changelogs, key=lambda c: c.changed_on)[
+                -1
+            ].changed_on.date()
 
     @property
     def end_date(self):
-        end_changelogs = self.changes.filter(
-            old_status=self.Status.LIVE, new_status=self.Status.COMPLETE
-        )
-        if end_changelogs.exists():
-            return end_changelogs.order_by("-changed_on").first().changed_on.date()
+        changes = self.changes.all()
+        end_changelogs = [
+            c
+            for c in changes
+            if c.old_status == self.Status.LIVE and c.new_status == self.Status.COMPLETE
+        ]
+        if end_changelogs:
+            return sorted(end_changelogs, key=lambda c: c.changed_on)[
+                -1
+            ].changed_on.date()
 
     @property
     def proposed_enrollment_end_date(self):
