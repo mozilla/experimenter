@@ -7,7 +7,10 @@ from experimenter.experiments.changelog_utils import (
 )
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
+from experimenter.experiments.tests.factories.nimbus import (
+    NimbusChangeLogFactory,
+    NimbusFeatureConfigFactory,
+)
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
@@ -251,3 +254,12 @@ class TestGenerateNimbusChangeLog(TestCase):
         change = generate_nimbus_changelog(experiment, self.user, "test message")
 
         self.assertTrue(change.published_dto_changed)
+
+    def test_generates_changelog_with_out_of_date_latest_change(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment, experiment_data={"some_old": "data"}
+        )
+        generate_nimbus_changelog(experiment, self.user, "test message")
