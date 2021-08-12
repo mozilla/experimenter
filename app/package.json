@@ -4,7 +4,8 @@
   "private": true,
   "workspaces": [
     "experimenter/legacy-ui/*",
-    "experimenter/nimbus-ui"
+    "experimenter/nimbus-ui",
+    "experimenter/reporting/reporting-ui"
   ],
   "dependencies": {
     "react-select": "^4.3.0"
