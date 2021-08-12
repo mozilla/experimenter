@@ -11,6 +11,8 @@ from nimbus.models.base_dataclass import (
     BaseExperimentDataClass,
     BaseExperimentMetricsDataClass,
 )
+from nimbus.remote_settings.pages.dashboard import Dashboard
+from nimbus.remote_settings.pages.login import Login
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -116,3 +118,25 @@ def create_experiment():
         return review
 
     return _create_experiment
+
+
+@pytest.fixture
+def perform_kinto_action():
+    def _perform_kinto_action(selenium, base_url, action):
+        selenium.get("http://kinto:8888/v1/admin")
+        kinto_login = Login(selenium, base_url).wait_for_page_to_load()
+        kinto_login.kinto_auth.click()
+        kinto_dashbard = kinto_login.login()
+        bucket = kinto_dashbard.buckets[-1]
+        for item in bucket.bucket_category:
+            if "nimbus-desktop-experiments" in item.text:
+                item.click()
+                break
+        record = kinto_dashbard.record
+        record.action(action)
+        if action == "reject":
+            kinto_dashbard = Dashboard(selenium, base_url)
+            modal = kinto_dashbard.reject_modal
+            modal.decline_changes()
+
+    return _perform_kinto_action

@@ -3,8 +3,6 @@ import time
 import pytest
 from nimbus.pages.home import HomePage
 from nimbus.pages.summary import SummaryPage
-from nimbus.remote_settings.pages.dashboard import Dashboard
-from nimbus.remote_settings.pages.login import Login
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
@@ -18,7 +16,7 @@ def test_create_new_experiment(selenium, base_url, default_data, create_experime
 
 
 def test_create_new_experiment_remote_settings(
-    selenium, base_url, default_data, create_experiment
+    selenium, base_url, default_data, create_experiment, perform_kinto_action
 ):
     default_data.public_name = "test_create_new_experiment_remote_settings"
 
@@ -36,17 +34,8 @@ def test_create_new_experiment_remote_settings(
     review.request_review.request_launch_button.click()
     review.approve()
 
-    selenium.get("http://kinto:8888/v1/admin")
-    kinto_login = Login(selenium, base_url).wait_for_page_to_load()
-    kinto_login.kinto_auth.click()
-    kinto_dashbard = kinto_login.login()
-    bucket = kinto_dashbard.buckets[-1]
-    for item in bucket.bucket_category:
-        if "nimbus-desktop-experiments" in item.text:
-            item.click()
-            break
-    record = kinto_dashbard.record
-    record.action()
+    perform_kinto_action(selenium, base_url, "approve")
+
     selenium.get(base_url)
     # refresh until the experiment shows up
     for attempt in range(45):
@@ -72,7 +61,7 @@ def test_create_new_experiment_remote_settings(
 
 
 def test_create_new_experiment_remote_settings_reject(
-    selenium, base_url, default_data, create_experiment
+    selenium, base_url, default_data, create_experiment, perform_kinto_action
 ):
     default_data.public_name = "test_create_new_experiment_remote_settings_reject"
 
@@ -85,20 +74,7 @@ def test_create_new_experiment_remote_settings_reject(
     review.request_review.request_launch_button.click()
     review.approve()
 
-    selenium.get("http://kinto:8888/v1/admin")
-    kinto_login = Login(selenium, base_url).wait_for_page_to_load()
-    kinto_login.kinto_auth.click()
-    kinto_dashbard = kinto_login.login()
-    bucket = kinto_dashbard.buckets[-1]
-    for item in bucket.bucket_category:
-        if "nimbus-desktop-experiments" in item.text:
-            item.click()
-            break
-    record = kinto_dashbard.record
-    record.action("reject")
-    kinto_dashbard = Dashboard(selenium, base_url)
-    modal = kinto_dashbard.reject_modal
-    modal.decline_changes()
+    perform_kinto_action(selenium, base_url, "reject")
 
     # Load home page and wait for experiment to show in the Drafts tab
     drafts_tab_url = f"{base_url}?tab=drafts"
