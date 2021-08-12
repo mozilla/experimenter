@@ -69,7 +69,7 @@
               {{ request.user.subscribed_experiments.count }} Subscribed
               Deliver{{ request.user.subscribed_experiments.count|pluralize:"y,ies" }}
             </a>
-            <a class="nocolorstyle d-block" href="{% url "home" %}reporting">
+            <a class="nocolorstyle d-block" href="{% url "reporting" %}">
               <span class="fas fa-table"></span>
               Go to Reporting
             </a>
