@@ -36,7 +36,7 @@ type PageHomeProps = Record<string, any> & RouteComponentProps;
 
 export const Body = () => {
   const config = useConfig();
-  const [searchParams, updateSearchParams] = useSearchParamsState();
+  const [searchParams, updateSearchParams] = useSearchParamsState("PageHome");
   const { data, loading, error, refetch } = useQuery<{
     experiments: getAllExperiments_experiments[];
   }>(GET_EXPERIMENTS_QUERY, { fetchPolicy: "network-only" });
