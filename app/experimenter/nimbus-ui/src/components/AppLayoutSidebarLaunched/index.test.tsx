@@ -53,6 +53,7 @@ const Subject = ({
             }
           : undefined,
         experiment,
+        refetch: async () => {},
       }}
     >
       <p data-testid="test-child">Hello, world!</p>
