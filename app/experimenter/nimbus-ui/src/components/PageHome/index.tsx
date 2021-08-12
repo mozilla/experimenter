@@ -39,7 +39,7 @@ export const Body = () => {
   const [searchParams, updateSearchParams] = useSearchParamsState();
   const { data, loading, error, refetch } = useQuery<{
     experiments: getAllExperiments_experiments[];
-  }>(GET_EXPERIMENTS_QUERY);
+  }>(GET_EXPERIMENTS_QUERY, { fetchPolicy: "network-only" });
   const ErrorAlert = useRefetchOnError(error, refetch);
 
   const selectedTab = searchParams.get("tab") || "live";
