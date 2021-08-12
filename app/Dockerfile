@@ -6,8 +6,8 @@ FROM alpine:3.12.0 as file-loader
 # Credit: https://gist.github.com/kekru/8ac61cd87536a4355220b56ae2f4b0a9
 COPY . /app/
 RUN chmod -R 555 /app \
- && chown -R root:root /app \
- && find /app -exec touch -a -m -t 201512180130.09 {} \;
+    && chown -R root:root /app \
+    && find /app -exec touch -a -m -t 201512180130.09 {} \;
 
 
 # Dev image
@@ -64,6 +64,9 @@ RUN yarn install --frozen-lockfile
 COPY --from=file-loader /app/experimenter/nimbus-ui/package.json /app/experimenter/nimbus-ui/package.json
 RUN yarn install --frozen-lockfile
 
+COPY --from=file-loader /app/experimenter/reporting/reporting-ui/package.json /app/experimenter/reporting/reporting-ui/package.json
+RUN yarn install --frozen-lockfile
+
 
 FROM dev AS test
 
@@ -80,7 +83,8 @@ COPY --from=file-loader /app/experimenter/legacy-ui/ /app/experimenter/legacy-ui
 RUN yarn workspace @experimenter/core build
 COPY --from=file-loader /app/experimenter/nimbus-ui/ /app/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/nimbus-ui build
-
+COPY --from=file-loader /app/experimenter/reporting/reporting-ui/ /app/experimenter/reporting/reporting-ui/
+RUN yarn workspace @experimenter/reporting build
 
 # Deploy image
 FROM python:3.9-slim AS deploy
@@ -108,4 +112,5 @@ COPY --from=dev /app/bin/ /app/bin/
 COPY --from=file-loader /app/manage.py /app/manage.py
 COPY --from=file-loader /app/experimenter/ /app/experimenter/
 COPY --from=ui /app/experimenter/legacy-ui/assets/ /app/experimenter/legacy-ui/assets/
+COPY --from=ui /app/experimenter/reporting/reporting-ui/assets/ /app/experimenter/reporting/reporting-ui/assets/
 COPY --from=ui /app/experimenter/nimbus-ui/build/ /app/experimenter/nimbus-ui/build/

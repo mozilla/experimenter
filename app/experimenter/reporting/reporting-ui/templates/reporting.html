@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block header_content %}
+<div data-react-dom-render="reporting">
+
+</div>
+<script async src="{% static "reporting/main.js" %}"></script>
+{% endblock %}
+{% block main %}
+
+
+
+{% endblock %}
+{{ block.super }}
+{% block extrascripts %}
+{% endblock %}
