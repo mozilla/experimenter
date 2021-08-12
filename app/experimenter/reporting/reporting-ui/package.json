@@ -1,0 +1,51 @@
+{
+    "name": "@experimenter/reporting",
+    "version": "1.0.0",
+    "license": "MPL-2.0",
+    "dependencies": {
+        "@babel/core": "7.10.2",
+        "@babel/plugin-proposal-class-properties": "7.10.1",
+        "@babel/plugin-proposal-decorators": "7.10.1",
+        "@babel/plugin-proposal-object-rest-spread": "7.10.1",
+        "@babel/plugin-transform-runtime": "7.10.1",
+        "@babel/preset-env": "7.10.2",
+        "@babel/preset-react": "7.10.1",
+        "@babel/preset-typescript": "7.10.1",
+        "@testing-library/jest-dom": "5.14.1",
+        "@testing-library/react": "^11.1.0",
+        "@testing-library/user-event": "^12.1.10",
+        "@types/jest": "26.0.23",
+        "@types/node": "^12.0.0",
+        "@types/react": "^17.0.0",
+        "@types/react-dom": "^17.0.0",
+        "@types/testing-library__jest-dom": "5.14.0",
+        "babel-jest": "26.0.1",
+        "babel-loader": "8.1.0",
+        "jest-fetch-mock": "3.0.3",
+        "react": "^17.0.2",
+        "react-bootstrap": "1.6.1",
+        "react-csv": "2.0.3",
+        "react-dom": "^17.0.2",
+        "typescript": "4.3.4",
+        "webpack": "5.38.1",
+        "webpack-cli": "4.7.0"
+    },
+    "scripts": {
+        "build": "yarn clean; webpack --mode production --progress",
+        "clean": "rimraf ./assets",
+        "lint": "yarn lint:eslint; yarn lint:tsc",
+        "lint:eslint": "eslint --no-error-on-unmatched-pattern --color --max-warnings 0 ./**/*.js ./**/*.ts ./**/*.tsx",
+        "lint:tsc": "tsc --noEmit --project tsconfig.json",
+        "test": "jest --coverage",
+        "watch": "webpack --watch --mode development --progress"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "devDependencies": {
+        "jest-environment-jsdom-sixteen": "2.0.0"
+    }
+}

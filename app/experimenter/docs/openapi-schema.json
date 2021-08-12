@@ -1395,7 +1395,7 @@
         ]
       }
     },
-    "/api/v7/{start_date}/{end_date}": {
+    "/api/v7/{start_date}/{end_date}/": {
       "get": {
         "operationId": "retrieveReportData",
         "description": "",
