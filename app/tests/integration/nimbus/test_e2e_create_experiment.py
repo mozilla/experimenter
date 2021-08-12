@@ -8,46 +8,8 @@ from nimbus.remote_settings.pages.login import Login
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
-def create_experiment(selenium, home_page, data):
-    experiment = home_page.create_new_button()
-    experiment.public_name = data.public_name
-    experiment.hypothesis = data.hypothesis
-    experiment.application = data.application.value
-
-    # Fill Overview Page
-    overview = experiment.save_and_continue()
-    overview.public_description = data.public_description
-    overview.select_risk_brand_false()
-    overview.select_risk_revenue_false()
-    overview.select_risk_partner_false()
-
-    # Fill Branches page
-    branches = overview.save_and_continue()
-    branches.remove_branch()
-    branches.reference_branch_name = data.branches[0].name
-    branches.reference_branch_description = data.branches[0].description
-    branches.feature_config = data.branches[0].feature_config
-
-    # Fill Metrics page
-    metrics = branches.save_and_continue()
-
-    # Fill Audience page
-    audience = metrics.save_and_continue()
-    audience.channel = data.audience.channel.value
-    audience.min_version = data.audience.min_version
-    audience.targeting = data.audience.targeting.value
-    audience.percentage = data.audience.percentage
-    audience.expected_clients = data.audience.expected_clients
-    audience.save_btn()
-    review = audience.save_and_continue()
-
-    # Review
-    selenium.find_element_by_css_selector("#PageSummary")
-    return review
-
-
 @pytest.mark.nondestructive
-def test_create_new_experiment(selenium, base_url, default_data):
+def test_create_new_experiment(selenium, base_url, default_data, create_experiment):
     default_data.public_name = "test_create_new_experiment"
 
     selenium.get(base_url)
@@ -55,7 +17,9 @@ def test_create_new_experiment(selenium, base_url, default_data):
     create_experiment(selenium, home, default_data)
 
 
-def test_create_new_experiment_remote_settings(selenium, base_url, default_data):
+def test_create_new_experiment_remote_settings(
+    selenium, base_url, default_data, create_experiment
+):
     default_data.public_name = "test_create_new_experiment_remote_settings"
 
     selenium.get(base_url)
@@ -107,7 +71,9 @@ def test_create_new_experiment_remote_settings(selenium, base_url, default_data)
     assert "live" in summary_page.experiment_status.lower()
 
 
-def test_create_new_experiment_remote_settings_reject(selenium, base_url, default_data):
+def test_create_new_experiment_remote_settings_reject(
+    selenium, base_url, default_data, create_experiment
+):
     default_data.public_name = "test_create_new_experiment_remote_settings_reject"
 
     selenium.get(base_url)
@@ -170,7 +136,9 @@ def test_create_new_experiment_remote_settings_reject(selenium, base_url, defaul
         raise AssertionError("Experiment page didn't load")
 
 
-def test_create_new_experiment_remote_settings_timeout(selenium, base_url, default_data):
+def test_create_new_experiment_remote_settings_timeout(
+    selenium, base_url, default_data, create_experiment
+):
     default_data.public_name = "test_create_new_experiment_remote_settings_timeout"
 
     selenium.get(base_url)
