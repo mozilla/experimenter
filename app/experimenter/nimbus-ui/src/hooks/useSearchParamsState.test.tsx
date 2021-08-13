@@ -4,43 +4,16 @@
 
 import { useNavigate } from "@reach/router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import React from "react";
+import React, { useContext } from "react";
 import { RouterSlugProvider } from "../lib/test-utils";
-import useSearchParamsState, { genStorageKey } from "./useSearchParamsState";
+import useSearchParamsState, {
+  SearchParamsContext,
+} from "./useSearchParamsState";
 
 // TODO: Work out how to test this stuff with @testing-library/react-hooks?
 // Depends on being wrapped by @reach/router, so that seems to make it difficult
 
 describe("hooks/useSearchParamsState", () => {
-  let originalSessionStorage: typeof window.sessionStorage;
-
-  beforeAll(() => {
-    originalSessionStorage = window.sessionStorage;
-    // @ts-ignore excuse this hackery for mocking sessionStorage
-    delete window.sessionStorage;
-    Object.defineProperty(window, "sessionStorage", {
-      writable: true,
-      value: {
-        getItem: jest.fn().mockName("getItem"),
-        setItem: jest.fn().mockName("setItem"),
-      },
-    });
-  });
-
-  beforeEach(() => {
-    // @ts-ignore excuse this hackery for mocking sessionStorage
-    sessionStorage.getItem.mockClear();
-    // @ts-ignore excuse this hackery for mocking sessionStorage
-    sessionStorage.setItem.mockClear();
-  });
-
-  afterAll(() => {
-    Object.defineProperty(window, "sessionStorage", {
-      writable: true,
-      value: originalSessionStorage,
-    });
-  });
-
   it("returns the current search parameters", async () => {
     const expected = { foo: "bar", baz: "quux" };
     const params = new URLSearchParams(expected);
@@ -69,68 +42,64 @@ describe("hooks/useSearchParamsState", () => {
   });
 
   it("preserves search parameters on navigation", async () => {
-    const storageSubKey = "PageFoo";
+    const storageKey = "PageFoo";
     const expectedSearch = "wibble=wobble&beep=beep";
     const path = `/xyzzy/edit?${expectedSearch}`;
 
-    render(<Subject {...{ path, storageSubKey, navigateTo: "/quux/edit" }} />);
+    render(<Subject {...{ path, storageKey, navigateTo: "/quux/edit" }} />);
     fireEvent.click(screen.getByTestId("navigate"));
 
     await waitFor(() => {
-      expect(window.sessionStorage.setItem).toHaveBeenCalledWith(
-        genStorageKey(storageSubKey),
-        expectedSearch,
+      expect(screen.getByTestId("storage")).toHaveTextContent(
+        JSON.stringify({
+          current: {
+            [storageKey]: expectedSearch,
+          },
+        }),
       );
     });
   });
 
   it("restores search parameters on navigation with empty params", async () => {
-    const storageSubKey = "PageFoo";
+    const storageKey = "PageFoo";
     const expectedSearch = "wibble=wobble&beep=beep";
-
-    // @ts-ignore excuse this hackery for mocking sessionStorage
-    window!.sessionStorage!.getItem.mockImplementation(() => expectedSearch);
 
     render(
       <Subject
         {...{
-          storageSubKey,
+          storageKey,
           path: "/xyzzy/edit?donot=restorethis",
           navigateTo: "/quux/edit",
+          initialStorage: {
+            [storageKey]: expectedSearch,
+          },
         }}
       />,
     );
+
     fireEvent.click(screen.getByTestId("navigate"));
 
     await waitFor(() => {
-      expect(window.sessionStorage.getItem).toHaveBeenCalledWith(
-        genStorageKey(storageSubKey),
-      );
       expect(screen.getByTestId("params").textContent).toEqual(expectedSearch);
     });
   });
 
   it("does not restore empty search parameters", async () => {
-    const storageSubKey = "PageFoo";
-
-    // @ts-ignore excuse this hackery for mocking sessionStorage
-    window!.sessionStorage!.getItem.mockImplementation(() => null);
-
+    const storageKey = "PageFoo";
     render(
       <Subject
         {...{
-          storageSubKey,
+          storageKey,
           path: "/xyzzy/edit?donot=restorethis",
-          navigateTo: "/quux/edit",
+          navigateTo: "/xyzzy/edit",
+          initialStorage: {},
         }}
       />,
     );
+
     fireEvent.click(screen.getByTestId("navigate"));
 
     await waitFor(() => {
-      expect(window.sessionStorage.getItem).toHaveBeenCalledWith(
-        genStorageKey(storageSubKey),
-      );
       expect(screen.getByTestId("params").textContent).toEqual("");
     });
   });
@@ -140,7 +109,8 @@ describe("hooks/useSearchParamsState", () => {
     paramsToDelete?: Array<string>;
     // TODO: This should be Array<[string, string]> but current eslint version trips on it
     paramsToSet?: Array<string[]>;
-    storageSubKey?: string;
+    initialStorage?: Record<string, string>;
+    storageKey?: string;
     navigateTo?: string;
   }
   const Subject = (props: SubjectProps) => (
@@ -149,9 +119,14 @@ describe("hooks/useSearchParamsState", () => {
     </RouterSlugProvider>
   );
   const SubjectInner = (props: SubjectProps) => {
-    const { storageSubKey, navigateTo } = props;
+    const { storageKey, navigateTo, initialStorage } = props;
     const navigate = useNavigate();
-    const [params, setParams] = useSearchParamsState(storageSubKey);
+    const [params, setParams] = useSearchParamsState(storageKey);
+    const storage = useContext(SearchParamsContext);
+
+    if (initialStorage) {
+      Object.assign(storage!.current, initialStorage);
+    }
 
     const onSetParamsClick = () => {
       const { paramsToDelete = [], paramsToSet = [] } = props;
@@ -170,6 +145,7 @@ describe("hooks/useSearchParamsState", () => {
     return (
       <div>
         <code data-testid="params">{params.toString()}</code>
+        <code data-testid="storage">{JSON.stringify(storage)}</code>
         <button data-testid="setParams" onClick={onSetParamsClick}>
           Set params
         </button>
