@@ -39,8 +39,6 @@ export const getControlBranchName = (analysis: AnalysisData) => {
       return branchName;
     }
   }
-  // we should never get here in practice
-  return "";
 };
 
 export const getTableDisplayType = (
@@ -68,8 +66,8 @@ export const getTableDisplayType = (
   return displayType;
 };
 
-// Returns [control branch name, reference branch names]
-export const getSortedBranches = (analysis: AnalysisData) => {
+// Returns [control/reference branch name, treatment branch names]
+export const getSortedBranchNames = (analysis: AnalysisData) => {
   const controlBranchName = getControlBranchName(analysis);
 
   const unshiftControlBranch = (

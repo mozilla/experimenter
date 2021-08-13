@@ -4,12 +4,13 @@
 
 import React from "react";
 import { AnalysisData } from "./visualization/types";
-import { getControlBranchName, getSortedBranches } from "./visualization/utils";
+import { getSortedBranchNames } from "./visualization/utils";
 
 export type ResultsContextType = {
   analysis: AnalysisData;
-  sortedBranches: ReturnType<typeof getSortedBranches>;
-  controlBranchName: ReturnType<typeof getControlBranchName>;
+  sortedBranches: ReturnType<typeof getSortedBranchNames>;
+  // getControlBranchName fn returns string | undefined, but will never be undefined in practice
+  controlBranchName: string;
 };
 
 export const defaultResultsContext = {
