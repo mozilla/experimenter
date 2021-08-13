@@ -19,3 +19,10 @@ export const optionalBoolString = (
   }
   return String(value);
 };
+
+// function getKeyByValue(
+//   object: { [key: string]: any },
+//   value: { [key: string]: any },
+// ) {
+//   return Object.keys(object).find((key) => object[key] === value);
+// }

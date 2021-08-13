@@ -58,6 +58,7 @@ const TableMetricCount = ({
   const {
     analysis: { metadata, overall, weekly },
     sortedBranches,
+    controlBranchName,
   } = useContext(ResultsContext);
   const overallResults = overall!;
 
@@ -132,6 +133,7 @@ const TableMetricCount = ({
                           results={overallResults[branch]}
                           tableLabel={TABLE_LABEL.SECONDARY_METRICS}
                           metricKey={outcomeSlug}
+                          isControlBranch={branch === controlBranchName}
                           {...{ displayType, branchComparison, bounds, group }}
                         />
                       ),

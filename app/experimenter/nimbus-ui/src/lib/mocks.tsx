@@ -46,7 +46,7 @@ import { getStatus } from "./experiment";
 import { OutcomesList, OutcomeSlugs } from "./types";
 import { mockAnalysis } from "./visualization/mocks";
 import { AnalysisData } from "./visualization/types";
-import { getSortedBranches } from "./visualization/utils";
+import { getControlBranchName, getSortedBranches } from "./visualization/utils";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;
@@ -759,6 +759,7 @@ export const MockResultsContextProvider = ({
   const value = {
     analysis,
     sortedBranches: getSortedBranches(analysis),
+    controlBranchName: getControlBranchName(analysis),
   };
 
   return (

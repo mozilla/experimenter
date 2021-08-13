@@ -4,11 +4,12 @@
 
 import React from "react";
 import { AnalysisData } from "./visualization/types";
-import { getSortedBranches } from "./visualization/utils";
+import { getControlBranchName, getSortedBranches } from "./visualization/utils";
 
 export type ResultsContextType = {
   analysis: AnalysisData;
   sortedBranches: ReturnType<typeof getSortedBranches>;
+  controlBranchName: ReturnType<typeof getControlBranchName>;
 };
 
 export const defaultResultsContext = {
@@ -20,6 +21,7 @@ export const defaultResultsContext = {
     show_analysis: false,
   },
   sortedBranches: [],
+  controlBranchName: "",
 };
 
 export const ResultsContext = React.createContext<ResultsContextType>(

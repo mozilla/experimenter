@@ -41,7 +41,7 @@ const showSignificanceField = (
   name: string,
   tableLabel: string,
   tooltip: string,
-  isControl = false,
+  isControlBranch = false,
 ) => {
   let significanceIcon,
     changeText = "";
@@ -93,7 +93,8 @@ const showSignificanceField = (
   return (
     <>
       <span {...{ className }} data-testid={className}>
-        {significanceIcon}&nbsp;{interval}&nbsp;{isControl && BASELINE_TEXT}
+        {significanceIcon}&nbsp;{interval}&nbsp;
+        {isControlBranch && BASELINE_TEXT}
       </span>
       <ReactTooltip />
     </>
@@ -140,7 +141,7 @@ const countField = (
   metricName: string,
   tableLabel: string,
   tooltip: string,
-  isControl = false,
+  isControlBranch = false,
 ) => {
   const interval = `${lower.toFixed(2)} to ${upper.toFixed(2)}`;
   return showSignificanceField(
@@ -149,7 +150,7 @@ const countField = (
     metricName,
     tableLabel,
     tooltip,
-    isControl,
+    isControlBranch,
   );
 };
 
@@ -160,7 +161,7 @@ const percentField = (
   metricName: string,
   tableLabel: string,
   tooltip: string,
-  isControl = false,
+  isControlBranch = false,
 ) => {
   const interval = `${Math.round(lower * 1000) / 10}% to ${
     Math.round(upper * 1000) / 10
@@ -171,7 +172,7 @@ const percentField = (
     metricName,
     tableLabel,
     tooltip,
-    isControl,
+    isControlBranch,
   );
 };
 
@@ -190,6 +191,7 @@ const TableVisualizationRow: React.FC<{
   results: BranchDescription;
   group: string;
   tableLabel: string;
+  isControlBranch: boolean;
   metricName?: string;
   displayType?: DISPLAY_TYPE;
   branchComparison?: string;
@@ -201,6 +203,7 @@ const TableVisualizationRow: React.FC<{
   results,
   group,
   tableLabel,
+  isControlBranch,
   metricName = "",
   displayType,
   branchComparison,
@@ -208,7 +211,7 @@ const TableVisualizationRow: React.FC<{
   window = "overall",
   bounds = 0.05,
 }) => {
-  const { branch_data, is_control } = results;
+  const { branch_data } = results;
   const metricData = branch_data[group][metricKey];
   const fieldList = [];
 
@@ -221,7 +224,9 @@ const TableVisualizationRow: React.FC<{
     tooltipText = tooltip;
     field = <div>{BASELINE_TEXT}</div>;
     const percent = branch_data[GROUP.OTHER][METRIC.USER_COUNT]["percent"];
-    const branchType = is_control ? VARIANT_TYPE.CONTROL : VARIANT_TYPE.VARIANT;
+    const branchType = isControlBranch
+      ? VARIANT_TYPE.CONTROL
+      : VARIANT_TYPE.VARIANT;
     branchComparison =
       branchComparison || dataTypeMapping[tableLabel][branchType];
 
@@ -252,7 +257,7 @@ const TableVisualizationRow: React.FC<{
               metricName,
               tableLabel,
               tooltipText,
-              is_control,
+              isControlBranch,
             );
             break;
           case DISPLAY_TYPE.PERCENT:
@@ -264,7 +269,7 @@ const TableVisualizationRow: React.FC<{
               metricName,
               tableLabel,
               tooltipText,
-              is_control,
+              isControlBranch,
             );
             break;
           case DISPLAY_TYPE.CONVERSION_COUNT:

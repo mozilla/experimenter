@@ -13,7 +13,6 @@ import {
   AnalysisDataOverall,
   AnalysisDataWeekly,
   FormattedAnalysisPoint,
-  Metadata,
 } from "./types";
 
 // `show_analysis` is the feature flag for turning visualization on/off.
@@ -29,14 +28,13 @@ export const analysisUnavailable = (analysis: AnalysisData | undefined) =>
  * metadata in schema version 3+ and should be considered the "true" control branch used
  * when the analysis occurs.
  */
-export const getControlBranchName = (
-  { reference_branch }: { reference_branch: Metadata["reference_branch"] },
-  results: AnalysisDataOverall | AnalysisDataWeekly,
-) => {
-  if (reference_branch) {
-    return reference_branch;
+export const getControlBranchName = (analysis: AnalysisData) => {
+  const { reference_branch: referenceBranch } = analysis.metadata || {};
+  if (referenceBranch) {
+    return referenceBranch;
   }
-  for (const [branchName, branchData] of Object.entries(results)) {
+  const results = analysis.overall || analysis.weekly;
+  for (const [branchName, branchData] of Object.entries(results!)) {
     if (branchData.is_control) {
       return branchName;
     }
@@ -70,24 +68,24 @@ export const getTableDisplayType = (
   return displayType;
 };
 
-// Ensures the control branch is first
+// Returns [control branch name, reference branch names]
 export const getSortedBranches = (analysis: AnalysisData) => {
+  const controlBranchName = getControlBranchName(analysis);
+
+  const unshiftControlBranch = (
+    results: AnalysisDataOverall | AnalysisDataWeekly,
+  ) => {
+    const branches = Object.keys(results).filter(
+      (branch) => branch !== controlBranchName,
+    );
+    branches.unshift(controlBranchName);
+    return branches;
+  };
+
   if (analysis.overall) {
-    return Object.keys(analysis.overall)
-      .filter((branch) => analysis.overall?.[branch].is_control)
-      .concat(
-        Object.keys(analysis.overall).filter(
-          (branch) => !analysis.overall?.[branch].is_control,
-        ),
-      );
+    return unshiftControlBranch(analysis.overall);
   } else if (analysis.weekly) {
-    return Object.keys(analysis.weekly)
-      .filter((branch) => analysis.weekly?.[branch].is_control)
-      .concat(
-        Object.keys(analysis.weekly).filter(
-          (branch) => !analysis.weekly?.[branch].is_control,
-        ),
-      );
+    return unshiftControlBranch(analysis.weekly);
   }
   return [];
 };

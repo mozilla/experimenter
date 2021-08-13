@@ -56,11 +56,11 @@ const TableWeekly = ({
   const {
     analysis: { weekly },
     sortedBranches,
+    controlBranchName,
   } = useContext(ResultsContext);
   const weeklyResults = weekly!;
   const weekIndexList = getWeekIndexList(metricKey, group, weeklyResults);
   const tableLabel = TABLE_LABEL.RESULTS;
-  // const controlBranchName = getControlBranchName(results.metadata, results);
 
   return (
     <table
@@ -83,12 +83,29 @@ const TableWeekly = ({
       </thead>
       <tbody>
         {sortedBranches.map((branch) => {
-          const isControlBranch = weeklyResults[branch]["is_control"];
+          const isControlBranch = branch === controlBranchName;
           const displayType = getTableDisplayType(
             metricKey,
             tableLabel,
             isControlBranch,
           );
+
+          const TableRow = ({ key }: { key: string }) => (
+            <TableVisualizationRow
+              results={weeklyResults[branch]}
+              {...{
+                key,
+                tableLabel,
+                group,
+                metricName,
+                metricKey,
+                displayType,
+                branchComparison,
+                isControlBranch,
+              }}
+            />
+          );
+
           return (
             <tr key={`${branch}-${metricKey}`}>
               <th className="align-middle" scope="row">
@@ -99,32 +116,10 @@ const TableWeekly = ({
               {isControlBranch &&
               branchComparison === BRANCH_COMPARISON.UPLIFT ? (
                 weekIndexList.map((weekIndex) => (
-                  <TableVisualizationRow
-                    key={`${displayType}-${metricKey}-${weekIndex}}`}
-                    results={weeklyResults[branch]}
-                    {...{
-                      tableLabel,
-                      group,
-                      metricName,
-                      metricKey,
-                      displayType,
-                      branchComparison,
-                    }}
-                  />
+                  <TableRow key={`${displayType}-${metricKey}-${weekIndex}}`} />
                 ))
               ) : (
-                <TableVisualizationRow
-                  key={`${displayType}-${metricKey}`}
-                  results={weeklyResults[branch]}
-                  {...{
-                    tableLabel,
-                    group,
-                    metricName,
-                    metricKey,
-                    displayType,
-                    branchComparison,
-                  }}
-                />
+                <TableRow key={`${displayType}-${metricKey}`} />
               )}
             </tr>
           );

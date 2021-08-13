@@ -89,7 +89,13 @@ const TableMetricConversion = ({
                       results={results[branch]}
                       group={GROUP.OTHER}
                       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
-                      {...{ metricKey, displayType, branchComparison, bounds }}
+                      // isControlBranch={branch === controlBranchName}
+                      {...{
+                        metricKey,
+                        displayType,
+                        branchComparison,
+                        bounds,
+                      }}
                     />
                   ),
                 )}
