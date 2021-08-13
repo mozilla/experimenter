@@ -42,7 +42,7 @@ export function useSearchParamsState(storageKey?: string) {
     } else {
       const savedParams = storage.current[storageKey];
       if (savedParams) {
-        navigate(`${location.pathname}?${savedParams}`);
+        navigate(`${location.pathname}?${savedParams}`, { replace: true });
       }
     }
   }, [navigate, storage, storageKey, location.pathname, location.search]);
