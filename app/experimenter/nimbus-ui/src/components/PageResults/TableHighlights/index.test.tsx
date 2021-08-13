@@ -10,10 +10,47 @@ import {
   MockResultsContextProvider,
 } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import {
+  mockAnalysis,
+  MOCK_METADATA_NO_REF_BRANCH,
+} from "../../../lib/visualization/mocks";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 describe("TableHighlights", () => {
+  it("recieves correct controlBranchName from Context when metadata contains `reference_branch`", async () => {
+    const metadata = {
+      ...MOCK_METADATA_NO_REF_BRANCH,
+      reference_branch: "treatment",
+    };
+    const analysis = mockAnalysis({ metadata });
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <MockResultsContextProvider {...{ analysis }}>
+          <TableHighlights {...{ experiment }} />
+        </MockResultsContextProvider>
+      </RouterSlugProvider>,
+    );
+
+    // branches get sorted with the control branch displayed first
+    await screen.findByText("treatment", {
+      selector: "table tr:first-of-type",
+    });
+  });
+
+  it("sets controlBranchName in Context correctly when metadata does not contain `reference_branch`", async () => {
+    const analysis = mockAnalysis({ metadata: MOCK_METADATA_NO_REF_BRANCH });
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <MockResultsContextProvider {...{ analysis }}>
+          <TableHighlights {...{ experiment }} />
+        </MockResultsContextProvider>
+      </RouterSlugProvider>,
+    );
+
+    // branches get sorted with the control branch displayed first
+    await screen.findByText("control", { selector: "table tr:first-of-type" });
+  });
   it("has participants shown for each variant", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>

@@ -90,11 +90,10 @@ const TableWeekly = ({
             isControlBranch,
           );
 
-          const TableRow = ({ key }: { key: string }) => (
+          const TableRow = () => (
             <TableVisualizationRow
               results={weeklyResults[branch]}
               {...{
-                key,
                 tableLabel,
                 group,
                 metricName,

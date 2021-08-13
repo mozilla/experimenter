@@ -35,7 +35,6 @@ export const MOCK_METADATA_NO_REF_BRANCH = {
     },
   },
   outcomes: {},
-  reference_branch: "control",
 };
 
 export const MOCK_METADATA = {
