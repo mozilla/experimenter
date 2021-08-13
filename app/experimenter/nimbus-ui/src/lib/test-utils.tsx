@@ -13,6 +13,7 @@ import {
 } from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
+import { SearchParamsStateProvider } from "../hooks";
 import { snakeToCamelCase } from "./caseConversions";
 import { MockedCache, mockExperimentQuery } from "./mocks";
 
@@ -39,15 +40,19 @@ export const RouterSlugProvider = ({
   const history = createHistory(source);
 
   return (
-    <LocationProvider {...{ history }}>
-      <Router>
-        <Route
-          path=":slug/edit"
-          data-testid="app"
-          component={() => <MockedCache {...{ mocks }}>{children}</MockedCache>}
-        />
-      </Router>
-    </LocationProvider>
+    <SearchParamsStateProvider>
+      <LocationProvider {...{ history }}>
+        <Router>
+          <Route
+            path=":slug/edit"
+            data-testid="app"
+            component={() => (
+              <MockedCache {...{ mocks }}>{children}</MockedCache>
+            )}
+          />
+        </Router>
+      </LocationProvider>
+    </SearchParamsStateProvider>
   );
 };
 
