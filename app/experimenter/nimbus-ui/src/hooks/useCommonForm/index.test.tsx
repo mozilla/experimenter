@@ -229,6 +229,10 @@ describe("hooks/useCommonForm", () => {
 
     it("works with nested form fields", async () => {
       const feedback = "Too loud!!!";
+      const Wrapper: React.FC = ({ children }) => {
+        const formMethods = useForm({});
+        return <FormProvider {...formMethods}>{children}</FormProvider>;
+      };
       const {
         result: {
           current: { formControlAttrs, FormErrors },
@@ -247,10 +251,7 @@ describe("hooks/useCommonForm", () => {
             },
           ),
         {
-          wrapper: ({ children }: { children?: React.ReactNode }) => {
-            const formMethods = useForm({});
-            return <FormProvider {...formMethods}>{children}</FormProvider>;
-          },
+          wrapper: Wrapper,
         },
       );
 

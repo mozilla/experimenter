@@ -369,11 +369,11 @@ describe("filterTargetingConfigSlug", () => {
     const result = filterTargetingConfigSlug(targetingConfigSlug, application);
     expect(result).toHaveLength(2);
     expect(
-      result.find((item) => item.label == expectedNoTargetingLabel),
+      result.find((item) => item.label === expectedNoTargetingLabel),
     ).toBeDefined();
-    expect(result.find((item) => item.label == expectedLabel)).toBeDefined();
+    expect(result.find((item) => item.label === expectedLabel)).toBeDefined();
     expect(
-      result.find((item) => item.label == expectedMissingLabel),
+      result.find((item) => item.label === expectedMissingLabel),
     ).toBeUndefined();
   });
 });
