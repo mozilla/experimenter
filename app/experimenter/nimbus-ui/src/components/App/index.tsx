@@ -6,7 +6,7 @@ import { useQuery } from "@apollo/client";
 import { Redirect, RouteComponentProps, Router } from "@reach/router";
 import React from "react";
 import { GET_CONFIG_QUERY } from "../../gql/config";
-import { useRefetchOnError } from "../../hooks";
+import { SearchParamsStateProvider, useRefetchOnError } from "../../hooks";
 import PageEditAudience from "../PageEditAudience";
 import PageEditBranches from "../PageEditBranches";
 import PageEditMetrics from "../PageEditMetrics";
@@ -36,19 +36,21 @@ const App = ({ basepath }: { basepath: string }) => {
   }
 
   return (
-    <Router {...{ basepath }}>
-      <PageHome path="/" />
-      <PageNew path="new" />
-      <PageSummary path=":slug" />
-      <Root path=":slug/edit">
-        <Redirect from="/" to="overview" noThrow />
-        <PageEditOverview path="overview" />
-        <PageEditBranches path="branches" />
-        <PageEditMetrics path="metrics" />
-        <PageEditAudience path="audience" />
-      </Root>
-      <PageResults path=":slug/results" />
-    </Router>
+    <SearchParamsStateProvider>
+      <Router {...{ basepath }}>
+        <PageHome path="/" />
+        <PageNew path="new" />
+        <PageSummary path=":slug" />
+        <Root path=":slug/edit">
+          <Redirect from="/" to="overview" noThrow />
+          <PageEditOverview path="overview" />
+          <PageEditBranches path="branches" />
+          <PageEditMetrics path="metrics" />
+          <PageEditAudience path="audience" />
+        </Root>
+        <PageResults path=":slug/results" />
+      </Router>
+    </SearchParamsStateProvider>
   );
 };
 
