@@ -18,6 +18,7 @@ import {
 import { BranchComparisonValues } from "../../lib/visualization/types";
 import {
   analysisUnavailable,
+  getControlBranchName,
   getSortedBranches,
 } from "../../lib/visualization/utils";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
@@ -79,6 +80,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
         const resultsContextValue: ResultsContextType = {
           analysis,
           sortedBranches: getSortedBranches(analysis),
+          controlBranchName: getControlBranchName(analysis),
         };
 
         const slugUnderscored = experiment.slug.replace(/-/g, "_");
