@@ -6,6 +6,8 @@ import { MockedResponse } from "@apollo/client/testing";
 import {
   createHistory,
   createMemorySource,
+  History,
+  HistorySource,
   LocationProvider,
   RouteComponentProps,
   Router,
@@ -13,6 +15,7 @@ import {
 } from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
+import { SearchParamsStateProvider } from "../hooks";
 import { snakeToCamelCase } from "./caseConversions";
 import { MockedCache, mockExperimentQuery } from "./mocks";
 
@@ -30,24 +33,32 @@ export const RouterSlugProvider = ({
   path = "/demo-slug/edit",
   mocks = [],
   children,
+  mockHistorySource,
+  mockHistory,
 }: {
   path?: string;
   mocks?: MockedResponse<Record<string, any>>[];
+  mockHistorySource?: HistorySource;
+  mockHistory?: History;
   children: React.ReactElement;
 }) => {
-  const source = createMemorySource(path);
-  const history = createHistory(source);
+  const source = mockHistorySource || createMemorySource(path);
+  const history = mockHistory || createHistory(source);
 
   return (
-    <LocationProvider {...{ history }}>
-      <Router>
-        <Route
-          path=":slug/edit"
-          data-testid="app"
-          component={() => <MockedCache {...{ mocks }}>{children}</MockedCache>}
-        />
-      </Router>
-    </LocationProvider>
+    <SearchParamsStateProvider>
+      <LocationProvider {...{ history }}>
+        <Router>
+          <Route
+            path=":slug/edit"
+            data-testid="app"
+            component={() => (
+              <MockedCache {...{ mocks }}>{children}</MockedCache>
+            )}
+          />
+        </Router>
+      </LocationProvider>
+    </SearchParamsStateProvider>
   );
 };
 

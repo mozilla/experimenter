@@ -6,7 +6,7 @@ import { useQuery } from "@apollo/client";
 import { Redirect, RouteComponentProps, Router } from "@reach/router";
 import React from "react";
 import { GET_CONFIG_QUERY } from "../../gql/config";
-import ApolloErrorAlert from "../ApolloErrorAlert";
+import { SearchParamsStateProvider, useRefetchOnError } from "../../hooks";
 import PageEditAudience from "../PageEditAudience";
 import PageEditBranches from "../PageEditBranches";
 import PageEditMetrics from "../PageEditMetrics";
@@ -24,30 +24,33 @@ type RootProps = {
 const Root = (props: RootProps) => <>{props.children}</>;
 
 const App = ({ basepath }: { basepath: string }) => {
-  const { loading, error } = useQuery(GET_CONFIG_QUERY);
+  const { loading, error, refetch } = useQuery(GET_CONFIG_QUERY);
+  const ErrorAlert = useRefetchOnError(error, refetch, "mt-0");
 
   if (loading) {
     return <PageLoading />;
   }
 
   if (error) {
-    return <ApolloErrorAlert {...{ error }} />;
+    return ErrorAlert;
   }
 
   return (
-    <Router {...{ basepath }}>
-      <PageHome path="/" />
-      <PageNew path="new" />
-      <PageSummary path=":slug" />
-      <Root path=":slug/edit">
-        <Redirect from="/" to="overview" noThrow />
-        <PageEditOverview path="overview" />
-        <PageEditBranches path="branches" />
-        <PageEditMetrics path="metrics" />
-        <PageEditAudience path="audience" />
-      </Root>
-      <PageResults path=":slug/results" />
-    </Router>
+    <SearchParamsStateProvider>
+      <Router {...{ basepath }}>
+        <PageHome path="/" />
+        <PageNew path="new" />
+        <PageSummary path=":slug" />
+        <Root path=":slug/edit">
+          <Redirect from="/" to="overview" noThrow />
+          <PageEditOverview path="overview" />
+          <PageEditBranches path="branches" />
+          <PageEditMetrics path="metrics" />
+          <PageEditAudience path="audience" />
+        </Root>
+        <PageResults path=":slug/results" />
+      </Router>
+    </SearchParamsStateProvider>
   );
 };
 

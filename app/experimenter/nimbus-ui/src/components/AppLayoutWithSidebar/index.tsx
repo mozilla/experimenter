@@ -14,6 +14,7 @@ import { getStatus } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { LinkNav } from "../LinkNav";
 import LinkNavSummary from "../LinkNavSummary";
+import SidebarActions from "../SidebarActions";
 import { ReactComponent as ChartArrow } from "./chart-arrow.svg";
 import { ReactComponent as Cog } from "./cog.svg";
 import "./index.scss";
@@ -24,6 +25,7 @@ type AppLayoutWithSidebarProps = {
   testid?: string;
   children: React.ReactNode;
   experiment: getExperiment_experimentBySlug;
+  refetch?: () => Promise<any>;
 } & RouteComponentProps;
 
 export const editPages = [
@@ -53,12 +55,20 @@ export const AppLayoutWithSidebar = ({
   children,
   testid = "AppLayoutWithSidebar",
   experiment,
+  refetch = async () => {},
 }: AppLayoutWithSidebarProps) => {
   const { slug } = useParams();
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
   const status = getStatus(experiment);
-  const reviewOrPreview = !status?.idle || status?.preview;
-  const hasMissingDetails = invalidPages.length > 0 && !reviewOrPreview;
+  const hasMissingDetails = invalidPages.length > 0 && experiment.canEdit;
+  let lockedReason: string;
+  if (status.review) {
+    lockedReason = "in Review";
+  } else if (status.preview) {
+    lockedReason = "in Preview";
+  } else if (experiment.isArchived) {
+    lockedReason = "Archived";
+  }
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
@@ -77,7 +87,7 @@ export const AppLayoutWithSidebar = ({
                 textColor="text-secondary"
               >
                 <ChevronLeft className="ml-n1" width="18" height="18" />
-                Experiments
+                Back to Experiments
               </LinkNav>
 
               <LinkNavSummary
@@ -97,7 +107,7 @@ export const AppLayoutWithSidebar = ({
 
               <p className="edit-divider position-relative small my-2">
                 <span className="position-relative bg-light pl-1 pr-2 text-muted">
-                  Edit Experiment
+                  Edit
                 </span>
               </p>
 
@@ -108,16 +118,18 @@ export const AppLayoutWithSidebar = ({
                   storiesOf={`pages/Edit${page.name}`}
                   testid={`nav-edit-${page.slug}`}
                   title={
-                    reviewOrPreview
-                      ? "Experiments cannot be edited while in Review or Preview"
-                      : undefined
+                    experiment.canEdit
+                      ? undefined
+                      : `Experiments cannot be edited while ${lockedReason}`
                   }
-                  disabled={reviewOrPreview}
+                  disabled={!experiment.canEdit}
                 >
                   {page.icon}
                   {page.name}
                 </LinkNav>
               ))}
+
+              <SidebarActions {...{ experiment, refetch }} />
             </Nav>
           </nav>
         </Col>

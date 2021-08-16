@@ -10,9 +10,15 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
+import { act } from "@testing-library/react-hooks";
 import React from "react";
+import selectEvent from "react-select-event";
 import PageHome from ".";
-import { mockDirectoryExperimentsQuery } from "../../lib/mocks";
+import { REFETCH_DELAY } from "../../hooks";
+import {
+  mockDirectoryExperiments,
+  mockDirectoryExperimentsQuery,
+} from "../../lib/mocks";
 import { CurrentLocation, RouterSlugProvider } from "../../lib/test-utils";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 
@@ -34,20 +40,9 @@ describe("PageHome", () => {
     expect(screen.queryByTestId("page-loading")).toBeInTheDocument();
   });
 
-  it("displays loading when experiments are still loading", async () => {
+  it("displays no experiments text when none are found", async () => {
     await renderAndWaitForLoaded([]);
     expect(screen.queryByText("No experiments found.")).toBeInTheDocument();
-  });
-
-  it("renders the error alert when an error occurs", () => {
-    const error = new Error("You done it now!");
-
-    (jest.spyOn(apollo, "useQuery") as jest.Mock).mockReturnValueOnce({
-      error,
-    });
-
-    render(<Subject />);
-    expect(screen.queryByTestId("apollo-error-alert")).toBeInTheDocument();
   });
 
   const findTabs = () =>
@@ -57,11 +52,12 @@ describe("PageHome", () => {
       ["completed", screen.getByText("Completed (4)")],
       ["drafts", screen.getByText("Draft (3)")],
       ["live", screen.getByText("Live (3)")],
+      ["archived", screen.getByText("Archived (1)")],
     ] as const;
 
   it("displays five Directory Tables (one for each status type)", async () => {
     await renderAndWaitForLoaded();
-    expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(5);
+    expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(6);
     for (const [tabKey, tab] of findTabs()) {
       expect(tab).toBeInTheDocument();
     }
@@ -78,6 +74,54 @@ describe("PageHome", () => {
         );
       });
     }
+  });
+
+  it("renders the error warning and refetches when an error occurs querying experiments", async () => {
+    jest.useFakeTimers();
+    const experiments = mockDirectoryExperiments();
+    const mock = mockDirectoryExperimentsQuery(experiments);
+    const mockWithError = { ...mock, error: new Error("boop") };
+
+    render(
+      <RouterSlugProvider mocks={[mockWithError, mock]}>
+        <>
+          <CurrentLocation />
+          <PageHome {...{ experiments }} />
+        </>
+      </RouterSlugProvider>,
+    );
+
+    await screen.findByTestId("refetch-alert");
+    expect(
+      screen.queryByText("5 seconds", { exact: false }),
+    ).toBeInTheDocument();
+
+    act(() => {
+      jest.advanceTimersByTime(REFETCH_DELAY);
+    });
+
+    // error is hidden when refetching works as expected
+    await screen.findByText("Draft (3)");
+    expect(screen.queryByTestId("refetch-alert")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("apollo-error-alert")).not.toBeInTheDocument();
+  });
+
+  // TODO: not exhaustively testing all filters here, might be worth adding more?
+  // Filtering itself is more fully covered in filterExperiments.test.tsx
+  it("supports filtering by feature", async () => {
+    await renderAndWaitForLoaded();
+    const expectedFeatureConfigName = "Picture-in-Picture";
+    await selectEvent.select(screen.getByLabelText("Feature"), [
+      expectedFeatureConfigName,
+    ]);
+    await waitFor(() => {
+      const featureConfigNames = screen
+        .getAllByTestId("directory-feature-config-name")
+        .map((el) => el.textContent);
+      expect(
+        featureConfigNames.every((name) => name === expectedFeatureConfigName),
+      ).toBeTruthy();
+    });
   });
 });
 

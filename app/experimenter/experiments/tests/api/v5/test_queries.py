@@ -3,7 +3,6 @@ import json
 
 from django.conf import settings
 from django.urls import reverse
-from graphene.utils.str_converters import to_snake_case
 from graphene_django.utils.testing import GraphQLTestCase
 from parameterized import parameterized
 
@@ -28,6 +27,9 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             """
             query {
                 experiments {
+                    isArchived
+                    canEdit
+                    canArchive
                     name
                     slug
                     publicDescription
@@ -41,10 +43,18 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         content = json.loads(response.content)
         experiments = content["data"]["experiments"]
         self.assertEqual(len(experiments), 1)
-        for key in experiments[0]:
-            self.assertEqual(
-                experiments[0][key], str(getattr(experiment, to_snake_case(key)))
-            )
+        experiment_data = experiments[0]
+        self.assertEqual(experiment_data["isArchived"], experiment.is_archived)
+        self.assertEqual(experiment_data["canArchive"], experiment.can_archive)
+        self.assertEqual(experiment_data["name"], experiment.name)
+        self.assertEqual(experiment_data["slug"], experiment.slug)
+        self.assertEqual(
+            experiment_data["publicDescription"], experiment.public_description
+        )
+        self.assertEqual(
+            experiment_data["riskMitigationLink"], experiment.risk_mitigation_link
+        )
+        self.assertEqual(experiment_data["canEdit"], experiment.can_edit)
 
     def test_experiments_with_no_branches_returns_empty_treatment_values(self):
         user_email = "user@example.com"
@@ -417,7 +427,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_no_rejection_data(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            with_random_timespan=True,
         )
 
         response = self.query(
@@ -443,7 +454,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_with_rejection(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_REJECT
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REJECT,
+            with_random_timespan=True,
         )
         response = self.query(
             """
@@ -470,7 +482,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_no_review_request_data(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            with_random_timespan=True,
         )
 
         response = self.query(
@@ -496,7 +509,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_with_review_request(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
+            with_random_timespan=True,
         )
         response = self.query(
             """
@@ -523,7 +537,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_without_timeout_returns_none(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            with_random_timespan=True,
         )
         response = self.query(
             """
@@ -548,7 +563,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_with_timeout_returns_changelog(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_TIMEOUT
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_TIMEOUT,
+            with_random_timespan=True,
         )
         response = self.query(
             """

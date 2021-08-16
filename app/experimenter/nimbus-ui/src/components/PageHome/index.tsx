@@ -7,9 +7,13 @@ import { Link, RouteComponentProps } from "@reach/router";
 import React, { useCallback } from "react";
 import { Alert, Tab, Tabs } from "react-bootstrap";
 import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
-import { useSearchParamsState } from "../../hooks";
+import {
+  useConfig,
+  useRefetchOnError,
+  useSearchParamsState,
+} from "../../hooks";
+import { uniqueByProperty } from "../../lib/utils";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
-import ApolloErrorAlert from "../ApolloErrorAlert";
 import AppLayout from "../AppLayout";
 import Head from "../Head";
 import LinkExternal from "../LinkExternal";
@@ -19,15 +23,24 @@ import DirectoryTable, {
   DirectoryDraftsTable,
   DirectoryLiveTable,
 } from "./DirectoryTable";
+import FilterBar from "./FilterBar";
+import {
+  filterExperiments,
+  getFilterValueFromParams,
+  updateParamsFromFilterValue,
+} from "./filterExperiments";
 import sortByStatus from "./sortByStatus";
+import { FilterOptions, FilterValue } from "./types";
 
 type PageHomeProps = Record<string, any> & RouteComponentProps;
 
 export const Body = () => {
-  const [searchParams, updateSearchParams] = useSearchParamsState();
-  const { data, loading, error } = useQuery<{
+  const config = useConfig();
+  const [searchParams, updateSearchParams] = useSearchParamsState("PageHome");
+  const { data, loading, error, refetch } = useQuery<{
     experiments: getAllExperiments_experiments[];
-  }>(GET_EXPERIMENTS_QUERY);
+  }>(GET_EXPERIMENTS_QUERY, { fetchPolicy: "network-only" });
+  const ErrorAlert = useRefetchOnError(error, refetch);
 
   const selectedTab = searchParams.get("tab") || "live";
   const onSelectTab = useCallback(
@@ -35,39 +48,68 @@ export const Body = () => {
     [updateSearchParams],
   );
 
+  const filterValue = getFilterValueFromParams(searchParams);
+  const onFilterChange = (newFilterValue: FilterValue) =>
+    updateParamsFromFilterValue(updateSearchParams, newFilterValue);
+
   if (loading) {
     return <PageLoading />;
   }
 
   if (error) {
-    return <ApolloErrorAlert {...{ error }} />;
+    return ErrorAlert;
   }
 
   if (!data) {
     return <div>No experiments found.</div>;
   }
 
-  const { live, complete, preview, review, draft } = sortByStatus(
-    data.experiments,
+  const filterOptions: FilterOptions = {
+    application: config!.application!,
+    featureConfig: config!.featureConfig!,
+    firefoxMinVersion: config!.firefoxMinVersion!,
+    // Populating owners from fetched experiments since it might be expensive
+    // to fetch and manage a list of all users
+    owners: uniqueByProperty(
+      "username",
+      data.experiments.map((e) => e.owner),
+    ),
+  };
+
+  const { live, complete, preview, review, draft, archived } = sortByStatus(
+    filterExperiments(data.experiments, filterValue),
   );
+
   return (
-    <Tabs activeKey={selectedTab} onSelect={onSelectTab}>
-      <Tab eventKey="live" title={`Live (${live.length})`}>
-        <DirectoryLiveTable experiments={live} />
-      </Tab>
-      <Tab eventKey="review" title={`Review (${review.length})`}>
-        <DirectoryTable experiments={review} />
-      </Tab>
-      <Tab eventKey="preview" title={`Preview (${preview.length})`}>
-        <DirectoryTable experiments={preview} />
-      </Tab>
-      <Tab eventKey="completed" title={`Completed (${complete.length})`}>
-        <DirectoryCompleteTable experiments={complete} />
-      </Tab>
-      <Tab eventKey="drafts" title={`Draft (${draft.length})`}>
-        <DirectoryDraftsTable experiments={draft} />
-      </Tab>
-    </Tabs>
+    <>
+      <FilterBar
+        {...{
+          options: filterOptions,
+          value: filterValue,
+          onChange: onFilterChange,
+        }}
+      />
+      <Tabs activeKey={selectedTab} onSelect={onSelectTab}>
+        <Tab eventKey="live" title={`Live (${live.length})`}>
+          <DirectoryLiveTable experiments={live} />
+        </Tab>
+        <Tab eventKey="review" title={`Review (${review.length})`}>
+          <DirectoryTable experiments={review} />
+        </Tab>
+        <Tab eventKey="preview" title={`Preview (${preview.length})`}>
+          <DirectoryTable experiments={preview} />
+        </Tab>
+        <Tab eventKey="completed" title={`Completed (${complete.length})`}>
+          <DirectoryCompleteTable experiments={complete} />
+        </Tab>
+        <Tab eventKey="drafts" title={`Draft (${draft.length})`}>
+          <DirectoryDraftsTable experiments={draft} />
+        </Tab>
+        <Tab eventKey="archived" title={`Archived (${archived.length})`}>
+          <DirectoryDraftsTable experiments={archived} />
+        </Tab>
+      </Tabs>
+    </>
   );
 };
 

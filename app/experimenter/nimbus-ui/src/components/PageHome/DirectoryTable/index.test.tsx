@@ -177,6 +177,7 @@ describe("DirectoryTable", () => {
   });
 
   // TODO: not exhaustively testing all sort orders here, might be worth adding more?
+  // Sorting is more fully covered in lib/experiment.test.ts
   it("supports sorting by name", async () => {
     const experiments = mockDirectoryExperiments();
     const experimentNames = experiments.map((experiment) => experiment.name);
@@ -271,6 +272,10 @@ describe("DirectoryCompleteTable", () => {
       "Ended",
       "Results",
     ]);
+    const header = screen
+      .getAllByTestId("directory-table-header")
+      .find((el) => el.textContent === "Results");
+    expect(header!.tagName).not.toEqual("BUTTON");
     expectTableCells("directory-table-cell", [
       experiment.name,
       experiment.owner!.username,

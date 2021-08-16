@@ -12,22 +12,24 @@ type LinkNavProps = {
   children: React.ReactNode;
   disabled?: boolean;
   route?: string;
-  storiesOf: string;
+  storiesOf?: string;
   testid?: string;
   className?: string;
   textColor?: string;
   title?: string;
+  onClick?: () => void;
 };
 
 export const LinkNav = ({
   route,
   children,
   disabled = false,
-  storiesOf,
+  storiesOf = "",
   testid = "nav-home",
   className = "mx-1 my-2",
   textColor,
   title,
+  onClick,
 }: LinkNavProps) => {
   const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
   // an alternative to reach-router's `isCurrent` with identical
@@ -56,6 +58,7 @@ export const LinkNav = ({
           data-sb-kind={storiesOf}
           className={classNames(textColor, "d-flex align-items-center")}
           data-testid={testid}
+          onClick={onClick}
         >
           {children}
         </Link>

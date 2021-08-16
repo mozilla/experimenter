@@ -59,6 +59,7 @@ export const ReviewRequestedCannotReview = storyWithExperimentProps(
     statusNext: NimbusExperimentStatus.LIVE,
     publishStatus: NimbusExperimentPublishStatus.REVIEW,
     reviewRequest: mockChangelog(),
+    canArchive: false,
   },
   "Request requiring approval was made, user cannot review",
 );
@@ -70,6 +71,7 @@ export const ReviewRequestedCanReview = storyWithExperimentProps(
     publishStatus: NimbusExperimentPublishStatus.REVIEW,
     reviewRequest: mockChangelog(),
     canReview: true,
+    canArchive: false,
   },
   "Request requiring approval was made, user can review",
 );
@@ -77,6 +79,7 @@ export const ReviewRequestedCanReview = storyWithExperimentProps(
 export const LiveStatus = storyWithExperimentProps(
   {
     status: NimbusExperimentStatus.LIVE,
+    canArchive: false,
   },
   "Live status",
 );

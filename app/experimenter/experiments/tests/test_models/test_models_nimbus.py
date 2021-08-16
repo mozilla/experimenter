@@ -374,11 +374,13 @@ class TestNimbusExperiment(TestCase):
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
+            changed_on=timezone.now() + datetime.timedelta(days=1),
         )
         start_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
+            changed_on=timezone.now() + datetime.timedelta(days=2),
         )
         self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
@@ -397,11 +399,13 @@ class TestNimbusExperiment(TestCase):
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
+            changed_on=timezone.now() + datetime.timedelta(days=1),
         )
         end_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
+            changed_on=timezone.now() + datetime.timedelta(days=2),
         )
         self.assertEqual(experiment.end_date, end_change.changed_on.date())
 
@@ -731,6 +735,36 @@ class TestNimbusExperiment(TestCase):
             changed_on=datetime.date.today() - datetime.timedelta(days=2),
         )
         self.assertFalse(experiment.results_ready)
+
+    @parameterized.expand(
+        [
+            (True, NimbusExperimentFactory.Lifecycles.CREATED),
+            (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
+        ]
+    )
+    def test_can_edit(self, expected_can_edit, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        self.assertEqual(experiment.can_edit, expected_can_edit)
+
+    @parameterized.expand(
+        [
+            (True, NimbusExperimentFactory.Lifecycles.CREATED),
+            (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
+        ]
+    )
+    def test_can_archive(self, expected_can_archive, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        self.assertEqual(experiment.can_archive, expected_can_archive)
 
     @parameterized.expand([(settings.DEV_USER_EMAIL, True), ("jdoe@mozilla.org", False)])
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)

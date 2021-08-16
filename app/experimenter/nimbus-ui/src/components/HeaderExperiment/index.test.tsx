@@ -20,6 +20,7 @@ describe("HeaderExperiment", () => {
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
+        isArchived={false}
       />,
     );
     expect(screen.getByTestId("header-experiment-name")).toHaveTextContent(
@@ -45,6 +46,7 @@ describe("HeaderExperiment", () => {
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
+        isArchived={false}
       />,
     );
     expect(
@@ -57,5 +59,20 @@ describe("HeaderExperiment", () => {
       humanDate(experiment.computedEndDate!),
     );
     expect(screen.getByTestId("header-dates")).toHaveTextContent("(14 days)");
+  });
+  it("renders with archived", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {});
+    render(
+      <HeaderExperiment
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
+        status={mockGetStatus(experiment)}
+        isArchived={true}
+      />,
+    );
+    expect(screen.queryByText("Archived")).toBeInTheDocument();
   });
 });

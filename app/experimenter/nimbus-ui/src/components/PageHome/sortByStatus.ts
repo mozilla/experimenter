@@ -6,7 +6,7 @@ import { getStatus } from "../../lib/experiment";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 
 export type ExperimentCollector = Record<
-  "draft" | "preview" | "review" | "live" | "complete",
+  "draft" | "preview" | "review" | "live" | "complete" | "archived",
   getAllExperiments_experiments[]
 >;
 
@@ -14,7 +14,9 @@ function sortByStatus(experiments: getAllExperiments_experiments[] = []) {
   return experiments.reduce<ExperimentCollector>(
     (collector, experiment) => {
       const status = getStatus(experiment);
-      if (status.live) {
+      if (status.archived) {
+        collector.archived.push(experiment);
+      } else if (status.live) {
         collector.live.push(experiment);
       } else if (status.complete) {
         collector.complete.push(experiment);
@@ -33,6 +35,7 @@ function sortByStatus(experiments: getAllExperiments_experiments[] = []) {
       review: [],
       live: [],
       complete: [],
+      archived: [],
     },
   );
 }

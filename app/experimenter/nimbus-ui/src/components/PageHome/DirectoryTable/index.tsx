@@ -80,7 +80,7 @@ export interface Column {
   /** The label of the column, which shows up in <th/> */
   label: string;
   /** Experiment property selector used for sorting the column */
-  sortBy: ExperimentSortSelector;
+  sortBy?: ExperimentSortSelector;
   /** A component that renders a <td/> given the experiment data */
   component: ColumnComponent;
 }
@@ -89,6 +89,22 @@ export interface ColumnSortOrder {
   column: Column | undefined;
   descending: boolean;
 }
+
+interface ColumnTitleProps {
+  column: Column;
+}
+
+export const ColumnTitle: React.FunctionComponent<ColumnTitleProps> = ({
+  column: { label },
+}) => (
+  <th
+    className="border-top-0 font-weight-normal"
+    key={label}
+    data-testid="directory-table-header"
+  >
+    {label}
+  </th>
+);
 
 interface SortableColumnTitleProps {
   column: Column;
@@ -121,7 +137,7 @@ export const SortableColumnTitle: React.FunctionComponent<SortableColumnTitlePro
           }
         }
       });
-    }, [label, selected, updateSearchParams]);
+    }, [label, descending, selected, updateSearchParams]);
 
     return (
       <th
@@ -134,7 +150,7 @@ export const SortableColumnTitle: React.FunctionComponent<SortableColumnTitlePro
       >
         <Button
           variant="link"
-          className="p-0"
+          className="p-0 border-0"
           style={{ whiteSpace: "nowrap" }}
           onClick={onClick}
           title={label}
@@ -184,7 +200,7 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
   );
 
   const sortedExperiments = [...experiments];
-  if (columnSortOrder.column) {
+  if (columnSortOrder.column && columnSortOrder.column.sortBy) {
     sortedExperiments.sort(
       experimentSortComparator(
         columnSortOrder.column.sortBy,
@@ -199,12 +215,16 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
         <table className="table" data-testid="DirectoryTable">
           <thead>
             <tr>
-              {columns.map((column, i) => (
-                <SortableColumnTitle
-                  key={column.label + i}
-                  {...{ column, columnSortOrder, updateSearchParams }}
-                />
-              ))}
+              {columns.map((column, i) =>
+                column.sortBy ? (
+                  <SortableColumnTitle
+                    key={column.label + i}
+                    {...{ column, columnSortOrder, updateSearchParams }}
+                  />
+                ) : (
+                  <ColumnTitle key={column.label + i} {...{ column }} />
+                ),
+              )}
             </tr>
           </thead>
           <tbody>
@@ -306,7 +326,6 @@ export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
       },
       {
         label: "Results",
-        sortBy: resultsReadySortSelector,
         component: ({ slug }) => (
           <td data-testid="directory-table-cell">
             <Link to={`${slug}/results`} data-sb-kind="pages/Results">

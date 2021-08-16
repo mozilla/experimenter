@@ -7,7 +7,10 @@ from experimenter.experiments.changelog_utils import (
 )
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
+from experimenter.experiments.tests.factories.nimbus import (
+    NimbusChangeLogFactory,
+    NimbusFeatureConfigFactory,
+)
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
@@ -37,6 +40,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "feature_config": None,
                 "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
                 "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
+                "is_archived": experiment.is_archived,
                 "is_paused": False,
                 "locales": [],
                 "name": "",
@@ -49,16 +53,16 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "public_description": "",
                 "publish_status": NimbusExperiment.PublishStatus.IDLE,
                 "published_dto": None,
-                "results_data": None,
                 "reference_branch": None,
+                "results_data": None,
                 "risk_brand": None,
                 "risk_mitigation_link": "",
                 "risk_partner_related": None,
                 "risk_revenue": None,
                 "secondary_outcomes": [],
                 "slug": "",
-                "status": NimbusExperiment.Status.DRAFT,
                 "status_next": None,
+                "status": NimbusExperiment.Status.DRAFT,
                 "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
                 "total_enrolled_clients": 0,
             },
@@ -94,6 +98,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "channel": experiment.channel,
                 "firefox_min_version": experiment.firefox_min_version,
                 "hypothesis": experiment.hypothesis,
+                "is_archived": experiment.is_archived,
                 "is_paused": experiment.is_paused,
                 "name": experiment.name,
                 "owner": experiment.owner.email,
@@ -111,8 +116,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "risk_revenue": experiment.risk_revenue,
                 "secondary_outcomes": [secondary_outcome],
                 "slug": experiment.slug,
-                "status": experiment.status,
                 "status_next": experiment.status_next,
+                "status": experiment.status,
                 "targeting_config_slug": experiment.targeting_config_slug,
                 "total_enrolled_clients": experiment.total_enrolled_clients,
             },
@@ -249,3 +254,12 @@ class TestGenerateNimbusChangeLog(TestCase):
         change = generate_nimbus_changelog(experiment, self.user, "test message")
 
         self.assertTrue(change.published_dto_changed)
+
+    def test_generates_changelog_with_out_of_date_latest_change(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment, experiment_data={"some_old": "data"}
+        )
+        generate_nimbus_changelog(experiment, self.user, "test message")

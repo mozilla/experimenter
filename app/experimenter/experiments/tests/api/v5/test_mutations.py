@@ -734,3 +734,30 @@ class TestMutations(GraphQLTestCase):
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.is_paused, False)
+
+    def test_update_is_archived(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_archived=False,
+        )
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "isArchived": True,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertTrue(experiment.is_archived)

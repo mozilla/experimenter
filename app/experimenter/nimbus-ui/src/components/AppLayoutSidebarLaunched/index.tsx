@@ -20,6 +20,7 @@ import { DisabledItem } from "../DisabledItem";
 import LinkExternal from "../LinkExternal";
 import { LinkNav } from "../LinkNav";
 import LinkNavSummary from "../LinkNavSummary";
+import SidebarActions from "../SidebarActions";
 import { ReactComponent as BarChart } from "./bar-chart.svg";
 
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
@@ -67,6 +68,7 @@ type AppLayoutSidebarLaunchedProps = {
   analysisLoadingInSidebar?: boolean; // only the sidebar needs analysis data & is loading
   analysisError?: Error;
   experiment: getExperiment_experimentBySlug;
+  refetch?: () => Promise<any>;
 } & RouteComponentProps;
 
 export const AppLayoutSidebarLaunched = ({
@@ -78,6 +80,7 @@ export const AppLayoutSidebarLaunched = ({
   analysisLoadingInSidebar = false,
   analysisError,
   experiment,
+  refetch = async () => {},
 }: AppLayoutSidebarLaunchedProps) => {
   const { slug } = useParams();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
@@ -233,10 +236,7 @@ export const AppLayoutSidebarLaunched = ({
           xl="2"
           className="bg-light pt-2 border-right shadow-sm"
         >
-          <nav
-            data-testid="nav-sidebar"
-            className="navbar fixed-top col-xl-2 col-lg-3 col-md-3 px-4 py-3"
-          >
+          <nav data-testid="nav-sidebar" className="navbar">
             <Nav
               className="flex-column font-weight-semibold mx-2 w-100"
               as="ul"
@@ -247,7 +247,7 @@ export const AppLayoutSidebarLaunched = ({
                 textColor="text-secondary"
               >
                 <ChevronLeft className="ml-n1" width="18" height="18" />
-                Experiments
+                Back to Experiments
               </LinkNav>
 
               <LinkNavSummary
@@ -277,6 +277,7 @@ export const AppLayoutSidebarLaunched = ({
                   )}
                 </DisabledItem>
               )}
+              <SidebarActions {...{ experiment, refetch }} />
             </Nav>
           </nav>
         </Col>

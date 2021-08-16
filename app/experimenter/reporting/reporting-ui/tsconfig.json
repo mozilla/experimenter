@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "es2020",
+      "DOM"
+    ],
+    "skipLibCheck": true,
+    "allowJs": true,
+    "checkJs": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "experimenter-reporting/*": [
+        "./*"
+      ]
+    },
+    "jsx": "react",
+    "downlevelIteration": true,
+    "noEmit": true,
+    "strictNullChecks": true,
+    "isolatedModules": true,
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx"
+  ],
+  "exclude": [
+    "../../../node_modules",
+    "./node_modules",
+    "node_modules",
+    "assets",
+  ]
+}

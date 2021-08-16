@@ -17,6 +17,7 @@ input DocumentationLinkType {
 
 input ExperimentInput {
   id: Int
+  isArchived: Boolean
   status: NimbusExperimentStatus
   statusNext: NimbusExperimentStatus
   publishStatus: NimbusExperimentPublishStatus
@@ -314,6 +315,7 @@ type NimbusExperimentTargetingConfigSlugChoice {
 
 type NimbusExperimentType {
   id: Int
+  isArchived: Boolean
   owner: NimbusUser!
   status: NimbusExperimentStatus
   statusNext: NimbusExperimentStatus
@@ -359,6 +361,8 @@ type NimbusExperimentType {
   enrollmentEndDate: DateTime
   computedEnrollmentDays: Int
   computedDurationDays: Int
+  canEdit: Boolean
+  canArchive: Boolean
   canReview: Boolean
   reviewRequest: NimbusChangeLogType
   rejection: NimbusChangeLogType

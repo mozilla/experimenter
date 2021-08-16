@@ -7,3 +7,7 @@ import { getConfig_nimbusConfig_outcomes } from "../types/getConfig";
 export type OutcomeSlugs = (string | null)[] | null;
 export type Outcome = getConfig_nimbusConfig_outcomes | null | undefined;
 export type OutcomesList = Outcome[];
+
+// This roughly represents optional objects from GQL results
+export type NullableObject = Record<string, any> | null;
+export type NullableObjectArray = NullableObject[];

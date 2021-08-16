@@ -91,7 +91,7 @@ describe("selectFromExperiment", () => {
 
   it("returns a property selected via function", () => {
     const selectorCases = [
-      [featureConfigNameSortSelector, "New tab"],
+      [featureConfigNameSortSelector, "Picture-in-Picture"],
       [ownerUsernameSortSelector, "example@mozilla.com"],
       [resultsReadySortSelector, "0"],
       [enrollmentSortSelector, "2021-07-07T00:00:00.000Z"],
