@@ -137,7 +137,7 @@ export const SortableColumnTitle: React.FunctionComponent<SortableColumnTitlePro
           }
         }
       });
-    }, [label, selected, updateSearchParams]);
+    }, [label, descending, selected, updateSearchParams]);
 
     return (
       <th
