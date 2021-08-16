@@ -19,7 +19,7 @@ export function useArchive(
 ) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [updateExperiment, {}] = useMutation<
+  const [updateExperiment] = useMutation<
     { updateExperiment: UpdateExperiment },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_MUTATION);
@@ -59,7 +59,7 @@ export function useArchive(
       setIsLoading(false);
     },
 
-    [updateExperiment, experiment],
+    [updateExperiment, experiment, refetch],
   );
 
   return { callback, isLoading, submitError };

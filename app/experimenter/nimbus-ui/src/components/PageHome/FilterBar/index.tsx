@@ -94,7 +94,7 @@ const FilterSelect = <T extends NullableObjectArray>({
           typeof option[optionValueName] === "string" &&
           fieldValue?.includes("" + option[optionValueName]),
       ),
-    [fieldValue, filterOptions],
+    [fieldValue, filterOptions, optionValueName],
   );
 
   return (
