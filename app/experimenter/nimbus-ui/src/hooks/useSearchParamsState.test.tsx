@@ -2,7 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useNavigate } from "@reach/router";
+import {
+  createHistory,
+  createMemorySource,
+  History,
+  HistorySource,
+  useLocation,
+  useNavigate,
+} from "@reach/router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React, { useContext } from "react";
 import { RouterSlugProvider } from "../lib/test-utils";
@@ -14,6 +21,32 @@ import useSearchParamsState, {
 // Depends on being wrapped by @reach/router, so that seems to make it difficult
 
 describe("hooks/useSearchParamsState", () => {
+  // HACK: the types don't cover these properties exposed by the mock
+  // memory history source, but they're useful for tests
+  type MemoryHistorySource = HistorySource & {
+    history: HistorySource["history"] & {
+      entries: { pathname: string; search: string }[];
+      index: number;
+    };
+  };
+
+  let mockHistory: History;
+  let mockHistorySource: MemoryHistorySource;
+  let navigateSpy: jest.SpyInstance<Promise<void>, any>;
+
+  beforeEach(() => {
+    mockHistorySource = createMemorySource(
+      "/xyzzy/edit",
+    ) as MemoryHistorySource;
+    mockHistory = createHistory(mockHistorySource);
+    navigateSpy = jest.spyOn(mockHistory, "navigate");
+  });
+
+  const clickNavigate = () => {
+    navigateSpy.mockClear();
+    fireEvent.click(screen.getByTestId("navigate"));
+  };
+
   it("returns the current search parameters", async () => {
     const expected = { foo: "bar", baz: "quux" };
     const params = new URLSearchParams(expected);
@@ -23,9 +56,11 @@ describe("hooks/useSearchParamsState", () => {
   });
 
   it("updates the search parameters", async () => {
+    const path = "/xyzzy/edit";
+    const expectedSearch = "wibble=wobble&beep=beep&three=four&one=two";
     render(
       <Subject
-        path="/xyzzy/edit?deleteme=now&wibble=wobble&deletemetoo=also&beep=beep"
+        path={`${path}?deleteme=now&wibble=wobble&deletemetoo=also&beep=beep`}
         paramsToDelete={["deleteme", "deletemetoo"]}
         paramsToSet={[
           ["three", "four"],
@@ -35,9 +70,8 @@ describe("hooks/useSearchParamsState", () => {
     );
     fireEvent.click(screen.getByTestId("setParams"));
     await waitFor(() => {
-      expect(screen.getByTestId("params")).toHaveTextContent(
-        "wibble=wobble&beep=beep&three=four&one=two",
-      );
+      expect(screen.getByTestId("params")).toHaveTextContent(expectedSearch);
+      expect(navigateSpy).toHaveBeenCalledWith(`${path}?${expectedSearch}`);
     });
   });
 
@@ -47,7 +81,8 @@ describe("hooks/useSearchParamsState", () => {
     const path = `/xyzzy/edit?${expectedSearch}`;
 
     render(<Subject {...{ path, storageKey, navigateTo: "/quux/edit" }} />);
-    fireEvent.click(screen.getByTestId("navigate"));
+
+    clickNavigate();
 
     await waitFor(() => {
       expect(screen.getByTestId("storage")).toHaveTextContent(
@@ -63,13 +98,14 @@ describe("hooks/useSearchParamsState", () => {
   it("restores search parameters on navigation with empty params", async () => {
     const storageKey = "PageFoo";
     const expectedSearch = "wibble=wobble&beep=beep";
+    const navigateTo = "/quux/edit";
 
     render(
       <Subject
         {...{
           storageKey,
           path: "/xyzzy/edit?donot=restorethis",
-          navigateTo: "/quux/edit",
+          navigateTo,
           initialStorage: {
             [storageKey]: expectedSearch,
           },
@@ -77,30 +113,40 @@ describe("hooks/useSearchParamsState", () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId("navigate"));
+    clickNavigate();
 
     await waitFor(() => {
       expect(screen.getByTestId("params").textContent).toEqual(expectedSearch);
+      expect(navigateSpy).toHaveBeenCalledWith(
+        `${navigateTo}?${expectedSearch}`,
+        { replace: true },
+      );
     });
   });
 
   it("does not restore empty search parameters", async () => {
     const storageKey = "PageFoo";
+    const navigateTo = "/xyzzy/edit";
+
     render(
       <Subject
         {...{
           storageKey,
-          path: "/xyzzy/edit?donot=restorethis",
-          navigateTo: "/xyzzy/edit",
-          initialStorage: {},
+          path: "/quux/edit",
+          navigateTo,
+          initialStorage: { PageFoo: "" },
         }}
       />,
     );
 
-    fireEvent.click(screen.getByTestId("navigate"));
+    clickNavigate();
 
     await waitFor(() => {
       expect(screen.getByTestId("params").textContent).toEqual("");
+      expect(navigateSpy).toHaveBeenCalledWith(navigateTo);
+      expect(navigateSpy).not.toHaveBeenCalledWith(`${navigateTo}?`, {
+        replace: true,
+      });
     });
   });
 
@@ -113,13 +159,20 @@ describe("hooks/useSearchParamsState", () => {
     storageKey?: string;
     navigateTo?: string;
   }
-  const Subject = (props: SubjectProps) => (
-    <RouterSlugProvider path={props.path}>
-      <SubjectInner {...props} />
-    </RouterSlugProvider>
-  );
+  const Subject = (props: SubjectProps) => {
+    mockHistory.navigate(props.path, { replace: true });
+    return (
+      <RouterSlugProvider
+        {...{ path: props.path, mockHistorySource, mockHistory }}
+      >
+        <SubjectInner {...props} />
+      </RouterSlugProvider>
+    );
+  };
+
   const SubjectInner = (props: SubjectProps) => {
     const { storageKey, navigateTo, initialStorage } = props;
+    const location = useLocation();
     const navigate = useNavigate();
     const [params, setParams] = useSearchParamsState(storageKey);
     const storage = useContext(SearchParamsContext);

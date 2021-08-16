@@ -6,6 +6,8 @@ import { MockedResponse } from "@apollo/client/testing";
 import {
   createHistory,
   createMemorySource,
+  History,
+  HistorySource,
   LocationProvider,
   RouteComponentProps,
   Router,
@@ -31,13 +33,17 @@ export const RouterSlugProvider = ({
   path = "/demo-slug/edit",
   mocks = [],
   children,
+  mockHistorySource,
+  mockHistory,
 }: {
   path?: string;
   mocks?: MockedResponse<Record<string, any>>[];
+  mockHistorySource?: HistorySource;
+  mockHistory?: History;
   children: React.ReactElement;
 }) => {
-  const source = createMemorySource(path);
-  const history = createHistory(source);
+  const source = mockHistorySource || createMemorySource(path);
+  const history = mockHistory || createHistory(source);
 
   return (
     <SearchParamsStateProvider>
