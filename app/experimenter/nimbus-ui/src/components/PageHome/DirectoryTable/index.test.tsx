@@ -24,6 +24,7 @@ import {
   mockSingleDirectoryExperiment,
 } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
 
 const experiment = mockSingleDirectoryExperiment();
 
@@ -217,33 +218,42 @@ describe("DirectoryTable", () => {
 });
 
 describe("DirectoryLiveTable", () => {
-  it("renders as expected with custom columns", () => {
-    render(
-      <RouterSlugProvider>
-        <DirectoryLiveTable experiments={[experiment]} />
-      </RouterSlugProvider>,
-    );
-    expectTableCells("directory-table-header", [
-      "Name",
-      "Owner",
-      "Feature",
-      "Started",
-      "Enrolling",
-      "Ending",
-      "Monitoring",
-      "Results",
-    ]);
-    expectTableCells("directory-table-cell", [
-      experiment.name,
-      experiment.owner!.username,
-      experiment.featureConfig!.name,
-      humanDate(experiment.startDate!),
-      getProposedEnrollmentRange(experiment) as string,
-      humanDate(experiment.computedEndDate!),
-      "Grafana",
-      experiment.resultsReady ? "Results" : "N/A",
-    ]);
-  });
+  it.each([
+    ["grafana link is present", experiment, "Grafana"],
+    ["results are ready", { ...experiment, resultsReady: true }, "Results"],
+    [
+      "neither is present",
+      { ...experiment, monitoringDashboardUrl: null },
+      "N/A",
+    ],
+  ])(
+    "renders as expected with custom columns when %s",
+    (_, experiment: getAllExperiments_experiments, expectedResult: string) => {
+      render(
+        <RouterSlugProvider>
+          <DirectoryLiveTable experiments={[experiment]} />
+        </RouterSlugProvider>,
+      );
+      expectTableCells("directory-table-header", [
+        "Name",
+        "Owner",
+        "Feature",
+        "Started",
+        "Enrolling",
+        "Ending",
+        "Results",
+      ]);
+      expectTableCells("directory-table-cell", [
+        experiment.name,
+        experiment.owner!.username,
+        experiment.featureConfig!.name,
+        humanDate(experiment.startDate!),
+        getProposedEnrollmentRange(experiment) as string,
+        humanDate(experiment.computedEndDate!),
+        expectedResult,
+      ]);
+    },
+  );
 });
 
 describe("DirectoryCompleteTable", () => {
