@@ -374,11 +374,13 @@ class TestNimbusExperiment(TestCase):
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
+            changed_on=timezone.now() + datetime.timedelta(days=1),
         )
         start_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
+            changed_on=timezone.now() + datetime.timedelta(days=2),
         )
         self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
@@ -397,11 +399,13 @@ class TestNimbusExperiment(TestCase):
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
+            changed_on=timezone.now() + datetime.timedelta(days=1),
         )
         end_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
+            changed_on=timezone.now() + datetime.timedelta(days=2),
         )
         self.assertEqual(experiment.end_date, end_change.changed_on.date())
 
