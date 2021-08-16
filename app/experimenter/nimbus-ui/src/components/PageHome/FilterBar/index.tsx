@@ -98,10 +98,7 @@ const FilterSelect = <T extends NullableObjectArray>({
   );
 
   return (
-    <Nav.Item
-      className="m-1 text-left flex-grow-1 flex-shrink-1"
-      style={{ flexBasis: "0px" }}
-    >
+    <Nav.Item className="m-1 mw-25 text-left flex-basis-0 flex-grow-1 flex-shrink-1">
       <label className="ml-1 mr-1" htmlFor={`filter-${filterValueName}`}>
         {fieldLabel}
       </label>
