@@ -30,7 +30,7 @@ export const useRefetchOnError = (
       return () => clearTimeout(timeout);
     }
     setReactEl(<ApolloErrorAlert {...{ error }} />);
-  }, [error, hasRefetched]);
+  }, [error, hasRefetched, refetchAlertClass, refetch]);
 
   return ReactEl;
 };

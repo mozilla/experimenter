@@ -53,8 +53,10 @@ describe("filterExperiments", () => {
   });
 
   it("filters per individual criteria as expected", () => {
-    let name: keyof FilterValue;
-    for (name in EVERYTHING_SELECTED_VALUE) {
+    const names = Object.keys(
+      EVERYTHING_SELECTED_VALUE,
+    ) as (keyof FilterValue)[];
+    for (const name of names) {
       const filterValue = {
         [name]: EVERYTHING_SELECTED_VALUE[name]!.slice(0, 1),
       };
