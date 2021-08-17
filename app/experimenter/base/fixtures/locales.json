@@ -806,5 +806,69 @@
       "code": "zh-TW",
       "name": "Chinese (Traditional)"
     }
+  },
+  {
+    "model": "base.locale",
+    "pk": 160,
+    "fields": {
+      "code": "bo",
+      "name": "Tibetan"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 161,
+    "fields": {
+      "code": "ckb",
+      "name": "Central Kurdish"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 162,
+    "fields": {
+      "code": "hye",
+      "name": "Armenian Eastern Classic Orthography"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 163,
+    "fields": {
+      "code": "meh",
+      "name": "Mixteco Yucuhiti"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 164,
+    "fields": {
+      "code": "scn",
+      "name": "Sicilian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 165,
+    "fields": {
+      "code": "sco",
+      "name": "Scots"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 166,
+    "fields": {
+      "code": "szl",
+      "name": "Silesian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 167,
+    "fields": {
+      "code": "tg",
+      "name": "Tajik"
+    }
   }
 ]
