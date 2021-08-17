@@ -5,10 +5,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import {
-  ARCHIVING_EXPERIMENT,
-  UNARCHIVING_EXPERIMENT,
-} from "../../hooks/useArchive";
+import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { mockExperiment, mockExperimentMutation } from "../../lib/mocks";
 import { Subject } from "./mocks";
 
@@ -56,7 +53,7 @@ describe("SidebarActions", () => {
       {
         id: experiment.id,
         isArchived: true,
-        changelogMessage: ARCHIVING_EXPERIMENT,
+        changelogMessage: CHANGELOG_MESSAGES.ARCHIVING_EXPERIMENT,
       },
       "updateExperiment",
       {
@@ -81,7 +78,7 @@ describe("SidebarActions", () => {
       {
         id: experiment.id,
         isArchived: false,
-        changelogMessage: UNARCHIVING_EXPERIMENT,
+        changelogMessage: CHANGELOG_MESSAGES.UNARCHIVING_EXPERIMENT,
       },
       "updateExperiment",
       {
