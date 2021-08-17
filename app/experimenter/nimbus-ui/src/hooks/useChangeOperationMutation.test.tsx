@@ -24,7 +24,7 @@ describe("hooks/useChangeOperationMutation", () => {
     const expectedIsLoading = [false];
     for (let idx = 0; idx < callbackCount; idx++) {
       await act(result.current.callbacks[idx]);
-      expectedIsLoading.push(true, false);
+      expectedIsLoading.push(true, true, false);
     }
     assertHookStates(result, expectedIsLoading);
   });
@@ -32,7 +32,7 @@ describe("hooks/useChangeOperationMutation", () => {
   it("indicates when loading mutation", async () => {
     const { result } = setupTestHook();
     await act(result.current.callbacks[0]);
-    assertHookStates(result, [false, true, false]);
+    assertHookStates(result, [false, true, true, false]);
   });
 
   it("indicates when loading refetch", async () => {
@@ -47,7 +47,7 @@ describe("hooks/useChangeOperationMutation", () => {
     const { result } = setupTestHook(refetch);
     await act(result.current.callbacks[0]);
     expect(refetchState).toEqual({ called: true, resolved: true });
-    assertHookStates(result, [false, true, false, true, false]);
+    assertHookStates(result, [false, true, true, false]);
   });
 });
 
