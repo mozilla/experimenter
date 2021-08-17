@@ -5,6 +5,7 @@
 import { Link } from "@reach/router";
 import classNames from "classnames";
 import React from "react";
+import { Button } from "react-bootstrap";
 import Nav from "react-bootstrap/Nav";
 import { BASE_PATH } from "../../lib/constants";
 
@@ -18,6 +19,7 @@ type LinkNavProps = {
   textColor?: string;
   title?: string;
   onClick?: () => void;
+  useButton?: boolean;
 };
 
 export const LinkNav = ({
@@ -30,6 +32,7 @@ export const LinkNav = ({
   textColor,
   title,
   onClick,
+  useButton = false,
 }: LinkNavProps) => {
   const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
   // an alternative to reach-router's `isCurrent` with identical
@@ -52,6 +55,20 @@ export const LinkNav = ({
         >
           {children}
         </span>
+      ) : useButton ? (
+        <Button
+          {...{ title }}
+          variant="link"
+          data-sb-kind={storiesOf}
+          className={classNames(
+            textColor,
+            "d-flex font-weight-semibold m-0 p-0 b-0 align-items-center",
+          )}
+          data-testid={testid}
+          onClick={onClick}
+        >
+          {children}
+        </Button>
       ) : (
         <Link
           {...{ to, title }}
