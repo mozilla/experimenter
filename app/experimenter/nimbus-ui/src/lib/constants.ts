@@ -101,6 +101,8 @@ export const CHANGELOG_MESSAGES = {
   END_ENROLLMENT_APPROVED: "End Enrollment Approved",
   REQUESTED_REVIEW_END: "Requested Review to End",
   END_APPROVED: "End Review Approved",
+  ARCHIVING_EXPERIMENT: "Archiving experiment",
+  UNARCHIVING_EXPERIMENT: "Unarchiving experiment",
 } as const;
 
 export const FIELD_MESSAGES = {

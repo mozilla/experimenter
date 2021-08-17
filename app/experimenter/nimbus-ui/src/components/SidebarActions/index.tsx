@@ -4,7 +4,8 @@
 
 import { RouteComponentProps } from "@reach/router";
 import React from "react";
-import { useArchive } from "../../hooks/useArchive";
+import { useChangeOperationMutation } from "../../hooks";
+import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as Trash } from "./trash.svg";
@@ -19,10 +20,15 @@ export const SidebarActions = ({
   experiment,
   refetch,
 }: SidebarModifyExperimentProps) => {
-  const { isLoading, callback: onUpdateArchived } = useArchive(
-    experiment,
-    refetch,
-  );
+  const {
+    isLoading,
+    callbacks: [onUpdateArchived],
+  } = useChangeOperationMutation(experiment, refetch, {
+    isArchived: !experiment.isArchived,
+    changelogMessage: !experiment.isArchived
+      ? CHANGELOG_MESSAGES.ARCHIVING_EXPERIMENT
+      : CHANGELOG_MESSAGES.UNARCHIVING_EXPERIMENT,
+  });
 
   return (
     <div data-testid={"SidebarActions"}>
