@@ -28,10 +28,7 @@ describe("SidebarActions", () => {
 
   it("renders an enabled archive button for unarchived experiment", () => {
     render(<Subject experiment={{ isArchived: false, canArchive: true }} />);
-    expect(screen.getByTestId("action-archive")).toHaveAttribute(
-      "href",
-      "/nimbus/my-special-slug/#",
-    );
+    expect(screen.getByTestId("action-archive").tagName).toEqual("BUTTON");
     expect(screen.getByTestId("action-archive")).toHaveTextContent(
       "Archive Experiment",
     );
@@ -46,10 +43,7 @@ describe("SidebarActions", () => {
 
   it("renders an enabled archive button for unarchived experiment", () => {
     render(<Subject experiment={{ isArchived: true, canArchive: true }} />);
-    expect(screen.getByTestId("action-archive")).toHaveAttribute(
-      "href",
-      "/nimbus/my-special-slug/#",
-    );
+    expect(screen.getByTestId("action-archive").tagName).toEqual("BUTTON");
     expect(screen.getByTestId("action-archive")).toHaveTextContent(
       "Unarchive Experiment",
     );
