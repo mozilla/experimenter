@@ -59,7 +59,7 @@ export function useArchive(
       setIsLoading(false);
     },
 
-    [updateExperiment, experiment, refetch],
+    [updateExperiment, setSubmitError, setIsLoading, experiment, refetch],
   );
 
   return { callback, isLoading, submitError };

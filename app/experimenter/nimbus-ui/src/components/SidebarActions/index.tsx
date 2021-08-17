@@ -33,8 +33,8 @@ export const SidebarActions = ({
       </p>
       <p>
         <LinkNav
+          useButton
           key="sidebar-actions-archive"
-          route={`${experiment.slug}/#`}
           disabled={!experiment.canArchive || isLoading}
           testid="action-archive"
           onClick={onUpdateArchived}
