@@ -16,14 +16,12 @@ export function useChangeOperationMutation(
   ...dataSets: Partial<ExperimentInput>[]
 ) {
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isLoadingRefetch, setIsLoadingRefetch] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [updateExperiment, { loading: isLoadingMutation }] = useMutation<
+  const [updateExperiment] = useMutation<
     { updateExperiment: UpdateExperiment },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_MUTATION);
-
-  const isLoading = isLoadingMutation || isLoadingRefetch;
 
   const callbacks = useMemo(
     () =>
@@ -33,9 +31,10 @@ export function useChangeOperationMutation(
             _inputEvent?: any,
             submitDataChanges?: Partial<ExperimentInput>,
           ) => {
-            try {
-              setSubmitError(null);
+            setIsLoading(true);
+            setSubmitError(null);
 
+            try {
               const result = await updateExperiment({
                 variables: {
                   input: {
@@ -62,16 +61,22 @@ export function useChangeOperationMutation(
               }
 
               if (refetch) {
-                setIsLoadingRefetch(true);
                 await refetch();
-                setIsLoadingRefetch(false);
               }
             } catch (error) {
               setSubmitError(SUBMIT_ERROR);
             }
+            setIsLoading(false);
           },
       ),
-    [updateExperiment, experiment, refetch, dataSets],
+    [
+      updateExperiment,
+      experiment,
+      refetch,
+      dataSets,
+      setIsLoading,
+      setSubmitError,
+    ],
   );
 
   return { callbacks, isLoading, submitError };
