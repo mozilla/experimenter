@@ -184,7 +184,7 @@ def test_end_experiment_and_reject_end(
     perform_kinto_action(selenium, base_url, "approve")
     # refresh page until kinto updates
     for _ in range(45):
-        selenium.get(f'{base_url}/{request.node.name}')
+        selenium.get(f"{base_url}/{request.node.name}")
         summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
         if "Complete" in summary_page.experiment_status:
             break
@@ -238,7 +238,7 @@ def test_end_experiment_and_reject_end(
     perform_kinto_action(selenium, base_url, "reject")
     # refresh page until kinto updates
     for _ in range(45):
-        selenium.get(f'{base_url}/{request.node.name}')
+        selenium.get(f"{base_url}/{request.node.name}")
         summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
         try:
             summary_page.rejected_text

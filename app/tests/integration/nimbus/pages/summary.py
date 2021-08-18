@@ -1,8 +1,8 @@
 import time
 
-from selenium.common.exceptions import NoSuchElementException
 from nimbus.pages.base import Base
 from pypom import Region
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -50,13 +50,14 @@ class SummaryPage(Base):
                 self.selenium.refresh()
         else:
             raise AssertionError("Approve button was never shown")
-    
+
     def end_experiment(self, action="End"):
         el = self.find_element(*self._end_experiment_button_locator)
         el.click()
         if action == "End":
-            self.wait.until(EC.presence_of_element_located(
-                self._confirm_end_button_locator))
+            self.wait.until(
+                EC.presence_of_element_located(self._confirm_end_button_locator)
+            )
             el = self.find_element(*self._confirm_end_button_locator)
             el.click()
         else:
