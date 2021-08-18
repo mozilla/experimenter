@@ -7,6 +7,7 @@ import React from "react";
 import { useChangeOperationMutation } from "../../hooks";
 import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import ArchiveDialogue from "../ArchiveDialogue";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as Trash } from "./trash.svg";
 
@@ -22,13 +23,12 @@ export const SidebarActions = ({
 }: SidebarModifyExperimentProps) => {
   const {
     isLoading,
-    callbacks: [onUpdateArchived],
+    callbacks: [onUnarchive],
   } = useChangeOperationMutation(experiment, refetch, {
-    isArchived: !experiment.isArchived,
-    changelogMessage: !experiment.isArchived
-      ? CHANGELOG_MESSAGES.ARCHIVING_EXPERIMENT
-      : CHANGELOG_MESSAGES.UNARCHIVING_EXPERIMENT,
+    isArchived: false,
+    changelogMessage: CHANGELOG_MESSAGES.UNARCHIVING_EXPERIMENT,
   });
+  const [isArchiving, setIsArchiving] = React.useState<boolean>(false);
 
   return (
     <div data-testid={"SidebarActions"}>
@@ -37,20 +37,30 @@ export const SidebarActions = ({
           Actions
         </span>
       </p>
-      <p>
-        <LinkNav
-          useButton
-          key="sidebar-actions-archive"
-          disabled={!experiment.canArchive || isLoading}
-          testid="action-archive"
-          onClick={onUpdateArchived}
-        >
-          <Trash className="sidebar-icon" />
-          {experiment.isArchived
-            ? "Unarchive Experiment"
-            : "Archive Experiment"}
-        </LinkNav>
-      </p>
+      {isArchiving ? (
+        <ArchiveDialogue
+          onClose={() => setIsArchiving(false)}
+          experimentId={experiment.id!}
+          {...{ refetch }}
+        />
+      ) : (
+        <p>
+          <LinkNav
+            useButton
+            key="sidebar-actions-archive"
+            disabled={!experiment.canArchive || isLoading}
+            testid="action-archive"
+            onClick={() =>
+              experiment.isArchived ? onUnarchive() : setIsArchiving(true)
+            }
+          >
+            <Trash className="sidebar-icon" />
+            {experiment.isArchived
+              ? "Unarchive Experiment"
+              : "Archive Experiment"}
+          </LinkNav>
+        </p>
+      )}
     </div>
   );
 };

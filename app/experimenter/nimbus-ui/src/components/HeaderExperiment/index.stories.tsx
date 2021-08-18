@@ -96,4 +96,18 @@ storiesOf("components/HeaderExperiment", module)
         isArchived={true}
       />
     </AppLayout>
+  ))
+  .add("archived with message", () => (
+    <AppLayout>
+      <HeaderExperiment
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
+        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
+        isArchived={true}
+        archiveReason="No longer relevant"
+      />
+    </AppLayout>
   ));

@@ -4,6 +4,8 @@
 
 import classNames from "classnames";
 import React from "react";
+import ReactTooltip from "react-tooltip";
+import { ReactComponent as Info } from "../../images/info.svg";
 import { humanDate } from "../../lib/dateUtils";
 import { StatusCheck } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -17,7 +19,7 @@ type HeaderExperimentProps = Pick<
   | "computedEndDate"
   | "computedDurationDays"
   | "isArchived"
-> & { status: StatusCheck };
+> & { archiveReason?: string | null; status: StatusCheck };
 
 const HeaderExperiment = ({
   name,
@@ -27,6 +29,7 @@ const HeaderExperiment = ({
   status,
   computedDurationDays,
   isArchived,
+  archiveReason = "",
 }: HeaderExperimentProps) => (
   <header className="border-bottom" data-testid="header-experiment">
     <h1
@@ -36,12 +39,25 @@ const HeaderExperiment = ({
       {name}
     </h1>
     {isArchived && (
-      <StatusPill
-        className="ml-2"
-        label="Archived"
-        color="danger"
-        active={true}
-      />
+      <>
+        <StatusPill
+          className="ml-2"
+          label="Archived"
+          color="danger"
+          active={true}
+        />
+        {archiveReason!.length > 0 && (
+          <>
+            <Info
+              data-tip={`Archive reason: ${archiveReason}`}
+              width="20"
+              height="20"
+              className="ml-1 text-danger ml-n2 align-text-top"
+            />
+            <ReactTooltip />
+          </>
+        )}
+      </>
     )}
     <p
       className="text-monospace text-secondary mb-1 small"
