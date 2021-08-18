@@ -275,35 +275,32 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
         ),
       },
       {
-        label: "Monitoring",
-        component: ({ monitoringDashboardUrl }) => (
+        label: "Results",
+        sortBy: resultsReadySortSelector,
+        component: (experiment) => (
           <td data-testid="directory-table-cell">
-            {monitoringDashboardUrl && (
+            {experiment.monitoringDashboardUrl && (
               <LinkExternal
-                href={monitoringDashboardUrl!}
+                href={experiment.monitoringDashboardUrl!}
                 data-testid="link-monitoring-dashboard"
               >
                 Grafana
               </LinkExternal>
             )}
-          </td>
-        ),
-      },
-      {
-        label: "Results",
-        sortBy: resultsReadySortSelector,
-        component: (experiment) => (
-          <td data-testid="directory-table-cell">
-            {experiment.resultsReady ? (
+            {experiment.monitoringDashboardUrl && experiment.resultsReady && (
+              <br />
+            )}
+            {experiment.resultsReady && (
               <Link
                 to={`${experiment.slug}/results`}
                 data-sb-kind="pages/Results"
               >
                 Results
               </Link>
-            ) : (
-              "N/A"
             )}
+            {!experiment.monitoringDashboardUrl &&
+              !experiment.resultsReady &&
+              "N/A"}
           </td>
         ),
       },
