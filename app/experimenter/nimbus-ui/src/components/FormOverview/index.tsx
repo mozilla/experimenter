@@ -142,7 +142,13 @@ const FormOverview = ({
         <Form.Group controlId="name">
           <Form.Label>Public name</Form.Label>
           <Form.Control
-            {...formControlAttrs("name", REQUIRED_FIELD)}
+            {...formControlAttrs("name", {
+              ...REQUIRED_FIELD,
+              maxLength: {
+                value: 80,
+                message: "Cannot be greater than 80 characters",
+              },
+            })}
             type="text"
             autoFocus={!experiment}
           />
