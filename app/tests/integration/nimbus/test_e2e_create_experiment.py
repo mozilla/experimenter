@@ -139,7 +139,7 @@ def test_create_new_experiment_remote_settings_timeout(
         raise AssertionError("Timeout text was never shown.")
 
 
-def test_end_experiment_and_reject_end(
+def test_end_experiment_and_approve_end(
     selenium, base_url, default_data, create_experiment, request, perform_kinto_action
 ):
     default_data.public_name = request.node.name
