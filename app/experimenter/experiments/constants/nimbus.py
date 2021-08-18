@@ -175,6 +175,17 @@ TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_MOBILE_FIRST_RUN = NimbusTargetingConfig(
+    name="First start-up users",
+    slug="first_run_mobile",
+    description=(
+        "First start-up users (i.e first run after installing the app) on mobile"
+    ),
+    targeting=("isFirstRun == 'true'"),
+    desktop_telemetry="",
+    application_choice_names=(Application.FENIX.name, Application.IOS.name),
+)
+
 TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
     name="Homepage set to google.com",
     slug="homepage_google_dot_com",
@@ -396,6 +407,7 @@ class NimbusConstants(object):
         TARGETING_URLBAR_FIREFOX_SUGGEST.slug: TARGETING_URLBAR_FIREFOX_SUGGEST,
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
         TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
+        TARGETING_MOBILE_FIRST_RUN.slug: TARGETING_MOBILE_FIRST_RUN,
     }
 
     class TargetingConfig(models.TextChoices):
@@ -419,6 +431,10 @@ class NimbusConstants(object):
         TARGETING_NO_ENTERPRISE = (
             TARGETING_NO_ENTERPRISE.slug,
             TARGETING_NO_ENTERPRISE.name,
+        )
+        TARGETING_MOBILE_FIRST_RUN = (
+            TARGETING_MOBILE_FIRST_RUN.slug,
+            TARGETING_MOBILE_FIRST_RUN.name,
         )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
