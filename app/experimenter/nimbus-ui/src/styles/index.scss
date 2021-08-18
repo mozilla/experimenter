@@ -135,8 +135,15 @@ select.form-control.is-warning {
   height: 18px;
 }
 
-.__react_component_tooltip > p:last-child {
-  margin-bottom: 0;
+.__react_component_tooltip {
+  pre {
+    @extend .text-white;
+    margin-bottom: 0;
+  }
+
+  > p:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .cursor-copy {
