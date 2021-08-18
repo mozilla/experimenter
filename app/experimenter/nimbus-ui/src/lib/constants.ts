@@ -11,6 +11,14 @@ export const UNKNOWN_ERROR =
 export const SUBMIT_ERROR =
   "Sorry, an error occurred while submitting. Please try again.";
 
+export const CONTROL_BRANCH_REQUIRED_ERROR = "Control branch is required";
+
+export const SAVE_FAILED_NO_ERROR = "Save failed, no error available";
+
+export const CONFIG_EMPTY_ERROR = "Configuration is empty";
+
+export const INVALID_CONFIG_ERROR = "Invalid configuration";
+
 export const SERVER_ERRORS = {
   REQUIRED_QUESTION: "This question may not be blank.",
   NULL_FIELD: "This field may not be null.",

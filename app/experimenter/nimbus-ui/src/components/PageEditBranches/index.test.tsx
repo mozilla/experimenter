@@ -6,9 +6,13 @@ import { navigate } from "@reach/router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
-import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
+import PageEditBranches from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { CHANGELOG_MESSAGES, EXTERNAL_URLS } from "../../lib/constants";
+import {
+  CHANGELOG_MESSAGES,
+  EXTERNAL_URLS,
+  SUBMIT_ERROR,
+} from "../../lib/constants";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -119,7 +123,7 @@ describe("PageEditBranches", () => {
 
     await waitFor(() =>
       expect(mockSetSubmitErrors).toHaveBeenCalledWith({
-        "*": [SUBMIT_ERROR_MESSAGE],
+        "*": [SUBMIT_ERROR],
       }),
     );
   });
