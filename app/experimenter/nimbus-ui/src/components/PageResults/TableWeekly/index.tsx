@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
+import { ResultsContext } from "../../../lib/contexts";
 import {
   BRANCH_COMPARISON,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import {
-  AnalysisDataWeekly,
   BranchComparisonValues,
   BranchDescription,
   FormattedAnalysisPoint,
@@ -20,8 +20,6 @@ type TableWeeklyProps = {
   metricKey: string;
   metricName: string;
   group: string;
-  results: AnalysisDataWeekly;
-  sortedBranches: string[];
   branchComparison?: BranchComparisonValues;
 };
 
@@ -53,11 +51,14 @@ const TableWeekly = ({
   metricKey,
   metricName,
   group,
-  results = {},
-  sortedBranches,
   branchComparison = BRANCH_COMPARISON.UPLIFT,
 }: TableWeeklyProps) => {
-  const weekIndexList = getWeekIndexList(metricKey, group, results);
+  const {
+    analysis: { weekly },
+    sortedBranches,
+  } = useContext(ResultsContext);
+  const weeklyResults = weekly!;
+  const weekIndexList = getWeekIndexList(metricKey, group, weeklyResults);
   const tableLabel = TABLE_LABEL.RESULTS;
 
   return (
@@ -81,12 +82,28 @@ const TableWeekly = ({
       </thead>
       <tbody>
         {sortedBranches.map((branch) => {
-          const isControlBranch = results[branch]["is_control"];
+          const isControlBranch = weeklyResults[branch]["is_control"];
           const displayType = getTableDisplayType(
             metricKey,
             tableLabel,
             isControlBranch,
           );
+
+          const TableRow = () => (
+            <TableVisualizationRow
+              results={weeklyResults[branch]}
+              {...{
+                tableLabel,
+                group,
+                metricName,
+                metricKey,
+                displayType,
+                branchComparison,
+                isControlBranch,
+              }}
+            />
+          );
+
           return (
             <tr key={`${branch}-${metricKey}`}>
               <th className="align-middle" scope="row">
@@ -97,32 +114,10 @@ const TableWeekly = ({
               {isControlBranch &&
               branchComparison === BRANCH_COMPARISON.UPLIFT ? (
                 weekIndexList.map((weekIndex) => (
-                  <TableVisualizationRow
-                    key={`${displayType}-${metricKey}-${weekIndex}}`}
-                    results={results[branch]}
-                    {...{
-                      tableLabel,
-                      group,
-                      metricName,
-                      metricKey,
-                      displayType,
-                      branchComparison,
-                    }}
-                  />
+                  <TableRow key={`${displayType}-${metricKey}-${weekIndex}}`} />
                 ))
               ) : (
-                <TableVisualizationRow
-                  key={`${displayType}-${metricKey}`}
-                  results={results[branch]}
-                  {...{
-                    tableLabel,
-                    group,
-                    metricName,
-                    metricKey,
-                    displayType,
-                    branchComparison,
-                  }}
-                />
+                <TableRow key={`${displayType}-${metricKey}`} />
               )}
             </tr>
           );

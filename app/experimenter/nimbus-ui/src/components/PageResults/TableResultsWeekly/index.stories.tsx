@@ -6,39 +6,28 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableResultsWeekly from ".";
+import { MockResultsContextProvider } from "../../../lib/mocks";
 import {
   BRANCH_COMPARISON,
   HIGHLIGHTS_METRICS_LIST,
 } from "../../../lib/visualization/constants";
-import { weeklyMockAnalysis } from "../../../lib/visualization/mocks";
-import { getSortedBranches } from "../../../lib/visualization/utils";
-
-const weeklyResults = weeklyMockAnalysis();
-const sortedBranches = getSortedBranches({
-  show_analysis: true,
-  daily: null,
-  weekly: weeklyResults,
-  overall: null,
-});
 
 storiesOf("pages/Results/TableResultsWeekly", module)
   .addDecorator(withLinks)
   .add("with relative uplift comparison", () => {
     return (
-      <TableResultsWeekly
-        {...{ weeklyResults, sortedBranches }}
-        hasOverallResults
-        metricsList={HIGHLIGHTS_METRICS_LIST}
-      />
+      <MockResultsContextProvider>
+        <TableResultsWeekly metricsList={HIGHLIGHTS_METRICS_LIST} />
+      </MockResultsContextProvider>
     );
   })
   .add("with absolute comparison", () => {
     return (
-      <TableResultsWeekly
-        {...{ weeklyResults, sortedBranches }}
-        hasOverallResults
-        metricsList={HIGHLIGHTS_METRICS_LIST}
-        branchComparison={BRANCH_COMPARISON.ABSOLUTE}
-      />
+      <MockResultsContextProvider>
+        <TableResultsWeekly
+          metricsList={HIGHLIGHTS_METRICS_LIST}
+          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+        />
+      </MockResultsContextProvider>
     );
   });

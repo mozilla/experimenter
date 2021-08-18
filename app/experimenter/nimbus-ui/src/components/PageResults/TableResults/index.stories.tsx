@@ -6,14 +6,13 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableResults from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import {
+  mockExperimentQuery,
+  MockResultsContextProvider,
+} from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
-import { mockAnalysis } from "../../../lib/visualization/mocks";
-import { getSortedBranches } from "../../../lib/visualization/utils";
-
-const results = mockAnalysis();
-const sortedBranches = getSortedBranches(results);
+import { mockIncompleteAnalysis } from "../../../lib/visualization/mocks";
 
 storiesOf("pages/Results/TableResults", module)
   .addDecorator(withLinks)
@@ -21,7 +20,9 @@ storiesOf("pages/Results/TableResults", module)
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults {...{ experiment, results, sortedBranches }} />
+        <MockResultsContextProvider>
+          <TableResults {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>
     );
   })
@@ -31,7 +32,9 @@ storiesOf("pages/Results/TableResults", module)
     });
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults {...{ experiment, results, sortedBranches }} />
+        <MockResultsContextProvider>
+          <TableResults {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>
     );
   })
@@ -39,10 +42,12 @@ storiesOf("pages/Results/TableResults", module)
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults
-          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
-          {...{ experiment, results, sortedBranches }}
-        />
+        <MockResultsContextProvider>
+          <TableResults
+            branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+            {...{ experiment }}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>
     );
   })
@@ -52,10 +57,22 @@ storiesOf("pages/Results/TableResults", module)
     });
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults
-          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
-          {...{ experiment, results, sortedBranches }}
-        />
+        <MockResultsContextProvider>
+          <TableResults
+            branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+            {...{ experiment }}
+          />
+        </MockResultsContextProvider>
+      </RouterSlugProvider>
+    );
+  })
+  .add("missing retention with warning", () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <MockResultsContextProvider analysis={mockIncompleteAnalysis()}>
+          <TableResults {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>
     );
   });

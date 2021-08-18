@@ -5,24 +5,23 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import TableResults from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import {
+  mockExperimentQuery,
+  MockResultsContextProvider,
+} from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
 import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
-import {
-  mockAnalysis,
-  mockIncompleteAnalysis,
-} from "../../../lib/visualization/mocks";
-import { getSortedBranches } from "../../../lib/visualization/utils";
+import { mockIncompleteAnalysis } from "../../../lib/visualization/mocks";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
-const results = mockAnalysis();
-const sortedBranches = getSortedBranches(results);
 
 describe("TableResults", () => {
   it("renders correct headings", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults {...{ experiment, results, sortedBranches }} />
+        <MockResultsContextProvider>
+          <TableResults {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
     const EXPECTED_HEADINGS = [
@@ -40,7 +39,9 @@ describe("TableResults", () => {
   it("with relative comparison, renders the expected variant, comparison, and user count", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults {...{ experiment, results, sortedBranches }} />
+        <MockResultsContextProvider>
+          <TableResults {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 
@@ -58,10 +59,12 @@ describe("TableResults", () => {
   it("with absolute comparison, renders the expected variant, comparison, and user count", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults
-          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
-          {...{ experiment, results, sortedBranches }}
-        />
+        <MockResultsContextProvider>
+          <TableResults
+            {...{ experiment }}
+            branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+          />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
     expect(screen.getByText("88.6%", { exact: false })).toBeInTheDocument();
@@ -77,7 +80,9 @@ describe("TableResults", () => {
   it("renders correctly labelled result significance", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults {...{ experiment, results, sortedBranches }} />
+        <MockResultsContextProvider>
+          <TableResults {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
     expect(screen.getByTestId("positive-significance")).toBeInTheDocument();
@@ -86,12 +91,11 @@ describe("TableResults", () => {
   });
 
   it("renders missing retention with warning", () => {
-    const results = mockIncompleteAnalysis();
-    const sortedBranches = getSortedBranches(results);
-
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableResults {...{ experiment, results, sortedBranches }} />
+        <MockResultsContextProvider analysis={mockIncompleteAnalysis()}>
+          <TableResults {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 

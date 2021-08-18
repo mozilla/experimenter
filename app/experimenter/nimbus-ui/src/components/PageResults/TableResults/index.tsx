@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { useOutcomes } from "../../../hooks";
+import { ResultsContext } from "../../../lib/contexts";
 import { OutcomesList } from "../../../lib/types";
 import {
   BRANCH_COMPARISON,
@@ -13,10 +14,7 @@ import {
   RESULTS_METRICS_LIST,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import {
-  AnalysisData,
-  BranchComparisonValues,
-} from "../../../lib/visualization/types";
+import { BranchComparisonValues } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
@@ -24,8 +22,6 @@ import TooltipWithMarkdown from "../TooltipWithMarkdown";
 
 type TableResultsProps = {
   experiment: getExperiment_experimentBySlug;
-  results: AnalysisData;
-  sortedBranches: string[];
   branchComparison?: BranchComparisonValues;
 };
 
@@ -50,19 +46,15 @@ const getResultMetrics = (outcomes: OutcomesList) => {
 
 const TableResults = ({
   experiment,
-  results = {
-    daily: [],
-    weekly: {},
-    overall: {},
-    metadata: { metrics: {}, outcomes: {} },
-    show_analysis: false,
-  },
-  sortedBranches,
   branchComparison = BRANCH_COMPARISON.UPLIFT,
 }: TableResultsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
   const resultsMetricsList = getResultMetrics(primaryOutcomes);
-  const overallResults = results?.overall!;
+  const {
+    analysis: { metadata, overall },
+    sortedBranches,
+  } = useContext(ResultsContext);
+  const overallResults = overall!;
 
   return (
     <table className="table-visualization-center" data-testid="table-results">
@@ -72,8 +64,7 @@ const TableResults = ({
           {resultsMetricsList.map((metric, index) => {
             const badgeClass = `badge ${metric.type?.badge}`;
             const outcomeDescription =
-              results.metadata?.metrics[metric.value]?.description ||
-              metric.tooltip;
+              metadata?.metrics[metric.value]?.description || metric.tooltip;
 
             return (
               <th

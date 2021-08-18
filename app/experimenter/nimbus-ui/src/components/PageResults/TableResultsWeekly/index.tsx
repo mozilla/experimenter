@@ -1,40 +1,36 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
 import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../../images/plus.svg";
+import { ResultsContext } from "../../../lib/contexts";
 import {
   BRANCH_COMPARISON,
   GENERAL_TIPS,
 } from "../../../lib/visualization/constants";
-import {
-  AnalysisDataWeekly,
-  BranchComparisonValues,
-} from "../../../lib/visualization/types";
+import { BranchComparisonValues } from "../../../lib/visualization/types";
 import TableWeekly from "../TableWeekly";
 
 type TableResultsWeeklyProps = {
-  weeklyResults: AnalysisDataWeekly;
-  hasOverallResults: boolean;
   metricsList: {
     value: string;
     name: string;
     tooltip: string;
     group: string;
   }[];
-  sortedBranches: string[];
   branchComparison?: BranchComparisonValues;
 };
 
 const TableResultsWeekly = ({
-  weeklyResults = {},
-  hasOverallResults = false,
   metricsList,
-  sortedBranches,
   branchComparison = BRANCH_COMPARISON.UPLIFT,
 }: TableResultsWeeklyProps) => {
+  const {
+    analysis: { overall },
+  } = useContext(ResultsContext);
+  const hasOverallResults = !!overall;
   const [open, setOpen] = useState(!hasOverallResults);
 
   return (
@@ -72,8 +68,7 @@ const TableResultsWeekly = ({
                   metricKey={metric.value}
                   metricName={metric.name}
                   group={metric.group}
-                  results={weeklyResults}
-                  {...{ sortedBranches, branchComparison }}
+                  {...{ branchComparison }}
                 />
               </div>
             );

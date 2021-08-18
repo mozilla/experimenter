@@ -6,12 +6,11 @@ import { withLinks } from "@storybook/addon-links";
 import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableMetricConversion from ".";
-import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
-import { mockAnalysis } from "../../../lib/visualization/mocks";
-import { getSortedBranches } from "../../../lib/visualization/utils";
-
-const results = mockAnalysis().overall;
-const sortedBranches = getSortedBranches(mockAnalysis());
+import {
+  mockExperimentQuery,
+  mockOutcomeSets,
+  MockResultsContextProvider,
+} from "../../../lib/mocks";
 
 storiesOf("pages/Results/TableMetricConversion", module)
   .addDecorator(withLinks)
@@ -22,10 +21,9 @@ storiesOf("pages/Results/TableMetricConversion", module)
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
-      <TableMetricConversion
-        {...{ results, sortedBranches }}
-        outcome={primaryOutcomes![0]!}
-      />
+      <MockResultsContextProvider>
+        <TableMetricConversion outcome={primaryOutcomes![0]!} />
+      </MockResultsContextProvider>
     );
   })
   .add("with negative primary metric", () => {
@@ -35,10 +33,9 @@ storiesOf("pages/Results/TableMetricConversion", module)
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
-      <TableMetricConversion
-        {...{ results, sortedBranches }}
-        outcome={primaryOutcomes![0]!}
-      />
+      <MockResultsContextProvider>
+        <TableMetricConversion outcome={primaryOutcomes![0]!} />
+      </MockResultsContextProvider>
     );
   })
   .add("with neutral primary metric", () => {
@@ -48,9 +45,8 @@ storiesOf("pages/Results/TableMetricConversion", module)
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     return (
-      <TableMetricConversion
-        {...{ results, sortedBranches }}
-        outcome={primaryOutcomes![0]!}
-      />
+      <MockResultsContextProvider>
+        <TableMetricConversion outcome={primaryOutcomes![0]!} />
+      </MockResultsContextProvider>
     );
   });
