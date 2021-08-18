@@ -233,11 +233,96 @@ TARGETING_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
     targeting=(
         f"{TARGETING_NO_ENTERPRISE.targeting} && "
         '!("e6eb0d1e856335fc" in attachedFxAOAuthClients|mapToProperty("id"))'
+    )
+)
+
+TARGETING_TOTAL_URI_10 = NimbusTargetingConfig(
+    name="Total URIs past 10 days",
+    slug="total_uris_10days",
+    description="The total number of URIs visited in the past 10 days",
+    targeting="(userMonthlyActivity[0][0] || 0) + "
+    "(userMonthlyActivity[1][0] || 0) + "
+    "(userMonthlyActivity[2][0] || 0) + "
+    "(userMonthlyActivity[3][0] || 0) + "
+    "(userMonthlyActivity[4][0] || 0) + "
+    "(userMonthlyActivity[5][0] || 0) + "
+    "(userMonthlyActivity[6][0] || 0) + "
+    "(userMonthlyActivity[7][0] || 0) + "
+    "(userMonthlyActivity[8][0] || 0) + "
+    "(userMonthlyActivity[9][0] || 0)",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_INFREQUENT_USER_URIS = NimbusTargetingConfig(
+    name="Infrequent user (uris)",
+    slug="infrequent_user_uris",
+    description="Between 1 and 6 URIs visited in the past 28 days",
+    targeting="{total_uri_10days} <= 6 && {total_uri_10days} >= 1 && "
+    "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28".format(
+        total_uri_10days=TARGETING_TOTAL_URI_10.targeting,
     ),
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_CASUAL_USER_URIS = NimbusTargetingConfig(
+    name="Casual user (uris)",
+    slug="casual_user_uris",
+    description="Between 7 and 13 URIs visited in the past 28 days",
+    targeting="{total_uri_10days} <= 13 && {total_uri_10days} >= 7 && "
+    "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28".format(
+        total_uri_10days=TARGETING_TOTAL_URI_10.targeting,
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_REGULAR_USER_URIS = NimbusTargetingConfig(
+    name="Regular user (uris)",
+    slug="regular_user_uris",
+    description="Between 14 and 20 URIs visited in the past 28 days",
+    targeting="{total_uri_10days} <= 20 && {total_uri_10days} >= 14 && "
+    "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28".format(
+        total_uri_10days=TARGETING_TOTAL_URI_10.targeting,
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+<<<<<<< HEAD
+=======
+TARGETING_INFREQUENT_USER_TELEMETRY = NimbusTargetingConfig(
+    name="Infrequent user (telemetry)",
+    slug="infrequent_user_telemetry",
+    description="Infrequent users determined by telemetry",
+    targeting="mainPingSubmissions|length <= 2 && "
+    "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_CASUAL_USER_TELEMETRY = NimbusTargetingConfig(
+    name="Casual user (telemetry)",
+    slug="casual_user_telemetry",
+    description="Casual user determined by telemetry",
+    targeting="mainPingSubmissions|length > 2 && mainPingSubmissions|length <= 4 && "
+    "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_REGULAR_USER_TELEMETRY = NimbusTargetingConfig(
+    name="Regular user (telemetry)",
+    slug="regular_user_telemetry",
+    description="Regular user determined by telemetry",
+    targeting="mainPingSubmissions|length > 4 && mainPingSubmissions|length <= 6 && "
+    "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+>>>>>>> 08f63021 (Add targeting for various types of profile activity)
 
 class NimbusConstants(object):
     class Status(models.TextChoices):
