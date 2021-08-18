@@ -57,12 +57,13 @@ const TableMetricCount = ({
   const countMetricStatistics = getStatistics(outcomeSlug);
   const {
     analysis: { metadata, overall, weekly },
-    sortedBranches,
+    sortedBranchNames,
+    controlBranchName,
   } = useContext(ResultsContext);
   const overallResults = overall!;
 
   const bounds = getExtremeBounds(
-    sortedBranches,
+    sortedBranchNames,
     overallResults,
     outcomeSlug,
     group,
@@ -118,7 +119,8 @@ const TableMetricCount = ({
         </thead>
         <tbody>
           {group &&
-            sortedBranches.map((branch) => {
+            sortedBranchNames.map((branch) => {
+              const isControlBranch = branch === controlBranchName;
               return (
                 overallResults[branch].branch_data[group] && (
                   <tr key={`${branch}-${group}`}>
@@ -132,7 +134,13 @@ const TableMetricCount = ({
                           results={overallResults[branch]}
                           tableLabel={TABLE_LABEL.SECONDARY_METRICS}
                           metricKey={outcomeSlug}
-                          {...{ displayType, branchComparison, bounds, group }}
+                          {...{
+                            displayType,
+                            branchComparison,
+                            bounds,
+                            group,
+                            isControlBranch,
+                          }}
                         />
                       ),
                     )}
