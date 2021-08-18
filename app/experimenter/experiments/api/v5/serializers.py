@@ -353,6 +353,9 @@ class NimbusExperimentSerializer(
         required=False,
         many=True,
     )
+    archive_reason = serializers.CharField(
+        min_length=0, max_length=1024, required=False, allow_blank=True
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -366,6 +369,7 @@ class NimbusExperimentSerializer(
             "firefox_min_version",
             "hypothesis",
             "is_archived",
+            "archive_reason",
             "is_enrollment_paused",
             "locales",
             "name",
@@ -568,6 +572,10 @@ class NimbusExperimentSerializer(
 
     def update(self, experiment, validated_data):
         self.changelog_message = validated_data.pop("changelog_message")
+
+        if validated_data.get("is_archived", False) is False:
+            validated_data["archive_reason"] = ""
+
         return super().update(experiment, validated_data)
 
     def create(self, validated_data):

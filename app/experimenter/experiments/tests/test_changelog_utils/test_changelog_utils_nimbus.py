@@ -34,6 +34,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             data,
             {
                 "application": "",
+                "archive_reason": experiment.archive_reason,
                 "branches": [],
                 "channel": NimbusExperiment.Channel.NO_CHANNEL,
                 "countries": [],
@@ -95,6 +96,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             data,
             {
                 "application": experiment.application,
+                "archive_reason": experiment.archive_reason,
                 "channel": experiment.channel,
                 "firefox_min_version": experiment.firefox_min_version,
                 "hypothesis": experiment.hypothesis,

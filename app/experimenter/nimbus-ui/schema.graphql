@@ -18,6 +18,7 @@ input DocumentationLinkType {
 input ExperimentInput {
   id: Int
   isArchived: Boolean
+  archiveReason: String
   status: NimbusExperimentStatus
   statusNext: NimbusExperimentStatus
   publishStatus: NimbusExperimentPublishStatus
@@ -317,6 +318,7 @@ type NimbusExperimentTargetingConfigSlugChoice {
 type NimbusExperimentType {
   id: Int
   isArchived: Boolean
+  archiveReason: String
   owner: NimbusUser!
   status: NimbusExperimentStatus
   statusNext: NimbusExperimentStatus
