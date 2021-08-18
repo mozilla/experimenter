@@ -148,6 +148,15 @@ describe("FormOverview", () => {
 
     const submitButton = screen.getByTestId("submit-button");
     await fillOutNewForm(expected);
+
+    const publicName = screen.getByLabelText("Public name");
+    fireEvent.change(publicName, { target: { value: "x".repeat(81) } });
+    fireEvent.blur(publicName);
+    await waitFor(() => expect(publicName).toHaveClass("is-invalid"));
+    await screen.findByText("Cannot be greater than 80 characters");
+    fireEvent.change(publicName, { target: { value: expected.name } });
+    fireEvent.blur(publicName);
+
     fireEvent.click(submitButton);
 
     await waitFor(() => {
