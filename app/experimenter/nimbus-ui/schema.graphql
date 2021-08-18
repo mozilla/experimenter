@@ -305,6 +305,7 @@ enum NimbusExperimentTargetingConfigSlug {
   TARGETING_URLBAR_FIREFOX_SUGGEST
   TARGETING_MAC_ONLY
   TARGETING_NO_ENTERPRISE
+  TARGETING_MOBILE_FIRST_RUN
 }
 
 type NimbusExperimentTargetingConfigSlugChoice {
