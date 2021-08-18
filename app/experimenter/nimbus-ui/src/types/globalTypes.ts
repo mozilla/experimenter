@@ -177,6 +177,7 @@ export interface DocumentationLinkType {
 export interface ExperimentInput {
   id?: number | null;
   isArchived?: boolean | null;
+  archiveReason?: string | null;
   status?: NimbusExperimentStatus | null;
   statusNext?: NimbusExperimentStatus | null;
   publishStatus?: NimbusExperimentPublishStatus | null;

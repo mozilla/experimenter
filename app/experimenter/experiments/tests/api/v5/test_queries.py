@@ -210,6 +210,29 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 {"code": country.code, "name": country.name}, experiment_data["countries"]
             )
 
+    def test_experiment_returns_archive_reason(self):
+        user_email = "user@example.com"
+        archive_reason = "Because I can"
+        experiment = NimbusExperimentFactory.create(archive_reason=archive_reason)
+
+        response = self.query(
+            """
+            query {
+                experiments {
+                    archiveReason
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experiments"][0]
+        self.assertEqual(
+            experiment_data["archiveReason"],
+            experiment.archive_reason,
+        )
+
 
 class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")

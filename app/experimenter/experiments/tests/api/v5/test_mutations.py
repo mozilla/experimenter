@@ -735,7 +735,7 @@ class TestMutations(GraphQLTestCase):
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.is_paused, False)
 
-    def test_update_is_archived(self):
+    def test_update_archiving(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -748,6 +748,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "isArchived": True,
+                    "archiveReason": "Because, why not?",
                     "changelogMessage": "test changelog message",
                 }
             },
@@ -761,3 +762,34 @@ class TestMutations(GraphQLTestCase):
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertTrue(experiment.is_archived)
+        self.assertEqual(experiment.archive_reason, "Because, why not?")
+
+    def test_unarchiving_resets_reason(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_archived=True,
+            archive_reason="Because, why not?",
+        )
+
+        self.assertEqual(experiment.archive_reason, "Because, why not?")
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "isArchived": False,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.archive_reason, "")

@@ -73,6 +73,10 @@ class NimbusExperimentManager(models.Manager):
 
 class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     is_archived = models.BooleanField(default=False)
+    archive_reason = models.TextField(
+        default="",
+        blank=True,
+    )
     owner = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
