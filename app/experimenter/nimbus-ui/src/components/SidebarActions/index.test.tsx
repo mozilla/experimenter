@@ -45,31 +45,22 @@ describe("SidebarActions", () => {
       "Unarchive Experiment",
     );
   });
-  it("calls update archive mutation when archive button is clicked", async () => {
+
+  it("toggles the archive dialogue", async () => {
     const experiment = mockExperiment({ isArchived: false, canArchive: true });
     const refetch = jest.fn();
-    const mutationMock = mockExperimentMutation(
-      UPDATE_EXPERIMENT_MUTATION,
-      {
-        id: experiment.id,
-        isArchived: true,
-        changelogMessage: CHANGELOG_MESSAGES.ARCHIVING_EXPERIMENT,
-      },
-      "updateExperiment",
-      {
-        message: "success",
-      },
-    );
 
-    render(<Subject {...{ experiment, refetch }} mocks={[mutationMock]} />);
+    render(<Subject {...{ experiment, refetch }} />);
 
-    const archiveButton = await screen.findByTestId("action-archive");
+    fireEvent.click(screen.getByTestId("action-archive"));
+    await screen.findByPlaceholderText("reason", { exact: false });
 
-    fireEvent.click(archiveButton);
-    await waitFor(() => {
-      expect(refetch).toHaveBeenCalled();
-    });
+    fireEvent.click(screen.getByText("Cancel"));
+    expect(
+      screen.queryByPlaceholderText("reason", { exact: false }),
+    ).not.toBeInTheDocument();
   });
+
   it("calls update archive mutation when unarchive button is clicked", async () => {
     const experiment = mockExperiment({ isArchived: true, canArchive: true });
     const refetch = jest.fn();

@@ -28,6 +28,7 @@ export const GET_EXPERIMENT_QUERY = gql`
     experimentBySlug(slug: $slug) {
       id
       isArchived
+      archiveReason
       canEdit
       canArchive
       name
