@@ -15,6 +15,7 @@ from nimbus.remote_settings.pages.dashboard import Dashboard
 from nimbus.remote_settings.pages.login import Login
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from selenium.common.exceptions import NoSuchElementException
 
 
 @pytest.fixture
@@ -124,9 +125,12 @@ def create_experiment():
 def perform_kinto_action():
     def _perform_kinto_action(selenium, base_url, action):
         selenium.get("http://kinto:8888/v1/admin")
-        kinto_login = Login(selenium, base_url).wait_for_page_to_load()
-        kinto_login.kinto_auth.click()
-        kinto_dashbard = kinto_login.login()
+        try:
+            kinto_login = Login(selenium, base_url).wait_for_page_to_load()
+            kinto_login.kinto_auth.click()
+            kinto_dashbard = kinto_login.login()
+        except NoSuchElementException:
+            kinto_dashbard = Dashboard(selenium, base_url).wait_for_page_to_load()
         bucket = kinto_dashbard.buckets[-1]
         for item in bucket.bucket_category:
             if "nimbus-desktop-experiments" in item.text:
