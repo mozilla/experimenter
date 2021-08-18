@@ -5,20 +5,21 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import TableHighlights from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import {
+  mockExperimentQuery,
+  MockResultsContextProvider,
+} from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
-import { mockAnalysis } from "../../../lib/visualization/mocks";
-import { getSortedBranches } from "../../../lib/visualization/utils";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
-const results = mockAnalysis();
-const sortedBranches = getSortedBranches(results);
 
 describe("TableHighlights", () => {
   it("has participants shown for each variant", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights {...{ experiment, results, sortedBranches }} />
+        <MockResultsContextProvider>
+          <TableHighlights {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 
@@ -33,7 +34,9 @@ describe("TableHighlights", () => {
     const branchDescription = experiment.referenceBranch!.description;
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights {...{ experiment, results, sortedBranches }} />
+        <MockResultsContextProvider>
+          <TableHighlights {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 
@@ -43,7 +46,9 @@ describe("TableHighlights", () => {
   it("has correctly labelled result significance", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights {...{ experiment, results, sortedBranches }} />
+        <MockResultsContextProvider>
+          <TableHighlights {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 
@@ -55,7 +60,9 @@ describe("TableHighlights", () => {
   it("has the expected control and treatment labels", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableHighlights {...{ experiment, results, sortedBranches }} />
+        <MockResultsContextProvider>
+          <TableHighlights {...{ experiment }} />
+        </MockResultsContextProvider>
       </RouterSlugProvider>,
     );
 

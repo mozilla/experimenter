@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
+import { ResultsContext } from "../../../lib/contexts";
 import {
   CONVERSION_METRIC_COLUMNS,
   DISPLAY_TYPE,
   GROUP,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
 import { getExtremeBounds } from "../../../lib/visualization/utils";
 import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
 import TableVisualizationRow from "../TableVisualizationRow";
@@ -22,9 +22,7 @@ type ConversionMetricStatistic = {
 };
 
 type TableMetricConversionProps = {
-  results: AnalysisDataOverall;
   outcome: getConfig_nimbusConfig_outcomes;
-  sortedBranches: string[];
 };
 
 const getStatistics = (slug: string): Array<ConversionMetricStatistic> => {
@@ -41,16 +39,17 @@ const getStatistics = (slug: string): Array<ConversionMetricStatistic> => {
   return conversionMetricStatisticsList;
 };
 
-const TableMetricConversion = ({
-  results = {},
-  outcome,
-  sortedBranches,
-}: TableMetricConversionProps) => {
+const TableMetricConversion = ({ outcome }: TableMetricConversionProps) => {
+  const {
+    analysis: { overall },
+    sortedBranches,
+  } = useContext(ResultsContext);
+  const overallResults = overall!;
   const conversionMetricStatistics = getStatistics(outcome.slug!);
   const metricKey = `${outcome.slug}_ever_used`;
   const bounds = getExtremeBounds(
     sortedBranches,
-    results,
+    overallResults,
     outcome.slug!,
     GROUP.OTHER,
   );
@@ -76,7 +75,7 @@ const TableMetricConversion = ({
           </tr>
         </thead>
         <tbody>
-          {Object.keys(results).map((branch) => {
+          {Object.keys(overallResults).map((branch) => {
             return (
               <tr key={branch}>
                 <th className="align-middle" scope="row">
@@ -86,10 +85,15 @@ const TableMetricConversion = ({
                   ({ displayType, branchComparison, value }) => (
                     <TableVisualizationRow
                       key={`${displayType}-${value}`}
-                      results={results[branch]}
+                      results={overallResults[branch]}
                       group={GROUP.OTHER}
                       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
-                      {...{ metricKey, displayType, branchComparison, bounds }}
+                      {...{
+                        metricKey,
+                        displayType,
+                        branchComparison,
+                        bounds,
+                      }}
                     />
                   ),
                 )}

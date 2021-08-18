@@ -5,29 +5,18 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import TableResultsWeekly from ".";
+import { MockResultsContextProvider } from "../../../lib/mocks";
 import {
   BRANCH_COMPARISON,
   HIGHLIGHTS_METRICS_LIST,
 } from "../../../lib/visualization/constants";
-import { weeklyMockAnalysis } from "../../../lib/visualization/mocks";
-import { getSortedBranches } from "../../../lib/visualization/utils";
-
-const weeklyResults = weeklyMockAnalysis();
-const sortedBranches = getSortedBranches({
-  show_analysis: true,
-  daily: null,
-  weekly: weeklyResults,
-  overall: null,
-});
 
 describe("TableResultsWeekly", () => {
   it("renders as expected with relative uplift branch comparison (default)", () => {
     render(
-      <TableResultsWeekly
-        hasOverallResults
-        metricsList={HIGHLIGHTS_METRICS_LIST}
-        {...{ weeklyResults, sortedBranches }}
-      />,
+      <MockResultsContextProvider>
+        <TableResultsWeekly metricsList={HIGHLIGHTS_METRICS_LIST} />,
+      </MockResultsContextProvider>,
     );
 
     const EXPECTED_HEADINGS = ["Retention", "Search", "Days of Use"];
@@ -51,12 +40,12 @@ describe("TableResultsWeekly", () => {
 
   it("renders as expected with absolute branch comparison", () => {
     render(
-      <TableResultsWeekly
-        hasOverallResults
-        metricsList={HIGHLIGHTS_METRICS_LIST}
-        branchComparison={BRANCH_COMPARISON.ABSOLUTE}
-        {...{ weeklyResults, sortedBranches }}
-      />,
+      <MockResultsContextProvider>
+        <TableResultsWeekly
+          metricsList={HIGHLIGHTS_METRICS_LIST}
+          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+        />
+      </MockResultsContextProvider>,
     );
 
     expect(
@@ -69,13 +58,12 @@ describe("TableResultsWeekly", () => {
     const SHOW_TEXT = "Show Weekly Data";
 
     render(
-      <TableResultsWeekly
-        hasOverallResults={false}
-        metricsList={HIGHLIGHTS_METRICS_LIST}
-        {...{ weeklyResults, sortedBranches }}
-      />,
+      <MockResultsContextProvider>
+        <TableResultsWeekly metricsList={HIGHLIGHTS_METRICS_LIST} />,
+      </MockResultsContextProvider>,
     );
 
+    fireEvent.click(screen.getByText(SHOW_TEXT));
     expect(screen.getByText(HIDE_TEXT)).toBeInTheDocument();
     fireEvent.click(screen.getByText(HIDE_TEXT));
     expect(screen.getByText(SHOW_TEXT)).toBeInTheDocument();

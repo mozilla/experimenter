@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useContext } from "react";
 import { ReactComponent as Info } from "../../../images/info.svg";
+import { ResultsContext } from "../../../lib/contexts";
 import {
   COUNT_METRIC_COLUMNS,
   DISPLAY_TYPE,
   METRIC_TYPE,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { AnalysisData } from "../../../lib/visualization/types";
 import { getExtremeBounds } from "../../../lib/visualization/utils";
 import GraphsWeekly from "../GraphsWeekly";
 import TableVisualizationRow from "../TableVisualizationRow";
@@ -30,12 +30,10 @@ type MetricTypes =
   | typeof METRIC_TYPE.GUARDRAIL;
 
 type TableMetricCountProps = {
-  results: AnalysisData;
   outcomeSlug: string;
   outcomeDefaultName: string;
   group: string;
   metricType?: MetricTypes;
-  sortedBranches: string[];
 };
 
 const getStatistics = (slug: string): Array<CountMetricStatistic> => {
@@ -51,22 +49,18 @@ const getStatistics = (slug: string): Array<CountMetricStatistic> => {
 };
 
 const TableMetricCount = ({
-  results = {
-    daily: [],
-    weekly: {},
-    overall: {},
-    metadata: { metrics: {}, outcomes: {} },
-    show_analysis: false,
-  },
   outcomeSlug,
   outcomeDefaultName,
   group,
   metricType = METRIC_TYPE.DEFAULT_SECONDARY,
-  sortedBranches,
 }: TableMetricCountProps) => {
   const countMetricStatistics = getStatistics(outcomeSlug);
+  const {
+    analysis: { metadata, overall, weekly },
+    sortedBranches,
+  } = useContext(ResultsContext);
+  const overallResults = overall!;
 
-  const overallResults = results?.overall!;
   const bounds = getExtremeBounds(
     sortedBranches,
     overallResults,
@@ -74,9 +68,9 @@ const TableMetricCount = ({
     group,
   );
   const outcomeName =
-    results.metadata?.metrics[outcomeSlug]?.friendly_name || outcomeDefaultName;
+    metadata?.metrics[outcomeSlug]?.friendly_name || outcomeDefaultName;
   const outcomeDescription =
-    results.metadata?.metrics[outcomeSlug]?.description || undefined;
+    metadata?.metrics[outcomeSlug]?.description || undefined;
 
   return (
     <div data-testid="table-metric-secondary" className="mb-5">
@@ -136,10 +130,9 @@ const TableMetricCount = ({
                         <TableVisualizationRow
                           key={`${displayType}-${value}`}
                           results={overallResults[branch]}
-                          group={group}
                           tableLabel={TABLE_LABEL.SECONDARY_METRICS}
                           metricKey={outcomeSlug}
-                          {...{ displayType, branchComparison, bounds }}
+                          {...{ displayType, branchComparison, bounds, group }}
                         />
                       ),
                     )}
@@ -149,11 +142,10 @@ const TableMetricCount = ({
             })}
         </tbody>
       </table>
-      {results?.weekly && (
+      {weekly && (
         <GraphsWeekly
-          weeklyResults={results.weekly}
-          {...{ outcomeSlug, outcomeName }}
-          group={group}
+          weeklyResults={weekly}
+          {...{ outcomeSlug, outcomeName, group }}
         />
       )}
     </div>

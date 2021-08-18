@@ -15,12 +15,12 @@ import {
 } from "./types";
 
 // `show_analysis` is the feature flag for turning visualization on/off.
-// `overall` will be `null` if the analysis isn't available yet.
+// `overall` and `weekly` will be `null` if the analysis isn't available yet.
 export const analysisAvailable = (analysis: AnalysisData | undefined) =>
   analysis?.show_analysis && (analysis?.overall || analysis?.weekly);
 
 export const analysisUnavailable = (analysis: AnalysisData | undefined) =>
-  analysis && !analysisAvailable(analysis);
+  !analysisAvailable(analysis);
 
 export const getTableDisplayType = (
   metricKey: string,
@@ -47,25 +47,14 @@ export const getTableDisplayType = (
   return displayType;
 };
 
+// Ensures the control branch is first
 export const getSortedBranches = (analysis: AnalysisData) => {
-  if (analysis?.overall) {
-    return Object.keys(analysis.overall)
-      .filter((branch) => analysis.overall?.[branch].is_control)
-      .concat(
-        Object.keys(analysis.overall).filter(
-          (branch) => !analysis.overall?.[branch].is_control,
-        ),
-      );
-  } else if (analysis?.weekly) {
-    return Object.keys(analysis.weekly)
-      .filter((branch) => analysis.weekly?.[branch].is_control)
-      .concat(
-        Object.keys(analysis.weekly).filter(
-          (branch) => !analysis.weekly?.[branch].is_control,
-        ),
-      );
-  }
-  return [];
+  const results = analysis.overall || analysis.weekly || {};
+  return Object.keys(results)
+    .filter((branch) => results[branch].is_control)
+    .concat(
+      Object.keys(results).filter((branch) => !results[branch].is_control),
+    );
 };
 
 /**

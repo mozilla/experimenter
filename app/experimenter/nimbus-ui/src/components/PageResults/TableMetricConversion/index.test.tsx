@@ -5,13 +5,12 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import TableMetricConversion from ".";
-import { mockExperimentQuery, mockOutcomeSets } from "../../../lib/mocks";
+import {
+  mockExperimentQuery,
+  mockOutcomeSets,
+  MockResultsContextProvider,
+} from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
-import { mockAnalysis } from "../../../lib/visualization/mocks";
-import { getSortedBranches } from "../../../lib/visualization/utils";
-
-const results = mockAnalysis().overall;
-const sortedBranches = getSortedBranches(mockAnalysis());
 
 describe("TableMetricConversion", () => {
   it("has the correct headings", () => {
@@ -24,12 +23,11 @@ describe("TableMetricConversion", () => {
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
-      <RouterSlugProvider mocks={[mock]}>
-        <TableMetricConversion
-          {...{ results, sortedBranches }}
-          outcome={primaryOutcomes![0]!}
-        />
-      </RouterSlugProvider>,
+      <MockResultsContextProvider>
+        <RouterSlugProvider mocks={[mock]}>
+          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+        </RouterSlugProvider>
+      </MockResultsContextProvider>,
     );
 
     EXPECTED_HEADINGS.forEach((heading) => {
@@ -42,12 +40,11 @@ describe("TableMetricConversion", () => {
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
-      <RouterSlugProvider mocks={[mock]}>
-        <TableMetricConversion
-          {...{ results, sortedBranches }}
-          outcome={primaryOutcomes![0]!}
-        />
-      </RouterSlugProvider>,
+      <MockResultsContextProvider>
+        <RouterSlugProvider mocks={[mock]}>
+          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+        </RouterSlugProvider>
+      </MockResultsContextProvider>,
     );
 
     const negativeSignificance = screen.queryByTestId("negative-significance");
@@ -63,12 +60,11 @@ describe("TableMetricConversion", () => {
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
-      <RouterSlugProvider mocks={[mock]}>
-        <TableMetricConversion
-          {...{ results, sortedBranches }}
-          outcome={primaryOutcomes![0]!}
-        />
-      </RouterSlugProvider>,
+      <MockResultsContextProvider>
+        <RouterSlugProvider mocks={[mock]}>
+          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+        </RouterSlugProvider>
+      </MockResultsContextProvider>,
     );
 
     expect(screen.getAllByText("control")).toHaveLength(2);
@@ -80,12 +76,11 @@ describe("TableMetricConversion", () => {
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
-      <RouterSlugProvider mocks={[mock]}>
-        <TableMetricConversion
-          {...{ results, sortedBranches }}
-          outcome={primaryOutcomes![0]!}
-        />
-      </RouterSlugProvider>,
+      <MockResultsContextProvider>
+        <RouterSlugProvider mocks={[mock]}>
+          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+        </RouterSlugProvider>
+      </MockResultsContextProvider>,
     );
 
     const negativeBlock = screen.queryByTestId("negative-block");
@@ -103,12 +98,11 @@ describe("TableMetricConversion", () => {
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
-      <RouterSlugProvider mocks={[mock]}>
-        <TableMetricConversion
-          {...{ results, sortedBranches }}
-          outcome={primaryOutcomes![0]!}
-        />
-      </RouterSlugProvider>,
+      <MockResultsContextProvider>
+        <RouterSlugProvider mocks={[mock]}>
+          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+        </RouterSlugProvider>
+      </MockResultsContextProvider>,
     );
 
     const positiveBlock = screen.queryByTestId("positive-block");
@@ -126,12 +120,11 @@ describe("TableMetricConversion", () => {
     const { primaryOutcomes } = mockOutcomeSets(experiment);
 
     render(
-      <RouterSlugProvider mocks={[mock]}>
-        <TableMetricConversion
-          {...{ results, sortedBranches }}
-          outcome={primaryOutcomes![0]!}
-        />
-      </RouterSlugProvider>,
+      <MockResultsContextProvider>
+        <RouterSlugProvider mocks={[mock]}>
+          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+        </RouterSlugProvider>
+      </MockResultsContextProvider>,
     );
 
     const negativeBlock = screen.queryByTestId("negative-block");
