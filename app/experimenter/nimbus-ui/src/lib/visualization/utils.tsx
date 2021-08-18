@@ -20,7 +20,7 @@ export const analysisAvailable = (analysis: AnalysisData | undefined) =>
   analysis?.show_analysis && (analysis?.overall || analysis?.weekly);
 
 export const analysisUnavailable = (analysis: AnalysisData | undefined) =>
-  !analysisAvailable(analysis);
+  analysis && !analysisAvailable(analysis);
 
 export const getTableDisplayType = (
   metricKey: string,
