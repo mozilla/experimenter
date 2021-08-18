@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import classNames from "classnames";
 import React, { useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
 import vegaEmbed, { VisualizationSpec } from "vega-embed";
@@ -104,8 +105,8 @@ const GraphsWeekly = ({
 
   const [open, setOpen] = useState(false);
   const [embedded, setEmbedded] = useState(false);
-  const graphsVisibleClass = !open ? "d-none" : "";
-  const graphsHiddenClass = open ? "d-none" : "";
+  const graphsVisibleClass = classNames(!open && "d-none");
+  const graphsHiddenClass = classNames(open && "d-none");
 
   const handleCollapse = () => {
     setOpen(!open);
