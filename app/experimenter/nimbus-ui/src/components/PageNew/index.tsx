@@ -10,6 +10,7 @@ import { ReactComponent as DeleteIcon } from "../../images/x.svg";
 import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
+  SAVE_FAILED_NO_ERROR,
   SUBMIT_ERROR,
 } from "../../lib/constants";
 import { createExperiment_createExperiment as CreateExperimentResult } from "../../types/createExperiment";
@@ -48,7 +49,7 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
           },
         });
         if (!result.data?.createExperiment) {
-          throw new Error("Save failed, no error available");
+          throw new Error(SAVE_FAILED_NO_ERROR);
         }
         const { message, nimbusExperiment } = result.data.createExperiment;
 

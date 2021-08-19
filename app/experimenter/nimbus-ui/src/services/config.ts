@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import {
+  CONFIG_EMPTY_ERROR,
+  INVALID_CONFIG_ERROR,
+} from "../../src/lib/constants";
+
 export function getDefault() {
   return {
     graphql_url: "",
@@ -25,7 +30,7 @@ export function decode(content?: string) {
     if (isDev) {
       console.warn("Nimbus is missing server config");
     } else {
-      throw new Error("Configuration is empty");
+      throw new Error(CONFIG_EMPTY_ERROR);
     }
   }
 
@@ -38,7 +43,7 @@ export function decode(content?: string) {
       console.warn("Nimbus server config is invalid");
     } else {
       throw new Error(
-        `Invalid configuration ${JSON.stringify(content)}: ${decoded}`,
+        `${INVALID_CONFIG_ERROR} ${JSON.stringify(content)}: ${decoded}`,
       );
     }
   }
