@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Table } from "react-bootstrap";
+import ReactJson from "react-json-view";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig } from "../../../hooks";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
@@ -18,6 +19,12 @@ type TableAudienceProps = {
 
 const TableAudience = ({ experiment }: TableAudienceProps) => {
   const { firefoxMinVersion, channel, targetingConfigSlug } = useConfig();
+
+  const recipeJsonParsed = useMemo(() => {
+    if (experiment.recipeJson) {
+      return JSON.parse(experiment.recipeJson);
+    }
+  }, [experiment.recipeJson]);
 
   return (
     <Table bordered data-testid="table-audience" className="mb-4 table-fixed">
@@ -97,11 +104,16 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
             </td>
           </tr>
         ) : null}
-        {experiment.recipeJson && (
+        {recipeJsonParsed && (
           <tr>
             <th>Recipe JSON</th>
             <td data-testid="experiment-recipe-json">
-              <Code codeString={experiment.recipeJson} />
+              <ReactJson
+                src={recipeJsonParsed}
+                collapsed={1}
+                displayDataTypes={false}
+                displayObjectSize={false}
+              />
             </td>
           </tr>
         )}
