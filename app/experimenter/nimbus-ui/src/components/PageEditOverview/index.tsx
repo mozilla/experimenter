@@ -6,7 +6,11 @@ import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useRef, useState } from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
+import {
+  CHANGELOG_MESSAGES,
+  SAVE_FAILED_NO_ERROR,
+  SUBMIT_ERROR,
+} from "../../lib/constants";
 import { editCommonRedirects } from "../../lib/experiment";
 import { optionalStringBool } from "../../lib/utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -59,7 +63,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
         });
 
         if (!result.data?.updateExperiment) {
-          throw new Error("Save failed, no error available");
+          throw new Error(SAVE_FAILED_NO_ERROR);
         }
 
         const { message } = result.data.updateExperiment;
