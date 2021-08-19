@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { CONTROL_BRANCH_REQUIRED_ERROR } from "../../../../lib/constants";
 import { ExperimentInput } from "../../../../types/globalTypes";
 import { AnnotatedBranch, FormBranchesState } from "./state";
 
@@ -24,7 +25,7 @@ export function extractUpdateState(
   const { featureConfig, referenceBranch, treatmentBranches } = state;
 
   if (!referenceBranch) {
-    throw new UpdateStateError("Control branch is required");
+    throw new UpdateStateError(CONTROL_BRANCH_REQUIRED_ERROR);
   }
 
   const featureConfigId = featureConfig === null ? null : featureConfig.id;

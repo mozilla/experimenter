@@ -7,7 +7,11 @@ import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useRef } from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { useConfig } from "../../hooks";
-import { CHANGELOG_MESSAGES, EXTERNAL_URLS } from "../../lib/constants";
+import {
+  CHANGELOG_MESSAGES,
+  EXTERNAL_URLS,
+  SUBMIT_ERROR,
+} from "../../lib/constants";
 import { editCommonRedirects } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
@@ -16,8 +20,6 @@ import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
 import FormBranches from "./FormBranches";
 import { FormBranchesSaveState } from "./FormBranches/reducer";
-
-export const SUBMIT_ERROR_MESSAGE = "Save failed, no error available";
 
 const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   const { featureConfig } = useConfig();
@@ -57,7 +59,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         });
 
         if (!result.data?.updateExperiment) {
-          throw new Error(SUBMIT_ERROR_MESSAGE);
+          throw new Error(SUBMIT_ERROR);
         }
 
         const { message } = result.data.updateExperiment;
