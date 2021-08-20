@@ -43,7 +43,7 @@ def test_create_new_experiment_remote_settings(
 
     selenium.get(base_url)
     # refresh until the experiment shows up
-    for attempt in range(45):
+    for attempt in range(timeout_length):
         try:
             home = HomePage(selenium, base_url).wait_for_page_to_load()
             new_experiments = len(home.tables[0].experiments)
@@ -90,7 +90,7 @@ def test_create_new_experiment_remote_settings_reject(
     drafts_tab_url = f"{base_url}?tab=drafts"
     selenium.get(drafts_tab_url)
     experiment_found = False
-    for attempt in range(45):
+    for attempt in range(timeout_length):
         try:
             home = HomePage(selenium, drafts_tab_url)
             new_experiments = home.tables[0].experiments
@@ -135,7 +135,7 @@ def test_create_new_experiment_remote_settings_timeout(
     review.request_review.request_launch_button.click()
     review.approve(timeout_length)
 
-    for attempt in range(60):
+    for attempt in range(timeout_length):
         try:
             review = SummaryPage(selenium, base_url).wait_for_page_to_load()
             review.timeout_text
