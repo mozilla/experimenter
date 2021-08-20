@@ -16,7 +16,12 @@ def test_create_new_experiment(selenium, base_url, default_data, create_experime
 
 
 def test_create_new_experiment_remote_settings(
-    selenium, base_url, default_data, create_experiment, perform_kinto_action
+    selenium,
+    base_url,
+    default_data,
+    create_experiment,
+    perform_kinto_action,
+    timeout_length,
 ):
     default_data.public_name = "test_create_new_experiment_remote_settings"
 
@@ -32,7 +37,7 @@ def test_create_new_experiment_remote_settings(
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
-    review.approve()
+    review.approve(timeout_length)
 
     perform_kinto_action(selenium, base_url, "approve")
 
@@ -61,7 +66,12 @@ def test_create_new_experiment_remote_settings(
 
 
 def test_create_new_experiment_remote_settings_reject(
-    selenium, base_url, default_data, create_experiment, perform_kinto_action
+    selenium,
+    base_url,
+    default_data,
+    create_experiment,
+    perform_kinto_action,
+    timeout_length,
 ):
     default_data.public_name = "test_create_new_experiment_remote_settings_reject"
 
@@ -72,7 +82,7 @@ def test_create_new_experiment_remote_settings_reject(
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
-    review.approve()
+    review.approve(timeout_length)
 
     perform_kinto_action(selenium, base_url, "reject")
 
@@ -113,7 +123,7 @@ def test_create_new_experiment_remote_settings_reject(
 
 
 def test_create_new_experiment_remote_settings_timeout(
-    selenium, base_url, default_data, create_experiment
+    selenium, base_url, default_data, create_experiment, timeout_length
 ):
     default_data.public_name = "test_create_new_experiment_remote_settings_timeout"
 
@@ -123,7 +133,7 @@ def test_create_new_experiment_remote_settings_timeout(
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
-    review.approve()
+    review.approve(timeout_length)
 
     for attempt in range(60):
         try:
@@ -161,7 +171,7 @@ def test_end_experiment_and_approve_end(
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
-    review.approve()
+    review.approve(timeout_length)
 
     perform_kinto_action(selenium, base_url, "approve")
 
@@ -186,7 +196,7 @@ def test_end_experiment_and_approve_end(
             break
     summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
     summary_page.end_experiment()
-    summary_page.approve()
+    summary_page.approve(timeout_length)
     perform_kinto_action(selenium, base_url, "approve")
     # refresh page until kinto updates
     for _ in range(timeout_length):
@@ -221,7 +231,7 @@ def test_end_experiment_and_reject_end(
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
-    review.approve()
+    review.approve(timeout_length)
 
     perform_kinto_action(selenium, base_url, "approve")
 
@@ -246,7 +256,7 @@ def test_end_experiment_and_reject_end(
             break
     summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
     summary_page.end_experiment()
-    summary_page.approve()
+    summary_page.approve(timeout_length)
     perform_kinto_action(selenium, base_url, "reject")
     # refresh page until kinto updates
     for _ in range(timeout_length):
