@@ -240,7 +240,7 @@ TARGETING_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
 TARGETING_INFREQUENT_USER_URIS = NimbusTargetingConfig(
     name="Infrequent user (uris)",
     slug="infrequent_user_uris",
-    description="Between 1 and 6 URIs visited in the past 28 days",
+    description="Between 1 and 6 days of activity in the past 30 days",
     targeting="userMonthlyActivity|length >= 1 && userMonthlyActivity|length <= 6 && "
     "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
     desktop_telemetry="",
@@ -250,7 +250,7 @@ TARGETING_INFREQUENT_USER_URIS = NimbusTargetingConfig(
 TARGETING_CASUAL_USER_URIS = NimbusTargetingConfig(
     name="Casual user (uris)",
     slug="casual_user_uris",
-    description="Between 7 and 13 URIs visited in the past 28 days",
+    description="Between 7 and 13 days of activity in the past 28 days",
     targeting="userMonthlyActivity|length >= 7 && userMonthlyActivity|length <= 13 && "
     "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
     desktop_telemetry="",
@@ -260,7 +260,7 @@ TARGETING_CASUAL_USER_URIS = NimbusTargetingConfig(
 TARGETING_REGULAR_USER_URIS = NimbusTargetingConfig(
     name="Regular user (uris)",
     slug="regular_user_uris",
-    description="Between 14 and 20 URIs visited in the past 28 days",
+    description="Between 14 and 20 days of activity in the past 30 days",
     targeting="userMonthlyActivity|length >= 14 && userMonthlyActivity|length <= 20 && "
     "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
     desktop_telemetry="",
@@ -268,10 +268,10 @@ TARGETING_REGULAR_USER_URIS = NimbusTargetingConfig(
 )
 
 TARGETING_CORE_USER_URIS = NimbusTargetingConfig(
-    name="Regular user (uris)",
-    slug="regular_user_uris",
-    description="More than 20 URIs visited in the past 28 days",
-    targeting="userMonthlyActivity|length >= 20 && "
+    name="Core user (uris)",
+    slug="core_user_uris",
+    description="More than 20 days of activity in the past 30 days",
+    targeting="userMonthlyActivity|length >= 21 && "
     "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
