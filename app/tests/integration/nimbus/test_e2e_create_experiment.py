@@ -137,3 +137,125 @@ def test_create_new_experiment_remote_settings_timeout(
             break
     else:
         raise AssertionError("Timeout text was never shown.")
+
+
+def test_end_experiment_and_approve_end(
+    selenium,
+    base_url,
+    default_data,
+    create_experiment,
+    request,
+    perform_kinto_action,
+    timeout_length,
+):
+    default_data.public_name = request.node.name
+
+    selenium.get(base_url)
+    home = HomePage(selenium, base_url).wait_for_page_to_load()
+    current_experiments = None
+    try:
+        current_experiments = len(home.tables[0].experiments)
+    except TimeoutException:
+        current_experiments = 0
+    review = create_experiment(selenium, home, default_data)
+    review.launch_without_preview.click()
+    review.request_review.click_launch_checkboxes()
+    review.request_review.request_launch_button.click()
+    review.approve()
+
+    perform_kinto_action(selenium, base_url, "approve")
+
+    selenium.get(base_url)
+    # refresh until the experiment shows up
+    for attempt in range(timeout_length):
+        try:
+            home = HomePage(selenium, base_url).wait_for_page_to_load()
+            new_experiments = len(home.tables[0].experiments)
+            assert new_experiments > current_experiments
+        except AssertionError:
+            time.sleep(2)
+            selenium.refresh()
+        else:
+            break
+    # Check it's live
+    home = HomePage(selenium, base_url).wait_for_page_to_load()
+    live_experiments = home.tables[0]
+    for item in live_experiments.experiments:
+        if default_data.public_name in item.text:
+            item.click()
+            break
+    summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
+    summary_page.end_experiment()
+    summary_page.approve()
+    perform_kinto_action(selenium, base_url, "approve")
+    # refresh page until kinto updates
+    for _ in range(timeout_length):
+        selenium.get(f"{base_url}/{request.node.name}")
+        summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
+        if "Complete" in summary_page.experiment_status:
+            break
+        else:
+            time.sleep(2)
+            selenium.refresh()
+
+
+def test_end_experiment_and_reject_end(
+    selenium,
+    base_url,
+    default_data,
+    create_experiment,
+    request,
+    perform_kinto_action,
+    timeout_length,
+):
+    default_data.public_name = request.node.name
+
+    selenium.get(base_url)
+    home = HomePage(selenium, base_url).wait_for_page_to_load()
+    current_experiments = None
+    try:
+        current_experiments = len(home.tables[0].experiments)
+    except TimeoutException:
+        current_experiments = 0
+    review = create_experiment(selenium, home, default_data)
+    review.launch_without_preview.click()
+    review.request_review.click_launch_checkboxes()
+    review.request_review.request_launch_button.click()
+    review.approve()
+
+    perform_kinto_action(selenium, base_url, "approve")
+
+    selenium.get(base_url)
+    # refresh until the experiment shows up
+    for attempt in range(timeout_length):
+        try:
+            home = HomePage(selenium, base_url).wait_for_page_to_load()
+            new_experiments = len(home.tables[0].experiments)
+            assert new_experiments > current_experiments
+        except AssertionError:
+            time.sleep(2)
+            selenium.refresh()
+        else:
+            break
+    # Check it's live
+    home = HomePage(selenium, base_url).wait_for_page_to_load()
+    live_experiments = home.tables[0]
+    for item in live_experiments.experiments:
+        if default_data.public_name in item.text:
+            item.click()
+            break
+    summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
+    summary_page.end_experiment()
+    summary_page.approve()
+    perform_kinto_action(selenium, base_url, "reject")
+    # refresh page until kinto updates
+    for _ in range(timeout_length):
+        selenium.get(f"{base_url}/{request.node.name}")
+        summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
+        try:
+            assert summary_page.rejected_text
+        except NoSuchElementException:
+            time.sleep(2)
+            selenium.refresh()
+        else:
+            break
