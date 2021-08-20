@@ -16,7 +16,12 @@ def test_create_new_experiment(selenium, base_url, default_data, create_experime
 
 
 def test_create_new_experiment_remote_settings(
-    selenium, base_url, default_data, create_experiment, perform_kinto_action
+    selenium,
+    base_url,
+    default_data,
+    create_experiment,
+    perform_kinto_action,
+    timeout_length,
 ):
     default_data.public_name = "test_create_new_experiment_remote_settings"
 
@@ -32,13 +37,13 @@ def test_create_new_experiment_remote_settings(
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
-    review.approve()
+    review.approve(timeout_length)
 
     perform_kinto_action(selenium, base_url, "approve")
 
     selenium.get(base_url)
     # refresh until the experiment shows up
-    for attempt in range(45):
+    for attempt in range(timeout_length):
         try:
             home = HomePage(selenium, base_url).wait_for_page_to_load()
             new_experiments = len(home.tables[0].experiments)
@@ -61,7 +66,12 @@ def test_create_new_experiment_remote_settings(
 
 
 def test_create_new_experiment_remote_settings_reject(
-    selenium, base_url, default_data, create_experiment, perform_kinto_action
+    selenium,
+    base_url,
+    default_data,
+    create_experiment,
+    perform_kinto_action,
+    timeout_length,
 ):
     default_data.public_name = "test_create_new_experiment_remote_settings_reject"
 
@@ -72,7 +82,7 @@ def test_create_new_experiment_remote_settings_reject(
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
-    review.approve()
+    review.approve(timeout_length)
 
     perform_kinto_action(selenium, base_url, "reject")
 
@@ -80,7 +90,7 @@ def test_create_new_experiment_remote_settings_reject(
     drafts_tab_url = f"{base_url}?tab=drafts"
     selenium.get(drafts_tab_url)
     experiment_found = False
-    for attempt in range(45):
+    for attempt in range(timeout_length):
         try:
             home = HomePage(selenium, drafts_tab_url)
             new_experiments = home.tables[0].experiments
@@ -113,7 +123,7 @@ def test_create_new_experiment_remote_settings_reject(
 
 
 def test_create_new_experiment_remote_settings_timeout(
-    selenium, base_url, default_data, create_experiment
+    selenium, base_url, default_data, create_experiment, timeout_length
 ):
     default_data.public_name = "test_create_new_experiment_remote_settings_timeout"
 
@@ -123,9 +133,9 @@ def test_create_new_experiment_remote_settings_timeout(
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
-    review.approve()
+    review.approve(timeout_length)
 
-    for attempt in range(60):
+    for attempt in range(timeout_length):
         try:
             review = SummaryPage(selenium, base_url).wait_for_page_to_load()
             review.timeout_text
@@ -161,7 +171,7 @@ def test_end_experiment_and_approve_end(
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
-    review.approve()
+    review.approve(timeout_length)
 
     perform_kinto_action(selenium, base_url, "approve")
 
@@ -186,7 +196,7 @@ def test_end_experiment_and_approve_end(
             break
     summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
     summary_page.end_experiment()
-    summary_page.approve()
+    summary_page.approve(timeout_length)
     perform_kinto_action(selenium, base_url, "approve")
     # refresh page until kinto updates
     for _ in range(timeout_length):
@@ -221,7 +231,7 @@ def test_end_experiment_and_reject_end(
     review.launch_without_preview.click()
     review.request_review.click_launch_checkboxes()
     review.request_review.request_launch_button.click()
-    review.approve()
+    review.approve(timeout_length)
 
     perform_kinto_action(selenium, base_url, "approve")
 
@@ -246,7 +256,7 @@ def test_end_experiment_and_reject_end(
             break
     summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
     summary_page.end_experiment()
-    summary_page.approve()
+    summary_page.approve(timeout_length)
     perform_kinto_action(selenium, base_url, "reject")
     # refresh page until kinto updates
     for _ in range(timeout_length):
