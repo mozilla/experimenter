@@ -52,6 +52,11 @@ def _verify_url(request, base_url):
         session.get(base_url, verify=False)
 
 
+@pytest.fixture(name="timeout_length", scope="session")
+def fixture_timeout_length():
+    return 60
+
+
 @pytest.fixture
 def default_data():
     return BaseExperimentDataClass(

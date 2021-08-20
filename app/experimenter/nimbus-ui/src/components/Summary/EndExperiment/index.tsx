@@ -32,7 +32,7 @@ const EndExperiment = ({
             <Button
               variant="primary"
               onClick={onSubmit}
-              className="EndExperimentConfirmButton"
+              className="end-experiment-confirm-button"
               disabled={isLoading}
               data-testid="end-experiment-confirm"
             >
@@ -54,7 +54,7 @@ const EndExperiment = ({
         <Button
           variant="primary"
           onClick={toggleShowEndConfirmation}
-          className="EndExperimentStartButton"
+          className="end-experiment-start-button"
           disabled={isLoading}
           data-testid="end-experiment-start"
         >

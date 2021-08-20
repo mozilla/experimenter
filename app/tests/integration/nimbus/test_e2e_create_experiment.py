@@ -140,7 +140,13 @@ def test_create_new_experiment_remote_settings_timeout(
 
 
 def test_end_experiment_and_approve_end(
-    selenium, base_url, default_data, create_experiment, request, perform_kinto_action
+    selenium,
+    base_url,
+    default_data,
+    create_experiment,
+    request,
+    perform_kinto_action,
+    timeout_length,
 ):
     default_data.public_name = request.node.name
 
@@ -161,7 +167,7 @@ def test_end_experiment_and_approve_end(
 
     selenium.get(base_url)
     # refresh until the experiment shows up
-    for attempt in range(45):
+    for attempt in range(timeout_length):
         try:
             home = HomePage(selenium, base_url).wait_for_page_to_load()
             new_experiments = len(home.tables[0].experiments)
@@ -183,7 +189,7 @@ def test_end_experiment_and_approve_end(
     summary_page.approve()
     perform_kinto_action(selenium, base_url, "approve")
     # refresh page until kinto updates
-    for _ in range(45):
+    for _ in range(timeout_length):
         selenium.get(f"{base_url}/{request.node.name}")
         summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
         if "Complete" in summary_page.experiment_status:
@@ -194,7 +200,13 @@ def test_end_experiment_and_approve_end(
 
 
 def test_end_experiment_and_reject_end(
-    selenium, base_url, default_data, create_experiment, request, perform_kinto_action
+    selenium,
+    base_url,
+    default_data,
+    create_experiment,
+    request,
+    perform_kinto_action,
+    timeout_length,
 ):
     default_data.public_name = request.node.name
 
@@ -215,7 +227,7 @@ def test_end_experiment_and_reject_end(
 
     selenium.get(base_url)
     # refresh until the experiment shows up
-    for attempt in range(45):
+    for attempt in range(timeout_length):
         try:
             home = HomePage(selenium, base_url).wait_for_page_to_load()
             new_experiments = len(home.tables[0].experiments)
@@ -237,11 +249,11 @@ def test_end_experiment_and_reject_end(
     summary_page.approve()
     perform_kinto_action(selenium, base_url, "reject")
     # refresh page until kinto updates
-    for _ in range(45):
+    for _ in range(timeout_length):
         selenium.get(f"{base_url}/{request.node.name}")
         summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
         try:
-            summary_page.rejected_text
+            assert summary_page.rejected_text
         except NoSuchElementException:
             time.sleep(2)
             selenium.refresh()

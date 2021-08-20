@@ -19,8 +19,8 @@ class SummaryPage(Base):
         By.CSS_SELECTOR,
         ".header-experiment-status .border-primary",
     )
-    _end_experiment_button_locator = (By.CSS_SELECTOR, ".EndExperimentStartButton")
-    _confirm_end_button_locator = (By.CSS_SELECTOR, ".EndExperimentConfirmButton")
+    _end_experiment_button_locator = (By.CSS_SELECTOR, ".end-experiment-start-button")
+    _confirm_end_button_locator = (By.CSS_SELECTOR, ".end-experiment-confirm-button")
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
