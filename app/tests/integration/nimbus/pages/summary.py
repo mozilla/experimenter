@@ -1,5 +1,8 @@
+import time
+
 from nimbus.pages.base import Base
 from pypom import Region
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -16,6 +19,8 @@ class SummaryPage(Base):
         By.CSS_SELECTOR,
         ".header-experiment-status .border-primary",
     )
+    _end_experiment_button_locator = (By.CSS_SELECTOR, ".end-experiment-start-button")
+    _confirm_end_button_locator = (By.CSS_SELECTOR, ".end-experiment-confirm-button")
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
@@ -35,8 +40,28 @@ class SummaryPage(Base):
         return self.RequestReview(self)
 
     def approve(self):
-        el = self.find_element(*self._approve_request_button_locator)
+        for _ in range(45):
+            try:
+                el = self.find_element(*self._approve_request_button_locator)
+                el.click()
+                break
+            except NoSuchElementException:
+                time.sleep(2)
+                self.selenium.refresh()
+        else:
+            raise AssertionError("Approve button was never shown")
+
+    def end_experiment(self, action="End"):
+        el = self.find_element(*self._end_experiment_button_locator)
         el.click()
+        if action == "End":
+            self.wait.until(
+                EC.presence_of_element_located(self._confirm_end_button_locator)
+            )
+            el = self.find_element(*self._confirm_end_button_locator)
+            el.click()
+        else:
+            pass
 
     @property
     def rejected_text(self):
