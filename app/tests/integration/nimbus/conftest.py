@@ -1,4 +1,5 @@
 import os
+import time
 
 import pytest
 import requests
@@ -57,18 +58,19 @@ def fixture_timeout_length():
     return 60
 
 
-@pytest.fixture
-def default_data():
+
+@pytest.fixture(params=[(BaseExperimentApplications.DESKTOP, "No Feature Firefox Desktop"), (BaseExperimentApplications.FENIX, "No Feature Fenix"), (BaseExperimentApplications.IOS, "No Feature iOS")], ids=["Desktop", "Android", "iOS"])
+def default_data(request):
     return BaseExperimentDataClass(
         public_name="test_experiment",
         hypothesis="smart stuff here",
-        application=BaseExperimentApplications.DESKTOP,
+        application=request.param[0],
         public_description="description stuff",
         branches=[
             BaseExperimentBranchDataClass(
                 name="name 1",
                 description="a nice experiment",
-                feature_config="No Feature Firefox Desktop",
+                feature_config=f"{request.param[1]}",
             )
         ],
         metrics=BaseExperimentMetricsDataClass(
@@ -77,7 +79,7 @@ def default_data():
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.NIGHTLY,
             min_version=80,
-            targeting=BaseExperimentAudienceTargetingOptions.TARGETING_MAC_ONLY,
+            targeting=BaseExperimentAudienceTargetingOptions.NO_TARGETING,
             percentage=50.0,
             expected_clients=50,
         ),
@@ -130,22 +132,47 @@ def create_experiment():
 def perform_kinto_action():
     def _perform_kinto_action(selenium, base_url, action):
         selenium.get("http://kinto:8888/v1/admin")
+        kinto_dashboard = None
         try:
             kinto_login = Login(selenium, base_url).wait_for_page_to_load()
             kinto_login.kinto_auth.click()
-            kinto_dashbard = kinto_login.login()
+            kinto_dashboard = kinto_login.login()
         except NoSuchElementException:
-            kinto_dashbard = Dashboard(selenium, base_url).wait_for_page_to_load()
-        bucket = kinto_dashbard.buckets[-1]
-        for item in bucket.bucket_category:
-            if "nimbus-desktop-experiments" in item.text:
-                item.click()
-                break
-        record = kinto_dashbard.record
-        record.action(action)
-        if action == "reject":
-            kinto_dashbard = Dashboard(selenium, base_url)
-            modal = kinto_dashbard.reject_modal
-            modal.decline_changes()
+            kinto_dashboard = Dashboard(selenium, base_url).wait_for_page_to_load()
+        
+        not_actionable = False
+        while not_actionable == False:
+            for bucket in kinto_dashboard.buckets[0].bucket_category:
+                try:
+                    bucket.click()
+                    kinto_dashboard.record.approve_locator
+                except NoSuchElementException:
+                    time.sleep(2)
+                    continue
+                else:
+                    record = kinto_dashboard.record
+                    record.action(action)
+                    if action == "reject":
+                        kinto_dashboard = Dashboard(selenium, base_url)
+                        modal = kinto_dashboard.reject_modal
+                        modal.decline_changes()
+                    not_actionable = True
+                    break
+            else:
+                selenium.refresh()
+                kinto_dashboard = Dashboard(selenium, base_url).wait_for_page_to_load()
+
+
+        # bucket = kinto_dashboard.buckets[-1]
+        # for item in bucket.bucket_category:
+        #     if "nimbus-desktop-experiments" in item.text:
+        #         item.click()
+        #         break
+        # record = kinto_dashboard.record
+        # record.action(action)
+        # if action == "reject":
+        #     kinto_dashboard = Dashboard(selenium, base_url)
+        #     modal = kinto_dashboard.reject_modal
+        #     modal.decline_changes()
 
     return _perform_kinto_action
