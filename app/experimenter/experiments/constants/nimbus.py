@@ -232,7 +232,7 @@ TARGETING_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
     description="Exclude users who have used Mozilla VPN or who are enterprise users",
     targeting=(
         f"{TARGETING_NO_ENTERPRISE.targeting} && "
-        '!("e6eb0d1e856335fc" in attachedFxAOAuthClients|mapToProperty("id")'
+        '!("e6eb0d1e856335fc" in attachedFxAOAuthClients|mapToProperty("id"))'
     ),
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
