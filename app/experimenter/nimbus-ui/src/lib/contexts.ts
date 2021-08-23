@@ -4,11 +4,12 @@
 
 import React from "react";
 import { AnalysisData } from "./visualization/types";
-import { getSortedBranches } from "./visualization/utils";
+import { getSortedBranchNames } from "./visualization/utils";
 
 export type ResultsContextType = {
   analysis: AnalysisData;
-  sortedBranches: ReturnType<typeof getSortedBranches>;
+  sortedBranchNames: ReturnType<typeof getSortedBranchNames>;
+  controlBranchName: string;
 };
 
 export const defaultResultsContext = {
@@ -16,10 +17,11 @@ export const defaultResultsContext = {
     daily: [],
     weekly: {},
     overall: {},
-    metadata: { metrics: {}, outcomes: {} },
+    metadata: { metrics: {}, outcomes: {}, external_config: null },
     show_analysis: false,
   },
-  sortedBranches: [],
+  sortedBranchNames: [],
+  controlBranchName: "",
 };
 
 export const ResultsContext = React.createContext<ResultsContextType>(

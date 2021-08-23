@@ -12,6 +12,7 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import {
   mockAnalysis,
+  MOCK_METADATA_WITH_CONFIG,
   MOCK_UNAVAILABLE_ANALYSIS,
 } from "../../lib/visualization/mocks";
 import { AnalysisData } from "../../lib/visualization/types";
@@ -63,6 +64,14 @@ describe("PageResults", () => {
       "href",
       "https://protosaur.dev/partybal/demo_slug.html",
     );
+  });
+
+  it("displays the external config alert when an override exists", async () => {
+    mockExperiment = mockExperimentQuery("demo-slug").experiment;
+    mockAnalysisData = mockAnalysis({ metadata: MOCK_METADATA_WITH_CONFIG });
+    render(<Subject />);
+
+    await screen.findByTestId("external-config-alert");
   });
 
   it("displays the monitoring dashboard link", async () => {

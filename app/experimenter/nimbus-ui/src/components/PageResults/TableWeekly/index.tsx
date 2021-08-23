@@ -55,7 +55,8 @@ const TableWeekly = ({
 }: TableWeeklyProps) => {
   const {
     analysis: { weekly },
-    sortedBranches,
+    sortedBranchNames,
+    controlBranchName,
   } = useContext(ResultsContext);
   const weeklyResults = weekly!;
   const weekIndexList = getWeekIndexList(metricKey, group, weeklyResults);
@@ -81,8 +82,8 @@ const TableWeekly = ({
         </tr>
       </thead>
       <tbody>
-        {sortedBranches.map((branch) => {
-          const isControlBranch = weeklyResults[branch]["is_control"];
+        {sortedBranchNames.map((branch) => {
+          const isControlBranch = branch === controlBranchName;
           const displayType = getTableDisplayType(
             metricKey,
             tableLabel,

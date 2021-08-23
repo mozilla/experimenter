@@ -18,11 +18,12 @@ import {
 import { BranchComparisonValues } from "../../lib/visualization/types";
 import {
   analysisUnavailable,
-  getSortedBranches,
+  getSortedBranchNames,
 } from "../../lib/visualization/utils";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
 import LinkMonitoring from "../LinkMonitoring";
+import ExternalConfigAlert from "./ExternalConfigAlert";
 import TableHighlights from "./TableHighlights";
 import TableHighlightsOverview from "./TableHighlightsOverview";
 import TableMetricCount from "./TableMetricCount";
@@ -76,15 +77,20 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
         // analysis.overall is expected to be an object (EXP-800)
         if (!analysis || analysisUnavailable(analysis)) return;
 
+        const sortedBranchNames = getSortedBranchNames(analysis);
         const resultsContextValue: ResultsContextType = {
           analysis,
-          sortedBranches: getSortedBranches(analysis),
+          sortedBranchNames,
+          controlBranchName: sortedBranchNames[0],
         };
 
+        const { external_config: externalConfig } = analysis.metadata || {};
         const slugUnderscored = experiment.slug.replace(/-/g, "_");
 
         return (
           <ResultsContext.Provider value={resultsContextValue}>
+            {externalConfig && <ExternalConfigAlert {...{ externalConfig }} />}
+
             <LinkMonitoring {...experiment} />
             <h3 className="h5 mb-3 mt-4" id="overview">
               Overview

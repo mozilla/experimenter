@@ -19,6 +19,16 @@ export type AnalysisDataWeekly = Exclude<AnalysisData["weekly"], null>;
 export interface Metadata {
   metrics: { [metric: string]: MetadataPoint };
   outcomes: { [outcome: string]: MetadataPoint };
+  external_config?: MetadataExternalConfig | null;
+}
+
+export interface MetadataExternalConfig {
+  end_date: string | null;
+  enrollment_period: string | null;
+  reference_branch: string | null;
+  skip: boolean;
+  start_date: string | null;
+  url: string;
 }
 
 export interface MetadataPoint {
