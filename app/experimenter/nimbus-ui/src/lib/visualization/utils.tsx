@@ -47,14 +47,27 @@ export const getTableDisplayType = (
   return displayType;
 };
 
-// Ensures the control branch is first
-export const getSortedBranches = (analysis: AnalysisData) => {
+export const getControlBranchName = (analysis: AnalysisData) => {
+  const { external_config } = analysis.metadata || {};
+  if (external_config?.reference_branch) {
+    return external_config.reference_branch;
+  }
+  const results = analysis.overall || analysis.weekly;
+  for (const [branchName, branchData] of Object.entries(results!)) {
+    if (branchData.is_control) {
+      return branchName;
+    }
+  }
+};
+
+// Returns [control/reference branch name, treatment branch names]
+export const getSortedBranchNames = (analysis: AnalysisData) => {
+  const controlBranchName = getControlBranchName(analysis)!;
   const results = analysis.overall || analysis.weekly || {};
-  return Object.keys(results)
-    .filter((branch) => results[branch].is_control)
-    .concat(
-      Object.keys(results).filter((branch) => !results[branch].is_control),
-    );
+  return [
+    controlBranchName,
+    ...Object.keys(results).filter((branch) => branch !== controlBranchName),
+  ];
 };
 
 /**
@@ -65,13 +78,13 @@ export const getSortedBranches = (analysis: AnalysisData) => {
  * shown for a metric.
  */
 export const getExtremeBounds = (
-  sortedBranches: string[],
+  sortedBranchNames: string[],
   results: AnalysisDataOverall,
   outcomeSlug: string,
   group: string,
 ) => {
   let extreme = 0;
-  sortedBranches.forEach((branch) => {
+  sortedBranchNames.forEach((branch) => {
     const branchComparison = BRANCH_COMPARISON.UPLIFT;
     const metricDataList =
       results[branch].branch_data[group][outcomeSlug][branchComparison]["all"];

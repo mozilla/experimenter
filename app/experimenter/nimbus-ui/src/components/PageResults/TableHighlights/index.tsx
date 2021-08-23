@@ -74,20 +74,23 @@ const TableHighlights = ({ experiment }: TableHighlightsProps) => {
   );
   const {
     analysis: { metadata, overall },
-    sortedBranches,
+    sortedBranchNames,
+    controlBranchName,
   } = useContext(ResultsContext);
   const overallResults = overall!;
 
   return (
     <table data-testid="table-highlights" className="table mt-4 mb-0">
       <tbody>
-        {sortedBranches.map((branch) => {
+        {sortedBranchNames.map((branch) => {
           const userCountMetric =
             overallResults[branch]["branch_data"][GROUP.OTHER][
               METRIC.USER_COUNT
             ];
           const participantCount =
             userCountMetric[BRANCH_COMPARISON.ABSOLUTE]["first"]["point"];
+          const isControlBranch = branch === controlBranchName;
+
           return (
             <tr key={branch} className="border-top">
               <th className="align-middle p-1 p-lg-3" scope="row">
@@ -100,7 +103,7 @@ const TableHighlights = ({ experiment }: TableHighlightsProps) => {
               <td className="p-1 p-lg-3 col-md-4 align-middle">
                 {branchDescriptions[branch]}
               </td>
-              {overallResults[branch]["is_control"] ? (
+              {isControlBranch ? (
                 <td className="p-1 p-lg-3 align-middle">
                   <div className="font-italic align-middle">---baseline---</div>
                 </td>
@@ -111,7 +114,7 @@ const TableHighlights = ({ experiment }: TableHighlightsProps) => {
                     const displayType = getTableDisplayType(
                       metricKey,
                       TABLE_LABEL.HIGHLIGHTS,
-                      overallResults[branch]["is_control"],
+                      isControlBranch,
                     );
                     const tooltip =
                       metadata?.metrics[metricKey]?.description ||
@@ -123,7 +126,12 @@ const TableHighlights = ({ experiment }: TableHighlightsProps) => {
                         results={overallResults[branch]}
                         group={metric.group}
                         tableLabel={TABLE_LABEL.HIGHLIGHTS}
-                        {...{ metricKey, displayType, tooltip }}
+                        {...{
+                          metricKey,
+                          displayType,
+                          tooltip,
+                          isControlBranch,
+                        }}
                       />
                     );
                   })}
