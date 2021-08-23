@@ -306,6 +306,7 @@ enum NimbusExperimentTargetingConfigSlug {
   TARGETING_MAC_ONLY
   TARGETING_NO_ENTERPRISE
   TARGETING_MOBILE_FIRST_RUN
+  TARGETING_NO_ENTERPRISE_OR_PAST_VPN
 }
 
 type NimbusExperimentTargetingConfigSlugChoice {

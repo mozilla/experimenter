@@ -226,6 +226,18 @@ TARGETING_NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
+    name="No enterprise or past VPN use",
+    slug="no_enterprise_or_past_vpn",
+    description="Exclude users who have used Mozilla VPN or who are enterprise users",
+    targeting=(
+        f"{TARGETING_NO_ENTERPRISE.targeting} && "
+        '!("e6eb0d1e856335fc" in attachedFxAOAuthClients|mapToProperty("id")'
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class NimbusConstants(object):
     class Status(models.TextChoices):
@@ -408,6 +420,7 @@ class NimbusConstants(object):
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
         TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
         TARGETING_MOBILE_FIRST_RUN.slug: TARGETING_MOBILE_FIRST_RUN,
+        TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug: TARGETING_NO_ENTERPRISE_OR_PAST_VPN,
     }
 
     class TargetingConfig(models.TextChoices):
@@ -435,6 +448,11 @@ class NimbusConstants(object):
         TARGETING_MOBILE_FIRST_RUN = (
             TARGETING_MOBILE_FIRST_RUN.slug,
             TARGETING_MOBILE_FIRST_RUN.name,
+        )
+
+        TARGETING_NO_ENTERPRISE_OR_PAST_VPN = (
+            TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug,
+            TARGETING_NO_ENTERPRISE_OR_PAST_VPN.name,
         )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
