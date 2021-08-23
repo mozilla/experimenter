@@ -42,13 +42,14 @@ const getStatistics = (slug: string): Array<ConversionMetricStatistic> => {
 const TableMetricConversion = ({ outcome }: TableMetricConversionProps) => {
   const {
     analysis: { overall },
-    sortedBranches,
+    sortedBranchNames,
+    controlBranchName,
   } = useContext(ResultsContext);
   const overallResults = overall!;
   const conversionMetricStatistics = getStatistics(outcome.slug!);
   const metricKey = `${outcome.slug}_ever_used`;
   const bounds = getExtremeBounds(
-    sortedBranches,
+    sortedBranchNames,
     overallResults,
     outcome.slug!,
     GROUP.OTHER,
@@ -76,6 +77,7 @@ const TableMetricConversion = ({ outcome }: TableMetricConversionProps) => {
         </thead>
         <tbody>
           {Object.keys(overallResults).map((branch) => {
+            const isControlBranch = branch === controlBranchName;
             return (
               <tr key={branch}>
                 <th className="align-middle" scope="row">
@@ -93,6 +95,7 @@ const TableMetricConversion = ({ outcome }: TableMetricConversionProps) => {
                         displayType,
                         branchComparison,
                         bounds,
+                        isControlBranch,
                       }}
                     />
                   ),

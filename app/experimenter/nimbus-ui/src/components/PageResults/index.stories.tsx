@@ -9,7 +9,10 @@ import React from "react";
 import PageResults from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-import { mockAnalysis } from "../../lib/visualization/mocks";
+import {
+  mockAnalysis,
+  MOCK_METADATA_WITH_CONFIG,
+} from "../../lib/visualization/mocks";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const { mock } = mockExperimentQuery("demo-slug", {
@@ -22,6 +25,19 @@ storiesOf("pages/Results", module)
     fetchMock
       .restore()
       .getOnce("/api/v3/visualization/demo-slug/", mockAnalysis());
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <PageResults />
+      </RouterSlugProvider>
+    );
+  })
+  .add("with external config overrides", () => {
+    fetchMock
+      .restore()
+      .getOnce(
+        "/api/v3/visualization/demo-slug/",
+        mockAnalysis({ metadata: MOCK_METADATA_WITH_CONFIG }),
+      );
     return (
       <RouterSlugProvider mocks={[mock]}>
         <PageResults />

@@ -52,7 +52,8 @@ const TableResults = ({
   const resultsMetricsList = getResultMetrics(primaryOutcomes);
   const {
     analysis: { metadata, overall },
-    sortedBranches,
+    sortedBranchNames,
+    controlBranchName,
   } = useContext(ResultsContext);
   const overallResults = overall!;
 
@@ -90,7 +91,8 @@ const TableResults = ({
         </tr>
       </thead>
       <tbody>
-        {sortedBranches.map((branch) => {
+        {sortedBranchNames.map((branch) => {
+          const isControlBranch = branch === controlBranchName;
           return (
             <tr key={branch}>
               <th className="align-middle" scope="row">
@@ -101,7 +103,7 @@ const TableResults = ({
                 const displayType = getTableDisplayType(
                   metricKey,
                   TABLE_LABEL.RESULTS,
-                  overallResults[branch]["is_control"],
+                  isControlBranch,
                 );
                 return (
                   <TableVisualizationRow
@@ -110,7 +112,12 @@ const TableResults = ({
                     results={overallResults[branch]}
                     group={metric.group}
                     tableLabel={TABLE_LABEL.RESULTS}
-                    {...{ metricKey, displayType, branchComparison }}
+                    {...{
+                      metricKey,
+                      displayType,
+                      branchComparison,
+                      isControlBranch,
+                    }}
                   />
                 );
               })}

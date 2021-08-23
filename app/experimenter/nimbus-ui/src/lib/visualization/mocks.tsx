@@ -37,6 +37,32 @@ export const MOCK_METADATA = {
   outcomes: {},
 };
 
+/**
+ * Certain experiment properties can be overridden in the Jetstream config which are exposed in
+ * the metadata via an `external_config` object in schema version 4+. If overrides exist, they
+ * don't impact an experiment beyond analysis data, and should be referenced as the "true"
+ * properties used when the analysis occurs.
+ *
+ * `external_config` will be `undefined` prior to schema version 4. It will be `null` if no
+ * overrides are present.
+ */
+export const MOCK_METADATA_EXTERNAL_CONFIG = {
+  // TODO: account for the rest of these, EXP-1628
+  end_date: null,
+  enrollment_period: null,
+  reference_branch: "treatment",
+  skip: false,
+  start_date: null,
+  url: "https://github.com/mozilla/jetstream-config/",
+};
+
+export const MOCK_METADATA_WITH_CONFIG = {
+  ...MOCK_METADATA,
+  external_config: {
+    ...MOCK_METADATA_EXTERNAL_CONFIG,
+  },
+};
+
 export const CONTROL_NEUTRAL = {
   absolute: {
     first: {
