@@ -467,6 +467,7 @@ class NimbusBranch(models.Model):
         verbose_name = "Nimbus Branch"
         verbose_name_plural = "Nimbus Branches"
         unique_together = (("slug", "experiment"),)
+        ordering = ("slug",)
 
     def __str__(self):
         return self.name
