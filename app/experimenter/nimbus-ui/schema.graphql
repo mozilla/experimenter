@@ -304,6 +304,7 @@ type NimbusExperimentTargetingConfigSlugChoice {
 
 type NimbusExperimentType {
   id: Int
+  parent: String
   isArchived: Boolean
   owner: NimbusUser!
   status: NimbusExperimentStatus
@@ -335,6 +336,7 @@ type NimbusExperimentType {
   riskPartnerRelated: Boolean
   riskRevenue: Boolean
   riskBrand: Boolean
+  nimbusexperimentSet: [NimbusExperimentType!]!
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType
   changes: [NimbusChangeLogType!]!

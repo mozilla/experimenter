@@ -45,6 +45,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "locales": [],
                 "name": "",
                 "owner": owner.email,
+                "parent": None,
                 "population_percent": "0.0000",
                 "primary_outcomes": [],
                 "projects": [],
@@ -74,6 +75,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         project = ProjectFactory.create()
         primary_outcome = Outcomes.by_application(application)[0].slug
         secondary_outcome = Outcomes.by_application(application)[1].slug
+        parent_experiment = NimbusExperimentFactory.create()
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
@@ -82,6 +84,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             projects=[project],
             primary_outcomes=[primary_outcome],
             secondary_outcomes=[secondary_outcome],
+            parent=parent_experiment,
         )
         data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
         branches_data = [dict(b) for b in data.pop("branches")]
@@ -102,6 +105,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "is_paused": experiment.is_paused,
                 "name": experiment.name,
                 "owner": experiment.owner.email,
+                "parent": parent_experiment.slug,
                 "population_percent": str(experiment.population_percent),
                 "primary_outcomes": [primary_outcome],
                 "projects": [project.slug],

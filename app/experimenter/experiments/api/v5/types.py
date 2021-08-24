@@ -259,6 +259,7 @@ class NimbusConfigurationType(graphene.ObjectType):
 
 class NimbusExperimentType(DjangoObjectType):
     id = graphene.Int()
+    parent = graphene.String()
     is_archived = graphene.Boolean()
     status = NimbusExperimentStatus()
     status_next = NimbusExperimentStatus()
@@ -296,6 +297,10 @@ class NimbusExperimentType(DjangoObjectType):
     class Meta:
         model = NimbusExperiment
         exclude = ("branches",)
+
+    def resolve_parent(self, info):
+        if self.parent:
+            return self.parent.slug
 
     def resolve_reference_branch(self, info):
         return self.reference_branch
