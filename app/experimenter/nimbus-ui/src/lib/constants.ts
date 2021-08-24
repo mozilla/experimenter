@@ -19,6 +19,9 @@ export const CONFIG_EMPTY_ERROR = "Configuration is empty";
 
 export const INVALID_CONFIG_ERROR = "Invalid configuration";
 
+export const ARCHIVE_DISABLED =
+  "Experiments can only be archived when in Draft or Complete.";
+
 export const SERVER_ERRORS = {
   REQUIRED_QUESTION: "This question may not be blank.",
   NULL_FIELD: "This field may not be null.",
