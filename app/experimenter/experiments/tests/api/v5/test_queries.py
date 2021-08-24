@@ -757,7 +757,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
             experiment_data["targetingConfigSlug"],
-            NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.name,
+            NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value,
         )
 
     def test_targeting_config_slug_for_deprecated_targeting_config_returns_slug(self):
@@ -915,7 +915,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             self.assertIn(
                 {
                     "label": choice.label,
-                    "value": choice.name,
+                    "value": choice.value,
                     "applicationValues": list(
                         NimbusExperiment.TARGETING_CONFIGS[
                             choice.value
