@@ -16,7 +16,6 @@ import {
   ExperimentInput,
   NimbusExperimentChannel,
   NimbusExperimentFirefoxMinVersion,
-  NimbusExperimentTargetingConfigSlug,
 } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment } from "../../types/updateExperiment";
 import FormAudience from "./FormAudience";
@@ -101,7 +100,7 @@ describe("PageEditAudience", () => {
 const MOCK_FORM_DATA = {
   channel: NimbusExperimentChannel.NIGHTLY,
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion.FIREFOX_83,
-  targetingConfigSlug: NimbusExperimentTargetingConfigSlug.TARGETING_FIRST_RUN,
+  targetingConfigSlug: "TARGETING_FIRST_RUN",
   populationPercent: "40",
   totalEnrolledClients: 68000,
   proposedEnrollment: "1.0",

@@ -434,7 +434,7 @@ class TestMutations(GraphQLTestCase):
                     "proposedDuration": 120,
                     "proposedEnrollment": 42,
                     "targetingConfigSlug": (
-                        NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN.name
+                        NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN
                     ),
                     "totalEnrolledClients": 100,
                     "changelogMessage": "test changelog message",

@@ -92,11 +92,6 @@ class NimbusExperimentApplicationConfig(graphene.ObjectType):
     supports_locale_country = graphene.Boolean()
 
 
-class NimbusExperimentTargetingConfigSlug(graphene.Enum):
-    class Meta:
-        enum = NimbusConstants.TargetingConfig
-
-
 class NimbusExperimentTargetingConfigSlugChoice(graphene.ObjectType):
     label = graphene.String()
     value = graphene.String()
@@ -238,7 +233,7 @@ class NimbusConfigurationType(graphene.ObjectType):
         return [
             NimbusExperimentTargetingConfigSlugChoice(
                 label=choice.label,
-                value=choice.name,
+                value=choice.value,
                 application_values=NimbusExperiment.TARGETING_CONFIGS[
                     choice.value
                 ].application_choice_names,
@@ -320,7 +315,7 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_targeting_config_slug(self, info):
         if self.targeting_config_slug in self.TargetingConfig:
-            return self.TargetingConfig(self.targeting_config_slug).name
+            return self.TargetingConfig(self.targeting_config_slug).value
         return self.targeting_config_slug
 
     def resolve_jexl_targeting_expression(self, info):
