@@ -18,32 +18,32 @@ describe("SidebarActions", () => {
   it("renders a disabled archive button for unarchived experiment", () => {
     render(<Subject experiment={{ isArchived: false, canArchive: false }} />);
     expect(screen.getByTestId("action-archive")).toHaveClass("text-muted");
-    expect(screen.getByTestId("action-archive")).toHaveTextContent(
-      "Archive Experiment",
-    );
+    expect(screen.getByTestId("action-archive")).toHaveTextContent("Archive");
+    expect(screen.getByTestId("tooltip-archived-disabled")).toBeInTheDocument();
   });
 
   it("renders an enabled archive button for unarchived experiment", () => {
     render(<Subject experiment={{ isArchived: false, canArchive: true }} />);
     expect(screen.getByTestId("action-archive").tagName).toEqual("BUTTON");
-    expect(screen.getByTestId("action-archive")).toHaveTextContent(
-      "Archive Experiment",
-    );
+    expect(screen.getByTestId("action-archive")).toHaveTextContent("Archive");
+    expect(
+      screen.queryByTestId("tooltip-archived-disabled"),
+    ).not.toBeInTheDocument();
   });
   it("renders a disabled unarchive button for archived experiment", () => {
     render(<Subject experiment={{ isArchived: true, canArchive: false }} />);
     expect(screen.getByTestId("action-archive")).toHaveClass("text-muted");
-    expect(screen.getByTestId("action-archive")).toHaveTextContent(
-      "Unarchive Experiment",
-    );
+    expect(screen.getByTestId("action-archive")).toHaveTextContent("Unarchive");
+    expect(screen.getByTestId("tooltip-archived-disabled")).toBeInTheDocument();
   });
 
   it("renders an enabled archive button for unarchived experiment", () => {
     render(<Subject experiment={{ isArchived: true, canArchive: true }} />);
     expect(screen.getByTestId("action-archive").tagName).toEqual("BUTTON");
-    expect(screen.getByTestId("action-archive")).toHaveTextContent(
-      "Unarchive Experiment",
-    );
+    expect(screen.getByTestId("action-archive")).toHaveTextContent("Unarchive");
+    expect(
+      screen.queryByTestId("tooltip-archived-disabled"),
+    ).not.toBeInTheDocument();
   });
   it("calls update archive mutation when archive button is clicked", async () => {
     const experiment = mockExperiment({ isArchived: false, canArchive: true });
