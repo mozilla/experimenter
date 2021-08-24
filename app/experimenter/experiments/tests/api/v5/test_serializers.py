@@ -1236,9 +1236,11 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.publish_status, publish_status)
         self.mock_preview_task.apply_async.assert_not_called()
 
-    def test_update_publish_status_to_approved_invokes_push_task(self):
+    @parameterized.expand(list(NimbusExperiment.Application))
+    def test_update_publish_status_to_approved_invokes_push_task(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
+            application=application,
         )
 
         serializer = NimbusExperimentSerializer(
@@ -1257,7 +1259,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.mock_push_task.apply_async.assert_called_with(
             countdown=5,
-            args=[NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]],
+            args=[experiment.application_config.kinto_collection],
         )
 
     def test_serializer_updates_outcomes_on_experiment(self):
