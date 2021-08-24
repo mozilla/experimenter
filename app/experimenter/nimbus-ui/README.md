@@ -236,15 +236,41 @@ While an experiment is in `draft` status all fields are technically allowed to b
 
 No additional action is required; as long as you correctly set the form group's `controlId` and the form error's `name` these review-readiness messages will automatically appear as needed when a user attempts to go into review with incomplete fields.
 
-## Access Visualization Data Locally
+## Results Page and Visualization Data
 
 The Results page renders experiment analysis data and can only be accessed when an experiment is complete, the analysis feature flag is on, and the analysis data returned from the visualization API endpoint is available.
 
-To see the Results page and data locally:
+### Locally Access Visualization Data for Experiments in Prod
+
+At the time of writing, locally created complete experiments don't return data from the visualization endpoint. However, it is possible to either supply a JSON response to essentially mock the endpoint response or to view a locally created experiment that mirrors an experiment in production to test the Results page locally with production visualization data.
+
+#### "Results data" Admin JSON Dump
+
+If you're just looking to test front-end changes, the easiest way to view the Results page with data locally is to:
+
+1. Set `FEATURE_ANALYSIS=true` in your local `.env` file
+2. Find a completed experiment in production that has analysis data ready that you'd like to test your changes against. Either login to `/admin` on production and navigate to that Nimbus Experiment and copy what's in "Results data," or, copy the entire server response from what's returned from the visualization endpoint in production
+3. At `localhost/admin`, add a new Nimbus Experiment with any name/slug and paste your clipboard into the "Results data" for the new experiment
+
+You should now be able to navigate to `localhost/nimbus/your-experiment-slug/results` to test your changes locally.
+
+#### Fetching from GCP
+
+Alternatively to view results locally, if you want to more closely mirror production or if you want to test a Jetstream task:
 
 1. Ensure your [Google Credentials](https://github.com/mozilla/experimenter#google-credentials) are configured
 2. Set `FEATURE_ANALYSIS=true` in your local `.env` file
-3. Create a Nimbus Experiment at `localhost/admin` with experiment slug "testing-nimbus" status "complete," a branch/branch slug named "control", and another branch/branch slug named "treatment". Alternately, change an existing, complete Nimbus experiment with branches in place to reflect the experiment slug `testing-nimbus`.
+3. Find a completed experiment in production that has analysis data ready that you'd like to test your changes against
+4. At `localhost/admin`, add a new Nimbus Experiment with the same experiment slug as the production experiment you'd like to test against. Set the status to "complete," add the matching reference/control branch from the production experiment (name and slug), and save the experiment. Then, select that branch in the "reference branch" drop down and save again.
+5. Either change `fetch_jetstream_data` in `app/experimenter/settings.py` to a much shorter number, like `30`, so it fetches and stores the data in the local database, or manually refetch the data in `/admin` as described in the next section
+
+You should now be able to navigate to `localhost/nimbus/your-experiment-slug/results` to test your changes locally.
+
+### Jetstream Metadata and Caching
+
+With the data returned from the visualization endpoint, a `metadata` object is also returned. At the time of writing, it contains a `description` per metric used for tooltips on the Results page as well as an `external_config` object containing some experiment properties than can be overridden for analysis purposes only. Jetstream configs for experiments are located in the [`jetstream-config`](https://github.com/mozilla/jetstream-config/) repository and the metadata schema lives in the [Jetstream repo](https://github.com/mozilla/jetstream/).
+
+Visualization data is cached and refetches every 8 hours for live or complete experiments whose end date is less than 3 days ago. After that point, experiment data is not refetched. If a manual refetch needs to occur in any environment, in `/admin`, go to Nimbus Experiments > Action > "Force jetstream data fetch".
 
 ## Testing and Mocking
 
