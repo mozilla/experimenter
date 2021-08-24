@@ -56,7 +56,7 @@ export type StatusCheck = ReturnType<typeof getStatus>;
 export function editCommonRedirects({ status }: RedirectCheck) {
   // If experiment is launched or the user can't edit the experiment,
   // send them to the summary page
-  if (status.launched || !status.idle || status.preview) {
+  if (status.launched || !status.idle || status.preview || status.archived) {
     return "";
   }
 }
