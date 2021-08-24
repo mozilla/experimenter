@@ -562,7 +562,11 @@ export const mockGetStatus = (
   modifiers: Partial<
     Pick<
       getExperiment_experimentBySlug,
-      "status" | "publishStatus" | "statusNext" | "isEnrollmentPausePending"
+      | "status"
+      | "publishStatus"
+      | "statusNext"
+      | "isEnrollmentPausePending"
+      | "isArchived"
     >
   >,
 ) => {
