@@ -157,19 +157,6 @@ export enum NimbusExperimentStatus {
   PREVIEW = "PREVIEW",
 }
 
-export enum NimbusExperimentTargetingConfigSlug {
-  NO_TARGETING = "NO_TARGETING",
-  TARGETING_FIRST_RUN = "TARGETING_FIRST_RUN",
-  TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = "TARGETING_FIRST_RUN_CHROME_ATTRIBUTION",
-  TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = "TARGETING_FIRST_RUN_WINDOWS_1903_NEWER",
-  TARGETING_HOMEPAGE_GOOGLE = "TARGETING_HOMEPAGE_GOOGLE",
-  TARGETING_MAC_ONLY = "TARGETING_MAC_ONLY",
-  TARGETING_MOBILE_FIRST_RUN = "TARGETING_MOBILE_FIRST_RUN",
-  TARGETING_NO_ENTERPRISE = "TARGETING_NO_ENTERPRISE",
-  TARGETING_NO_ENTERPRISE_OR_PAST_VPN = "TARGETING_NO_ENTERPRISE_OR_PAST_VPN",
-  TARGETING_URLBAR_FIREFOX_SUGGEST = "TARGETING_URLBAR_FIREFOX_SUGGEST",
-}
-
 export interface DocumentationLinkType {
   title: NimbusExperimentDocumentationLink;
   link: string;
@@ -198,7 +185,7 @@ export interface ExperimentInput {
   populationPercent?: string | null;
   proposedDuration?: number | null;
   proposedEnrollment?: string | null;
-  targetingConfigSlug?: NimbusExperimentTargetingConfigSlug | null;
+  targetingConfigSlug?: string | null;
   totalEnrolledClients?: number | null;
   changelogMessage?: string | null;
   riskPartnerRelated?: boolean | null;

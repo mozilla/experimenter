@@ -38,7 +38,7 @@ input ExperimentInput {
   populationPercent: String
   proposedDuration: Int
   proposedEnrollment: String
-  targetingConfigSlug: NimbusExperimentTargetingConfigSlug
+  targetingConfigSlug: String
   totalEnrolledClients: Int
   changelogMessage: String
   riskPartnerRelated: Boolean
@@ -294,19 +294,6 @@ enum NimbusExperimentStatus {
   PREVIEW
   LIVE
   COMPLETE
-}
-
-enum NimbusExperimentTargetingConfigSlug {
-  NO_TARGETING
-  TARGETING_FIRST_RUN
-  TARGETING_FIRST_RUN_CHROME_ATTRIBUTION
-  TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
-  TARGETING_HOMEPAGE_GOOGLE
-  TARGETING_URLBAR_FIREFOX_SUGGEST
-  TARGETING_MAC_ONLY
-  TARGETING_NO_ENTERPRISE
-  TARGETING_MOBILE_FIRST_RUN
-  TARGETING_NO_ENTERPRISE_OR_PAST_VPN
 }
 
 type NimbusExperimentTargetingConfigSlugChoice {
