@@ -32,7 +32,10 @@ def nimbus_check_kinto_push_queue():
     A scheduled task that passes each application to a new scheduled
     task for working with kinto
     """
-    for collection in NimbusExperiment.KINTO_COLLECTION_APPLICATIONS.keys():
+    for collection in (
+        settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+        settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    ):
         nimbus_check_kinto_push_queue_by_collection.delay(collection)
 
 
@@ -54,7 +57,11 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
       collection and marks them as paused and updates the record in the collection.
     """
     metrics.incr(f"check_kinto_push_queue_by_collection:{collection}.started")
-    applications = NimbusExperiment.KINTO_COLLECTION_APPLICATIONS[collection]
+    applications = [
+        application.slug
+        for application in NimbusExperiment.APPLICATION_CONFIGS.values()
+        if application.kinto_collection == collection
+    ]
     kinto_client = KintoClient(collection)
 
     should_rollback = False
