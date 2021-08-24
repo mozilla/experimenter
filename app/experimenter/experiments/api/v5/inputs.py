@@ -7,7 +7,6 @@ from experimenter.experiments.api.v5.types import (
     NimbusExperimentFirefoxMinVersion,
     NimbusExperimentPublishStatus,
     NimbusExperimentStatus,
-    NimbusExperimentTargetingConfigSlug,
 )
 
 
@@ -59,7 +58,7 @@ class ExperimentInput(graphene.InputObjectType):
     population_percent = graphene.String()
     proposed_duration = graphene.Int()
     proposed_enrollment = graphene.String()
-    targeting_config_slug = NimbusExperimentTargetingConfigSlug()
+    targeting_config_slug = graphene.String()
     total_enrolled_clients = graphene.Int()
     changelog_message = graphene.String()
     risk_partner_related = graphene.Boolean()

@@ -23,7 +23,6 @@ import {
   NimbusExperimentApplication,
   NimbusExperimentChannel,
   NimbusExperimentFirefoxMinVersion,
-  NimbusExperimentTargetingConfigSlug,
 } from "../../../types/globalTypes";
 import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
@@ -178,7 +177,7 @@ describe("FormAudience", () => {
       ["populationPercent", "0.0"],
       ["proposedDuration", "0"],
       ["proposedEnrollment", "0"],
-      ["targetingConfigSlug", NimbusExperimentTargetingConfigSlug.NO_TARGETING],
+      ["targetingConfigSlug", "NO_TARGETING"],
     ] as const) {
       const field = screen.queryByTestId(fieldName);
       expect(field).toBeInTheDocument();
@@ -422,7 +421,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         populationPercent: "0.0",
         proposedDuration: 0,
         proposedEnrollment: 0,
-        targetingConfigSlug: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
+        targetingConfigSlug: "NO_TARGETING",
         countries: [],
         locales: [],
       }}

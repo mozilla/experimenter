@@ -1,3 +1,4 @@
+from nimbus.models.base_dataclass import BaseExperimentAudienceTargetingOptions
 from nimbus.pages.base import Base
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -54,7 +55,7 @@ class AudiencePage(Base):
         return self.find_element(*self._targeting_select_locator).text
 
     @targeting.setter
-    def targeting(self, targeting="TARGETING_MAC_ONLY"):
+    def targeting(self, targeting=BaseExperimentAudienceTargetingOptions.NO_TARGETING):
         el = self.find_element(*self._targeting_select_locator)
         select = Select(el)
         select.select_by_value(targeting)
