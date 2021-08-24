@@ -596,9 +596,7 @@ class NimbusExperimentSerializer(
                 nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
 
             if self.should_call_push_task:
-                collection = NimbusExperiment.KINTO_APPLICATION_COLLECTION[
-                    experiment.application
-                ]
+                collection = experiment.application_config.kinto_collection
                 nimbus_check_kinto_push_queue_by_collection.apply_async(
                     countdown=5, args=[collection]
                 )

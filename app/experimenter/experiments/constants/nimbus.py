@@ -24,7 +24,7 @@ class ApplicationConfig:
     slug: str
     app_name: str
     channel_app_id: Dict[str, str]
-    rs_experiments_collection: str
+    kinto_collection: str
     randomization_unit: str
     supports_locale_country: bool
 
@@ -40,7 +40,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
         Channel.BETA: "firefox-desktop",
         Channel.RELEASE: "firefox-desktop",
     },
-    rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
     supports_locale_country=True,
 )
@@ -54,7 +54,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
         Channel.BETA: "org.mozilla.firefox_beta",
         Channel.RELEASE: "org.mozilla.firefox",
     },
-    rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     supports_locale_country=False,
 )
@@ -68,7 +68,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
         Channel.BETA: "org.mozilla.ios.FirefoxBeta",
         Channel.RELEASE: "org.mozilla.ios.Firefox",
     },
-    rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     supports_locale_country=False,
 )
@@ -82,7 +82,7 @@ APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
         Channel.BETA: "org.mozilla.focus.beta",
         Channel.RELEASE: "org.mozilla.focus",
     },
-    rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     supports_locale_country=False,
 )
@@ -94,7 +94,7 @@ APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
     channel_app_id={
         Channel.RELEASE: "org.mozilla.klar",
     },
-    rs_experiments_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
     supports_locale_country=False,
 )
@@ -493,21 +493,5 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     # As a buffer, continue to pull in analysis from Jetstream
     # for 3 days after an experiment is complete.
     DAYS_ANALYSIS_BUFFER = 3
-
-    KINTO_COLLECTION_APPLICATIONS = {
-        settings.KINTO_COLLECTION_NIMBUS_DESKTOP: [
-            APPLICATION_CONFIG_DESKTOP.slug,
-        ],
-        settings.KINTO_COLLECTION_NIMBUS_MOBILE: [
-            APPLICATION_CONFIG_FENIX.slug,
-            APPLICATION_CONFIG_IOS.slug,
-        ],
-    }
-
-    KINTO_APPLICATION_COLLECTION = {
-        application: collection
-        for (collection, applications) in KINTO_COLLECTION_APPLICATIONS.items()
-        for application in applications
-    }
 
     PUBLISHED_TARGETING_MISSING = "Published targeting JEXL not found"
