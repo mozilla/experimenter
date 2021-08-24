@@ -18,6 +18,7 @@ type SubjectProps = {
   isEnrollmentPausePending?: boolean;
   canReview?: boolean;
   showSummaryAction?: boolean;
+  isArchived?: boolean;
 };
 
 const Subject = ({
@@ -27,6 +28,7 @@ const Subject = ({
   isEnrollmentPausePending = false,
   showSummaryAction = true,
   canReview = false,
+  isArchived = false,
 }: SubjectProps) => (
   <LinkNavSummary
     slug="my-beautiful-slug"
@@ -35,6 +37,7 @@ const Subject = ({
       statusNext,
       publishStatus,
       isEnrollmentPausePending,
+      isArchived,
     })}
     {...{ showSummaryAction, canReview }}
   />
@@ -43,8 +46,14 @@ const Subject = ({
 describe("LinkNavSummary", () => {
   it("renders 'Request Launch' when expected", () => {
     render(<Subject />);
-    expect(screen.getByText("Summary")).toBeInTheDocument();
-    expect(screen.getByText("Request Launch")).toBeInTheDocument();
+    expect(screen.queryByText("Summary")).toBeInTheDocument();
+    expect(screen.queryByText("Request Launch")).toBeInTheDocument();
+  });
+
+  it("doesn't render 'Request Launch' when archived", () => {
+    render(<Subject isArchived={true} />);
+    expect(screen.queryByText("Summary")).toBeInTheDocument();
+    expect(screen.queryByText("Request Launch")).not.toBeInTheDocument();
   });
 
   it("doesn't render action text when 'showSummaryAction' is falsey", () => {
@@ -53,15 +62,10 @@ describe("LinkNavSummary", () => {
     expect(screen.queryByText("Request Launch")).not.toBeInTheDocument();
   });
 
-  it("renders 'Request Launch' when expected", () => {
-    render(<Subject />);
-    expect(screen.getByText("Request Launch")).toBeInTheDocument();
-  });
-
   describe("user cannot review", () => {
     it("renders 'Requested Launch' when expected", () => {
       render(<Subject publishStatus={NimbusExperimentPublishStatus.REVIEW} />);
-      expect(screen.getByText("Requested Launch")).toBeInTheDocument();
+      expect(screen.queryByText("Requested Launch")).toBeInTheDocument();
     });
 
     it("renders 'Requested End' when expected", () => {
@@ -72,7 +76,7 @@ describe("LinkNavSummary", () => {
           publishStatus={NimbusExperimentPublishStatus.REVIEW}
         />,
       );
-      expect(screen.getByText("Requested End")).toBeInTheDocument();
+      expect(screen.queryByText("Requested End")).toBeInTheDocument();
     });
 
     it("renders 'Requested End Enrollment' when expected", () => {
@@ -84,7 +88,9 @@ describe("LinkNavSummary", () => {
           isEnrollmentPausePending={true}
         />,
       );
-      expect(screen.getByText("Requested End Enrollment")).toBeInTheDocument();
+      expect(
+        screen.queryByText("Requested End Enrollment"),
+      ).toBeInTheDocument();
     });
   });
 
@@ -98,7 +104,7 @@ describe("LinkNavSummary", () => {
           canReview
         />,
       );
-      expect(screen.getByText("Review End Request")).toBeInTheDocument();
+      expect(screen.queryByText("Review End Request")).toBeInTheDocument();
     });
 
     it("renders 'Review Launch Request' when expected", () => {
@@ -108,7 +114,7 @@ describe("LinkNavSummary", () => {
           canReview
         />,
       );
-      expect(screen.getByText("Review Launch Request")).toBeInTheDocument();
+      expect(screen.queryByText("Review Launch Request")).toBeInTheDocument();
     });
 
     it("renders 'Review End Enrollment Request' when expected", () => {
@@ -122,7 +128,7 @@ describe("LinkNavSummary", () => {
         />,
       );
       expect(
-        screen.getByText("Review End Enrollment Request"),
+        screen.queryByText("Review End Enrollment Request"),
       ).toBeInTheDocument();
     });
   });

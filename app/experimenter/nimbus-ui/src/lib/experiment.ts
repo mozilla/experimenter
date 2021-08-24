@@ -78,7 +78,7 @@ export function getSummaryAction(
     }
   }
 
-  if (!status.launched) {
+  if (!status.launched && !status.archived) {
     return "Request Launch";
   }
   return "";
