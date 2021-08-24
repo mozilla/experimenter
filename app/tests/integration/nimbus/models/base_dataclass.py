@@ -5,11 +5,10 @@ from typing import List, Optional
 
 class BaseExperimentApplications(Enum):
     DESKTOP = ("DESKTOP",)
-    DESKTOP_TEXT = "Firefox Desktop"
     FENIX = ("FENIX",)
-    FENIX_TEXT = "Firefoxx for Android"
     IOS = "IOS"
-    IOS_TEST = "Firefox for iOS" 
+    KLAR = "KLAR_ANDROID"
+    FOCUS = "FOCUS_ANDROID"
 
 
 class BaseExperimentAudienceChannels(Enum):

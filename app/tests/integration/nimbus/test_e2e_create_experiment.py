@@ -7,7 +7,9 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
 @pytest.mark.nondestructive
-def test_create_new_experiment(selenium, base_url, default_data, create_experiment, request):
+def test_create_new_experiment(
+    selenium, base_url, default_data, create_experiment, request
+):
     default_data.public_name = request.node.name
 
     selenium.get(base_url)
@@ -22,7 +24,7 @@ def test_create_new_experiment_remote_settings(
     create_experiment,
     perform_kinto_action,
     timeout_length,
-    request
+    request,
 ):
     default_data.public_name = request.node.name
 
@@ -73,7 +75,7 @@ def test_create_new_experiment_remote_settings_reject(
     create_experiment,
     perform_kinto_action,
     timeout_length,
-    request
+    request,
 ):
     default_data.public_name = request.node.name
 
@@ -110,7 +112,12 @@ def test_create_new_experiment_remote_settings_reject(
             break
     else:
         raise AssertionError("Experiment was not found")
-    url = default_data.public_name.lower().replace(" ", "-").replace("[", "").replace("]", "")
+    url = (
+        default_data.public_name.lower()
+        .replace(" ", "-")
+        .replace("[", "")
+        .replace("]", "")
+    )
     selenium.get(f"{base_url}/{url}")
     for attempt in range(30):
         try:

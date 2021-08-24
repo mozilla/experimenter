@@ -58,8 +58,16 @@ def fixture_timeout_length():
     return 60
 
 
-
-@pytest.fixture(params=[(BaseExperimentApplications.DESKTOP, "No Feature Firefox Desktop"), (BaseExperimentApplications.FENIX, "No Feature Fenix"), (BaseExperimentApplications.IOS, "No Feature iOS")], ids=["Desktop", "Android", "iOS"])
+@pytest.fixture(
+    params=[
+        (BaseExperimentApplications.DESKTOP, "No Feature Firefox Desktop"),
+        (BaseExperimentApplications.FENIX, "No Feature Fenix"),
+        (BaseExperimentApplications.IOS, "No Feature iOS"),
+        (BaseExperimentApplications.KLAR, "No Feature Klar for Android"),
+        (BaseExperimentApplications.FOCUS, "No Feature Focus for Android"),
+    ],
+    ids=["Desktop", "Android", "iOS", "Klar", "Focus"],
+)
 def default_data(request):
     return BaseExperimentDataClass(
         public_name="test_experiment",
@@ -77,7 +85,7 @@ def default_data(request):
             primary_outcomes=[], secondary_outcomes=[]
         ),
         audience=BaseExperimentAudienceDataClass(
-            channel=BaseExperimentAudienceChannels.NIGHTLY,
+            channel=BaseExperimentAudienceChannels.RELEASE,
             min_version=80,
             targeting=BaseExperimentAudienceTargetingOptions.NO_TARGETING,
             percentage=50.0,
@@ -133,15 +141,16 @@ def perform_kinto_action():
     def _perform_kinto_action(selenium, base_url, action):
         selenium.get("http://kinto:8888/v1/admin")
         kinto_dashboard = None
+        count = 0
         try:
             kinto_login = Login(selenium, base_url).wait_for_page_to_load()
             kinto_login.kinto_auth.click()
             kinto_dashboard = kinto_login.login()
         except NoSuchElementException:
             kinto_dashboard = Dashboard(selenium, base_url).wait_for_page_to_load()
-        
+
         not_actionable = False
-        while not_actionable == False:
+        while not_actionable is False and count <= 45:
             for bucket in kinto_dashboard.buckets[0].bucket_category:
                 try:
                     bucket.click()
@@ -161,7 +170,7 @@ def perform_kinto_action():
             else:
                 selenium.refresh()
                 kinto_dashboard = Dashboard(selenium, base_url).wait_for_page_to_load()
-
+                count += 1
 
         # bucket = kinto_dashboard.buckets[-1]
         # for item in bucket.bucket_category:

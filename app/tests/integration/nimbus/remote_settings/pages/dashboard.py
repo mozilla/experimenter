@@ -38,7 +38,10 @@ class Dashboard(Page):
         _page_wait_locator = (By.CSS_SELECTOR, ".main")
 
         _card_header_name_locator = (By.CSS_SELECTOR, ".card-header > strong")
-        _bucket_category_locator = (By.CSS_SELECTOR, "div.list-group-item > a:nth-child(1)")
+        _bucket_category_locator = (
+            By.CSS_SELECTOR,
+            "div.list-group-item > a:nth-child(1)",
+        )
 
         def wait_for_page_to_load(self):
             self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
@@ -56,7 +59,6 @@ class Dashboard(Page):
 
         _approve_locator = (By.CSS_SELECTOR, ".list-page .interactive .btn-success")
         _reject_locator = (By.CSS_SELECTOR, ".list-page  .interactive .btn-danger")
-
 
         @property
         def approve_locator(self):
