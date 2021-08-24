@@ -4,8 +4,10 @@
 
 import { RouteComponentProps } from "@reach/router";
 import React from "react";
+import ReactTooltip from "react-tooltip";
 import { useChangeOperationMutation } from "../../hooks";
-import { CHANGELOG_MESSAGES } from "../../lib/constants";
+import { ReactComponent as Info } from "../../images/info.svg";
+import { ARCHIVE_DISABLED, CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as Trash } from "./trash.svg";
@@ -30,27 +32,43 @@ export const SidebarActions = ({
       : CHANGELOG_MESSAGES.UNARCHIVING_EXPERIMENT,
   });
 
+  const disabled = !experiment.canArchive || isLoading;
   return (
     <div data-testid={"SidebarActions"}>
-      <p className="edit-divider position-relative small my-2">
+      <div className="edit-divider position-relative small my-2">
         <span className="position-relative bg-light pl-1 pr-2 text-muted">
           Actions
         </span>
-      </p>
-      <p>
+      </div>
+      <div>
         <LinkNav
           useButton
           key="sidebar-actions-archive"
-          disabled={!experiment.canArchive || isLoading}
+          route={`${experiment.slug}/#`}
           testid="action-archive"
           onClick={onUpdateArchived}
+          {...{ disabled }}
         >
           <Trash className="sidebar-icon" />
-          {experiment.isArchived
-            ? "Unarchive Experiment"
-            : "Archive Experiment"}
+          <div>
+            <p className="m-0">
+              {experiment.isArchived ? "Unarchive" : "Archive"}
+              {disabled && (
+                <>
+                  <Info
+                    data-tip={ARCHIVE_DISABLED}
+                    data-testid="tooltip-archived-disabled"
+                    width="20"
+                    height="20"
+                    className="ml-1 text-muted"
+                  />
+                  <ReactTooltip />
+                </>
+              )}
+            </p>
+          </div>
         </LinkNav>
-      </p>
+      </div>
     </div>
   );
 };
