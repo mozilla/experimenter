@@ -20,7 +20,7 @@ import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 import TooltipWithMarkdown from "../TooltipWithMarkdown";
 
-type TableResultsProps = {
+export type TableResultsProps = {
   experiment: getExperiment_experimentBySlug;
   branchComparison?: BranchComparisonValues;
 };
@@ -58,7 +58,10 @@ const TableResults = ({
   const overallResults = overall!;
 
   return (
-    <table className="table-visualization-center" data-testid="table-results">
+    <table
+      className="table-visualization-center mb-0 border-bottom-0"
+      data-testid="table-results"
+    >
       <thead>
         <tr>
           <th scope="col" className="border-bottom-0 bg-light" />
@@ -102,8 +105,7 @@ const TableResults = ({
                 const metricKey = metric.value;
                 const displayType = getTableDisplayType(
                   metricKey,
-                  TABLE_LABEL.RESULTS,
-                  isControlBranch,
+                  branchComparison,
                 );
                 return (
                   <TableVisualizationRow

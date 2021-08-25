@@ -6,16 +6,13 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import TableResultsWeekly from ".";
 import { MockResultsContextProvider } from "../../../lib/mocks";
-import {
-  BRANCH_COMPARISON,
-  HIGHLIGHTS_METRICS_LIST,
-} from "../../../lib/visualization/constants";
+import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
 
 describe("TableResultsWeekly", () => {
   it("renders as expected with relative uplift branch comparison (default)", () => {
     render(
       <MockResultsContextProvider>
-        <TableResultsWeekly metricsList={HIGHLIGHTS_METRICS_LIST} />,
+        <TableResultsWeekly />,
       </MockResultsContextProvider>,
     );
 
@@ -34,17 +31,14 @@ describe("TableResultsWeekly", () => {
       EXPECTED_HEADINGS.length * EXPECTED_WEEKS.length,
     );
     expect(screen.getAllByText("-45.5% to 51%", { exact: false })).toHaveLength(
-      2,
+      6,
     );
   });
 
   it("renders as expected with absolute branch comparison", () => {
     render(
       <MockResultsContextProvider>
-        <TableResultsWeekly
-          metricsList={HIGHLIGHTS_METRICS_LIST}
-          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
-        />
+        <TableResultsWeekly branchComparison={BRANCH_COMPARISON.ABSOLUTE} />
       </MockResultsContextProvider>,
     );
 
@@ -59,7 +53,7 @@ describe("TableResultsWeekly", () => {
 
     render(
       <MockResultsContextProvider>
-        <TableResultsWeekly metricsList={HIGHLIGHTS_METRICS_LIST} />,
+        <TableResultsWeekly />,
       </MockResultsContextProvider>,
     );
 

@@ -202,9 +202,10 @@ export const CONVERSION_METRIC_COLUMNS = [
   {
     name: "Conversions / Total Users",
     displayType: DISPLAY_TYPE.CONVERSION_COUNT,
+    branchComparison: BRANCH_COMPARISON.ABSOLUTE,
   },
   {
-    name: "Conversion Rate",
+    name: "Absolute Conversion Rate",
     displayType: DISPLAY_TYPE.CONVERSION_RATE,
     branchComparison: BRANCH_COMPARISON.ABSOLUTE,
   },
@@ -219,7 +220,7 @@ export const CONVERSION_METRIC_COLUMNS = [
 // display in the count metric table from left to right.
 export const COUNT_METRIC_COLUMNS = [
   {
-    name: "Count",
+    name: "Absolute Count",
     displayType: DISPLAY_TYPE.COUNT,
     branchComparison: BRANCH_COMPARISON.ABSOLUTE,
   },

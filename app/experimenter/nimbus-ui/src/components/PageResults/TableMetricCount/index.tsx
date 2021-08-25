@@ -11,6 +11,7 @@ import {
   METRIC_TYPE,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
+import { BranchComparisonValues } from "../../../lib/visualization/types";
 import { getExtremeBounds } from "../../../lib/visualization/utils";
 import GraphsWeekly from "../GraphsWeekly";
 import TableVisualizationRow from "../TableVisualizationRow";
@@ -19,7 +20,7 @@ import TooltipWithMarkdown from "../TooltipWithMarkdown";
 type CountMetricStatistic = {
   name: string;
   displayType: DISPLAY_TYPE;
-  branchComparison?: string;
+  branchComparison: BranchComparisonValues;
   value?: string;
 };
 
@@ -75,34 +76,34 @@ const TableMetricCount = ({
 
   return (
     <div data-testid="table-metric-secondary" className="mb-5">
-      <h2 className="h5 mb-3" id={outcomeSlug}>
-        <div>
-          <div className="d-inline-block">
-            {outcomeName}{" "}
-            {outcomeDescription && (
-              <>
+      <h3 className="h5 mb-3" id={outcomeSlug}>
+        <span className="mr-2">
+          {outcomeName}{" "}
+          {outcomeDescription && (
+            <>
+              <span className="align-middle">
                 <Info
+                  className="align-baseline"
                   data-tip
                   data-for={outcomeSlug}
-                  className="align-baseline"
                 />
-                <TooltipWithMarkdown
-                  tooltipId={outcomeSlug}
-                  markdown={outcomeDescription}
-                />
-              </>
-            )}
-          </div>
-        </div>
-        <div
+              </span>
+              <TooltipWithMarkdown
+                tooltipId={outcomeSlug}
+                markdown={outcomeDescription}
+              />
+            </>
+          )}
+        </span>
+        <span
           className={`badge ${metricType.badge}`}
           data-tip={metricType.tooltip}
         >
           {metricType.label}
-        </div>
-      </h2>
+        </span>
+      </h3>
 
-      <table className="table-visualization-center">
+      <table className="table-visualization-center border">
         <thead>
           <tr>
             <th scope="col" className="border-bottom-0 bg-light" />
@@ -128,7 +129,7 @@ const TableMetricCount = ({
                       {branch}
                     </th>
                     {countMetricStatistics.map(
-                      ({ displayType, branchComparison, value }) => (
+                      ({ displayType, value, branchComparison }) => (
                         <TableVisualizationRow
                           key={`${displayType}-${value}`}
                           results={overallResults[branch]}

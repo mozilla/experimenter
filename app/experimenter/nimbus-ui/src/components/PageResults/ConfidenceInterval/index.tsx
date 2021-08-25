@@ -80,7 +80,7 @@ const ConfidenceInterval: React.FC<{
   const line = renderLine(leftPercent, barWidth, significance);
 
   return (
-    <div className="container">
+    <div className="pr-5">
       <div className="row w-100 float-right position-relative">{bounds}</div>
 
       <div
