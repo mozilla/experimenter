@@ -8,7 +8,7 @@ import ExternalConfigAlert from ".";
 import { MOCK_METADATA_EXTERNAL_CONFIG } from "../../../lib/visualization/mocks";
 
 describe("ExternalConfigAlert", () => {
-  it("renders as expected", () => {
+  it("renders all overrides as expected", () => {
     render(
       <ExternalConfigAlert
         externalConfig={{
@@ -16,6 +16,17 @@ describe("ExternalConfigAlert", () => {
         }}
       />,
     );
+
+    expect(screen.getByTestId("external-config-start-date")).toHaveTextContent(
+      "May 26",
+    );
+    expect(screen.getByTestId("external-config-end-date")).toHaveTextContent(
+      "Jun 6",
+    );
+    expect(
+      screen.getByTestId("external-config-enrollment-period"),
+    ).toHaveTextContent("9 days");
+
     expect(
       screen.getByTestId("external-config-reference-branch"),
     ).toHaveTextContent("treatment");

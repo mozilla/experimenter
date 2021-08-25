@@ -272,8 +272,10 @@ export const AppLayoutSidebarLaunched = ({
                       </LinkExternal>
                       .
                     </>
+                  ) : analysis?.metadata?.external_config?.skip ? (
+                    "Experiment analysis was skipped"
                   ) : (
-                    "Experiment results not yet ready"
+                    "Experiment analysis not ready yet"
                   )}
                 </DisabledItem>
               )}

@@ -3,56 +3,81 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { withLinks } from "@storybook/addon-links";
-import { storiesOf } from "@storybook/react";
 import React from "react";
 import AppLayoutSidebarLaunched from ".";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-import { mockAnalysis } from "../../lib/visualization/mocks";
+import {
+  mockAnalysis,
+  MOCK_METADATA_WITH_CONFIG,
+} from "../../lib/visualization/mocks";
+import { AnalysisData } from "../../lib/visualization/types";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
-const { experiment } = mockExperimentQuery("demo-slug");
+const Subject = ({
+  analysisLoadingInSidebar,
+  analysisError,
+  analysis,
+}: {
+  analysisLoadingInSidebar?: boolean;
+  analysisError?: Error;
+  analysis?: AnalysisData;
+}) => {
+  const { experiment } = mockExperimentQuery("demo-slug");
+  return (
+    <RouterSlugProvider>
+      <AppLayoutSidebarLaunched
+        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+        {...{ analysisLoadingInSidebar, experiment, analysisError, analysis }}
+      >
+        <p>App contents go here</p>
+      </AppLayoutSidebarLaunched>
+    </RouterSlugProvider>
+  );
+};
 
-storiesOf("components/AppLayoutSidebarLaunched", module)
-  .addDecorator(withLinks)
-  .add("analysis results loading", () => (
-    <RouterSlugProvider>
-      <AppLayoutSidebarLaunched
-        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
-        analysisError={undefined}
-        analysisLoadingInSidebar
-        {...{ experiment }}
-      >
-        <p>App contents go here</p>
-      </AppLayoutSidebarLaunched>
-    </RouterSlugProvider>
-  ))
-  .add("analysis results error", () => (
-    <RouterSlugProvider>
-      <AppLayoutSidebarLaunched
-        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
-        analysisError={new Error("Boop")}
-        {...{ experiment }}
-      >
-        <p>App contents go here</p>
-      </AppLayoutSidebarLaunched>
-    </RouterSlugProvider>
-  ))
-  .add("has analysis results", () => (
-    <RouterSlugProvider>
-      <AppLayoutSidebarLaunched
-        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
-        analysisError={undefined}
-        analysis={{
-          show_analysis: true,
-          daily: [],
-          weekly: {},
-          overall: {},
-          other_metrics: mockAnalysis().other_metrics,
-        }}
-        {...{ experiment }}
-      >
-        <p>App contents go here</p>
-      </AppLayoutSidebarLaunched>
-    </RouterSlugProvider>
-  ));
+export default {
+  title: "components/AppLayoutSidebarLaunched",
+  component: Subject,
+  decorators: [withLinks],
+};
+
+const storyWithProps = (
+  props: React.ComponentProps<typeof Subject>,
+  storyName?: string,
+) => {
+  const story = () => <Subject {...props} />;
+  if (storyName) story.storyName = storyName;
+  return story;
+};
+
+export const AnalysisResultsLoading = storyWithProps({
+  analysisLoadingInSidebar: true,
+});
+
+export const AnalysisResultsError = storyWithProps({
+  analysisError: new Error("Boop"),
+});
+
+export const AnalysisSkipped = storyWithProps({
+  analysis: {
+    show_analysis: true,
+    daily: null,
+    weekly: null,
+    overall: null,
+    metadata: MOCK_METADATA_WITH_CONFIG,
+  },
+});
+
+export const AnalysisNotReady = storyWithProps({
+  analysis: {
+    show_analysis: true,
+    daily: null,
+    weekly: null,
+    overall: null,
+  },
+});
+
+export const AnalysisReady = storyWithProps({
+  analysis: mockAnalysis(),
+});

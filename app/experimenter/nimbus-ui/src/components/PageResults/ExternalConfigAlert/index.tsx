@@ -4,6 +4,7 @@
 
 import React from "react";
 import { Alert } from "react-bootstrap";
+import { humanDate } from "../../../lib/dateUtils";
 import { MetadataExternalConfig } from "../../../lib/visualization/types";
 import LinkExternal from "../../LinkExternal";
 
@@ -27,6 +28,22 @@ export const ExternalConfigAlert = ({
         click here
       </LinkExternal>{" "}
       to view the config file):
+      {externalConfig.start_date && (
+        <li className="ml-3" data-testid="external-config-start-date">
+          Start date → <strong>{humanDate(externalConfig.start_date)}</strong>
+        </li>
+      )}
+      {externalConfig.end_date && (
+        <li className="ml-3" data-testid="external-config-end-date">
+          End date → <strong>{humanDate(externalConfig.end_date)}</strong>
+        </li>
+      )}
+      {externalConfig.enrollment_period && (
+        <li className="ml-3" data-testid="external-config-enrollment-period">
+          Enrollment period →{" "}
+          <strong>{externalConfig.enrollment_period} days</strong>
+        </li>
+      )}
       {externalConfig.reference_branch && (
         <li className="ml-3" data-testid="external-config-reference-branch">
           Baseline branch → <strong>{externalConfig.reference_branch}</strong>
