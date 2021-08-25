@@ -65,12 +65,16 @@ jobs:
     resource_class: xlarge
     working_directory: ~/experimenter
     parallelism: 5
+    environment: 
+      EXPERIMENT_TYPES: "Desktop Android iOS Klar Focus"
     steps:
       - checkout
       - run:
           name: Run integration tests
           command: |
-            TEST_FILES=$(circleci tests split "app/tests/integration/nimbus/parallel-tests.txt")
+            touch experiment_types.txt
+            echo "$EXPERIMENT_TYPES" >> experiment_types.txt
+            TEST_FILES=$(circleci tests split "experiment_types.txt")
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1
             make up_prod_detached
