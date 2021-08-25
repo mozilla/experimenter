@@ -63,14 +63,13 @@ jobs:
     machine:
       image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
     resource_class: xlarge
-    working_directory: ~/experimenter
     parallelism: 5
     steps:
       - checkout
       - run:
           name: Run integration tests
           command: |
-            TEST_FILES=$(circleci tests split "~/experimenter/app/tests/integration/parallel-tests.txt")
+            TEST_FILES=$(circleci tests split "app/tests/integration/parallel-tests.txt")
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1
             make up_prod_detached
