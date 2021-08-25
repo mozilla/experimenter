@@ -70,7 +70,7 @@ jobs:
       - run:
           name: Run integration tests
           command: |
-            TEST_FILES=$(circleci tests split "app/tests/integration/parallel-tests.txt")
+            TEST_FILES=$(circleci tests split "~/experimenter/app/tests/integration/parallel-tests.txt")
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1
             make up_prod_detached
