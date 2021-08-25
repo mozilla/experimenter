@@ -71,7 +71,7 @@ jobs:
           name: Run integration tests
           command: |
             touch experiment_types.txt
-            echo "Desktop Android iOS Klar Focus" >> experiment_types.txt
+            printf "Desktop\nAndroid\niOS\nKlar\nFocus" >> experiment_types.txt
             TEST_FILES=$(circleci tests split "experiment_types.txt")
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1
