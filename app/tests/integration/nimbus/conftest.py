@@ -137,7 +137,7 @@ def create_experiment():
 
 
 @pytest.fixture
-def perform_kinto_action():
+def perform_kinto_action(timeout_length):
     def _perform_kinto_action(selenium, base_url, action):
         selenium.get("http://kinto:8888/v1/admin")
         kinto_dashboard = None
@@ -150,7 +150,7 @@ def perform_kinto_action():
             kinto_dashboard = Dashboard(selenium, base_url).wait_for_page_to_load()
 
         not_actionable = False
-        while not_actionable is False and count <= 45:
+        while not_actionable is False and count <= timeout_length:
             for bucket in kinto_dashboard.buckets[0].bucket_category:
                 try:
                     bucket.click()
