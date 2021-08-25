@@ -165,4 +165,4 @@ integration_test_legacy:
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-legacy $(TOX_ARGS) -- -n 4 $(PYTEST_ARGS)"
 
 integration_test_nimbus:
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c 'sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)'

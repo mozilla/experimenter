@@ -4,9 +4,11 @@ from typing import List, Optional
 
 
 class BaseExperimentApplications(Enum):
-    DESKTOP = ("DESKTOP",)
-    FENIX = ("FENIX",)
+    DESKTOP = "DESKTOP"
+    FENIX = "FENIX"
     IOS = "IOS"
+    KLAR = "KLAR_ANDROID"
+    FOCUS = "FOCUS_ANDROID"
 
 
 class BaseExperimentAudienceChannels(Enum):
