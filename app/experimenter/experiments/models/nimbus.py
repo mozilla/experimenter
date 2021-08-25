@@ -1,3 +1,4 @@
+import copy
 import datetime
 import time
 from decimal import Decimal
@@ -12,6 +13,7 @@ from django.db import models
 from django.db.models import F, Q
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import NimbusConstants
@@ -451,6 +453,45 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             timezone.now() - self.changes.latest_change().changed_on
         ) >= datetime.timedelta(seconds=settings.KINTO_REVIEW_TIMEOUT)
         return self.publish_status == self.PublishStatus.WAITING and review_expired
+
+    def clone(self, name, user):
+        # Inline import to prevent circular import
+        from experimenter.experiments.changelog_utils.nimbus import (
+            generate_nimbus_changelog,
+        )
+
+        cloned = copy.copy(self)
+
+        cloned.id = None
+        cloned.name = name
+        cloned.slug = slugify(cloned.name)
+        cloned.status = self.Status.DRAFT
+        cloned.status_next = None
+        cloned.publish_status = self.PublishStatus.IDLE
+        cloned.owner = user
+        cloned.parent = self
+        cloned.archived = False
+        cloned.is_paused = False
+        cloned.reference_branch = None
+        cloned.published_dto = None
+        cloned.results_data = None
+        cloned.save()
+
+        for branch in self.branches.all():
+            branch.id = None
+            branch.experiment = cloned
+            branch.save()
+
+        if self.reference_branch:
+            cloned.reference_branch = cloned.branches.get(slug=self.reference_branch.slug)
+            cloned.save()
+
+        cloned.countries.add(*self.countries.all())
+        cloned.locales.add(*self.locales.all())
+
+        generate_nimbus_changelog(cloned, user, f"Cloned from {self}")
+
+        return cloned
 
 
 class NimbusBranch(models.Model):
