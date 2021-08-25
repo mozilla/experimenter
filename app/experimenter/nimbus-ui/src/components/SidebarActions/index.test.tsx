@@ -95,4 +95,25 @@ describe("SidebarActions", () => {
       expect(refetch).toHaveBeenCalled();
     });
   });
+
+  it("manages revealing and hiding the clone experiment dialog", async () => {
+    const experiment = mockExperiment({ isArchived: false, canArchive: true });
+
+    render(<Subject {...{ experiment }} />);
+
+    const cloneButton = await screen.findByTestId("action-clone");
+
+    expect(screen.queryByTestId("CloneDialog")).not.toBeInTheDocument();
+
+    fireEvent.click(cloneButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId("CloneDialog")).toBeInTheDocument();
+    });
+
+    const cancelButton = screen.getByText("Cancel");
+    fireEvent.click(cancelButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId("CloneDialog")).not.toBeInTheDocument();
+    });
+  });
 });
