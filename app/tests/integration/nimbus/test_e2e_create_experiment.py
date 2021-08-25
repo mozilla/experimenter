@@ -17,7 +17,7 @@ def test_create_new_experiment(
     create_experiment(selenium, home, default_data)
 
 
-def test_create_new_experiment_remote_settings(
+def test_create_new_experiment_approve_remote_settings(
     selenium,
     base_url,
     default_data,
@@ -68,7 +68,7 @@ def test_create_new_experiment_remote_settings(
     assert "live" in summary_page.experiment_status.lower()
 
 
-def test_create_new_experiment_remote_settings_reject(
+def test_create_new_experiment_reject_remote_settings(
     selenium,
     base_url,
     default_data,
@@ -131,7 +131,7 @@ def test_create_new_experiment_remote_settings_reject(
         raise AssertionError("Experiment page didn't load")
 
 
-def test_create_new_experiment_remote_settings_timeout(
+def test_create_new_experiment_timeout_remote_settings(
     selenium, base_url, default_data, create_experiment, timeout_length, request
 ):
     default_data.public_name = request.node.name
