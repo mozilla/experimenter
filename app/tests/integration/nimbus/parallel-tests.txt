@@ -1,6 +1,5 @@
-test_create_new_experiment
-test_create_new_experiment_approve_remote_settings
-test_create_new_experiment_reject_remote_settings
-test_create_new_experiment_timeout_remote_settings
-test_end_experiment_and_approve_end
-test_end_experiment_and_reject_end
+Desktop
+Android
+iOS
+Klar
+Focus
