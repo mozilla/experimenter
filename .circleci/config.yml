@@ -64,13 +64,8 @@ jobs:
       image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
     resource_class: xlarge
     working_directory: ~/experimenter
+    parallelism: 5
     steps:
-      - run:
-          name: Docker info
-          command: docker -v
-      - run:
-          name: Docker compose info
-          command: docker-compose -v
       - checkout
       - run:
           name: Run integration tests
