@@ -9,13 +9,7 @@ import { useConfig } from "../../hooks";
 import { ReactComponent as CollapseMinus } from "../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
 import { ResultsContext, ResultsContextType } from "../../lib/contexts";
-import {
-  BRANCH_COMPARISON,
-  GROUP,
-  HIGHLIGHTS_METRICS_LIST,
-  METRIC_TYPE,
-} from "../../lib/visualization/constants";
-import { BranchComparisonValues } from "../../lib/visualization/types";
+import { GROUP, METRIC_TYPE } from "../../lib/visualization/constants";
 import {
   analysisUnavailable,
   getSortedBranchNames,
@@ -29,6 +23,7 @@ import TableHighlightsOverview from "./TableHighlightsOverview";
 import TableMetricCount from "./TableMetricCount";
 import TableResults from "./TableResults";
 import TableResultsWeekly from "./TableResultsWeekly";
+import TableWithTabComparison from "./TableWithTabComparison";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { outcomes: configOutcomes } = useConfig();
@@ -37,23 +32,6 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
     search_metrics: useState(true),
     other_metrics: useState(true),
   };
-
-  // show relative comparison by default
-  // TODO: expand this functionality to other tables, EXP-1551
-  const [branchComparison, setBranchComparison] =
-    useState<BranchComparisonValues>(BRANCH_COMPARISON.UPLIFT);
-  const branchComparisonIsRelative =
-    branchComparison === BRANCH_COMPARISON.UPLIFT;
-  const toggleBranchComparison = () => {
-    if (branchComparisonIsRelative) {
-      setBranchComparison(BRANCH_COMPARISON.ABSOLUTE);
-    } else {
-      setBranchComparison(BRANCH_COMPARISON.UPLIFT);
-    }
-  };
-  const toggleBranchComparisonText = branchComparisonIsRelative
-    ? "absolute"
-    : "relative";
 
   return (
     <AppLayoutWithExperiment
@@ -106,30 +84,29 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
               .
             </p>
             <h3 className="h6">Hypothesis</h3>
-            <p>{experiment.hypothesis}</p>
-            {analysis.overall && <TableHighlights {...{ experiment }} />}
+            <p className="mb-4">{experiment.hypothesis}</p>
+
+            {analysis.overall && (
+              <TableWithTabComparison
+                {...{ experiment }}
+                Table={TableHighlights}
+                className="mb-2 border-top-0"
+              />
+            )}
             <TableHighlightsOverview {...{ experiment }} />
 
             <div id="results_summary">
-              <div className="d-flex justify-content-between mb-3">
-                <h2 className="h5">Results Summary</h2>
-                <button
-                  data-testid="toggle-branch-comparison"
-                  className="btn btn-secondary"
-                  onClick={toggleBranchComparison}
-                >
-                  <small>See {toggleBranchComparisonText} comparison </small>
-                </button>
-              </div>
+              <h2 className="h5 mb-3">Results Summary</h2>
               {analysis.overall && (
-                <TableResults {...{ experiment, branchComparison }} />
+                <TableWithTabComparison
+                  {...{ experiment }}
+                  Table={TableResults}
+                  className="rounded-bottom mb-3 border-top-0"
+                />
               )}
 
               {analysis.weekly && (
-                <TableResultsWeekly
-                  metricsList={HIGHLIGHTS_METRICS_LIST}
-                  {...{ branchComparison }}
-                />
+                <TableWithTabComparison Table={TableResultsWeekly} />
               )}
             </div>
 

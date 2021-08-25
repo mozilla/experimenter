@@ -16,7 +16,7 @@ describe("TableMetricConversion", () => {
   it("has the correct headings", () => {
     const EXPECTED_HEADINGS = [
       "Conversions / Total Users",
-      "Conversion Rate",
+      "Absolute Conversion Rate",
       "Relative Improvement",
     ];
     const { mock, experiment } = mockExperimentQuery("demo-slug");

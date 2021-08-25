@@ -81,7 +81,10 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
-          <TableResults {...{ experiment }} />
+          <TableResults
+            {...{ experiment }}
+            branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );

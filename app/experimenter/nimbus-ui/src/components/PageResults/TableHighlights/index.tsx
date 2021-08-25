@@ -14,6 +14,7 @@ import {
   METRICS_TIPS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
+import { BranchComparisonValues } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import {
   getExperiment_experimentBySlug,
@@ -22,8 +23,9 @@ import {
 } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 
-type TableHighlightsProps = {
+export type TableHighlightsProps = {
   experiment: getExperiment_experimentBySlug;
+  branchComparison?: BranchComparisonValues;
 };
 
 type Branch =
@@ -65,7 +67,10 @@ const getBranchDescriptions = (
   );
 };
 
-const TableHighlights = ({ experiment }: TableHighlightsProps) => {
+const TableHighlights = ({
+  experiment,
+  branchComparison = BRANCH_COMPARISON.UPLIFT,
+}: TableHighlightsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
   const highlightMetricsList = getHighlightMetrics(primaryOutcomes);
   const branchDescriptions = getBranchDescriptions(
@@ -80,7 +85,7 @@ const TableHighlights = ({ experiment }: TableHighlightsProps) => {
   const overallResults = overall!;
 
   return (
-    <table data-testid="table-highlights" className="table mt-4 mb-0">
+    <table data-testid="table-highlights" className="table mb-0 pt-2">
       <tbody>
         {sortedBranchNames.map((branch) => {
           const userCountMetric =
@@ -93,18 +98,18 @@ const TableHighlights = ({ experiment }: TableHighlightsProps) => {
 
           return (
             <tr key={branch} className="border-top">
-              <th className="align-middle p-1 p-lg-3" scope="row">
+              <th className="align-middle p-3" scope="row">
                 <p>{branch}</p>
                 <p className="h6">
                   {participantCount} participants ({userCountMetric["percent"]}
                   %)
                 </p>
               </th>
-              <td className="p-1 p-lg-3 col-md-4 align-middle">
+              <td className="p-3 col-md-4 align-middle">
                 {branchDescriptions[branch]}
               </td>
               {isControlBranch ? (
-                <td className="p-1 p-lg-3 align-middle">
+                <td className="p-3 align-middle">
                   <div className="font-italic align-middle">---baseline---</div>
                 </td>
               ) : (
@@ -131,6 +136,7 @@ const TableHighlights = ({ experiment }: TableHighlightsProps) => {
                           displayType,
                           tooltip,
                           isControlBranch,
+                          branchComparison,
                         }}
                       />
                     );

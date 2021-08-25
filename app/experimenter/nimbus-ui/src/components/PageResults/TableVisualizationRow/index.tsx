@@ -9,9 +9,9 @@ import {
   SIGNIFICANCE,
   SIGNIFICANCE_TIPS,
   TABLE_LABEL,
-  VARIANT_TYPE,
 } from "../../../lib/visualization/constants";
 import {
+  BranchComparisonValues,
   BranchDescription,
   FormattedAnalysisPoint,
 } from "../../../lib/visualization/types";
@@ -21,18 +21,6 @@ import { ReactComponent as SignificanceNegative } from "./significance-negative.
 import { ReactComponent as SignificanceNeutral } from "./significance-neutral.svg";
 import { ReactComponent as SignificancePositive } from "./significance-positive.svg";
 
-// This is a mapping for which view on the analysis
-// to display given the branch and table type.
-const dataTypeMapping = {
-  [TABLE_LABEL.HIGHLIGHTS]: {
-    [VARIANT_TYPE.CONTROL]: BRANCH_COMPARISON.ABSOLUTE,
-    [VARIANT_TYPE.VARIANT]: BRANCH_COMPARISON.UPLIFT,
-  },
-  [TABLE_LABEL.PRIMARY_METRICS]: {
-    [VARIANT_TYPE.CONTROL]: BRANCH_COMPARISON.ABSOLUTE,
-    [VARIANT_TYPE.VARIANT]: BRANCH_COMPARISON.ABSOLUTE,
-  },
-};
 const BASELINE_TEXT = "(baseline)";
 
 const showSignificanceField = (
@@ -194,7 +182,7 @@ const TableVisualizationRow: React.FC<{
   isControlBranch: boolean;
   metricName?: string;
   displayType?: DISPLAY_TYPE;
-  branchComparison?: string;
+  branchComparison: BranchComparisonValues;
   tooltip?: string;
   window?: string;
   bounds?: number;
@@ -224,11 +212,6 @@ const TableVisualizationRow: React.FC<{
     tooltipText = tooltip;
     field = <div>{BASELINE_TEXT}</div>;
     const percent = branch_data[GROUP.OTHER][METRIC.USER_COUNT]["percent"];
-    const branchType = isControlBranch
-      ? VARIANT_TYPE.CONTROL
-      : VARIANT_TYPE.VARIANT;
-    branchComparison =
-      branchComparison || dataTypeMapping[tableLabel][branchType];
 
     const userCountsList =
       branch_data[GROUP.OTHER][METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE][

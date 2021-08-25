@@ -7,27 +7,21 @@ import { storiesOf } from "@storybook/react";
 import React from "react";
 import TableResultsWeekly from ".";
 import { MockResultsContextProvider } from "../../../lib/mocks";
-import {
-  BRANCH_COMPARISON,
-  HIGHLIGHTS_METRICS_LIST,
-} from "../../../lib/visualization/constants";
+import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
 
 storiesOf("pages/Results/TableResultsWeekly", module)
   .addDecorator(withLinks)
   .add("with relative uplift comparison", () => {
     return (
       <MockResultsContextProvider>
-        <TableResultsWeekly metricsList={HIGHLIGHTS_METRICS_LIST} />
+        <TableResultsWeekly />
       </MockResultsContextProvider>
     );
   })
   .add("with absolute comparison", () => {
     return (
       <MockResultsContextProvider>
-        <TableResultsWeekly
-          metricsList={HIGHLIGHTS_METRICS_LIST}
-          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
-        />
+        <TableResultsWeekly branchComparison={BRANCH_COMPARISON.ABSOLUTE} />
       </MockResultsContextProvider>
     );
   });

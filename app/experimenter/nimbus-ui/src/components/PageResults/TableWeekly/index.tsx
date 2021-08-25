@@ -20,7 +20,7 @@ type TableWeeklyProps = {
   metricKey: string;
   metricName: string;
   group: string;
-  branchComparison?: BranchComparisonValues;
+  branchComparison: BranchComparisonValues;
 };
 
 const getWeekIndexList = (
@@ -51,7 +51,7 @@ const TableWeekly = ({
   metricKey,
   metricName,
   group,
-  branchComparison = BRANCH_COMPARISON.UPLIFT,
+  branchComparison,
 }: TableWeeklyProps) => {
   const {
     analysis: { weekly },
@@ -63,10 +63,7 @@ const TableWeekly = ({
   const tableLabel = TABLE_LABEL.RESULTS;
 
   return (
-    <table
-      className="table-visualization-center mb-5"
-      data-testid="table-weekly"
-    >
+    <table className="table-visualization-center" data-testid="table-weekly">
       <thead>
         <tr>
           <th scope="col" className="border-bottom-0 bg-light" />

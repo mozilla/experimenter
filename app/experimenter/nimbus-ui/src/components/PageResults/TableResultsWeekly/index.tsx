@@ -1,6 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import classNames from "classnames";
 import React, { useContext, useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
 import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
@@ -9,22 +11,16 @@ import { ResultsContext } from "../../../lib/contexts";
 import {
   BRANCH_COMPARISON,
   GENERAL_TIPS,
+  HIGHLIGHTS_METRICS_LIST,
 } from "../../../lib/visualization/constants";
 import { BranchComparisonValues } from "../../../lib/visualization/types";
 import TableWeekly from "../TableWeekly";
 
-type TableResultsWeeklyProps = {
-  metricsList: {
-    value: string;
-    name: string;
-    tooltip: string;
-    group: string;
-  }[];
+export type TableResultsWeeklyProps = {
   branchComparison?: BranchComparisonValues;
 };
 
 const TableResultsWeekly = ({
-  metricsList,
   branchComparison = BRANCH_COMPARISON.UPLIFT,
 }: TableResultsWeeklyProps) => {
   const {
@@ -46,7 +42,7 @@ const TableResultsWeekly = ({
         }}
         aria-controls="weekly"
         aria-expanded={open}
-        className="text-primary btn mb-5"
+        className="text-primary btn mb-3 mt-2"
       >
         {open ? (
           <>
@@ -59,11 +55,20 @@ const TableResultsWeekly = ({
         )}
       </span>
       <Collapse in={open}>
-        <div className="ml-3">
-          {metricsList.map((metric) => {
+        <div className="mt-2">
+          {HIGHLIGHTS_METRICS_LIST.map((metric, index) => {
             return (
               <div key={`${metric.value}_weekly`}>
-                <h3 className="h5 mb-3">{metric.name}</h3>
+                <h3
+                  className={classNames(
+                    "h5",
+                    "mb-3",
+                    "ml-3",
+                    index === 0 ? "mt-0" : "mt-4",
+                  )}
+                >
+                  {metric.name}
+                </h3>
                 <TableWeekly
                   metricKey={metric.value}
                   metricName={metric.name}

@@ -15,7 +15,7 @@ import { GROUP, METRIC_TYPE } from "../../../lib/visualization/constants";
 
 describe("TableMetricCount", () => {
   it("has the correct headings", () => {
-    const EXPECTED_HEADINGS = ["Count", "Relative Improvement"];
+    const EXPECTED_HEADINGS = ["Absolute Count", "Relative Improvement"];
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     const { secondaryOutcomes } = mockOutcomeSets(experiment);
 
