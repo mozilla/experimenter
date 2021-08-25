@@ -66,7 +66,7 @@ def fixture_timeout_length():
         (BaseExperimentApplications.KLAR, "No Feature Klar for Android"),
         (BaseExperimentApplications.FOCUS, "No Feature Focus for Android"),
     ],
-    ids=["Desktop", "Android", "iOS", "Klar", "Focus"],
+    ids=["DESKTOP", "FENIX", "IOS", "KLAR", "FOCUS"],
 )
 def default_data(request):
     return BaseExperimentDataClass(
