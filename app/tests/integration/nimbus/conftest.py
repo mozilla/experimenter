@@ -172,16 +172,4 @@ def perform_kinto_action():
                 kinto_dashboard = Dashboard(selenium, base_url).wait_for_page_to_load()
                 count += 1
 
-        # bucket = kinto_dashboard.buckets[-1]
-        # for item in bucket.bucket_category:
-        #     if "nimbus-desktop-experiments" in item.text:
-        #         item.click()
-        #         break
-        # record = kinto_dashboard.record
-        # record.action(action)
-        # if action == "reject":
-        #     kinto_dashboard = Dashboard(selenium, base_url)
-        #     modal = kinto_dashboard.reject_modal
-        #     modal.decline_changes()
-
     return _perform_kinto_action

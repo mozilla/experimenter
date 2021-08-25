@@ -119,7 +119,7 @@ def test_create_new_experiment_reject_remote_settings(
         .replace("]", "")
     )
     selenium.get(f"{base_url}/{url}")
-    for attempt in range(30):
+    for attempt in range(timeout_length):
         try:
             summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
             assert summary_page.rejected_text, "Rejected text box did not load"
