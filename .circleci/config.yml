@@ -72,7 +72,6 @@ jobs:
           command: |
             TEST_FILES=$(circleci tests split "app/tests/integration/nimbus/parallel-tests.txt")
             PYTEST_ADDOPTS=-k $TEST_FILES
-            echo $PYTEST_ADDOPTS
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1
             make up_prod_detached
