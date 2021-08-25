@@ -19,12 +19,12 @@ const TableHighlightsOverview = ({
 
   return (
     <table
-      className="table text-left mb-5 border-bottom"
-      data-testid="table-overview"
+      className="table text-left mb-5 border-bottom border-left border-right"
+      data-testid="table-highlights-overview"
     >
       <tbody>
         <tr>
-          <td>
+          <td className="p-3">
             <h3 className="h6">Targeting</h3>
             <div>
               {getConfigLabel(experiment.firefoxMinVersion, firefoxMinVersion)}+
@@ -37,14 +37,14 @@ const TableHighlightsOverview = ({
               )}
             </div>
           </td>
-          <td>
+          <td className="p-3">
             <h3 className="h6">Outcomes</h3>
             {primaryOutcomes.length > 0 &&
               primaryOutcomes.map((outcome) => (
                 <div key={outcome!.slug!}>{outcome?.friendlyName}</div>
               ))}
           </td>
-          <td>
+          <td className="p-3">
             <h3 className="h6">Owner</h3>
             <span>{experiment.owner?.email}</span>
           </td>

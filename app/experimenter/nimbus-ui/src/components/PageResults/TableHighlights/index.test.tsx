@@ -10,6 +10,7 @@ import {
   MockResultsContextProvider,
 } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 
@@ -68,5 +69,35 @@ describe("TableHighlights", () => {
 
     expect(screen.getByText("control")).toBeInTheDocument();
     expect(screen.getByText("treatment")).toBeInTheDocument();
+  });
+
+  it("with relative comparison, renders expected values", () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <MockResultsContextProvider>
+          <TableHighlights {...{ experiment }} />
+        </MockResultsContextProvider>
+      </RouterSlugProvider>,
+    );
+    expect(screen.getAllByText("-45.5% to 51%", { exact: false })).toHaveLength(
+      4,
+    );
+  });
+
+  it("with absolute comparison, renders expected values", () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <MockResultsContextProvider>
+          <TableHighlights
+            {...{ experiment }}
+            branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+          />
+        </MockResultsContextProvider>
+      </RouterSlugProvider>,
+    );
+
+    expect(screen.getAllByText("2.4% to 8.2%", { exact: false })).toHaveLength(
+      4,
+    );
   });
 });
