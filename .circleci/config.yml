@@ -74,7 +74,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1
             make up_prod_detached
-            make integration_test_nimbus PYTEST_ARGS='-k ${TEST_FILES}'
+            make integration_test_nimbus PYTEST_ARGS='-k TEST_FILES'
 
   deploy:
     working_directory: ~/experimenter
