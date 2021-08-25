@@ -20,7 +20,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
     def test_experiments(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
         )
 
         response = self.query(
@@ -248,6 +248,51 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         self.assertEqual(
             experiment_data["readyForReview"], {"message": {}, "ready": True}
         )
+
+    def test_experiment_by_slug_with_parent(self):
+        user_email = "user@example.com"
+        parent_experiment = NimbusExperimentFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, parent=parent_experiment
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    parent
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["parent"], parent_experiment.slug)
+
+    def test_experiment_by_slug_without_parent(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    parent
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertIsNone(experiment_data["parent"])
 
     def test_experiment_by_slug_not_ready_for_review(self):
         user_email = "user@example.com"
