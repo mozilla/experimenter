@@ -8,6 +8,7 @@ from parameterized import parameterized
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.api.v5.serializers import (
     NimbusBranchSerializer,
+    NimbusExperimentCloneSerializer,
     NimbusExperimentSerializer,
     NimbusReadyForReviewSerializer,
 )
@@ -1944,3 +1945,48 @@ class TestNimbusStatusValidationMixin(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertIn("experiment", serializer.errors)
+
+
+class TestNimbusExperimentCloneSerializer(TestCase):
+    def test_clones_experiment(self):
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        serializer = NimbusExperimentCloneSerializer(
+            data={
+                "parent_slug": parent.slug,
+                "name": "New Name",
+            },
+            context={"user": parent.owner},
+        )
+        self.assertTrue(serializer.is_valid())
+        child = serializer.save()
+        self.assertEqual(child.name, "New Name")
+        self.assertEqual(child.slug, "new-name")
+        self.assertEqual(child.parent, parent)
+
+    def test_invalid_parent_slug(self):
+        user = UserFactory.create()
+        serializer = NimbusExperimentCloneSerializer(
+            data={
+                "parent_slug": "bad slug",
+                "name": "New Name",
+            },
+            context={"user": user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("parent_slug", serializer.errors)
+
+    def test_invalid_with_duplicate_name(self):
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        serializer = NimbusExperimentCloneSerializer(
+            data={
+                "parent_slug": parent.slug,
+                "name": parent.name,
+            },
+            context={"user": parent.owner},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("name", serializer.errors)

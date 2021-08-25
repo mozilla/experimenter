@@ -35,24 +35,19 @@ mutation($input: ExperimentInput!) {
 }
 """
 
+CLONE_EXPERIMENT_MUTATION = """\
+mutation($input: ExperimentCloneInput!) {
+    cloneExperiment(input: $input) {
+        message
+    }
+}
+"""
+
 
 @mock_valid_outcomes
-class TestMutations(GraphQLTestCase):
+class TestCreateExperimentMutation(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
     maxDiff = None
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        Outcomes.clear_cache()
-
-    def setUp(self):
-        mock_preview_task_patcher = mock.patch(
-            "experimenter.experiments.api.v5.serializers."
-            "nimbus_synchronize_preview_experiments_in_kinto"
-        )
-        self.mock_preview_task = mock_preview_task_patcher.start()
-        self.addCleanup(mock_preview_task_patcher.stop)
 
     def test_create_experiment(self):
         user_email = "user@example.com"
@@ -103,6 +98,25 @@ class TestMutations(GraphQLTestCase):
                 "name": ["Ensure this field has no more than 255 characters."],
             },
         )
+
+
+@mock_valid_outcomes
+class TestUpdateExperimentMutation(GraphQLTestCase):
+    GRAPHQL_URL = reverse("nimbus-api-graphql")
+    maxDiff = None
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Outcomes.clear_cache()
+
+    def setUp(self):
+        mock_preview_task_patcher = mock.patch(
+            "experimenter.experiments.api.v5.serializers."
+            "nimbus_synchronize_preview_experiments_in_kinto"
+        )
+        self.mock_preview_task = mock_preview_task_patcher.start()
+        self.addCleanup(mock_preview_task_patcher.stop)
 
     def test_update_experiment_overview(self):
         user_email = "user@example.com"
@@ -761,3 +775,67 @@ class TestMutations(GraphQLTestCase):
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertTrue(experiment.is_archived)
+
+
+@mock_valid_outcomes
+class TestCloneExperimentMutation(GraphQLTestCase):
+    GRAPHQL_URL = reverse("nimbus-api-graphql")
+    maxDiff = None
+
+    def test_clone_experiment_success(self):
+        user_email = "user@example.com"
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        response = self.query(
+            CLONE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "parentSlug": parent.slug,
+                    "name": "New Experiment",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["cloneExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        child = NimbusExperiment.objects.get(slug="new-experiment")
+        self.assertEqual(child.parent, parent)
+
+    def test_clone_experiment_error_parent_slug(self):
+        user_email = "user@example.com"
+        response = self.query(
+            CLONE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "parentSlug": "wrong slug",
+                    "name": "New Experiment",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        self.assertIn("parent_slug", content["data"]["cloneExperiment"]["message"])
+
+    def test_clone_experiment_error_name(self):
+        user_email = "user@example.com"
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        response = self.query(
+            CLONE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "parentSlug": parent.slug,
+                    "name": parent.name,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        self.assertIn("name", content["data"]["cloneExperiment"]["message"])
