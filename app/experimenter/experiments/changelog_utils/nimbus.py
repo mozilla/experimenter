@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from experimenter.experiments.models import (
@@ -7,7 +6,6 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusFeatureConfig,
 )
-from experimenter.projects.models import Project
 
 
 class NimbusFeatureConfigChangeLogSerializer(serializers.ModelSerializer):
@@ -23,15 +21,12 @@ class NimbusBranchChangeLogSerializer(serializers.ModelSerializer):
 
 
 class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
+    parent = serializers.SlugRelatedField(read_only=True, slug_field="slug")
     reference_branch = NimbusBranchChangeLogSerializer()
     branches = NimbusBranchChangeLogSerializer(many=True)
     feature_config = NimbusFeatureConfigChangeLogSerializer()
-    owner = serializers.SlugRelatedField(
-        queryset=get_user_model().objects.all(), slug_field="email"
-    )
-    projects = serializers.SlugRelatedField(
-        many=True, queryset=Project.objects.all(), slug_field="slug"
-    )
+    owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
+    projects = serializers.SlugRelatedField(many=True, read_only=True, slug_field="slug")
 
     class Meta:
         model = NimbusExperiment
