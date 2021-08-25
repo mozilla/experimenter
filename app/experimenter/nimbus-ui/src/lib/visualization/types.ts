@@ -23,11 +23,11 @@ export interface Metadata {
 }
 
 export interface MetadataExternalConfig {
+  start_date: string | null;
   end_date: string | null;
-  enrollment_period: string | null;
+  enrollment_period: number | null;
   reference_branch: string | null;
   skip: boolean;
-  start_date: string | null;
   url: string;
 }
 
