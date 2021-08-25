@@ -239,6 +239,47 @@ TARGETING_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
 )
 
 
+TARGETING_INFREQUENT_USER_URIS = NimbusTargetingConfig(
+    name="Infrequent user (uris)",
+    slug="infrequent_user_uris",
+    description="Between 1 and 6 days of activity in the past 30 days",
+    targeting="userMonthlyActivity|length >= 1 && userMonthlyActivity|length <= 6 && "
+    "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_CASUAL_USER_URIS = NimbusTargetingConfig(
+    name="Casual user (uris)",
+    slug="casual_user_uris",
+    description="Between 7 and 13 days of activity in the past 28 days",
+    targeting="userMonthlyActivity|length >= 7 && userMonthlyActivity|length <= 13 && "
+    "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_REGULAR_USER_URIS = NimbusTargetingConfig(
+    name="Regular user (uris)",
+    slug="regular_user_uris",
+    description="Between 14 and 20 days of activity in the past 30 days",
+    targeting="userMonthlyActivity|length >= 14 && userMonthlyActivity|length <= 20 && "
+    "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_CORE_USER_URIS = NimbusTargetingConfig(
+    name="Core user (uris)",
+    slug="core_user_uris",
+    description="More than 20 days of activity in the past 30 days",
+    targeting="userMonthlyActivity|length >= 21 && "
+    "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+
 class NimbusConstants(object):
     class Status(models.TextChoices):
         DRAFT = "Draft"
@@ -421,6 +462,10 @@ class NimbusConstants(object):
         TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
         TARGETING_MOBILE_FIRST_RUN.slug: TARGETING_MOBILE_FIRST_RUN,
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug: TARGETING_NO_ENTERPRISE_OR_PAST_VPN,
+        TARGETING_INFREQUENT_USER_URIS.slug: TARGETING_INFREQUENT_USER_URIS,
+        TARGETING_CASUAL_USER_URIS.slug: TARGETING_CASUAL_USER_URIS,
+        TARGETING_REGULAR_USER_URIS.slug: TARGETING_REGULAR_USER_URIS,
+        TARGETING_CORE_USER_URIS.slug: TARGETING_CORE_USER_URIS,
     }
 
     class TargetingConfig(models.TextChoices):
@@ -448,6 +493,22 @@ class NimbusConstants(object):
         TARGETING_MOBILE_FIRST_RUN = (
             TARGETING_MOBILE_FIRST_RUN.slug,
             TARGETING_MOBILE_FIRST_RUN.name,
+        )
+        TARGETING_INFREQUENT_USER_URIS = (
+            TARGETING_INFREQUENT_USER_URIS.slug,
+            TARGETING_INFREQUENT_USER_URIS.name,
+        )
+        TARGETING_CASUAL_USER_URIS = (
+            TARGETING_CASUAL_USER_URIS.slug,
+            TARGETING_CASUAL_USER_URIS.name,
+        )
+        TARGETING_REGULAR_USER_URIS = (
+            TARGETING_REGULAR_USER_URIS.slug,
+            TARGETING_REGULAR_USER_URIS.name,
+        )
+        TARGETING_CORE_USER_URIS = (
+            TARGETING_CORE_USER_URIS.slug,
+            TARGETING_CORE_USER_URIS.name,
         )
 
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN = (
