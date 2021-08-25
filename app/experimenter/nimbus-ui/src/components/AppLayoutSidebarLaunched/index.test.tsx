@@ -9,7 +9,10 @@ import { AppLayoutSidebarLaunched, RESULTS_LOADING_TEXT } from ".";
 import { BASE_PATH } from "../../lib/constants";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-import { mockAnalysis } from "../../lib/visualization/mocks";
+import {
+  mockAnalysis,
+  MOCK_METADATA_WITH_CONFIG,
+} from "../../lib/visualization/mocks";
 import { AnalysisData } from "../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
@@ -23,6 +26,7 @@ const Subject = ({
   status = NimbusExperimentStatus.COMPLETE,
   withAnalysis = false,
   analysisError,
+  analysis,
   analysisLoadingInSidebar = false,
   analysisRequired = true,
   experiment = defaultExperiment,
@@ -34,32 +38,37 @@ const Subject = ({
   analysisLoadingInSidebar?: boolean;
   analysisRequired?: boolean;
   experiment?: getExperiment_experimentBySlug;
-}) => (
-  <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
-    <AppLayoutSidebarLaunched
-      {...{
-        status: mockGetStatus({ status }),
-        analysisLoadingInSidebar,
-        analysisRequired,
-        analysisError: analysisError ? new Error("boop") : undefined,
-        analysis: withAnalysis
-          ? {
-              show_analysis: true,
-              daily: [],
-              weekly: {},
-              overall: mockAnalysis().overall,
-              metadata: mockAnalysis().metadata,
-              other_metrics: mockAnalysis().other_metrics,
-            }
-          : undefined,
-        experiment,
-        refetch: async () => {},
-      }}
-    >
-      <p data-testid="test-child">Hello, world!</p>
-    </AppLayoutSidebarLaunched>
-  </RouterSlugProvider>
-);
+}) => {
+  const mockedAnalysis =
+    analysis ||
+    (withAnalysis
+      ? {
+          show_analysis: true,
+          daily: [],
+          weekly: {},
+          overall: mockAnalysis().overall,
+          metadata: mockAnalysis().metadata,
+          other_metrics: mockAnalysis().other_metrics,
+        }
+      : undefined);
+  return (
+    <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
+      <AppLayoutSidebarLaunched
+        {...{
+          status: mockGetStatus({ status }),
+          analysisLoadingInSidebar,
+          analysisRequired,
+          analysisError: analysisError ? new Error("boop") : undefined,
+          analysis: mockedAnalysis,
+          experiment,
+          refetch: async () => {},
+        }}
+      >
+        <p data-testid="test-child">Hello, world!</p>
+      </AppLayoutSidebarLaunched>
+    </RouterSlugProvider>
+  );
+};
 
 describe("AppLayoutSidebarLaunched", () => {
   describe("navigation links", () => {
@@ -79,7 +88,7 @@ describe("AppLayoutSidebarLaunched", () => {
         `${BASE_PATH}/my-special-slug`,
       );
 
-      screen.getByText("Experiment results not yet ready");
+      screen.getByText("Experiment analysis not ready yet");
     });
 
     it("when complete and analysis results fetch errors", () => {
@@ -99,6 +108,24 @@ describe("AppLayoutSidebarLaunched", () => {
         RESULTS_LOADING_TEXT,
       );
     });
+
+    it("when analysis is skipped", () => {
+      render(
+        <Subject
+          analysis={{
+            show_analysis: true,
+            daily: null,
+            weekly: null,
+            overall: null,
+            metadata: MOCK_METADATA_WITH_CONFIG,
+          }}
+        />,
+      );
+      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
+        "Experiment analysis was skipped",
+      );
+    });
+
     it("when complete and has analysis results displays summary and results items", () => {
       render(<Subject withAnalysis />);
 

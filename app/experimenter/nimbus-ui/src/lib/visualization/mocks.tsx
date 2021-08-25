@@ -47,12 +47,11 @@ export const MOCK_METADATA = {
  * overrides are present.
  */
 export const MOCK_METADATA_EXTERNAL_CONFIG = {
-  // TODO: account for the rest of these, EXP-1628
-  end_date: null,
-  enrollment_period: null,
+  start_date: "2021-05-26",
+  end_date: "2021-06-06",
+  enrollment_period: 9,
   reference_branch: "treatment",
-  skip: false,
-  start_date: null,
+  skip: true,
   url: "https://github.com/mozilla/jetstream-config/",
 };
 
