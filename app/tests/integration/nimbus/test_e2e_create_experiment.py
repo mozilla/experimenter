@@ -150,7 +150,6 @@ def test_create_new_experiment_timeout_remote_settings(
             review.timeout_text
         except NoSuchElementException:
             time.sleep(2)
-            # selenium.refresh()
         else:
             assert review.timeout_text, "Timeout text not shown."
             break

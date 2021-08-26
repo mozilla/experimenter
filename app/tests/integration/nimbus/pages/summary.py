@@ -40,11 +40,10 @@ class SummaryPage(Base):
         return self.RequestReview(self)
 
     def approve(self, timeout=45):
-        for _ in range(timeout*2):
+        for _ in range(timeout):
             try:
                 el = self.find_element(*self._approve_request_button_locator)
                 el.click()
-                print(_)
                 break
             except NoSuchElementException:
                 time.sleep(2)
