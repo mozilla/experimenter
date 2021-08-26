@@ -14,7 +14,7 @@ class Dashboard(Page):
         return self
 
     def __init__(self, selenium, base_url, **kwargs):
-        super(Dashboard, self).__init__(selenium, base_url, timeout=60, **kwargs)
+        super(Dashboard, self).__init__(selenium, base_url, timeout=120, **kwargs)
 
     @property
     def buckets(self):

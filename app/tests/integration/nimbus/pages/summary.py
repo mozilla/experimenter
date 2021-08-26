@@ -47,7 +47,7 @@ class SummaryPage(Base):
                 break
             except NoSuchElementException:
                 time.sleep(2)
-                self.selenium.refresh()
+                continue
         else:
             raise AssertionError("Approve button was never shown")
 
