@@ -100,6 +100,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
+            with_latest_change_now=True,
         )
 
         self.setup_kinto_get_main_records([])
@@ -781,7 +782,7 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestC
             tasks.nimbus_synchronize_preview_experiments_in_kinto()
 
 
-class TestNimbusSendEndEnrollmentEmail(MockKintoClientMixin, TestCase):
+class TestNimbusSendEmails(MockKintoClientMixin, TestCase):
     def test_enrollment_ending_email_not_sent_for_experiments_before_enrollment_end_date(
         self,
     ):
@@ -789,6 +790,7 @@ class TestNimbusSendEndEnrollmentEmail(MockKintoClientMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=10,
             proposed_duration=20,
+            with_latest_change_now=True,
         )
 
         tasks.nimbus_send_emails()
@@ -801,6 +803,7 @@ class TestNimbusSendEndEnrollmentEmail(MockKintoClientMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=0,
             proposed_duration=20,
+            with_latest_change_now=True,
         )
 
         NimbusEmail.objects.create(
@@ -819,6 +822,7 @@ class TestNimbusSendEndEnrollmentEmail(MockKintoClientMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=0,
             proposed_duration=20,
+            with_latest_change_now=True,
         )
 
         tasks.nimbus_send_emails()
@@ -838,6 +842,7 @@ class TestNimbusSendEndEnrollmentEmail(MockKintoClientMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=10,
             proposed_duration=20,
+            with_latest_change_now=True,
         )
 
         tasks.nimbus_send_emails()
@@ -850,6 +855,7 @@ class TestNimbusSendEndEnrollmentEmail(MockKintoClientMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=10,
             proposed_duration=0,
+            with_latest_change_now=True,
         )
 
         NimbusEmail.objects.create(
@@ -868,6 +874,7 @@ class TestNimbusSendEndEnrollmentEmail(MockKintoClientMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=10,
             proposed_duration=0,
+            with_latest_change_now=True,
         )
 
         tasks.nimbus_send_emails()
