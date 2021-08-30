@@ -3849,10 +3849,10 @@
     "@svgr/plugin-svgo" "^4.3.1"
     loader-utils "^1.2.3"
 
-"@testing-library/dom@8.1.0", "@testing-library/dom@>=7", "@testing-library/dom@^8.1.0":
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.1.0.tgz#f8358b1883844ea569ba76b7e94582168df5370d"
-  integrity sha512-kmW9alndr19qd6DABzQ978zKQ+J65gU2Rzkl8hriIetPnwpesRaK4//jEQyYh8fEALmGhomD/LBQqt+o+DL95Q==
+"@testing-library/dom@8.2.0", "@testing-library/dom@>=7", "@testing-library/dom@^8.2.0":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.2.0.tgz#ac46a1b9d7c81f0d341ae38fb5424b64c27d151e"
+  integrity sha512-U8cTWENQPHO3QHvxBdfltJ+wC78ytMdg69ASvIdkGdQ/XRg4M9H2vvM3mHddxl+w/fM6NNqzGMwpQoh82v9VIA==
   dependencies:
     "@babel/code-frame" "^7.10.4"
     "@babel/runtime" "^7.12.5"
@@ -14613,9 +14613,9 @@ object-keys@^1.0.12, object-keys@^1.0.6, object-keys@^1.1.1:
   integrity sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==
 
 object-path@0.11.4, object-path@^0.11.5:
-  version "0.11.5"
-  resolved "https://registry.yarnpkg.com/object-path/-/object-path-0.11.5.tgz#d4e3cf19601a5140a55a16ad712019a9c50b577a"
-  integrity sha512-jgSbThcoR/s+XumvGMTMf81QVBmah+/Q7K7YduKeKVWL7N111unR2d6pZZarSk6kY/caeNxUDyxOvMWyzoU2eg==
+  version "0.11.7"
+  resolved "https://registry.yarnpkg.com/object-path/-/object-path-0.11.7.tgz#5f211161f34bb395e4b13a5f565b79d933b6f65d"
+  integrity sha512-T4evaK9VfGGQskXBDILcn6F90ZD+WO3OwRFFQ2rmZdUH4vQeDBpiolTpVlPY2yj5xSepyILTjDyM6UvbbdHMZw==
 
 object-treeify@^1.1.4:
   version "1.1.28"
@@ -19042,9 +19042,9 @@ tapable@^2.1.1, tapable@^2.2.0:
   integrity sha512-FBk4IesMV1rBxX2tfiK8RAmogtWn53puLOQlvO8XuwlgxcYbP4mVPS9Ph4aeamSyyVjOl24aYWAuc8U5kCVwMw==
 
 tar@^2.0.0, tar@^6.0.2, tar@^6.1.2:
-  version "6.1.10"
-  resolved "https://registry.yarnpkg.com/tar/-/tar-6.1.10.tgz#8a320a74475fba54398fa136cd9883aa8ad11175"
-  integrity sha512-kvvfiVvjGMxeUNB6MyYv5z7vhfFRwbwCXJAeL0/lnbrttBVqcMOnpHUf0X42LrPMR8mMpgapkJMchFH4FSHzNA==
+  version "6.1.11"
+  resolved "https://registry.yarnpkg.com/tar/-/tar-6.1.11.tgz#6760a38f003afa1b2ffd0ffe9e9abbd0eab3d621"
+  integrity sha512-an/KZQzQUkZCkuoAA64hM92X0Urb6VpRhAFllDzz44U2mcD5scmT3zBc4VgVpkugF580+DQn8eAFSyoQt0tznA==
   dependencies:
     chownr "^2.0.0"
     fs-minipass "^2.0.0"
@@ -21137,9 +21137,9 @@ write@1.0.3:
     mkdirp "^0.5.1"
 
 ws@^5.1.1, ws@^5.2.0, ws@^6.1.2, ws@^6.2.1, ws@^7.2.3, ws@^7.4.6:
-  version "7.5.3"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.3.tgz#160835b63c7d97bfab418fc1b8a9fced2ac01a74"
-  integrity sha512-kQ/dHIzuLrS6Je9+uv81ueZomEwH0qVYstcAQ4/Z93K8zeko9gtAbttJWzoC5ukqXY1PpoouV3+VSOqEAFt5wg==
+  version "7.5.4"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.4.tgz#56bfa20b167427e138a7795de68d134fe92e21f9"
+  integrity sha512-zP9z6GXm6zC27YtspwH99T3qTG7bBFv2VIkeHstMLrLlDJuzA7tQ5ls3OJ1hOGGCzTQPniNJoHXIAOS0Jljohg==
 
 xml-name-validator@^3.0.0:
   version "3.0.0"
