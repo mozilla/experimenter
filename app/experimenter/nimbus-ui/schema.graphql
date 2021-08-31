@@ -3,6 +3,11 @@ schema {
   mutation: Mutation
 }
 
+type CloneExperiment {
+  nimbusExperiment: NimbusExperimentType
+  message: ObjectField
+}
+
 type CreateExperiment {
   nimbusExperiment: NimbusExperimentType
   message: ObjectField
@@ -13,6 +18,11 @@ scalar DateTime
 input DocumentationLinkType {
   title: NimbusExperimentDocumentationLink!
   link: String!
+}
+
+input ExperimentCloneInput {
+  parentSlug: String
+  name: String
 }
 
 input ExperimentInput {
@@ -53,6 +63,7 @@ scalar JSONString
 type Mutation {
   createExperiment(input: ExperimentInput!): CreateExperiment
   updateExperiment(input: ExperimentInput!): UpdateExperiment
+  cloneExperiment(input: ExperimentCloneInput!): CloneExperiment
 }
 
 type NimbusBranchType {

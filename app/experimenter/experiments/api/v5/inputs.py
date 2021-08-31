@@ -66,3 +66,8 @@ class ExperimentInput(graphene.InputObjectType):
     risk_brand = graphene.Boolean()
     countries = graphene.List(graphene.Int)
     locales = graphene.List(graphene.Int)
+
+
+class ExperimentCloneInput(graphene.InputObjectType):
+    parent_slug = graphene.String()
+    name = graphene.String()
