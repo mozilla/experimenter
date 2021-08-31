@@ -3,6 +3,7 @@ jobs:
   check:
     machine:
       image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
+      docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
     steps:
@@ -22,6 +23,7 @@ jobs:
   publish_storybooks:
     machine:
       image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
+      docker_layer_caching: true
     resource_class: medium
     working_directory: ~/experimenter
     steps:
@@ -41,6 +43,7 @@ jobs:
   integration_legacy:
     machine:
       image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
+      docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
     steps:
@@ -62,6 +65,7 @@ jobs:
   integration_nimbus:
     machine:
       image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
+      docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
     parallelism: 5
@@ -80,6 +84,7 @@ jobs:
     working_directory: ~/experimenter
     machine:
       image: ubuntu-2004:202104-01 # Ubuntu 20.04, Docker v20.10.6, Docker Compose v1.29.1
+      docker_layer_caching: true
     steps:
       - checkout
       - deploy:
