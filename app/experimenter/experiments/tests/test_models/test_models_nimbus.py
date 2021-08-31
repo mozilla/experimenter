@@ -420,6 +420,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_duration=10,
+            with_latest_change_now=True,
         )
         self.assertEqual(
             experiment.proposed_end_date,
@@ -430,6 +431,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_duration=10,
+            with_latest_change_now=True,
         )
         self.assertFalse(experiment.should_end)
 
@@ -450,6 +452,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=10,
+            with_latest_change_now=True,
         )
         self.assertFalse(experiment.should_end_enrollment)
 
@@ -473,6 +476,10 @@ class TestNimbusExperiment(TestCase):
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=3))
+
+        experiment.changes.filter(experiment_data__is_paused=True).update(
+            changed_on=datetime.datetime.now()
+        )
 
         self.assertEqual(
             experiment.computed_enrollment_days,
@@ -499,6 +506,11 @@ class TestNimbusExperiment(TestCase):
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=7))
+
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.COMPLETE,
+        ).update(changed_on=datetime.datetime.now())
 
         self.assertEqual(
             experiment.computed_duration_days,
@@ -674,6 +686,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             proposed_enrollment=10,
+            with_latest_change_now=True,
         )
         self.assertEqual(
             experiment.proposed_enrollment_end_date,
@@ -906,7 +919,9 @@ class TestNimbusExperiment(TestCase):
     )
     def test_should_timeout(self, expected, timeout, lifecycle):
         with override_settings(KINTO_REVIEW_TIMEOUT=timeout):
-            experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                lifecycle, with_latest_change_now=True
+            )
             self.assertEqual(experiment.should_timeout, expected)
 
     def test_clone_created_experiment(self):

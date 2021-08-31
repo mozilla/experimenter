@@ -296,9 +296,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             self.countries.add(*extracted)
 
     @classmethod
-    def create_with_lifecycle(cls, lifecycle, with_random_timespan=False, **kwargs):
+    def create_with_lifecycle(cls, lifecycle, with_latest_change_now=False, **kwargs):
         experiment = cls.create(**kwargs)
-        now = timezone.now() - datetime.timedelta(days=random.randint(100, 200))
+        current_datetime = timezone.datetime(2021, 1, 1)
 
         for state in lifecycle.value:
             experiment.apply_lifecycle_state(state)
@@ -321,10 +321,14 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 f"set lifecycle {lifecycle} state {state}",
             )
 
-            if with_random_timespan:
-                change.changed_on = now
-                change.save()
-                now += datetime.timedelta(days=random.randint(5, 20))
+            change.changed_on = current_datetime
+            change.save()
+            current_datetime += datetime.timedelta(days=1)
+
+        if with_latest_change_now:
+            latest_change = experiment.changes.latest_change()
+            latest_change.changed_on = timezone.now()
+            latest_change.save()
 
         return NimbusExperiment.objects.get(id=experiment.id)
 
