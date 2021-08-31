@@ -1,5 +1,6 @@
 import os
 import time
+import uuid
 
 import pytest
 import requests
@@ -70,7 +71,7 @@ def fixture_timeout_length():
 )
 def default_data(request):
     return BaseExperimentDataClass(
-        public_name="test_experiment",
+        public_name=f"{request.node.name}-{str(uuid.uuid4())[:4]}",
         hypothesis="smart stuff here",
         application=request.param[0],
         public_description="description stuff",

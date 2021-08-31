@@ -41,6 +41,7 @@ const HeaderExperiment = ({
         label="Archived"
         color="danger"
         active={true}
+        testid="header-experiment-status-archived"
       />
     )}
     <p
@@ -93,12 +94,14 @@ const StatusPill = ({
   padded = true,
   color = "primary",
   className = "",
+  testid = "",
 }: {
   label: string;
   active: boolean;
   padded?: boolean;
   color?: string;
   className?: string;
+  testid?: string;
 }) => (
   <span
     className={
@@ -111,7 +114,8 @@ const StatusPill = ({
       className
     }
     data-testid={
-      active ? "header-experiment-status-active" : "header-experiment-status"
+      testid ||
+      (active ? "header-experiment-status-active" : "header-experiment-status")
     }
   >
     {label}
