@@ -13,8 +13,11 @@
 """
 import graphene
 
-from experimenter.experiments.api.v5.inputs import ExperimentInput
-from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
+from experimenter.experiments.api.v5.inputs import ExperimentCloneInput, ExperimentInput
+from experimenter.experiments.api.v5.serializers import (
+    NimbusExperimentCloneSerializer,
+    NimbusExperimentSerializer,
+)
 from experimenter.experiments.api.v5.types import NimbusExperimentType, ObjectField
 from experimenter.experiments.models import NimbusExperiment
 
@@ -56,11 +59,26 @@ class UpdateExperiment(graphene.Mutation):
 
     @classmethod
     def mutate(cls, root, info, input: ExperimentInput):
-        exp = NimbusExperiment.objects.get(id=input.id)
+        experiment = NimbusExperiment.objects.get(id=input.id)
         if "feature_config_id" in input:
             input["feature_config"] = input.pop("feature_config_id", None)
         serializer = NimbusExperimentSerializer(
-            exp, data=input, partial=True, context={"user": info.context.user}
+            experiment, data=input, partial=True, context={"user": info.context.user}
+        )
+        return handle_with_serializer(cls, serializer)
+
+
+class CloneExperiment(graphene.Mutation):
+    nimbus_experiment = graphene.Field(NimbusExperimentType)
+    message = ObjectField()
+
+    class Arguments:
+        input = ExperimentCloneInput(required=True)
+
+    @classmethod
+    def mutate(cls, root, info, input: ExperimentInput):
+        serializer = NimbusExperimentCloneSerializer(
+            data=input, context={"user": info.context.user}
         )
         return handle_with_serializer(cls, serializer)
 
@@ -70,3 +88,4 @@ class Mutation(graphene.ObjectType):
         description="Create a new Nimbus Experiment."
     )
     update_experiment = UpdateExperiment.Field(description="Update a Nimbus Experiment.")
+    clone_experiment = CloneExperiment.Field(description="Clone an experiment.")

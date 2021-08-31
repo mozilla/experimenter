@@ -21,6 +21,31 @@ from experimenter.kinto.tasks import (
 from experimenter.outcomes import Outcomes
 
 
+class ExperimentNameValidatorMixin:
+    def validate_name(self, name):
+        if not (self.instance or name):
+            raise serializers.ValidationError("Name is required to create an experiment")
+
+        if name:
+            slug = slugify(name)
+
+            if not slug:
+                raise serializers.ValidationError(
+                    "Name needs to contain alphanumeric characters"
+                )
+
+            if (
+                self.instance is None
+                and slug
+                and NimbusExperiment.objects.filter(slug=slug).exists()
+            ):
+                raise serializers.ValidationError(
+                    "Name maps to a pre-existing slug, please choose another name"
+                )
+
+        return name
+
+
 class NimbusBranchSerializer(serializers.ModelSerializer):
     def validate_name(self, value):
         slug_name = slugify(value)
@@ -281,6 +306,7 @@ class NimbusExperimentSerializer(
     NimbusExperimentBranchMixin,
     NimbusStatusValidationMixin,
     NimbusExperimentDocumentationLinkMixin,
+    ExperimentNameValidatorMixin,
     serializers.ModelSerializer,
 ):
     name = serializers.CharField(
@@ -430,29 +456,6 @@ class NimbusExperimentSerializer(
                 f'{self.context["user"]} can not review this experiment.'
             )
         return publish_status
-
-    def validate_name(self, name):
-        if not (self.instance or name):
-            raise serializers.ValidationError("Name is required to create an experiment")
-
-        if name:
-            slug = slugify(name)
-
-            if not slug:
-                raise serializers.ValidationError(
-                    "Name needs to contain alphanumeric characters"
-                )
-
-            if (
-                self.instance is None
-                and slug
-                and NimbusExperiment.objects.filter(slug=slug).exists()
-            ):
-                raise serializers.ValidationError(
-                    "Name maps to a pre-existing slug, please choose another name"
-                )
-
-        return name
 
     def validate_hypothesis(self, hypothesis):
         if hypothesis.strip() == NimbusExperiment.HYPOTHESIS_DEFAULT.strip():
@@ -697,3 +700,23 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
                 {"channel": "Channel is required for this application."}
             )
         return super().validate(attrs)
+
+
+class NimbusExperimentCloneSerializer(
+    ExperimentNameValidatorMixin, serializers.ModelSerializer
+):
+    parent_slug = serializers.SlugRelatedField(
+        slug_field="slug", queryset=NimbusExperiment.objects.all()
+    )
+    name = serializers.CharField(min_length=0, max_length=255, required=True)
+
+    class Meta:
+        model = NimbusExperiment
+        fields = (
+            "parent_slug",
+            "name",
+        )
+
+    def save(self):
+        parent = self.validated_data["parent_slug"]
+        return parent.clone(self.validated_data["name"], self.context["user"])
