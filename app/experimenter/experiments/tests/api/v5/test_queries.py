@@ -473,7 +473,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            with_random_timespan=True,
         )
 
         response = self.query(
@@ -500,7 +499,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_REJECT,
-            with_random_timespan=True,
         )
         response = self.query(
             """
@@ -528,7 +526,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            with_random_timespan=True,
         )
 
         response = self.query(
@@ -555,7 +552,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
-            with_random_timespan=True,
         )
         response = self.query(
             """
@@ -583,7 +579,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
-            with_random_timespan=True,
         )
         response = self.query(
             """
@@ -609,7 +604,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_TIMEOUT,
-            with_random_timespan=True,
         )
         response = self.query(
             """
