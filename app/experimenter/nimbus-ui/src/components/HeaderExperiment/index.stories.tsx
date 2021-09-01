@@ -20,6 +20,25 @@ storiesOf("components/HeaderExperiment", module)
   .add("status: draft", () => (
     <AppLayout>
       <HeaderExperiment
+        parent={null}
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
+        status={mockGetStatus(experiment)}
+        isArchived={false}
+      />
+    </AppLayout>
+  ))
+  .add("status: draft with parent", () => (
+    <AppLayout>
+      <HeaderExperiment
+        parent={{
+          ...experiment,
+          name: "Example Parent",
+          slug: "example-parent",
+        }}
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
@@ -33,6 +52,7 @@ storiesOf("components/HeaderExperiment", module)
   .add("status: preview", () => (
     <AppLayout>
       <HeaderExperiment
+        parent={null}
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
@@ -46,6 +66,7 @@ storiesOf("components/HeaderExperiment", module)
   .add("publish status: review", () => (
     <AppLayout>
       <HeaderExperiment
+        parent={null}
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
@@ -61,6 +82,7 @@ storiesOf("components/HeaderExperiment", module)
   .add("status: live", () => (
     <AppLayout>
       <HeaderExperiment
+        parent={null}
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
@@ -74,6 +96,7 @@ storiesOf("components/HeaderExperiment", module)
   .add("status: complete", () => (
     <AppLayout>
       <HeaderExperiment
+        parent={null}
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}
@@ -87,6 +110,7 @@ storiesOf("components/HeaderExperiment", module)
   .add("archived", () => (
     <AppLayout>
       <HeaderExperiment
+        parent={null}
         name={experiment.name}
         slug={experiment.slug}
         startDate={experiment.startDate}

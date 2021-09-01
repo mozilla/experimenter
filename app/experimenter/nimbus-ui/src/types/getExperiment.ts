@@ -13,6 +13,11 @@ export interface getExperiment_experimentBySlug_owner {
   email: string;
 }
 
+export interface getExperiment_experimentBySlug_parent {
+  name: string;
+  slug: string;
+}
+
 export interface getExperiment_experimentBySlug_referenceBranch {
   name: string;
   slug: string;
@@ -113,6 +118,7 @@ export interface getExperiment_experimentBySlug {
   application: NimbusExperimentApplication | null;
   publicDescription: string;
   owner: getExperiment_experimentBySlug_owner;
+  parent: getExperiment_experimentBySlug_parent | null;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
   featureConfig: getExperiment_experimentBySlug_featureConfig | null;
