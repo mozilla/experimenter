@@ -6,17 +6,7 @@ from nimbus.pages.summary import SummaryPage
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
-@pytest.mark.nondestructive
-def test_create_new_experiment(
-    selenium, base_url, default_data, create_experiment, request
-):
-    default_data.public_name = request.node.name
-
-    selenium.get(base_url)
-    home = HomePage(selenium, base_url).wait_for_page_to_load()
-    create_experiment(selenium, home, default_data)
-
-
+@pytest.mark.run_per_app
 def test_create_new_experiment_approve_remote_settings(
     selenium,
     base_url,
@@ -24,10 +14,7 @@ def test_create_new_experiment_approve_remote_settings(
     create_experiment,
     perform_kinto_action,
     timeout_length,
-    request,
 ):
-    default_data.public_name = request.node.name
-
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     current_experiments = None
@@ -68,6 +55,7 @@ def test_create_new_experiment_approve_remote_settings(
     assert "live" in summary_page.experiment_status.lower()
 
 
+@pytest.mark.run_once
 def test_create_new_experiment_reject_remote_settings(
     selenium,
     base_url,
@@ -75,10 +63,7 @@ def test_create_new_experiment_reject_remote_settings(
     create_experiment,
     perform_kinto_action,
     timeout_length,
-    request,
 ):
-    default_data.public_name = request.node.name
-
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     home.tabs[-1].click()  # Click drafts
@@ -96,7 +81,7 @@ def test_create_new_experiment_reject_remote_settings(
     experiment_found = False
     for attempt in range(timeout_length):
         try:
-            home = HomePage(selenium, drafts_tab_url)
+            home = HomePage(selenium, drafts_tab_url).wait_for_page_to_load()
             new_experiments = home.tables[0].experiments
             for item in new_experiments:
                 if default_data.public_name in item.text:
@@ -131,11 +116,10 @@ def test_create_new_experiment_reject_remote_settings(
         raise AssertionError("Experiment page didn't load")
 
 
+@pytest.mark.run_once
 def test_create_new_experiment_timeout_remote_settings(
-    selenium, base_url, default_data, create_experiment, timeout_length, request
+    selenium, base_url, default_data, create_experiment, timeout_length
 ):
-    default_data.public_name = request.node.name
-
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     review = create_experiment(selenium, home, default_data)
@@ -157,17 +141,15 @@ def test_create_new_experiment_timeout_remote_settings(
         raise AssertionError("Timeout text was never shown.")
 
 
+@pytest.mark.run_once
 def test_end_experiment_and_approve_end(
     selenium,
     base_url,
     default_data,
     create_experiment,
-    request,
     perform_kinto_action,
     timeout_length,
 ):
-    default_data.public_name = request.node.name
-
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     current_experiments = None
@@ -207,7 +189,7 @@ def test_end_experiment_and_approve_end(
     summary_page.approve(timeout_length)
     perform_kinto_action(selenium, base_url, "approve")
     # refresh page until kinto updates
-    url = request.node.name.lower().replace("[", "").replace("]", "")
+    url = default_data.public_name.lower().replace("[", "").replace("]", "")
     for _ in range(timeout_length):
         selenium.get(f"{base_url}/{url}")
         summary_page = SummaryPage(selenium, base_url).wait_for_page_to_load()
@@ -218,17 +200,15 @@ def test_end_experiment_and_approve_end(
             selenium.refresh()
 
 
+@pytest.mark.run_once
 def test_end_experiment_and_reject_end(
     selenium,
     base_url,
     default_data,
     create_experiment,
-    request,
     perform_kinto_action,
     timeout_length,
 ):
-    default_data.public_name = request.node.name
-
     selenium.get(base_url)
     home = HomePage(selenium, base_url).wait_for_page_to_load()
     current_experiments = None
@@ -267,7 +247,7 @@ def test_end_experiment_and_reject_end(
     summary_page.end_experiment()
     summary_page.approve(timeout_length)
     perform_kinto_action(selenium, base_url, "reject")
-    url = request.node.name.lower().replace("[", "").replace("]", "")
+    url = default_data.public_name.lower().replace("[", "").replace("]", "")
     # refresh page until kinto updates
     for _ in range(timeout_length):
         selenium.get(f"{base_url}/{url}")

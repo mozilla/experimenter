@@ -21,10 +21,27 @@ class SummaryPage(Base):
     )
     _end_experiment_button_locator = (By.CSS_SELECTOR, ".end-experiment-start-button")
     _confirm_end_button_locator = (By.CSS_SELECTOR, ".end-experiment-confirm-button")
+    _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="action-archive"]')
+    _archive_label_locator = (
+        By.CSS_SELECTOR,
+        'span[data-testid="header-experiment-status-archived"]',
+    )
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
         return self
+
+    def wait_for_archive_label_visible(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._archive_label_locator),
+            message="Summary Page: could not find archive label",
+        )
+
+    def wait_for_archive_label_not_visible(self):
+        self.wait.until_not(
+            EC.presence_of_all_elements_located(self._archive_label_locator),
+            message="Summary Page: archive label still present",
+        )
 
     @property
     def experiment_status(self):
@@ -85,3 +102,11 @@ class SummaryPage(Base):
         @property
         def request_launch_button(self):
             return self.find_element(*self._request_launch_locator)
+
+    @property
+    def archive_button(self):
+        return self.find_element(*self._archive_button_locator)
+
+    @property
+    def archive_label(self):
+        return self.find_element(*self._archive_label_locator)

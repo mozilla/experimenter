@@ -6,12 +6,11 @@ from selenium.webdriver.support import expected_conditions as EC
 class OverviewPage(Base):
     """Experiment Overview Page."""
 
+    _page_wait_locator = (By.CSS_SELECTOR, "#PageEditOverview")
     _public_description_locator = (By.CSS_SELECTOR, "#publicDescription")
     _risk_brand_locator = (By.CSS_SELECTOR, "#riskBrand-false")
     _risk_revenue_locator = (By.CSS_SELECTOR, "#riskRevenue-false")
     _risk_partner_locator = (By.CSS_SELECTOR, "#riskPartnerRelated-false")
-
-    _page_wait_locator = (By.CSS_SELECTOR, "#PageEditOverview")
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
