@@ -260,7 +260,10 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             """
             query experimentBySlug($slug: String!) {
                 experimentBySlug(slug: $slug) {
-                    parent
+                    parent {
+                        slug
+                        name
+                    }
                 }
             }
             """,
@@ -270,7 +273,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
-        self.assertEqual(experiment_data["parent"], parent_experiment.slug)
+        self.assertEqual(experiment_data["parent"]["slug"], parent_experiment.slug)
+        self.assertEqual(experiment_data["parent"]["name"], parent_experiment.name)
 
     def test_experiment_by_slug_without_parent(self):
         user_email = "user@example.com"
@@ -282,7 +286,10 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             """
             query experimentBySlug($slug: String!) {
                 experimentBySlug(slug: $slug) {
-                    parent
+                    parent {
+                        name
+                        slug
+                    }
                 }
             }
             """,

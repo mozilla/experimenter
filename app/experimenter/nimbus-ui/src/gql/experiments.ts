@@ -46,6 +46,11 @@ export const GET_EXPERIMENT_QUERY = gql`
         email
       }
 
+      parent {
+        name
+        slug
+      }
+
       referenceBranch {
         name
         slug

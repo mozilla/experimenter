@@ -4,6 +4,7 @@
 
 import classNames from "classnames";
 import React from "react";
+import { BASE_PATH } from "../../lib/constants";
 import { humanDate } from "../../lib/dateUtils";
 import { StatusCheck } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -13,6 +14,7 @@ type HeaderExperimentProps = Pick<
   getExperiment_experimentBySlug,
   | "name"
   | "slug"
+  | "parent"
   | "startDate"
   | "computedEndDate"
   | "computedDurationDays"
@@ -22,6 +24,7 @@ type HeaderExperimentProps = Pick<
 const HeaderExperiment = ({
   name,
   slug,
+  parent,
   startDate = "",
   computedEndDate = "",
   status,
@@ -50,6 +53,14 @@ const HeaderExperiment = ({
     >
       {slug}
     </p>
+    {parent && (
+      <p
+        className="text-secondary mb-1 small"
+        data-testid="header-experiment-parent"
+      >
+        Cloned from <a href={`${BASE_PATH}/${parent.slug}`}>{parent.name}</a>
+      </p>
+    )}
     <div className="row">
       <div className="col">
         <p className="header-experiment-status position-relative mt-2 d-inline-block">
