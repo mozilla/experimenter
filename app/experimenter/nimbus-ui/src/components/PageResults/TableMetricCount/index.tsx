@@ -76,32 +76,32 @@ const TableMetricCount = ({
 
   return (
     <div data-testid="table-metric-secondary" className="mb-5">
-      <h2 className="h5 mb-3" id={outcomeSlug}>
-        <div>
-          <div className="d-inline-block">
-            {outcomeName}{" "}
-            {outcomeDescription && (
-              <>
+      <h3 className="h5 mb-3" id={outcomeSlug}>
+        <span className="mr-2">
+          {outcomeName}{" "}
+          {outcomeDescription && (
+            <>
+              <span className="align-middle">
                 <Info
+                  className="align-baseline"
                   data-tip
                   data-for={outcomeSlug}
-                  className="align-baseline"
                 />
-                <TooltipWithMarkdown
-                  tooltipId={outcomeSlug}
-                  markdown={outcomeDescription}
-                />
-              </>
-            )}
-          </div>
-        </div>
-        <div
+              </span>
+              <TooltipWithMarkdown
+                tooltipId={outcomeSlug}
+                markdown={outcomeDescription}
+              />
+            </>
+          )}
+        </span>
+        <span
           className={`badge ${metricType.badge}`}
           data-tip={metricType.tooltip}
         >
           {metricType.label}
-        </div>
-      </h2>
+        </span>
+      </h3>
 
       <table className="table-visualization-center border">
         <thead>

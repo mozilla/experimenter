@@ -6,6 +6,7 @@ import { RouteComponentProps } from "@reach/router";
 import React, { useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
 import { useConfig } from "../../hooks";
+import { ReactComponent as ExternalIcon } from "../../images/external.svg";
 import { ReactComponent as CollapseMinus } from "../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
 import { ResultsContext, ResultsContextType } from "../../lib/contexts";
@@ -16,7 +17,6 @@ import {
 } from "../../lib/visualization/utils";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
-import LinkMonitoring from "../LinkMonitoring";
 import ExternalConfigAlert from "./ExternalConfigAlert";
 import TableHighlights from "./TableHighlights";
 import TableHighlightsOverview from "./TableHighlightsOverview";
@@ -69,22 +69,28 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
           <ResultsContext.Provider value={resultsContextValue}>
             {externalConfig && <ExternalConfigAlert {...{ externalConfig }} />}
 
-            <LinkMonitoring {...experiment} />
-            <h3 className="h5 mb-3 mt-4" id="overview">
-              Overview
-            </h3>
-            <p className="mb-4">
-              Detailed analysis{" "}
+            <p className="mb-1">
+              <LinkExternal
+                href={experiment.monitoringDashboardUrl!}
+                data-testid="link-monitoring-dashboard"
+              >
+                Live Monitoring Dashboard <ExternalIcon />
+              </LinkExternal>
+            </p>
+            <p>
               <LinkExternal
                 href={`https://protosaur.dev/partybal/${slugUnderscored}.html`}
                 data-testid="link-external-results"
               >
-                can be found here
+                Detailed Analysis <ExternalIcon />
               </LinkExternal>
-              .
             </p>
-            <h3 className="h6">Hypothesis</h3>
-            <p className="mb-4">{experiment.hypothesis}</p>
+            <h3 className="h4 mb-3 mt-4" id="overview">
+              Overview
+            </h3>
+            <p className="mb-4">
+              <b>Hypothesis</b>: {experiment.hypothesis}
+            </p>
 
             {analysis.overall && (
               <TableWithTabComparison
@@ -96,7 +102,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             <TableHighlightsOverview {...{ experiment }} />
 
             <div id="results_summary">
-              <h2 className="h5 mb-3">Results Summary</h2>
+              <h2 className="h4 mb-3">Results Summary</h2>
               {analysis.overall && (
                 <TableWithTabComparison
                   {...{ experiment }}
@@ -111,6 +117,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             </div>
 
             <div>
+              <h2 className="h4 mb-3">Outcome Metrics</h2>
               {analysis.overall &&
                 experiment.primaryOutcomes?.map((slug) => {
                   const outcome = configOutcomes!.find((set) => {

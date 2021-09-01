@@ -58,9 +58,9 @@ const TableMetricConversion = ({ outcome }: TableMetricConversionProps) => {
 
   return (
     <div data-testid="table-metric-primary" className="mb-5">
-      <h2 className="h5 mb-3" id={outcome.slug!}>
+      <h3 className="h6 mb-3" id={outcome.slug!}>
         {outcome.friendlyName}
-      </h2>
+      </h3>
       <table className="table-visualization-center border">
         <thead>
           <tr>
