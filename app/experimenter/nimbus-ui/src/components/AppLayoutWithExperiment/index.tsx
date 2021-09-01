@@ -140,8 +140,14 @@ const AppLayoutWithExperiment = ({
     return <PageExperimentNotFound {...{ slug }} />;
   }
 
-  const { name, startDate, computedEndDate, computedDurationDays, isArchived } =
-    experiment;
+  const {
+    name,
+    parent,
+    startDate,
+    computedEndDate,
+    computedDurationDays,
+    isArchived,
+  } = experiment;
 
   return (
     <Layout
@@ -167,6 +173,7 @@ const AppLayoutWithExperiment = ({
           {...{
             slug,
             name,
+            parent,
             startDate,
             computedEndDate,
             status,
