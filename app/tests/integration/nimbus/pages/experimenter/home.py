@@ -34,7 +34,7 @@ class HomePage(Page):
     def create_new_button(self):
         el = self.find_element(*self._create_new_btn_locator)
         el.click()
-        from nimbus.pages.new_experiment import NewExperiment
+        from nimbus.pages.experimenter.new_experiment import NewExperiment
 
         return NewExperiment(self.driver, self.base_url).wait_for_page_to_load()
 

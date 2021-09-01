@@ -1,11 +1,11 @@
 from nimbus.models.base_dataclass import BaseExperimentAudienceTargetingOptions
-from nimbus.pages.base import Base
+from nimbus.pages.experimenter.base import ExperimenterBase
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
 
 
-class AudiencePage(Base):
+class AudiencePage(ExperimenterBase):
     """Experiment Audience Page."""
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditAudience")
@@ -26,7 +26,7 @@ class AudiencePage(Base):
     def save_and_continue(self):
         element = self.selenium.find_element(*self._save_continue_btn_locator)
         element.click()
-        from nimbus.pages.summary import SummaryPage
+        from nimbus.pages.experimenter.summary import SummaryPage
 
         return SummaryPage(self.driver, self.base_url).wait_for_page_to_load()
 

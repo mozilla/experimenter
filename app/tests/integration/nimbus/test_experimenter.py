@@ -1,6 +1,6 @@
 import pytest
-from nimbus.pages.home import HomePage
-from nimbus.pages.summary import SummaryPage
+from nimbus.pages.experimenter.home import HomePage
+from nimbus.pages.experimenter.summary import SummaryPage
 
 
 @pytest.mark.run_once
