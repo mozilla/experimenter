@@ -1,9 +1,9 @@
-from nimbus.pages.base import Base
+from nimbus.pages.experimenter.base import ExperimenterBase
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 
-class OverviewPage(Base):
+class OverviewPage(ExperimenterBase):
     """Experiment Overview Page."""
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditOverview")
@@ -20,7 +20,7 @@ class OverviewPage(Base):
     def save_and_continue(self):
         element = self.selenium.find_element(*self._save_continue_btn_locator)
         element.click()
-        from nimbus.pages.branches import BranchesPage
+        from nimbus.pages.experimenter.branches import BranchesPage
 
         return BranchesPage(self.driver, self.base_url).wait_for_page_to_load()
 

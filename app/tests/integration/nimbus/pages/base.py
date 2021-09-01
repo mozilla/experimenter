@@ -1,34 +1,27 @@
-"""Base page."""
-import time
-
 from pypom import Page
-from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 
 
 class Base(Page):
-
-    _save_btn_locator = (By.CSS_SELECTOR, "#save-button")
-    _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
+    """Base page."""
 
     def __init__(self, selenium, base_url, **kwargs):
-        super(Base, self).__init__(selenium, base_url, timeout=30, **kwargs)
+        super().__init__(selenium, base_url, timeout=60, **kwargs)
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
-
         return self
 
-    def save_and_continue(self):
-        element = self.selenium.find_element(*self._save_continue_btn_locator)
-        element.click()
+    def wait_with_refresh(self, locator, message):
+        def _wait_for_it(selenium):
+            try:
+                self.wait_for_page_to_load()
+                selenium.find_element(*locator)
+            except NoSuchElementException:
+                selenium.refresh()
+                return False
+            else:
+                return True
 
-    def save_btn(self):
-        self.find_element(*self._save_btn_locator).click()
-        time.sleep(1)
-
-    def next_btn(self):
-        pass
-
-    def cancel_btn(self):
-        pass
+        self.wait.until(_wait_for_it, message=message)
