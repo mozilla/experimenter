@@ -1,20 +1,19 @@
-import time
-
-from nimbus.pages.base import Base
+from nimbus.pages.experimenter.base import ExperimenterBase
 from pypom import Region
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 
-class SummaryPage(Base):
+class SummaryPage(ExperimenterBase):
     """Experiment Summary Page."""
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary")
     _approve_request_button_locator = (By.CSS_SELECTOR, "#approve-request-button")
     _launch_without_preview_locator = (By.CSS_SELECTOR, "#launch-to-review-button")
-    _rejected_text_alert_locator = (By.CSS_SELECTOR, "#PageSummary .alert-warning")
-    _timeout_alert_locator = (By.CSS_SELECTOR, ".alert-danger")
+    _rejected_text_alert_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
+    _timeout_alert_locator = (By.CSS_SELECTOR, '[data-testid="timeout-notice"]')
+    _status_live_locator = (By.CSS_SELECTOR, ".status-Live.border-primary")
+    _status_complete_locator = (By.CSS_SELECTOR, ".status-Complete.border-primary")
     _experiment_status_icon_locator = (
         By.CSS_SELECTOR,
         ".header-experiment-status .border-primary",
@@ -43,6 +42,27 @@ class SummaryPage(Base):
             message="Summary Page: archive label still present",
         )
 
+    def wait_for_live_status(self):
+        self.wait_with_refresh(
+            self._status_live_locator, "Summary Page: Unable to find live status"
+        )
+
+    def wait_for_complete_status(self):
+        self.wait_with_refresh(
+            self._status_complete_locator, "Summary Page: Unable to find complete status"
+        )
+
+    def wait_for_rejected_alert(self):
+        self.wait_with_refresh(
+            self._rejected_text_alert_locator,
+            "Summary Page: Unable to find rejected alert",
+        )
+
+    def wait_for_timeout_alert(self):
+        self.wait_with_refresh(
+            self._timeout_alert_locator, "Summary Page: Unable to find timeout alert"
+        )
+
     @property
     def experiment_status(self):
         el = self.find_element(*self._experiment_status_icon_locator)
@@ -56,17 +76,11 @@ class SummaryPage(Base):
     def request_review(self):
         return self.RequestReview(self)
 
-    def approve(self, timeout=45):
-        for _ in range(timeout):
-            try:
-                el = self.find_element(*self._approve_request_button_locator)
-                el.click()
-                break
-            except NoSuchElementException:
-                time.sleep(2)
-                continue
-        else:
-            raise AssertionError("Approve button was never shown")
+    def approve(self):
+        self.wait.until(
+            EC.presence_of_element_located(self._approve_request_button_locator)
+        )
+        self.find_element(*self._approve_request_button_locator).click()
 
     def end_experiment(self, action="End"):
         el = self.find_element(*self._end_experiment_button_locator)

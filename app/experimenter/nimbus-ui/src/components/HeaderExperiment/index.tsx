@@ -106,7 +106,7 @@ const StatusPill = ({
   <span
     className={
       classNames(
-        "border rounded-pill px-2 bg-white position-relative",
+        `border rounded-pill px-2 bg-white position-relative status-${label}`,
         active ? `border-${color} text-${color}` : "border-muted text-muted",
         padded && "mr-3",
       ) +

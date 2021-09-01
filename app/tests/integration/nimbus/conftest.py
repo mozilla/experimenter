@@ -1,6 +1,5 @@
-import os
-import time
 import uuid
+from urllib.parse import urljoin
 
 import pytest
 import requests
@@ -13,16 +12,38 @@ from nimbus.models.base_dataclass import (
     BaseExperimentDataClass,
     BaseExperimentMetricsDataClass,
 )
-from nimbus.remote_settings.pages.dashboard import Dashboard
-from nimbus.remote_settings.pages.login import Login
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from selenium.common.exceptions import NoSuchElementException
+
+APPLICATION_FEATURES = {
+    BaseExperimentApplications.DESKTOP: "No Feature Firefox Desktop",
+    BaseExperimentApplications.FENIX: "No Feature Fenix",
+    BaseExperimentApplications.IOS: "No Feature iOS",
+    BaseExperimentApplications.KLAR: "No Feature Klar for Android",
+    BaseExperimentApplications.FOCUS: "No Feature Focus for Android",
+}
+
+APPLICATION_KINTO_REVIEW_PATH = {
+    BaseExperimentApplications.DESKTOP: (
+        "#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"
+    ),
+    BaseExperimentApplications.FENIX: (
+        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    ),
+    BaseExperimentApplications.IOS: (
+        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    ),
+    BaseExperimentApplications.KLAR: (
+        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    ),
+    BaseExperimentApplications.FOCUS: (
+        "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
+    ),
+}
 
 
-@pytest.fixture
-def ds_issue_host():
-    return os.environ["DS_ISSUE_HOST"]
+def slugify(input):
+    return input.lower().replace(" ", "-").replace("[", "").replace("]", "")
 
 
 @pytest.fixture
@@ -54,32 +75,40 @@ def _verify_url(request, base_url):
         session.get(base_url, verify=False)
 
 
-@pytest.fixture(name="timeout_length", scope="session")
-def fixture_timeout_length():
-    return 60
+@pytest.fixture
+def kinto_url():
+    return "http://kinto:8888/v1/admin/"
+
+
+@pytest.fixture
+def kinto_review_url(kinto_url, default_data):
+    return urljoin(kinto_url, APPLICATION_KINTO_REVIEW_PATH[default_data.application])
+
+
+@pytest.fixture
+def experiment_url(base_url, default_data):
+    return urljoin(base_url, slugify(default_data.public_name))
 
 
 @pytest.fixture(
-    params=[
-        (BaseExperimentApplications.DESKTOP, "No Feature Firefox Desktop"),
-        (BaseExperimentApplications.FENIX, "No Feature Fenix"),
-        (BaseExperimentApplications.IOS, "No Feature iOS"),
-        (BaseExperimentApplications.KLAR, "No Feature Klar for Android"),
-        (BaseExperimentApplications.FOCUS, "No Feature Focus for Android"),
-    ],
-    ids=["DESKTOP", "FENIX", "IOS", "KLAR", "FOCUS"],
+    # Use all applications as available parameters in parallel_pytest_args.txt
+    params=list(BaseExperimentApplications),
+    ids=[application.name for application in BaseExperimentApplications],
 )
 def default_data(request):
+    application = request.param
+    feature = APPLICATION_FEATURES[application]
+
     return BaseExperimentDataClass(
         public_name=f"{request.node.name}-{str(uuid.uuid4())[:4]}",
         hypothesis="smart stuff here",
-        application=request.param[0],
+        application=application,
         public_description="description stuff",
         branches=[
             BaseExperimentBranchDataClass(
                 name="name 1",
                 description="a nice experiment",
-                feature_config=f"{request.param[1]}",
+                feature_config=feature,
             )
         ],
         metrics=BaseExperimentMetricsDataClass(
@@ -135,42 +164,3 @@ def create_experiment():
         return review
 
     return _create_experiment
-
-
-@pytest.fixture
-def perform_kinto_action(timeout_length):
-    def _perform_kinto_action(selenium, base_url, action):
-        selenium.get("http://kinto:8888/v1/admin")
-        kinto_dashboard = None
-        count = 0
-        try:
-            kinto_login = Login(selenium, base_url).wait_for_page_to_load()
-            kinto_login.kinto_auth.click()
-            kinto_dashboard = kinto_login.login()
-        except NoSuchElementException:
-            kinto_dashboard = Dashboard(selenium, base_url).wait_for_page_to_load()
-
-        not_actionable = False
-        while not_actionable is False and count <= timeout_length:
-            for bucket in kinto_dashboard.buckets[0].bucket_category:
-                try:
-                    bucket.click()
-                    kinto_dashboard.record.approve_locator
-                except NoSuchElementException:
-                    time.sleep(2)
-                    continue
-                else:
-                    record = kinto_dashboard.record
-                    record.action(action)
-                    if action == "reject":
-                        kinto_dashboard = Dashboard(selenium, base_url)
-                        modal = kinto_dashboard.reject_modal
-                        modal.decline_changes()
-                    not_actionable = True
-                    break
-            else:
-                selenium.refresh()
-                kinto_dashboard = Dashboard(selenium, base_url).wait_for_page_to_load()
-                count += 1
-
-    return _perform_kinto_action
