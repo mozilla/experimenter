@@ -191,3 +191,14 @@ export const GET_EXPERIMENTS_QUERY = gql`
     }
   }
 `;
+
+export const CLONE_EXPERIMENT_MUTATION = gql`
+  mutation cloneExperiment($input: ExperimentCloneInput!) {
+    cloneExperiment(input: $input) {
+      message
+      nimbusExperiment {
+        slug
+      }
+    }
+  }
+`;

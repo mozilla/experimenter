@@ -162,6 +162,11 @@ export interface DocumentationLinkType {
   link: string;
 }
 
+export interface ExperimentCloneInput {
+  parentSlug?: string | null;
+  name?: string | null;
+}
+
 export interface ExperimentInput {
   id?: number | null;
   isArchived?: boolean | null;
