@@ -29,13 +29,13 @@ export const TableWithTabComparison = ({
 }: TableWithTabComparisonProps) => (
   <Tabs defaultActiveKey={BRANCH_COMPARISON.UPLIFT} className="border-bottom-0">
     <Tab eventKey={BRANCH_COMPARISON.UPLIFT} title="Relative uplift comparison">
-      <div className={`border border-grey ${className}`}>
+      <div className={`border ${className}`}>
         {/* @ts-ignore - TODO, assert Table is TablesWithoutExperiment if `experiment` not provided */}
         {experiment ? <Table {...{ experiment }} /> : <Table />}
       </div>
     </Tab>
     <Tab eventKey={BRANCH_COMPARISON.ABSOLUTE} title="Absolute comparison">
-      <div className={`border border-grey ${className}`}>
+      <div className={`border ${className}`}>
         {experiment ? (
           <Table
             {...{ experiment }}
