@@ -7,6 +7,7 @@ from selenium.webdriver.support.select import Select
 class BranchesPage(Base):
     """Experiment Branches Page."""
 
+    _page_wait_locator = (By.CSS_SELECTOR, "#PageEditBranches")
     _reference_branch_name_locator = (By.CSS_SELECTOR, "#referenceBranch-name")
     _reference_branch_description_locator = (
         By.CSS_SELECTOR,
@@ -14,7 +15,6 @@ class BranchesPage(Base):
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
     _feature_select_locator = (By.CSS_SELECTOR, "#referenceBranch-featureConfig")
-    _page_wait_locator = (By.CSS_SELECTOR, "#PageEditBranches")
     _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
 
     def wait_for_page_to_load(self):

@@ -1,0 +1,6 @@
+-k DESKTOP -m run_per_app
+-k FENIX -m run_per_app
+-k IOS -m run_per_app
+-k KLAR -m run_per_app
+-k FOCUS -m run_per_app
+-k DESKTOP -m run_once

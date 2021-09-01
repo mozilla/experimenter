@@ -6,15 +6,11 @@ from selenium.webdriver.support import expected_conditions as EC
 class HomePage(Page):
     """Nimbus Home page."""
 
+    _page_wait_locator = (By.CSS_SELECTOR, "#PageHome-page")
     _create_new_btn_locator = (By.CSS_SELECTOR, "#create-new-button")
-    _page_wait_locator = (By.CSS_SELECTOR, ".directory-table")
-
-    def __init__(self, selenium, base_url, **kwargs):
-        super(HomePage, self).__init__(selenium, base_url, timeout=30, **kwargs)
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.visibility_of_element_located(self._page_wait_locator))
-
         return self
 
     @property
