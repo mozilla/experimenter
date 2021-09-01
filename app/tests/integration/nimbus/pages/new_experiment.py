@@ -7,12 +7,12 @@ from selenium.webdriver.support.select import Select
 class NewExperiment(Base):
     """New Experiment Page."""
 
+    _page_wait_locator = (By.CSS_SELECTOR, "#PageNew-page")
     _public_name_locator = (By.CSS_SELECTOR, "#name")
     _hypothesis_locator = (By.CSS_SELECTOR, "#hypothesis")
     _application_select_locator = (By.CSS_SELECTOR, "#application")
     _cancel_btn_locator = (By.CSS_SELECTOR, ".btn-light")
     _next_btn_locator = (By.CSS_SELECTOR, "#submit-button")
-    _page_wait_locator = (By.CSS_SELECTOR, "#PageNew-page")  # page needs a good selector
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
