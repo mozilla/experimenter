@@ -2,13 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import { useMutation } from "@apollo/client";
+import { useNavigate } from "@reach/router";
+import React, { useState } from "react";
+import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import { FormProvider } from "react-hook-form";
+import { CLONE_EXPERIMENT_MUTATION } from "../../../gql/experiments";
 import { useCommonForm } from "../../../hooks";
+import { BASE_PATH, SUBMIT_ERROR } from "../../../lib/constants";
+import { cloneExperiment_cloneExperiment } from "../../../types/cloneExperiment";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import { ExperimentCloneInput } from "../../../types/globalTypes";
 import { SlugTextControl } from "../../SlugTextControl";
 
 type CloneDialogProps = {
@@ -68,7 +75,12 @@ export const CloneDialog = ({
       </Modal.Header>
       <Modal.Body>
         <FormProvider {...formMethods}>
-          <Form noValidate onSubmit={handleSave} data-testid="FormOverview">
+          <Form noValidate onSubmit={handleSave} data-testid="FormClone">
+            {submitErrors["*"] && (
+              <Alert data-testid="submit-error" variant="warning">
+                {submitErrors["*"]}
+              </Alert>
+            )}
             <Form.Group controlId="name">
               <Form.Label>Public name</Form.Label>
               <Form.Control
@@ -107,6 +119,70 @@ export const CloneDialog = ({
       </Modal.Footer>
     </Modal>
   );
+};
+
+export const useCloneDialog = (experiment: getExperiment_experimentBySlug) => {
+  const navigate = useNavigate();
+
+  const [show, setShowDialog] = useState(false);
+  const onShow = () => setShowDialog(true);
+  const onCancel = () => setShowDialog(false);
+
+  const [cloneExperiment] = useMutation<
+    { cloneExperiment: cloneExperiment_cloneExperiment },
+    { input: ExperimentCloneInput }
+  >(CLONE_EXPERIMENT_MUTATION);
+
+  const [isLoading, cloneSetIsLoading] = useState(false);
+  const [isServerValid, cloneSetIsServerValid] = useState(true);
+  const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
+
+  const onSave = async (data: CloneParams) => {
+    cloneSetIsLoading(true);
+    cloneSetIsServerValid(true);
+    setSubmitErrors({});
+    try {
+      const result = await cloneExperiment({
+        variables: {
+          input: {
+            parentSlug: experiment.slug,
+            name: data.name,
+          },
+        },
+      });
+
+      // istanbul ignore next - can't figure out how to trigger this in a test
+      if (!result.data?.cloneExperiment) {
+        throw new Error(SUBMIT_ERROR);
+      }
+
+      const { message } = result.data.cloneExperiment;
+      if (message && message !== "success" && typeof message === "object") {
+        cloneSetIsServerValid(false);
+        setSubmitErrors(message);
+      } else {
+        const { slug } = result.data.cloneExperiment.nimbusExperiment!;
+        navigate(`${BASE_PATH}/${slug}`);
+        setShowDialog(false);
+      }
+    } catch (error) {
+      setSubmitErrors({ "*": SUBMIT_ERROR });
+    }
+    cloneSetIsLoading(false);
+  };
+
+  return {
+    experiment,
+    disabled: isLoading,
+    onShow,
+    show,
+    onCancel,
+    onSave,
+    isLoading,
+    isServerValid,
+    submitErrors,
+    setSubmitErrors,
+  };
 };
 
 export default CloneDialog;

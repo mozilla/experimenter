@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from "@reach/router";
-import React, { useState } from "react";
+import React from "react";
 import ReactTooltip from "react-tooltip";
 import { useChangeOperationMutation } from "../../hooks";
 import { ReactComponent as Info } from "../../images/info.svg";
@@ -11,7 +11,7 @@ import { ARCHIVE_DISABLED, CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as CloneIcon } from "./clone.svg";
-import CloneDialog, { CloneParams } from "./CloneDialog";
+import CloneDialog, { useCloneDialog } from "./CloneDialog";
 import { ReactComponent as TrashIcon } from "./trash.svg";
 
 type SidebarModifyExperimentProps = {
@@ -34,24 +34,9 @@ export const SidebarActions = ({
       : CHANGELOG_MESSAGES.UNARCHIVING_EXPERIMENT,
   });
 
-  const disabled = !experiment.canArchive || isLoading;
+  const archiveDisabled = !experiment.canArchive || isLoading;
 
-  const [cloneShowDialog, cloneSetShowDialog] = useState(false);
-  const cloneOnShow = () => cloneSetShowDialog(true);
-  const cloneOnCancel = () => cloneSetShowDialog(false);
-
-  // TODO: EXP-1138 replace this next block when clone mutation is available
-  const canClone = true;
-  const cloneIsLoading = false;
-  const cloneIsServerValid = true;
-  const cloneSubmitErrors = {};
-  /* istanbul ignore next EXP-1138 - pending mutation implementation */
-  const cloneSetSubmitErrors = () => {};
-  /* istanbul ignore next EXP-1138 - pending mutation implementation */
-  const cloneOnSave = (data: CloneParams) => {
-    cloneOnCancel();
-    window.alert("Sorry, experiment cloning is not yet implemented.");
-  };
+  const cloneDialogProps = useCloneDialog(experiment);
 
   return (
     <div data-testid={"SidebarActions"}>
@@ -64,25 +49,14 @@ export const SidebarActions = ({
         <LinkNav
           useButton
           key="sidebar-actions-clone"
-          disabled={!canClone || isLoading}
+          disabled={cloneDialogProps.disabled}
           testid="action-clone"
-          onClick={cloneOnShow}
+          onClick={cloneDialogProps.onShow}
         >
           <CloneIcon className="sidebar-icon" />
           Clone
         </LinkNav>
-        <CloneDialog
-          {...{
-            experiment,
-            show: cloneShowDialog,
-            onCancel: cloneOnCancel,
-            onSave: cloneOnSave,
-            isLoading: cloneIsLoading,
-            isServerValid: cloneIsServerValid,
-            submitErrors: cloneSubmitErrors,
-            setSubmitErrors: cloneSetSubmitErrors,
-          }}
-        />
+        <CloneDialog {...cloneDialogProps} />
       </div>
       <div>
         <LinkNav
@@ -91,11 +65,11 @@ export const SidebarActions = ({
           route={`${experiment.slug}/#`}
           testid="action-archive"
           onClick={onUpdateArchived}
-          {...{ disabled }}
+          {...{ disabled: archiveDisabled }}
         >
           <TrashIcon className="sidebar-icon" />
           {experiment.isArchived ? "Unarchive" : "Archive"}
-          {disabled && (
+          {archiveDisabled && (
             <>
               <Info
                 data-tip={ARCHIVE_DISABLED}
