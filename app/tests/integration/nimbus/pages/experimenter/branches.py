@@ -1,6 +1,6 @@
 from nimbus.pages.experimenter.base import ExperimenterBase
+from nimbus.pages.experimenter.metrics import MetricsPage
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
 
 
@@ -15,19 +15,7 @@ class BranchesPage(ExperimenterBase):
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
     _feature_select_locator = (By.CSS_SELECTOR, "#referenceBranch-featureConfig")
-    _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
-
-    def wait_for_page_to_load(self):
-        self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
-
-        return self
-
-    def save_and_continue(self):
-        element = self.selenium.find_element(*self._save_continue_btn_locator)
-        element.click()
-        from nimbus.pages.experimenter.metrics import MetricsPage
-
-        return MetricsPage(self.driver, self.base_url).wait_for_page_to_load()
+    NEXT_PAGE = MetricsPage
 
     @property
     def reference_branch_name(self):
