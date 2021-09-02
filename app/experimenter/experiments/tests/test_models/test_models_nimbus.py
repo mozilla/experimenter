@@ -1025,6 +1025,9 @@ class TestNimbusExperiment(TestCase):
             self.assertEqual(child_branch.description, parent_branch.description)
             self.assertEqual(child_branch.ratio, parent_branch.ratio)
             self.assertEqual(child_branch.feature_value, parent_branch.feature_value)
+        for parent_link in parent.documentation_links.all():
+            child_link = child.documentation_links.get(title=parent_link.title)
+            self.assertEqual(child_link.link, parent_link.link)
         self.assertEqual(child.changes.all().count(), 1)
 
 
