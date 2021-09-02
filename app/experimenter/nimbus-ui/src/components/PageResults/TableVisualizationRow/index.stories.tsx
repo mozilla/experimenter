@@ -30,6 +30,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       displayType={DISPLAY_TYPE.POPULATION}
       group={GROUP.OTHER}
       isControlBranch
+      branchComparison={BRANCH_COMPARISON.UPLIFT}
     />
   ))
   .add("Count field", () => (
@@ -40,6 +41,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       displayType={DISPLAY_TYPE.COUNT}
       group={GROUP.OTHER}
       isControlBranch
+      branchComparison={BRANCH_COMPARISON.UPLIFT}
     />
   ))
   .add("Percent field", () => (
@@ -50,6 +52,7 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       displayType={DISPLAY_TYPE.PERCENT}
       group={GROUP.OTHER}
       isControlBranch
+      branchComparison={BRANCH_COMPARISON.UPLIFT}
     />
   ))
   .add("Conversion count field", () => (
@@ -105,5 +108,6 @@ storiesOf("pages/Results/TableVisualizationRow", module)
       displayType={DISPLAY_TYPE.PERCENT}
       group={GROUP.OTHER}
       isControlBranch
+      branchComparison={BRANCH_COMPARISON.UPLIFT}
     />
   ));

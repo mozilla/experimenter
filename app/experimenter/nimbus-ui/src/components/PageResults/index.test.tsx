@@ -56,9 +56,12 @@ describe("PageResults", () => {
       expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
     });
     expect(screen.queryByTestId("summary")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("table-highlights")).toBeInTheDocument();
-    expect(screen.queryByTestId("table-overview")).toBeInTheDocument();
-    expect(screen.queryByTestId("table-results")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("table-highlights-overview"),
+    ).toBeInTheDocument();
+    // length of 2 due to two sets of tabs per table
+    expect(screen.queryAllByTestId("table-highlights")).toHaveLength(2);
+    expect(screen.queryAllByTestId("table-results")).toHaveLength(2);
     expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(4);
     expect(screen.queryByTestId("link-external-results")).toHaveAttribute(
       "href",
@@ -125,26 +128,6 @@ it("displays grouped metrics via onClick", async () => {
     fireEvent.click(screen.getByText("Hide other metrics"));
   });
   expect(screen.getByText("Show other metrics")).toBeInTheDocument();
-});
-
-it("toggles between absolute and relative branch comparisons", async () => {
-  mockExperiment = mockExperimentQuery("demo-slug").experiment;
-  render(<Subject />);
-
-  expect(screen.getAllByText("-0.46 to 0.51", { exact: false })).toHaveLength(
-    6,
-  );
-  expect(screen.queryByText("88.6%", { exact: false })).not.toBeInTheDocument();
-
-  fireEvent.click(screen.getByText("See absolute comparison"));
-  await screen.findByText("88.6%", { exact: false });
-  expect(
-    screen.queryByText("-0.46 to 0.51", { exact: false }),
-  ).not.toBeInTheDocument();
-
-  fireEvent.click(screen.getByText("See relative comparison"));
-  await screen.findAllByText("-0.46 to 0.51", { exact: false });
-  expect(screen.queryByText("88.6%", { exact: false })).not.toBeInTheDocument();
 });
 
 // Mocking form component because validation is exercised in its own tests.

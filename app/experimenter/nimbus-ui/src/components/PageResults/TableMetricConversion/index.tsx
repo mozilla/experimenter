@@ -10,6 +10,7 @@ import {
   GROUP,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
+import { BranchComparisonValues } from "../../../lib/visualization/types";
 import { getExtremeBounds } from "../../../lib/visualization/utils";
 import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
 import TableVisualizationRow from "../TableVisualizationRow";
@@ -17,7 +18,7 @@ import TableVisualizationRow from "../TableVisualizationRow";
 type ConversionMetricStatistic = {
   name: string;
   displayType: DISPLAY_TYPE;
-  branchComparison?: string;
+  branchComparison: BranchComparisonValues;
   value?: string;
 };
 
@@ -57,10 +58,10 @@ const TableMetricConversion = ({ outcome }: TableMetricConversionProps) => {
 
   return (
     <div data-testid="table-metric-primary" className="mb-5">
-      <h2 className="h5 mb-3" id={outcome.slug!}>
+      <h3 className="h6 mb-3" id={outcome.slug!}>
         {outcome.friendlyName}
-      </h2>
-      <table className="table-visualization-center">
+      </h3>
+      <table className="table-visualization-center border">
         <thead>
           <tr>
             <th scope="col" className="border-bottom-0 bg-light" />
@@ -84,7 +85,7 @@ const TableMetricConversion = ({ outcome }: TableMetricConversionProps) => {
                   {branch}
                 </th>
                 {conversionMetricStatistics.map(
-                  ({ displayType, branchComparison, value }) => (
+                  ({ displayType, value, branchComparison }) => (
                     <TableVisualizationRow
                       key={`${displayType}-${value}`}
                       results={overallResults[branch]}

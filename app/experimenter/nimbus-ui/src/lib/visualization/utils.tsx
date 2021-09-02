@@ -2,15 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  BRANCH_COMPARISON,
-  DISPLAY_TYPE,
-  METRIC,
-  TABLE_LABEL,
-} from "./constants";
+import { BRANCH_COMPARISON, DISPLAY_TYPE, METRIC } from "./constants";
 import {
   AnalysisData,
   AnalysisDataOverall,
+  BranchComparisonValues,
   FormattedAnalysisPoint,
 } from "./types";
 
@@ -24,27 +20,17 @@ export const analysisUnavailable = (analysis: AnalysisData | undefined) =>
 
 export const getTableDisplayType = (
   metricKey: string,
-  tableLabel: string,
-  isControl: boolean,
+  branchComparison: BranchComparisonValues,
 ): DISPLAY_TYPE => {
-  let displayType;
-  switch (metricKey) {
-    case METRIC.USER_COUNT:
-      displayType = DISPLAY_TYPE.POPULATION;
-      break;
-    case METRIC.SEARCH:
-    case METRIC.DAYS_OF_USE:
-      if (tableLabel === TABLE_LABEL.RESULTS || isControl) {
-        displayType = DISPLAY_TYPE.COUNT;
-        break;
-      }
-
-    // fall through
-    default:
-      displayType = DISPLAY_TYPE.PERCENT;
+  // User count metrics always display as "population" and retention metrics
+  // always display as "percent" despite the branch comparison.
+  if (metricKey === METRIC.USER_COUNT) return DISPLAY_TYPE.POPULATION;
+  if (metricKey === METRIC.RETENTION) return DISPLAY_TYPE.PERCENT;
+  if (branchComparison === BRANCH_COMPARISON.ABSOLUTE) {
+    return DISPLAY_TYPE.COUNT;
+  } else {
+    return DISPLAY_TYPE.PERCENT;
   }
-
-  return displayType;
 };
 
 export const getControlBranchName = (analysis: AnalysisData) => {
