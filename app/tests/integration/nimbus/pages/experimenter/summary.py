@@ -26,10 +26,6 @@ class SummaryPage(ExperimenterBase):
         'span[data-testid="header-experiment-status-archived"]',
     )
 
-    def wait_for_page_to_load(self):
-        self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
-        return self
-
     def wait_for_archive_label_visible(self):
         self.wait.until(
             EC.presence_of_all_elements_located(self._archive_label_locator),
