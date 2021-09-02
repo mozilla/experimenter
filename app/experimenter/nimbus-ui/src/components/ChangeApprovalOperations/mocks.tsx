@@ -24,14 +24,14 @@ type BaseSubjectProps = Partial<
 export const REVIEW_URL =
   "http://localhost:8888/v1/admin/#/buckets/main-workspace/collections/nimbus-mobile-experiments/records";
 
-const { experiment } = mockExperimentQuery("boo");
+export const { experiment: MOCK_EXPERIMENT } = mockExperimentQuery("boo");
 
 export const BaseSubject = ({
   actionButtonTitle = "Frobulate Thingy",
   actionDescription = "frobulate the thingy",
   isLoading = false,
   canReview = false,
-  status = getStatus(experiment),
+  status = getStatus(MOCK_EXPERIMENT),
   publishStatus = NimbusExperimentPublishStatus.IDLE,
   reviewRequestEvent,
   rejectionEvent,
@@ -40,6 +40,11 @@ export const BaseSubject = ({
   approveChange = () => {},
   invalidPages = [],
   InvalidPagesList = () => <span />,
+  children = (
+    <Button data-testid="action-button" className="mr-2 btn btn-success">
+      Frobulate Thingy
+    </Button>
+  ),
   ...props
 }: BaseSubjectProps) => (
   <ChangeApprovalOperations
@@ -61,9 +66,7 @@ export const BaseSubject = ({
       ...props,
     }}
   >
-    <Button data-testid="action-button" className="mr-2 btn btn-success">
-      Frobulate Thingy
-    </Button>
+    {children}
   </ChangeApprovalOperations>
 );
 
