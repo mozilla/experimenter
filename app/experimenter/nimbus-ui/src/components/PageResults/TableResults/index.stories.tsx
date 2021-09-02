@@ -38,7 +38,7 @@ storiesOf("pages/Results/TableResults", module)
       </RouterSlugProvider>
     );
   })
-  .add("absolute uplift comparison, with one primary outcome", () => {
+  .add("absolute comparison, with one primary outcome", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
@@ -51,7 +51,7 @@ storiesOf("pages/Results/TableResults", module)
       </RouterSlugProvider>
     );
   })
-  .add("absolute uplift comparison, with multiple primary outcomes", () => {
+  .add("absolute comparison, with multiple primary outcomes", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       primaryOutcomes: ["picture_in_picture", "feature_b", "feature_c"],
     });

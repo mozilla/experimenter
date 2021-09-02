@@ -47,6 +47,7 @@ describe("TableWeekly", () => {
             metricKey="retained"
             metricName="Retention"
             group={GROUP.OTHER}
+            branchComparison={BRANCH_COMPARISON.UPLIFT}
           />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
@@ -64,9 +65,9 @@ describe("TableWeekly", () => {
       <RouterSlugProvider>
         <MockResultsContextProvider>
           <TableWeekly
+            branchComparison={BRANCH_COMPARISON.ABSOLUTE}
             metricKey="fake"
             metricName="Some Made Up Metric"
-            branchComparison={BRANCH_COMPARISON.ABSOLUTE}
             group={GROUP.OTHER}
           />
         </MockResultsContextProvider>

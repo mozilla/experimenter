@@ -46,7 +46,7 @@ describe("TableResults", () => {
     );
 
     expect(screen.getAllByText("-45.5% to 51%", { exact: false })).toHaveLength(
-      2,
+      4,
     );
     expect(screen.getByText("198")).toBeInTheDocument();
     expect(screen.getByText("45%")).toBeInTheDocument();
@@ -71,8 +71,8 @@ describe("TableResults", () => {
     expect(screen.getByText("198")).toBeInTheDocument();
     expect(screen.getByText("200")).toBeInTheDocument();
     expect(
-      screen.getByText("2.4% to 8.4% (baseline)", { exact: false }),
-    ).toBeInTheDocument();
+      screen.getAllByText("0.02 to 0.08 (baseline)", { exact: false }),
+    ).toHaveLength(2);
     expect(screen.getByText("control")).toBeInTheDocument();
     expect(screen.getByText("treatment")).toBeInTheDocument();
   });
@@ -81,7 +81,10 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
-          <TableResults {...{ experiment }} />
+          <TableResults
+            {...{ experiment }}
+            branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>,
     );

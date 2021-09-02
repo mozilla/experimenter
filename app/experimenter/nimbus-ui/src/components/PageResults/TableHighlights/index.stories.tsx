@@ -11,6 +11,7 @@ import {
   MockResultsContextProvider,
 } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
 
 storiesOf("pages/Results/TableHighlights", module)
   .addDecorator(withLinks)
@@ -32,6 +33,19 @@ storiesOf("pages/Results/TableHighlights", module)
       <RouterSlugProvider mocks={[mock]}>
         <MockResultsContextProvider>
           <TableHighlights {...{ experiment }} />
+        </MockResultsContextProvider>
+      </RouterSlugProvider>
+    );
+  })
+  .add("with absolute comparison", () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <MockResultsContextProvider>
+          <TableHighlights
+            {...{ experiment }}
+            branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+          />
         </MockResultsContextProvider>
       </RouterSlugProvider>
     );

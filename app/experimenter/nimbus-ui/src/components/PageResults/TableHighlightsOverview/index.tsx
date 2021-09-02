@@ -18,39 +18,45 @@ const TableHighlightsOverview = ({
   const { primaryOutcomes } = useOutcomes(experiment);
 
   return (
-    <table
-      className="table text-left mb-5 border-bottom"
-      data-testid="table-overview"
-    >
-      <tbody>
-        <tr>
-          <td>
-            <h3 className="h6">Targeting</h3>
-            <div>
-              {getConfigLabel(experiment.firefoxMinVersion, firefoxMinVersion)}+
-            </div>
-            <div>{getConfigLabel(experiment.channel, channel)}</div>
-            <div>
-              {getConfigLabel(
-                experiment.targetingConfigSlug,
-                targetingConfigSlug,
-              )}
-            </div>
-          </td>
-          <td>
-            <h3 className="h6">Outcomes</h3>
-            {primaryOutcomes.length > 0 &&
-              primaryOutcomes.map((outcome) => (
-                <div key={outcome!.slug!}>{outcome?.friendlyName}</div>
-              ))}
-          </td>
-          <td>
-            <h3 className="h6">Owner</h3>
-            <span>{experiment.owner?.email}</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div className="mb-5 border-right border-bottom border-left rounded-bottom">
+      <table
+        className="table text-left"
+        data-testid="table-highlights-overview"
+      >
+        <tbody>
+          <tr>
+            <td className="p-3">
+              <h3 className="h6">Targeting</h3>
+              <div>
+                {getConfigLabel(
+                  experiment.firefoxMinVersion,
+                  firefoxMinVersion,
+                )}
+                +
+              </div>
+              <div>{getConfigLabel(experiment.channel, channel)}</div>
+              <div>
+                {getConfigLabel(
+                  experiment.targetingConfigSlug,
+                  targetingConfigSlug,
+                )}
+              </div>
+            </td>
+            <td className="p-3">
+              <h3 className="h6">Outcomes</h3>
+              {primaryOutcomes.length > 0 &&
+                primaryOutcomes.map((outcome) => (
+                  <div key={outcome!.slug!}>{outcome?.friendlyName}</div>
+                ))}
+            </td>
+            <td className="p-3">
+              <h3 className="h6">Owner</h3>
+              <span>{experiment.owner?.email}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   );
 };
 

@@ -9,9 +9,9 @@ import {
   SIGNIFICANCE,
   SIGNIFICANCE_TIPS,
   TABLE_LABEL,
-  VARIANT_TYPE,
 } from "../../../lib/visualization/constants";
 import {
+  BranchComparisonValues,
   BranchDescription,
   FormattedAnalysisPoint,
 } from "../../../lib/visualization/types";
@@ -21,18 +21,6 @@ import { ReactComponent as SignificanceNegative } from "./significance-negative.
 import { ReactComponent as SignificanceNeutral } from "./significance-neutral.svg";
 import { ReactComponent as SignificancePositive } from "./significance-positive.svg";
 
-// This is a mapping for which view on the analysis
-// to display given the branch and table type.
-const dataTypeMapping = {
-  [TABLE_LABEL.HIGHLIGHTS]: {
-    [VARIANT_TYPE.CONTROL]: BRANCH_COMPARISON.ABSOLUTE,
-    [VARIANT_TYPE.VARIANT]: BRANCH_COMPARISON.UPLIFT,
-  },
-  [TABLE_LABEL.PRIMARY_METRICS]: {
-    [VARIANT_TYPE.CONTROL]: BRANCH_COMPARISON.ABSOLUTE,
-    [VARIANT_TYPE.VARIANT]: BRANCH_COMPARISON.ABSOLUTE,
-  },
-};
 const BASELINE_TEXT = "(baseline)";
 
 const showSignificanceField = (
@@ -42,6 +30,7 @@ const showSignificanceField = (
   tableLabel: string,
   tooltip: string,
   isControlBranch: boolean,
+  branchComparison?: BranchComparisonValues,
 ) => {
   let significanceIcon,
     changeText = "";
@@ -69,10 +58,11 @@ const showSignificanceField = (
       break;
   }
 
-  let intervalText = `(${interval} change)`;
-  if (!significance) {
-    intervalText = `(${interval})`;
-  }
+  // We never want to include the word "change" in absolute comparisons
+  const intervalText =
+    !significance || branchComparison === BRANCH_COMPARISON.ABSOLUTE
+      ? `(${interval})`
+      : `(${interval} change)`;
 
   if (tableLabel === TABLE_LABEL.HIGHLIGHTS) {
     return (
@@ -142,6 +132,7 @@ const countField = (
   tableLabel: string,
   tooltip: string,
   isControlBranch: boolean,
+  branchComparison: BranchComparisonValues,
 ) => {
   const interval = `${lower.toFixed(2)} to ${upper.toFixed(2)}`;
   return showSignificanceField(
@@ -151,6 +142,7 @@ const countField = (
     tableLabel,
     tooltip,
     isControlBranch,
+    branchComparison,
   );
 };
 
@@ -162,6 +154,7 @@ const percentField = (
   tableLabel: string,
   tooltip: string,
   isControlBranch: boolean,
+  branchComparison?: BranchComparisonValues,
 ) => {
   const interval = `${Math.round(lower * 1000) / 10}% to ${
     Math.round(upper * 1000) / 10
@@ -173,6 +166,7 @@ const percentField = (
     tableLabel,
     tooltip,
     isControlBranch,
+    branchComparison,
   );
 };
 
@@ -194,7 +188,7 @@ const TableVisualizationRow: React.FC<{
   isControlBranch: boolean;
   metricName?: string;
   displayType?: DISPLAY_TYPE;
-  branchComparison?: string;
+  branchComparison: BranchComparisonValues;
   tooltip?: string;
   window?: string;
   bounds?: number;
@@ -224,11 +218,6 @@ const TableVisualizationRow: React.FC<{
     tooltipText = tooltip;
     field = <div>{BASELINE_TEXT}</div>;
     const percent = branch_data[GROUP.OTHER][METRIC.USER_COUNT]["percent"];
-    const branchType = isControlBranch
-      ? VARIANT_TYPE.CONTROL
-      : VARIANT_TYPE.VARIANT;
-    branchComparison =
-      branchComparison || dataTypeMapping[tableLabel][branchType];
 
     const userCountsList =
       branch_data[GROUP.OTHER][METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE][
@@ -258,6 +247,7 @@ const TableVisualizationRow: React.FC<{
               tableLabel,
               tooltipText,
               isControlBranch,
+              branchComparison,
             );
             break;
           case DISPLAY_TYPE.PERCENT:
@@ -270,6 +260,7 @@ const TableVisualizationRow: React.FC<{
               tableLabel,
               tooltipText,
               isControlBranch,
+              branchComparison,
             );
             break;
           case DISPLAY_TYPE.CONVERSION_COUNT:
