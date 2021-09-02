@@ -34,17 +34,25 @@ export function useSearchParamsState(storageKey?: string) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  useEffect(
+    () => {
+      if (!storage?.current || !storageKey) return;
+      if (!location.search) {
+        const savedParams = storage.current[storageKey];
+        if (savedParams) {
+          navigate(`${location.pathname}?${savedParams}`, { replace: true });
+        }
+      }
+    },
+    // Only run this effect once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   useEffect(() => {
     if (!storage?.current || !storageKey) return;
-    if (location.search) {
-      const params = new URLSearchParams(location.search);
-      storage.current[storageKey] = params.toString();
-    } else {
-      const savedParams = storage.current[storageKey];
-      if (savedParams) {
-        navigate(`${location.pathname}?${savedParams}`, { replace: true });
-      }
-    }
+    const params = new URLSearchParams(location.search);
+    storage.current[storageKey] = params.toString();
   }, [navigate, storage, storageKey, location.pathname, location.search]);
 
   return useMemo(() => {

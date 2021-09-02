@@ -7,7 +7,6 @@ import {
   createMemorySource,
   History,
   HistorySource,
-  useLocation,
   useNavigate,
 } from "@reach/router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -95,20 +94,19 @@ describe("hooks/useSearchParamsState", () => {
     });
   });
 
-  it("restores search parameters on navigation with empty params", async () => {
+  it("stores search parameters on navigation", async () => {
     const storageKey = "PageFoo";
     const expectedSearch = "wibble=wobble&beep=beep";
-    const navigateTo = "/quux/edit";
+    const path = "/quux/edit";
+    const initialStorage = {};
 
     render(
       <Subject
         {...{
           storageKey,
-          path: "/xyzzy/edit?donot=restorethis",
-          navigateTo,
-          initialStorage: {
-            [storageKey]: expectedSearch,
-          },
+          path,
+          navigateTo: `${path}?${expectedSearch}`,
+          initialStorage,
         }}
       />,
     );
@@ -116,11 +114,34 @@ describe("hooks/useSearchParamsState", () => {
     clickNavigate();
 
     await waitFor(() => {
+      expect(initialStorage).toEqual({
+        [storageKey]: expectedSearch,
+      });
+    });
+  });
+
+  it("restores search parameters on fresh render if params empty", async () => {
+    const storageKey = "PageFoo";
+    const expectedSearch = "wibble=wobble&beep=beep";
+    const path = "/quux/edit";
+
+    render(
+      <Subject
+        {...{
+          storageKey,
+          path,
+          initialStorage: {
+            [storageKey]: expectedSearch,
+          },
+        }}
+      />,
+    );
+
+    await waitFor(() => {
       expect(screen.getByTestId("params").textContent).toEqual(expectedSearch);
-      expect(navigateSpy).toHaveBeenCalledWith(
-        `${navigateTo}?${expectedSearch}`,
-        { replace: true },
-      );
+      expect(navigateSpy).toHaveBeenCalledWith(`${path}?${expectedSearch}`, {
+        replace: true,
+      });
     });
   });
 
@@ -139,14 +160,44 @@ describe("hooks/useSearchParamsState", () => {
       />,
     );
 
+    await waitFor(() => {
+      expect(screen.getByTestId("params").textContent).toEqual("");
+      expect(navigateSpy).not.toHaveBeenCalledWith(`${navigateTo}?`, {
+        replace: true,
+      });
+    });
+  });
+
+  it("does not restore previous search parameters after parameters are cleared (issue #6314)", async () => {
+    const storageKey = "PageFoo";
+    const expectedSearch = "wibble=wobble&beep=beep";
+    const navigateTo = "/quux/edit";
+    const initialStorage = {
+      [storageKey]: expectedSearch,
+    };
+
+    render(
+      <Subject
+        {...{
+          storageKey,
+          path: `${navigateTo}?${expectedSearch}`,
+          navigateTo,
+          initialStorage,
+        }}
+      />,
+    );
+
     clickNavigate();
 
     await waitFor(() => {
       expect(screen.getByTestId("params").textContent).toEqual("");
-      expect(navigateSpy).toHaveBeenCalledWith(navigateTo);
-      expect(navigateSpy).not.toHaveBeenCalledWith(`${navigateTo}?`, {
-        replace: true,
+      expect(initialStorage).toEqual({
+        [storageKey]: "",
       });
+      expect(navigateSpy).not.toHaveBeenCalledWith(
+        `${navigateTo}?${expectedSearch}`,
+        { replace: true },
+      );
     });
   });
 
@@ -172,13 +223,12 @@ describe("hooks/useSearchParamsState", () => {
 
   const SubjectInner = (props: SubjectProps) => {
     const { storageKey, navigateTo, initialStorage } = props;
-    const location = useLocation();
     const navigate = useNavigate();
     const [params, setParams] = useSearchParamsState(storageKey);
     const storage = useContext(SearchParamsContext);
 
     if (initialStorage) {
-      Object.assign(storage!.current, initialStorage);
+      storage!.current = initialStorage;
     }
 
     const onSetParamsClick = () => {
