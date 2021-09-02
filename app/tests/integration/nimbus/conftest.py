@@ -156,7 +156,6 @@ def create_experiment():
         audience.targeting = data.audience.targeting.value
         audience.percentage = data.audience.percentage
         audience.expected_clients = data.audience.expected_clients
-        audience.save_btn()
         review = audience.save_and_continue()
 
         # Review

@@ -1,17 +1,14 @@
-from pypom import Page, Region
+from nimbus.pages.experimenter.base import Base
+from pypom import Region
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 
-class HomePage(Page):
+class HomePage(Base):
     """Nimbus Home page."""
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageHome-page")
     _create_new_btn_locator = (By.CSS_SELECTOR, "#create-new-button")
-
-    def wait_for_page_to_load(self):
-        self.wait.until(EC.visibility_of_element_located(self._page_wait_locator))
-        return self
 
     @property
     def tables(self):

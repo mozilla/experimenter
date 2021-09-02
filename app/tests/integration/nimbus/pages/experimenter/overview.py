@@ -1,6 +1,6 @@
 from nimbus.pages.experimenter.base import ExperimenterBase
+from nimbus.pages.experimenter.branches import BranchesPage
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 
 
 class OverviewPage(ExperimenterBase):
@@ -11,18 +11,7 @@ class OverviewPage(ExperimenterBase):
     _risk_brand_locator = (By.CSS_SELECTOR, "#riskBrand-false")
     _risk_revenue_locator = (By.CSS_SELECTOR, "#riskRevenue-false")
     _risk_partner_locator = (By.CSS_SELECTOR, "#riskPartnerRelated-false")
-
-    def wait_for_page_to_load(self):
-        self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
-
-        return self
-
-    def save_and_continue(self):
-        element = self.selenium.find_element(*self._save_continue_btn_locator)
-        element.click()
-        from nimbus.pages.experimenter.branches import BranchesPage
-
-        return BranchesPage(self.driver, self.base_url).wait_for_page_to_load()
+    NEXT_PAGE = BranchesPage
 
     @property
     def public_description(self):
