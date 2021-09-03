@@ -160,6 +160,12 @@ class Lifecycles(Enum):
     ENDING_APPROVE_TIMEOUT = ENDING_APPROVE_WAITING + (
         LifecycleStates.LIVE_REVIEW_ENDING,
     )
+    ENDING_APPROVE_APPROVE_WITHOUT_PAUSE = LIVE_ENROLLING + (
+        LifecycleStates.LIVE_REVIEW_ENDING,
+        LifecycleStates.LIVE_APPROVED_ENDING,
+        LifecycleStates.LIVE_WAITING_ENDING,
+        LifecycleStates.COMPLETE_IDLE,
+    )
 
 
 class NimbusExperimentFactory(factory.django.DjangoModelFactory):
