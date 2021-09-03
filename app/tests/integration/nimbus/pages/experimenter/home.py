@@ -35,6 +35,19 @@ class HomePage(Base):
 
         return NewExperiment(self.driver, self.base_url).wait_for_page_to_load()
 
+    def find_in_table(self, table_name, experiment_name):
+        table_experiments = self.tables[0]
+        assert (
+            table_name in self.active_tab_text
+        ), f"Home Page: Table {table_name} not found in {self.active_tab_text}"
+        experiment_names = [
+            experiment.text for experiment in table_experiments.experiments
+        ]
+        assert experiment_name in experiment_names, (
+            f"Home Page: Experiment {experiment_name} not found in "
+            "{table_name} experiments: {experiment_names}"
+        )
+
     class Tables(Region):
 
         _experiment_link_locator = (By.CSS_SELECTOR, "tr a")
