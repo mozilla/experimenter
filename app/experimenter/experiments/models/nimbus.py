@@ -482,6 +482,11 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             branch.experiment = cloned
             branch.save()
 
+        for link in self.documentation_links.all():
+            link.id = None
+            link.experiment = cloned
+            link.save()
+
         if self.reference_branch:
             cloned.reference_branch = cloned.branches.get(slug=self.reference_branch.slug)
             cloned.save()
