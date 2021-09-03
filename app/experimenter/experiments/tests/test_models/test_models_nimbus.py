@@ -486,9 +486,30 @@ class TestNimbusExperiment(TestCase):
             3,
         )
 
+    def test_computed_enrollment_days_uses_end_date_without_pause(self):
+        expected_days = 5
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE_WITHOUT_PAUSE,
+            proposed_enrollment=99,
+        )
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(
+            changed_on=datetime.datetime.now() - datetime.timedelta(days=expected_days)
+        )
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.COMPLETE,
+        ).update(changed_on=datetime.datetime.now())
+        self.assertEqual(
+            experiment.computed_enrollment_days,
+            expected_days,
+        )
+
     def test_computed_enrollment_days_returns_fallback(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
         )
 
         self.assertEqual(

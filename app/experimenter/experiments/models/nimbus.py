@@ -318,8 +318,9 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         )
         if paused_change:
             return (paused_change.changed_on.date() - self.start_date).days
-        else:
-            return self.proposed_enrollment
+        if self.end_date:
+            return self.computed_duration_days
+        return self.proposed_enrollment
 
     @property
     def computed_end_date(self):
