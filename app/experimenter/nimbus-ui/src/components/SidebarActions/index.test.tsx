@@ -30,6 +30,7 @@ describe("SidebarActions", () => {
       screen.queryByTestId("tooltip-archived-disabled"),
     ).not.toBeInTheDocument();
   });
+
   it("renders a disabled unarchive button for archived experiment", () => {
     render(<Subject experiment={{ isArchived: true, canArchive: false }} />);
     expect(screen.getByTestId("action-archive")).toHaveClass("text-muted");
@@ -45,6 +46,7 @@ describe("SidebarActions", () => {
       screen.queryByTestId("tooltip-archived-disabled"),
     ).not.toBeInTheDocument();
   });
+
   it("calls update archive mutation when archive button is clicked", async () => {
     const experiment = mockExperiment({ isArchived: false, canArchive: true });
     const refetch = jest.fn();
@@ -64,12 +66,21 @@ describe("SidebarActions", () => {
     render(<Subject {...{ experiment, refetch }} mocks={[mutationMock]} />);
 
     const archiveButton = await screen.findByTestId("action-archive");
-
     fireEvent.click(archiveButton);
+
+    // Issue #6303: Expect disable button during loading, but not the tooltip
+    await waitFor(() => {
+      expect(screen.getByTestId("action-archive")).toHaveClass("text-muted");
+      expect(
+        screen.queryByTestId("tooltip-archived-disabled"),
+      ).not.toBeInTheDocument();
+    });
+
     await waitFor(() => {
       expect(refetch).toHaveBeenCalled();
     });
   });
+
   it("calls update archive mutation when unarchive button is clicked", async () => {
     const experiment = mockExperiment({ isArchived: true, canArchive: true });
     const refetch = jest.fn();
