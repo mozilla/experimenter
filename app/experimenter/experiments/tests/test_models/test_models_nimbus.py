@@ -1030,6 +1030,63 @@ class TestNimbusExperiment(TestCase):
             self.assertEqual(child_link.link, parent_link.link)
         self.assertEqual(child.changes.all().count(), 1)
 
+    def test_clone_archived_experiment(self):
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+
+        parent.is_archived = True
+        generate_nimbus_changelog(parent, parent.owner, "Archiving experiment")
+
+        child = parent.clone("Child Experiment", parent.owner)
+
+        self.assertEqual(child.parent, parent)
+        self.assertFalse(child.is_archived)
+        self.assertEqual(child.owner, parent.owner)
+        self.assertEqual(child.status, NimbusExperiment.Status.DRAFT)
+        self.assertIsNone(child.status_next)
+        self.assertEqual(child.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertEqual(child.name, "Child Experiment")
+        self.assertEqual(child.slug, "child-experiment")
+        self.assertEqual(child.public_description, parent.public_description)
+        self.assertEqual(child.risk_mitigation_link, parent.risk_mitigation_link)
+        self.assertFalse(child.is_paused)
+        self.assertEqual(child.proposed_duration, parent.proposed_duration)
+        self.assertEqual(child.proposed_enrollment, parent.proposed_enrollment)
+        self.assertEqual(child.population_percent, parent.population_percent)
+        self.assertEqual(child.total_enrolled_clients, parent.total_enrolled_clients)
+        self.assertEqual(child.firefox_min_version, parent.firefox_min_version)
+        self.assertEqual(child.application, parent.application)
+        self.assertEqual(child.channel, parent.channel)
+        self.assertEqual(child.hypothesis, parent.hypothesis)
+        self.assertEqual(child.primary_outcomes, parent.primary_outcomes)
+        self.assertEqual(child.secondary_outcomes, parent.secondary_outcomes)
+        self.assertEqual(child.feature_config, parent.feature_config)
+        self.assertEqual(child.targeting_config_slug, parent.targeting_config_slug)
+        self.assertEqual(child.reference_branch.slug, parent.reference_branch.slug)
+        self.assertNotEqual(child.reference_branch.id, parent.reference_branch.id)
+        self.assertIsNone(child.published_dto)
+        self.assertIsNone(child.results_data)
+        self.assertEqual(child.risk_partner_related, parent.risk_partner_related)
+        self.assertEqual(child.risk_revenue, parent.risk_revenue)
+        self.assertEqual(child.risk_brand, parent.risk_brand)
+        self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
+        self.assertEqual(
+            set(child.locales.all().values_list("code", flat=True)),
+            set(parent.locales.all().values_list("code", flat=True)),
+        )
+        self.assertEqual(
+            set(child.countries.all().values_list("code", flat=True)),
+            set(parent.countries.all().values_list("code", flat=True)),
+        )
+        for parent_branch in parent.branches.all():
+            child_branch = child.branches.get(slug=parent_branch.slug)
+            self.assertEqual(child_branch.name, parent_branch.name)
+            self.assertEqual(child_branch.description, parent_branch.description)
+            self.assertEqual(child_branch.ratio, parent_branch.ratio)
+            self.assertEqual(child_branch.feature_value, parent_branch.feature_value)
+        self.assertEqual(child.changes.all().count(), 1)
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
