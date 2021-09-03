@@ -12,6 +12,7 @@ from nimbus.models.base_dataclass import (
     BaseExperimentDataClass,
     BaseExperimentMetricsDataClass,
 )
+from nimbus.pages.experimenter.home import HomePage
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -86,6 +87,16 @@ def kinto_review_url(kinto_url, default_data):
 
 
 @pytest.fixture
+def archived_tab_url(base_url):
+    return f"{base_url}?tab=archived"
+
+
+@pytest.fixture
+def drafts_tab_url(base_url):
+    return f"{base_url}?tab=drafts"
+
+
+@pytest.fixture
 def experiment_url(base_url, default_data):
     return urljoin(base_url, slugify(default_data.public_name))
 
@@ -125,16 +136,17 @@ def default_data(request):
 
 
 @pytest.fixture
-def create_experiment():
-    def _create_experiment(selenium, home_page, data):
-        experiment = home_page.create_new_button()
-        experiment.public_name = data.public_name
-        experiment.hypothesis = data.hypothesis
-        experiment.application = data.application.value
+def create_experiment(base_url, default_data):
+    def _create_experiment(selenium):
+        home = HomePage(selenium, base_url).open()
+        experiment = home.create_new_button()
+        experiment.public_name = default_data.public_name
+        experiment.hypothesis = default_data.hypothesis
+        experiment.application = default_data.application.value
 
         # Fill Overview Page
         overview = experiment.save_and_continue()
-        overview.public_description = data.public_description
+        overview.public_description = default_data.public_description
         overview.select_risk_brand_false()
         overview.select_risk_revenue_false()
         overview.select_risk_partner_false()
@@ -142,24 +154,20 @@ def create_experiment():
         # Fill Branches page
         branches = overview.save_and_continue()
         branches.remove_branch()
-        branches.reference_branch_name = data.branches[0].name
-        branches.reference_branch_description = data.branches[0].description
-        branches.feature_config = data.branches[0].feature_config
+        branches.reference_branch_name = default_data.branches[0].name
+        branches.reference_branch_description = default_data.branches[0].description
+        branches.feature_config = default_data.branches[0].feature_config
 
         # Fill Metrics page
         metrics = branches.save_and_continue()
 
         # Fill Audience page
         audience = metrics.save_and_continue()
-        audience.channel = data.audience.channel.value
-        audience.min_version = data.audience.min_version
-        audience.targeting = data.audience.targeting.value
-        audience.percentage = data.audience.percentage
-        audience.expected_clients = data.audience.expected_clients
-        review = audience.save_and_continue()
-
-        # Review
-        selenium.find_element_by_css_selector("#PageSummary")
-        return review
+        audience.channel = default_data.audience.channel.value
+        audience.min_version = default_data.audience.min_version
+        audience.targeting = default_data.audience.targeting.value
+        audience.percentage = default_data.audience.percentage
+        audience.expected_clients = default_data.audience.expected_clients
+        return audience.save_and_continue()
 
     return _create_experiment

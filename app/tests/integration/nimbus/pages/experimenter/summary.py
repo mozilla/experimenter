@@ -78,7 +78,13 @@ class SummaryPage(ExperimenterBase):
         )
         self.find_element(*self._approve_request_button_locator).click()
 
-    def end_experiment(self, action="End"):
+    def launch_and_approve(self):
+        self.launch_without_preview.click()
+        self.request_review.click_launch_checkboxes()
+        self.request_review.request_launch_button.click()
+        self.approve()
+
+    def end_and_approve(self, action="End"):
         el = self.find_element(*self._end_experiment_button_locator)
         el.click()
         if action == "End":
@@ -89,6 +95,7 @@ class SummaryPage(ExperimenterBase):
             el.click()
         else:
             pass
+        self.approve()
 
     @property
     def rejected_text(self):
@@ -113,9 +120,8 @@ class SummaryPage(ExperimenterBase):
         def request_launch_button(self):
             return self.find_element(*self._request_launch_locator)
 
-    @property
-    def archive_button(self):
-        return self.find_element(*self._archive_button_locator)
+    def archive(self):
+        self.find_element(*self._archive_button_locator).click()
 
     @property
     def archive_label(self):
