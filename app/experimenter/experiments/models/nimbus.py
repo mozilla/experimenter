@@ -470,7 +470,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         cloned.publish_status = self.PublishStatus.IDLE
         cloned.owner = user
         cloned.parent = self
-        cloned.archived = False
+        cloned.is_archived = False
         cloned.is_paused = False
         cloned.reference_branch = None
         cloned.published_dto = None
