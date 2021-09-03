@@ -5,12 +5,14 @@
 import { action } from "@storybook/addon-actions";
 import { withLinks } from "@storybook/addon-links";
 import React from "react";
+import { getStatus } from "../../lib/experiment";
 import { mockChangelog } from "../../lib/mocks";
 import FormApproveOrReject from "./FormApproveOrReject";
 import FormRejectReason from "./FormRejectReason";
 import FormRemoteSettingsPending from "./FormRemoteSettingsPending";
 import {
   BaseSubject,
+  MOCK_EXPERIMENT,
   reviewPendingInRemoteSettingsBaseProps,
   reviewRejectedBaseProps,
   reviewRequestedBaseProps,
@@ -49,6 +51,26 @@ const storyWithProps = (
   if (storyName) story.storyName = storyName;
   return story;
 };
+
+export const WithInvalidPages = storyWithProps(
+  {
+    ...reviewRequestedBaseProps,
+    invalidPages: ["overview", "thingy", "frobnitz"],
+    InvalidPagesList: () => <span>overview, thingy, and frobnitz</span>,
+  },
+  "With invalid pages",
+);
+
+export const WithInvalidPagesAndArchived = storyWithProps(
+  {
+    ...reviewRequestedBaseProps,
+    status: { ...getStatus(MOCK_EXPERIMENT), archived: true, draft: true },
+    invalidPages: ["overview", "thingy", "frobnitz"],
+    InvalidPagesList: () => <span>overview, thingy, and frobnitz</span>,
+    children: <p>This space left intentionally blank.</p>,
+  },
+  "With invalid pages (archived)",
+);
 
 export const ReviewNotRequested = storyWithProps({}, "Review not requested");
 

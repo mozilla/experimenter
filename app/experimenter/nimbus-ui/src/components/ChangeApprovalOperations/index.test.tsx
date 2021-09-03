@@ -11,12 +11,14 @@ import {
 } from "@testing-library/react";
 import React from "react";
 import { LIFECYCLE_REVIEW_FLOWS } from "../../lib/constants";
+import { getStatus } from "../../lib/experiment";
 import {
   NimbusChangeLogOldStatus,
   NimbusChangeLogOldStatusNext,
 } from "../../types/globalTypes";
 import {
   BaseSubject,
+  MOCK_EXPERIMENT,
   reviewApprovedAfterTimeoutBaseProps,
   reviewPendingInRemoteSettingsBaseProps,
   reviewRejectedBaseProps,
@@ -44,6 +46,44 @@ describe("ChangeApprovalOperations", () => {
   it("renders as expected", async () => {
     render(<Subject />);
     await screen.findByTestId("action-button");
+  });
+
+  it("displays an invalid pages warning when details are missing", async () => {
+    const expectedInvalidPages = "overview, thingy, and frobnitz";
+    render(
+      <Subject
+        {...{
+          ...reviewRequestedBaseProps,
+          canReview: true,
+          invalidPages: ["overview", "thingy", "frobnitz"],
+          InvalidPagesList: () => <span>{expectedInvalidPages}</span>,
+        }}
+      />,
+    );
+    const invalidPagesAlert = screen.queryByTestId("invalid-pages");
+    expect(invalidPagesAlert).toBeInTheDocument();
+    expect(invalidPagesAlert!.textContent).toContain(expectedInvalidPages);
+  });
+
+  it("does not display an invalid pages warning when details are missing from an archived experiment", async () => {
+    const expectedInvalidPages = "overview, thingy, and frobnitz";
+    render(
+      <Subject
+        {...{
+          ...reviewRequestedBaseProps,
+          status: {
+            ...getStatus(MOCK_EXPERIMENT),
+            archived: true,
+            draft: true,
+          },
+          canReview: true,
+          invalidPages: ["overview", "thingy", "frobnitz"],
+          InvalidPagesList: () => <span>{expectedInvalidPages}</span>,
+        }}
+      />,
+    );
+    const invalidPagesAlert = screen.queryByTestId("invalid-pages");
+    expect(invalidPagesAlert).not.toBeInTheDocument();
   });
 
   it("when user can review, supports approval and opening remote settings", async () => {

@@ -61,6 +61,11 @@ export const ChangeApprovalOperations: React.FC<
   children,
 }) => {
   const defaultUIState = useMemo(() => {
+    if (status.archived) {
+      // No changes to be approved with an archived experiment
+      return ChangeApprovalOperationsState.None;
+    }
+
     if (invalidPages.length > 0 && status.draft) {
       return ChangeApprovalOperationsState.InvalidPages;
     }
@@ -95,7 +100,7 @@ export const ChangeApprovalOperations: React.FC<
   switch (uiState) {
     case ChangeApprovalOperationsState.InvalidPages:
       return (
-        <Alert variant="warning">
+        <Alert variant="warning" data-testid="invalid-pages">
           Before this experiment can be reviewed or launched, all required
           fields must be completed. Fields on the <InvalidPagesList />{" "}
           {invalidPages.length === 1 ? "page" : "pages"} are missing details.
