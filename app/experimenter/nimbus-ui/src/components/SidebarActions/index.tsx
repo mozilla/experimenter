@@ -25,7 +25,7 @@ export const SidebarActions = ({
   refetch,
 }: SidebarModifyExperimentProps) => {
   const {
-    isLoading,
+    isLoading: archiveIsLoading,
     callbacks: [onUpdateArchived],
   } = useChangeOperationMutation(experiment, refetch, {
     isArchived: !experiment.isArchived,
@@ -34,7 +34,7 @@ export const SidebarActions = ({
       : CHANGELOG_MESSAGES.UNARCHIVING_EXPERIMENT,
   });
 
-  const archiveDisabled = !experiment.canArchive || isLoading;
+  const archiveDisabled = !experiment.canArchive;
 
   const cloneDialogProps = useCloneDialog(experiment);
 
@@ -65,7 +65,7 @@ export const SidebarActions = ({
           route={`${experiment.slug}/#`}
           testid="action-archive"
           onClick={onUpdateArchived}
-          {...{ disabled: archiveDisabled }}
+          {...{ disabled: archiveDisabled || archiveIsLoading }}
         >
           <TrashIcon className="sidebar-icon" />
           {experiment.isArchived ? "Unarchive" : "Archive"}
