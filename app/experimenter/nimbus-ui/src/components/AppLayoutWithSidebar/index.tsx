@@ -9,12 +9,9 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
 import { useReviewCheck } from "../../hooks";
-import { ReactComponent as BookIcon } from "../../images/book.svg";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
-import { ReactComponent as SlackIcon } from "../../images/slack.svg";
 import { getStatus } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import LinkExternal from "../LinkExternal";
 import { LinkNav } from "../LinkNav";
 import LinkNavSummary from "../LinkNavSummary";
 import SidebarActions from "../SidebarActions";
@@ -133,23 +130,6 @@ export const AppLayoutWithSidebar = ({
               ))}
 
               <SidebarActions {...{ experiment, refetch }} />
-              <p className="edit-divider position-relative small my-2">
-                <span className="position-relative bg-light pl-1 pr-2 text-muted">
-                  External Links
-                </span>
-              </p>
-              <LinkExternal
-                className="mx-1 my-2 nav-item d-block text-dark font-weight-semibold w-100 "
-                href="https://experimenter.info"
-              >
-                <BookIcon className="mr-2" /> Experimenter Documentation
-              </LinkExternal>
-              <LinkExternal
-                className="mx-1 my-2 nav-item d-block text-dark font-weight-semibold w-100"
-                href="slack://channel?team=T027LFU12&id=CF94YGE03"
-              >
-                <SlackIcon className="mr-2" /> #ask-experimenter
-              </LinkExternal>
             </Nav>
           </nav>
         </Col>

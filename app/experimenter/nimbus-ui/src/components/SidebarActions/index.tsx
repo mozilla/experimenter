@@ -6,9 +6,17 @@ import { RouteComponentProps } from "@reach/router";
 import React from "react";
 import ReactTooltip from "react-tooltip";
 import { useChangeOperationMutation } from "../../hooks";
+import { ReactComponent as BookIcon } from "../../images/book.svg";
+import { ReactComponent as FeedbackIcon } from "../../images/chat-square-text.svg";
 import { ReactComponent as Info } from "../../images/info.svg";
-import { ARCHIVE_DISABLED, CHANGELOG_MESSAGES } from "../../lib/constants";
+import { ReactComponent as SlackIcon } from "../../images/slack.svg";
+import {
+  ARCHIVE_DISABLED,
+  CHANGELOG_MESSAGES,
+  EXTERNAL_URLS,
+} from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import LinkExternal from "../LinkExternal";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as CloneIcon } from "./clone.svg";
 import CloneDialog, { useCloneDialog } from "./CloneDialog";
@@ -82,6 +90,29 @@ export const SidebarActions = ({
             </>
           )}
         </LinkNav>
+        <div className="edit-divider position-relative small my-2">
+          <span className="position-relative bg-light pl-1 pr-2 text-muted">
+            External Links
+          </span>
+        </div>
+        <LinkExternal
+          className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
+          href={EXTERNAL_URLS.EXPERIMENTER_DOCUMENTATION}
+        >
+          <BookIcon className="mr-2" /> Experimenter Documentation
+        </LinkExternal>
+        <LinkExternal
+          className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
+          href={EXTERNAL_URLS.ASK_EXPERIMENTER_SLACK}
+        >
+          <SlackIcon className="mr-2" /> #ask-experimenter
+        </LinkExternal>
+        <LinkExternal
+          className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
+          href={EXTERNAL_URLS.FEEDBACK}
+        >
+          <FeedbackIcon className="mr-2" /> Feedback
+        </LinkExternal>
       </div>
     </div>
   );
