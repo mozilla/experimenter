@@ -19,7 +19,7 @@ import {
 } from "../../../lib/constants";
 import {
   getConfig_nimbusConfig,
-  getConfig_nimbusConfig_targetingConfigSlug,
+  getConfig_nimbusConfig_targetingConfigs,
 } from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import LinkExternal from "../../LinkExternal";
@@ -129,10 +129,7 @@ export const FormAudience = ({
 
   const targetingConfigSlugOptions = useMemo(
     () =>
-      filterTargetingConfigSlug(
-        config.targetingConfigSlug,
-        experiment.application,
-      ),
+      filterTargetingConfigs(config.targetingConfigs, experiment.application),
     [config, experiment],
   );
 
@@ -168,7 +165,7 @@ export const FormAudience = ({
               {...formControlAttrs("firefoxMinVersion")}
               as="select"
             >
-              <SelectOptions options={config.firefoxMinVersion} />
+              <SelectOptions options={config.firefoxVersions} />
             </Form.Control>
             <FormErrors name="firefoxMinVersion" />
           </Form.Group>
@@ -375,8 +372,8 @@ const SelectOptions = ({
   </>
 );
 
-export const filterTargetingConfigSlug = (
-  targetingConfigs: getConfig_nimbusConfig["targetingConfigSlug"],
+export const filterTargetingConfigs = (
+  targetingConfigs: getConfig_nimbusConfig["targetingConfigs"],
   application: getExperiment_experimentBySlug["application"],
 ) =>
   targetingConfigs == null
@@ -384,7 +381,7 @@ export const filterTargetingConfigSlug = (
     : targetingConfigs.filter(
         (
           targetingConfig,
-        ): targetingConfig is getConfig_nimbusConfig_targetingConfigSlug =>
+        ): targetingConfig is getConfig_nimbusConfig_targetingConfigs =>
           targetingConfig !== null &&
           Array.isArray(targetingConfig.applicationValues) &&
           targetingConfig.applicationValues.includes(application),

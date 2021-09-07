@@ -22,7 +22,7 @@ import FormBranches from "./FormBranches";
 import { FormBranchesSaveState } from "./FormBranches/reducer";
 
 const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
-  const { featureConfig } = useConfig();
+  const { featureConfigs } = useConfig();
 
   const [updateExperimentBranches, { loading }] = useMutation<
     { updateExperiment: UpdateExperimentBranchesResult },
@@ -91,7 +91,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         refetchReview.current = refetch;
 
         const applicationFeatureConfigs =
-          featureConfig?.filter(
+          featureConfigs?.filter(
             (config) => config?.application === experiment.application,
           ) || [];
 
@@ -110,7 +110,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
             <FormBranches
               {...{
                 experiment,
-                featureConfig: applicationFeatureConfigs,
+                featureConfigs: applicationFeatureConfigs,
                 isLoading: loading,
                 onSave: onFormSave,
               }}

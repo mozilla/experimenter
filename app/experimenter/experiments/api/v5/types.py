@@ -92,7 +92,7 @@ class NimbusExperimentApplicationConfig(graphene.ObjectType):
     supports_locale_country = graphene.Boolean()
 
 
-class NimbusExperimentTargetingConfigSlugChoice(graphene.ObjectType):
+class NimbusExperimentTargetingConfig(graphene.ObjectType):
     label = graphene.String()
     value = graphene.String()
     application_values = graphene.List(graphene.String)
@@ -175,18 +175,18 @@ class NimbusSignoffRecommendationsType(graphene.ObjectType):
 
 
 class NimbusConfigurationType(graphene.ObjectType):
-    application = graphene.List(NimbusLabelValueType)
-    channel = graphene.List(NimbusLabelValueType)
     application_configs = graphene.List(NimbusExperimentApplicationConfig)
-    feature_config = graphene.List(NimbusFeatureConfigType)
-    firefox_min_version = graphene.List(NimbusLabelValueType)
-    outcomes = graphene.List(NimbusOutcomeType)
-    targeting_config_slug = graphene.List(NimbusExperimentTargetingConfigSlugChoice)
-    hypothesis_default = graphene.String()
-    max_primary_outcomes = graphene.Int()
-    documentation_link = graphene.List(NimbusLabelValueType)
-    locales = graphene.List(NimbusLocaleType)
+    applications = graphene.List(NimbusLabelValueType)
+    channels = graphene.List(NimbusLabelValueType)
     countries = graphene.List(NimbusCountryType)
+    documentation_link = graphene.List(NimbusLabelValueType)
+    feature_configs = graphene.List(NimbusFeatureConfigType)
+    firefox_versions = graphene.List(NimbusLabelValueType)
+    hypothesis_default = graphene.String()
+    locales = graphene.List(NimbusLocaleType)
+    max_primary_outcomes = graphene.Int()
+    outcomes = graphene.List(NimbusOutcomeType)
+    targeting_configs = graphene.List(NimbusExperimentTargetingConfig)
 
     def _text_choices_to_label_value_list(root, text_choices):
         return [
@@ -197,10 +197,10 @@ class NimbusConfigurationType(graphene.ObjectType):
             for name in text_choices.names
         ]
 
-    def resolve_application(root, info):
+    def resolve_applications(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Application)
 
-    def resolve_channel(root, info):
+    def resolve_channels(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Channel)
 
     def resolve_application_configs(root, info):
@@ -220,18 +220,18 @@ class NimbusConfigurationType(graphene.ObjectType):
             )
         return configs
 
-    def resolve_feature_config(root, info):
+    def resolve_feature_configs(root, info):
         return NimbusFeatureConfig.objects.all()
 
-    def resolve_firefox_min_version(root, info):
+    def resolve_firefox_versions(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Version)
 
     def resolve_outcomes(root, info):
         return Outcomes.all()
 
-    def resolve_targeting_config_slug(root, info):
+    def resolve_targeting_configs(root, info):
         return [
-            NimbusExperimentTargetingConfigSlugChoice(
+            NimbusExperimentTargetingConfig(
                 label=choice.label,
                 value=choice.value,
                 application_values=NimbusExperiment.TARGETING_CONFIGS[

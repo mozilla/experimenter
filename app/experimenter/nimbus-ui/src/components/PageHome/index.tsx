@@ -65,9 +65,9 @@ export const Body = () => {
   }
 
   const filterOptions: FilterOptions = {
-    application: config!.application!,
-    featureConfig: config!.featureConfig!,
-    firefoxMinVersion: config!.firefoxMinVersion!,
+    applications: config!.applications!,
+    featureConfigs: config!.featureConfigs!,
+    firefoxVersions: config!.firefoxVersions!,
     // Populating owners from fetched experiments since it might be expensive
     // to fetch and manage a list of all users
     owners: uniqueByProperty(

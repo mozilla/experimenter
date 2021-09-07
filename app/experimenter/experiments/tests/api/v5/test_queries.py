@@ -845,11 +845,11 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             """
             query{
                 nimbusConfig{
-                    application {
+                    applications {
                         label
                         value
                     }
-                    channel {
+                    channels {
                         label
                         value
                     }
@@ -861,11 +861,11 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         }
                         supportsLocaleCountry
                     }
-                    firefoxMinVersion {
+                    firefoxVersions {
                         label
                         value
                     }
-                    featureConfig {
+                    featureConfigs {
                         name
                         slug
                         id
@@ -877,7 +877,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         application
                         description
                     }
-                    targetingConfigSlug {
+                    targetingConfigs {
                         label
                         value
                         applicationValues
@@ -911,11 +911,11 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                 self.assertEqual(data[index]["label"], text_choices[name].label)
                 self.assertEqual(data[index]["value"], name)
 
-        assertChoices(config["application"], NimbusExperiment.Application)
-        assertChoices(config["channel"], NimbusExperiment.Channel)
-        assertChoices(config["firefoxMinVersion"], NimbusExperiment.Version)
+        assertChoices(config["applications"], NimbusExperiment.Application)
+        assertChoices(config["channels"], NimbusExperiment.Channel)
+        assertChoices(config["firefoxVersions"], NimbusExperiment.Version)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
-        self.assertEqual(len(config["featureConfig"]), 15)
+        self.assertEqual(len(config["featureConfigs"]), 15)
 
         for application_config_data in config["applicationConfigs"]:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[
@@ -947,14 +947,14 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             )
 
         for feature_config in feature_configs:
-            config_feature_config = next(
-                filter(lambda f: f["id"] == feature_config.id, config["featureConfig"])
-            )
-            self.assertEqual(config_feature_config["id"], feature_config.id)
-            self.assertEqual(config_feature_config["name"], feature_config.name)
-            self.assertEqual(config_feature_config["slug"], feature_config.slug)
-            self.assertEqual(
-                config_feature_config["description"], feature_config.description
+            self.assertIn(
+                {
+                    "id": feature_config.id,
+                    "name": feature_config.name,
+                    "slug": feature_config.slug,
+                    "description": feature_config.description,
+                },
+                config["featureConfigs"],
             )
 
         for choice in NimbusExperiment.TargetingConfig:
@@ -968,7 +968,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         ].application_choice_names
                     ),
                 },
-                config["targetingConfigSlug"],
+                config["targetingConfigs"],
             )
 
         self.assertEqual(config["hypothesisDefault"], NimbusExperiment.HYPOTHESIS_DEFAULT)

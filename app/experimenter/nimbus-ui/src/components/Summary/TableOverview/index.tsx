@@ -22,7 +22,7 @@ type TableOverviewProps = {
 const getRiskLabel = (answer: boolean) => (answer ? "Yes" : "No");
 
 const TableOverview = ({ experiment }: TableOverviewProps) => {
-  const { application, documentationLink: configDocumentationLinks } =
+  const { applications, documentationLink: configDocumentationLinks } =
     useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
@@ -44,7 +44,7 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
         <tr>
           <th>Application</th>
           <td data-testid="experiment-application">
-            {displayConfigLabelOrNotSet(experiment.application, application)}
+            {displayConfigLabelOrNotSet(experiment.application, applications)}
           </td>
         </tr>
         <tr>

@@ -14,7 +14,7 @@ type TableHighlightsOverviewProps = {
 const TableHighlightsOverview = ({
   experiment,
 }: TableHighlightsOverviewProps) => {
-  const { firefoxMinVersion, channel, targetingConfigSlug } = useConfig();
+  const { firefoxVersions, channels, targetingConfigs } = useConfig();
   const { primaryOutcomes } = useOutcomes(experiment);
 
   return (
@@ -28,17 +28,13 @@ const TableHighlightsOverview = ({
             <td className="p-3">
               <h3 className="h6">Targeting</h3>
               <div>
-                {getConfigLabel(
-                  experiment.firefoxMinVersion,
-                  firefoxMinVersion,
-                )}
-                +
+                {getConfigLabel(experiment.firefoxMinVersion, firefoxVersions)}+
               </div>
-              <div>{getConfigLabel(experiment.channel, channel)}</div>
+              <div>{getConfigLabel(experiment.channel, channels)}</div>
               <div>
                 {getConfigLabel(
                   experiment.targetingConfigSlug,
-                  targetingConfigSlug,
+                  targetingConfigs,
                 )}
               </div>
             </td>
