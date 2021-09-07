@@ -123,15 +123,24 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   const outcome = configOutcomes!.find((set) => {
                     return set?.slug === slug;
                   });
-                  return outcome?.metrics?.map((metric) => (
-                    <TableMetricCount
-                      key={metric?.slug}
-                      outcomeSlug={metric?.slug!}
-                      outcomeDefaultName={metric?.friendlyName!}
-                      group={GROUP.OTHER}
-                      metricType={METRIC_TYPE.PRIMARY}
-                    />
-                  ));
+                  return outcome?.metrics?.map((metric) => {
+                    if (
+                      !analysis!.overall![resultsContextValue.controlBranchName]
+                        .branch_data[GROUP.OTHER][metric?.slug!]
+                    ) {
+                      // Primary metric does not have data to display.
+                      return;
+                    }
+                    return (
+                      <TableMetricCount
+                        key={metric?.slug}
+                        outcomeSlug={metric?.slug!}
+                        outcomeDefaultName={metric?.friendlyName!}
+                        group={GROUP.OTHER}
+                        metricType={METRIC_TYPE.PRIMARY}
+                      />
+                    );
+                  });
                 })}
               {analysis.overall &&
                 experiment.secondaryOutcomes?.map((slug) => {
