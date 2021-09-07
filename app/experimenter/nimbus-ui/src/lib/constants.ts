@@ -57,6 +57,9 @@ export const EXTERNAL_URLS = {
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-signLEGAL",
   EXPERIMENTER_REVIEWERS:
     "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Reviewers",
+  EXPERIMENTER_DOCUMENTATION: "https://experimenter.info",
+  ASK_EXPERIMENTER_SLACK: "slack://channel?team=T027LFU12&id=CF94YGE03",
+  FEEDBACK: "https://bit.ly/38dgkqR",
 };
 
 export const RISK_QUESTIONS = {
