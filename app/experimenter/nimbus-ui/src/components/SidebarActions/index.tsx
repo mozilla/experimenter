@@ -90,9 +90,9 @@ export const SidebarActions = ({
             </>
           )}
         </LinkNav>
-        <div className="edit-divider position-relative small my-2">
+        <div className="edit-divider position-relative small my-3">
           <span className="position-relative bg-light pl-1 pr-2 text-muted">
-            External Links
+            Links
           </span>
         </div>
         <LinkExternal
