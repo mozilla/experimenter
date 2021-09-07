@@ -235,6 +235,20 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       ],
     },
     {
+      friendlyName: "Feature No Data",
+      slug: "feature_nodata",
+      application: NimbusExperimentApplication.DESKTOP,
+      description: "meep",
+      isDefault: false,
+      metrics: [
+        {
+          slug: "feature_nodata",
+          friendlyName: "Feature No Data",
+          description: "Test",
+        },
+      ],
+    },
+    {
       friendlyName: "Feature D",
       slug: "feature_d",
       application: NimbusExperimentApplication.FENIX,
@@ -438,7 +452,7 @@ export function mockExperiment<
           featureEnabled: true,
         },
       ],
-      primaryOutcomes: ["picture_in_picture", "feature_c"],
+      primaryOutcomes: ["picture_in_picture", "feature_c", "feature_nodata"],
       secondaryOutcomes: ["feature_b"],
       channel: "NIGHTLY",
       firefoxMinVersion: "FIREFOX_83",

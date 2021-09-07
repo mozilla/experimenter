@@ -39,7 +39,7 @@ class TestFetchJetstreamDataTask(TestCase):
         ).dict(exclude_none=True)
 
     def add_outcome_data(self, data, overall_data, weekly_data, primary_outcome):
-        primary_metrics = ["mozilla_default_browser", "default_browser_action"]
+        primary_metrics = ["default_browser_action"]
         range_data = DataPoint(lower=2, point=4, upper=8)
 
         for primary_metric in primary_metrics:
