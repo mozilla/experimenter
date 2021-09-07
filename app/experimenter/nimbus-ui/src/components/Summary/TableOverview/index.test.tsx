@@ -153,7 +153,7 @@ describe("TableOverview", () => {
   describe("renders 'Feature config' row as expected", () => {
     it("when set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        featureConfig: MOCK_CONFIG.featureConfig![1],
+        featureConfig: MOCK_CONFIG.featureConfigs![1],
       });
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-feature-config")).toHaveTextContent(

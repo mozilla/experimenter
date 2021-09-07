@@ -12,14 +12,14 @@ import { FilterValue } from "./types";
 
 const MOCK_FILTER_VALUE: FilterValue = {
   owners: ["foo", "bar"],
-  application: ["baz", "quux"],
+  applications: ["baz", "quux"],
 };
 
 describe("getFilterValueFromParams", () => {
   it("converts comma-separated list representation from filter params into a filter value", () => {
     const params = new URLSearchParams();
     params.set("owners", "foo,bar");
-    params.set("application", "baz,quux");
+    params.set("applications", "baz,quux");
     expect(getFilterValueFromParams(params)).toEqual(MOCK_FILTER_VALUE);
   });
 });
@@ -30,7 +30,7 @@ describe("updateParamsFromFilterValue", () => {
     const updateSearchParams = jest.fn((cb) => cb(params));
     updateParamsFromFilterValue(updateSearchParams, MOCK_FILTER_VALUE);
     expect(params.get("owners")).toEqual("foo,bar");
-    expect(params.get("application")).toEqual("baz,quux");
+    expect(params.get("applications")).toEqual("baz,quux");
   });
 
   it("handles a roundtrip encoding with everything filtered", () => {

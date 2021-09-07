@@ -10,7 +10,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
-import { filterTargetingConfigSlug } from ".";
+import { filterTargetingConfigs } from ".";
 import { snakeToCamelCase } from "../../../lib/caseConversions";
 import {
   EXTERNAL_URLS,
@@ -37,7 +37,7 @@ describe("FormAudience", () => {
         }}
         config={{
           ...MOCK_CONFIG,
-          channel: [
+          channels: [
             { label: "Nightly", value: "NIGHTLY" },
             { label: "Release", value: "RELEASE" },
           ],
@@ -48,7 +48,7 @@ describe("FormAudience", () => {
               supportsLocaleCountry: true,
             },
           ],
-          targetingConfigSlug: [
+          targetingConfigs: [
             {
               label: "No Targeting",
               value: "NO_TARGETING",
@@ -80,7 +80,7 @@ describe("FormAudience", () => {
       "targetingConfigSlug",
     )) as HTMLSelectElement;
     expect(targetingConfigSlug.value).toEqual(
-      MOCK_CONFIG!.targetingConfigSlug![0]!.value,
+      MOCK_CONFIG!.targetingConfigs![0]!.value,
     );
 
     // Assert that the targeting choices are filtered for application
@@ -365,7 +365,7 @@ describe("filterTargetingConfigSlug", () => {
         applicationValues: [NimbusExperimentApplication.IOS],
       },
     ];
-    const result = filterTargetingConfigSlug(targetingConfigSlug, application);
+    const result = filterTargetingConfigs(targetingConfigSlug, application);
     expect(result).toHaveLength(2);
     expect(
       result.find((item) => item.label === expectedNoTargetingLabel),
@@ -383,7 +383,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
       {...{ onSubmit }}
       config={{
         ...MOCK_CONFIG,
-        targetingConfigSlug: [
+        targetingConfigs: [
           {
             label: "No Targeting",
             value: "NO_TARGETING",
@@ -400,13 +400,13 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
             applicationValues: ["TOASTER"],
           },
         ],
-        firefoxMinVersion: [
+        firefoxVersions: [
           {
             label: NimbusExperimentFirefoxMinVersion.NO_VERSION,
             value: NimbusExperimentFirefoxMinVersion.NO_VERSION,
           },
         ],
-        channel: [
+        channels: [
           {
             label: NimbusExperimentChannel.NO_CHANNEL,
             value: NimbusExperimentChannel.NO_CHANNEL,

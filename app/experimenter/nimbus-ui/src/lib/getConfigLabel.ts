@@ -5,10 +5,10 @@
 import { getConfig_nimbusConfig } from "../types/getConfig";
 
 export type ConfigOptions =
-  | getConfig_nimbusConfig["application"]
-  | getConfig_nimbusConfig["firefoxMinVersion"]
-  | getConfig_nimbusConfig["channel"]
-  | getConfig_nimbusConfig["targetingConfigSlug"];
+  | getConfig_nimbusConfig["applications"]
+  | getConfig_nimbusConfig["firefoxVersions"]
+  | getConfig_nimbusConfig["channels"]
+  | getConfig_nimbusConfig["targetingConfigs"];
 
 export const getConfigLabel = (
   value: string | null,

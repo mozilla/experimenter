@@ -283,7 +283,7 @@ describe("FormBranches", () => {
     selectFeatureConfig();
     await clickAndWaitForSave(onSave);
     expect(onSave.mock.calls[0][0].featureConfigId).toEqual(
-      MOCK_CONFIG.featureConfig![1]!.id,
+      MOCK_CONFIG.featureConfigs![1]!.id,
     );
   });
 

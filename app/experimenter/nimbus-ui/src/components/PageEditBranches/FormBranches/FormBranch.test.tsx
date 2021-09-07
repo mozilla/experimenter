@@ -88,7 +88,7 @@ describe("FormBranch", () => {
       target: { value: featureIdx },
     });
     expect(onFeatureConfigChange).toHaveBeenCalledWith(
-      MOCK_CONFIG!.featureConfig![featureIdx],
+      MOCK_CONFIG!.featureConfigs![featureIdx],
     );
   });
 

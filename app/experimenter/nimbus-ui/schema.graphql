@@ -139,18 +139,18 @@ type NimbusChangeLogType {
 }
 
 type NimbusConfigurationType {
-  application: [NimbusLabelValueType]
-  channel: [NimbusLabelValueType]
   applicationConfigs: [NimbusExperimentApplicationConfig]
-  featureConfig: [NimbusFeatureConfigType]
-  firefoxMinVersion: [NimbusLabelValueType]
-  outcomes: [NimbusOutcomeType]
-  targetingConfigSlug: [NimbusExperimentTargetingConfigSlugChoice]
-  hypothesisDefault: String
-  maxPrimaryOutcomes: Int
-  documentationLink: [NimbusLabelValueType]
-  locales: [NimbusLocaleType]
+  applications: [NimbusLabelValueType]
+  channels: [NimbusLabelValueType]
   countries: [NimbusCountryType]
+  documentationLink: [NimbusLabelValueType]
+  featureConfigs: [NimbusFeatureConfigType]
+  firefoxVersions: [NimbusLabelValueType]
+  hypothesisDefault: String
+  locales: [NimbusLocaleType]
+  maxPrimaryOutcomes: Int
+  outcomes: [NimbusOutcomeType]
+  targetingConfigs: [NimbusExperimentTargetingConfig]
 }
 
 type NimbusCountryType {
@@ -307,7 +307,7 @@ enum NimbusExperimentStatus {
   COMPLETE
 }
 
-type NimbusExperimentTargetingConfigSlugChoice {
+type NimbusExperimentTargetingConfig {
   label: String
   value: String
   applicationValues: [String]
