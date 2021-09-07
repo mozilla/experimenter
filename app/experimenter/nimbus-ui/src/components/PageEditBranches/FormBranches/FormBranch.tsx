@@ -14,7 +14,7 @@ import { ReactComponent as DeleteIcon } from "../../../images/x.svg";
 import { NUMBER_FIELD, REQUIRED_FIELD } from "../../../lib/constants";
 import {
   getConfig_nimbusConfig,
-  getConfig_nimbusConfig_featureConfig,
+  getConfig_nimbusConfig_featureConfigs,
 } from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import { AnnotatedBranch } from "./reducer";
@@ -39,7 +39,7 @@ export const FormBranch = ({
   equalRatio,
   isReference,
   experimentFeatureConfig,
-  featureConfig,
+  featureConfigs,
   onRemove,
   onFeatureConfigChange,
   defaultValues,
@@ -53,10 +53,10 @@ export const FormBranch = ({
   equalRatio?: boolean;
   isReference?: boolean;
   experimentFeatureConfig: getExperiment_experimentBySlug["featureConfig"];
-  featureConfig: getConfig_nimbusConfig["featureConfig"];
+  featureConfigs: getConfig_nimbusConfig["featureConfigs"];
   onRemove?: () => void;
   onFeatureConfigChange: (
-    featureConfig: getConfig_nimbusConfig_featureConfig | null,
+    featureConfig: getConfig_nimbusConfig_featureConfigs | null,
   ) => void;
   defaultValues: Record<string, any>;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
@@ -85,7 +85,7 @@ export const FormBranch = ({
       return onFeatureConfigChange(null);
     }
     // featureConfig shouldn't ever be null in practice
-    const feature = featureConfig![selectedIdx];
+    const feature = featureConfigs![selectedIdx];
     return onFeatureConfigChange(feature);
   };
 
@@ -187,12 +187,12 @@ export const FormBranch = ({
                 reviewErrors.featureConfig?.length > 0 && "is-warning",
               )}
               onChange={handleFeatureConfigChange}
-              value={featureConfig!.findIndex(
+              value={featureConfigs!.findIndex(
                 (feature) => feature?.slug === experimentFeatureConfig?.slug,
               )}
             >
               <option value="">Select...</option>
-              {featureConfig?.map(
+              {featureConfigs?.map(
                 (feature, idx) =>
                   feature && (
                     <option key={`feature-${feature.slug}-${idx}`} value={idx}>

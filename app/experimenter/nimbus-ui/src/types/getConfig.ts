@@ -9,12 +9,12 @@ import { NimbusExperimentApplication } from "./globalTypes";
 // GraphQL query operation: getConfig
 // ====================================================
 
-export interface getConfig_nimbusConfig_application {
+export interface getConfig_nimbusConfig_applications {
   label: string | null;
   value: string | null;
 }
 
-export interface getConfig_nimbusConfig_channel {
+export interface getConfig_nimbusConfig_channels {
   label: string | null;
   value: string | null;
 }
@@ -30,7 +30,7 @@ export interface getConfig_nimbusConfig_applicationConfigs {
   supportsLocaleCountry: boolean | null;
 }
 
-export interface getConfig_nimbusConfig_featureConfig {
+export interface getConfig_nimbusConfig_featureConfigs {
   id: number | null;
   name: string;
   slug: string;
@@ -40,7 +40,7 @@ export interface getConfig_nimbusConfig_featureConfig {
   schema: string | null;
 }
 
-export interface getConfig_nimbusConfig_firefoxMinVersion {
+export interface getConfig_nimbusConfig_firefoxVersions {
   label: string | null;
   value: string | null;
 }
@@ -60,7 +60,7 @@ export interface getConfig_nimbusConfig_outcomes {
   metrics: (getConfig_nimbusConfig_outcomes_metrics | null)[] | null;
 }
 
-export interface getConfig_nimbusConfig_targetingConfigSlug {
+export interface getConfig_nimbusConfig_targetingConfigs {
   label: string | null;
   value: string | null;
   applicationValues: (string | null)[] | null;
@@ -82,13 +82,13 @@ export interface getConfig_nimbusConfig_countries {
 }
 
 export interface getConfig_nimbusConfig {
-  application: (getConfig_nimbusConfig_application | null)[] | null;
-  channel: (getConfig_nimbusConfig_channel | null)[] | null;
+  applications: (getConfig_nimbusConfig_applications | null)[] | null;
+  channels: (getConfig_nimbusConfig_channels | null)[] | null;
   applicationConfigs: (getConfig_nimbusConfig_applicationConfigs | null)[] | null;
-  featureConfig: (getConfig_nimbusConfig_featureConfig | null)[] | null;
-  firefoxMinVersion: (getConfig_nimbusConfig_firefoxMinVersion | null)[] | null;
+  featureConfigs: (getConfig_nimbusConfig_featureConfigs | null)[] | null;
+  firefoxVersions: (getConfig_nimbusConfig_firefoxVersions | null)[] | null;
   outcomes: (getConfig_nimbusConfig_outcomes | null)[] | null;
-  targetingConfigSlug: (getConfig_nimbusConfig_targetingConfigSlug | null)[] | null;
+  targetingConfigs: (getConfig_nimbusConfig_targetingConfigs | null)[] | null;
   hypothesisDefault: string | null;
   documentationLink: (getConfig_nimbusConfig_documentationLink | null)[] | null;
   maxPrimaryOutcomes: number | null;

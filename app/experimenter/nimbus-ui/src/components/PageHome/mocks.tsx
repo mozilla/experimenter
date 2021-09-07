@@ -15,22 +15,22 @@ export const DEFAULT_OPTIONS: FilterOptions = {
     "username",
     MOCK_EXPERIMENTS.map((e) => e.owner),
   ),
-  application: MOCK_CONFIG!.application!,
-  featureConfig: MOCK_CONFIG!.featureConfig!,
-  firefoxMinVersion: MOCK_CONFIG!.firefoxMinVersion!,
+  applications: MOCK_CONFIG!.applications!,
+  featureConfigs: MOCK_CONFIG!.featureConfigs!,
+  firefoxVersions: MOCK_CONFIG!.firefoxVersions!,
 };
 
 export const DEFAULT_VALUE: FilterValue = {
   owners: [],
-  application: [],
-  featureConfig: [],
-  firefoxMinVersion: [],
+  applications: [],
+  featureConfigs: [],
+  firefoxVersions: [],
 };
 
 export const EVERYTHING_SELECTED_VALUE: FilterValue = {
-  application: MOCK_CONFIG!.application!.map((a) => a!.value!),
-  firefoxMinVersion: MOCK_CONFIG!.firefoxMinVersion!.map((a) => a!.value!),
-  featureConfig: MOCK_CONFIG!.featureConfig!.map((a) => a!.slug!),
+  applications: MOCK_CONFIG!.applications!.map((a) => a!.value!),
+  firefoxVersions: MOCK_CONFIG!.firefoxVersions!.map((a) => a!.value!),
+  featureConfigs: MOCK_CONFIG!.featureConfigs!.map((a) => a!.slug!),
   owners: DEFAULT_OPTIONS.owners.map((i) => i.username),
 };
 

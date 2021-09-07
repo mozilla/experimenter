@@ -25,16 +25,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <Nav className="w-100">
         <FilterSelect
           fieldLabel="Feature"
-          fieldOptions={options.featureConfig!}
-          filterValueName="featureConfig"
+          fieldOptions={options.featureConfigs!}
+          filterValueName="featureConfigs"
           optionLabelName="name"
           optionValueName="slug"
           {...{ filterValue, onChange }}
         />
         <FilterSelect
           fieldLabel="Application"
-          fieldOptions={options.application!}
-          filterValueName="application"
+          fieldOptions={options.applications!}
+          filterValueName="applications"
           optionLabelName="label"
           optionValueName="value"
           {...{ filterValue, onChange }}
@@ -49,8 +49,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         />
         <FilterSelect
           fieldLabel="Version"
-          fieldOptions={options.firefoxMinVersion!}
-          filterValueName="firefoxMinVersion"
+          fieldOptions={options.firefoxVersions!}
+          filterValueName="firefoxVersions"
           optionLabelName="label"
           optionValueName="value"
           {...{ filterValue, onChange }}

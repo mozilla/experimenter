@@ -62,7 +62,7 @@ export const SubjectBranch = ({
   equalRatio = false,
   isReference = false,
   experimentFeatureConfig = MOCK_FEATURE_CONFIG,
-  featureConfig = MOCK_CONFIG.featureConfig,
+  featureConfigs = MOCK_CONFIG.featureConfigs,
   onRemove = () => {},
   onFeatureConfigChange = () => {},
 }: Partial<React.ComponentProps<typeof FormBranch>>) => {
@@ -98,7 +98,7 @@ export const SubjectBranch = ({
             branch,
             isReference,
             equalRatio,
-            featureConfig,
+            featureConfigs,
             experimentFeatureConfig,
             onRemove,
             onFeatureConfigChange,
@@ -114,7 +114,7 @@ export const SubjectBranch = ({
 export const SubjectBranches = ({
   isLoading = false,
   experiment = MOCK_EXPERIMENT,
-  featureConfig = MOCK_CONFIG.featureConfig,
+  featureConfigs = MOCK_CONFIG.featureConfigs,
   onSave = () => {},
   saveOnInitialRender = false,
 }: Partial<React.ComponentProps<typeof FormBranches>> & {
@@ -136,7 +136,7 @@ export const SubjectBranches = ({
         {...{
           isLoading,
           experiment,
-          featureConfig,
+          featureConfigs,
           onSave,
         }}
       />
@@ -152,5 +152,5 @@ export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {
   errors: {},
   ...MOCK_BRANCH,
 };
-export const MOCK_FEATURE_CONFIG = MOCK_CONFIG.featureConfig![0]!;
-export const MOCK_FEATURE_CONFIG_WITH_SCHEMA = MOCK_CONFIG.featureConfig![1]!;
+export const MOCK_FEATURE_CONFIG = MOCK_CONFIG.featureConfigs![0]!;
+export const MOCK_FEATURE_CONFIG_WITH_SCHEMA = MOCK_CONFIG.featureConfigs![1]!;
