@@ -236,7 +236,11 @@ class ResultsObjectModelBase(BaseModel):
                 primary_metric_data = getattr(
                     getattr(branch_data, METRIC_GROUP.get(primary_metric, Group.OTHER)),
                     primary_metric,
+                    None,
                 )
+                if primary_metric_data is None:
+                    continue
+
                 absolute_primary_metric_vals = getattr(
                     primary_metric_data, BranchComparison.ABSOLUTE
                 )
