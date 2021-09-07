@@ -28,7 +28,7 @@ export const LinkNav = ({
   disabled = false,
   storiesOf = "",
   testid = "nav-home",
-  className = "mx-1 my-3",
+  className = "mx-1 my-2",
   textColor,
   title,
   onClick,
