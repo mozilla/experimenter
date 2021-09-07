@@ -9,14 +9,14 @@ export type FilterOptions = {
   owners: Array<getAllExperiments_experiments_owner>;
 } & Pick<
   getConfig_nimbusConfig,
-  "application" | "featureConfig" | "firefoxMinVersion"
+  "applications" | "featureConfigs" | "firefoxVersions"
 >;
 
 export const FilterValueKeys = [
   "owners",
-  "application",
-  "featureConfig",
-  "firefoxMinVersion",
+  "applications",
+  "featureConfigs",
+  "firefoxVersions",
 ] as const;
 
 export type FilterValue = Partial<

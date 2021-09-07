@@ -63,7 +63,7 @@ const FormOverview = ({
   onSubmit,
   onCancel,
 }: FormOverviewProps) => {
-  const { application, hypothesisDefault } = useConfig();
+  const { applications, hypothesisDefault } = useConfig();
   const { fieldMessages } = useReviewCheck(experiment);
 
   const defaultValues = {
@@ -193,7 +193,7 @@ const FormOverview = ({
             <Form.Control
               as="input"
               value={
-                application!.find((a) => a?.value === experiment.application)
+                applications!.find((a) => a?.value === experiment.application)
                   ?.label as string
               }
               readOnly
@@ -204,7 +204,7 @@ const FormOverview = ({
               as="select"
             >
               <option value="">Select...</option>
-              {application!.map((app, idx) => (
+              {applications!.map((app, idx) => (
                 <option key={`application-${idx}`} value={app!.value as string}>
                   {app!.label}
                 </option>

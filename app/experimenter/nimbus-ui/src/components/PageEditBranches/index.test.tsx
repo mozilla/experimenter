@@ -55,7 +55,7 @@ describe("PageEditBranches", () => {
       EXTERNAL_URLS.BRANCHES_GOOGLE_DOC,
     );
 
-    for (const feature of MOCK_CONFIG!.featureConfig!) {
+    for (const feature of MOCK_CONFIG!.featureConfigs!) {
       const { slug, application } = feature!;
       const configEl = screen.queryByText(slug);
       if (application === experiment!.application) {
@@ -199,7 +199,7 @@ jest.mock("./FormBranches", () => ({
   __esModule: true,
   default: ({
     experiment,
-    featureConfig,
+    featureConfigs,
     onSave,
   }: React.ComponentProps<typeof FormBranches>) => {
     return (
@@ -207,9 +207,9 @@ jest.mock("./FormBranches", () => ({
         {experiment && (
           <span data-testid="experiment-slug">{experiment.slug}</span>
         )}
-        {featureConfig && (
+        {featureConfigs && (
           <ul data-testid="feature-config">
-            {featureConfig.map(
+            {featureConfigs.map(
               (feature, idx) =>
                 feature && <li key={`feature-${idx}`}>{feature.slug}</li>,
             )}

@@ -7,11 +7,11 @@ import { gql } from "@apollo/client";
 export const GET_CONFIG_QUERY = gql`
   query getConfig {
     nimbusConfig {
-      application {
+      applications {
         label
         value
       }
-      channel {
+      channels {
         label
         value
       }
@@ -23,7 +23,7 @@ export const GET_CONFIG_QUERY = gql`
         }
         supportsLocaleCountry
       }
-      featureConfig {
+      featureConfigs {
         id
         name
         slug
@@ -32,7 +32,7 @@ export const GET_CONFIG_QUERY = gql`
         ownerEmail
         schema
       }
-      firefoxMinVersion {
+      firefoxVersions {
         label
         value
       }
@@ -48,7 +48,7 @@ export const GET_CONFIG_QUERY = gql`
           description
         }
       }
-      targetingConfigSlug {
+      targetingConfigs {
         label
         value
         applicationValues

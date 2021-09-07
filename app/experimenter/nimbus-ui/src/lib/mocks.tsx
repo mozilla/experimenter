@@ -63,7 +63,7 @@ export interface MockedState {
 }
 
 export const MOCK_CONFIG: getConfig_nimbusConfig = {
-  application: [
+  applications: [
     {
       label: "Desktop",
       value: "DESKTOP",
@@ -73,7 +73,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "TOASTER",
     },
   ],
-  channel: [
+  channels: [
     {
       label: "Desktop Beta",
       value: "BETA",
@@ -143,7 +143,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       supportsLocaleCountry: false,
     },
   ],
-  featureConfig: [
+  featureConfigs: [
     {
       id: 1,
       name: "Picture-in-Picture",
@@ -173,7 +173,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       schema: '{ "sample": "schema" }',
     },
   ],
-  firefoxMinVersion: [
+  firefoxVersions: [
     {
       label: "Firefox 80",
       value: "FIREFOX_83",
@@ -263,7 +263,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       ],
     },
   ],
-  targetingConfigSlug: [
+  targetingConfigs: [
     {
       label: "Mac Only",
       value: "MAC_ONLY",
@@ -604,9 +604,9 @@ export function mockSingleDirectoryExperiment(
     owner: {
       username: "example@mozilla.com",
     },
-    application: MOCK_CONFIG.application![0]!
+    application: MOCK_CONFIG.applications![0]!
       .value as NimbusExperimentApplication,
-    firefoxMinVersion: MOCK_CONFIG.firefoxMinVersion![0]!
+    firefoxMinVersion: MOCK_CONFIG.firefoxVersions![0]!
       .value as NimbusExperimentFirefoxMinVersion,
     monitoringDashboardUrl:
       "https://grafana.telemetry.mozilla.org/d/XspgvdxZz/experiment-enrollment?orgId=1&var-experiment_id=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
@@ -614,7 +614,7 @@ export function mockSingleDirectoryExperiment(
     status: NimbusExperimentStatus.COMPLETE,
     statusNext: null,
     publishStatus: NimbusExperimentPublishStatus.IDLE,
-    featureConfig: MOCK_CONFIG.featureConfig![0],
+    featureConfig: MOCK_CONFIG.featureConfigs![0],
     isEnrollmentPaused: false,
     isEnrollmentPausePending: false,
     proposedEnrollment: 7,
@@ -639,8 +639,8 @@ export function mockDirectoryExperiments(
       name: "Ipsum dolor sit amet",
       status: NimbusExperimentStatus.DRAFT,
       owner: { username: "gamma-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfig![0],
-      application: MOCK_CONFIG.application![1]!
+      featureConfig: MOCK_CONFIG.featureConfigs![0],
+      application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplication,
       startDate: null,
       computedEndDate: null,
@@ -649,7 +649,7 @@ export function mockDirectoryExperiments(
       name: "Dolor sit amet",
       status: NimbusExperimentStatus.DRAFT,
       owner: { username: "beta-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfig![1],
+      featureConfig: MOCK_CONFIG.featureConfigs![1],
       startDate: null,
       computedEndDate: null,
     },
@@ -657,8 +657,8 @@ export function mockDirectoryExperiments(
       name: "Consectetur adipiscing elit",
       status: NimbusExperimentStatus.PREVIEW,
       owner: { username: "alpha-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfig![2],
-      application: MOCK_CONFIG.application![1]!
+      featureConfig: MOCK_CONFIG.featureConfigs![2],
+      application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplication,
       computedEndDate: null,
     },
@@ -666,13 +666,13 @@ export function mockDirectoryExperiments(
       name: "Aliquam interdum ac lacus at dictum",
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
       owner: { username: "beta-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfig![0],
+      featureConfig: MOCK_CONFIG.featureConfigs![0],
       computedEndDate: null,
     },
     {
       name: "Nam semper sit amet orci in imperdiet",
       publishStatus: NimbusExperimentPublishStatus.APPROVED,
-      application: MOCK_CONFIG.application![1]!
+      application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplication,
       owner: { username: "gamma-example@mozilla.com" },
     },
@@ -680,14 +680,14 @@ export function mockDirectoryExperiments(
       name: "Duis ornare mollis sem.",
       status: NimbusExperimentStatus.LIVE,
       owner: { username: "alpha-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfig![1],
+      featureConfig: MOCK_CONFIG.featureConfigs![1],
     },
     {
       name: "Nec suscipit mi accumsan id",
       status: NimbusExperimentStatus.LIVE,
       owner: { username: "beta-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfig![2],
-      application: MOCK_CONFIG.application![1]!
+      featureConfig: MOCK_CONFIG.featureConfigs![2],
+      application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplication,
       resultsReady: true,
     },
@@ -700,8 +700,8 @@ export function mockDirectoryExperiments(
       name: "Nam gravida",
       status: NimbusExperimentStatus.COMPLETE,
       owner: { username: "alpha-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfig![0],
-      application: MOCK_CONFIG.application![1]!
+      featureConfig: MOCK_CONFIG.featureConfigs![0],
+      application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplication,
       resultsReady: false,
     },
@@ -709,13 +709,13 @@ export function mockDirectoryExperiments(
       name: "Quam quis volutpat ornare",
       status: NimbusExperimentStatus.DRAFT,
       publishStatus: NimbusExperimentPublishStatus.REVIEW,
-      featureConfig: MOCK_CONFIG.featureConfig![1],
+      featureConfig: MOCK_CONFIG.featureConfigs![1],
       owner: { username: "beta-example@mozilla.com" },
     },
     {
       name: "Lorem arcu faucibus tortor",
       featureConfig: null,
-      application: MOCK_CONFIG.application![1]!
+      application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplication,
       owner: { username: "gamma-example@mozilla.com" },
     },
@@ -723,7 +723,7 @@ export function mockDirectoryExperiments(
       isArchived: true,
       name: "Archived Experiment",
       featureConfig: null,
-      application: MOCK_CONFIG.application![1]!
+      application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplication,
       owner: { username: "gamma-example@mozilla.com" },
     },

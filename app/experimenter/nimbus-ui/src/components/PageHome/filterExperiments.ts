@@ -41,9 +41,9 @@ type FilterSelector = {
 
 const FILTER_SELECTORS: FilterSelector[] = [
   { name: "owners", selector: (e) => e.owner.username },
-  { name: "application", selector: (e) => e.application },
-  { name: "firefoxMinVersion", selector: (e) => e.firefoxMinVersion },
-  { name: "featureConfig", selector: (e) => e.featureConfig?.slug },
+  { name: "applications", selector: (e) => e.application },
+  { name: "firefoxVersions", selector: (e) => e.firefoxMinVersion },
+  { name: "featureConfigs", selector: (e) => e.featureConfig?.slug },
 ];
 
 export function filterExperiments(

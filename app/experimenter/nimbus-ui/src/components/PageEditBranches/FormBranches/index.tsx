@@ -12,7 +12,7 @@ import { useExitWarning, useForm, useReviewCheck } from "../../../hooks";
 import { IsDirtyUnsaved } from "../../../hooks/useCommonForm/useCommonFormMethods";
 import {
   getConfig_nimbusConfig,
-  getConfig_nimbusConfig_featureConfig,
+  getConfig_nimbusConfig_featureConfigs,
 } from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import FormBranch from "./FormBranch";
@@ -22,7 +22,7 @@ import { FormData } from "./reducer/update";
 type FormBranchesProps = {
   isLoading: boolean;
   experiment: getExperiment_experimentBySlug;
-  featureConfig: getConfig_nimbusConfig["featureConfig"];
+  featureConfigs: getConfig_nimbusConfig["featureConfigs"];
   onSave: (
     state: FormBranchesSaveState,
     setSubmitErrors: (submitErrors: any) => void,
@@ -34,7 +34,7 @@ type FormBranchesProps = {
 export const FormBranches = ({
   isLoading,
   experiment,
-  featureConfig,
+  featureConfigs,
   onSave,
 }: FormBranchesProps) => {
   const { fieldMessages } = useReviewCheck(experiment);
@@ -127,7 +127,7 @@ export const FormBranches = ({
   };
 
   const handleFeatureConfigChange = (
-    value: getConfig_nimbusConfig_featureConfig | null,
+    value: getConfig_nimbusConfig_featureConfigs | null,
   ) => {
     commitFormData();
     dispatch({ type: "setFeatureConfig", value });
@@ -152,7 +152,7 @@ export const FormBranches = ({
 
   const commonBranchProps = {
     equalRatio,
-    featureConfig,
+    featureConfigs,
     experimentFeatureConfig,
     onFeatureConfigChange: handleFeatureConfigChange,
     setSubmitErrors,
