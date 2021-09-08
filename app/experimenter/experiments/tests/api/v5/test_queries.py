@@ -840,6 +840,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
     def test_nimbus_config(self):
         user_email = "user@example.com"
         feature_configs = NimbusFeatureConfigFactory.create_batch(10)
+        experiment = NimbusExperimentFactory.create()
 
         response = self.query(
             """
@@ -876,6 +877,9 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         slug
                         application
                         description
+                    }
+                    owners {
+                        username
                     }
                     targetingConfigs {
                         label
@@ -915,7 +919,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
         assertChoices(config["channels"], NimbusExperiment.Channel)
         assertChoices(config["firefoxVersions"], NimbusExperiment.Version)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
-        self.assertEqual(len(config["featureConfigs"]), 15)
+        self.assertEqual(len(config["featureConfigs"]), 16)
 
         for application_config_data in config["applicationConfigs"]:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[
@@ -934,6 +938,8 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                 application_config_data["supportsLocaleCountry"],
                 application_config.supports_locale_country,
             )
+
+        self.assertEqual(config["owners"], [{"username": experiment.owner.username}])
 
         for outcome in Outcomes.all():
             self.assertIn(

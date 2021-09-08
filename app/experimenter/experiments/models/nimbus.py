@@ -10,7 +10,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import F, Q
+from django.db.models import F, Max, Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
@@ -26,6 +26,21 @@ class FilterMixin:
 
 
 class NimbusExperimentManager(models.Manager):
+    def latest_changed(self):
+        return (
+            super()
+            .get_queryset()
+            .annotate(latest_change=Max("changes__changed_on"))
+            .order_by("-latest_change")
+        )
+
+    def latest_with_related(self):
+        return self.latest_changed().prefetch_related(
+            "owner",
+            "changes",
+            "feature_config",
+        )
+
     def launch_queue(self, applications):
         return self.filter(
             NimbusExperiment.Filters.IS_LAUNCH_QUEUED,
@@ -63,13 +78,6 @@ class NimbusExperimentManager(models.Manager):
     def waiting_to_end_queue(self, applications):
         return self.filter(
             NimbusExperiment.Filters.IS_ENDING, application__in=applications
-        )
-
-    def with_related(self):
-        return self.get_queryset().prefetch_related(
-            "owner",
-            "changes",
-            "feature_config",
         )
 
 

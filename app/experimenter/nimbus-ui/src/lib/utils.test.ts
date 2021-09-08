@@ -2,12 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  optionalBoolString,
-  optionalStringBool,
-  pluralize,
-  uniqueByProperty,
-} from "./utils";
+import { optionalBoolString, optionalStringBool, pluralize } from "./utils";
 
 describe("pluralize", () => {
   it("correctly return 0-count item", () => {
@@ -54,29 +49,5 @@ describe("optionalBoolString", () => {
   it("returns null if null or undefined is provided", () => {
     expect(optionalBoolString(null)).toBeNull();
     expect(optionalBoolString(undefined)).toBeNull();
-  });
-});
-
-describe("uniqueByProperty", () => {
-  it("produces a list whose elements are unique for a given property", () => {
-    const list = [
-      { a: "foo", b: "bar", c: 1 },
-      { a: "foo", b: "bar", c: 2 },
-      { a: "foo", b: "bar", c: 3 },
-      { a: "baz", b: "quux", c: 4 },
-      { a: "xyxxy", b: "fnord", c: 5 },
-      { a: "baz", b: "quux", c: 6 },
-      { a: "xyxxy", b: "fnord", c: 7 },
-      { a: "baz", b: "quux", c: 8 },
-      { a: "xyxxy", b: "fnord", c: 9 },
-      { a: "frotz", b: "barf", c: 10 },
-    ];
-    const expected = [
-      { a: "foo", b: "bar", c: 1 },
-      { a: "baz", b: "quux", c: 4 },
-      { a: "xyxxy", b: "fnord", c: 5 },
-      { a: "frotz", b: "barf", c: 10 },
-    ];
-    expect(uniqueByProperty("a", list)).toEqual(expected);
   });
 });
