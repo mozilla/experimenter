@@ -310,7 +310,7 @@ class NimbusExperimentSerializer(
     serializers.ModelSerializer,
 ):
     name = serializers.CharField(
-        min_length=0, max_length=255, required=False, allow_blank=True
+        min_length=1, max_length=80, required=False, allow_blank=True
     )
     slug = serializers.ReadOnlyField()
     application = serializers.ChoiceField(
@@ -708,7 +708,7 @@ class NimbusExperimentCloneSerializer(
     parent_slug = serializers.SlugRelatedField(
         slug_field="slug", queryset=NimbusExperiment.objects.all()
     )
-    name = serializers.CharField(min_length=0, max_length=255, required=True)
+    name = serializers.CharField(min_length=1, max_length=80, required=True)
 
     class Meta:
         model = NimbusExperiment
