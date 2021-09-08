@@ -95,7 +95,7 @@ class TestCreateExperimentMutation(GraphQLTestCase):
             result["message"],
             {
                 "changelog_message": ["This field is required."],
-                "name": ["Ensure this field has no more than 255 characters."],
+                "name": ["Ensure this field has no more than 80 characters."],
             },
         )
 
@@ -182,7 +182,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase):
         self.assertEqual(
             result["message"],
             {
-                "name": ["Ensure this field has no more than 255 characters."],
+                "name": ["Ensure this field has no more than 80 characters."],
             },
         )
 

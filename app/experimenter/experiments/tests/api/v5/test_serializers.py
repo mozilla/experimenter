@@ -118,6 +118,19 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
             "Name needs to contain alphanumeric characters", serializer.errors["name"]
         )
 
+    def test_serializer_rejects_long_name(self):
+        data = {
+            "name": "a" * 81,
+            "hypothesis": "Test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("name", serializer.errors)
+
     def test_serializer_returns_error_for_non_unique_slug(self):
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1985,6 +1998,20 @@ class TestNimbusExperimentCloneSerializer(TestCase):
             data={
                 "parent_slug": parent.slug,
                 "name": parent.name,
+            },
+            context={"user": parent.owner},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("name", serializer.errors)
+
+    def test_invalid_with_long_name(self):
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        serializer = NimbusExperimentCloneSerializer(
+            data={
+                "parent_slug": parent.slug,
+                "name": "a" * 81,
             },
             context={"user": parent.owner},
         )
