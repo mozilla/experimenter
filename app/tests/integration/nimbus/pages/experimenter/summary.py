@@ -25,6 +25,9 @@ class SummaryPage(ExperimenterBase):
         By.CSS_SELECTOR,
         'span[data-testid="header-experiment-status-archived"]',
     )
+    _clone_action_locator = (By.CSS_SELECTOR, 'button[data-testid="action-clone"]')
+    _clone_save_locator = (By.CSS_SELECTOR, ".modal .btn-primary")
+    _clone_parent_locator = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-parent"]')
 
     def wait_for_archive_label_visible(self):
         self.wait.until(
@@ -57,6 +60,12 @@ class SummaryPage(ExperimenterBase):
     def wait_for_timeout_alert(self):
         self.wait_with_refresh(
             self._timeout_alert_locator, "Summary Page: Unable to find timeout alert"
+        )
+
+    def wait_for_clone_parent_link_visible(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._clone_parent_locator),
+            message="Summary Page: could not find clone parent",
         )
 
     @property
@@ -126,3 +135,23 @@ class SummaryPage(ExperimenterBase):
     @property
     def archive_label(self):
         return self.find_element(*self._archive_label_locator)
+
+    @property
+    def clone_action(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._clone_action_locator),
+            message="Summary Page: could not find clone action",
+        )
+        return self.find_element(*self._clone_action_locator)
+
+    @property
+    def clone_save(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._clone_save_locator),
+            message="Summary Page: could not find clone save",
+        )
+        return self.find_element(*self._clone_save_locator)
+
+    def clone(self):
+        self.clone_action.click()
+        self.clone_save.click()

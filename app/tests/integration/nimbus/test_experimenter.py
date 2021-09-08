@@ -31,3 +31,13 @@ def test_archive_experiment(
     HomePage(selenium, drafts_tab_url).open().find_in_table(
         "Draft", default_data.public_name
     )
+
+
+@pytest.mark.run_once
+def test_clone_experiment(
+    selenium,
+    create_experiment,
+):
+    summary = create_experiment(selenium)
+    summary.clone()
+    summary.wait_for_clone_parent_link_visible()
