@@ -510,7 +510,6 @@ class NimbusConstants(object):
             TARGETING_CORE_USER_URIS.slug,
             TARGETING_CORE_USER_URIS.name,
         )
-
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN = (
             TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug,
             TARGETING_NO_ENTERPRISE_OR_PAST_VPN.name,
