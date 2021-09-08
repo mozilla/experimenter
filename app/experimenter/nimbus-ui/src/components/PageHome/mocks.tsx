@@ -4,17 +4,13 @@
 
 import React, { useState } from "react";
 import { mockDirectoryExperiments, MOCK_CONFIG } from "../../lib/mocks";
-import { uniqueByProperty } from "../../lib/utils";
 import { FilterBar } from "./FilterBar";
 import { FilterOptions, FilterValue } from "./types";
 
 export const MOCK_EXPERIMENTS = mockDirectoryExperiments();
 
 export const DEFAULT_OPTIONS: FilterOptions = {
-  owners: uniqueByProperty(
-    "username",
-    MOCK_EXPERIMENTS.map((e) => e.owner),
-  ),
+  owners: MOCK_CONFIG!.owners,
   applications: MOCK_CONFIG!.applications!,
   featureConfigs: MOCK_CONFIG!.featureConfigs!,
   firefoxVersions: MOCK_CONFIG!.firefoxVersions!,
@@ -28,10 +24,10 @@ export const DEFAULT_VALUE: FilterValue = {
 };
 
 export const EVERYTHING_SELECTED_VALUE: FilterValue = {
+  owners: MOCK_CONFIG!.owners!.map((a) => a!.username!),
   applications: MOCK_CONFIG!.applications!.map((a) => a!.value!),
   firefoxVersions: MOCK_CONFIG!.firefoxVersions!.map((a) => a!.value!),
   featureConfigs: MOCK_CONFIG!.featureConfigs!.map((a) => a!.slug!),
-  owners: DEFAULT_OPTIONS.owners.map((i) => i.username),
 };
 
 export const Subject = ({

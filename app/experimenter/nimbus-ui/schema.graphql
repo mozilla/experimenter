@@ -150,6 +150,7 @@ type NimbusConfigurationType {
   locales: [NimbusLocaleType]
   maxPrimaryOutcomes: Int
   outcomes: [NimbusOutcomeType]
+  owners: [NimbusUser]
   targetingConfigs: [NimbusExperimentTargetingConfig]
 }
 

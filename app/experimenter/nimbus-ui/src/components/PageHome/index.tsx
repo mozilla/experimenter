@@ -12,7 +12,6 @@ import {
   useRefetchOnError,
   useSearchParamsState,
 } from "../../hooks";
-import { uniqueByProperty } from "../../lib/utils";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 import AppLayout from "../AppLayout";
 import Head from "../Head";
@@ -68,12 +67,7 @@ export const Body = () => {
     applications: config!.applications!,
     featureConfigs: config!.featureConfigs!,
     firefoxVersions: config!.firefoxVersions!,
-    // Populating owners from fetched experiments since it might be expensive
-    // to fetch and manage a list of all users
-    owners: uniqueByProperty(
-      "username",
-      data.experiments.map((e) => e.owner),
-    ),
+    owners: config!.owners!,
   };
 
   const { live, complete, preview, review, draft, archived } = sortByStatus(

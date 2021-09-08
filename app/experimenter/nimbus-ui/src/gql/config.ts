@@ -48,6 +48,9 @@ export const GET_CONFIG_QUERY = gql`
           description
         }
       }
+      owners {
+        username
+      }
       targetingConfigs {
         label
         value

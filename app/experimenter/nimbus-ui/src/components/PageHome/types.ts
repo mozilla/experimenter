@@ -2,14 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getAllExperiments_experiments_owner } from "../../types/getAllExperiments";
 import { getConfig_nimbusConfig } from "../../types/getConfig";
 
-export type FilterOptions = {
-  owners: Array<getAllExperiments_experiments_owner>;
-} & Pick<
+export type FilterOptions = Pick<
   getConfig_nimbusConfig,
-  "applications" | "featureConfigs" | "firefoxVersions"
+  "applications" | "featureConfigs" | "firefoxVersions" | "owners"
 >;
 
 export const FilterValueKeys = [
