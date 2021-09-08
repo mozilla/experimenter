@@ -263,6 +263,11 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       ],
     },
   ],
+  owners: [
+    { username: "alpha-example@mozilla.com" },
+    { username: "beta-example@mozilla.com" },
+    { username: "gamma-example@mozilla.com" },
+  ],
   targetingConfigs: [
     {
       label: "Mac Only",

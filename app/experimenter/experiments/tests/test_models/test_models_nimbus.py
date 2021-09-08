@@ -28,6 +28,22 @@ from experimenter.openidc.tests.factories import UserFactory
 
 
 class TestNimbusExperimentManager(TestCase):
+    def test_sorted_by_latest_change(self):
+        older_experiment = NimbusExperimentFactory.create()
+        newer_experiment = NimbusExperimentFactory.create()
+
+        NimbusChangeLogFactory.create(
+            experiment=older_experiment, changed_on=datetime.datetime(2021, 1, 1)
+        )
+        NimbusChangeLogFactory.create(
+            experiment=newer_experiment, changed_on=datetime.datetime(2021, 1, 2)
+        )
+
+        self.assertEqual(
+            list(NimbusExperiment.objects.latest_changed()),
+            [newer_experiment, older_experiment],
+        )
+
     def test_launch_queue_returns_queued_experiments_with_correct_application(self):
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
