@@ -60,6 +60,10 @@ export interface getConfig_nimbusConfig_outcomes {
   metrics: (getConfig_nimbusConfig_outcomes_metrics | null)[] | null;
 }
 
+export interface getConfig_nimbusConfig_owners {
+  username: string;
+}
+
 export interface getConfig_nimbusConfig_targetingConfigs {
   label: string | null;
   value: string | null;
@@ -88,6 +92,7 @@ export interface getConfig_nimbusConfig {
   featureConfigs: (getConfig_nimbusConfig_featureConfigs | null)[] | null;
   firefoxVersions: (getConfig_nimbusConfig_firefoxVersions | null)[] | null;
   outcomes: (getConfig_nimbusConfig_outcomes | null)[] | null;
+  owners: (getConfig_nimbusConfig_owners | null)[] | null;
   targetingConfigs: (getConfig_nimbusConfig_targetingConfigs | null)[] | null;
   hypothesisDefault: string | null;
   documentationLink: (getConfig_nimbusConfig_documentationLink | null)[] | null;
