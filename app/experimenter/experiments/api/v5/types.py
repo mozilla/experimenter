@@ -234,6 +234,7 @@ class NimbusConfigurationType(graphene.ObjectType):
         return (
             get_user_model()
             .objects.filter(owned_nimbusexperiments__isnull=False)
+            .distinct()
             .order_by("email")
         )
 
