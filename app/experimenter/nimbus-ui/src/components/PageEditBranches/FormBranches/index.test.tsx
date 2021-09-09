@@ -38,37 +38,6 @@ describe("FormBranches", () => {
     expect(onNext).not.toHaveBeenCalled();
   });
 
-  it("sets expected default treatment name", async () => {
-    render(
-      <SubjectBranches
-        {...{
-          experiment: {
-            ...MOCK_EXPERIMENT,
-            referenceBranch: {
-              ...MOCK_EXPERIMENT.referenceBranch!,
-              name: "",
-              slug: "",
-            },
-            treatmentBranches: [
-              {
-                name: "",
-                slug: "",
-                description: "",
-                ratio: 0,
-                featureValue: null,
-                featureEnabled: false,
-              },
-            ],
-          },
-        }}
-      />,
-    );
-    const treatmentBranchName = (await screen.findByTestId(
-      "treatmentBranches[0].name",
-    )) as HTMLInputElement;
-    expect(treatmentBranchName.value).toEqual("Treatment A");
-  });
-
   it("calls onSave with extracted update when save button clicked", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
