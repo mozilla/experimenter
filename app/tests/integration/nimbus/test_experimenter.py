@@ -41,3 +41,13 @@ def test_clone_experiment(
     summary = create_experiment(selenium)
     summary.clone()
     summary.wait_for_clone_parent_link_visible()
+
+
+@pytest.mark.run_once
+def test_promote_to_rollout(
+    selenium,
+    create_experiment,
+):
+    summary = create_experiment(selenium)
+    summary.promote_first_branch_to_rollout()
+    summary.wait_for_clone_parent_link_visible()

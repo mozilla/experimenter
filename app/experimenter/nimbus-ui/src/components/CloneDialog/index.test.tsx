@@ -17,12 +17,13 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
-import CloneDialog, { useCloneDialog } from ".";
-import { CLONE_EXPERIMENT_MUTATION } from "../../../gql/experiments";
-import { BASE_PATH, SUBMIT_ERROR } from "../../../lib/constants";
-import { mockExperimentQuery } from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
-import { MemoryHistorySource } from "../../../lib/types";
+import CloneDialog, { RolloutBranch, useCloneDialog } from ".";
+import { CLONE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import { BASE_PATH, SUBMIT_ERROR } from "../../lib/constants";
+import { mockExperimentQuery } from "../../lib/mocks";
+import { RouterSlugProvider } from "../../lib/test-utils";
+import { MemoryHistorySource } from "../../lib/types";
+import { ExperimentCloneInput } from "../../types/globalTypes";
 
 describe("CloneDialog", () => {
   it("renders, cancels, and saves as expected", async () => {
@@ -123,7 +124,7 @@ describe("CloneDialog with useCloneDialog props", () => {
         input: {
           parentSlug: mockExperiment.slug,
           name: expectedName,
-        },
+        } as ExperimentCloneInput,
       },
     },
     result: {
@@ -140,8 +141,13 @@ describe("CloneDialog with useCloneDialog props", () => {
 
   const baseCloneTest = async (
     mocks?: MockedResponse<Record<string, any>>[],
+    rolloutBranch?: RolloutBranch,
   ) => {
-    render(<SubjectWithHook {...{ mocks, mockHistorySource, mockHistory }} />);
+    render(
+      <SubjectWithHook
+        {...{ mocks, mockHistorySource, mockHistory, rolloutBranch }}
+      />,
+    );
 
     const showButton = screen.getByTestId("show-dialog");
     act(() => void fireEvent.click(showButton));
@@ -159,6 +165,11 @@ describe("CloneDialog with useCloneDialog props", () => {
       expect(slugField.value).toEqual(expectedSlug);
     });
 
+    const expectedTitle = rolloutBranch
+      ? `Promote ${rolloutBranch.name} to Rollout`
+      : `Copy Experiment ${mockExperiment.name}`;
+    expect(screen.queryByText(expectedTitle)).toBeInTheDocument();
+
     fireEvent.click(saveButton);
     await waitFor(
       () =>
@@ -170,6 +181,23 @@ describe("CloneDialog with useCloneDialog props", () => {
 
   it("submits the clone request as expected", async () => {
     await baseCloneTest([mockCloneMutation()]);
+    await waitFor(
+      () =>
+        void expect(
+          screen.queryByTestId("CloneDialog"),
+        ).not.toBeInTheDocument(),
+    );
+    expect(navigateSpy).toHaveBeenCalledWith(`${BASE_PATH}/${expectedSlug}`);
+  });
+
+  it("submits the clone request with rollout branch slug as expected", async () => {
+    const rolloutBranch = {
+      slug: "testing-rollout-branch-slug",
+      name: "Testing Rollout Branch Slug",
+    };
+    const mutation = mockCloneMutation();
+    mutation.request.variables.input.rolloutBranchSlug = rolloutBranch.slug;
+    await baseCloneTest([mutation], rolloutBranch);
     await waitFor(
       () =>
         void expect(
@@ -223,6 +251,7 @@ const { experiment: mockExperiment } = mockExperimentQuery("my-special-slug");
 const Subject = ({
   show = true,
   experiment = mockExperiment,
+  rolloutBranch,
   isLoading = false,
   isServerValid = true,
   submitErrors = {},
@@ -234,6 +263,7 @@ const Subject = ({
     {...{
       show,
       experiment,
+      rolloutBranch,
       isLoading,
       isServerValid,
       submitErrors,
@@ -261,8 +291,9 @@ const SubjectWithHook = ({
 
 const SubjectWithHookInner = ({
   experiment = mockExperiment,
-}: Pick<SubjectProps, "experiment">) => {
-  const cloneDialogProps = useCloneDialog(experiment);
+  rolloutBranch,
+}: Pick<SubjectProps, "experiment" | "rolloutBranch">) => {
+  const cloneDialogProps = useCloneDialog(experiment, rolloutBranch);
   const { onShow, isLoading } = cloneDialogProps;
   return (
     <div>
