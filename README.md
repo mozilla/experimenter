@@ -140,7 +140,7 @@ Pro-tip: we have had at least one large code refactor. You can ignore specific l
 git config blame.ignoreRevsFile .git-blame-ignore-revs
 ```
 
-### Google Credentials
+### Google Credentials for Jetstream
 
 On certain pages an API endpoint is called to receive experiment analysis data from Jetstream to display visualization tables. To see experiment visualization data, you must provide GCP credentials.
 
@@ -155,6 +155,19 @@ On certain pages an API endpoint is called to receive experiment analysis data f
    ```
    GOOGLE_APPLICATION_CREDENTIALS=/app/google-credentials.json
    ```
+
+### Google Credentials for Media Storage
+
+We support user uploads of media (e.g. screenshots) for some features.
+
+In local development, the default is to store these files `/app/media` using Django's `FileSystemStorage` class and the `MEDIA_ROOT` and `MEDIA_URL` settings.
+
+In production, GCP credentials and a bucket are required. These are configured with the `UPLOADS_GS_CREDENTIALS` and `UPLOADS_GS_BUCKET_NAME` settings respectively. For example:
+
+```
+UPLOADS_GS_CREDENTIALS=/app/nimbus-experimenter-media-dev-54693c3a8c69.json
+UPLOADS_GS_BUCKET_NAME=nimbus-experimenter-media-dev-uploads
+```
 
 ## Usage
 

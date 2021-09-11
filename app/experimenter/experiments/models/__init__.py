@@ -17,6 +17,7 @@ from experimenter.experiments.models.legacy import (  # noqa: F401
 )
 from experimenter.experiments.models.nimbus import (  # noqa: F401
     NimbusBranch,
+    NimbusBranchScreenshot,
     NimbusBucketRange,
     NimbusChangeLog,
     NimbusDocumentationLink,
