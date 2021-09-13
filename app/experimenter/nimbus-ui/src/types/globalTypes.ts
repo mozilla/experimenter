@@ -163,8 +163,9 @@ export interface DocumentationLinkType {
 }
 
 export interface ExperimentCloneInput {
-  parentSlug?: string | null;
-  name?: string | null;
+  parentSlug: string;
+  name: string;
+  rolloutBranchSlug?: string | null;
 }
 
 export interface ExperimentInput {

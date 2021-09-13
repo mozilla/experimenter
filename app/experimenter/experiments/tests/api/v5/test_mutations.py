@@ -840,3 +840,53 @@ class TestCloneExperimentMutation(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         self.assertIn("name", content["data"]["cloneExperiment"]["message"])
+
+    def test_clone_experiment_with_rollout_branch_slug_success(self):
+        user_email = "user@example.com"
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        rollout_branch = parent.branches.first()
+        response = self.query(
+            CLONE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "parentSlug": parent.slug,
+                    "name": "New Experiment",
+                    "rolloutBranchSlug": rollout_branch.slug,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["cloneExperiment"]
+        self.assertIsNotNone(result, f"{response.content} {rollout_branch.slug}")
+        self.assertEqual(result["message"], "success", result)
+
+        child = NimbusExperiment.objects.get(slug="new-experiment")
+        self.assertEqual(child.parent, parent)
+        self.assertEqual(child.branches.count(), 1)
+        self.assertEqual(child.reference_branch.slug, rollout_branch.slug)
+
+    def test_clone_experiment_with_rollout_branch_slug_error(self):
+        user_email = "user@example.com"
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        response = self.query(
+            CLONE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "parentSlug": parent.slug,
+                    "name": "New Experiment",
+                    "rolloutBranchSlug": "BAD SLUG NOPE",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        self.assertIn(
+            "rollout_branch_slug", content["data"]["cloneExperiment"]["message"]
+        )

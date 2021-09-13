@@ -701,14 +701,35 @@ class NimbusExperimentCloneSerializer(
         slug_field="slug", queryset=NimbusExperiment.objects.all()
     )
     name = serializers.CharField(min_length=1, max_length=80, required=True)
+    rollout_branch_slug = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         model = NimbusExperiment
         fields = (
             "parent_slug",
             "name",
+            "rollout_branch_slug",
         )
+
+    def validate(self, data):
+        data = super().validate(data)
+        rollout_branch_slug = data.get("rollout_branch_slug", None)
+        if rollout_branch_slug:
+            parent = data.get("parent_slug")
+            if not parent.branches.filter(slug=rollout_branch_slug).exists():
+                raise serializers.ValidationError(
+                    {
+                        "rollout_branch_slug": (
+                            f"Rollout branch {rollout_branch_slug} does not exist."
+                        )
+                    }
+                )
+        return data
 
     def save(self):
         parent = self.validated_data["parent_slug"]
-        return parent.clone(self.validated_data["name"], self.context["user"])
+        return parent.clone(
+            self.validated_data["name"],
+            self.context["user"],
+            self.validated_data.get("rollout_branch_slug", None),
+        )

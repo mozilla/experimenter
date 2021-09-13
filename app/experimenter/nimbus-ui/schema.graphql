@@ -21,8 +21,9 @@ input DocumentationLinkType {
 }
 
 input ExperimentCloneInput {
-  parentSlug: String
-  name: String
+  parentSlug: String!
+  name: String!
+  rolloutBranchSlug: String
 }
 
 input ExperimentInput {

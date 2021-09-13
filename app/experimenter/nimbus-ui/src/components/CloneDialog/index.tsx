@@ -10,16 +10,28 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import { FormProvider } from "react-hook-form";
-import { CLONE_EXPERIMENT_MUTATION } from "../../../gql/experiments";
-import { useCommonForm } from "../../../hooks";
-import { BASE_PATH, SUBMIT_ERROR } from "../../../lib/constants";
-import { cloneExperiment_cloneExperiment } from "../../../types/cloneExperiment";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { ExperimentCloneInput } from "../../../types/globalTypes";
-import { SlugTextControl } from "../../SlugTextControl";
+import { CLONE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import { useCommonForm } from "../../hooks";
+import { BASE_PATH, SUBMIT_ERROR } from "../../lib/constants";
+import { cloneExperiment_cloneExperiment } from "../../types/cloneExperiment";
+import {
+  getExperiment_experimentBySlug,
+  getExperiment_experimentBySlug_referenceBranch,
+  getExperiment_experimentBySlug_treatmentBranches,
+} from "../../types/getExperiment";
+import { ExperimentCloneInput } from "../../types/globalTypes";
+import { SlugTextControl } from "../SlugTextControl";
+
+// Relaxed type, since we only use these two properties
+export type RolloutBranch = Pick<
+  | getExperiment_experimentBySlug_referenceBranch
+  | getExperiment_experimentBySlug_treatmentBranches,
+  "name" | "slug"
+>;
 
 type CloneDialogProps = {
   experiment: getExperiment_experimentBySlug;
+  rolloutBranch?: RolloutBranch;
   show: boolean;
   isLoading: boolean;
   isServerValid: boolean;
@@ -36,6 +48,7 @@ export type CloneParams = {
 export const CloneDialog = ({
   show,
   experiment,
+  rolloutBranch,
   isLoading,
   isServerValid,
   submitErrors,
@@ -44,7 +57,9 @@ export const CloneDialog = ({
   onSave,
 }: CloneDialogProps) => {
   const defaultValues: CloneParams = {
-    name: `${experiment!.name} Copy`,
+    name: rolloutBranch
+      ? `${rolloutBranch.name} Rollout`
+      : `${experiment!.name} Copy`,
   };
 
   const { FormErrors, formControlAttrs, handleSubmit, formMethods, getValues } =
@@ -69,9 +84,18 @@ export const CloneDialog = ({
   };
 
   return (
-    <Modal show={show} onHide={onCancel} data-testid="CloneDialog">
+    <Modal
+      show={show}
+      onHide={onCancel}
+      data-testid="CloneDialog"
+      data-rolloutbranchslug={rolloutBranch?.slug || ""}
+    >
       <Modal.Header closeButton>
-        <Modal.Title>Copy Experiment {experiment.name}</Modal.Title>
+        <Modal.Title>
+          {rolloutBranch
+            ? `Promote ${rolloutBranch.name} to Rollout`
+            : `Copy Experiment ${experiment.name}`}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <FormProvider {...formMethods}>
@@ -121,7 +145,10 @@ export const CloneDialog = ({
   );
 };
 
-export const useCloneDialog = (experiment: getExperiment_experimentBySlug) => {
+export const useCloneDialog = (
+  experiment: getExperiment_experimentBySlug,
+  rolloutBranch?: RolloutBranch,
+) => {
   const navigate = useNavigate();
 
   const [show, setShowDialog] = useState(false);
@@ -147,6 +174,7 @@ export const useCloneDialog = (experiment: getExperiment_experimentBySlug) => {
           input: {
             parentSlug: experiment.slug,
             name: data.name,
+            rolloutBranchSlug: rolloutBranch?.slug,
           },
         },
       });
@@ -173,6 +201,7 @@ export const useCloneDialog = (experiment: getExperiment_experimentBySlug) => {
 
   return {
     experiment,
+    rolloutBranch,
     disabled: isLoading,
     onShow,
     show,

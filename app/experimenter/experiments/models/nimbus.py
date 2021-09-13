@@ -463,7 +463,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         ) >= datetime.timedelta(seconds=settings.KINTO_REVIEW_TIMEOUT)
         return self.publish_status == self.PublishStatus.WAITING and review_expired
 
-    def clone(self, name, user):
+    def clone(self, name, user, rollout_branch_slug=None):
         # Inline import to prevent circular import
         from experimenter.experiments.changelog_utils.nimbus import (
             generate_nimbus_changelog,
@@ -486,24 +486,45 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         cloned.results_data = None
         cloned.save()
 
-        for branch in self.branches.all():
+        if rollout_branch_slug:
+            branch = self.branches.get(slug=rollout_branch_slug)
             branch.id = None
             branch.experiment = cloned
             branch.save()
+
+            cloned.proposed_duration = NimbusExperiment.DEFAULT_PROPOSED_DURATION
+            cloned.proposed_enrollment = NimbusExperiment.DEFAULT_PROPOSED_ENROLLMENT
+            cloned.population_percent = 0
+            cloned.total_enrolled_clients = 0
+            cloned.reference_branch = branch
+            cloned.save()
+        else:
+            for branch in self.branches.all():
+                branch.id = None
+                branch.experiment = cloned
+                branch.save()
+            if self.reference_branch:
+                cloned.reference_branch = cloned.branches.get(
+                    slug=self.reference_branch.slug
+                )
+                cloned.save()
 
         for link in self.documentation_links.all():
             link.id = None
             link.experiment = cloned
             link.save()
 
-        if self.reference_branch:
-            cloned.reference_branch = cloned.branches.get(slug=self.reference_branch.slug)
-            cloned.save()
-
         cloned.countries.add(*self.countries.all())
         cloned.locales.add(*self.locales.all())
 
-        generate_nimbus_changelog(cloned, user, f"Cloned from {self}")
+        if rollout_branch_slug:
+            generate_nimbus_changelog(
+                cloned,
+                user,
+                f"Cloned from {self} with rollout branch {rollout_branch_slug}",
+            )
+        else:
+            generate_nimbus_changelog(cloned, user, f"Cloned from {self}")
 
         return cloned
 

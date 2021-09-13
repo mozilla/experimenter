@@ -6,10 +6,10 @@ import { action } from "@storybook/addon-actions";
 import { withLinks } from "@storybook/addon-links";
 import React from "react";
 import CloneDialog from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import { mockExperimentQuery } from "../../lib/mocks";
 
 export default {
-  title: "components/SidebarActions/CloneDialog",
+  title: "components/CloneDialog",
   component: CloneDialog,
   decorators: [withLinks],
 };
@@ -25,6 +25,32 @@ export const Shown = () => {
       <CloneDialog
         {...{
           experiment,
+          show: true,
+          onCancel: onClose,
+          onSave: onClone,
+          isLoading: false,
+          isServerValid: true,
+          submitErrors: {},
+          setSubmitErrors: () => {},
+        }}
+      />
+    </div>
+  );
+};
+
+export const ShownWithRolloutBranchSlug = () => {
+  const onClose = action("close");
+  const onClone = action("clone");
+  return (
+    <div>
+      <p>Background content.</p>
+      <CloneDialog
+        {...{
+          experiment,
+          rolloutBranch: {
+            slug: "very-important-branch",
+            name: "Very Important Branch",
+          },
           show: true,
           onCancel: onClose,
           onSave: onClone,

@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import React from "react";
 import { NO_BRANCHES_COPY } from ".";
 import { MOCK_EXPERIMENT, Subject } from "./mocks";
@@ -140,6 +146,43 @@ describe("TableBranches", () => {
       expect(cell).toBeInTheDocument();
       expect(cell).toHaveTextContent(String(value));
     }
+  });
+
+  it("supports promote to rollout buttons to clone the experiment", async () => {
+    const expected = {
+      name: "expected name",
+      slug: "expected-slug",
+      description: "expected description",
+      ratio: 42,
+      featureValue: '{ "thing": true }',
+    };
+
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          treatmentBranches: [
+            {
+              ...expected,
+              featureEnabled: true,
+            },
+            ...MOCK_EXPERIMENT.treatmentBranches!,
+          ],
+        }}
+      />,
+    );
+
+    const promoteButtons = screen.queryAllByTestId("promote-rollout");
+    expect(promoteButtons).toHaveLength(3);
+
+    const subjectButton = promoteButtons[1];
+    act(() => void fireEvent.click(subjectButton));
+
+    await waitFor(() => {
+      const dialog = screen.queryByTestId("CloneDialog");
+      expect(dialog).toBeInTheDocument();
+      expect(dialog!).toHaveAttribute("data-rolloutbranchslug", expected.slug);
+    });
   });
 
   it("hides branches without 'slug' set, displays not set for missing branch properties", () => {

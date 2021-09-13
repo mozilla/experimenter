@@ -69,5 +69,6 @@ class ExperimentInput(graphene.InputObjectType):
 
 
 class ExperimentCloneInput(graphene.InputObjectType):
-    parent_slug = graphene.String()
-    name = graphene.String()
+    parent_slug = graphene.String(required=True)
+    name = graphene.String(required=True)
+    rollout_branch_slug = graphene.String()
