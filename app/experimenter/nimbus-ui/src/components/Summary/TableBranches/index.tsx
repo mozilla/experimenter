@@ -3,12 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { Table } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Table from "react-bootstrap/Table";
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "../../../types/getExperiment";
+import CloneDialog, { useCloneDialog } from "../../CloneDialog";
 import { Code } from "../../Code";
 import NotSet from "../../NotSet";
 
@@ -53,7 +58,7 @@ const TableBranches = ({
       ) : (
         <>
           {savedBranches.map((branch, key) => (
-            <TableBranch key={key} {...{ hasSchema, branch }} />
+            <TableBranch key={key} {...{ hasSchema, experiment, branch }} />
           ))}
         </>
       )}
@@ -63,11 +68,16 @@ const TableBranches = ({
 
 const TableBranch = ({
   hasSchema,
-  branch: { name, slug, description, ratio, featureValue, featureEnabled },
+  experiment,
+  branch,
 }: {
   hasSchema: boolean;
+  experiment: getExperiment_experimentBySlug;
   branch: Branch;
 }) => {
+  const { name, slug, description, ratio, featureValue, featureEnabled } =
+    branch;
+  const cloneDialogProps = useCloneDialog(experiment, branch);
   return (
     <Table
       bordered
@@ -82,7 +92,24 @@ const TableBranch = ({
       <thead className="thead-light">
         <tr>
           <th colSpan={2} data-testid="branch-name">
-            <a href={`#${slug}`}>#</a> {name}
+            <Container>
+              <Row>
+                <Col>
+                  <a href={`#${slug}`}>#</a> {name}
+                </Col>
+                <Col className="text-right">
+                  <Button
+                    data-testid="promote-rollout"
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={cloneDialogProps.onShow}
+                  >
+                    Promote to Rollout
+                  </Button>
+                  <CloneDialog {...cloneDialogProps} />
+                </Col>
+              </Row>
+            </Container>
           </th>
         </tr>
       </thead>
