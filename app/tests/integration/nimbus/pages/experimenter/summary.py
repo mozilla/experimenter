@@ -1,6 +1,10 @@
+import random
+import string
+
 from nimbus.pages.experimenter.base import ExperimenterBase
 from pypom import Region
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 
 
@@ -26,8 +30,13 @@ class SummaryPage(ExperimenterBase):
         'span[data-testid="header-experiment-status-archived"]',
     )
     _clone_action_locator = (By.CSS_SELECTOR, 'button[data-testid="action-clone"]')
+    _clone_name_field_locator = (
+        By.CSS_SELECTOR,
+        'form[data-testid="FormClone"] input[name="name"]',
+    )
     _clone_save_locator = (By.CSS_SELECTOR, ".modal .btn-primary")
     _clone_parent_locator = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-parent"]')
+    _promote_rollout_locator = (By.CSS_SELECTOR, 'button[data-testid="promote-rollout"]')
 
     def wait_for_archive_label_visible(self):
         self.wait.until(
@@ -145,6 +154,24 @@ class SummaryPage(ExperimenterBase):
         return self.find_element(*self._clone_action_locator)
 
     @property
+    def clone_name_field(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._clone_name_field_locator),
+            message="Summary Page: could not find clone name field",
+        )
+        return self.find_element(*self._clone_name_field_locator)
+
+    @property
+    def clone_name(self):
+        return self.clone_name_field.text
+
+    @clone_name.setter
+    def clone_name(self, text=None):
+        # Control-a before typing, in order to fully overwrite default value
+        self.clone_name_field.send_keys(Keys.CONTROL + "a")
+        self.clone_name_field.send_keys(f"{text}")
+
+    @property
     def clone_save(self):
         self.wait.until(
             EC.presence_of_all_elements_located(self._clone_save_locator),
@@ -154,4 +181,20 @@ class SummaryPage(ExperimenterBase):
 
     def clone(self):
         self.clone_action.click()
+        self.clone_save.click()
+
+    @property
+    def promote_to_rollout_buttons(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._clone_action_locator),
+            message="Summary Page: could not find promote to rollout buttons",
+        )
+        return self.find_elements(*self._promote_rollout_locator)
+
+    def promote_first_branch_to_rollout(self):
+        self.promote_to_rollout_buttons[0].click()
+        random_chars = "".join(
+            random.choices(string.ascii_uppercase + string.digits, k=6)
+        )
+        self.clone_name = f"Rollout {random_chars}"
         self.clone_save.click()

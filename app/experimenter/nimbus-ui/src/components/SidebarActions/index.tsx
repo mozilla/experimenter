@@ -16,10 +16,10 @@ import {
   EXTERNAL_URLS,
 } from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import CloneDialog, { useCloneDialog } from "../CloneDialog";
 import LinkExternal from "../LinkExternal";
 import { LinkNav } from "../LinkNav";
 import { ReactComponent as CloneIcon } from "./clone.svg";
-import CloneDialog, { useCloneDialog } from "./CloneDialog";
 import { ReactComponent as TrashIcon } from "./trash.svg";
 
 type SidebarModifyExperimentProps = {
