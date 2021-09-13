@@ -308,12 +308,20 @@ class NimbusExperimentType(DjangoObjectType):
         exclude = ("branches",)
 
     def resolve_reference_branch(self, info):
-        return self.reference_branch
+        if self.reference_branch:
+            return self.reference_branch
+        return NimbusBranch(
+            name=NimbusConstants.DEFAULT_REFERENCE_BRANCH_NAME, feature_enabled=False
+        )
 
     def resolve_treatment_branches(self, info):
-        if self.treatment_branches:
+        if self.branches.exists():
             return self.treatment_branches
-        return [NimbusBranch(feature_enabled=False)]
+        return [
+            NimbusBranch(
+                name=NimbusConstants.DEFAULT_TREATMENT_BRANCH_NAME, feature_enabled=False
+            )
+        ]
 
     def resolve_ready_for_review(self, info):
         serializer = NimbusReadyForReviewSerializer(

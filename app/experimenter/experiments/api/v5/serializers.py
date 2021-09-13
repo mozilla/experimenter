@@ -186,14 +186,6 @@ class NimbusExperimentBranchMixin:
 
         return data
 
-    def create(self, validated_data):
-        experiment = super().create(validated_data)
-        experiment.reference_branch = NimbusBranch.objects.create(
-            experiment=experiment, name="Control", feature_enabled=False
-        )
-        experiment.save()
-        return experiment
-
     def update(self, experiment, data):
         with transaction.atomic():
             if set(data.keys()).intersection({"reference_branch", "treatment_branches"}):
