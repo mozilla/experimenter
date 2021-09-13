@@ -555,3 +555,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     DAYS_ANALYSIS_BUFFER = 3
 
     PUBLISHED_TARGETING_MISSING = "Published targeting JEXL not found"
+
+    DEFAULT_REFERENCE_BRANCH_NAME = "Control"
+    DEFAULT_TREATMENT_BRANCH_NAME = "Treatment A"

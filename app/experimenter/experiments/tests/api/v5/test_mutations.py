@@ -72,7 +72,8 @@ class TestCreateExperimentMutation(GraphQLTestCase):
         self.assertEqual(experiment.name, "Test 1234")
         self.assertEqual(experiment.slug, "test-1234")
         self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
-        self.assertEqual(experiment.reference_branch.name, "Control")
+        self.assertIsNone(experiment.reference_branch)
+        self.assertEqual(experiment.treatment_branches, [])
 
     def test_create_experiment_error(self):
         user_email = "user@example.com"
