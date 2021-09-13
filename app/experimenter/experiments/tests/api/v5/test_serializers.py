@@ -73,6 +73,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
         self.assertEqual(experiment.public_description, data["public_description"])
         # Owner should match the email of the user who created the experiment
         self.assertEqual(experiment.owner, self.user)
+        self.assertFalse(experiment.branches.exists())
 
     @parameterized.expand(list(NimbusExperiment.Application))
     def test_serializer_sets_channel_to_application_channel(self, application):

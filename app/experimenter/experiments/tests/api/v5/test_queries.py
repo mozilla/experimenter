@@ -56,7 +56,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         )
         self.assertEqual(experiment_data["canEdit"], experiment.can_edit)
 
-    def test_experiments_with_no_branches_returns_empty_treatment_values(self):
+    def test_experiments_with_no_branches_returns_empty_reference_treatment_values(self):
         user_email = "user@example.com"
         NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED, branches=[]
@@ -66,6 +66,12 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             """
             query {
                 experiments {
+                    referenceBranch {
+                        name
+                        slug
+                        description
+                        ratio
+                    }
                     treatmentBranches {
                         name
                         slug
@@ -81,8 +87,12 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         content = json.loads(response.content)
         experiment_data = content["data"]["experiments"][0]
         self.assertEqual(
+            experiment_data["referenceBranch"],
+            {"name": "Control", "slug": "", "description": "", "ratio": 1},
+        )
+        self.assertEqual(
             experiment_data["treatmentBranches"],
-            [{"name": "", "slug": "", "description": "", "ratio": 1}],
+            [{"name": "Treatment A", "slug": "", "description": "", "ratio": 1}],
         )
 
     def test_experiments_with_branches_returns_branch_data(self):
