@@ -1,8 +1,10 @@
 import copy
 import datetime
+import os.path
 import time
 from decimal import Decimal
 from urllib.parse import urljoin
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -15,6 +17,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
+from experimenter.base import get_uploads_storage
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.projects.models import Project
@@ -550,6 +553,37 @@ class NimbusBranch(models.Model):
 
     def __str__(self):
         return self.name
+
+
+# Helper to ensure branch screenshot filenames have controlled unique paths
+def nimbus_branch_screenshot_upload_to(screenshot, filename):
+    id = uuid4()
+    ext = filename.split(".")[-1].lower()
+    return os.path.join(
+        screenshot.branch.experiment.slug, screenshot.branch.slug, f"{id}.{ext}"
+    )
+
+
+# Helper that Django can serialize into a migration, cannot serialize functools.cache
+def nimbus_branch_screenshot_storage():
+    return get_uploads_storage()
+
+
+class NimbusBranchScreenshot(models.Model):
+    branch = models.ForeignKey(
+        NimbusBranch,
+        related_name="screenshots",
+        on_delete=models.CASCADE,
+    )
+    image = models.ImageField(
+        storage=nimbus_branch_screenshot_storage,
+        upload_to=nimbus_branch_screenshot_upload_to,
+    )
+    description = models.TextField(blank=True, default="")
+
+    def delete(self, *args, **kwargs):
+        self.image.storage.delete(self.image.name)
+        super().delete(*args, **kwargs)
 
 
 class NimbusDocumentationLink(models.Model):

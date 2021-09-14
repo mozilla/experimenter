@@ -4,6 +4,7 @@ from django.contrib.postgres.forms import SimpleArrayField
 
 from experimenter.experiments.models import (
     NimbusBranch,
+    NimbusBranchScreenshot,
     NimbusBucketRange,
     NimbusChangeLog,
     NimbusDocumentationLink,
@@ -149,7 +150,25 @@ class NimbusFeatureConfigAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
 
+class NimbusBranchScreenshotInlineAdmin(admin.TabularInline):
+    model = NimbusBranchScreenshot
+    extra = 0
+
+
+class NimbusBranchAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
+    inlines = (NimbusBranchScreenshotInlineAdmin,)
+    list_display = (
+        "name",
+        "slug",
+        "experiment",
+    )
+    list_display_links = ("name", "slug")
+    list_filter = ("experiment",)
+    prepopulated_fields = {"slug": ("name",)}
+
+
 admin.site.register(NimbusIsolationGroup, NimbusIsolationGroupAdmin)
 admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
 admin.site.register(NimbusFeatureConfig, NimbusFeatureConfigAdmin)
+admin.site.register(NimbusBranch, NimbusBranchAdmin)
 admin.site.register(NimbusDocumentationLink)
