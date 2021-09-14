@@ -249,6 +249,17 @@ TARGETING_INFREQUENT_USER_URIS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
+    name="Infrequent windows user (uris)",
+    slug="infrequent_win_user_uris",
+    description="Infrequent users based on last 30 days, on Windows",
+    targeting=("{infrequent_user} && platformName == 'win'").format(
+        infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TARGETING_CASUAL_USER_URIS = NimbusTargetingConfig(
     name="Casual user (uris)",
     slug="casual_user_uris",
@@ -463,6 +474,7 @@ class NimbusConstants(object):
         TARGETING_MOBILE_FIRST_RUN.slug: TARGETING_MOBILE_FIRST_RUN,
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug: TARGETING_NO_ENTERPRISE_OR_PAST_VPN,
         TARGETING_INFREQUENT_USER_URIS.slug: TARGETING_INFREQUENT_USER_URIS,
+        TARGETING_INFREQUENT_WIN_USER_URIS.slug: TARGETING_INFREQUENT_WIN_USER_URIS,,
         TARGETING_CASUAL_USER_URIS.slug: TARGETING_CASUAL_USER_URIS,
         TARGETING_REGULAR_USER_URIS.slug: TARGETING_REGULAR_USER_URIS,
         TARGETING_CORE_USER_URIS.slug: TARGETING_CORE_USER_URIS,
@@ -497,6 +509,10 @@ class NimbusConstants(object):
         TARGETING_INFREQUENT_USER_URIS = (
             TARGETING_INFREQUENT_USER_URIS.slug,
             TARGETING_INFREQUENT_USER_URIS.name,
+        )
+        TARGETING_INFREQUENT_WIN_USER_URIS = (
+            TARGETING_INFREQUENT_WIN_USER_URIS.slug,
+            TARGETING_INFREQUENT_WIN_USER_URIS.name,
         )
         TARGETING_CASUAL_USER_URIS = (
             TARGETING_CASUAL_USER_URIS.slug,
