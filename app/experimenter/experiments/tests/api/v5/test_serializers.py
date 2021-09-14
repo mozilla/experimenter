@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import mock
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.utils.text import slugify
 from parameterized import parameterized
@@ -16,11 +17,14 @@ from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_chan
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.models.nimbus import (
+    NimbusBranch,
     NimbusBucketRange,
     NimbusFeatureConfig,
 )
 from experimenter.experiments.tests.factories import (
+    TINY_PNG,
     NimbusBranchFactory,
+    NimbusBranchScreenshotFactory,
     NimbusExperimentFactory,
 )
 from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
@@ -291,6 +295,57 @@ class TestNimbusBranchSerializer(TestCase):
         self.assertFalse(branch_serializer.is_valid())
         self.assertIn("feature_value", branch_serializer.errors)
 
+    def test_branch_update_screenshots(self):
+        branch = NimbusBranchFactory()
+        existing_screenshot = branch.screenshots.first()
+        existing_image = existing_screenshot.image
+        deleted_screenshots = [
+            NimbusBranchScreenshotFactory.create(branch=branch),
+            NimbusBranchScreenshotFactory.create(branch=branch),
+            NimbusBranchScreenshotFactory.create(branch=branch),
+        ]
+
+        updated_screenshot_data = {
+            "id": existing_screenshot.id,
+            "description": "01 updated",
+        }
+        image_content = TINY_PNG
+        new_screenshot_data = {
+            "description": "02 new screenshot",
+            "image": SimpleUploadedFile(name="Capture.PNG", content=image_content),
+        }
+        branch_data = {
+            "name": "updated name",
+            "description": "updated description",
+            "ratio": 1,
+            "screenshots": [
+                updated_screenshot_data,
+                new_screenshot_data,
+            ],
+        }
+        branch_serializer = NimbusBranchSerializer(branch, data=branch_data)
+        self.assertTrue(branch_serializer.is_valid(), branch_serializer.errors)
+        branch_serializer.save()
+
+        branch = NimbusBranch.objects.get(pk=branch.id)
+        self.assertEqual(branch.screenshots.count(), 2)
+
+        for screenshot in deleted_screenshots:
+            self.assertFalse(branch.screenshots.filter(pk=screenshot.id).exists())
+
+        screenshots = branch.screenshots.order_by("description")
+        updated_screenshot = screenshots[0]
+        self.assertEqual(
+            updated_screenshot.description, updated_screenshot_data["description"]
+        )
+        self.assertEqual(updated_screenshot.image.name, existing_image.name)
+
+        new_screenshot = screenshots[1]
+        self.assertEqual(new_screenshot.description, new_screenshot_data["description"])
+        self.assertTrue(bool(new_screenshot.image))
+        with new_screenshot.image.open() as image_file:
+            self.assertEqual(image_file.read(), image_content)
+
 
 class TestNimbusExperimentDocumentationLinkMixin(TestCase):
     def setUp(self):
@@ -404,7 +459,7 @@ class TestNimbusExperimentBranchMixin(TestCase):
         super().setUp()
         self.user = UserFactory()
 
-    def test_serializer_update_branches(self):
+    def test_serializer_replace_branches(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
         )
@@ -435,6 +490,70 @@ class TestNimbusExperimentBranchMixin(TestCase):
             branch = experiment.branches.get(name=branch_data["name"])
             for key, val in branch_data.items():
                 self.assertEqual(getattr(branch, key), val)
+
+    def test_serializer_update_branches_with_ids(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+        )
+        NimbusBranchFactory.create(experiment=experiment)
+        NimbusBranchFactory.create(experiment=experiment)
+        NimbusBranchFactory.create(experiment=experiment)
+
+        orig_reference_branch = experiment.reference_branch
+        orig_treatment_branch = experiment.treatment_branches[0]
+        deleted_branches = experiment.treatment_branches[1:]
+
+        updated_reference_branch_data = {
+            "id": orig_reference_branch.id,
+            "name": "control",
+            "description": "updated reference description",
+            "ratio": 1,
+        }
+        updated_treatment_branch_data = {
+            "id": orig_treatment_branch.id,
+            "name": "treatment",
+            "description": "updated treatment description",
+            "ratio": 1,
+        }
+        added_treatment_branch_data = {
+            "name": "treatment 2",
+            "description": "new treatment branch",
+            "ratio": 1,
+        }
+        data = {
+            "id": experiment.id,
+            "changelog_message": "edited branches",
+            "reference_branch": updated_reference_branch_data,
+            "treatment_branches": [
+                updated_treatment_branch_data,
+                added_treatment_branch_data,
+            ],
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(experiment.branches.count(), 3)
+        for deleted_branch in deleted_branches:
+            self.assertFalse(experiment.branches.filter(pk=deleted_branch.id).exists())
+        self.assertEqual(experiment.reference_branch.id, orig_reference_branch.id)
+        self.assertEqual(
+            experiment.reference_branch.description,
+            updated_reference_branch_data["description"],
+        )
+        self.assertEqual(experiment.treatment_branches[0].id, orig_treatment_branch.id)
+        self.assertEqual(
+            experiment.reference_branch.description,
+            updated_reference_branch_data["description"],
+        )
+        self.assertEqual(
+            experiment.treatment_branches[1].description,
+            added_treatment_branch_data["description"],
+        )
 
     def test_serializer_feature_config_validation(self):
         feature_config = NimbusFeatureConfigFactory.create(

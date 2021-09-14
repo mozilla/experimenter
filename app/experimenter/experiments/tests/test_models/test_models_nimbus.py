@@ -11,7 +11,7 @@ from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
-from experimenter.base import get_uploads_storage
+from experimenter.base import UploadsStorage
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.models import (
@@ -21,10 +21,7 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusIsolationGroup,
 )
-from experimenter.experiments.models.nimbus import (
-    NimbusBucketRange,
-    nimbus_branch_screenshot_storage,
-)
+from experimenter.experiments.models.nimbus import NimbusBucketRange
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
@@ -1436,7 +1433,6 @@ class TestNimbusFeatureConfig(TestCase):
 
 class TestNimbusBranchScreenshot(TestCase):
     def setUp(self):
-        get_uploads_storage.cache_clear()
         self.experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
         )
@@ -1446,22 +1442,15 @@ class TestNimbusBranchScreenshot(TestCase):
             branch=self.branch, description="Test description", image=self.image
         )
 
-    @mock.patch("experimenter.experiments.models.nimbus.get_uploads_storage")
-    def test_nimbus_branch_screenshot_storage(self, mock_get_uploads_storage):
-        storage = nimbus_branch_screenshot_storage()
-        self.assertTrue(storage, mock_get_uploads_storage.return_value)
-
     @mock.patch("experimenter.experiments.models.nimbus.uuid4")
     def test_nimbus_branch_screenshot_upload_to(self, mock_uuid4):
-        self.assertEqual(
-            type(self.screenshot.image.storage), type(nimbus_branch_screenshot_storage())
-        )
+        self.assertEqual(type(self.screenshot.image.storage), UploadsStorage)
 
         with mock.patch.object(self.screenshot.image.storage, "save") as mock_save:
             mock_uuid4.return_value = "predictable"
             mock_save.return_value = "saved/path/dontcare"
             expected_filename = os.path.join(
-                self.experiment.slug, self.branch.slug, f"{mock_uuid4.return_value}.png"
+                self.experiment.slug, f"{mock_uuid4.return_value}.png"
             )
             max_length = NimbusBranchScreenshot._meta.get_field("image").max_length
 

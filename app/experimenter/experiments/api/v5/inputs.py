@@ -1,4 +1,5 @@
 import graphene
+from graphene_file_upload.scalars import Upload
 
 from experimenter.experiments.api.v5.types import (
     NimbusExperimentApplication,
@@ -10,12 +11,19 @@ from experimenter.experiments.api.v5.types import (
 )
 
 
+class BranchScreenshotType(graphene.InputObjectType):
+    image = Upload(required=True)
+    description = graphene.String(required=True)
+
+
 class BranchType(graphene.InputObjectType):
+    id = graphene.Int()
     name = graphene.String(required=True)
     description = graphene.String(required=True)
     ratio = graphene.Int(required=True)
     feature_enabled = graphene.Boolean()
     feature_value = graphene.String()
+    screenshots = graphene.List(BranchScreenshotType)
 
 
 class DocumentationLinkType(graphene.InputObjectType):

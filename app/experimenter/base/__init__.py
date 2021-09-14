@@ -2,7 +2,8 @@ import json
 from functools import cache
 
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
+from django.core.files.storage import FileSystemStorage, get_storage_class
+from django.utils.functional import LazyObject
 from google.oauth2 import service_account
 from storages.backends.gcloud import GoogleCloudStorage
 
@@ -23,8 +24,11 @@ def app_version():
     return app_version
 
 
-@cache
 def get_uploads_storage():
+    if settings.UPLOADS_FILE_STORAGE:
+        cls = get_storage_class(settings.UPLOADS_FILE_STORAGE)
+        return cls()
+
     if settings.UPLOADS_GS_CREDENTIALS:
         credentials = service_account.Credentials.from_service_account_file(
             settings.UPLOADS_GS_CREDENTIALS
@@ -36,3 +40,10 @@ def get_uploads_storage():
         )
 
     return FileSystemStorage()
+
+
+# Borrowing Django's DefaultStorage lazy object approach
+# https://github.com/django/django/blob/ddae36700d1c07cbca15a6821bd99d480294c137/django/core/files/storage.py#L271-L273
+class UploadsStorage(LazyObject):
+    def _setup(self):
+        self._wrapped = get_uploads_storage()

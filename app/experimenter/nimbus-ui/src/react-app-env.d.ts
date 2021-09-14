@@ -12,3 +12,6 @@ type SerializerSet = Record<string, SerializerMessage>;
 type SerializerMessages<
   T = SerializerMessage | SerializerSet | SerializerSet[],
 > = Record<string, T>;
+
+// TODO: implement the correct type here for EXP-1766
+type Upload = any;
