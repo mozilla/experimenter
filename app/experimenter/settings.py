@@ -428,6 +428,10 @@ DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 GS_PROJECT_ID = "experiments-analysis"
 GS_BUCKET_NAME = "mozanalysis"
 
+# User uploads, e.g. branch screenshots
+UPLOADS_GS_CREDENTIALS = config("UPLOADS_GS_CREDENTIALS", default=None)
+UPLOADS_GS_BUCKET_NAME = config("UPLOADS_GS_BUCKET_NAME", default=None)
+
 NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").version
 
 

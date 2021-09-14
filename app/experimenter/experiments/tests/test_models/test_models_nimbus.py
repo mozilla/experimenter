@@ -1,22 +1,30 @@
 import datetime
+import os.path
 from decimal import Decimal
 
+import mock
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import Q
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
+from experimenter.base import get_uploads_storage
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.models import (
     NimbusBranch,
+    NimbusBranchScreenshot,
     NimbusExperiment,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
 )
-from experimenter.experiments.models.nimbus import NimbusBucketRange
+from experimenter.experiments.models.nimbus import (
+    NimbusBucketRange,
+    nimbus_branch_screenshot_storage,
+)
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
@@ -1424,3 +1432,51 @@ class TestNimbusFeatureConfig(TestCase):
                 "for examples."
             ),
         )
+
+
+class TestNimbusBranchScreenshot(TestCase):
+    def setUp(self):
+        get_uploads_storage.cache_clear()
+        self.experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        self.branch = self.experiment.branches.first()
+        self.image = SimpleUploadedFile("Capture.PNG", b"this is not a real image")
+        self.screenshot = NimbusBranchScreenshot(
+            branch=self.branch, description="Test description", image=self.image
+        )
+
+    @mock.patch("experimenter.experiments.models.nimbus.get_uploads_storage")
+    def test_nimbus_branch_screenshot_storage(self, mock_get_uploads_storage):
+        storage = nimbus_branch_screenshot_storage()
+        self.assertTrue(storage, mock_get_uploads_storage.return_value)
+
+    @mock.patch("experimenter.experiments.models.nimbus.uuid4")
+    def test_nimbus_branch_screenshot_upload_to(self, mock_uuid4):
+        self.assertEqual(
+            type(self.screenshot.image.storage), type(nimbus_branch_screenshot_storage())
+        )
+
+        with mock.patch.object(self.screenshot.image.storage, "save") as mock_save:
+            mock_uuid4.return_value = "predictable"
+            mock_save.return_value = "saved/path/dontcare"
+            expected_filename = os.path.join(
+                self.experiment.slug, self.branch.slug, f"{mock_uuid4.return_value}.png"
+            )
+            max_length = NimbusBranchScreenshot._meta.get_field("image").max_length
+
+            self.screenshot.save()
+            mock_save.assert_called_with(
+                expected_filename, self.image, max_length=max_length
+            )
+
+    def test_nimbus_branch_screenshot_delete(self):
+        with mock.patch.object(self.screenshot.image.storage, "save") as mock_save:
+            with mock.patch.object(
+                self.screenshot.image.storage, "delete"
+            ) as mock_delete:
+                mock_save.return_value = "saved/path/dontcare"
+                self.screenshot.save()
+                mock_save.assert_called()
+                self.screenshot.delete()
+                mock_delete.assert_called()
