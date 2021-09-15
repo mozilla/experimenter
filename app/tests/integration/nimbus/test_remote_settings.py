@@ -1,4 +1,3 @@
-import json
 from urllib.parse import urlparse
 
 import pytest
@@ -7,7 +6,6 @@ from nimbus.models.base_dataclass import BaseExperimentAudienceTargetingOptions
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.pages.remote_settings.dashboard import Dashboard
 from nimbus.pages.remote_settings.login import Login
-from selenium.webdriver.support.expected_conditions import title_contains
 
 
 @pytest.mark.run_per_app
