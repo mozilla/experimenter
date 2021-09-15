@@ -2,7 +2,9 @@ from nimbus.models.base_dataclass import BaseExperimentAudienceTargetingOptions
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.summary import SummaryPage
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
+
 
 
 class AudiencePage(ExperimenterBase):
@@ -16,6 +18,10 @@ class AudiencePage(ExperimenterBase):
     _expected_clients_locator = (By.CSS_SELECTOR, "#totalEnrolledClients")
     _enrollment_period_locator = (By.CSS_SELECTOR, "#proposedEnrollment")
     _duration_locator = (By.CSS_SELECTOR, "#proposedDuration")
+    _locale_select_locator = (By.CSS_SELECTOR, "#locales div div div div")
+    _locale_input_locator = (By.CSS_SELECTOR, "#locales input")
+    _country_select_locator = (By.CSS_SELECTOR, "#countries div div div div")
+    _country_input_locator = (By.CSS_SELECTOR, "#countries input")
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditAudience")
     NEXT_PAGE = SummaryPage
 
@@ -38,6 +44,41 @@ class AudiencePage(ExperimenterBase):
         el = self.find_element(*self._min_version_select_locator)
         select = Select(el)
         select.select_by_value(f"FIREFOX_{version}")
+
+    @property
+    def locale(self):
+        locales = []
+        els = self.find_elements(*self._locale_select_locator)
+        for item in els:
+            if item.text:
+                locales.append(item)
+            else:
+                continue
+        return locales
+
+    @locale.setter
+    def locale(self, name="English (US)"):
+        el = self.find_element(*self._locale_input_locator)
+        el.send_keys(name)
+        el.send_keys(Keys.ENTER)
+
+    @property
+    def countries(self):
+        countries = []
+        els = self.find_elements(*self._country_select_locator)
+        for item in els:
+            if item.text:
+                print(item)
+                countries.append(item)
+            else:
+                continue
+        return countries
+
+    @countries.setter
+    def countries(self, name="Canada"):
+        el = self.find_element(*self._country_input_locator)
+        el.send_keys(name)
+        el.send_keys(Keys.ENTER)
 
     @property
     def targeting(self):

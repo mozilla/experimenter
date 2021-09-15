@@ -37,6 +37,8 @@ class BaseExperimentAudienceDataClass:
     targeting: BaseExperimentAudienceTargetingOptions
     percentage: float
     expected_clients: int
+    locale: str
+    countries: str
 
 
 @dataclass
