@@ -47,7 +47,9 @@ APPLICATION_KINTO_REVIEW_PATH = {
 def slugify():
     def _slugify(input):
         return input.lower().replace(" ", "-").replace("[", "").replace("]", "")
+
     return _slugify
+
 
 @pytest.fixture
 def capabilities(capabilities):
@@ -134,7 +136,7 @@ def default_data(request):
             percentage=50.0,
             expected_clients=50,
             locale=None,
-            countries=None
+            countries=None,
         ),
     )
 

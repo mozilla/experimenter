@@ -3,11 +3,11 @@ from urllib.parse import urlparse
 
 import pytest
 import requests
-from selenium.webdriver.support.expected_conditions import title_contains
 from nimbus.models.base_dataclass import BaseExperimentAudienceTargetingOptions
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.pages.remote_settings.dashboard import Dashboard
 from nimbus.pages.remote_settings.login import Login
+from selenium.webdriver.support.expected_conditions import title_contains
 
 
 @pytest.mark.run_per_app
@@ -107,9 +107,11 @@ def test_create_new_experiment_approve_check_targeting(
     experiment_url,
     default_data,
     create_experiment,
-    slugify
+    slugify,
 ):
-    default_data.audience.targeting = BaseExperimentAudienceTargetingOptions.TARGETING_MAC_ONLY
+    default_data.audience.targeting = (
+        BaseExperimentAudienceTargetingOptions.TARGETING_MAC_ONLY
+    )
     default_data.audience.locale = "English (Canadian)"
     default_data.audience.countries = "Canada"
     create_experiment(selenium).launch_and_approve()
@@ -132,8 +134,8 @@ def test_create_new_experiment_approve_check_targeting(
             expression.append(item)
     if environment is False:
         environment = "en-US"
-    expression = '&&'.join(expression)
-    environment = '&&'.join(environment)
+    expression = "&&".join(expression)
+    environment = "&&".join(environment)
     # Inject filter expression
     selenium.get("about:blank")
     with open("nimbus/utils/filter_expression.js") as js:

@@ -171,7 +171,12 @@ export const FormAudience = ({
           </Form.Group>
         </Form.Row>
         <Form.Row>
-          <Form.Group as={Col} controlId="locales" data-testid="locales" id="locales">
+          <Form.Group
+            as={Col}
+            controlId="locales"
+            data-testid="locales"
+            id="locales"
+          >
             <Form.Label>Locales</Form.Label>
             <Select
               placeholder="All Locales"
@@ -188,7 +193,12 @@ export const FormAudience = ({
             )}
             <FormErrors name="locales" />
           </Form.Group>
-          <Form.Group as={Col} controlId="countries" data-testid="countries" id="countries">
+          <Form.Group
+            as={Col}
+            controlId="countries"
+            data-testid="countries"
+            id="countries"
+          >
             <Form.Label>Countries</Form.Label>
             <Select
               placeholder="All Countries"
