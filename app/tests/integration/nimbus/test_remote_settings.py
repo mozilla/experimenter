@@ -110,6 +110,8 @@ def test_create_new_experiment_approve_check_targeting(
     slugify
 ):
     default_data.audience.targeting = BaseExperimentAudienceTargetingOptions.TARGETING_MAC_ONLY
+    default_data.audience.locale = "English (Canadian)"
+    default_data.audience.countries = "Canada"
     create_experiment(selenium).launch_and_approve()
 
     Login(selenium, kinto_url).open().login()

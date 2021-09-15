@@ -133,8 +133,8 @@ def default_data(request):
             targeting=BaseExperimentAudienceTargetingOptions.NO_TARGETING,
             percentage=50.0,
             expected_clients=50,
-            locale="English (Canadian)",
-            countries="Canada"
+            locale=None,
+            countries=None
         ),
     )
 
@@ -171,8 +171,6 @@ def create_experiment(base_url, default_data):
         audience.min_version = default_data.audience.min_version
         audience.targeting = default_data.audience.targeting.value
         audience.percentage = default_data.audience.percentage
-        audience.locale = default_data.audience.locale
-        audience.countries =  default_data.audience.countries
         audience.expected_clients = default_data.audience.expected_clients
         return audience.save_and_continue()
 
