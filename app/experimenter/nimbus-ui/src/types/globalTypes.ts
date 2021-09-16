@@ -159,8 +159,9 @@ export enum NimbusExperimentStatus {
 }
 
 export interface BranchScreenshotType {
-  image: Upload;
-  description: string;
+  id?: number | null;
+  image?: Upload | null;
+  description?: string | null;
 }
 
 export interface DocumentationLinkType {

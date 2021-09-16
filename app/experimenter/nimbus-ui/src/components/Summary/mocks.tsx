@@ -91,3 +91,26 @@ export const reviewRejectedBaseProps = {
   reviewRequest: mockChangelog(),
   rejection: mockChangelog("def@mozilla.com", "It's bad. Just start over."),
 };
+
+export const MOCK_SCREENSHOTS = [
+  {
+    id: 123,
+    description: "Meow meow.",
+    image: "https://placekitten.com/240/240",
+  },
+  {
+    id: 456,
+    description: "Foo bar baz.",
+    image: "https://via.placeholder.com/320x240.png?text=Screenshot",
+  },
+  {
+    id: 789,
+    description: "Meow meow.",
+    image: "https://placekitten.com/1280/720",
+  },
+  {
+    id: 321,
+    description: "Foo bar baz.",
+    image: "https://via.placeholder.com/800x600.png?text=Screenshot",
+  },
+];

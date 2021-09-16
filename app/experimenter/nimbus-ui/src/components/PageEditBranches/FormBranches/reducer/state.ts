@@ -19,12 +19,14 @@ export type FormBranchesState = Pick<
   globalErrors: string[];
 };
 
-export type AnnotatedBranch = TreatmentBranchType & {
+export type AnnotatedBranch = Omit<TreatmentBranchType, "id"> & {
+  id?: number | null;
   key: string;
   isValid: boolean;
   isDirty: boolean;
   errors: SerializerSet;
   slug?: string;
+  reviewMessages?: Record<string, any>;
 };
 
 export function createInitialState({
@@ -64,7 +66,7 @@ export function createInitialState({
 export function annotateExperimentBranch(
   lastId: number | string,
   branch: getExperiment_experimentBySlug_treatmentBranches,
-) {
+): AnnotatedBranch {
   return {
     ...branch,
     key: `branch-${lastId}`,

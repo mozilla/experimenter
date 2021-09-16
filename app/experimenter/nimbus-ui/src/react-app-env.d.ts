@@ -13,5 +13,7 @@ type SerializerMessages<
   T = SerializerMessage | SerializerSet | SerializerSet[],
 > = Record<string, T>;
 
-// TODO: implement the correct type here for EXP-1766
-type Upload = any;
+// https://github.com/jaydenseric/apollo-upload-client#usage
+// string represents an existing uploaded file, while
+// the rest represent files to upload
+type Upload = string | FileList | File | Blob;

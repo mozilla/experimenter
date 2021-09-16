@@ -6,6 +6,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
+import Figure from "react-bootstrap/Figure";
 import Row from "react-bootstrap/Row";
 import Table from "react-bootstrap/Table";
 import {
@@ -75,8 +76,15 @@ const TableBranch = ({
   experiment: getExperiment_experimentBySlug;
   branch: Branch;
 }) => {
-  const { name, slug, description, ratio, featureValue, featureEnabled } =
-    branch;
+  const {
+    name,
+    slug,
+    description,
+    ratio,
+    featureValue,
+    featureEnabled,
+    screenshots,
+  } = branch;
   const cloneDialogProps = useCloneDialog(experiment, branch);
   return (
     <Table
@@ -139,6 +147,31 @@ const TableBranch = ({
             <th>Value</th>
             <td data-testid="branch-featureValue">
               {featureValue ? <Code codeString={featureValue} /> : <NotSet />}
+            </td>
+          </tr>
+        )}
+        {screenshots && screenshots.length > 0 && (
+          <tr>
+            <th>Screenshots</th>
+            <td data-testid="branch-screenshots">
+              {screenshots.map((screenshot, idx) => (
+                <Figure
+                  data-testid="branch-screenshot"
+                  className="d-block"
+                  key={idx}
+                >
+                  <Figure.Caption>{screenshot.description}</Figure.Caption>
+                  {screenshot.image ? (
+                    <Figure.Image
+                      fluid
+                      src={screenshot.image}
+                      alt={screenshot.description || ""}
+                    />
+                  ) : (
+                    <NotSet />
+                  )}
+                </Figure>
+              ))}
             </td>
           </tr>
         )}
