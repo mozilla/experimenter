@@ -252,8 +252,8 @@ TARGETING_INFREQUENT_USER_URIS = NimbusTargetingConfig(
 TARGETING_INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
     name="Infrequent windows user (uris)",
     slug="infrequent_win_user_uris",
-    description="Infrequent users based on last 30 days, on Windows",
-    targeting=("{infrequent_user} && platformName == 'win'").format(
+    description="Infrequent users based on last 30 days, on Windows 17763+",
+    targeting=("{infrequent_user} && os.windowsBuildNumber > 17763").format(
         infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting
     ),
     desktop_telemetry="",
