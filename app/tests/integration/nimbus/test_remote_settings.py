@@ -1,3 +1,4 @@
+import time
 from json import load
 from urllib.parse import urlparse
 
@@ -6,6 +7,7 @@ import requests
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.pages.remote_settings.dashboard import Dashboard
 from nimbus.pages.remote_settings.login import Login
+from nimbus.pages.browser import Browser
 
 
 def load_data():
@@ -119,7 +121,8 @@ def test_end_experiment_and_reject_end(
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-def test_create_new_experiment_approve_check_targeting(
+@pytest.mark.run_once
+def test_check_targeting(
     selenium,
     base_url,
     kinto_url,
@@ -131,35 +134,23 @@ def test_create_new_experiment_approve_check_targeting(
     app_data
     
 ):
-    print(app_data)
     default_data.audience.targeting = app_data
-    # default_data.audience.locale = "English (Canadian)"
-    # default_data.audience.countries = "Canada"
-    experiment = create_experiment(selenium).launch_to_preview()
-
-    # Login(selenium, kinto_url).open().login()
-    # Dashboard(selenium, kinto_review_url).open().approve()
-    # SummaryPage(selenium, experiment_url).open().wait_for_live_status()
+    default_data.public_name = default_data.public_name.replace("-","", 1)
+    create_experiment(selenium).launch_to_preview()
     title = default_data.public_name
     base_url = urlparse(base_url)
     json_url = f"https://{base_url.netloc}/api/v6/experiments/{slugify(title)}"
     # Get experiment JSON and parse
     experiment_json = requests.get(f"{json_url}", verify=False).json()
     targeting = experiment_json["targeting"]
-    # expression = []
-    # environment = []
-    # for item in targetting.split("&&"):
-    #     if "locale" in item or "region" in item:
-    #         environment.append(item)
-    #     else:
-    #         expression.append(item)
-    # if environment is False:
-    #     environment = "en-US"
-    # expression = "&&".join(expression)
-    # environment = "&&".join(environment)
     # Inject filter expression
     selenium.get("about:blank")
     with open("nimbus/utils/filter_expression.js") as js:
-        with selenium.context(selenium.CONTEXT_CHROME):
-            script = selenium.execute_script(js.read(), targeting, experiment_json)
+        script = Browser.execute_script(
+            selenium,
+            targeting, 
+            experiment_json,
+            script=js.read(),
+            context="chrome", 
+        )
     assert script is not None
