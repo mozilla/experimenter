@@ -131,7 +131,7 @@ def default_data(request):
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.RELEASE,
             min_version=80,
-            targeting="mac_only",
+            targeting="",
             percentage=50.0,
             expected_clients=50,
             locale=None,
