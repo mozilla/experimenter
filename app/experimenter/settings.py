@@ -433,6 +433,9 @@ GS_BUCKET_NAME = "mozanalysis"
 UPLOADS_GS_CREDENTIALS = config("UPLOADS_GS_CREDENTIALS", default=None)
 UPLOADS_GS_BUCKET_NAME = config("UPLOADS_GS_BUCKET_NAME", default=None)
 
+# Custom file storage override for user uploads (e.g. for testing)
+UPLOADS_FILE_STORAGE = config("UPLOADS_FILE_STORAGE", default=None)
+
 NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").version
 
 

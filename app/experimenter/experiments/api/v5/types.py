@@ -106,7 +106,7 @@ class NimbusExperimentDocumentationLink(graphene.Enum):
 class NimbusBranchType(DjangoObjectType):
     class Meta:
         model = NimbusBranch
-        exclude = ("id", "experiment", "nimbusexperiment")
+        exclude = ("experiment", "nimbusexperiment")
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
