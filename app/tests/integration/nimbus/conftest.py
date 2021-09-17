@@ -7,7 +7,6 @@ from nimbus.models.base_dataclass import (
     BaseExperimentApplications,
     BaseExperimentAudienceChannels,
     BaseExperimentAudienceDataClass,
-    BaseExperimentAudienceTargetingOptions,
     BaseExperimentBranchDataClass,
     BaseExperimentDataClass,
     BaseExperimentMetricsDataClass,
@@ -132,7 +131,7 @@ def default_data(request):
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.RELEASE,
             min_version=80,
-            targeting=BaseExperimentAudienceTargetingOptions.NO_TARGETING,
+            targeting="mac_only",
             percentage=50.0,
             expected_clients=50,
             locale=None,
@@ -171,7 +170,7 @@ def create_experiment(base_url, default_data):
         audience = metrics.save_and_continue()
         audience.channel = default_data.audience.channel.value
         audience.min_version = default_data.audience.min_version
-        audience.targeting = default_data.audience.targeting.value
+        audience.targeting = default_data.audience.targeting
         audience.percentage = default_data.audience.percentage
         audience.expected_clients = default_data.audience.expected_clients
         return audience.save_and_continue()

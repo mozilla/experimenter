@@ -18,11 +18,6 @@ class BaseExperimentAudienceChannels(Enum):
     RELEASE = "Release"
 
 
-class BaseExperimentAudienceTargetingOptions(Enum):
-    NO_TARGETING = ("",)
-    TARGETING_MAC_ONLY = ("mac_only",)
-
-
 @dataclass
 class BaseExperimentBranchDataClass:
     name: str
@@ -34,7 +29,7 @@ class BaseExperimentBranchDataClass:
 class BaseExperimentAudienceDataClass:
     channel: BaseExperimentAudienceChannels
     min_version: int
-    targeting: BaseExperimentAudienceTargetingOptions
+    targeting: Optional[str]
     percentage: float
     expected_clients: int
     locale: Optional[str]

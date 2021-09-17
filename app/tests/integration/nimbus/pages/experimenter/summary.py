@@ -13,6 +13,7 @@ class SummaryPage(ExperimenterBase):
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary")
     _approve_request_button_locator = (By.CSS_SELECTOR, "#approve-request-button")
+    _launch_to_preview = (By.CSS_SELECTOR, "#launch-to-preview-button")
     _launch_without_preview_locator = (By.CSS_SELECTOR, "#launch-to-review-button")
     _rejected_text_alert_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
     _timeout_alert_locator = (By.CSS_SELECTOR, '[data-testid="timeout-notice"]')
@@ -85,6 +86,10 @@ class SummaryPage(ExperimenterBase):
     @property
     def launch_without_preview(self):
         return self.find_element(*self._launch_without_preview_locator)
+    
+    def launch_to_preview(self):
+        self.find_element(*self._launch_to_preview).click()
+        return self
 
     @property
     def request_review(self):
