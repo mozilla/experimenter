@@ -1,13 +1,11 @@
-import time
-from json import load
 from urllib.parse import urlparse
 
 import pytest
 import requests
+from nimbus.pages.browser import Browser
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.pages.remote_settings.dashboard import Dashboard
 from nimbus.pages.remote_settings.login import Login
-from nimbus.pages.browser import Browser
 
 
 def load_data():
@@ -17,10 +15,13 @@ def load_data():
         json={
             "operationName": "getConfig",
             "variables": {},
-            "query": "\nquery getConfig {\n  nimbusConfig {\n    targetingConfigs {\n      label\n      value\n      applicationValues\n    }\n  }\n}\n",
+            "query": "\nquery getConfig {\n  " + 
+                "nimbusConfig {\n    targetingConfigs {\n      " + 
+                "label\n      value\n      applicationValues\n    " +
+                "}\n  }\n}\n",
         },
         verify=False,
-        ).json()
+    ).json()
     # print(data["data"]["nimbusConfig"]["targetingConfigs"][1]["applicationValues"])
     for item in data["data"]["nimbusConfig"]["targetingConfigs"]:
         if "DESKTOP" in item["applicationValues"]:
@@ -131,11 +132,10 @@ def test_check_targeting(
     default_data,
     create_experiment,
     slugify,
-    app_data
-    
+    app_data,
 ):
     default_data.audience.targeting = app_data
-    default_data.public_name = default_data.public_name.replace("-","", 1)
+    default_data.public_name = default_data.public_name.replace("-", "", 1)
     create_experiment(selenium).launch_to_preview()
     title = default_data.public_name
     base_url = urlparse(base_url)
@@ -148,9 +148,9 @@ def test_check_targeting(
     with open("nimbus/utils/filter_expression.js") as js:
         script = Browser.execute_script(
             selenium,
-            targeting, 
+            targeting,
             experiment_json,
             script=js.read(),
-            context="chrome", 
+            context="chrome",
         )
     assert script is not None

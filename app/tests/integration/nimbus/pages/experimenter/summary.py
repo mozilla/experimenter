@@ -86,7 +86,7 @@ class SummaryPage(ExperimenterBase):
     @property
     def launch_without_preview(self):
         return self.find_element(*self._launch_without_preview_locator)
-    
+
     def launch_to_preview(self):
         self.find_element(*self._launch_to_preview).click()
         return self
