@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import classNames from "classnames";
 import React from "react";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
@@ -12,10 +11,6 @@ import { FieldError } from "react-hook-form";
 import { useCommonNestedForm } from "../../../hooks";
 import { ReactComponent as DeleteIcon } from "../../../images/x.svg";
 import { NUMBER_FIELD, REQUIRED_FIELD } from "../../../lib/constants";
-import {
-  getConfig_nimbusConfig,
-  getConfig_nimbusConfig_featureConfigs,
-} from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import { AnnotatedBranch } from "./reducer";
 
@@ -25,7 +20,6 @@ export const branchFieldNames = [
   "ratio",
   "featureValue",
   "featureEnabled",
-  "featureConfig",
 ] as const;
 
 type BranchFieldName = typeof branchFieldNames[number];
@@ -39,9 +33,7 @@ export const FormBranch = ({
   equalRatio,
   isReference,
   experimentFeatureConfig,
-  featureConfigs,
   onRemove,
-  onFeatureConfigChange,
   defaultValues,
   setSubmitErrors,
 }: {
@@ -53,11 +45,7 @@ export const FormBranch = ({
   equalRatio?: boolean;
   isReference?: boolean;
   experimentFeatureConfig: getExperiment_experimentBySlug["featureConfig"];
-  featureConfigs: getConfig_nimbusConfig["featureConfigs"];
   onRemove?: () => void;
-  onFeatureConfigChange: (
-    featureConfig: getConfig_nimbusConfig_featureConfigs | null,
-  ) => void;
   defaultValues: Record<string, any>;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
 }) => {
@@ -76,18 +64,6 @@ export const FormBranch = ({
     );
 
   const featureEnabled = watch(`${fieldNamePrefix}.featureEnabled`);
-
-  const handleFeatureConfigChange = (
-    ev: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const selectedIdx = parseInt(ev.target.value, 10);
-    if (isNaN(selectedIdx)) {
-      return onFeatureConfigChange(null);
-    }
-    // featureConfig shouldn't ever be null in practice
-    const feature = featureConfigs![selectedIdx];
-    return onFeatureConfigChange(feature);
-  };
 
   const handleRemoveClick = () => onRemove && onRemove();
 
@@ -166,45 +142,12 @@ export const FormBranch = ({
       </Form.Group>
 
       <Form.Group
-        className="px-3 pt-2 border-top"
+        className="p-1 mx-3 mt-2 mb-0"
         data-testid="feature-config-edit"
       >
         <Form.Row>
-          <Col>
-            <Form.Label htmlFor={`${id}-featureConfig`}>
-              Feature configuration
-            </Form.Label>
-          </Col>
-        </Form.Row>
-        <Form.Row className="align-middle">
-          <Form.Group as={Col} controlId={`${id}-featureConfig`}>
-            <Form.Control
-              as="select"
-              data-testid="feature-config-select"
-              // Displaying the review-readiness error is handled here instead of `formControlAttrs`
-              // due to a state conflict between `react-hook-form` and our internal branch state mangement
-              className={classNames(
-                reviewErrors.featureConfig?.length > 0 && "is-warning",
-              )}
-              onChange={handleFeatureConfigChange}
-              value={featureConfigs!.findIndex(
-                (feature) => feature?.slug === experimentFeatureConfig?.slug,
-              )}
-            >
-              <option value="">Select...</option>
-              {featureConfigs?.map(
-                (feature, idx) =>
-                  feature && (
-                    <option key={`feature-${feature.slug}-${idx}`} value={idx}>
-                      {feature.name}
-                    </option>
-                  ),
-              )}
-            </Form.Control>
-            <FormErrors name="featureConfig" />
-          </Form.Group>
-          <Col sm={1} md={1} className="px-2 text-center">
-            is
+          <Col sm={1} md={1}>
+            Feature is
           </Col>
           <Form.Group as={Col} controlId={`${id}.featureEnabled`}>
             <Form.Check
@@ -214,6 +157,11 @@ export const FormBranch = ({
             />
           </Form.Group>
         </Form.Row>
+      </Form.Group>
+      <Form.Group
+        className="p-1 mx-3 mt-2 mb-0"
+        data-testid="feature-config-edit"
+      >
         {experimentFeatureConfig !== null && featureEnabled ? (
           <Form.Row data-testid="feature-value-edit">
             <Form.Group as={Col} controlId={`${id}-featureValue`}>

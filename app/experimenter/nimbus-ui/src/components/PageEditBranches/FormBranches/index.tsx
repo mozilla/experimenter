@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import classNames from "classnames";
 import React, { useEffect, useMemo } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
@@ -116,6 +117,16 @@ export const FormBranches = ({
     dispatch({ type: "setFeatureConfig", value });
   };
 
+  const onFeatureConfigChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedIdx = parseInt(ev.target.value, 10);
+    if (isNaN(selectedIdx)) {
+      return handleFeatureConfigChange(null);
+    }
+    // featureConfig shouldn't ever be null in practice
+    const feature = featureConfigs![selectedIdx];
+    return handleFeatureConfigChange(feature);
+  };
+
   type DefaultValues = typeof defaultValues;
   const [handleSave, handleSaveNext] = [false, true].map((next) =>
     handleSubmit((dataIn: DefaultValues) => {
@@ -127,7 +138,7 @@ export const FormBranches = ({
           clearSubmitErrors,
           next,
         );
-      } catch (error) {
+      } catch (error: any) {
         setSubmitErrors({ "*": [error.message] });
       }
     }),
@@ -135,9 +146,7 @@ export const FormBranches = ({
 
   const commonBranchProps = {
     equalRatio,
-    featureConfigs,
     experimentFeatureConfig,
-    onFeatureConfigChange: handleFeatureConfigChange,
     setSubmitErrors,
   };
 
@@ -147,7 +156,7 @@ export const FormBranches = ({
     <FormProvider {...formMethods}>
       <Form
         data-testid="FormBranches"
-        className="border-top my-3"
+        className="my-3"
         noValidate
         onSubmit={handleSave}
       >
@@ -162,29 +171,61 @@ export const FormBranches = ({
           </Alert>
         ))}
 
-        <div className="p-2">
-          <Form.Row className="my-3">
-            <Form.Group controlId="evenRatio">
-              <Form.Check
-                data-testid="equal-ratio-checkbox"
-                onChange={handleEqualRatioChange}
-                checked={equalRatio}
-                type="checkbox"
-                label="Users should be split evenly between all branches"
-              />
-            </Form.Group>
-            <Form.Group as={Col} className="align-top text-right">
-              <Button
-                data-testid="add-branch"
-                variant="outline-primary"
-                size="sm"
-                onClick={handleAddBranch}
-              >
-                + Add branch
-              </Button>
-            </Form.Group>
-          </Form.Row>
-        </div>
+        <Form.Group>
+          <Form.Control
+            as="select"
+            name="featureConfig"
+            data-testid="feature-config-select"
+            // Displaying the review-readiness error is handled here instead of `formControlAttrs`
+            // due to a state conflict between `react-hook-form` and our internal branch state mangement
+            className={classNames(
+              fieldMessages.featureConfig?.length > 0 && "is-warning",
+            )}
+            onChange={onFeatureConfigChange}
+            value={featureConfigs!.findIndex(
+              (feature) => feature?.slug === experimentFeatureConfig?.slug,
+            )}
+          >
+            <option value="">Select...</option>
+            {featureConfigs?.map(
+              (feature, idx) =>
+                feature && (
+                  <option key={`feature-${feature.slug}-${idx}`} value={idx}>
+                    {feature.name}
+                  </option>
+                ),
+            )}
+          </Form.Control>
+          {fieldMessages.featureConfig?.length > 0 && (
+            // @ts-ignore This component doesn't technically support type="warning", but
+            // all it's doing is using the string in a class, so we can safely override.
+            <Form.Control.Feedback type="warning" data-for="featureConfig">
+              {(fieldMessages.featureConfig as SerializerMessage).join(", ")}
+            </Form.Control.Feedback>
+          )}
+        </Form.Group>
+
+        <Form.Row>
+          <Form.Group as={Col} controlId="evenRatio">
+            <Form.Check
+              data-testid="equal-ratio-checkbox"
+              onChange={handleEqualRatioChange}
+              checked={equalRatio}
+              type="checkbox"
+              label="Users should be split evenly between all branches"
+            />
+          </Form.Group>
+          <Form.Group as={Col} className="align-top text-right">
+            <Button
+              data-testid="add-branch"
+              variant="outline-primary"
+              size="sm"
+              onClick={handleAddBranch}
+            >
+              + Add branch
+            </Button>
+          </Form.Group>
+        </Form.Row>
 
         <section>
           {referenceBranch && (
@@ -200,18 +241,14 @@ export const FormBranches = ({
                   {}) as FormBranchProps["touched"],
                 isReference: true,
                 branch: { ...referenceBranch, key: "branch-reference" },
-                reviewErrors:
-                  ({
-                    ...fieldMessages.referenceBranch,
-                    featureConfig: fieldMessages.featureConfig,
-                  } as SerializerSet) || {},
+                reviewErrors: fieldMessages.referenceBranch as SerializerSet,
                 defaultValues: defaultValues.referenceBranch || {},
               }}
             />
           )}
           {treatmentBranches &&
             treatmentBranches.map((branch, idx) => {
-              const treatmentBranchFieldMessages = (
+              const reviewErrors = (
                 fieldMessages as SerializerMessages<SerializerSet[]>
               ).treatmentBranches?.[idx];
 
@@ -228,17 +265,7 @@ export const FormBranches = ({
                     touched: (touched?.treatmentBranches?.[idx] ||
                       {}) as FormBranchProps["touched"],
                     branch,
-                    reviewErrors:
-                      ({
-                        ...treatmentBranchFieldMessages,
-                        // Only show treatment branch feature config reviewErrors if the branch
-                        // has been saved or if other fields have errors, otherwise a required
-                        // feature config error can show on an optional branch
-                        ...((treatmentBranches?.[idx].slug ||
-                          treatmentBranchFieldMessages) && {
-                          featureConfig: fieldMessages.featureConfig,
-                        }),
-                      } as SerializerSet) || {},
+                    reviewErrors,
                     onRemove: handleRemoveBranch(idx),
                     defaultValues: defaultValues.treatmentBranches?.[idx] || {},
                   }}
