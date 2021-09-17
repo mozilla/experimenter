@@ -103,6 +103,9 @@ google-credentials.json
 # Jetstream config
 app/experimenter/outcomes/jetstream-config*
 
+# Feature Manifests
+app/experimenter/features/manifests*
+
 # Versioning assets generated on build
 **/commit-description.txt
 **/commit-summary.txt

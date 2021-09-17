@@ -44,6 +44,10 @@ LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.js
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || echo "skipping dummy experiments"
 PUBLISH_STORYBOOKS = npx github:mozilla-fxa/storybook-gcp-publisher --commit-summary commit-summary.txt --commit-description commit-description.txt --version-json experimenter/version.json
 
+
+JETSTREAM_CONFIG_URL = https://github.com/mozilla/jetstream-config/archive/main.zip
+FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/default/toolkit/components/nimbus/FeatureManifest.js
+
 ssl: nginx/key.pem nginx/cert.pem
 
 nginx/key.pem:
@@ -58,22 +62,30 @@ secretkey:
 	openssl rand -hex 24
 
 jetstream_config:
-	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip https://github.com/mozilla/jetstream-config/archive/main.zip
+	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip $(JETSTREAM_CONFIG_URL)
 	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/jetstream-config.zip
+
+feature_manifests:
+	curl -LJ --create-dirs -o app/experimenter/features/manifests/firefox-desktop.js $(FEATURE_MANIFEST_DESKTOP_URL)
+	echo "console.log(JSON.stringify(FeatureManifest));" >> app/experimenter/features/manifests/firefox-desktop.js
+	node app/experimenter/features/manifests/firefox-desktop.js > app/experimenter/features/manifests/firefox-desktop.json
+
+fetch_external_resources: jetstream_config feature_manifests
+	echo "External Resources Fetched"
 
 update_kinto:
 	docker pull mozilla/kinto-dist:latest
 
-build_dev: jetstream_config ssl
+build_dev: fetch_external_resources ssl
 	DOCKER_BUILDKIT=1 docker build --target dev -f app/Dockerfile -t app:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
-build_test: jetstream_config ssl
+build_test: fetch_external_resources ssl
 	DOCKER_BUILDKIT=1 docker build --target test -f app/Dockerfile -t app:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
-build_ui: jetstream_config ssl
+build_ui: fetch_external_resources ssl
 	DOCKER_BUILDKIT=1 docker build --target ui -f app/Dockerfile -t app:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
-build_prod: build_ui jetstream_config ssl
+build_prod: build_ui fetch_external_resources ssl
 	DOCKER_BUILDKIT=1 docker build --target deploy -f app/Dockerfile -t app:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
 compose_stop:
