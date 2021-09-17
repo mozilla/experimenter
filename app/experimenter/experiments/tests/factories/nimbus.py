@@ -1,3 +1,4 @@
+import base64
 import datetime
 import decimal
 import json
@@ -6,6 +7,7 @@ from collections.abc import Iterable
 from enum import Enum
 
 import factory
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
@@ -18,6 +20,7 @@ from experimenter.experiments.changelog_utils import (
 )
 from experimenter.experiments.models import (
     NimbusBranch,
+    NimbusBranchScreenshot,
     NimbusBucketRange,
     NimbusDocumentationLink,
     NimbusExperiment,
@@ -30,6 +33,14 @@ from experimenter.outcomes import Outcomes
 from experimenter.projects.tests.factories import ProjectFactory
 
 faker = FakerFactory.create()
+
+
+# TODO: assemble a directory of sample screenshot images?
+# a tiny 1x1 transparent png to use as an image (i.e. in branch screenshots)
+TINY_PNG = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+"
+    "M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+)
 
 
 class LifecycleStates(Enum):
@@ -353,6 +364,29 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusBranch
+
+    @factory.post_generation
+    def screenshots(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if isinstance(extracted, Iterable):
+            for screenshot in extracted:
+                self.screenshots.add(screenshot)
+        else:
+            NimbusBranchScreenshotFactory.create(branch=self)
+            self.save()
+
+
+class NimbusBranchScreenshotFactory(factory.django.DjangoModelFactory):
+    branch = factory.SubFactory(NimbusBranchFactory)
+    description = factory.LazyAttribute(lambda o: faker.text())
+    image = factory.LazyAttribute(
+        lambda o: SimpleUploadedFile(name="%s.png" % faker.slug(), content=TINY_PNG)
+    )
+
+    class Meta:
+        model = NimbusBranchScreenshot
 
 
 class NimbusDocumentationLinkFactory(factory.django.DjangoModelFactory):

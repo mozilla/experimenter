@@ -11,6 +11,7 @@ from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
+    NimbusBranchScreenshot,
     NimbusDocumentationLink,
     NimbusFeatureConfig,
 )
@@ -46,7 +47,36 @@ class ExperimentNameValidatorMixin:
         return name
 
 
+class NimbusBranchScreenshotSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    description = serializers.CharField(max_length=1024, required=True)
+    image = serializers.ImageField(required=False, allow_empty_file=False, use_url=True)
+
+    class Meta:
+        model = NimbusBranchScreenshot
+        fields = (
+            "id",
+            "description",
+            "image",
+        )
+
+
 class NimbusBranchSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    screenshots = NimbusBranchScreenshotSerializer(many=True, required=False)
+
+    class Meta:
+        model = NimbusBranch
+        fields = (
+            "id",
+            "name",
+            "description",
+            "ratio",
+            "feature_enabled",
+            "feature_value",
+            "screenshots",
+        )
+
     def validate_name(self, value):
         slug_name = slugify(value)
         if not slug_name:
@@ -79,15 +109,52 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             )
         return data
 
-    class Meta:
-        model = NimbusBranch
-        fields = (
-            "name",
-            "description",
-            "ratio",
-            "feature_enabled",
-            "feature_value",
-        )
+    def create(self, data):
+        data["slug"] = slugify(data["name"])
+        screenshots = data.pop("screenshots", None)
+        branch = super().create(data)
+
+        if screenshots is not None:
+            for screenshot_data in screenshots:
+                serializer = NimbusBranchScreenshotSerializer(
+                    data=screenshot_data, partial=True
+                )
+                if serializer.is_valid(raise_exception=True):
+                    serializer.save(branch=branch)
+
+        return branch
+
+    def update(self, branch, data):
+        with transaction.atomic():
+            screenshots = data.pop("screenshots", None)
+            branch = super().update(branch, data)
+
+            if screenshots is not None:
+                updated_screenshots = dict(
+                    (x["id"], x) for x in screenshots if x.get("id", None)
+                )
+                for screenshot in branch.screenshots.all():
+                    screenshot_id = screenshot.id
+                    if screenshot_id not in updated_screenshots:
+                        screenshot.delete()
+                    else:
+                        serializer = NimbusBranchScreenshotSerializer(
+                            screenshot,
+                            data=updated_screenshots[screenshot_id],
+                            partial=True,
+                        )
+                        if serializer.is_valid(raise_exception=True):
+                            serializer.save()
+
+                new_screenshots = (x for x in screenshots if not x.get("id", None))
+                for screenshot_data in new_screenshots:
+                    serializer = NimbusBranchScreenshotSerializer(
+                        data=screenshot_data, partial=True
+                    )
+                    if serializer.is_valid(raise_exception=True):
+                        serializer.save(branch=branch)
+
+        return branch
 
 
 class NimbusExperimentBranchMixin:
@@ -188,29 +255,49 @@ class NimbusExperimentBranchMixin:
 
     def update(self, experiment, data):
         with transaction.atomic():
-            if set(data.keys()).intersection({"reference_branch", "treatment_branches"}):
-                experiment.delete_branches()
-
-            control_branch_data = data.pop("reference_branch", {})
-            treatment_branches_data = data.pop("treatment_branches", [])
+            reference_branch_data = data.pop("reference_branch", None)
+            treatment_branches_data = data.pop("treatment_branches", None)
 
             experiment = super().update(experiment, data)
 
-            if control_branch_data:
-                experiment.reference_branch = NimbusBranch.objects.create(
-                    experiment=experiment,
-                    slug=slugify(control_branch_data["name"]),
-                    **control_branch_data,
-                )
-                experiment.save()
+            if reference_branch_data is not None:
+                branch_id = reference_branch_data.pop("id", None)
+                instance = None
+                if experiment.reference_branch:
+                    if branch_id == experiment.reference_branch.id:
+                        instance = experiment.reference_branch
+                    else:
+                        experiment.reference_branch.delete()
 
-            if treatment_branches_data:
-                for branch_data in treatment_branches_data:
-                    NimbusBranch.objects.create(
-                        experiment=experiment,
-                        slug=slugify(branch_data["name"]),
-                        **branch_data,
-                    )
+                serializer = NimbusBranchSerializer(
+                    instance, data=reference_branch_data, partial=True
+                )
+                if serializer.is_valid(raise_exception=True):
+                    experiment.reference_branch = serializer.save(experiment=experiment)
+                    experiment.save()
+
+            if treatment_branches_data is not None:
+                updated_branches = dict(
+                    (x["id"], x) for x in treatment_branches_data if x.get("id", None)
+                )
+                for branch in experiment.treatment_branches:
+                    branch_id = branch.id
+                    if branch_id not in updated_branches:
+                        branch.delete()
+                    else:
+                        serializer = NimbusBranchSerializer(
+                            branch, data=updated_branches[branch_id], partial=True
+                        )
+                        if serializer.is_valid(raise_exception=True):
+                            serializer.save()
+
+                new_branches = (
+                    x for x in treatment_branches_data if not x.get("id", None)
+                )
+                for branch_data in new_branches:
+                    serializer = NimbusBranchSerializer(data=branch_data, partial=True)
+                    if serializer.is_valid(raise_exception=True):
+                        serializer.save(experiment=experiment)
 
         return experiment
 
@@ -603,6 +690,17 @@ class NimbusExperimentSerializer(
             return experiment
 
 
+class NimbusBranchScreenshotReadyForReviewSerializer(NimbusBranchScreenshotSerializer):
+    # Round-trip serialization & validation for review can use a string path
+    image = serializers.CharField(required=True)
+
+
+class NimbusBranchReadyForReviewSerializer(NimbusBranchSerializer):
+    screenshots = NimbusBranchScreenshotReadyForReviewSerializer(
+        many=True, required=False
+    )
+
+
 class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     public_description = serializers.CharField(required=True)
     proposed_duration = serializers.IntegerField(required=True, min_value=1)
@@ -627,8 +725,8 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     targeting_config_slug = serializers.ChoiceField(
         NimbusExperiment.TargetingConfig.choices, required=True
     )
-    reference_branch = NimbusBranchSerializer(required=True)
-    treatment_branches = NimbusBranchSerializer(many=True)
+    reference_branch = NimbusBranchReadyForReviewSerializer(required=True)
+    treatment_branches = NimbusBranchReadyForReviewSerializer(many=True)
     feature_config = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
         allow_null=False,
