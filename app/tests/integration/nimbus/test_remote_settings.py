@@ -15,15 +15,13 @@ def load_data():
         json={
             "operationName": "getConfig",
             "variables": {},
-            "query": """
-                \nquery getConfig {\n  nimbusConfig "
-                "{\n    targetingConfigs {\n      "
-                "label\n      value\n      applicationValues\n    "
-                "}\n  }\n}\n""",
+            "query": "\nquery getConfig {\n  nimbusConfig "
+            "{\n    targetingConfigs {\n      "
+            "label\n      value\n      applicationValues\n    "
+            "}\n  }\n}\n",
         },
         verify=False,
     ).json()
-    # print(data["data"]["nimbusConfig"]["targetingConfigs"][1]["applicationValues"])
     for item in data["data"]["nimbusConfig"]["targetingConfigs"]:
         if "DESKTOP" in item["applicationValues"]:
             apps.append(item["value"])
