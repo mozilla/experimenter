@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
-from experimenter.base import get_uploads_storage
+from experimenter.base import UploadsStorage
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.projects.models import Project
@@ -559,14 +559,7 @@ class NimbusBranch(models.Model):
 def nimbus_branch_screenshot_upload_to(screenshot, filename):
     id = uuid4()
     ext = filename.split(".")[-1].lower()
-    return os.path.join(
-        screenshot.branch.experiment.slug, screenshot.branch.slug, f"{id}.{ext}"
-    )
-
-
-# Helper that Django can serialize into a migration, cannot serialize functools.cache
-def nimbus_branch_screenshot_storage():
-    return get_uploads_storage()
+    return os.path.join(screenshot.branch.experiment.slug, f"{id}.{ext}")
 
 
 class NimbusBranchScreenshot(models.Model):
@@ -576,7 +569,7 @@ class NimbusBranchScreenshot(models.Model):
         on_delete=models.CASCADE,
     )
     image = models.ImageField(
-        storage=nimbus_branch_screenshot_storage,
+        storage=UploadsStorage,
         upload_to=nimbus_branch_screenshot_upload_to,
     )
     description = models.TextField(blank=True, default="")

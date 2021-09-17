@@ -2,13 +2,16 @@ import json
 
 import mock
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
+from graphene_file_upload.django.testing import GraphQLFileUploadTestCase
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import NimbusExperiment, NimbusFeatureConfig
 from experimenter.experiments.tests.factories.nimbus import (
+    TINY_PNG,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
@@ -102,7 +105,7 @@ class TestCreateExperimentMutation(GraphQLTestCase):
 
 
 @mock_valid_outcomes
-class TestUpdateExperimentMutation(GraphQLTestCase):
+class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
     maxDiff = None
 
@@ -354,6 +357,90 @@ class TestUpdateExperimentMutation(GraphQLTestCase):
                 ]
             },
         )
+
+    def test_update_experiment_branches_with_screenshots(self):
+        user_email = "user@example.com"
+        feature = NimbusFeatureConfigFactory(
+            schema="{}", application=NimbusExperiment.Application.FENIX
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+        )
+        experiment_id = experiment.id
+
+        reference_branch = {
+            "name": "control",
+            "description": "a control",
+            "ratio": 1,
+            "screenshots": [
+                {"description": "Foo", "image": None},
+                {"description": "Bar", "image": None},
+            ],
+        }
+        reference_branch_image_content_1 = TINY_PNG
+        reference_branch_image_content_2 = TINY_PNG
+
+        treatment_branches = [
+            {
+                "name": "treatment1",
+                "description": "desc1",
+                "ratio": 1,
+                "screenshots": [
+                    {"description": "Baz", "image": None},
+                ],
+            }
+        ]
+        treatment_branch_image_content_1 = TINY_PNG
+
+        response = self.file_query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "featureConfigId": feature.id,
+                    "referenceBranch": reference_branch,
+                    "treatmentBranches": treatment_branches,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            files={
+                "input.referenceBranch.screenshots.0.image": SimpleUploadedFile(
+                    name="Capture.PNG", content=reference_branch_image_content_1
+                ),
+                "input.referenceBranch.screenshots.1.image": SimpleUploadedFile(
+                    name="Capture2.PNG", content=reference_branch_image_content_2
+                ),
+                "input.treatmentBranches.0.screenshots.0.image": SimpleUploadedFile(
+                    name="Capture3.PNG", content=treatment_branch_image_content_1
+                ),
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(
+            content["data"]["updateExperiment"]["message"], "success", content
+        )
+
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        self.assertEqual(experiment.branches.count(), 2)
+
+        self.assertEqual(experiment.reference_branch.name, reference_branch["name"])
+        self.assertEqual(experiment.reference_branch.screenshots.count(), 2)
+        screenshots = experiment.reference_branch.screenshots.all()
+        with screenshots[0].image.open() as image_file:
+            self.assertEqual(image_file.read(), reference_branch_image_content_1)
+        with screenshots[1].image.open() as image_file:
+            self.assertEqual(image_file.read(), reference_branch_image_content_2)
+
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, treatment_branches[0]["name"])
+        self.assertEqual(treatment_branch.screenshots.count(), 1)
+        screenshots = treatment_branch.screenshots.all()
+        with screenshots[0].image.open() as image_file:
+            self.assertEqual(image_file.read(), treatment_branch_image_content_1)
 
     def test_update_experiment_outcomes(self):
         user_email = "user@example.com"

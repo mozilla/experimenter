@@ -3,6 +3,11 @@ schema {
   mutation: Mutation
 }
 
+input BranchScreenshotType {
+  image: Upload!
+  description: String!
+}
+
 type CloneExperiment {
   nimbusExperiment: NimbusExperimentType
   message: ObjectField
@@ -68,6 +73,7 @@ type Mutation {
 }
 
 type NimbusBranchType {
+  id: ID!
   name: String!
   slug: String!
   description: String!
@@ -465,22 +471,28 @@ type Query {
 }
 
 input ReferenceBranchType {
+  id: Int
   name: String!
   description: String!
   ratio: Int!
   featureEnabled: Boolean
   featureValue: String
+  screenshots: [BranchScreenshotType]
 }
 
 input TreatmentBranchType {
+  id: Int
   name: String!
   description: String!
   ratio: Int!
   featureEnabled: Boolean
   featureValue: String
+  screenshots: [BranchScreenshotType]
 }
 
 type UpdateExperiment {
   nimbusExperiment: NimbusExperimentType
   message: ObjectField
 }
+
+scalar Upload

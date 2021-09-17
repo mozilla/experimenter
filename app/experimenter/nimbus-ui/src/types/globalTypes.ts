@@ -157,6 +157,11 @@ export enum NimbusExperimentStatus {
   PREVIEW = "PREVIEW",
 }
 
+export interface BranchScreenshotType {
+  image: Upload;
+  description: string;
+}
+
 export interface DocumentationLinkType {
   title: NimbusExperimentDocumentationLink;
   link: string;
@@ -202,19 +207,23 @@ export interface ExperimentInput {
 }
 
 export interface ReferenceBranchType {
+  id?: number | null;
   name: string;
   description: string;
   ratio: number;
   featureEnabled?: boolean | null;
   featureValue?: string | null;
+  screenshots?: (BranchScreenshotType | null)[] | null;
 }
 
 export interface TreatmentBranchType {
+  id?: number | null;
   name: string;
   description: string;
   ratio: number;
   featureEnabled?: boolean | null;
   featureValue?: string | null;
+  screenshots?: (BranchScreenshotType | null)[] | null;
 }
 
 //==============================================================
