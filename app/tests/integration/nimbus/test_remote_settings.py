@@ -15,10 +15,11 @@ def load_data():
         json={
             "operationName": "getConfig",
             "variables": {},
-            "query": "\nquery getConfig {\n  " + 
-                "nimbusConfig {\n    targetingConfigs {\n      " + 
-                "label\n      value\n      applicationValues\n    " +
-                "}\n  }\n}\n",
+            "query": """
+                \nquery getConfig {\n  nimbusConfig "
+                "{\n    targetingConfigs {\n      "
+                "label\n      value\n      applicationValues\n    "
+                "}\n  }\n}\n""",
         },
         verify=False,
     ).json()

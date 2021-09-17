@@ -171,16 +171,10 @@ export const FormAudience = ({
           </Form.Group>
         </Form.Row>
         <Form.Row>
-          <Form.Group
-            as={Col}
-            controlId="locales"
-            data-testid="locales"
-            id="locales"
-          >
+          <Form.Group as={Col} controlId="locales" data-testid="locales">
             <Form.Label>Locales</Form.Label>
             <Select
               placeholder="All Locales"
-              id="select-locale-container"
               isMulti
               {...formSelectAttrs("locales", setLocales)}
               options={selectOptions(config.locales as SelectIdItems)}
@@ -193,16 +187,10 @@ export const FormAudience = ({
             )}
             <FormErrors name="locales" />
           </Form.Group>
-          <Form.Group
-            as={Col}
-            controlId="countries"
-            data-testid="countries"
-            id="countries"
-          >
+          <Form.Group as={Col} controlId="countries" data-testid="countries">
             <Form.Label>Countries</Form.Label>
             <Select
               placeholder="All Countries"
-              id="select-country-container"
               isMulti
               {...formSelectAttrs("countries", setCountries)}
               options={selectOptions(config.countries as SelectIdItems)}
