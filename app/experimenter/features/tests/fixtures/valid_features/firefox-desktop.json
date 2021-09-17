@@ -1,0 +1,18 @@
+{
+	"readerMode": {
+		"description": "Firefox Reader Mode",
+		"exposureDescription": "An exposure event",
+		"isEarlyStartup": true,
+		"variables": {
+			"pocketCTAVersion": {
+				"type": "string",
+				"fallbackPref": "reader.pocket.ctaVersion",
+				"description": "What version of Pocket CTA to show in Reader Mode (Empty string is no CTA)",
+				"enum": [
+					"v1",
+					"v2"
+				]
+			}
+		}
+	}
+}

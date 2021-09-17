@@ -36,8 +36,11 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 
 ### General Setup
 
-1.  Install [docker](https://www.docker.com/) on your machine
+1.
 
+On all platforms:
+- Install [Docker](https://www.docker.com/)
+- Install [Node](https://nodejs.org/en/) ^14.0.0
 - On Linux [setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
 - On MacOS
   - [Install Docker Desktop 3.3.2](https://docs.docker.com/docker-for-mac/release-notes/#docker-desktop-332) (Newer versions have been buggy)
@@ -89,8 +92,6 @@ One might choose the semi dockerized approach for:
 1. better ide integration
 
 Notes:
-
-- Node ^14.0.0 is required
 
 - [osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
 

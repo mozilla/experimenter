@@ -73,9 +73,10 @@ INSTALLED_APPS = [
     # Experimenter
     "experimenter.base",
     "experimenter.experiments",
+    "experimenter.features",
+    "experimenter.jetstream",
     "experimenter.kinto",
     "experimenter.normandy",
-    "experimenter.jetstream",
     "experimenter.notifications",
     "experimenter.openidc",
     "experimenter.outcomes",
@@ -439,6 +440,9 @@ NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").
 JETSTREAM_CONFIG_OUTCOMES_PATH = os.path.join(
     BASE_DIR, "outcomes", "jetstream-config-main", "outcomes"
 )
+
+# Feature Manifest path
+FEATURE_MANIFESTS_PATH = os.path.join(BASE_DIR, "features", "manifests")
 
 SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
     "SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER", default=False, cast=bool
