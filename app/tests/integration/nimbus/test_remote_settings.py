@@ -121,7 +121,7 @@ def test_end_experiment_and_reject_end(
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-@pytest.mark.run_once
+@pytest.mark.run_parallel
 def test_check_targeting(
     selenium,
     base_url,
