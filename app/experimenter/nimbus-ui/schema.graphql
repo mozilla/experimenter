@@ -291,6 +291,7 @@ enum NimbusExperimentFirefoxMinVersion {
   FIREFOX_90
   FIREFOX_91
   FIREFOX_92
+  FIREFOX_9201
   FIREFOX_93
   FIREFOX_94
   FIREFOX_95
