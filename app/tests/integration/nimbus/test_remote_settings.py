@@ -1,3 +1,4 @@
+import json
 from urllib.parse import urlparse
 
 import pytest
@@ -141,7 +142,10 @@ def test_check_targeting(
     json_url = f"https://{base_url.netloc}/api/v6/experiments/{slugify(title)}"
     # Get experiment JSON and parse
     experiment_json = requests.get(f"{json_url}", verify=False).json()
-    targeting = experiment_json["targeting"]
+    experiment_json = {"experiment": experiment_json}
+    targeting = experiment_json["experiment"]["targeting"]
+    experiment_json = json.dumps(experiment_json)
+    # print(json.dumps(experiment_json))
     # Inject filter expression
     selenium.get("about:blank")
     with open("nimbus/utils/filter_expression.js") as js:
@@ -152,4 +156,4 @@ def test_check_targeting(
             script=js.read(),
             context="chrome",
         )
-    assert script is not None
+    assert script is not None, "Invalid Targeting, or bad recipe"

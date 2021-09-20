@@ -5,12 +5,19 @@ Components.utils.import("resource://gre/modules/components-utils/ClientEnvironme
 
 async function remoteSettings(arguments) {
 
-    const ExperimentLoader = ChromeUtils.import(
-        "resource://nimbus/lib/RemoteSettingsExperimentLoader.jsm"
-    );
-    let experiment_loader = new ExperimentLoader._RemoteSettingsExperimentLoader()
-    const result = await experiment_loader.evaluateJexl(arguments[0], {experiment: arguments[1]})
-    return result
+    const TargetingContext = ChromeUtils.import(
+        "resource://messaging-system/targeting/Targeting.jsm"
+    )
+
+    _experiment = JSON.parse(arguments[1])
+    const targetingContext = new TargetingContext.TargetingContext(_experiment);
+    let result = false;
+    try {
+        result = await targetingContext.evalWithDefault(arguments[0]);
+    } catch (err) {
+        result = null
+    }
+    return result;
 }
 
 let results = remoteSettings(arguments)

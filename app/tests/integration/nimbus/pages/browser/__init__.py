@@ -1,3 +1,6 @@
+"""Browser Model"""
+
+
 class Browser:
     def execute_script(selenium, *args, script=None, context=None):
         if "chrome" in context:
