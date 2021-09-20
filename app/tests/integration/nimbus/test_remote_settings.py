@@ -145,7 +145,6 @@ def test_check_targeting(
     experiment_json = {"experiment": experiment_json}
     targeting = experiment_json["experiment"]["targeting"]
     experiment_json = json.dumps(experiment_json)
-    # print(json.dumps(experiment_json))
     # Inject filter expression
     selenium.get("about:blank")
     with open("nimbus/utils/filter_expression.js") as js:
