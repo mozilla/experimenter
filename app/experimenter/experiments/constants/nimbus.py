@@ -175,13 +175,11 @@ TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_MOBILE_FIRST_RUN = NimbusTargetingConfig(
-    name="First start-up users",
-    slug="first_run_mobile",
-    description=(
-        "First start-up users (i.e first run after installing the app) on mobile"
-    ),
-    targeting=("isFirstRun == 'true'"),
+TARGETING_MOBILE_NEW_USER = NimbusTargetingConfig(
+    name="New Users on Mobile",
+    slug="mobile_new_users",
+    description=("New users on mobile"),
+    targeting=("isNewUser == 'true'"),
     desktop_telemetry="",
     application_choice_names=(Application.FENIX.name, Application.IOS.name),
 )
@@ -472,7 +470,7 @@ class NimbusConstants(object):
         TARGETING_URLBAR_FIREFOX_SUGGEST.slug: TARGETING_URLBAR_FIREFOX_SUGGEST,
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
         TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
-        TARGETING_MOBILE_FIRST_RUN.slug: TARGETING_MOBILE_FIRST_RUN,
+        TARGETING_MOBILE_NEW_USER.slug: TARGETING_MOBILE_NEW_USER,
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug: TARGETING_NO_ENTERPRISE_OR_PAST_VPN,
         TARGETING_INFREQUENT_USER_URIS.slug: TARGETING_INFREQUENT_USER_URIS,
         TARGETING_INFREQUENT_WIN_USER_URIS.slug: TARGETING_INFREQUENT_WIN_USER_URIS,
@@ -503,9 +501,9 @@ class NimbusConstants(object):
             TARGETING_NO_ENTERPRISE.slug,
             TARGETING_NO_ENTERPRISE.name,
         )
-        TARGETING_MOBILE_FIRST_RUN = (
-            TARGETING_MOBILE_FIRST_RUN.slug,
-            TARGETING_MOBILE_FIRST_RUN.name,
+        TARGETING_MOBILE_NEW_USER = (
+            TARGETING_MOBILE_NEW_USER.slug,
+            TARGETING_MOBILE_NEW_USER.name,
         )
         TARGETING_INFREQUENT_USER_URIS = (
             TARGETING_INFREQUENT_USER_URIS.slug,
