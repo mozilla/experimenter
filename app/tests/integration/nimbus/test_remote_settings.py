@@ -130,13 +130,12 @@ def test_check_targeting(
     create_experiment,
     slugify,
     app_data,
+    json_url
 ):
     default_data.audience.targeting = app_data
     default_data.public_name = default_data.public_name.replace("-", "", 1)
     create_experiment(selenium).launch_to_preview()
-    title = default_data.public_name
-    base_url = urlparse(base_url)
-    json_url = f"https://{base_url.netloc}/api/v6/experiments/{slugify(title)}"
+    json_url = json_url(base_url, default_data.public_name)
     # Get experiment JSON and parse
     experiment_json = requests.get(f"{json_url}", verify=False).json()
     experiment_json = {"experiment": experiment_json}

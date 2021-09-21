@@ -1,5 +1,5 @@
 import uuid
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import pytest
 import requests
@@ -48,6 +48,13 @@ def slugify():
         return input.lower().replace(" ", "-").replace("[", "").replace("]", "")
 
     return _slugify
+
+@pytest.fixture
+def json_url(slugify):
+    def _json_url(base_url, title):
+        base_url = urlparse(base_url)
+        return f"https://{base_url.netloc}/api/v6/experiments/{slugify(title)}"
+    return _json_url
 
 
 @pytest.fixture
