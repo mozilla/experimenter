@@ -10,6 +10,7 @@ from nimbus.pages.remote_settings.login import Login
 
 
 def load_data():
+    apps = []
     data = requests.post(
         "https://nginx/api/v5/graphql",
         json={
@@ -22,11 +23,10 @@ def load_data():
         },
         verify=False,
     ).json()
-    return [
-        item
-        for item in data["data"]["nimbusConfig"]["targetingConfigs"]
-        if "DESKTOP" in item["applicationValues"]
-    ]
+    for item in data["data"]["nimbusConfig"]["targetingConfigs"]:
+        if "DESKTOP" in item["applicationValues"]:
+            apps.append(item["value"])
+    return apps
 
 
 @pytest.fixture(params=load_data())
