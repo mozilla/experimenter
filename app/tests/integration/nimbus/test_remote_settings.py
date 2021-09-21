@@ -10,7 +10,6 @@ from nimbus.pages.remote_settings.login import Login
 
 
 def load_data():
-    apps = []
     data = requests.post(
         "https://nginx/api/v5/graphql",
         json={
