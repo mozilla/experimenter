@@ -1,5 +1,5 @@
 import uuid
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import pytest
 import requests
@@ -7,7 +7,6 @@ from nimbus.models.base_dataclass import (
     BaseExperimentApplications,
     BaseExperimentAudienceChannels,
     BaseExperimentAudienceDataClass,
-    BaseExperimentAudienceTargetingOptions,
     BaseExperimentBranchDataClass,
     BaseExperimentDataClass,
     BaseExperimentMetricsDataClass,
@@ -43,8 +42,21 @@ APPLICATION_KINTO_REVIEW_PATH = {
 }
 
 
-def slugify(input):
-    return input.lower().replace(" ", "-").replace("[", "").replace("]", "")
+@pytest.fixture
+def slugify():
+    def _slugify(input):
+        return input.lower().replace(" ", "-").replace("[", "").replace("]", "")
+
+    return _slugify
+
+
+@pytest.fixture
+def json_url(slugify):
+    def _json_url(base_url, title):
+        base_url = urlparse(base_url)
+        return f"https://{base_url.netloc}/api/v6/experiments/{slugify(title)}"
+
+    return _json_url
 
 
 @pytest.fixture
@@ -97,7 +109,7 @@ def drafts_tab_url(base_url):
 
 
 @pytest.fixture
-def experiment_url(base_url, default_data):
+def experiment_url(base_url, default_data, slugify):
     return urljoin(base_url, slugify(default_data.public_name))
 
 
@@ -128,9 +140,11 @@ def default_data(request):
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.RELEASE,
             min_version=80,
-            targeting=BaseExperimentAudienceTargetingOptions.NO_TARGETING,
+            targeting="",
             percentage=50.0,
             expected_clients=50,
+            locale=None,
+            countries=None,
         ),
     )
 
@@ -165,7 +179,7 @@ def create_experiment(base_url, default_data):
         audience = metrics.save_and_continue()
         audience.channel = default_data.audience.channel.value
         audience.min_version = default_data.audience.min_version
-        audience.targeting = default_data.audience.targeting.value
+        audience.targeting = default_data.audience.targeting
         audience.percentage = default_data.audience.percentage
         audience.expected_clients = default_data.audience.expected_clients
         return audience.save_and_continue()
