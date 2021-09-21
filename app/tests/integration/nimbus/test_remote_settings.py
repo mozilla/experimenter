@@ -1,5 +1,4 @@
 import json
-from urllib.parse import urlparse
 
 import pytest
 import requests
@@ -124,13 +123,7 @@ def test_end_experiment_and_reject_end(
 
 @pytest.mark.run_parallel
 def test_check_targeting(
-    selenium,
-    base_url,
-    default_data,
-    create_experiment,
-    slugify,
-    app_data,
-    json_url
+    selenium, base_url, default_data, create_experiment, slugify, app_data, json_url
 ):
     default_data.audience.targeting = app_data
     default_data.public_name = default_data.public_name.replace("-", "", 1)
