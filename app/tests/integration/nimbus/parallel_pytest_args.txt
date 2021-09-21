@@ -4,3 +4,5 @@
 -k KLAR -m run_per_app
 -k FOCUS -m run_per_app
 -k DESKTOP -m run_once
+-k DESKTOP -m run_parallel -n 2
+ 

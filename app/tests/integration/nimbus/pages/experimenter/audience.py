@@ -1,4 +1,3 @@
-from nimbus.models.base_dataclass import BaseExperimentAudienceTargetingOptions
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.summary import SummaryPage
 from selenium.webdriver.common.by import By
@@ -44,7 +43,7 @@ class AudiencePage(ExperimenterBase):
         return self.find_element(*self._targeting_select_locator).text
 
     @targeting.setter
-    def targeting(self, targeting=BaseExperimentAudienceTargetingOptions.NO_TARGETING):
+    def targeting(self, targeting=""):
         el = self.find_element(*self._targeting_select_locator)
         select = Select(el)
         select.select_by_value(targeting)
