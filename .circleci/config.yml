@@ -68,7 +68,7 @@ jobs:
       docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
-    parallelism: 6 # This should match the number of entries in parallel_pytest_args.txt
+    parallelism: 7 # This should match the number of entries in parallel_pytest_args.txt
     steps:
       - checkout
       - run:
