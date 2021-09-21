@@ -126,6 +126,9 @@ export const FIELD_MESSAGES = {
   URL: "This field must be a URL.",
 };
 
+export const PUBLIC_DESCRIPTION_PLACEHOLDER =
+  "The public description should be descriptive and publicly appropriate in order to avoid user confusion if they were to see it. It should avoid being too technical or too detailed.";
+
 export const REQUIRED_FIELD = {
   required: FIELD_MESSAGES.REQUIRED,
 } as RegisterOptions;

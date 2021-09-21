@@ -13,6 +13,7 @@ import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Info } from "../../images/info.svg";
 import {
   EXTERNAL_URLS,
+  PUBLIC_DESCRIPTION_PLACEHOLDER,
   REQUIRED_FIELD,
   RISK_QUESTIONS,
 } from "../../lib/constants";
@@ -231,6 +232,7 @@ const FormOverview = ({
               <Form.Control
                 as="textarea"
                 rows={3}
+                placeholder={PUBLIC_DESCRIPTION_PLACEHOLDER}
                 {...formControlAttrs("publicDescription")}
               />
               <Form.Text className="text-muted">
