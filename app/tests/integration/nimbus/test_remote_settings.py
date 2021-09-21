@@ -23,10 +23,11 @@ def load_data():
         },
         verify=False,
     ).json()
-    for item in data["data"]["nimbusConfig"]["targetingConfigs"]:
-        if "DESKTOP" in item["applicationValues"]:
-            apps.append(item["value"])
-    return apps
+    return [
+        item
+        for item in data["data"]["nimbusConfig"]["targetingConfigs"]
+        if "DESKTOP" in item["applicationValues"]
+    ]
 
 
 @pytest.fixture(params=load_data())
@@ -126,9 +127,6 @@ def test_end_experiment_and_reject_end(
 def test_check_targeting(
     selenium,
     base_url,
-    kinto_url,
-    kinto_review_url,
-    experiment_url,
     default_data,
     create_experiment,
     slugify,
