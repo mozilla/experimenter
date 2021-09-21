@@ -1398,14 +1398,14 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "rope"
-version = "0.19.0"
+version = "0.20.1"
 description = "a python refactoring library..."
 category = "dev"
 optional = false
 python-versions = "*"
 
 [package.extras]
-dev = ["pytest"]
+dev = ["pytest", "pytest-timeout"]
 
 [[package]]
 name = "rsa"
@@ -1589,7 +1589,7 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "8c7f5e9506f60556be7c9e2c6a25250f858f7eafd1a04ab322ff5d9db3a0dd03"
+content-hash = "82878ae0f5d7e423ff870ef53e1a065c290f7a606e52986a9015454496cc9b7a"
 
 [metadata.files]
 amqp = [
@@ -2350,7 +2350,7 @@ requests = [
     {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
 ]
 rope = [
-    {file = "rope-0.19.0.tar.gz", hash = "sha256:64e6d747532e1f5c8009ec5aae3e5523a5bcedf516f39a750d57d8ed749d90da"},
+    {file = "rope-0.20.1.tar.gz", hash = "sha256:505a2f6b4ac7b18e0429be179f4d8712243a194da5c866b0731f9d91ce7590bb"},
 ]
 rsa = [
     {file = "rsa-4.7.2-py3-none-any.whl", hash = "sha256:78f9a9bf4e7be0c5ded4583326e7461e3a3c5aae24073648b4bdfa797d78c9d2"},
