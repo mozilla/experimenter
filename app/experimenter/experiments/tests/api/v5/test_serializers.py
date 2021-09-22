@@ -400,6 +400,48 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
         serializer.save()
         self.assert_documentation_links(experiment.id, links_before)
 
+    def test_serializer_preserves_links_with_branch_update(self):
+        """
+        Reproduction for EXP-1788: branch update deleted documentation
+        links. Topically more appropriate for the branch serializer suite,
+        but the links assert method lives here
+        """
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        links_before = []
+        for link in experiment.documentation_links.all():
+            links_before.append(
+                {
+                    "title": link.title,
+                    "link": link.link,
+                }
+            )
+        data = {
+            "public_description": "changed reference",
+            "reference_branch": {
+                "description": "changed",
+                "feature_enabled": False,
+                "name": "also changed reference",
+                "ratio": 1,
+            },
+            "treatment_branches": [
+                {
+                    "description": "changed treatment",
+                    "feature_enabled": False,
+                    "name": "also changed treatment",
+                    "ratio": 1,
+                },
+            ],
+            "changelog_message": "test changelog message",
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        serializer.save()
+        self.assert_documentation_links(experiment.id, links_before)
+
     def test_serializer_supports_multiple_links_of_same_type(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,

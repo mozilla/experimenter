@@ -153,7 +153,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         default=NimbusConstants.TargetingConfig.NO_TARGETING,
     )
     reference_branch = models.OneToOneField(
-        "NimbusBranch", blank=True, null=True, on_delete=models.CASCADE
+        "NimbusBranch", blank=True, null=True, on_delete=models.SET_NULL
     )
     published_dto = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
     results_data = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
