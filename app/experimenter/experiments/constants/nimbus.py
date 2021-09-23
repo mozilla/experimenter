@@ -165,7 +165,7 @@ TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
 TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     name="First start-up users on Windows 10 1903 (build 18362) or newer",
     slug="first_run_win1903",
-    description=("First start-up users (e.g. for about:welcome) on Win 18362+"),
+    description="First start-up users (e.g. for about:welcome) on Windows 1903+",
     targeting=("{first_run} && os.windowsBuildNumber >= 18362").format(
         first_run=TARGETING_FIRST_RUN.targeting
     ),
@@ -252,7 +252,7 @@ TARGETING_INFREQUENT_USER_URIS = NimbusTargetingConfig(
 TARGETING_INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
     name="Infrequent non-default Windows user",
     slug="infrequent_win_user_uris",
-    description="Infrequent non default users based on last 30 days, on Windows 17763+",
+    description="Infrequent non default users of past 28 days, on Windows 1903+",
     targeting=(
         "{infrequent_user} && os.windowsBuildNumber >= 18362 && !isDefaultBrowser"
     ).format(infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting),
@@ -266,6 +266,21 @@ TARGETING_CASUAL_USER_URIS = NimbusTargetingConfig(
     description="Between 7 and 13 days of activity in the past 28 days",
     targeting="userMonthlyActivity|length >= 7 && userMonthlyActivity|length <= 13 && "
     "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_URIS = NimbusTargetingConfig(
+    name="Infrequent or casual non-default Windows user",
+    slug="infrequent__or_casual_win_user_uris",
+    description="Infrequent/casual non default users of past 28 days, on Windows 1903+",
+    targeting=(
+        "({infrequent_user} || {casual_user}) && os.windowsBuildNumber >= 18362 && "
+        "!isDefaultBrowser"
+    ).format(
+        infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting,
+        casual_user=TARGETING_CASUAL_USER_URIS.targeting,
+    ),
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -477,6 +492,9 @@ class NimbusConstants(object):
         TARGETING_INFREQUENT_USER_URIS.slug: TARGETING_INFREQUENT_USER_URIS,
         TARGETING_INFREQUENT_WIN_USER_URIS.slug: TARGETING_INFREQUENT_WIN_USER_URIS,
         TARGETING_CASUAL_USER_URIS.slug: TARGETING_CASUAL_USER_URIS,
+        TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_URIS.slug: (
+            TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_URIS
+        ),
         TARGETING_REGULAR_USER_URIS.slug: TARGETING_REGULAR_USER_URIS,
         TARGETING_CORE_USER_URIS.slug: TARGETING_CORE_USER_URIS,
     }
@@ -518,6 +536,10 @@ class NimbusConstants(object):
         TARGETING_CASUAL_USER_URIS = (
             TARGETING_CASUAL_USER_URIS.slug,
             TARGETING_CASUAL_USER_URIS.name,
+        )
+        TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_URIS = (
+            TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_URIS.slug,
+            TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_URIS.name,
         )
         TARGETING_REGULAR_USER_URIS = (
             TARGETING_REGULAR_USER_URIS.slug,
