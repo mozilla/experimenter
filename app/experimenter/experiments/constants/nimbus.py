@@ -186,19 +186,6 @@ TARGETING_MOBILE_FIRST_RUN = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name, Application.IOS.name),
 )
 
-TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
-    name="Homepage set to google.com",
-    slug="homepage_google_dot_com",
-    description="Users with their Homepage set to google.com",
-    targeting=(
-        "!homePageSettings.isDefault && "
-        "homePageSettings.isCustomUrl && "
-        "homePageSettings.urls[.host == 'google.com']|length > 0"
-    ),
-    desktop_telemetry="",
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
 TARGETING_URLBAR_FIREFOX_SUGGEST = NimbusTargetingConfig(
     name="Urlbar (Firefox Suggest)",
     slug="urlbar_firefox_suggest",
@@ -483,7 +470,6 @@ class NimbusConstants(object):
         TARGETING_FIRST_RUN_WINDOWS_1903_NEWER.slug: (
             TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
         ),
-        TARGETING_HOMEPAGE_GOOGLE.slug: TARGETING_HOMEPAGE_GOOGLE,
         TARGETING_URLBAR_FIREFOX_SUGGEST.slug: TARGETING_URLBAR_FIREFOX_SUGGEST,
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
         TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
@@ -503,14 +489,12 @@ class NimbusConstants(object):
         NO_TARGETING = TARGETING_NO_TARGETING.slug, TARGETING_NO_TARGETING.name
         TARGETING_FIRST_RUN = TARGETING_FIRST_RUN.slug, TARGETING_FIRST_RUN.name
         TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = (
-            TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug
-        ), TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.name
+            TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug,
+            TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.name,
+        )
         TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = (
-            TARGETING_FIRST_RUN_WINDOWS_1903_NEWER.slug
-        ), TARGETING_FIRST_RUN_WINDOWS_1903_NEWER.name
-        TARGETING_HOMEPAGE_GOOGLE = (
-            TARGETING_HOMEPAGE_GOOGLE.slug,
-            TARGETING_HOMEPAGE_GOOGLE.name,
+            TARGETING_FIRST_RUN_WINDOWS_1903_NEWER.slug,
+            TARGETING_FIRST_RUN_WINDOWS_1903_NEWER.name,
         )
         TARGETING_URLBAR_FIREFOX_SUGGEST = (
             TARGETING_URLBAR_FIREFOX_SUGGEST.slug,
