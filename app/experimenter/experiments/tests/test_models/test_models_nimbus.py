@@ -216,9 +216,9 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "version|versionCompare('83.!') >= 0 "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac"
+                "os.isMac "
+                "&& version|versionCompare('83.!') >= 0 "
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
         )
 
@@ -251,9 +251,9 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                'browserSettings.update.channel == "nightly" '
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac"
+                "os.isMac "
+                '&& browserSettings.update.channel == "nightly" '
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
         )
 
@@ -269,7 +269,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            "'app.shield.optoutstudies.enabled'|preferenceValue && os.isMac",
+            "os.isMac && 'app.shield.optoutstudies.enabled'|preferenceValue",
         )
 
     def test_targeting_with_locales(self):
@@ -287,8 +287,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac "
+                "os.isMac "
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
                 "&& locale in ['en-CA', 'en-US']"
             ),
         )
@@ -308,8 +308,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac "
+                "os.isMac "
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
                 "&& region in ['CA', 'US']"
             ),
         )
@@ -331,8 +331,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac "
+                "os.isMac "
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
                 "&& locale in ['en-CA', 'en-US'] "
                 "&& region in ['CA', 'US']"
             ),
