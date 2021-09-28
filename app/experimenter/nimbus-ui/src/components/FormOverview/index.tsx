@@ -249,8 +249,8 @@ const FormOverview = ({
               ]}
               {...{ FormErrors, formControlAttrs }}
             >
-              {RISK_QUESTIONS.PARTNER}{" "}
-              <LinkExternal href={EXTERNAL_URLS.RISK_PARTNER}>
+              {RISK_QUESTIONS.REVENUE}{" "}
+              <LinkExternal href={EXTERNAL_URLS.RISK_REVENUE}>
                 Learn more
               </LinkExternal>
             </InputRadios>
@@ -263,8 +263,8 @@ const FormOverview = ({
               ]}
               {...{ FormErrors, formControlAttrs }}
             >
-              {RISK_QUESTIONS.REVENUE}{" "}
-              <LinkExternal href={EXTERNAL_URLS.RISK_REVENUE}>
+              {RISK_QUESTIONS.PARTNER}{" "}
+              <LinkExternal href={EXTERNAL_URLS.RISK_PARTNER}>
                 Learn more
               </LinkExternal>
             </InputRadios>
