@@ -490,14 +490,17 @@ class TestNimbusExperiment(TestCase):
         self.assertTrue(experiment.should_end_enrollment)
 
     def test_computed_enrollment_days_returns_changed_on_minus_start_date(self):
+        expected_days = 3
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE,
         )
 
         experiment.changes.filter(
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
-        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=3))
+        ).update(
+            changed_on=datetime.datetime.now() - datetime.timedelta(days=expected_days)
+        )
 
         experiment.changes.filter(experiment_data__is_paused=True).update(
             changed_on=datetime.datetime.now()
@@ -505,7 +508,7 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(
             experiment.computed_enrollment_days,
-            3,
+            expected_days,
         )
 
     def test_computed_enrollment_days_uses_end_date_without_pause(self):
@@ -537,6 +540,34 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.computed_enrollment_days,
             experiment.proposed_enrollment,
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,),
+            (NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,),
+        ]
+    )
+    def test_computed_enrollment_days_returns_fallback_while_pause_pending_approval(
+        self, lifecycle
+    ):
+        expected_days = 99
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            proposed_enrollment=expected_days,
+        )
+        # Set the span to 5 days, but that shouldn't apply while pending approval
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=5))
+        experiment.changes.filter(experiment_data__is_paused=True).update(
+            changed_on=datetime.datetime.now()
+        )
+        self.assertEqual(
+            experiment.computed_enrollment_days,
+            expected_days,
         )
 
     def test_computed_duration_days_returns_computed_end_date_minus_start_date(self):
