@@ -323,7 +323,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     def computed_enrollment_days(self):
         paused_change = (
             self.changes.all()
-            .filter(experiment_data__is_paused=True)
+            .filter(NimbusChangeLog.Filters.IS_APPROVED_PAUSE)
             .order_by("changed_on")
             .first()
         )
@@ -792,6 +792,12 @@ class NimbusChangeLog(FilterMixin, models.Model):
             Q(old_status=F("new_status")),
             old_publish_status=NimbusExperiment.PublishStatus.WAITING,
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
+        IS_APPROVED_PAUSE = Q(
+            experiment_data__is_paused=True,
+            new_status=NimbusExperiment.Status.LIVE,
+            new_status_next=None,
+            new_publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
     class Messages:
