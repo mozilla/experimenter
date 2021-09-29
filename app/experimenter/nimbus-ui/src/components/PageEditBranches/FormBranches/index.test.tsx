@@ -10,7 +10,6 @@ import { assertSerializerMessages } from "../../../lib/test-utils";
 import {
   MOCK_BRANCH,
   MOCK_EXPERIMENT,
-  MOCK_FEATURE_CONFIG,
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
   SubjectBranches,
 } from "./mocks";
@@ -124,6 +123,15 @@ describe("FormBranches", () => {
     for (const branch of saveResult.treatmentBranches) {
       expect(branch.ratio).toEqual(1);
     }
+  });
+
+  it("gracefully handles selecting an invalid feature config", async () => {
+    const onSave = jest.fn();
+    render(<SubjectBranches {...{ onSave }} />);
+    selectFeatureConfig(null);
+    await clickAndWaitForSave(onSave);
+    const saveResult = onSave.mock.calls[0][0];
+    expect(saveResult.featureConfigId).toEqual(null);
   });
 
   it("requires adding a valid control branch before save is completed", async () => {
@@ -256,63 +264,6 @@ describe("FormBranches", () => {
     );
   });
 
-  it("supports removing feature config", async () => {
-    const onSave = jest.fn();
-    render(
-      <SubjectBranches
-        {...{
-          onSave,
-          experiment: {
-            ...MOCK_EXPERIMENT,
-            featureConfig: MOCK_FEATURE_CONFIG,
-          },
-        }}
-      />,
-    );
-    selectFeatureConfig(null);
-    await clickAndWaitForSave(onSave);
-    const saveResult = onSave.mock.calls[0][0];
-    expect(saveResult.featureConfigId).toBeNull();
-  });
-
-  it("changing feature on one branch changes for all", async () => {
-    const onSave = jest.fn();
-    const featureIdx = 1;
-    render(
-      <SubjectBranches
-        {...{
-          onSave,
-          experiment: {
-            ...MOCK_EXPERIMENT,
-            featureConfig: MOCK_FEATURE_CONFIG,
-          },
-        }}
-      />,
-    );
-
-    const featureConfigSelects = screen.queryAllByLabelText(
-      "Feature configuration",
-    )! as HTMLInputElement[];
-
-    // All selectors should be equal before change.
-    for (const select of featureConfigSelects) {
-      expect(select.value).toEqual(featureConfigSelects[0].value);
-    }
-    const oldValue = featureConfigSelects[0].value;
-
-    fireEvent.change(featureConfigSelects[0], {
-      target: { value: featureIdx },
-    });
-
-    // All selectors should have changed
-    for (const select of featureConfigSelects) {
-      await waitFor(() => {
-        expect(select.value).toEqual(featureConfigSelects[0].value);
-        expect(select.value).not.toEqual(oldValue);
-      });
-    }
-  });
-
   it("updates save result with edits", async () => {
     const onSave = jest.fn();
     const { container } = render(
@@ -369,53 +320,7 @@ describe("FormBranches", () => {
     });
 
     // Feature config review-readiness errors are displayed on branches
-    expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(2);
-  });
-
-  it("doesn't display feature_config review-readiness message on an unsaved branch", async () => {
-    Object.defineProperty(window, "location", {
-      value: {
-        search: "?show-errors",
-      },
-    });
-
-    render(
-      <SubjectBranches
-        {...{
-          experiment: {
-            ...MOCK_EXPERIMENT,
-            readyForReview: {
-              ready: false,
-              message: {
-                feature_config: [SERVER_ERRORS.FEATURE_CONFIG],
-                reference_branch: {
-                  description: [SERVER_ERRORS.BLANK_DESCRIPTION],
-                },
-              },
-            },
-            referenceBranch: {
-              ...MOCK_EXPERIMENT.referenceBranch!,
-              name: "",
-              slug: "",
-            },
-            treatmentBranches: [
-              {
-                name: "",
-                slug: "",
-                description: "",
-                ratio: 0,
-                featureValue: null,
-                featureEnabled: false,
-              },
-            ],
-          },
-        }}
-      />,
-    );
-
-    await waitFor(() =>
-      expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(1),
-    );
+    expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(1);
   });
 });
 
@@ -453,10 +358,10 @@ async function fillInBranch(
 }
 
 function selectFeatureConfig(featureIdx: number | null = 1) {
-  const featureConfigSelects = screen.queryAllByLabelText(
-    "Feature configuration",
-  )! as HTMLInputElement[];
-  fireEvent.change(featureConfigSelects[0], {
+  const featureConfigSelects = screen.getByTestId(
+    "feature-config-select",
+  ) as HTMLInputElement;
+  fireEvent.change(featureConfigSelects, {
     target: { value: featureIdx },
   });
 }

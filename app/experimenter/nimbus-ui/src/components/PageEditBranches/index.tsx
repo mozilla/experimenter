@@ -98,8 +98,8 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         return (
           <>
             <p>
-              You must add a <strong>feature flag</strong> configuration to each
-              branch. Experiments can only change one flag at a time.{" "}
+              You must select a <strong>feature</strong> configuration for your
+              experiment. Experiments can only change one feature at a time.{" "}
               <LinkExternal
                 href={EXTERNAL_URLS.BRANCHES_GOOGLE_DOC}
                 data-testid="learn-more-link"

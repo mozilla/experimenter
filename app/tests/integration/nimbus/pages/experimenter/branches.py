@@ -14,7 +14,7 @@ class BranchesPage(ExperimenterBase):
         "#referenceBranch-description",
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
-    _feature_select_locator = (By.CSS_SELECTOR, "#referenceBranch-featureConfig")
+    _feature_select_locator = (By.CSS_SELECTOR, '[data-testid="feature-config-select"]')
     NEXT_PAGE = MetricsPage
 
     @property

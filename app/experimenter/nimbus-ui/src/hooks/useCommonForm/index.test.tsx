@@ -172,10 +172,7 @@ describe("hooks/useCommonForm", () => {
 
       branchFieldNames.forEach((name) => {
         const fieldName = `referenceBranch.${name}`;
-        // all branch field names call `formControlAttrs` except for featureConfig
-        if (name !== "featureConfig") {
-          expect(screen.queryByTestId(fieldName)).toBeInTheDocument();
-        }
+        expect(screen.queryByTestId(fieldName)).toBeInTheDocument();
 
         // featureValue must be "enabled" to show the submit error
         if (name === "featureValue") {
