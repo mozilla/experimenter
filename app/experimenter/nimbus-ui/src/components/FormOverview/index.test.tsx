@@ -5,7 +5,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
-import { FIELD_MESSAGES } from "../../lib/constants";
+import { FIELD_MESSAGES, RISK_QUESTIONS } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { assertSerializerMessages } from "../../lib/test-utils";
 import { optionalBoolString } from "../../lib/utils";
@@ -168,7 +168,7 @@ describe("FormOverview", () => {
   it("with existing experiment, checks fields and allows saving data", async () => {
     const { experiment } = mockExperimentQuery("boo");
     const onSubmit = jest.fn();
-    const expected = {
+    const expected: Record<string, any> = {
       name: experiment.name,
       hypothesis: experiment.hypothesis as string,
       publicDescription: experiment.publicDescription as string,
@@ -178,7 +178,7 @@ describe("FormOverview", () => {
       riskPartnerRelated: optionalBoolString(experiment.riskPartnerRelated),
     };
 
-    render(<Subject {...{ onSubmit, experiment }} />);
+    const { container } = render(<Subject {...{ onSubmit, experiment }} />);
     const saveButton = screen.getByTestId("submit-button");
     const nextButton = screen.getByTestId("next-button");
     const nameField = screen.getByLabelText("Public name");
@@ -194,6 +194,23 @@ describe("FormOverview", () => {
       target: { value: expected.name },
     });
     fireEvent.blur(nameField);
+
+    // issue #6467: the labels for riskPartnerRelated and riskRevenue were
+    // swapped at one point - this reproduces the issue
+    const riskQuestions = [
+      [RISK_QUESTIONS.PARTNER, "riskPartnerRelated", "true"],
+      [RISK_QUESTIONS.REVENUE, "riskRevenue", "false"],
+    ];
+    for (const [labelText, propertyName, newValue] of riskQuestions) {
+      const labelElement = screen.getByText(labelText, { exact: false });
+      const labelFor = labelElement.getAttribute("for");
+      const radioButtonElement = container.querySelector(
+        `.form-check input#${labelFor}-${newValue}`,
+      );
+      expect(radioButtonElement).not.toBeNull();
+      expected[propertyName] = newValue;
+      fireEvent.click(radioButtonElement!);
+    }
 
     fireEvent.click(saveButton);
     fireEvent.click(nextButton);
