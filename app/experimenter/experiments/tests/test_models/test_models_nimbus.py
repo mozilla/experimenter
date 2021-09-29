@@ -308,8 +308,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "os.isMac "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
+                "'app.shield.optoutstudies.enabled'|preferenceValue "
+                "&& os.isMac "
                 "&& region in ['CA', 'US']"
             ),
         )
@@ -537,6 +537,34 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.computed_enrollment_days,
             experiment.proposed_enrollment,
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,),
+            (NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,),
+        ]
+    )
+    def test_computed_enrollment_days_returns_fallback_while_pause_pending_approval(
+        self, lifecycle
+    ):
+        expected_days = 99
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            proposed_enrollment=expected_days,
+        )
+        # Set the span to 5 days, but that shouldn't apply while pending approval
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=5))
+        experiment.changes.filter(experiment_data__is_paused=True).update(
+            changed_on=datetime.datetime.now()
+        )
+        self.assertEqual(
+            experiment.computed_enrollment_days,
+            expected_days,
         )
 
     def test_computed_duration_days_returns_computed_end_date_minus_start_date(self):
@@ -1214,6 +1242,7 @@ class TestNimbusIsolationGroup(TestCase):
         Rare case:  An isolation group with experiment bucket allocations exists, and the
         next requested bucket allocation would overflow its total bucket range, and so a
         an isolation group with the same name but subsequent instance ID is created.
+
         This is currently treated naively, ie does not account for possible collisions and
         overlaps.  When this case becomes more common this will likely need to be given
         more thought.
