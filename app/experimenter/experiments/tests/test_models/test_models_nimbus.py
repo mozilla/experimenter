@@ -490,14 +490,17 @@ class TestNimbusExperiment(TestCase):
         self.assertTrue(experiment.should_end_enrollment)
 
     def test_computed_enrollment_days_returns_changed_on_minus_start_date(self):
+        expected_days = 3
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE,
         )
 
         experiment.changes.filter(
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
-        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=3))
+         ).update(
+            changed_on=datetime.datetime.now() - datetime.timedelta(days=expected_days)
+        )
 
         experiment.changes.filter(experiment_data__is_paused=True).update(
             changed_on=datetime.datetime.now()
@@ -505,7 +508,7 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(
             experiment.computed_enrollment_days,
-            3,
+            expected_days,
         )
 
     def test_computed_enrollment_days_uses_end_date_without_pause(self):
