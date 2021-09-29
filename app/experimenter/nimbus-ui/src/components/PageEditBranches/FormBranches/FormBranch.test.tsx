@@ -11,7 +11,6 @@ import {
 } from "@testing-library/react";
 import React from "react";
 import { FIELD_MESSAGES } from "../../../lib/constants";
-import { MOCK_CONFIG } from "../../../lib/mocks";
 import {
   MOCK_ANNOTATED_BRANCH,
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
@@ -24,7 +23,6 @@ describe("FormBranch", () => {
     expect(screen.getByTestId("FormBranch")).toBeInTheDocument();
     expect(screen.queryByTestId("control-pill")).not.toBeInTheDocument();
     expect(screen.queryByTestId("equal-ratio")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("feature-config-edit")).toBeInTheDocument();
     expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
   });
 
@@ -78,27 +76,6 @@ describe("FormBranch", () => {
       />,
     );
     expect(screen.queryByTestId("feature-value-edit")).toBeInTheDocument();
-  });
-
-  it("calls onFeatureConfigChange with selected feature", async () => {
-    const featureIdx = 1;
-    const onFeatureConfigChange = jest.fn();
-    render(<SubjectBranch {...{ onFeatureConfigChange }} />);
-    fireEvent.change(screen.getByTestId("feature-config-select"), {
-      target: { value: featureIdx },
-    });
-    expect(onFeatureConfigChange).toHaveBeenCalledWith(
-      MOCK_CONFIG!.featureConfigs![featureIdx],
-    );
-  });
-
-  it("calls onFeatureConfigChange with null when blank feature selected", async () => {
-    const onFeatureConfigChange = jest.fn();
-    render(<SubjectBranch {...{ onFeatureConfigChange }} />);
-    fireEvent.change(screen.getByTestId("feature-config-select"), {
-      target: { value: "" },
-    });
-    expect(onFeatureConfigChange).toHaveBeenCalledWith(null);
   });
 
   it("calls onRemove when the branch remove button is clicked", async () => {
