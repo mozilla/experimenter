@@ -308,8 +308,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& os.isMac "
+                "os.isMac "
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
                 "&& region in ['CA', 'US']"
             ),
         )
