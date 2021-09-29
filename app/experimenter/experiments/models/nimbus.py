@@ -227,6 +227,9 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
         expressions = []
 
+        if self.targeting_config and self.targeting_config.targeting:
+            expressions.append(self.targeting_config.targeting)
+
         if self.application == self.Application.DESKTOP:
             if self.channel:
                 expressions.append(
@@ -243,9 +246,6 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
             # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
             expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
-
-        if self.targeting_config and self.targeting_config.targeting:
-            expressions.append(self.targeting_config.targeting)
 
         if self.locales.count():
             locales = [locale.code for locale in self.locales.all().order_by("code")]
@@ -323,7 +323,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     def computed_enrollment_days(self):
         paused_change = (
             self.changes.all()
-            .filter(NimbusChangeLog.Filters.IS_APPROVED_PAUSE)
+            .filter(experiment_data__is_paused=True)
             .order_by("changed_on")
             .first()
         )
@@ -792,12 +792,6 @@ class NimbusChangeLog(FilterMixin, models.Model):
             Q(old_status=F("new_status")),
             old_publish_status=NimbusExperiment.PublishStatus.WAITING,
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
-        )
-        IS_APPROVED_PAUSE = Q(
-            experiment_data__is_paused=True,
-            new_status=NimbusExperiment.Status.LIVE,
-            new_status_next=None,
-            new_publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
 
     class Messages:
