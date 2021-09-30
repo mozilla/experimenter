@@ -215,16 +215,6 @@ export const FormBranches = ({
               label="Users should be split evenly between all branches"
             />
           </Form.Group>
-          <Form.Group as={Col} className="align-top text-right">
-            <Button
-              data-testid="add-branch"
-              variant="outline-primary"
-              size="sm"
-              onClick={handleAddBranch}
-            >
-              + Add branch
-            </Button>
-          </Form.Group>
         </Form.Row>
 
         <section>
@@ -273,7 +263,14 @@ export const FormBranches = ({
               );
             })}
         </section>
-
+        <Button
+          data-testid="add-branch"
+          variant="outline-primary"
+          size="sm"
+          onClick={handleAddBranch}
+        >
+          + Add branch
+        </Button>
         <div className="d-flex flex-row-reverse bd-highlight">
           <div className="p-2">
             <button
