@@ -690,9 +690,7 @@ class NimbusBucketRange(models.Model):
 
 class NimbusFeatureConfig(models.Model):
     name = models.CharField(max_length=255, unique=True, null=False)
-    slug = models.SlugField(
-        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, null=False
-    )
+    slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, null=False)
     description = models.TextField(blank=True, null=True)
     application = models.CharField(
         max_length=255,
@@ -706,6 +704,7 @@ class NimbusFeatureConfig(models.Model):
     class Meta:
         verbose_name = "Nimbus Feature Config"
         verbose_name_plural = "Nimbus Feature Configs"
+        unique_together = ("application", "slug")
 
     def __str__(self):  # pragma: no cover
         return self.name
