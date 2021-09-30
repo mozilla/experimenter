@@ -498,7 +498,7 @@ class TestNimbusExperiment(TestCase):
         experiment.changes.filter(
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
-         ).update(
+        ).update(
             changed_on=datetime.datetime.now() - datetime.timedelta(days=expected_days)
         )
 
