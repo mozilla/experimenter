@@ -14,9 +14,19 @@ async function remoteSettings(arguments) {
     const TargetingContext = ChromeUtils.import(
         "resource://messaging-system/targeting/Targeting.jsm"
     );
+    const ASRouterTargeting = ChromeUtils.import(
+        "resource://activity-stream/lib/ASRouterTargeting.jsm"
+    )
+    const ExperimentManager = ChromeUtils.import("resource://nimbus/lib/ExperimentManager.jsm")
 
-    _experiment = JSON.parse(arguments[1]);
-    const targetingContext = new TargetingContext.TargetingContext(_experiment);
+    const _experiment = JSON.parse(arguments[1]);
+
+    const context = TargetingContext.TargetingContext.combineContexts(
+        _experiment,
+        ExperimentManager.ExperimentManager.createTargetingContext(),
+        ASRouterTargeting.ASRouterTargeting.Environment
+    );
+    const targetingContext = new TargetingContext.TargetingContext(context);
     let result = false;
     try {
         result = await targetingContext.evalWithDefault(arguments[0]);
