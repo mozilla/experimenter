@@ -19,14 +19,11 @@ async function remoteSettings(arguments) {
     )
     const ExperimentManager = ChromeUtils.import("resource://nimbus/lib/ExperimentManager.jsm")
 
-
     const _experiment = JSON.parse(arguments[1]);
-
-    const experimentManager = new ExperimentManager._ExperimentManager()
 
     const context = TargetingContext.TargetingContext.combineContexts(
         _experiment,
-        experimentManager.createTargetingContext(),
+        ExperimentManager.ExperimentManager.createTargetingContext(),
         ASRouterTargeting.ASRouterTargeting.Environment
     );
     const targetingContext = new TargetingContext.TargetingContext(context);
