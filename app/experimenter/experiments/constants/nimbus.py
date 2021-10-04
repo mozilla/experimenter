@@ -178,11 +178,26 @@ TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
 TARGETING_MOBILE_NEW_USER = NimbusTargetingConfig(
     name="New Users on Mobile",
     slug="mobile_new_users",
-    description=("New users on mobile"),
-    targeting=("is_already_enrolled || days_since_install < 7 || days_since_update < 7"),
+    description=("New users on mobile who installed the app less than a week ago"),
+    targeting=("is_already_enrolled || days_since_install < 7"),
     desktop_telemetry="",
     application_choice_names=(Application.FENIX.name, Application.IOS.name),
 )
+
+TARGETING_MOBILE_RECENTLY_UPDATED = NimbusTargetingConfig(
+    name="Recently Updated Users",
+    slug="mobile_recently_updated_users",
+    description=(
+        "Users who updated their app within the last week. "
+        "This excludes users who are new users"
+    ),
+    targeting=(
+        "is_already_enrolled || (days_since_update < 7 && days_since_install >= 7)"
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.FENIX.name, Application.IOS.name),
+)
+
 
 TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
     name="Homepage set to google.com",
@@ -486,6 +501,7 @@ class NimbusConstants(object):
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
         TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
         TARGETING_MOBILE_NEW_USER.slug: TARGETING_MOBILE_NEW_USER,
+        TARGETING_MOBILE_RECENTLY_UPDATED.slug: TARGETING_MOBILE_RECENTLY_UPDATED,
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug: TARGETING_NO_ENTERPRISE_OR_PAST_VPN,
         TARGETING_INFREQUENT_USER_URIS.slug: TARGETING_INFREQUENT_USER_URIS,
         TARGETING_INFREQUENT_WIN_USER_URIS.slug: TARGETING_INFREQUENT_WIN_USER_URIS,
@@ -522,6 +538,10 @@ class NimbusConstants(object):
         TARGETING_MOBILE_NEW_USER = (
             TARGETING_MOBILE_NEW_USER.slug,
             TARGETING_MOBILE_NEW_USER.name,
+        )
+        TARGETING_MOBILE_RECENTLY_UPDATED = (
+            TARGETING_MOBILE_RECENTLY_UPDATED.slug,
+            TARGETING_MOBILE_RECENTLY_UPDATED.name,
         )
         TARGETING_INFREQUENT_USER_URIS = (
             TARGETING_INFREQUENT_USER_URIS.slug,
