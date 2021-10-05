@@ -123,11 +123,22 @@ def test_end_experiment_and_reject_end(
 
 @pytest.mark.run_parallel
 def test_check_targeting(
-    selenium, base_url, default_data, create_experiment, slugify, app_data, json_url
+    selenium,
+    base_url,
+    default_data,
+    experiment_url,
+    create_experiment,
+    slugify,
+    app_data,
+    json_url,
 ):
     default_data.audience.targeting = app_data
     default_data.public_name = default_data.public_name.replace("-", "", 1)
     create_experiment(selenium).launch_to_preview()
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.wait_for_preview_status()
+
     json_url = json_url(base_url, default_data.public_name)
     # Get experiment JSON and parse
     experiment_json = requests.get(f"{json_url}", verify=False).json()
