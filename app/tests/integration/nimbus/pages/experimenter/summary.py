@@ -18,6 +18,7 @@ class SummaryPage(ExperimenterBase):
     _rejected_text_alert_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
     _timeout_alert_locator = (By.CSS_SELECTOR, '[data-testid="timeout-notice"]')
     _status_live_locator = (By.CSS_SELECTOR, ".status-Live.border-primary")
+    _status_preview_locator = (By.CSS_SELECTOR, ".status-Preview.border-primary")
     _status_complete_locator = (By.CSS_SELECTOR, ".status-Complete.border-primary")
     _experiment_status_icon_locator = (
         By.CSS_SELECTOR,
