@@ -1,4 +1,5 @@
 import json
+import time
 
 import pytest
 import requests
@@ -7,25 +8,35 @@ from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.pages.remote_settings.dashboard import Dashboard
 from nimbus.pages.remote_settings.login import Login
 
+LOAD_DATA_RETRIES = 10
+LOAD_DATA_RETRY_DELAY = 1.0
+
 
 def load_data():
-    apps = []
-    data = requests.post(
-        "https://nginx/api/v5/graphql",
-        json={
-            "operationName": "getConfig",
-            "variables": {},
-            "query": "\nquery getConfig {\n  nimbusConfig "
-            "{\n    targetingConfigs {\n      "
-            "label\n      value\n      applicationValues\n    "
-            "}\n  }\n}\n",
-        },
-        verify=False,
-    ).json()
-    for item in data["data"]["nimbusConfig"]["targetingConfigs"]:
-        if "DESKTOP" in item["applicationValues"]:
-            apps.append(item["value"])
-    return apps
+    for retry in range(0, LOAD_DATA_RETRIES):
+        try:
+            apps = []
+            data = requests.post(
+                "https://nginx/api/v5/graphql",
+                json={
+                    "operationName": "getConfig",
+                    "variables": {},
+                    "query": "\nquery getConfig {\n  nimbusConfig "
+                    "{\n    targetingConfigs {\n      "
+                    "label\n      value\n      applicationValues\n    "
+                    "}\n  }\n}\n",
+                },
+                verify=False,
+            ).json()
+            for item in data["data"]["nimbusConfig"]["targetingConfigs"]:
+                if "DESKTOP" in item["applicationValues"]:
+                    apps.append(item["value"])
+            return apps
+        except json.JSONDecodeError:
+            if retry + 1 >= LOAD_DATA_RETRIES:
+                raise
+            else:
+                time.sleep(LOAD_DATA_RETRY_DELAY)
 
 
 @pytest.fixture(params=load_data())
