@@ -69,17 +69,29 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
         <tr>
           <th>Locales</th>
           <td data-testid="experiment-locales">
-            {experiment.locales.length > 0
-              ? experiment.locales.map((l) => l.name).join(", ")
-              : "All locales"}
+            {experiment.locales.length > 0 ? (
+              <ul className="list-unstyled mb-0">
+                {experiment.locales.map((l) => (
+                  <li key={l.id}>{l.name}</li>
+                ))}
+              </ul>
+            ) : (
+              "All locales"
+            )}
           </td>
         </tr>
         <tr>
           <th>Countries</th>
           <td data-testid="experiment-countries">
-            {experiment.countries.length > 0
-              ? experiment.countries.map((c) => c.name).join(", ")
-              : "All countries"}
+            {experiment.countries.length > 0 ? (
+              <ul className="list-unstyled mb-0">
+                {experiment.countries.map((c) => (
+                  <li key={c.id}>{c.name}</li>
+                ))}
+              </ul>
+            ) : (
+              "All countries"
+            )}
           </td>
         </tr>
         {experiment.jexlTargetingExpression &&
