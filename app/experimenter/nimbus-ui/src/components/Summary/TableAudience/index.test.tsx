@@ -152,12 +152,17 @@ describe("TableAudience", () => {
   describe("renders 'Locales' row as expected", () => {
     it("when locales exist, displays them", () => {
       const data = {
-        locales: [{ name: "Quebecois", id: 1 }],
+        locales: [
+          { name: "Quebecois", id: 1 },
+          { name: "Acholi", id: 2 },
+        ],
       };
       const { experiment } = mockExperimentQuery("demo-slug", data);
       render(<Subject {...{ experiment }} />);
-      within(screen.getByTestId("experiment-locales")).findByText(
-        data.locales.map((l) => l.name).join(", "),
+      data.locales.forEach((locale) =>
+        within(screen.getByTestId("experiment-locales")).findByText(
+          locale.name,
+        ),
       );
     });
     it("when locales don't exist, displays all", () => {
@@ -174,12 +179,17 @@ describe("TableAudience", () => {
   describe("renders 'Countries' row as expected", () => {
     it("when countries exist, displays them", async () => {
       const data = {
-        locales: [{ name: "Canada", id: 1 }],
+        countries: [
+          { name: "Canada", id: 1 },
+          { name: "Germany", id: 2 },
+        ],
       };
       const { experiment } = mockExperimentQuery("demo-slug", data);
       render(<Subject {...{ experiment }} />);
-      await within(screen.getByTestId("experiment-countries")).findByText(
-        data.locales.map((l) => l.name).join(", "),
+      data.countries.forEach((country) =>
+        within(screen.getByTestId("experiment-countries")).findByText(
+          country.name,
+        ),
       );
     });
     it("when countries don't exist, displays all", async () => {
