@@ -179,7 +179,7 @@ export const FormBranches = ({
             // Displaying the review-readiness error is handled here instead of `formControlAttrs`
             // due to a state conflict between `react-hook-form` and our internal branch state mangement
             className={classNames(
-              fieldMessages.featureConfig?.length > 0 && "is-warning",
+              fieldMessages.feature_config?.length > 0 && "is-warning",
             )}
             onChange={onFeatureConfigChange}
             value={featureConfigs!.findIndex(
@@ -196,11 +196,11 @@ export const FormBranches = ({
                 ),
             )}
           </Form.Control>
-          {fieldMessages.featureConfig?.length > 0 && (
+          {fieldMessages.feature_config?.length > 0 && (
             // @ts-ignore This component doesn't technically support type="warning", but
             // all it's doing is using the string in a class, so we can safely override.
             <Form.Control.Feedback type="warning" data-for="featureConfig">
-              {(fieldMessages.featureConfig as SerializerMessage).join(", ")}
+              {(fieldMessages.feature_config as SerializerMessage).join(", ")}
             </Form.Control.Feedback>
           )}
         </Form.Group>
@@ -231,7 +231,7 @@ export const FormBranches = ({
                   {}) as FormBranchProps["touched"],
                 isReference: true,
                 branch: { ...referenceBranch, key: "branch-reference" },
-                reviewErrors: fieldMessages.referenceBranch as SerializerSet,
+                reviewErrors: fieldMessages.reference_branch as SerializerSet,
                 defaultValues: defaultValues.referenceBranch || {},
               }}
             />
@@ -240,7 +240,7 @@ export const FormBranches = ({
             treatmentBranches.map((branch, idx) => {
               const reviewErrors = (
                 fieldMessages as SerializerMessages<SerializerSet[]>
-              ).treatmentBranches?.[idx];
+              ).treatment_branches?.[idx];
 
               return (
                 <FormBranch

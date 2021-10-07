@@ -294,7 +294,7 @@ const FormOverview = ({
                           .documentation_links?.[index] || {},
                       reviewMessages:
                         (fieldMessages as SerializerMessages<SerializerSet[]>)
-                          .documentationLinks?.[index] || {},
+                          .documentation_links?.[index] || {},
                       //@ts-ignore react-hook-form types seem broken for nested fields
                       errors: (errors?.documentationLinks?.[index] ||
                         {}) as FormDocumentationLinkProps["errors"],
