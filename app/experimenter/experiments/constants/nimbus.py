@@ -319,6 +319,34 @@ TARGETING_CORE_USER_URIS = NimbusTargetingConfig(
 )
 
 
+TARGETING_POCKET_COMMON = NimbusTargetingConfig(
+    name="Pocket Common Filters",
+    slug="pocket_common",
+    description="All newtab sections are default",
+    targeting="""
+    (
+        (
+            (
+                !('browser.newtabpage.enabled'|preferenceIsUserSet)
+                ||
+                !('browser.startup.homepage'|preferenceIsUserSet)
+            )
+            &&
+            !('browser.newtabpage.activity-stream.showSearch'|preferenceIsUserSet)
+            &&
+            !('browser.newtabpage.activity-stream.feeds.topsites'|preferenceIsUserSet)
+            &&
+            !('browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceIsUserSet)
+            &&
+            !('browser.newtabpage.activity-stream.feeds.section.highlights'|preferenceIsUserSet)
+        )
+    )
+    """,
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+
 class NimbusConstants(object):
     class Status(models.TextChoices):
         DRAFT = "Draft"
@@ -511,6 +539,7 @@ class NimbusConstants(object):
         ),
         TARGETING_REGULAR_USER_URIS.slug: TARGETING_REGULAR_USER_URIS,
         TARGETING_CORE_USER_URIS.slug: TARGETING_CORE_USER_URIS,
+        TARGETING_POCKET_COMMON.slug: TARGETING_POCKET_COMMON,
     }
 
     class TargetingConfig(models.TextChoices):
@@ -570,6 +599,10 @@ class NimbusConstants(object):
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN = (
             TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug,
             TARGETING_NO_ENTERPRISE_OR_PAST_VPN.name,
+        )
+        TARGETING_POCKET_COMMON = (
+            TARGETING_POCKET_COMMON.slug,
+            TARGETING_POCKET_COMMON.name,
         )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
