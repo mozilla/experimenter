@@ -18,6 +18,7 @@ class SummaryPage(ExperimenterBase):
     _rejected_text_alert_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
     _timeout_alert_locator = (By.CSS_SELECTOR, '[data-testid="timeout-notice"]')
     _status_live_locator = (By.CSS_SELECTOR, ".status-Live.border-primary")
+    _status_preview_locator = (By.CSS_SELECTOR, ".status-Preview.border-primary")
     _status_complete_locator = (By.CSS_SELECTOR, ".status-Complete.border-primary")
     _experiment_status_icon_locator = (
         By.CSS_SELECTOR,
@@ -56,6 +57,11 @@ class SummaryPage(ExperimenterBase):
             self._status_live_locator, "Summary Page: Unable to find live status"
         )
 
+    def wait_for_preview_status(self):
+        self.wait_with_refresh(
+            self._status_preview_locator, "Summary Page: Unable to find preview status"
+        )
+
     def wait_for_complete_status(self):
         self.wait_with_refresh(
             self._status_complete_locator, "Summary Page: Unable to find complete status"
@@ -88,6 +94,10 @@ class SummaryPage(ExperimenterBase):
         return self.find_element(*self._launch_without_preview_locator)
 
     def launch_to_preview(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._launch_to_preview_locator),
+            message="Summary Page: could not find preview button",
+        )
         self.find_element(*self._launch_to_preview_locator).click()
         return self
 
