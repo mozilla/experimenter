@@ -5,7 +5,6 @@
 import { Link } from "@reach/router";
 import React from "react";
 import { editPages } from "../components/AppLayoutWithSidebar";
-import { snakeToCamelCase } from "../lib/caseConversions";
 import { BASE_PATH } from "../lib/constants";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
 
@@ -13,33 +12,28 @@ export type ReviewCheck = ReturnType<typeof useReviewCheck>;
 
 const fieldPageMap: { [page: string]: string[] } = {
   overview: [
-    "publicDescription",
-    "riskBrand",
-    "riskRevenue",
-    "riskPartnerRelated",
+    "public_description",
+    "risk_brand",
+    "risk_revenue",
+    "risk_partner_related",
   ],
-  branches: ["referenceBranch", "treatmentBranches", "featureConfig"],
+  branches: ["reference_branch", "treatment_branches", "feature_config"],
   audience: [
     "channel",
-    "firefoxMinVersion",
-    "targetingConfigSlug",
-    "proposedEnrollment",
-    "proposedDuration",
-    "populationPercent",
-    "totalEnrolledClients",
+    "firefox_min_version",
+    "targeting_config_slug",
+    "proposed_enrollment",
+    "proposed_duration",
+    "population_percent",
+    "total_enrolled_clients",
   ],
 };
 
 export function useReviewCheck(
   experiment: getExperiment_experimentBySlug | null | undefined,
 ) {
-  let messages = (experiment?.readyForReview?.message ||
+  const messages = (experiment?.readyForReview?.message ||
     {}) as SerializerMessages;
-  messages = Object.keys(messages).reduce<SerializerMessages>((acc, cur) => {
-    acc[snakeToCamelCase(cur)] = messages[cur];
-    return acc;
-  }, {});
-
   const fieldMessages = window.location.search.includes("show-errors")
     ? messages
     : {};

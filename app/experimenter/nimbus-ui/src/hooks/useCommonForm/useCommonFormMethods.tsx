@@ -48,8 +48,9 @@ export function useCommonFormMethods<FieldNames extends string>(
     setDefaultValue = true,
     prefix?: string,
   ) => {
+    const snakeCaseName = camelToSnakeCase(name);
     const fieldName = prefix ? `${prefix}.${name}` : name;
-    const hasReviewMessage = (reviewMessages[name] || []).length > 0;
+    const hasReviewMessage = (reviewMessages[snakeCaseName] || []).length > 0;
     return {
       "data-testid": fieldName,
       name: fieldName,
@@ -62,13 +63,10 @@ export function useCommonFormMethods<FieldNames extends string>(
         defaultValue: defaultValues[name],
         onChange: () => hideSubmitError(name),
         isInvalid: Boolean(
-          submitErrors![camelToSnakeCase(name)] ||
-            (touched[name] && errors[name]),
+          submitErrors![snakeCaseName] || (touched[name] && errors[name]),
         ),
         isValid: Boolean(
-          !submitErrors![camelToSnakeCase(name)] &&
-            touched[name] &&
-            !errors[name],
+          !submitErrors![snakeCaseName] && touched[name] && !errors[name],
         ),
       }),
     };
@@ -81,13 +79,14 @@ export function useCommonFormMethods<FieldNames extends string>(
     name: K;
     prefix?: string;
   }) => {
+    const snakeCaseName = camelToSnakeCase(name);
     const fieldName = prefix ? `${prefix}.${name}` : name;
     const fieldReviewMessages =
       (
         reviewMessages as SerializerMessages<
           SerializerMessage | SerializerSet[]
         >
-      )[name] || [];
+      )[snakeCaseName] || [];
     return (
       <>
         {fieldReviewMessages.length > 0 && (
@@ -102,14 +101,14 @@ export function useCommonFormMethods<FieldNames extends string>(
             {(errors[name] as FieldError).message}
           </Form.Control.Feedback>
         )}
-        {submitErrors![camelToSnakeCase(name)] && (
+        {submitErrors![snakeCaseName] && (
           <Form.Control.Feedback type="invalid" data-for={fieldName}>
-            {submitErrors![camelToSnakeCase(name)]}
+            {submitErrors![snakeCaseName]}
           </Form.Control.Feedback>
         )}
         {/* for testing - can't wrap the errors in a container with a test ID
       because of Bootstrap's adjacent class CSS rules, error won't be shown */}
-        {!errors[name] && !submitErrors![camelToSnakeCase(name)] && (
+        {!errors[name] && !submitErrors![snakeCaseName] && (
           <span data-testid={`${fieldName}-form-errors`} />
         )}
       </>
@@ -136,7 +135,7 @@ export function useCommonFormMethods<FieldNames extends string>(
       (submitErrors![camelToSnakeCase(name)] ||
         (touched[name] && errors[name])) &&
         "is-invalid border border-danger rounded",
-      (reviewMessages[name] || []).length > 0 &&
+      (reviewMessages[camelToSnakeCase(name)] || []).length > 0 &&
         "is-warning border-feedback-warning rounded",
     ),
   });

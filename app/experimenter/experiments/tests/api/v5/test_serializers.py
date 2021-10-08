@@ -8,6 +8,7 @@ from parameterized import parameterized
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.api.v5.serializers import (
+    NimbusBranchReadyForReviewSerializer,
     NimbusBranchSerializer,
     NimbusExperimentCloneSerializer,
     NimbusExperimentSerializer,
@@ -16,11 +17,7 @@ from experimenter.experiments.api.v5.serializers import (
 from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.models.nimbus import (
-    NimbusBranch,
-    NimbusBucketRange,
-    NimbusFeatureConfig,
-)
+from experimenter.experiments.models.nimbus import NimbusBranch, NimbusBucketRange
 from experimenter.experiments.tests.factories import (
     TINY_PNG,
     NimbusBranchFactory,
@@ -283,7 +280,7 @@ class TestNimbusBranchSerializer(TestCase):
             {"name": ["Name needs to contain alphanumeric characters."]},
         )
 
-    def test_branch_with_invalid_feature_value_jso(self):
+    def test_branch_with_invalid_feature_value_json(self):
         branch_data = {
             "name": "control",
             "description": "a control",
@@ -291,7 +288,7 @@ class TestNimbusBranchSerializer(TestCase):
             "feature_enabled": True,
             "feature_value": "invalid json",
         }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
+        branch_serializer = NimbusBranchReadyForReviewSerializer(data=branch_data)
         self.assertFalse(branch_serializer.is_valid())
         self.assertIn("feature_value", branch_serializer.errors)
 
@@ -650,232 +647,6 @@ class TestNimbusExperimentBranchMixin(TestCase):
             branch = experiment.branches.get(name=branch_data["name"])
             for key, val in branch_data.items():
                 self.assertEqual(getattr(branch, key), val)
-
-    def test_serializer_feature_config_validation_reference_value_schema_error(self):
-        feature_config = NimbusFeatureConfigFactory.create(
-            schema=self.BASIC_JSON_SCHEMA, application=NimbusExperiment.Application.FENIX
-        )
-        experiment = NimbusExperimentFactory(
-            status=NimbusExperiment.Status.DRAFT,
-            application=NimbusExperiment.Application.FENIX,
-        )
-        reference_feature_value = """\
-            {"DddirectMigrateSingleProfile": true}
-        """.strip()
-        treatment_feature_value = """\
-            {"directMigrateSingleProfile": false}
-        """.strip()
-        reference_branch = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": reference_feature_value,
-        }
-        treatment_branches = [
-            {"name": "treatment1", "description": "desc1", "ratio": 1},
-            {
-                "name": "testment2",
-                "description": "desc2",
-                "ratio": 1,
-                "feature_enabled": True,
-                "feature_value": treatment_feature_value,
-            },
-        ]
-
-        data = {
-            "feature_config": feature_config.id,
-            "reference_branch": reference_branch,
-            "treatment_branches": treatment_branches,
-            "changelog_message": "test changelog message",
-        }
-        serializer = NimbusExperimentSerializer(
-            experiment, data=data, partial=True, context={"user": self.user}
-        )
-        self.assertFalse(serializer.is_valid())
-        self.assert_(
-            serializer.errors["reference_branch"]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            )
-        )
-        self.assertEqual(len(serializer.errors), 1)
-
-    def test_serializer_feature_config_validation_bad_json_value(self):
-        feature_config = NimbusFeatureConfig(
-            schema=self.BASIC_JSON_SCHEMA, application=NimbusExperiment.Application.FENIX
-        )
-        feature_config.save()
-        experiment = NimbusExperimentFactory(
-            status=NimbusExperiment.Status.DRAFT,
-            application=NimbusExperiment.Application.FENIX,
-        )
-        reference_branch = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": '{"directMigrateSingleProfile: true',
-        }
-        treatment_branches = [
-            {"name": "treatment1", "description": "desc1", "ratio": 1},
-            {
-                "name": "testment2",
-                "description": "desc2",
-                "ratio": 1,
-            },
-        ]
-
-        data = {
-            "feature_config": feature_config.id,
-            "reference_branch": reference_branch,
-            "treatment_branches": treatment_branches,
-            "changelog_message": "test changelog message",
-        }
-        serializer = NimbusExperimentSerializer(
-            experiment, data=data, partial=True, context={"user": self.user}
-        )
-        self.assertFalse(serializer.is_valid())
-        self.assertIn(
-            "Unterminated string",
-            serializer.errors["reference_branch"]["feature_value"][0],
-        )
-        self.assertEqual(len(serializer.errors), 1)
-
-    def test_serializer_feature_config_validation_missing_feature_config(self):
-        experiment = NimbusExperimentFactory(
-            status=NimbusExperiment.Status.DRAFT,
-            feature_config=None,
-        )
-        reference_branch = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": "{}",
-        }
-        treatment_branches = [
-            {"name": "treatment1", "description": "desc1", "ratio": 1},
-            {
-                "name": "testment2",
-                "description": "desc2",
-                "ratio": 1,
-            },
-        ]
-
-        data = {
-            "reference_branch": reference_branch,
-            "treatment_branches": treatment_branches,
-            "changelog_message": "test changelog message",
-        }
-        serializer = NimbusExperimentSerializer(
-            experiment, data=data, partial=True, context={"user": self.user}
-        )
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["feature_config"][0],
-            "Feature Config required when a branch has feature enabled.",
-        )
-        self.assertEqual(len(serializer.errors), 1)
-
-    def test_serializer_feature_config_validation_treatment_value_schema_error(self):
-        feature_config = NimbusFeatureConfigFactory.create(
-            schema=self.BASIC_JSON_SCHEMA,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        feature_config.save()
-        experiment = NimbusExperimentFactory(
-            status=NimbusExperiment.Status.DRAFT,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        reference_feature_value = """\
-            {"directMigrateSingleProfile": true}
-        """.strip()
-        treatment_feature_value = """\
-            {"DDdirectMigrateSingleProfile": false}
-        """.strip()
-        reference_branch = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": reference_feature_value,
-        }
-        treatment_branches = [
-            {"name": "treatment1", "description": "desc1", "ratio": 1},
-            {
-                "name": "testment2",
-                "description": "desc2",
-                "ratio": 1,
-                "feature_enabled": True,
-                "feature_value": treatment_feature_value,
-            },
-        ]
-
-        data = {
-            "feature_config": feature_config.id,
-            "reference_branch": reference_branch,
-            "treatment_branches": treatment_branches,
-            "changelog_message": "test changelog message",
-        }
-        serializer = NimbusExperimentSerializer(
-            experiment, data=data, partial=True, context={"user": self.user}
-        )
-        self.assertFalse(serializer.is_valid())
-        self.assert_(
-            serializer.errors["treatment_branches"][1]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            )
-        )
-        self.assertEqual(len(serializer.errors), 1)
-
-    def test_serializer_feature_config_validation_application_mismatches_error(self):
-        feature_config = NimbusFeatureConfigFactory(
-            application=NimbusExperiment.Application.IOS, schema=self.BASIC_JSON_SCHEMA
-        )
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.FENIX,
-        )
-        reference_branch = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": '{"directMigrateSingleProfile": true}',
-        }
-        treatment_branches = [
-            {"name": "treatment1", "description": "desc1", "ratio": 1},
-            {
-                "name": "treatment2",
-                "description": "desc2",
-                "ratio": 1,
-                "feature_enabled": True,
-                "feature_value": '{"directMigrateSingleProfile": false}',
-            },
-        ]
-
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            data={
-                "feature_config": feature_config.id,
-                "reference_branch": reference_branch,
-                "treatment_branches": treatment_branches,
-                "changelog_message": "test changelog message",
-            },
-            partial=True,
-            context={"user": self.user},
-        )
-
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors,
-            {
-                "feature_config": [
-                    "Feature Config application ios does not "
-                    "match experiment application fenix."
-                ]
-            },
-        )
 
     def test_does_not_delete_branches_when_other_fields_specified(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1892,6 +1663,10 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             population_percent=0.0,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP
+            ),
         )
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1911,6 +1686,10 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             population_percent=0.0001,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP
+            ),
         )
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1920,7 +1699,7 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_invalid_experiment_treatment_branch_requires_description(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1975,6 +1754,10 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             risk_partner_related=None,
             risk_revenue=None,
             risk_brand=None,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP
+            ),
         )
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -2010,6 +1793,7 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            feature_config=NimbusFeatureConfigFactory(application=application),
         )
 
         serializer = NimbusReadyForReviewSerializer(
@@ -2021,9 +1805,192 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             context={"user": self.user},
         )
 
-        self.assertEqual(serializer.is_valid(), expected_valid)
+        self.assertEqual(serializer.is_valid(), expected_valid, serializer.errors)
         if not expected_valid:
             self.assertIn("channel", serializer.errors)
+
+    def test_serializer_feature_config_validation_application_mismatches_error(self):
+        experiment = NimbusExperimentFactory(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_config=NimbusFeatureConfigFactory.create(
+                schema=BASIC_JSON_SCHEMA,
+                application=NimbusExperiment.Application.IOS,
+            ),
+        )
+        experiment.reference_branch.feature_value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        experiment.save()
+        treatment_branch = experiment.treatment_branches[0]
+        treatment_branch.feature_value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        treatment_branch.save()
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        import logging
+
+        logging.info(serializer.errors)
+        self.assertEqual(
+            serializer.errors,
+            {
+                "feature_config": [
+                    "Feature Config application ios does not "
+                    "match experiment application fenix."
+                ]
+            },
+        )
+
+    def test_serializer_feature_config_validation_missing_feature_config(self):
+        experiment = NimbusExperimentFactory(
+            status=NimbusExperiment.Status.DRAFT,
+            feature_config=None,
+        )
+        experiment.reference_branch.feature_value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        experiment.save()
+        treatment_branch = experiment.treatment_branches[0]
+        treatment_branch.feature_value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        treatment_branch.save()
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["feature_config"][0],
+            "You must select a feature configuration from the drop down.",
+        )
+        self.assertEqual(len(serializer.errors), 1)
+
+    def test_serializer_feature_config_validation_bad_json_value(self):
+        experiment = NimbusExperimentFactory(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            feature_config=NimbusFeatureConfigFactory.create(
+                schema=BASIC_JSON_SCHEMA,
+                application=NimbusExperiment.Application.DESKTOP,
+            ),
+        )
+        experiment.reference_branch.feature_value = """\
+            {"directMigrateSingleProfile: true
+        """.strip()
+        experiment.save()
+        treatment_branch = experiment.treatment_branches[0]
+        treatment_branch.feature_value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        treatment_branch.save()
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            "Unterminated string",
+            serializer.errors["reference_branch"]["feature_value"][0],
+        )
+        self.assertEqual(len(serializer.errors), 1)
+
+    def test_serializer_feature_config_validation_reference_value_schema_error(self):
+        experiment = NimbusExperimentFactory(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            feature_config=NimbusFeatureConfigFactory.create(
+                schema=BASIC_JSON_SCHEMA,
+                application=NimbusExperiment.Application.DESKTOP,
+            ),
+        )
+        experiment.reference_branch.feature_value = """\
+            {"DDirectMigrateSingleProfile": true}
+        """.strip()
+        experiment.save()
+        treatment_branch = experiment.treatment_branches[0]
+        treatment_branch.feature_value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        treatment_branch.save()
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assert_(
+            serializer.errors["reference_branch"]["feature_value"][0].startswith(
+                "Additional properties are not allowed"
+            )
+        )
+        self.assertEqual(len(serializer.errors), 1)
+
+    def test_serializer_feature_config_validation_treatment_value_schema_error(self):
+        experiment = NimbusExperimentFactory(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            feature_config=NimbusFeatureConfigFactory.create(
+                schema=BASIC_JSON_SCHEMA,
+                application=NimbusExperiment.Application.DESKTOP,
+            ),
+        )
+        experiment.reference_branch.feature_value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        experiment.save()
+        treatment_branch = experiment.treatment_branches[0]
+        treatment_branch.feature_value = """\
+            {"DDirectMigrateSingleProfile": true}
+        """.strip()
+        treatment_branch.save()
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assert_(
+            serializer.errors["treatment_branches"][0]["feature_value"][0].startswith(
+                "Additional properties are not allowed"
+            )
+        )
+        self.assertEqual(len(serializer.errors), 1)
 
 
 class TestNimbusStatusTransitionValidator(TestCase):
