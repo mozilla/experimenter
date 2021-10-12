@@ -36,12 +36,21 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         fields = ("slug", "ratio", "feature")
 
     def get_feature(self, obj):
+        feature_value = {}
+        if obj.feature_value:
+            try:
+                feature_value = json.loads(obj.feature_value)
+            except json.JSONDecodeError:
+                # feature_value may be invalid JSON while the experiment is
+                # still being drafted
+                pass
+
         return {
             "featureId": obj.experiment.feature_config.slug
             if obj.experiment.feature_config
             else None,
             "enabled": obj.feature_enabled,
-            "value": json.loads(obj.feature_value) if obj.feature_value else {},
+            "value": feature_value,
         }
 
 

@@ -209,7 +209,7 @@ describe("hooks/useCommonForm", () => {
         },
       } = renderHook(() =>
         useCommonForm<"spiceLevel">({}, true, {}, jest.fn(), {
-          spiceLevel: [feedback],
+          spice_level: [feedback],
         }),
       );
 

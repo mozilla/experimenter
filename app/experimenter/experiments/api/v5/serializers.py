@@ -85,14 +85,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def validate_feature_value(self, value):
-        if value:
-            try:
-                json.loads(value)
-            except Exception as e:
-                raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
-        return value
-
     def validate(self, data):
         data = super().validate(data)
         if data.get("feature_enabled") and not data.get("feature_value"):
@@ -158,17 +150,9 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 
 
 class NimbusExperimentBranchMixin:
-    def _validate_feature_value_against_schema(self, schema, value):
-        json_value = json.loads(value)
-        try:
-            jsonschema.validate(json_value, schema)
-        except jsonschema.ValidationError as exc:
-            return [exc.message]
-
     def validate(self, data):
         data = super().validate(data)
         data = self._validate_duplicate_branch_names(data)
-        data = self._validate_feature_configs(data)
         return data
 
     def _validate_duplicate_branch_names(self, data):
@@ -192,65 +176,6 @@ class NimbusExperimentBranchMixin:
                         ],
                     }
                 )
-        return data
-
-    def _validate_feature_configs(self, data):
-        # Determine if we require a feature_config
-        feature_config_required = data.get("reference_branch", {}).get(
-            "feature_enabled", False
-        )
-        for branch in data.get("treatment_branches", []):
-            branch_required = branch.get("feature_enabled", False)
-            feature_config_required = feature_config_required or branch_required
-        feature_config = data.get("feature_config", None)
-        if feature_config_required and not feature_config:
-            raise serializers.ValidationError(
-                {
-                    "feature_config": [
-                        "Feature Config required when a branch has feature enabled."
-                    ]
-                }
-            )
-
-        if not feature_config or not feature_config.schema or not self.instance:
-            return data
-
-        if self.instance.application != feature_config.application:
-            raise serializers.ValidationError(
-                {
-                    "feature_config": [
-                        f"Feature Config application {feature_config.application} does "
-                        f"not match experiment application {self.instance.application}."
-                    ]
-                }
-            )
-
-        schema = json.loads(feature_config.schema)
-        error_result = {}
-        if data["reference_branch"].get("feature_enabled"):
-            errors = self._validate_feature_value_against_schema(
-                schema, data["reference_branch"]["feature_value"]
-            )
-            if errors:
-                error_result["reference_branch"] = {"feature_value": errors}
-
-        treatment_branches_errors = []
-        for branch_data in data["treatment_branches"]:
-            branch_error = None
-            if branch_data.get("feature_enabled", False):
-                errors = self._validate_feature_value_against_schema(
-                    schema, branch_data["feature_value"]
-                )
-                if errors:
-                    branch_error = {"feature_value": errors}
-            treatment_branches_errors.append(branch_error)
-
-        if any(x is not None for x in treatment_branches_errors):
-            error_result["treatment_branches"] = treatment_branches_errors
-
-        if error_result:
-            raise serializers.ValidationError(error_result)
-
         return data
 
     def update(self, experiment, data):
@@ -700,6 +625,14 @@ class NimbusBranchReadyForReviewSerializer(NimbusBranchSerializer):
         many=True, required=False
     )
 
+    def validate_feature_value(self, value):
+        if value:
+            try:
+                json.loads(value)
+            except Exception as e:
+                raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
+        return value
+
 
 class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
     public_description = serializers.CharField(required=True)
@@ -782,6 +715,57 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Hypothesis cannot be the default value.")
         return value
 
+    def _validate_feature_value_against_schema(self, schema, value):
+        json_value = json.loads(value)
+        try:
+            jsonschema.validate(json_value, schema)
+        except jsonschema.ValidationError as exc:
+            return [exc.message]
+
+    def _validate_feature_configs(self, data):
+        feature_config = data.get("feature_config", None)
+
+        if not feature_config or not feature_config.schema or not self.instance:
+            return data
+
+        if self.instance.application != feature_config.application:
+            raise serializers.ValidationError(
+                {
+                    "feature_config": [
+                        f"Feature Config application {feature_config.application} does "
+                        f"not match experiment application {self.instance.application}."
+                    ]
+                }
+            )
+
+        schema = json.loads(feature_config.schema)
+        error_result = {}
+        if data["reference_branch"].get("feature_enabled"):
+            errors = self._validate_feature_value_against_schema(
+                schema, data["reference_branch"]["feature_value"]
+            )
+            if errors:
+                error_result["reference_branch"] = {"feature_value": errors}
+
+        treatment_branches_errors = []
+        for branch_data in data["treatment_branches"]:
+            branch_error = None
+            if branch_data.get("feature_enabled", False):
+                errors = self._validate_feature_value_against_schema(
+                    schema, branch_data["feature_value"]
+                )
+                if errors:
+                    branch_error = {"feature_value": errors}
+            treatment_branches_errors.append(branch_error)
+
+        if any(x is not None for x in treatment_branches_errors):
+            error_result["treatment_branches"] = treatment_branches_errors
+
+        if error_result:
+            raise serializers.ValidationError(error_result)
+
+        return data
+
     def validate(self, attrs):
         application = attrs.get("application")
         channel = attrs.get("channel")
@@ -789,7 +773,9 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"channel": "Channel is required for this application."}
             )
-        return super().validate(attrs)
+        data = super().validate(attrs)
+        data = self._validate_feature_configs(data)
+        return data
 
 
 class NimbusExperimentCloneSerializer(
