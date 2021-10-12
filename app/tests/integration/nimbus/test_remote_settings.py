@@ -44,6 +44,7 @@ def app_data(request):
     return request.param
 
 
+"""
 @pytest.mark.run_per_app
 def test_create_new_experiment_approve_remote_settings(
     selenium,
@@ -60,6 +61,7 @@ def test_create_new_experiment_approve_remote_settings(
     Dashboard(selenium, kinto_review_url).open().approve()
 
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
+"""
 
 
 @pytest.mark.run_once
