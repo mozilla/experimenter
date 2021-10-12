@@ -120,6 +120,17 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
         self.assertIsNone(serializer.data["branches"][0]["feature"]["featureId"])
 
+    def test_serializer_with_branch_invalid_feature_value(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        experiment.reference_branch.feature_value = "this is not json"
+        experiment.reference_branch.save()
+        serializer = NimbusExperimentSerializer(experiment)
+        branch_slug = serializer.data["referenceBranch"]
+        branch = [x for x in serializer.data["branches"] if x["slug"] == branch_slug][0]
+        self.assertEqual(branch["feature"]["value"], {})
+
     @parameterized.expand(
         [
             (application, channel, channel_app_id)
