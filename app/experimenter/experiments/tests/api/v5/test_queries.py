@@ -227,7 +227,11 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_by_slug_ready_for_review(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP
+            ),
         )
 
         response = self.query(
@@ -316,6 +320,10 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             hypothesis=NimbusExperiment.HYPOTHESIS_DEFAULT,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP
+            ),
         )
 
         response = self.query(
