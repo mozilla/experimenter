@@ -47,5 +47,8 @@
     },
     "devDependencies": {
         "jest-environment-jsdom-sixteen": "2.0.0"
+    },
+    "resolutions": {
+        "ansi-regex": "^5.0.1"
     }
 }
