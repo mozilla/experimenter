@@ -52,12 +52,12 @@ services:
       - db_volume:/var/lib/postgresql
 
   redis:
-    image: redis
+    image: redis:6.2.6
     ports:
       - "6379:6379"
 
   kinto:
-    image: mozilla/kinto-dist
+    image: mozilla/kinto-dist:23.3.1
     environment:
       KINTO_INI: /etc/kinto.ini
     ports:
@@ -68,7 +68,7 @@ services:
       - ./kinto/server.ini:/etc/kinto.ini
 
   autograph:
-    image: mozilla/autograph
+    image: mozilla/autograph:4.1.1
     ports:
       - "8000:8000"
 
