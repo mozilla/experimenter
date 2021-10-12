@@ -75,6 +75,7 @@ jobs:
           name: Run integration tests
           command: |
             PYTEST_ARGS=$(circleci tests split "app/tests/integration/nimbus/parallel_pytest_args.txt")
+            echo $PYTEST_ARGS
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1
             make up_prod_detached
