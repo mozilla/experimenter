@@ -399,7 +399,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             existing_bucket_range.delete()
 
         NimbusIsolationGroup.request_isolation_group_buckets(
-            self.feature_config.slug,
+            f"{self.application_config.slug}-{self.feature_config.slug}",
             self,
             int(
                 self.population_percent / Decimal("100.0") * NimbusExperiment.BUCKET_TOTAL
