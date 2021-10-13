@@ -157,18 +157,23 @@ On certain pages an API endpoint is called to receive experiment analysis data f
    GOOGLE_APPLICATION_CREDENTIALS=/app/google-credentials.json
    ```
 
-### Google Credentials for Media Storage
+### Google Cloud Bucket for Media Storage
 
 We support user uploads of media (e.g. screenshots) for some features.
 
-In local development, the default is to store these files `/app/media` using Django's `FileSystemStorage` class and the `MEDIA_ROOT` and `MEDIA_URL` settings.
+In local development, the default is to store these files in `/app/media` using Django's `FileSystemStorage` class and the `MEDIA_ROOT` and `MEDIA_URL` settings.
 
-In production, GCP credentials and a bucket are required. These are configured with the `UPLOADS_GS_CREDENTIALS` and `UPLOADS_GS_BUCKET_NAME` settings respectively. For example:
+In production, a GCP bucket and credentials are required.
+
+The bucket name is configured with the `UPLOADS_GS_BUCKET_NAME` setting. For example:
 
 ```
-UPLOADS_GS_CREDENTIALS=/app/nimbus-experimenter-media-dev-54693c3a8c69.json
 UPLOADS_GS_BUCKET_NAME=nimbus-experimenter-media-dev-uploads
 ```
+
+For local testing of a production-like environment, The credentials should be configured using the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in the previous section on Google Credentials for Jetstream.
+
+In the real production deployment, credentials are configured via [workload identity in Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity).
 
 ## Usage
 

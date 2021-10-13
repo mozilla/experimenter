@@ -4,7 +4,6 @@ from functools import cache
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage, get_storage_class
 from django.utils.functional import LazyObject
-from google.oauth2 import service_account
 from storages.backends.gcloud import GoogleCloudStorage
 
 
@@ -29,13 +28,8 @@ def get_uploads_storage():
         cls = get_storage_class(settings.UPLOADS_FILE_STORAGE)
         return cls()
 
-    if settings.UPLOADS_GS_CREDENTIALS:
-        credentials = service_account.Credentials.from_service_account_file(
-            settings.UPLOADS_GS_CREDENTIALS
-        )
+    if settings.UPLOADS_GS_BUCKET_NAME:
         return GoogleCloudStorage(
-            credentials=credentials,
-            project_id=credentials.project_id,
             bucket_name=settings.UPLOADS_GS_BUCKET_NAME,
         )
 
