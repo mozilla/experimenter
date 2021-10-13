@@ -30,6 +30,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusIsolationGroupFactory,
 )
+from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
 
 
@@ -724,13 +725,17 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
     def test_allocate_buckets_generates_bucket_range(self):
+        feature = NimbusFeatureConfigFactory(slug="feature")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED, population_percent=Decimal("50.0")
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_config=feature,
+            population_percent=Decimal("50.0"),
         )
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(
-            experiment.bucket_range.isolation_group.name, experiment.feature_config.slug
+            experiment.bucket_range.isolation_group.name, "firefox-desktop-feature"
         )
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
@@ -739,16 +744,10 @@ class TestNimbusExperiment(TestCase):
         )
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 5000)
-        self.assertEqual(
-            experiment.bucket_range.isolation_group.name, experiment.feature_config.slug
-        )
 
         experiment.population_percent = Decimal("20.0")
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 2000)
-        self.assertEqual(
-            experiment.bucket_range.isolation_group.name, experiment.feature_config.slug
-        )
 
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
