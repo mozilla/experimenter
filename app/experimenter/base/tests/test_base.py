@@ -59,33 +59,21 @@ class TestGetUploadsStorage(TestCase):
         self.assertIsInstance(get_uploads_storage(), FileSystemStorage)
 
     @override_settings(
-        UPLOADS_GS_CREDENTIALS="should-be-ignored-for-testing.json",
+        UPLOADS_GS_BUCKET_NAME="bazquux",
         UPLOADS_FILE_STORAGE="inmemorystorage.InMemoryStorage",
     )
     def test_get_uploads_storage_custom(self):
         self.assertIsInstance(get_uploads_storage(), InMemoryStorage)
 
     @override_settings(
-        UPLOADS_GS_CREDENTIALS="/app/uploads-credentials.json",
         UPLOADS_GS_BUCKET_NAME="bazquux",
         UPLOADS_FILE_STORAGE=None,
     )
-    @mock.patch("experimenter.base.service_account")
     @mock.patch("experimenter.base.GoogleCloudStorage")
-    def test_get_uploads_storage_gcp(self, MockGoogleCloudStorage, mock_service_account):
+    def test_get_uploads_storage_gcp(self, MockGoogleCloudStorage):
         storage = get_uploads_storage()
         self.assertEqual(storage, MockGoogleCloudStorage.return_value)
-
-        from_service_account_file = (
-            mock_service_account.Credentials.from_service_account_file
-        )
-        from_service_account_file.assert_called_with(
-            "/app/uploads-credentials.json",
-        )
-        mock_credentials = from_service_account_file.return_value
         MockGoogleCloudStorage.assert_called_with(
-            credentials=mock_credentials,
-            project_id=mock_credentials.project_id,
             bucket_name="bazquux",
         )
 
