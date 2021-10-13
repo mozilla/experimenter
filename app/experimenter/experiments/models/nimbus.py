@@ -396,7 +396,11 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     def allocate_bucket_range(self):
         existing_bucket_range = NimbusBucketRange.objects.filter(experiment=self)
         if existing_bucket_range.exists():
+            isolation_group = existing_bucket_range.get().isolation_group
             existing_bucket_range.delete()
+
+            if not isolation_group.bucket_ranges.exists():
+                NimbusIsolationGroup.objects.filter(id=isolation_group.id).delete()
 
         NimbusIsolationGroup.request_isolation_group_buckets(
             f"{self.application_config.slug}-{self.feature_config.slug}",
