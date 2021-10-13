@@ -28,9 +28,9 @@ from experimenter.experiments.tests.factories import (
     NimbusChangeLogFactory,
     NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
     NimbusIsolationGroupFactory,
 )
-from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
 
 
@@ -748,6 +748,64 @@ class TestNimbusExperiment(TestCase):
         experiment.population_percent = Decimal("20.0")
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 2000)
+
+    def test_allocate_buckets_deletes_buckets_and_empty_isolation_group(self):
+        feature = NimbusFeatureConfigFactory(slug="feature")
+
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_config=feature,
+            population_percent=Decimal("50.0"),
+        )
+        experiment1.allocate_bucket_range()
+
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_config=feature,
+            population_percent=Decimal("100.0"),
+        )
+        experiment2.allocate_bucket_range()
+
+        self.assertEqual(NimbusBucketRange.objects.count(), 2)
+        self.assertEqual(NimbusIsolationGroup.objects.count(), 2)
+
+        experiment2.population_percent = Decimal("50.0")
+        experiment2.save()
+        experiment2.allocate_bucket_range()
+
+        self.assertEqual(NimbusBucketRange.objects.count(), 2)
+        self.assertEqual(NimbusIsolationGroup.objects.count(), 1)
+
+    def test_allocate_buckets_deletes_buckets_preserves_occupied_isolation_group(self):
+        feature = NimbusFeatureConfigFactory(slug="feature")
+
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_config=feature,
+            population_percent=Decimal("50.0"),
+        )
+        experiment1.allocate_bucket_range()
+
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_config=feature,
+            population_percent=Decimal("25.0"),
+        )
+        experiment2.allocate_bucket_range()
+
+        self.assertEqual(NimbusBucketRange.objects.count(), 2)
+        self.assertEqual(NimbusIsolationGroup.objects.count(), 1)
+
+        experiment2.population_percent = Decimal("30.0")
+        experiment2.save()
+        experiment2.allocate_bucket_range()
+
+        self.assertEqual(NimbusBucketRange.objects.count(), 2)
+        self.assertEqual(NimbusIsolationGroup.objects.count(), 1)
 
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
