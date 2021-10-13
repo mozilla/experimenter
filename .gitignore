@@ -81,7 +81,6 @@ target/
 !.vscode/extensions.json
 
 # Hosted assets
-app/experimenter/media/
 app/experimenter/served/
 app/experimenter/legacy-ui/assets/
 app/experimenter/reporting/reporting-ui/assets/

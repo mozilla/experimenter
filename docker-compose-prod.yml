@@ -15,6 +15,8 @@ services:
       - kinto
     ports:
       - "7001:7001"
+    volumes:
+      - media_volume:/app/experimenter/media
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python manage.py collectstatic --noinput&&gunicorn -w 4 -b 0.0.0.0:7001 experimenter.wsgi"
 
   worker:
@@ -74,3 +76,4 @@ services:
 
 volumes:
   db_volume:
+  media_volume:
