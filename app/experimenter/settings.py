@@ -430,7 +430,7 @@ GS_PROJECT_ID = "experiments-analysis"
 GS_BUCKET_NAME = "mozanalysis"
 
 # GCS bucket for user uploads, e.g. branch screenshots
-UPLOADS_GS_BUCKET_NAME = config("MEDIA_BUCKET", default=None)
+UPLOADS_GS_BUCKET_NAME = config("UPLOADS_GS_BUCKET_NAME", default=None)
 
 # Custom file storage override for user uploads (e.g. for testing)
 UPLOADS_FILE_STORAGE = config("UPLOADS_FILE_STORAGE", default=None)
