@@ -33,8 +33,8 @@ const FormApproveOrReject = ({
             <span role="img" aria-label="red X emoji">
               ❌
             </span>{" "}
-            Remote Settings request has timed out, please go through the request{" "}
-            and approval flow to {actionDescription} again.
+            Remote Settings request has timed out, please go through the
+            approval flow to {actionDescription} again.
           </p>
         </Alert>
       )}
