@@ -78,16 +78,15 @@ export const SidebarActions = ({
           <TrashIcon className="sidebar-icon" />
           {experiment.isArchived ? "Unarchive" : "Archive"}
           {archiveDisabled && (
-            <>
-              <Info
-                data-tip={ARCHIVE_DISABLED}
-                data-testid="tooltip-archived-disabled"
-                width="20"
-                height="20"
-                className="ml-1 text-muted"
-              />
+            <Info
+              data-tip={ARCHIVE_DISABLED}
+              data-testid="tooltip-archived-disabled"
+              width="20"
+              height="20"
+              className="ml-1 text-muted"
+            >
               <ReactTooltip />
-            </>
+            </Info>
           )}
         </LinkNav>
         <div className="edit-divider position-relative small my-3">
