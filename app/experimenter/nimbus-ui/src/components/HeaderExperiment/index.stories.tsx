@@ -14,7 +14,7 @@ import {
 import AppLayout from "../AppLayout";
 
 const { experiment } = mockExperimentQuery("demo-slug");
-const { name, slug } = experiment;
+const { name, slug, monitoringDashboardUrl } = experiment;
 const status = mockGetStatus(experiment);
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
@@ -35,6 +35,7 @@ const commonHeaderExperimentProps: React.ComponentProps<
   parent: null,
   name,
   slug,
+  monitoringDashboardUrl,
   status,
   isArchived: false,
   isEnrollmentPaused: false,

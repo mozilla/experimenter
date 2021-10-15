@@ -172,21 +172,8 @@ const AppLayoutWithExperiment = ({
           />
         )}
 
-        <HeaderExperiment
-          {...{
-            slug,
-            name,
-            parent,
-            startDate,
-            computedEndDate,
-            status,
-            computedDurationDays,
-            computedEnrollmentDays,
-            enrollmentEndDate,
-            isArchived,
-            isEnrollmentPaused,
-          }}
-        />
+        <HeaderExperiment {...{ ...experiment, status }} />
+
         {hasPollError && (
           <Alert
             variant="warning"

@@ -60,6 +60,8 @@ export const EXTERNAL_URLS = {
   EXPERIMENTER_DOCUMENTATION: "https://experimenter.info",
   ASK_EXPERIMENTER_SLACK: "slack://channel?team=T027LFU12&id=CF94YGE03",
   FEEDBACK: "https://bit.ly/38dgkqR",
+  DETAILED_ANALYSIS_TEMPLATE: (slugUnderscored: string) =>
+    `https://protosaur.dev/partybal/${slugUnderscored}.html`,
 };
 
 export const RISK_QUESTIONS = {
@@ -70,6 +72,9 @@ export const RISK_QUESTIONS = {
   REVENUE:
     "Does this experiment have a risk to negatively impact revenue (e.g. search, Pocket revenue)?",
 };
+
+export const TOOLTIP_LIVE_MONITORING =
+  "Click hereOpens in new window to view the live monitoring dashboard.";
 
 export const TOOLTIP_DURATION =
   "This is the total duration of the experiment, including the enrollment period.";

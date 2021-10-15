@@ -27,10 +27,10 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
   return (
-    <Table bordered data-testid="table-overview" className="mb-4">
+    <Table data-testid="table-overview" className="mb-4 border rounded">
       <tbody>
         <tr>
-          <th className="w-33">Slug</th>
+          <th className="w-25">Slug</th>
           <td data-testid="experiment-slug" className="text-monospace">
             {experiment.slug}
           </td>

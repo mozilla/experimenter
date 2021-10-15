@@ -80,18 +80,17 @@ const TableBranch = ({
   const cloneDialogProps = useCloneDialog(experiment, branch);
   return (
     <Table
-      bordered
       data-testid="table-branch"
-      className="mb-4 table-fixed"
+      className="mb-4 table-fixed border rounded"
       id={slug}
     >
       <colgroup>
-        <col className="w-33" />
+        <col className="w-25" />
         <col />
       </colgroup>
       <thead className="thead-light">
         <tr>
-          <th colSpan={2} data-testid="branch-name">
+          <th colSpan={2} className="bg-light" data-testid="branch-name">
             <Container>
               <Row>
                 <Col>

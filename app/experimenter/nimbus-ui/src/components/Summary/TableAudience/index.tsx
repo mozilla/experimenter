@@ -20,10 +20,13 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
   const { firefoxVersions, channels, targetingConfigs } = useConfig();
 
   return (
-    <Table bordered data-testid="table-audience" className="mb-4 table-fixed">
+    <Table
+      data-testid="table-audience"
+      className="mb-4 table-fixed border rounded"
+    >
       <tbody>
         <tr>
-          <th className="w-33">Channel</th>
+          <th className="w-25">Channel</th>
           <td data-testid="experiment-channel">
             {displayConfigLabelOrNotSet(experiment.channel, channels)}
           </td>
@@ -110,8 +113,10 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
           </tr>
         ) : null}
         {experiment.recipeJson && (
-          <tr>
-            <th>Recipe JSON</th>
+          <tr id="recipe-json">
+            <th>
+              Recipe JSON <a href={`#recipe-json`}>#</a>
+            </th>
             <td data-testid="experiment-recipe-json">
               <Code codeString={experiment.recipeJson} />
             </td>

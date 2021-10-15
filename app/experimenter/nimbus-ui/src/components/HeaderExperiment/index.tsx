@@ -44,7 +44,7 @@ const HeaderExperiment = ({
   isArchived,
   isEnrollmentPaused,
 }: HeaderExperimentProps) => (
-  <header className="border-bottom" data-testid="header-experiment">
+  <header data-testid="header-experiment">
     <h1
       className="h5 font-weight-normal d-inline"
       data-testid="header-experiment-name"
@@ -167,7 +167,7 @@ const StatusTimeline = ({
       )}
 
       {computedDurationDays && (
-        <small className="position-absolute">
+        <small className="header-experiment-duration">
           {computedEnrollmentDays && (
             <>
               {pluralize(computedEnrollmentDays, "day")}
