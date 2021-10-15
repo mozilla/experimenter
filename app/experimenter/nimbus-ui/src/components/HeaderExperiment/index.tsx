@@ -3,10 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import classNames from "classnames";
-import React from "react";
-import { BASE_PATH } from "../../lib/constants";
+import React, { useMemo } from "react";
+import { ProgressBar } from "react-bootstrap";
+import ReactTooltip from "react-tooltip";
+import { ReactComponent as Info } from "../../images/info.svg";
+import {
+  BASE_PATH,
+  TOOLTIP_DURATION_AND_ENROLLMENT,
+} from "../../lib/constants";
 import { humanDate } from "../../lib/dateUtils";
 import { StatusCheck } from "../../lib/experiment";
+import { pluralize } from "../../lib/utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import "./index.scss";
 
@@ -18,6 +25,7 @@ type HeaderExperimentProps = Pick<
   | "startDate"
   | "computedEndDate"
   | "computedDurationDays"
+  | "computedEnrollmentDays"
   | "isArchived"
 > & { status: StatusCheck };
 
@@ -27,8 +35,9 @@ const HeaderExperiment = ({
   parent,
   startDate = "",
   computedEndDate = "",
-  status,
   computedDurationDays,
+  computedEnrollmentDays,
+  status,
   isArchived,
 }: HeaderExperimentProps) => (
   <header className="border-bottom" data-testid="header-experiment">
@@ -61,43 +70,102 @@ const HeaderExperiment = ({
         Cloned from <a href={`${BASE_PATH}/${parent.slug}`}>{parent.name}</a>
       </p>
     )}
-    <div className="row">
-      <div className="col">
-        <p className="header-experiment-status position-relative mt-2 d-inline-block">
-          <StatusPill label="Draft" active={status.draft && status.idle} />
-          {status.preview && status.idle && (
-            <StatusPill label="Preview" active />
-          )}
-          <StatusPill
-            label="Review"
-            active={(status.draft || status.preview) && !status.idle}
-          />
-          <StatusPill label="Live" active={status.live} />
-          <StatusPill
-            label="Complete"
-            active={status.complete}
-            padded={false}
-          />
-        </p>
-      </div>
-      {(status.live || status.complete) && (
-        <div className="text-right col mt-2" data-testid="header-dates">
-          <span className="font-weight-bold">{humanDate(startDate!)}</span> to{" "}
-          {computedEndDate ? (
-            <>
-              <span className="font-weight-bold">
-                {humanDate(computedEndDate!)}
-              </span>{" "}
-              ({computedDurationDays} days)
-            </>
-          ) : (
-            <span className="font-weight-bold">Present</span>
-          )}
-        </div>
-      )}
+    <div className="row header-experiment-status align-items-center position-relative mx-0 mt-2 mb-4">
+      <StatusPill label="Draft" active={status.draft && status.idle} />
+      {status.preview && status.idle && <StatusPill label="Preview" active />}
+      <StatusPill
+        label="Review"
+        active={(status.draft || status.preview) && !status.idle}
+      />
+      <StatusPill label="Live" active={status.live} />
+      <StatusTimeline
+        {...{
+          status,
+          startDate,
+          computedEndDate,
+          computedDurationDays,
+          computedEnrollmentDays,
+        }}
+      />
+      <StatusPill label="Complete" active={status.complete} padded={false} />
     </div>
   </header>
 );
+
+const StatusTimeline = ({
+  status,
+  startDate,
+  computedEndDate,
+  computedDurationDays,
+  computedEnrollmentDays,
+}: {
+  status: StatusCheck;
+  startDate: string | null;
+  computedEndDate: string | null;
+  computedDurationDays: number | null;
+  computedEnrollmentDays: number | null;
+}) => {
+  const progressBarProps = useMemo(() => {
+    if (status.live) {
+      return {
+        striped: true,
+        animated: true,
+        min: Date.parse(startDate!),
+        max: Date.parse(computedEndDate!),
+        now: Math.min(Date.now(), Date.parse(computedEndDate!)),
+      };
+    }
+    if (status.complete) {
+      return { variant: "success", now: 100 };
+    }
+    return { now: 0 };
+  }, [status, startDate, computedEndDate]);
+
+  return (
+    <span className="col flex-grow-2 p-0 mr-3 text-center position-relative">
+      <ProgressBar
+        {...{ style: { height: 18 }, ...progressBarProps }}
+        data-testid="header-progress-bar"
+      />
+      {!(status.draft || status.preview) && (
+        <>
+          <small
+            className="font-weight-bold position-absolute"
+            style={{ left: 0 }}
+          >
+            {humanDate(startDate!)}
+          </small>
+          <small
+            className="font-weight-bold position-absolute"
+            style={{ right: 0 }}
+          >
+            {computedEndDate ? humanDate(computedEndDate!) : "Present"}
+          </small>
+        </>
+      )}
+
+      {computedDurationDays && (
+        <small className="position-absolute">
+          {computedEnrollmentDays && (
+            <>
+              {pluralize(computedEnrollmentDays, "day")}
+              {" / "}
+            </>
+          )}
+          {pluralize(computedDurationDays, "day")}
+          <Info
+            data-tip={TOOLTIP_DURATION_AND_ENROLLMENT}
+            data-testid="tooltip-duration-summary"
+            width="20"
+            height="20"
+            className="ml-1"
+          />
+          <ReactTooltip />
+        </small>
+      )}
+    </span>
+  );
+};
 
 const StatusPill = ({
   label,
@@ -117,7 +185,7 @@ const StatusPill = ({
   <span
     className={
       classNames(
-        `border rounded-pill px-2 bg-white position-relative status-${label}`,
+        `col flex-grow-0 border rounded-pill px-2 bg-white status-${label}`,
         active ? `border-${color} text-${color}` : "border-muted text-muted",
         padded && "mr-3",
       ) +
