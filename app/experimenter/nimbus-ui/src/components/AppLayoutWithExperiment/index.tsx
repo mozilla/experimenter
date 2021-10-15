@@ -146,7 +146,10 @@ const AppLayoutWithExperiment = ({
     startDate,
     computedEndDate,
     computedDurationDays,
+    computedEnrollmentDays,
+    enrollmentEndDate,
     isArchived,
+    isEnrollmentPaused,
   } = experiment;
 
   return (
@@ -178,7 +181,10 @@ const AppLayoutWithExperiment = ({
             computedEndDate,
             status,
             computedDurationDays,
+            computedEnrollmentDays,
+            enrollmentEndDate,
             isArchived,
+            isEnrollmentPaused,
           }}
         />
         {hasPollError && (

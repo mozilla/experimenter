@@ -22,6 +22,9 @@ const then = Date.now() - 7 * ONE_DAY;
 const startDate = new Date(then).toISOString();
 const computedDurationDays = 24;
 const computedEnrollmentDays = 5;
+const enrollmentEndDate = new Date(
+  then + computedEnrollmentDays * ONE_DAY,
+).toISOString();
 const computedEndDate = new Date(
   then + computedDurationDays * ONE_DAY,
 ).toISOString();
@@ -34,10 +37,12 @@ const commonHeaderExperimentProps: React.ComponentProps<
   slug,
   status,
   isArchived: false,
+  isEnrollmentPaused: false,
   startDate,
   computedEndDate,
   computedDurationDays,
   computedEnrollmentDays,
+  enrollmentEndDate,
 };
 
 storiesOf("components/HeaderExperiment", module)
@@ -81,6 +86,15 @@ storiesOf("components/HeaderExperiment", module)
     <AppLayout>
       <HeaderExperiment
         {...commonHeaderExperimentProps}
+        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+      />
+    </AppLayout>
+  ))
+  .add("status: live (enrollment paused)", () => (
+    <AppLayout>
+      <HeaderExperiment
+        {...commonHeaderExperimentProps}
+        isEnrollmentPaused={true}
         status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
       />
     </AppLayout>
