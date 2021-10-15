@@ -107,7 +107,11 @@ export const AppLayoutWithSidebar = ({
 
               <li>
                 <ul className="text-dark list-unstyled ml-4">
-                  <LinkNav className="mx-1 mb-2 ml-3" route={`${slug}/details`}>
+                  <LinkNav
+                    className="mx-1 mb-2 ml-3"
+                    storiesOf="pages/SummaryDetails"
+                    route={`${slug}/details`}
+                  >
                     Details
                   </LinkNav>
                 </ul>
