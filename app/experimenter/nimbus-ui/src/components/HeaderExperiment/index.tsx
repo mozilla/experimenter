@@ -26,7 +26,9 @@ type HeaderExperimentProps = Pick<
   | "computedEndDate"
   | "computedDurationDays"
   | "computedEnrollmentDays"
+  | "enrollmentEndDate"
   | "isArchived"
+  | "isEnrollmentPaused"
 > & { status: StatusCheck };
 
 const HeaderExperiment = ({
@@ -37,8 +39,10 @@ const HeaderExperiment = ({
   computedEndDate = "",
   computedDurationDays,
   computedEnrollmentDays,
+  enrollmentEndDate,
   status,
   isArchived,
+  isEnrollmentPaused,
 }: HeaderExperimentProps) => (
   <header className="border-bottom" data-testid="header-experiment">
     <h1
@@ -54,6 +58,24 @@ const HeaderExperiment = ({
         color="danger"
         active={true}
         testid="header-experiment-status-archived"
+      />
+    )}
+    {status.live && !isEnrollmentPaused && (
+      <StatusPill
+        testid="pill-enrolling-active"
+        className="ml-2"
+        color="primary"
+        active={true}
+        label="Enrolling Users in Progress"
+      />
+    )}
+    {status.live && isEnrollmentPaused && enrollmentEndDate && (
+      <StatusPill
+        testid="pill-enrolling-complete"
+        className="ml-2"
+        color="primary"
+        active={true}
+        label="Enrollment Complete"
       />
     )}
     <p

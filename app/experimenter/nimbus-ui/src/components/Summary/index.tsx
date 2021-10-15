@@ -57,12 +57,14 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
 
   return (
     <div data-testid="summary" className="mb-5">
+      {/*
       <h3 className="h5 mb-3">
         Timeline
         {status.live && <StatusPills {...{ experiment }} />}
       </h3>
 
       <SummaryTimeline {...{ experiment }} />
+      */}
 
       {submitError && (
         <Alert data-testid="submit-error" variant="warning">
