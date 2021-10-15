@@ -9,13 +9,16 @@ import { useConfig } from "../../hooks";
 import { ReactComponent as ExternalIcon } from "../../images/external.svg";
 import { ReactComponent as CollapseMinus } from "../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
+import { EXTERNAL_URLS } from "../../lib/constants";
 import { ResultsContext, ResultsContextType } from "../../lib/contexts";
+import { getStatus } from "../../lib/experiment";
 import { GROUP, METRIC_TYPE } from "../../lib/visualization/constants";
 import {
   analysisUnavailable,
   getSortedBranchNames,
 } from "../../lib/visualization/utils";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
+import ExperimentQuickLinks from "../ExperimentQuickLinks";
 import LinkExternal from "../LinkExternal";
 import ExternalConfigAlert from "./ExternalConfigAlert";
 import TableHighlights from "./TableHighlights";
@@ -35,7 +38,6 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
   return (
     <AppLayoutWithExperiment
-      title="Analysis"
       testId="PageResults"
       analysisRequired
       redirect={({ status, analysis }) => {
@@ -64,27 +66,16 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
         const { external_config: externalConfig } = analysis.metadata || {};
         const slugUnderscored = experiment.slug.replace(/-/g, "_");
+        const status = getStatus(experiment);
 
         return (
           <ResultsContext.Provider value={resultsContextValue}>
+            <ExperimentQuickLinks {...{ ...experiment, status }} />
+
+            <h2 className="mt-3 mb-4 h3">Analysis</h2>
+
             {externalConfig && <ExternalConfigAlert {...{ externalConfig }} />}
 
-            <p className="mb-1">
-              <LinkExternal
-                href={experiment.monitoringDashboardUrl!}
-                data-testid="link-monitoring-dashboard"
-              >
-                Live Monitoring Dashboard <ExternalIcon />
-              </LinkExternal>
-            </p>
-            <p>
-              <LinkExternal
-                href={`https://protosaur.dev/partybal/${slugUnderscored}.html`}
-                data-testid="link-external-results"
-              >
-                Detailed Analysis <ExternalIcon />
-              </LinkExternal>
-            </p>
             <h3 className="h4 mb-3 mt-4" id="overview">
               Overview
             </h3>

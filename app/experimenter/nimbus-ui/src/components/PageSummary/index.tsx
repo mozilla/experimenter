@@ -5,7 +5,12 @@
 import { RouteComponentProps } from "@reach/router";
 import React, { useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
-import { useChangeOperationMutation, useReviewCheck } from "../../hooks";
+import Table from "react-bootstrap/Table";
+import {
+  useChangeOperationMutation,
+  useConfig,
+  useReviewCheck,
+} from "../../hooks";
 import {
   CHANGELOG_MESSAGES,
   LIFECYCLE_REVIEW_FLOWS,
@@ -18,8 +23,11 @@ import {
 } from "../../types/globalTypes";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import ChangeApprovalOperations from "../ChangeApprovalOperations";
+import ExperimentQuickLinks from "../ExperimentQuickLinks";
 import Head from "../Head";
-import Summary from "../Summary";
+import NotSet from "../NotSet";
+import RichText from "../RichText";
+import { displayConfigLabelOrNotSet } from "../Summary";
 import FormLaunchDraftToPreview from "./FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "./FormLaunchDraftToReview";
 import FormLaunchPreviewToReview from "./FormLaunchPreviewToReview";
@@ -50,6 +58,8 @@ const PageContent: React.FC<{
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
 
   const status = getStatus(experiment);
+
+  const { applications } = useConfig();
 
   const {
     isLoading,
@@ -120,6 +130,7 @@ const PageContent: React.FC<{
   );
 
   const {
+    monitoringDashboardUrl,
     publishStatus,
     canReview,
     reviewRequest: reviewRequestEvent,
@@ -173,6 +184,8 @@ const PageContent: React.FC<{
 
   return (
     <>
+      <ExperimentQuickLinks {...{ ...experiment, status }} />
+
       <Head title={`${experiment.name} – ${summaryTitle}`} />
 
       {submitError && (
@@ -248,7 +261,45 @@ const PageContent: React.FC<{
       )}
 
       <h2 className="mt-3 mb-4 h4">Summary</h2>
-      <Summary {...{ experiment, refetch }} />
+
+      <Table data-testid="table-overview" className="mb-4 border rounded">
+        <tbody>
+          <tr>
+            <th className="w-25">Slug</th>
+            <td data-testid="experiment-slug" className="text-monospace">
+              {experiment.slug}
+            </td>
+          </tr>
+          <tr>
+            <th>Experiment owner</th>
+            <td data-testid="experiment-owner">
+              {experiment.owner ? experiment.owner.email : <NotSet />}
+            </td>
+          </tr>
+          <tr>
+            <th>Application</th>
+            <td data-testid="experiment-application">
+              {displayConfigLabelOrNotSet(experiment.application, applications)}
+            </td>
+          </tr>
+          <tr>
+            <th>Hypothesis</th>
+            <td data-testid="experiment-hypothesis">
+              <RichText text={experiment.hypothesis || ""} />
+            </td>
+          </tr>
+          <tr>
+            <th>Public description</th>
+            <td data-testid="experiment-description">
+              {experiment.publicDescription ? (
+                experiment.publicDescription
+              ) : (
+                <NotSet />
+              )}
+            </td>
+          </tr>
+        </tbody>
+      </Table>
     </>
   );
 };

@@ -8,3 +8,11 @@
   top: 50%;
   transform: translateY(-50%);
 }
+
+.header-experiment-duration {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  // Small hack to combine absolute positioning with centering
+  transform: translate(-50%, 100%);
+}

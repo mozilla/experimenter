@@ -16,6 +16,7 @@ import PageLoading from "../PageLoading";
 import PageNew from "../PageNew";
 import PageResults from "../PageResults";
 import PageSummary from "../PageSummary";
+import PageSummaryDetail from "../PageSummaryDetails";
 
 type RootProps = {
   children: React.ReactNode;
@@ -41,6 +42,7 @@ const App = ({ basepath }: { basepath: string }) => {
         <PageHome path="/" />
         <PageNew path="new" />
         <PageSummary path=":slug" />
+        <PageSummaryDetail path=":slug/details" />
         <Root path=":slug/edit">
           <Redirect from="/" to="overview" noThrow />
           <PageEditOverview path="overview" />

@@ -14,13 +14,11 @@ import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
-import LinkMonitoring from "../LinkMonitoring";
 import NotSet from "../NotSet";
 import TableSignoff from "../PageSummary/TableSignoff";
 import PreviewURL from "../PreviewURL";
 import EndEnrollment from "./EndEnrollment";
 import EndExperiment from "./EndExperiment";
-import SummaryTimeline from "./SummaryTimeline";
 import TableAudience from "./TableAudience";
 import TableBranches from "./TableBranches";
 import TableOverview from "./TableOverview";
@@ -57,15 +55,6 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
 
   return (
     <div data-testid="summary" className="mb-5">
-      {/*
-      <h3 className="h5 mb-3">
-        Timeline
-        {status.live && <StatusPills {...{ experiment }} />}
-      </h3>
-
-      <SummaryTimeline {...{ experiment }} />
-      */}
-
       {submitError && (
         <Alert data-testid="submit-error" variant="warning">
           {submitError}
@@ -88,8 +77,6 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       {(status.live || status.preview) && (
         <PreviewURL {...experiment} status={status} />
       )}
-
-      {status.launched && <LinkMonitoring {...experiment} />}
 
       <div className="d-flex flex-row justify-content-between">
         <h3 className="h5 mb-3">Overview</h3>

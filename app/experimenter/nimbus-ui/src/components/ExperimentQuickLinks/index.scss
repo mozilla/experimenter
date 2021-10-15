@@ -1,0 +1,9 @@
+@import "~bootstrap/scss/bootstrap";
+
+.experiment-quick-links {
+  @extend  .mb-3, .d-flex, .w-100;
+  .list-group-item {
+    @extend .flex-grow-1, .px-2, .py-1, .text-center;
+    font-size: 80%;
+  }
+}

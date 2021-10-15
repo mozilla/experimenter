@@ -133,12 +133,7 @@ export const AppLayoutSidebarLaunched = ({
     return sidebarItems;
   };
 
-  const sidebarKeys = [
-    "monitoring",
-    "overview",
-    "results_summary",
-    "primary_metrics",
-  ]
+  const sidebarKeys = ["overview", "results_summary", "primary_metrics"]
     .concat(Object.keys(primaryMetrics || []))
     .concat("secondary_metrics")
     .concat(Object.keys(secondaryMetrics || []))
@@ -167,11 +162,6 @@ export const AppLayoutSidebarLaunched = ({
               this section up as it doesn't play nice with React fragments or even with a component
               conditionally returning `<LinkNav` or `<a href`. If you're refactoring here,
               check early on that Scrollspy still works. */}
-            <li className="ml-3 mb-2">
-              <a href="#monitoring" className="inherit-color">
-                Monitoring
-              </a>
-            </li>
             <li className="ml-3 mb-2">
               <a href="#overview" className="inherit-color">
                 Overview
@@ -254,6 +244,14 @@ export const AppLayoutSidebarLaunched = ({
                 {...{ status, slug }}
                 canReview={experiment.canReview}
               />
+
+              <li>
+                <ul className="text-dark list-unstyled ml-4">
+                  <LinkNav className="mx-1 mb-2 ml-3" route={`${slug}/details`}>
+                    Details
+                  </LinkNav>
+                </ul>
+              </li>
 
               {analysisAvailable(analysis) ? (
                 <ResultsAvailableNav />
