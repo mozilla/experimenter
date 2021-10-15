@@ -74,6 +74,9 @@ export const RISK_QUESTIONS = {
 export const TOOLTIP_DURATION =
   "This is the total duration of the experiment, including the enrollment period.";
 
+export const TOOLTIP_DURATION_AND_ENROLLMENT =
+  "This is the duration of the enrollment period, along with total duration of the experiment.";
+
 export const LIFECYCLE_REVIEW_FLOWS = {
   LAUNCH: {
     buttonTitle: "Launch Experiment",

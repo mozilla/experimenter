@@ -14,7 +14,7 @@ storiesOf("components/Summary/SummaryTimeline", module)
   ))
   .add("draft, review, accepted", () => <Subject />)
   .add("live", () => {
-    MockDate.set("2020-12-06T14:52:44.704811+00:00");
+    // MockDate.set("2020-12-06T14:52:44.704811+00:00");
     return <Subject status={NimbusExperimentStatus.LIVE} />;
   })
   .add("complete", () => <Subject status={NimbusExperimentStatus.COMPLETE} />)

@@ -14,108 +14,89 @@ import {
 import AppLayout from "../AppLayout";
 
 const { experiment } = mockExperimentQuery("demo-slug");
+const { name, slug } = experiment;
+const status = mockGetStatus(experiment);
+
+const ONE_DAY = 24 * 60 * 60 * 1000;
+const then = Date.now() - 7 * ONE_DAY;
+const startDate = new Date(then).toISOString();
+const computedDurationDays = 24;
+const computedEnrollmentDays = 5;
+const computedEndDate = new Date(
+  then + computedDurationDays * ONE_DAY,
+).toISOString();
+
+const commonHeaderExperimentProps: React.ComponentProps<
+  typeof HeaderExperiment
+> = {
+  parent: null,
+  name,
+  slug,
+  status,
+  isArchived: false,
+  startDate,
+  computedEndDate,
+  computedDurationDays,
+  computedEnrollmentDays,
+};
 
 storiesOf("components/HeaderExperiment", module)
   .addDecorator(withLinks)
   .add("status: draft", () => (
     <AppLayout>
-      <HeaderExperiment
-        parent={null}
-        name={experiment.name}
-        slug={experiment.slug}
-        startDate={experiment.startDate}
-        computedEndDate={experiment.computedEndDate}
-        computedDurationDays={experiment.computedDurationDays}
-        status={mockGetStatus(experiment)}
-        isArchived={false}
-      />
+      <HeaderExperiment {...commonHeaderExperimentProps} />
     </AppLayout>
   ))
   .add("status: draft with parent", () => (
     <AppLayout>
       <HeaderExperiment
+        {...commonHeaderExperimentProps}
         parent={{
           ...experiment,
           name: "Example Parent",
           slug: "example-parent",
         }}
-        name={experiment.name}
-        slug={experiment.slug}
-        startDate={experiment.startDate}
-        computedEndDate={experiment.computedEndDate}
-        computedDurationDays={experiment.computedDurationDays}
-        status={mockGetStatus(experiment)}
-        isArchived={false}
       />
     </AppLayout>
   ))
   .add("status: preview", () => (
     <AppLayout>
       <HeaderExperiment
-        parent={null}
-        name={experiment.name}
-        slug={experiment.slug}
-        startDate={experiment.startDate}
-        computedEndDate={experiment.computedEndDate}
-        computedDurationDays={experiment.computedDurationDays}
+        {...commonHeaderExperimentProps}
         status={mockGetStatus({ status: NimbusExperimentStatus.PREVIEW })}
-        isArchived={false}
       />
     </AppLayout>
   ))
   .add("publish status: review", () => (
     <AppLayout>
       <HeaderExperiment
-        parent={null}
-        name={experiment.name}
-        slug={experiment.slug}
-        startDate={experiment.startDate}
-        computedEndDate={experiment.computedEndDate}
-        computedDurationDays={experiment.computedDurationDays}
+        {...commonHeaderExperimentProps}
         status={mockGetStatus({
           publishStatus: NimbusExperimentPublishStatus.REVIEW,
         })}
-        isArchived={false}
       />
     </AppLayout>
   ))
   .add("status: live", () => (
     <AppLayout>
       <HeaderExperiment
-        parent={null}
-        name={experiment.name}
-        slug={experiment.slug}
-        startDate={experiment.startDate}
-        computedEndDate={null}
-        computedDurationDays={experiment.computedDurationDays}
+        {...commonHeaderExperimentProps}
         status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
-        isArchived={false}
       />
     </AppLayout>
   ))
   .add("status: complete", () => (
     <AppLayout>
       <HeaderExperiment
-        parent={null}
-        name={experiment.name}
-        slug={experiment.slug}
-        startDate={experiment.startDate}
-        computedEndDate={experiment.computedEndDate}
-        computedDurationDays={experiment.computedDurationDays}
+        {...commonHeaderExperimentProps}
         status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
-        isArchived={false}
       />
     </AppLayout>
   ))
   .add("archived", () => (
     <AppLayout>
       <HeaderExperiment
-        parent={null}
-        name={experiment.name}
-        slug={experiment.slug}
-        startDate={experiment.startDate}
-        computedEndDate={experiment.computedEndDate}
-        computedDurationDays={experiment.computedDurationDays}
+        {...commonHeaderExperimentProps}
         status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
         isArchived={true}
       />
