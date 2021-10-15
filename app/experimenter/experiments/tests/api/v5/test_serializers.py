@@ -1839,9 +1839,6 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
 
         self.assertFalse(serializer.is_valid())
-        import logging
-
-        logging.info(serializer.errors)
         self.assertEqual(
             serializer.errors,
             {
@@ -1991,6 +1988,26 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             )
         )
         self.assertEqual(len(serializer.errors), 1)
+
+    def test_serializer_feature_config_validation_treatment_value_no_schema(self):
+        experiment = NimbusExperimentFactory(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            feature_config=NimbusFeatureConfigFactory.create(
+                schema=None,
+                application=NimbusExperiment.Application.DESKTOP,
+            ),
+        )
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
 
 
 class TestNimbusStatusTransitionValidator(TestCase):
