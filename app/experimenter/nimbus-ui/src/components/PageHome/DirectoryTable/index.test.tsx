@@ -220,7 +220,7 @@ describe("DirectoryTable", () => {
 
 describe("DirectoryLiveTable", () => {
   it.each([
-    ["grafana link is present", experiment, "Grafana"],
+    ["looker link is present", experiment, "Looker"],
     [
       "results are ready",
       { ...experiment, resultsReady: true, monitoringDashboardUrl: null },
@@ -234,7 +234,7 @@ describe("DirectoryLiveTable", () => {
     [
       "both are present",
       { ...experiment, resultsReady: true },
-      "GrafanaOpens in new windowResults",
+      "LookerOpens in new windowResults",
     ],
   ])(
     "renders as expected with custom columns when %s",

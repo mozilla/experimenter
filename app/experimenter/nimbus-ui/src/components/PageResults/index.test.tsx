@@ -84,7 +84,7 @@ describe("PageResults", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("link-monitoring-dashboard")).toHaveAttribute(
         "href",
-        expect.stringContaining("https://grafana.telemetry.mozilla.org"),
+        expect.stringContaining("https://mozilla.cloud.looker.com"),
       );
     });
   });

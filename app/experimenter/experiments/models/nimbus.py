@@ -366,17 +366,20 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         def to_timestamp(date):
             return int(time.mktime(date.timetuple())) * 1000
 
-        start_date = ""
-        end_date = ""
-
         if self.start_date:
-            start_date = to_timestamp(self.start_date - datetime.timedelta(days=1))
+            start_date = self.start_date - datetime.timedelta(days=1)
+        else:
+            start_date = datetime.date.today() - datetime.timedelta(days=1)
 
         if self.end_date:
-            end_date = to_timestamp(self.end_date + datetime.timedelta(days=2))
+            end_date = self.end_date + datetime.timedelta(days=2)
+        else:
+            end_date = datetime.date.today()
 
         return settings.MONITORING_URL.format(
-            slug=self.slug, from_date=start_date, to_date=end_date
+            slug=self.slug,
+            from_date=start_date.strftime("%Y-%m-%d"),
+            to_date=end_date.strftime("%Y-%m-%d"),
         )
 
     @property
