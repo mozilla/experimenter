@@ -29,7 +29,7 @@
   "description": "a tool for managing experiments in Firefox",
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.15.3",
-    "@testing-library/dom": "8.7.2",
+    "@testing-library/dom": "8.10.1",
     "autobind-decorator": "2.4.0",
     "bootstrap": "4.6.0",
     "bootstrap-select": "1.13.18",
