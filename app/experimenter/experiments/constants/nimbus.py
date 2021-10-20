@@ -298,6 +298,22 @@ TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_URIS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN = NimbusTargetingConfig(
+    name="Infrequent or casual Windows user (pin capable)",
+    slug="infrequent_or_casual_win_user_can_pin",
+    description="Infrequent/casual users of past 28 days, on Windows 1903+",
+    targeting=(
+        "(({infrequent_user} || {casual_user}) && os.windowsBuildNumber >= 18362) || "
+        "{sticky}"
+    ).format(
+        infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting,
+        casual_user=TARGETING_CASUAL_USER_URIS.targeting,
+        sticky="experiment.slug in activeExperiments",
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TARGETING_REGULAR_USER_URIS = NimbusTargetingConfig(
     name="Regular user (uris)",
     slug="regular_user_uris",
@@ -540,6 +556,9 @@ class NimbusConstants(object):
         TARGETING_REGULAR_USER_URIS.slug: TARGETING_REGULAR_USER_URIS,
         TARGETING_CORE_USER_URIS.slug: TARGETING_CORE_USER_URIS,
         TARGETING_POCKET_COMMON.slug: TARGETING_POCKET_COMMON,
+        TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN.slug: (
+            TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN
+        ),
     }
 
     class TargetingConfig(models.TextChoices):
@@ -603,6 +622,10 @@ class NimbusConstants(object):
         TARGETING_POCKET_COMMON = (
             TARGETING_POCKET_COMMON.slug,
             TARGETING_POCKET_COMMON.name,
+        )
+        TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN = (
+            TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN.slug,
+            TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN.name,
         )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
