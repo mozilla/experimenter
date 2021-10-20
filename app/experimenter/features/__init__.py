@@ -17,6 +17,14 @@ class FeatureVariableType(Enum):
     JSON = "json"
 
 
+FEATURE_SCHEMA_TYPES = {
+    FeatureVariableType.INT: "number",
+    FeatureVariableType.STRING: "string",
+    FeatureVariableType.BOOLEAN: "boolean",
+    FeatureVariableType.JSON: "string",
+}
+
+
 class FeatureVariable(BaseModel):
     description: Optional[str]
     enum: Optional[list[str]]
@@ -31,6 +39,27 @@ class Feature(BaseModel):
     isEarlyStartup: Optional[bool]
     slug: str
     variables: Optional[dict[str, FeatureVariable]]
+
+    @property
+    def schema(self):
+        schema = {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": True,
+        }
+
+        for variable_slug, variable in self.variables.items():
+            variable_schema = {
+                "type": FEATURE_SCHEMA_TYPES[variable.type],
+                "description": variable.description,
+            }
+
+            if variable.enum:
+                variable_schema["enum"] = variable.enum
+
+            schema["properties"][variable_slug] = variable_schema
+
+        return json.dumps(schema, indent=2)
 
 
 class Features:
