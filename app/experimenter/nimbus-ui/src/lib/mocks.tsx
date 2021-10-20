@@ -66,11 +66,15 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   applications: [
     {
       label: "Desktop",
-      value: "DESKTOP",
+      value: NimbusExperimentApplication.DESKTOP,
     },
     {
-      label: "Toaster",
-      value: "TOASTER",
+      label: "Fenix",
+      value: NimbusExperimentApplication.FENIX,
+    },
+    {
+      label: "iOS",
+      value: NimbusExperimentApplication.IOS,
     },
   ],
   channels: [

@@ -33,12 +33,18 @@ export const EVERYTHING_SELECTED_VALUE: FilterValue = {
 export const Subject = ({
   options = DEFAULT_OPTIONS,
   value = DEFAULT_VALUE,
+  onChange = () => {},
 }: Partial<React.ComponentProps<typeof FilterBar>>) => {
   const [filterState, setFilterState] = useState<FilterValue>(value);
-  const onChange = (newState: FilterValue) => setFilterState(newState);
+  const onChangeWithState = (newState: FilterValue) => {
+    setFilterState(newState);
+    onChange(newState);
+  };
   return (
     <div>
-      <FilterBar {...{ options, value: filterState, onChange }} />
+      <FilterBar
+        {...{ options, value: filterState, onChange: onChangeWithState }}
+      />
       <div>
         <h3>Filter state</h3>
         <pre>{JSON.stringify(filterState, null, "  ")}</pre>

@@ -7,6 +7,7 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Select, { OptionsType, OptionTypeBase } from "react-select";
 import { NullableObjectArray } from "../../../lib/types";
+import { getConfig_nimbusConfig } from "../../../types/getConfig";
 import { FilterOptions, FilterValue } from "../types";
 
 export type FilterBarProps = {
@@ -29,7 +30,22 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           filterValueName="featureConfigs"
           optionLabelName="name"
           optionValueName="slug"
-          {...{ filterValue, onChange }}
+          {...{
+            filterValue,
+            onChange,
+            applyChange: ({ filterValue, ...params }) => {
+              // Features depend on applications: Selecting a feature also
+              // selects an application.
+              const fieldValue =
+                params.fieldValue as getConfig_nimbusConfig["featureConfigs"];
+              const featureConfigs = fieldValue!.map((item) => item!.slug);
+              const applications = [
+                ...(filterValue.applications || []),
+                ...fieldValue!.map((item) => item!.application! as string),
+              ];
+              return { ...filterValue, featureConfigs, applications };
+            },
+          }}
         />
         <FilterSelect
           fieldLabel="Application"
@@ -37,7 +53,30 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           filterValueName="applications"
           optionLabelName="label"
           optionValueName="value"
-          {...{ filterValue, onChange }}
+          {...{
+            filterValue,
+            onChange,
+            applyChange: ({ filterValue, ...params }) => {
+              // Features depend on applications: De-selecting an
+              // application also de-selects associated features.
+              const fieldValue =
+                params.fieldValue as getConfig_nimbusConfig["applications"];
+              const applications = fieldValue!.map((item) => item!.value!);
+              const validFeatureSlugsForApplications = options
+                .featureConfigs!.filter((item) =>
+                  applications.includes(item!.application!),
+                )
+                .map((item) => item!.slug);
+              const featureConfigs = (filterValue.featureConfigs || []).filter(
+                (item) => validFeatureSlugsForApplications.includes(item),
+              );
+              return {
+                ...filterValue,
+                applications,
+                featureConfigs,
+              };
+            },
+          }}
         />
         <FilterSelect
           fieldLabel="Owner"
@@ -68,6 +107,12 @@ type FilterSelectProps<T extends NullableObjectArray> = {
   fieldOptions: T;
   optionLabelName: keyof NonNullable<T[number]>;
   optionValueName: keyof NonNullable<T[number]>;
+  applyChange?: (params: {
+    filterValue: FilterValue;
+    filterValueName: keyof FilterOptions;
+    fieldValue: OptionsType<OptionTypeBase>;
+    optionValueName: keyof NonNullable<T[number]>;
+  }) => FilterValue;
 };
 
 const FilterSelect = <T extends NullableObjectArray>({
@@ -78,6 +123,17 @@ const FilterSelect = <T extends NullableObjectArray>({
   fieldOptions,
   optionLabelName,
   optionValueName,
+  applyChange = ({
+    filterValue,
+    filterValueName,
+    fieldValue,
+    optionValueName,
+  }) => ({
+    ...filterValue,
+    [filterValueName]: fieldValue.map(
+      (item) => item[optionValueName as string],
+    ),
+  }),
 }: FilterSelectProps<T>) => {
   const filterOptions = useMemo(
     () =>
@@ -114,12 +170,14 @@ const FilterSelect = <T extends NullableObjectArray>({
             item[optionValueName as string],
           options: filterOptions,
           onChange: (fieldValue: OptionsType<OptionTypeBase>) => {
-            onChange({
-              ...filterValue,
-              [filterValueName]: fieldValue.map(
-                (item) => item[optionValueName as string],
-              ),
-            });
+            onChange(
+              applyChange({
+                filterValue,
+                filterValueName,
+                fieldValue,
+                optionValueName,
+              }),
+            );
           },
         }}
       />
