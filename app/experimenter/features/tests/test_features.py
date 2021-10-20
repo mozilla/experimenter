@@ -1,3 +1,5 @@
+import json
+
 from django.core.checks import Error
 from django.test import TestCase
 
@@ -85,6 +87,28 @@ class TestFeatures(TestCase):
                 },
             ),
             desktop_features,
+        )
+
+    def test_feature_generates_schema(self):
+        desktop_feature = Features.by_application(NimbusConstants.Application.DESKTOP)[0]
+        self.assertEqual(
+            json.loads(desktop_feature.schema),
+            {
+                "additionalProperties": True,
+                "properties": {
+                    "pocketCTAVersion": {
+                        "description": (
+                            "What version of Pocket "
+                            "CTA to show in Reader "
+                            "Mode (Empty string is no "
+                            "CTA)"
+                        ),
+                        "type": "string",
+                        "enum": ["v1", "v2"],
+                    }
+                },
+                "type": "object",
+            },
         )
 
 
