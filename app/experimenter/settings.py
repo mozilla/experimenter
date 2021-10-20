@@ -356,9 +356,9 @@ RECIPE_SLUG_MAX_LEN = 80
 
 # Monitoring
 MONITORING_URL = (
-    "https://grafana.telemetry.mozilla.org/d/XspgvdxZz/"
-    "experiment-enrollment?orgId=1&var-experiment_id={slug}"
-    "&from={from_date}&to={to_date}"
+    # from_date and to_date format is YYYY-mm-dd
+    "https://mozilla.cloud.looker.com/dashboards-next/216?"
+    "Experiment={slug}&Time+Range={from_date}+to+{to_date}"
 )
 
 # Statsd via Markus

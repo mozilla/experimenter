@@ -9,7 +9,7 @@ import LinkMonitoring from ".";
 storiesOf("Components/LinkMonitoring", module)
   .add("basic", () => (
     <div className="m-3">
-      <LinkMonitoring monitoringDashboardUrl="https://grafana.telemetry.mozilla.org" />
+      <LinkMonitoring monitoringDashboardUrl="https://mozilla.cloud.looker.com" />
     </div>
   ))
   .add("no link", () => (

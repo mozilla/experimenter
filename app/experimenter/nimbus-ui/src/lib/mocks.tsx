@@ -433,7 +433,7 @@ export function mockExperiment<
       status: NimbusExperimentStatus.DRAFT,
       statusNext: null,
       publishStatus: NimbusExperimentPublishStatus.IDLE,
-      monitoringDashboardUrl: "https://grafana.telemetry.mozilla.org",
+      monitoringDashboardUrl: "https://mozilla.cloud.looker.com",
       hypothesis: "Realize material say pretty.",
       application: "DESKTOP",
       publicDescription:
@@ -614,7 +614,7 @@ export function mockSingleDirectoryExperiment(
     firefoxMinVersion: MOCK_CONFIG.firefoxVersions![0]!
       .value as NimbusExperimentFirefoxMinVersion,
     monitoringDashboardUrl:
-      "https://grafana.telemetry.mozilla.org/d/XspgvdxZz/experiment-enrollment?orgId=1&var-experiment_id=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
+      "https://mozilla.cloud.looker.com/dashboards-next/216?Experiment=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
     name: "Open-architected background installation",
     status: NimbusExperimentStatus.COMPLETE,
     statusNext: null,
