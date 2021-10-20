@@ -627,12 +627,16 @@ class TestNimbusExperiment(TestCase):
             slug="experiment",
             status=NimbusExperiment.Status.DRAFT,
         )
+
+        from_date = datetime.date.today() - datetime.timedelta(days=1)
+        to_date = datetime.date.today()
+
         self.assertEqual(
             experiment.monitoring_dashboard_url,
             settings.MONITORING_URL.format(
                 slug=experiment.slug,
-                from_date="",
-                to_date="",
+                from_date=from_date.strftime("%Y-%m-%d"),
+                to_date=to_date.strftime("%Y-%m-%d"),
             ),
         )
 
@@ -649,12 +653,15 @@ class TestNimbusExperiment(TestCase):
             changed_on=datetime.date(2019, 5, 1),
         )
 
+        from_date = datetime.date(2019, 4, 30)
+        to_date = datetime.date.today()
+
         self.assertEqual(
             experiment.monitoring_dashboard_url,
             settings.MONITORING_URL.format(
                 slug=experiment.slug,
-                from_date=1556582400000,
-                to_date="",
+                from_date=from_date.strftime("%Y-%m-%d"),
+                to_date=to_date.strftime("%Y-%m-%d"),
             ),
         )
 
@@ -678,12 +685,15 @@ class TestNimbusExperiment(TestCase):
             changed_on=datetime.date(2019, 5, 10),
         )
 
+        from_date = datetime.date(2019, 4, 30)
+        to_date = datetime.date(2019, 5, 12)
+
         self.assertEqual(
             experiment.monitoring_dashboard_url,
             settings.MONITORING_URL.format(
                 slug=experiment.slug,
-                from_date=1556582400000,
-                to_date=1557619200000,
+                from_date=from_date.strftime("%Y-%m-%d"),
+                to_date=to_date.strftime("%Y-%m-%d"),
             ),
         )
 
