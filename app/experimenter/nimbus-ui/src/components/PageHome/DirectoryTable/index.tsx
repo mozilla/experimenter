@@ -284,7 +284,7 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
                 href={experiment.monitoringDashboardUrl!}
                 data-testid="link-monitoring-dashboard"
               >
-                Grafana
+                Looker
               </LinkExternal>
             )}
             {experiment.monitoringDashboardUrl && experiment.resultsReady && (

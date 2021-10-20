@@ -115,14 +115,15 @@ class TestExperimentModel(TestCase):
             changed_on=datetime.date(2019, 5, 1),
         )
 
-        changed_on_in_milliseconds = 1556582400000
+        from_date = datetime.date(2019, 4, 30)
+        to_date = experiment.end_date + datetime.timedelta(days=2)
 
         self.assertEqual(
             experiment.monitoring_dashboard_url,
             settings.MONITORING_URL.format(
                 slug=experiment.recipe_slug,
-                from_date=changed_on_in_milliseconds,
-                to_date="",
+                from_date=from_date.strftime("%Y-%m-%d"),
+                to_date=to_date.strftime("%Y-%m-%d"),
             ),
         )
 
@@ -148,15 +149,15 @@ class TestExperimentModel(TestCase):
             changed_on=datetime.date(2019, 5, 10),
         )
 
-        started_on_in_milliseconds = 1556582400000
-        completed_on_in_milliseconds = 1557619200000
+        from_date = datetime.date(2019, 4, 30)
+        to_date = experiment.end_date + datetime.timedelta(days=2)
 
         self.assertEqual(
             experiment.monitoring_dashboard_url,
             settings.MONITORING_URL.format(
                 slug=experiment.recipe_slug,
-                from_date=started_on_in_milliseconds,
-                to_date=completed_on_in_milliseconds,
+                from_date=from_date.strftime("%Y-%m-%d"),
+                to_date=to_date.strftime("%Y-%m-%d"),
             ),
         )
 
@@ -175,14 +176,15 @@ class TestExperimentModel(TestCase):
             changed_on=datetime.date(2019, 5, 1),
         )
 
-        changed_on_in_milliseconds = 1556582400000
+        from_date = datetime.date(2019, 4, 30)
+        to_date = experiment.end_date + datetime.timedelta(days=2)
 
         self.assertEqual(
             experiment.monitoring_dashboard_url,
             settings.MONITORING_URL.format(
                 slug=experiment.recipe_slug,
-                from_date=changed_on_in_milliseconds,
-                to_date="",
+                from_date=from_date.strftime("%Y-%m-%d"),
+                to_date=to_date.strftime("%Y-%m-%d"),
             ),
         )
 
