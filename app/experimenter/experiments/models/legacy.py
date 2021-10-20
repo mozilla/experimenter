@@ -1,7 +1,6 @@
 import copy
 import datetime
 import json
-import time
 from collections import defaultdict
 from urllib.parse import urljoin
 
@@ -310,20 +309,16 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def monitoring_dashboard_url(self):
-        def to_timestamp(date):
-            return int(time.mktime(date.timetuple())) * 1000
-
-        start_date = ""
-        end_date = ""
-
         if self.is_begun and self.recipe_slug:
-            start_date = to_timestamp(self.start_date - datetime.timedelta(days=1))
-
-            if self.status == self.STATUS_COMPLETE:
-                end_date = to_timestamp(self.end_date + datetime.timedelta(days=2))
+            start_date = (self.start_date or datetime.date.today()) - datetime.timedelta(
+                days=1
+            )
+            end_date = self.end_date + datetime.timedelta(days=2)
 
             return settings.MONITORING_URL.format(
-                slug=self.recipe_slug, from_date=start_date, to_date=end_date
+                slug=self.recipe_slug,
+                from_date=start_date.strftime("%Y-%m-%d"),
+                to_date=end_date.strftime("%Y-%m-%d"),
             )
 
     @property

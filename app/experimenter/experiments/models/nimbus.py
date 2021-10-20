@@ -1,7 +1,6 @@
 import copy
 import datetime
 import os.path
-import time
 from decimal import Decimal
 from urllib.parse import urljoin
 from uuid import uuid4
@@ -363,13 +362,9 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
     @property
     def monitoring_dashboard_url(self):
-        def to_timestamp(date):
-            return int(time.mktime(date.timetuple())) * 1000
-
-        if self.start_date:
-            start_date = self.start_date - datetime.timedelta(days=1)
-        else:
-            start_date = datetime.date.today() - datetime.timedelta(days=1)
+        start_date = (self.start_date or datetime.date.today()) - datetime.timedelta(
+            days=1
+        )
 
         if self.end_date:
             end_date = self.end_date + datetime.timedelta(days=2)
