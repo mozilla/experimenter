@@ -2,25 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getAllExperiments_experiments } from "../../types/getAllExperiments";
+import { MOCK_CONFIG } from "../../lib/mocks";
 import filterExperiments, {
   getFilterValueFromParams,
   updateParamsFromFilterValue,
 } from "./filterExperiments";
-import { EVERYTHING_SELECTED_VALUE, MOCK_EXPERIMENTS } from "./mocks";
-import { FilterValue } from "./types";
+import {
+  DEFAULT_OPTIONS,
+  EVERYTHING_SELECTED_VALUE,
+  MOCK_EXPERIMENTS,
+} from "./mocks";
+import { filterValueKeys } from "./types";
 
-const MOCK_FILTER_VALUE: FilterValue = {
-  owners: ["foo", "bar"],
-  applications: ["baz", "quux"],
-};
+const { owners, applications, featureConfigs } = MOCK_CONFIG!;
 
 describe("getFilterValueFromParams", () => {
   it("converts comma-separated list representation from filter params into a filter value", () => {
     const params = new URLSearchParams();
-    params.set("owners", "foo,bar");
-    params.set("applications", "baz,quux");
-    expect(getFilterValueFromParams(params)).toEqual(MOCK_FILTER_VALUE);
+    params.set("owners", "alpha-example@mozilla.com,beta-example@mozilla.com");
+    params.set("applications", "DESKTOP,FENIX");
+    params.set("featureConfigs", "IOS:foo-lila-sat");
+    expect(getFilterValueFromParams(MOCK_CONFIG, params)).toEqual({
+      owners: [owners![0], owners![1]],
+      applications: [applications![0], applications![3]],
+      featureConfigs: [featureConfigs![2]],
+    });
   });
 });
 
@@ -28,16 +34,27 @@ describe("updateParamsFromFilterValue", () => {
   it("sets filter params to comma-separated list representations of filter values", () => {
     const params = new URLSearchParams();
     const updateSearchParams = jest.fn((cb) => cb(params));
-    updateParamsFromFilterValue(updateSearchParams, MOCK_FILTER_VALUE);
-    expect(params.get("owners")).toEqual("foo,bar");
-    expect(params.get("applications")).toEqual("baz,quux");
+    updateParamsFromFilterValue(updateSearchParams, {
+      owners: [owners![0], owners![1]],
+      applications: [applications![0], applications![3]],
+      featureConfigs: [featureConfigs![2], featureConfigs![3]],
+    });
+    expect(params.get("owners")).toEqual(
+      "alpha-example@mozilla.com,beta-example@mozilla.com",
+    );
+    expect(params.get("applications")).toEqual("DESKTOP,FENIX");
+    expect(params.get("featureConfigs")).toEqual(
+      "IOS:foo-lila-sat,FENIX:foo-lila-sat",
+    );
   });
 
   it("handles a roundtrip encoding with everything filtered", () => {
     const params = new URLSearchParams();
     const updateSearchParams = jest.fn((cb) => cb(params));
     updateParamsFromFilterValue(updateSearchParams, EVERYTHING_SELECTED_VALUE);
-    expect(getFilterValueFromParams(params)).toEqual(EVERYTHING_SELECTED_VALUE);
+    expect(getFilterValueFromParams(MOCK_CONFIG, params)).toEqual(
+      EVERYTHING_SELECTED_VALUE,
+    );
   });
 });
 
@@ -53,21 +70,33 @@ describe("filterExperiments", () => {
   });
 
   it("filters per individual criteria as expected", () => {
-    const names = Object.keys(
-      EVERYTHING_SELECTED_VALUE,
-    ) as (keyof FilterValue)[];
-    for (const name of names) {
+    for (const key of filterValueKeys) {
       const filterValue = {
-        [name]: EVERYTHING_SELECTED_VALUE[name]!.slice(0, 1),
+        [key]: [DEFAULT_OPTIONS[key]![0]!],
       };
       const result = filterExperiments(MOCK_EXPERIMENTS, filterValue);
-      expect(
-        result.every((experiment) =>
-          filterValue[name].includes(
-            experiment![name as keyof getAllExperiments_experiments] as string,
-          ),
-        ),
-      );
+      for (const experiment of result) {
+        switch (key) {
+          case "owners":
+            expect(experiment.owner).toEqual(MOCK_CONFIG!.owners![0]!);
+            break;
+          case "applications":
+            expect(experiment.application).toEqual(
+              MOCK_CONFIG!.applications![0]!.value,
+            );
+            break;
+          case "featureConfigs":
+            expect(experiment.featureConfig).toEqual(
+              MOCK_CONFIG!.featureConfigs![0]!,
+            );
+            break;
+          case "firefoxVersions":
+            expect(experiment.firefoxMinVersion).toEqual(
+              MOCK_CONFIG!.firefoxVersions![0]!.value,
+            );
+            break;
+        }
+      }
     }
   });
 });

@@ -87,15 +87,6 @@ const FilterSelect = <T extends NullableObjectArray>({
     [fieldOptions],
   );
   const fieldValue = filterValue[filterValueName];
-  const selectedOptions = useMemo(
-    () =>
-      filterOptions.filter(
-        (option) =>
-          typeof option[optionValueName] === "string" &&
-          fieldValue?.includes("" + option[optionValueName]),
-      ),
-    [fieldValue, filterOptions, optionValueName],
-  );
 
   return (
     <Nav.Item className="m-1 mw-25 text-left flex-basis-0 flex-grow-1 flex-shrink-1">
@@ -107,7 +98,7 @@ const FilterSelect = <T extends NullableObjectArray>({
           name: `filter-${filterValueName}`,
           inputId: `filter-${filterValueName}`,
           isMulti: true,
-          value: selectedOptions,
+          value: fieldValue,
           getOptionLabel: (item: OptionTypeBase) =>
             item[optionLabelName as string],
           getOptionValue: (item: OptionTypeBase) =>
@@ -116,9 +107,7 @@ const FilterSelect = <T extends NullableObjectArray>({
           onChange: (fieldValue: OptionsType<OptionTypeBase>) => {
             onChange({
               ...filterValue,
-              [filterValueName]: fieldValue.map(
-                (item) => item[optionValueName as string],
-              ),
+              [filterValueName]: fieldValue,
             });
           },
         }}

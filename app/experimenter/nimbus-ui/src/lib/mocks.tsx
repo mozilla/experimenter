@@ -66,11 +66,19 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   applications: [
     {
       label: "Desktop",
-      value: "DESKTOP",
+      value: NimbusExperimentApplication.DESKTOP,
     },
     {
       label: "Toaster",
       value: "TOASTER",
+    },
+    {
+      label: "iOS",
+      value: NimbusExperimentApplication.IOS,
+    },
+    {
+      label: "Android",
+      value: NimbusExperimentApplication.FENIX,
     },
   ],
   channels: [
@@ -165,10 +173,19 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
     {
       id: 3,
-      name: "Foo lila sat",
+      name: "Foo lila sat (iOS)",
       slug: "foo-lila-sat",
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
       application: NimbusExperimentApplication.IOS,
+      ownerEmail: "dude23@yahoo.com",
+      schema: '{ "sample": "schema" }',
+    },
+    {
+      id: 4,
+      name: "Foo lila sat (Android)",
+      slug: "foo-lila-sat",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      application: NimbusExperimentApplication.FENIX,
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
     },

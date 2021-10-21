@@ -56,8 +56,8 @@ describe("PageEditBranches", () => {
     );
 
     for (const feature of MOCK_CONFIG!.featureConfigs!) {
-      const { slug, application } = feature!;
-      const configEl = screen.queryByText(slug);
+      const { name, application } = feature!;
+      const configEl = screen.queryByText(name);
       if (application === experiment!.application) {
         expect(configEl).toBeInTheDocument();
       } else {
@@ -211,7 +211,7 @@ jest.mock("./FormBranches", () => ({
           <ul data-testid="feature-config">
             {featureConfigs.map(
               (feature, idx) =>
-                feature && <li key={`feature-${idx}`}>{feature.slug}</li>,
+                feature && <li key={`feature-${idx}`}>{feature.name}</li>,
             )}
           </ul>
         )}
