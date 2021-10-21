@@ -188,6 +188,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     outcomes = graphene.List(NimbusOutcomeType)
     owners = graphene.List(NimbusUser)
     targeting_configs = graphene.List(NimbusExperimentTargetingConfig)
+    conclusion_recommendations = graphene.List(NimbusLabelValueType)
 
     def _text_choices_to_label_value_list(root, text_choices):
         return [
@@ -226,6 +227,11 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_firefox_versions(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Version)
+
+    def resolve_conclusion_recommendations(root, info):
+        return root._text_choices_to_label_value_list(
+            NimbusExperiment.ConclusionRecommendation
+        )
 
     def resolve_outcomes(root, info):
         return Outcomes.all()

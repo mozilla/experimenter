@@ -872,6 +872,10 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         label
                         value
                     }
+                    conclusionRecommendations {
+                        label
+                        value
+                    }
                     applicationConfigs {
                         application
                         channels {
@@ -935,6 +939,9 @@ class TestNimbusConfigQuery(GraphQLTestCase):
 
         assertChoices(config["applications"], NimbusExperiment.Application)
         assertChoices(config["channels"], NimbusExperiment.Channel)
+        assertChoices(
+            config["conclusionRecommendations"], NimbusExperiment.ConclusionRecommendation
+        )
         assertChoices(config["firefoxVersions"], NimbusExperiment.Version)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
         self.assertEqual(len(config["featureConfigs"]), 16)
