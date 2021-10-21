@@ -43,6 +43,14 @@ export enum NimbusExperimentChannel {
   UNBRANDED = "UNBRANDED",
 }
 
+export enum NimbusExperimentConclusionRecommendation {
+  CHANGE_COURSE = "CHANGE_COURSE",
+  FOLLOWUP = "FOLLOWUP",
+  GRADUATE = "GRADUATE",
+  RERUN = "RERUN",
+  STOP = "STOP",
+}
+
 export enum NimbusExperimentDocumentationLink {
   DESIGN_DOC = "DESIGN_DOC",
   DS_JIRA = "DS_JIRA",
@@ -205,6 +213,8 @@ export interface ExperimentInput {
   riskBrand?: boolean | null;
   countries?: (number | null)[] | null;
   locales?: (number | null)[] | null;
+  conclusionRecommendation?: NimbusExperimentConclusionRecommendation | null;
+  takeawaysSummary?: string | null;
 }
 
 export interface ReferenceBranchType {
