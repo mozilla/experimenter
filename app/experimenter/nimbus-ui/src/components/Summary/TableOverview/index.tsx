@@ -90,9 +90,9 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
         <tr>
           <th>Risk mitigation question (2):</th>
           <td>
-            {RISK_QUESTIONS.PARTNER} —{" "}
-            {experiment.riskPartnerRelated !== null ? (
-              getRiskLabel(experiment.riskPartnerRelated)
+            {RISK_QUESTIONS.REVENUE} —{" "}
+            {experiment.riskRevenue !== null ? (
+              getRiskLabel(experiment.riskRevenue)
             ) : (
               <NotSet />
             )}
@@ -101,9 +101,9 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
         <tr>
           <th>Risk mitigation question (3):</th>
           <td>
-            {RISK_QUESTIONS.REVENUE} —{" "}
-            {experiment.riskRevenue !== null ? (
-              getRiskLabel(experiment.riskRevenue)
+            {RISK_QUESTIONS.PARTNER} —{" "}
+            {experiment.riskPartnerRelated !== null ? (
+              getRiskLabel(experiment.riskPartnerRelated)
             ) : (
               <NotSet />
             )}
