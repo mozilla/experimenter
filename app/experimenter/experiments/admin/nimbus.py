@@ -106,6 +106,9 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     targeting_config_slug = forms.ChoiceField(
         choices=NimbusExperiment.TargetingConfig.choices, required=False
     )
+    conclusion_recommendation = forms.ChoiceField(
+        choices=NimbusExperiment.ConclusionRecommendation.choices, required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

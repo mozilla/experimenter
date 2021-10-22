@@ -146,6 +146,8 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
                     "riskBrand": True,
                     "riskRevenue": True,
                     "riskPartnerRelated": True,
+                    "conclusionRecommendation": "RERUN",
+                    "takeawaysSummary": "the test worked",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -163,6 +165,11 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         self.assertEqual(experiment.risk_brand, True)
         self.assertEqual(experiment.risk_revenue, True)
         self.assertEqual(experiment.risk_partner_related, True)
+        self.assertEqual(
+            experiment.conclusion_recommendation,
+            NimbusExperiment.ConclusionRecommendation.RERUN,
+        )
+        self.assertEqual(experiment.takeaways_summary, "the test worked")
 
     def test_update_experiment_error(self):
         user_email = "user@example.com"

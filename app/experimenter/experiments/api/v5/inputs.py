@@ -4,6 +4,7 @@ from graphene_file_upload.scalars import Upload
 from experimenter.experiments.api.v5.types import (
     NimbusExperimentApplication,
     NimbusExperimentChannel,
+    NimbusExperimentConclusionRecommendation,
     NimbusExperimentDocumentationLink,
     NimbusExperimentFirefoxMinVersion,
     NimbusExperimentPublishStatus,
@@ -74,6 +75,8 @@ class ExperimentInput(graphene.InputObjectType):
     risk_brand = graphene.Boolean()
     countries = graphene.List(graphene.Int)
     locales = graphene.List(graphene.Int)
+    conclusion_recommendation = NimbusExperimentConclusionRecommendation()
+    takeaways_summary = graphene.String()
 
 
 class ExperimentCloneInput(graphene.InputObjectType):

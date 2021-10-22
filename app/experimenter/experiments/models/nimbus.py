@@ -159,6 +159,12 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     risk_partner_related = models.BooleanField(default=None, blank=True, null=True)
     risk_revenue = models.BooleanField(default=None, blank=True, null=True)
     risk_brand = models.BooleanField(default=None, blank=True, null=True)
+    conclusion_recommendation = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    takeaways_summary = models.TextField(blank=True, null=True)
 
     objects = NimbusExperimentManager()
 

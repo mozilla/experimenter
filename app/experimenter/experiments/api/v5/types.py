@@ -86,6 +86,11 @@ class NimbusExperimentChannel(graphene.Enum):
         enum = NimbusConstants.Channel
 
 
+class NimbusExperimentConclusionRecommendation(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.ConclusionRecommendation
+
+
 class NimbusExperimentApplicationConfig(graphene.ObjectType):
     application = NimbusExperimentApplication()
     channels = graphene.List(NimbusLabelValueType)
@@ -308,6 +313,7 @@ class NimbusExperimentType(DjangoObjectType):
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
     recipe_json = graphene.String()
     review_url = graphene.String()
+    conclusion_recommendation = NimbusExperimentConclusionRecommendation()
 
     class Meta:
         model = NimbusExperiment
