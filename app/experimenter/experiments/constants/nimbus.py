@@ -124,6 +124,8 @@ class NimbusTargetingConfig:
     application_choice_names: list[str]
 
 
+TARGETING_STICKY = "experiment.slug in activeExperiments"
+
 TARGETING_NO_TARGETING = NimbusTargetingConfig(
     name="No Targeting",
     slug="",
@@ -140,7 +142,7 @@ TARGETING_FIRST_RUN = NimbusTargetingConfig(
     targeting=("(({is_first_startup} && {not_see_aw}) || {sticky})").format(
         is_first_startup="isFirstStartup",
         not_see_aw="!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)",
-        sticky="experiment.slug in activeExperiments",
+        sticky=TARGETING_STICKY,
     ),
     desktop_telemetry=("payload.info.profile_subsession_counter = 1"),
     application_choice_names=(Application.DESKTOP.name,),
@@ -303,12 +305,12 @@ TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN = NimbusTargetingConfig(
     slug="infrequent_or_casual_win_user_can_pin",
     description="Infrequent/casual users of past 28 days, on Windows 1903+",
     targeting=(
-        "(({infrequent_user} || {casual_user}) && os.windowsBuildNumber >= 18362) || "
-        "{sticky}"
+        "((({infrequent_user} || {casual_user}) && os.windowsBuildNumber >= 18362) || "
+        "{sticky})"
     ).format(
         infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting,
         casual_user=TARGETING_CASUAL_USER_URIS.targeting,
-        sticky="experiment.slug in activeExperiments",
+        sticky=TARGETING_STICKY,
     ),
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
