@@ -383,6 +383,9 @@ class NimbusExperimentSerializer(
         required=False,
         many=True,
     )
+    conclusion_recommendation = serializers.ChoiceField(
+        choices=NimbusExperiment.ConclusionRecommendation.choices, required=False
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -390,6 +393,7 @@ class NimbusExperimentSerializer(
             "application",
             "changelog_message",
             "channel",
+            "conclusion_recommendation",
             "countries",
             "documentation_links",
             "feature_config",
@@ -414,6 +418,7 @@ class NimbusExperimentSerializer(
             "slug",
             "status_next",
             "status",
+            "takeaways_summary",
             "targeting_config_slug",
             "total_enrolled_clients",
             "treatment_branches",
