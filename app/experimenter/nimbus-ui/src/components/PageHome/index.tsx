@@ -47,7 +47,7 @@ export const Body = () => {
     [updateSearchParams],
   );
 
-  const filterValue = getFilterValueFromParams(searchParams);
+  const filterValue = getFilterValueFromParams(config, searchParams);
   const onFilterChange = (newFilterValue: FilterValue) =>
     updateParamsFromFilterValue(updateSearchParams, newFilterValue);
 
