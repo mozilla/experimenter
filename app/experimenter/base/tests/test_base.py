@@ -54,7 +54,7 @@ class TestAppVersion(TestCase):
 
 
 class TestGetUploadsStorage(TestCase):
-    @override_settings(UPLOADS_GS_CREDENTIALS=None, UPLOADS_FILE_STORAGE=None)
+    @override_settings(UPLOADS_GS_BUCKET_NAME=None, UPLOADS_FILE_STORAGE=None)
     def test_get_uploads_storage_default(self):
         self.assertIsInstance(get_uploads_storage(), FileSystemStorage)
 
