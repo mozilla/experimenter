@@ -23,12 +23,7 @@ export const DEFAULT_VALUE: FilterValue = {
   firefoxVersions: [],
 };
 
-export const EVERYTHING_SELECTED_VALUE: FilterValue = {
-  owners: MOCK_CONFIG!.owners!.map((a) => a!.username!),
-  applications: MOCK_CONFIG!.applications!.map((a) => a!.value!),
-  firefoxVersions: MOCK_CONFIG!.firefoxVersions!.map((a) => a!.value!),
-  featureConfigs: MOCK_CONFIG!.featureConfigs!.map((a) => a!.slug!),
-};
+export const EVERYTHING_SELECTED_VALUE: FilterValue = DEFAULT_OPTIONS;
 
 export const Subject = ({
   options = DEFAULT_OPTIONS,

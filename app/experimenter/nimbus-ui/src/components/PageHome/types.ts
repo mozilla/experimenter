@@ -4,18 +4,27 @@
 
 import { getConfig_nimbusConfig } from "../../types/getConfig";
 
-export type FilterOptions = Pick<
-  getConfig_nimbusConfig,
-  "applications" | "featureConfigs" | "firefoxVersions" | "owners"
->;
-
-export const FilterValueKeys = [
+export const filterValueKeys = [
   "owners",
   "applications",
   "featureConfigs",
   "firefoxVersions",
 ] as const;
 
-export type FilterValue = Partial<
-  Record<typeof FilterValueKeys[number], string[]>
+export type FilterValueKeys = typeof filterValueKeys[number];
+
+export type FilterOptions = Pick<getConfig_nimbusConfig, FilterValueKeys>;
+
+export type FilterValue = Partial<FilterOptions>;
+
+export type OptionalString = string | null | undefined;
+
+// Very awkward type representing a property of FilterOptions that has been
+// verified as not null. Typescript does not infer this, for some reason.
+export type NonNullFilterOptions<K extends FilterValueKeys> = NonNullable<
+  FilterOptions[K]
+>[number][];
+
+export type NonNullFilterOption<K extends FilterValueKeys> = NonNullable<
+  NonNullFilterOptions<K>[number]
 >;
