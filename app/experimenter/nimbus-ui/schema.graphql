@@ -159,6 +159,7 @@ type NimbusConfigurationType {
   outcomes: [NimbusOutcomeType]
   owners: [NimbusUser]
   targetingConfigs: [NimbusExperimentTargetingConfig]
+  conclusionRecommendations: [NimbusLabelValueType]
 }
 
 type NimbusCountryType {
