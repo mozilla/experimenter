@@ -376,6 +376,13 @@ class NimbusConstants(object):
         APPROVED = "Approved"
         WAITING = "Waiting"
 
+    class ConclusionRecommendation(models.TextChoices):
+        RERUN = "RERUN", "Rerun"
+        GRADUATE = "GRADUATE", "Graduate"
+        CHANGE_COURSE = "CHANGE_COURSE", "Change course"
+        STOP = "STOP", "Stop"
+        FOLLOWUP = "FOLLOWUP", "Run follow ups"
+
     Application = Application
 
     VALID_STATUS_TRANSITIONS = {
