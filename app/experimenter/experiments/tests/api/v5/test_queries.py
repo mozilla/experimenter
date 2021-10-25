@@ -944,7 +944,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
         )
         assertChoices(config["firefoxVersions"], NimbusExperiment.Version)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
-        self.assertEqual(len(config["featureConfigs"]), 16)
+        self.assertEqual(len(config["featureConfigs"]), 18)
 
         for application_config_data in config["applicationConfigs"]:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[
