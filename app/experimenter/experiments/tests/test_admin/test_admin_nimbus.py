@@ -2,14 +2,31 @@ import mock
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from parameterized import parameterized
 
-from experimenter.experiments.admin.nimbus import NimbusExperimentAdminForm
+from experimenter.experiments.admin.nimbus import (
+    NimbusExperimentAdminForm,
+    NimbusFeatureConfigAdmin,
+)
 from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models.nimbus import NimbusFeatureConfig
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
 )
+from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
+
+
+class TestNimbusFeatureConfigAdmin(TestCase):
+    @parameterized.expand(((True,), (False,)))
+    def test_read_only_permission_for_object(self, read_only):
+        feature_config = NimbusFeatureConfigFactory.create(read_only=read_only)
+        feature_config_admin = NimbusFeatureConfigAdmin(NimbusFeatureConfig, None)
+        self.assertEqual(
+            feature_config_admin.has_change_permission(None, feature_config),
+            not read_only,
+        )
 
 
 class TestNimbusExperimentAdminForm(TestCase):

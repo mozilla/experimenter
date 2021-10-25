@@ -137,12 +137,13 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         self.assertEqual(
             feature_config_data,
             {
-                "name": feature_config.name,
-                "slug": feature_config.slug,
-                "description": feature_config.description,
                 "application": feature_config.application,
+                "description": feature_config.description,
+                "name": feature_config.name,
                 "owner_email": feature_config.owner_email,
+                "read_only": feature_config.read_only,
                 "schema": feature_config.schema,
+                "slug": feature_config.slug,
             },
         )
         self.assertEqual(
