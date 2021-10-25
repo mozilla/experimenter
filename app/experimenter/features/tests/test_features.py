@@ -40,7 +40,11 @@ class TestFeatures(TestCase):
                         enum=["v1", "v2"],
                         fallbackPref="reader.pocket.ctaVersion",
                         type=FeatureVariableType.STRING,
-                    )
+                    ),
+                    "config": FeatureVariable(
+                        description="Arbitrary JSON config",
+                        type="json",
+                    ),
                 },
             ),
             features,
@@ -83,7 +87,11 @@ class TestFeatures(TestCase):
                         enum=["v1", "v2"],
                         fallbackPref="reader.pocket.ctaVersion",
                         type=FeatureVariableType.STRING,
-                    )
+                    ),
+                    "config": FeatureVariable(
+                        description="Arbitrary JSON config",
+                        type="json",
+                    ),
                 },
             ),
             desktop_features,
@@ -105,7 +113,10 @@ class TestFeatures(TestCase):
                         ),
                         "type": "string",
                         "enum": ["v1", "v2"],
-                    }
+                    },
+                    "config": {
+                        "description": "Arbitrary JSON config",
+                    },
                 },
                 "type": "object",
             },

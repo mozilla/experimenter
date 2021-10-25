@@ -40,7 +40,10 @@ class TestLoadFeatureConfigs(TestCase):
                         ),
                         "type": "string",
                         "enum": ["v1", "v2"],
-                    }
+                    },
+                    "config": {
+                        "description": "Arbitrary JSON config",
+                    },
                 },
                 "type": "object",
             },
@@ -75,7 +78,10 @@ class TestLoadFeatureConfigs(TestCase):
                         ),
                         "type": "string",
                         "enum": ["v1", "v2"],
-                    }
+                    },
+                    "config": {
+                        "description": "Arbitrary JSON config",
+                    },
                 },
                 "type": "object",
             },
