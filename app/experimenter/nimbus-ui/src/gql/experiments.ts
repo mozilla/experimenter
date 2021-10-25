@@ -52,20 +52,33 @@ export const GET_EXPERIMENT_QUERY = gql`
       }
 
       referenceBranch {
+        id
         name
         slug
         description
         ratio
         featureValue
         featureEnabled
+        screenshots {
+          id
+          description
+          image
+        }
       }
+
       treatmentBranches {
+        id
         name
         slug
         description
         ratio
         featureValue
         featureEnabled
+        screenshots {
+          id
+          description
+          image
+        }
       }
 
       featureConfig {

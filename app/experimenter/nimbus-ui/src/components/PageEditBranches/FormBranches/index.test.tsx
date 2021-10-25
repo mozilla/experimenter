@@ -176,12 +176,14 @@ describe("FormBranches", () => {
           experiment: {
             ...MOCK_EXPERIMENT,
             referenceBranch: {
+              id: null,
               name: "",
               slug: "",
               description: "",
               ratio: 1,
               featureValue: null,
               featureEnabled: false,
+              screenshots: [],
             },
             treatmentBranches: null,
           },
@@ -194,6 +196,56 @@ describe("FormBranches", () => {
     fireEvent.blur(field);
 
     await clickAndWaitForSave(onSave);
+  });
+
+  it("supports adding a screenshot to a branch", async () => {
+    render(
+      <SubjectBranches
+        {...{
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            referenceBranch: {
+              ...MOCK_EXPERIMENT.referenceBranch!,
+              screenshots: [],
+            },
+            treatmentBranches: null,
+          },
+        }}
+      />,
+    );
+    expect(screen.queryAllByTestId("FormScreenshot").length).toEqual(0);
+    fireEvent.click(screen.getByTestId("add-screenshot"));
+    await waitFor(() => {
+      expect(screen.queryAllByTestId("FormScreenshot").length).toEqual(1);
+    });
+  });
+
+  it("supports removing a screenshot from a branch", async () => {
+    render(
+      <SubjectBranches
+        {...{
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            referenceBranch: {
+              ...MOCK_EXPERIMENT.referenceBranch!,
+              screenshots: [
+                {
+                  id: 123,
+                  description: "remove me",
+                  image: "http://example.com/image.png",
+                },
+              ],
+            },
+            treatmentBranches: null,
+          },
+        }}
+      />,
+    );
+    expect(screen.queryAllByTestId("FormScreenshot").length).toEqual(1);
+    fireEvent.click(screen.getByTestId("remove-screenshot"));
+    await waitFor(() => {
+      expect(screen.queryAllByTestId("FormScreenshot").length).toEqual(0);
+    });
   });
 
   it("supports adding a treatment branch", async () => {
@@ -297,8 +349,16 @@ describe("FormBranches", () => {
     expect(saveResult.featureConfigId).toEqual(
       MOCK_FEATURE_CONFIG_WITH_SCHEMA.id,
     );
-    expect(saveResult.referenceBranch).toEqual(expectedData);
-    expect(saveResult.treatmentBranches[1]).toEqual(expectedData);
+    expect(saveResult.referenceBranch).toEqual({
+      id: MOCK_EXPERIMENT.referenceBranch!.id,
+      screenshots: [],
+      ...expectedData,
+    });
+    expect(saveResult.treatmentBranches[1]).toEqual({
+      id: MOCK_EXPERIMENT.treatmentBranches![1]!.id,
+      screenshots: [],
+      ...expectedData,
+    });
   });
 
   it("can display server review-readiness messages", async () => {
@@ -321,6 +381,54 @@ describe("FormBranches", () => {
 
     // Feature config review-readiness errors are displayed on branches
     expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(1);
+  });
+
+  it("doesn't display feature_config review-readiness message on an unsaved branch", async () => {
+    Object.defineProperty(window, "location", {
+      value: {
+        search: "?show-errors",
+      },
+    });
+
+    render(
+      <SubjectBranches
+        {...{
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            readyForReview: {
+              ready: false,
+              message: {
+                feature_config: [SERVER_ERRORS.FEATURE_CONFIG],
+                reference_branch: {
+                  description: [SERVER_ERRORS.BLANK_DESCRIPTION],
+                },
+              },
+            },
+            referenceBranch: {
+              ...MOCK_EXPERIMENT.referenceBranch!,
+              name: "",
+              slug: "",
+            },
+            treatmentBranches: [
+              {
+                id: null,
+                name: "",
+                slug: "",
+                description: "",
+                ratio: 0,
+                featureValue: null,
+                featureEnabled: false,
+                screenshots: [],
+              },
+            ],
+          },
+        }}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(1),
+    );
   });
 });
 

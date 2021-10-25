@@ -18,22 +18,38 @@ export interface getExperiment_experimentBySlug_parent {
   slug: string;
 }
 
+export interface getExperiment_experimentBySlug_referenceBranch_screenshots {
+  id: number | null;
+  description: string | null;
+  image: string | null;
+}
+
 export interface getExperiment_experimentBySlug_referenceBranch {
+  id: number | null;
   name: string;
   slug: string;
   description: string;
   ratio: number;
   featureValue: string | null;
   featureEnabled: boolean;
+  screenshots: getExperiment_experimentBySlug_referenceBranch_screenshots[] | null;
+}
+
+export interface getExperiment_experimentBySlug_treatmentBranches_screenshots {
+  id: number | null;
+  description: string | null;
+  image: string | null;
 }
 
 export interface getExperiment_experimentBySlug_treatmentBranches {
+  id: number | null;
   name: string;
   slug: string;
   description: string;
   ratio: number;
   featureValue: string | null;
   featureEnabled: boolean;
+  screenshots: getExperiment_experimentBySlug_treatmentBranches_screenshots[] | null;
 }
 
 export interface getExperiment_experimentBySlug_featureConfig {

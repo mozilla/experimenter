@@ -11,6 +11,7 @@ from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializ
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
+    NimbusBranchScreenshot,
     NimbusBucketRange,
     NimbusChangeLog,
     NimbusDocumentationLink,
@@ -108,7 +109,23 @@ class NimbusExperimentDocumentationLink(graphene.Enum):
         enum = NimbusConstants.DocumentationLink
 
 
+class NimbusBranchScreenshotType(DjangoObjectType):
+    id = graphene.Int()
+    description = graphene.String()
+    image = graphene.String()
+
+    class Meta:
+        model = NimbusBranchScreenshot
+
+    def resolve_image(root, info):
+        if root.image and root.image.name:
+            return root.image.url
+
+
 class NimbusBranchType(DjangoObjectType):
+    id = graphene.Int(required=False)
+    screenshots = DjangoListField(NimbusBranchScreenshotType)
+
     class Meta:
         model = NimbusBranch
         exclude = ("experiment", "nimbusexperiment")

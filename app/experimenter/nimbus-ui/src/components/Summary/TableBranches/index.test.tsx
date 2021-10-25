@@ -11,6 +11,7 @@ import {
 } from "@testing-library/react";
 import React from "react";
 import { NO_BRANCHES_COPY } from ".";
+import { getExperiment_experimentBySlug_treatmentBranches_screenshots } from "../../../types/getExperiment";
 import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
 describe("TableBranches", () => {
@@ -51,12 +52,14 @@ describe("TableBranches", () => {
           },
           treatmentBranches: [
             {
+              id: null,
               name: "",
               slug: "",
               description: "",
               ratio: 0,
               featureValue: null,
               featureEnabled: false,
+              screenshots: [],
             },
           ],
         }}
@@ -124,6 +127,8 @@ describe("TableBranches", () => {
           treatmentBranches: [
             {
               ...expected,
+              id: 456,
+              screenshots: [],
               featureEnabled: true,
             },
             ...MOCK_EXPERIMENT.treatmentBranches!,
@@ -148,13 +153,80 @@ describe("TableBranches", () => {
     }
   });
 
+  it("renders screenshots when present", () => {
+    const expectedScreenshots: getExperiment_experimentBySlug_treatmentBranches_screenshots[] =
+      [
+        {
+          id: 123,
+          description: "first",
+          image: "https://example.com/image1",
+        },
+        {
+          id: 456,
+          description: "second",
+          image: "https://example.com/image2",
+        },
+        {
+          id: 789,
+          description: "third",
+          image: "https://example.com/image3",
+        },
+      ];
+
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          treatmentBranches: [
+            {
+              id: 456,
+              name: "expected name",
+              slug: "expected slug",
+              description: "expected description",
+              ratio: 42,
+              featureValue: '{ "thing": true }',
+              featureEnabled: true,
+              screenshots: expectedScreenshots,
+            },
+            ...MOCK_EXPERIMENT.treatmentBranches!,
+          ],
+        }}
+      />,
+    );
+
+    const branchTables = screen.queryAllByTestId("table-branch");
+    expect(branchTables).toHaveLength(3);
+
+    const subjectTable = branchTables[1];
+    const screenshotsRow = subjectTable.querySelector(
+      "[data-testid='branch-screenshots']",
+    );
+    expect(screenshotsRow).not.toBeNull();
+    const screenshotFigures = screenshotsRow!.querySelectorAll(
+      "[data-testid='branch-screenshot']",
+    );
+    expect(screenshotFigures).toHaveLength(expectedScreenshots.length);
+    screenshotFigures.forEach((figure, idx) => {
+      const expectedScreenshot = expectedScreenshots[idx];
+      expect(figure.querySelector("figcaption")).toHaveTextContent(
+        expectedScreenshot.description!,
+      );
+      expect(figure.querySelector("img")).toHaveAttribute(
+        "src",
+        expectedScreenshot.image,
+      );
+    });
+  });
+
   it("supports promote to rollout buttons to clone the experiment", async () => {
     const expected = {
+      id: 456,
       name: "expected name",
       slug: "expected-slug",
       description: "expected description",
       ratio: 42,
       featureValue: '{ "thing": true }',
+      screenshots: [],
     };
 
     render(
@@ -192,20 +264,24 @@ describe("TableBranches", () => {
           ...MOCK_EXPERIMENT,
           treatmentBranches: [
             {
+              id: 456,
               name: "treatment",
               slug: "treatment-1",
               description: "",
               ratio: 0,
               featureValue: null,
               featureEnabled: true,
+              screenshots: [],
             },
             {
+              id: null,
               name: "",
               slug: "",
               description: "",
               ratio: 0,
               featureValue: null,
               featureEnabled: true,
+              screenshots: [],
             },
           ],
         }}

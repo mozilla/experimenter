@@ -5,9 +5,11 @@ from decimal import Decimal
 from urllib.parse import urljoin
 from uuid import uuid4
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
+from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -499,21 +501,16 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
         if rollout_branch_slug:
             branch = self.branches.get(slug=rollout_branch_slug)
-            branch.id = None
-            branch.experiment = cloned
-            branch.save()
-
+            cloned.reference_branch = branch.clone(cloned)
             cloned.proposed_duration = NimbusExperiment.DEFAULT_PROPOSED_DURATION
             cloned.proposed_enrollment = NimbusExperiment.DEFAULT_PROPOSED_ENROLLMENT
             cloned.population_percent = 0
             cloned.total_enrolled_clients = 0
-            cloned.reference_branch = branch
             cloned.save()
         else:
             for branch in self.branches.all():
-                branch.id = None
-                branch.experiment = cloned
-                branch.save()
+                branch.clone(cloned)
+
             if self.reference_branch:
                 cloned.reference_branch = cloned.branches.get(
                     slug=self.reference_branch.slug
@@ -562,6 +559,18 @@ class NimbusBranch(models.Model):
     def __str__(self):
         return self.name
 
+    def clone(self, to_experiment):
+        cloned = copy.copy(self)
+        cloned.id = None
+        cloned.experiment = to_experiment
+        cloned.save()
+
+        screenshots = self.screenshots.all()
+        for screenshot in screenshots:
+            screenshot.clone(cloned)
+
+        return cloned
+
 
 # Helper to ensure branch screenshot filenames have controlled unique paths
 def nimbus_branch_screenshot_upload_to(screenshot, filename):
@@ -582,9 +591,46 @@ class NimbusBranchScreenshot(models.Model):
     )
     description = models.TextField(blank=True, default="")
 
+    class Meta:
+        ordering = ["id"]
+
     def delete(self, *args, **kwargs):
-        self.image.storage.delete(self.image.name)
+        old_image_name = None
+        if self.image and self.image.name:
+            old_image_name = self.image.name
+
         super().delete(*args, **kwargs)
+
+        if old_image_name and self.image.storage.exists(old_image_name):
+            self.image.storage.delete(self.image.name)
+
+    def save(self, *args, **kwargs):
+        old_image_name = None
+        if self.id:
+            model = apps.get_model(self._meta.app_label, self._meta.object_name)
+            existing = model.objects.get(id=self.id)
+            if existing.image and existing.image.name:
+                old_image_name = existing.image.name
+
+        super().save(*args, **kwargs)
+
+        if (
+            old_image_name
+            and old_image_name != self.image.name
+            and self.image.storage.exists(old_image_name)
+        ):
+            self.image.storage.delete(old_image_name)
+
+    def clone(self, to_branch):
+        image_copy = ContentFile(self.image.read())
+        image_copy.name = self.image.name
+
+        cloned = copy.copy(self)
+        cloned.id = None
+        cloned.branch = to_branch
+        cloned.image = image_copy
+        cloned.save()
+        return cloned
 
 
 class NimbusDocumentationLink(models.Model):
