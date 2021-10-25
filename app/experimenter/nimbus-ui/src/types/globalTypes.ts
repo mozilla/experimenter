@@ -31,8 +31,10 @@ export enum NimbusExperimentApplication {
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
   FOCUS_ANDROID = "FOCUS_ANDROID",
+  FOCUS_IOS = "FOCUS_IOS",
   IOS = "IOS",
   KLAR_ANDROID = "KLAR_ANDROID",
+  KLAR_IOS = "KLAR_IOS",
 }
 
 export enum NimbusExperimentChannel {
@@ -40,6 +42,7 @@ export enum NimbusExperimentChannel {
   NIGHTLY = "NIGHTLY",
   NO_CHANNEL = "NO_CHANNEL",
   RELEASE = "RELEASE",
+  TESTFLIGHT = "TESTFLIGHT",
   UNBRANDED = "UNBRANDED",
 }
 
