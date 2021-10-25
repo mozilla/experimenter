@@ -155,3 +155,5 @@ export const URL_FIELD = {
     message: FIELD_MESSAGES.URL,
   },
 } as RegisterOptions;
+
+export const IMAGE_UPLOAD_ACCEPT = ".gif,.jpg,.jpeg,.png";

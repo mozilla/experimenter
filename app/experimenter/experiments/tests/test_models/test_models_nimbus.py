@@ -1543,7 +1543,6 @@ class TestNimbusBranchScreenshot(TestCase):
     @mock.patch("experimenter.experiments.models.nimbus.uuid4")
     def test_nimbus_branch_screenshot_upload_to(self, mock_uuid4):
         self.assertEqual(type(self.screenshot.image.storage), UploadsStorage)
-
         with mock.patch.object(self.screenshot.image.storage, "save") as mock_save:
             mock_uuid4.return_value = "predictable"
             mock_save.return_value = "saved/path/dontcare"
@@ -1551,19 +1550,42 @@ class TestNimbusBranchScreenshot(TestCase):
                 self.experiment.slug, f"{mock_uuid4.return_value}.png"
             )
             max_length = NimbusBranchScreenshot._meta.get_field("image").max_length
-
             self.screenshot.save()
             mock_save.assert_called_with(
                 expected_filename, self.image, max_length=max_length
             )
 
-    def test_nimbus_branch_screenshot_delete(self):
-        with mock.patch.object(self.screenshot.image.storage, "save") as mock_save:
-            with mock.patch.object(
-                self.screenshot.image.storage, "delete"
-            ) as mock_delete:
-                mock_save.return_value = "saved/path/dontcare"
-                self.screenshot.save()
-                mock_save.assert_called()
-                self.screenshot.delete()
-                mock_delete.assert_called()
+    @mock.patch("experimenter.experiments.models.nimbus.uuid4")
+    def test_nimbus_branch_screenshot_delete_previous_on_save_change(self, mock_uuid4):
+        with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
+            mock_uuid4.return_value = "predictable"
+            expected_filename = os.path.join(
+                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            )
+            self.screenshot.save()
+            new_image = SimpleUploadedFile("Capture2.PNG", b"fake new image")
+            self.screenshot.image = new_image
+            self.screenshot.save()
+            mock_delete.assert_called_with(expected_filename)
+
+    @mock.patch("experimenter.experiments.models.nimbus.uuid4")
+    def test_nimbus_branch_screenshot_preserve_previous_on_save_without_change(
+        self, mock_uuid4
+    ):
+        with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
+            self.screenshot.save()
+            mock_delete.reset_mock()
+            self.description = "different screenshot"
+            self.screenshot.save()
+            mock_delete.assert_not_called()
+
+    @mock.patch("experimenter.experiments.models.nimbus.uuid4")
+    def test_nimbus_branch_screenshot_delete(self, mock_uuid4):
+        with mock.patch.object(self.screenshot.image.storage, "delete") as mock_delete:
+            mock_uuid4.return_value = "predictable"
+            expected_filename = os.path.join(
+                self.experiment.slug, f"{mock_uuid4.return_value}.png"
+            )
+            self.screenshot.save()
+            self.screenshot.delete()
+            mock_delete.assert_called_with(expected_filename)

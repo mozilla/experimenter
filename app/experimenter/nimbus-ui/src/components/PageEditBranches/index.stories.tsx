@@ -22,23 +22,27 @@ const featureConfig = {
   schema: '{ "sample": "schema" }',
 };
 
-const emptyBranches = {
+const emptyBranches: Partial<getExperiment_experimentBySlug> = {
   referenceBranch: {
+    id: null,
     name: "",
     slug: "",
     description: "",
     ratio: 1,
     featureValue: "",
     featureEnabled: false,
+    screenshots: [],
   },
   treatmentBranches: [
     {
+      id: null,
       name: "",
       slug: "",
       description: "",
       ratio: 1,
       featureValue: "woop woop",
       featureEnabled: true,
+      screenshots: [],
     },
   ],
 };

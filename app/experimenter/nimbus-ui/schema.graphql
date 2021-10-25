@@ -4,8 +4,9 @@ schema {
 }
 
 input BranchScreenshotType {
-  image: Upload!
-  description: String!
+  id: Int
+  image: Upload
+  description: String
 }
 
 type CloneExperiment {
@@ -74,14 +75,22 @@ type Mutation {
   cloneExperiment(input: ExperimentCloneInput!): CloneExperiment
 }
 
+type NimbusBranchScreenshotType {
+  id: Int
+  branch: NimbusBranchType!
+  image: String
+  description: String
+}
+
 type NimbusBranchType {
-  id: ID!
+  id: Int
   name: String!
   slug: String!
   description: String!
   ratio: Int!
   featureEnabled: Boolean!
   featureValue: String
+  screenshots: [NimbusBranchScreenshotType!]
 }
 
 type NimbusBucketRangeType {

@@ -12,6 +12,7 @@ import { useCommonNestedForm } from "../../../hooks";
 import { ReactComponent as DeleteIcon } from "../../../images/x.svg";
 import { NUMBER_FIELD, REQUIRED_FIELD } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import FormScreenshot, { FormScreenshotProps } from "./FormScreenshot";
 import { AnnotatedBranch } from "./reducer";
 
 export const branchFieldNames = [
@@ -33,6 +34,8 @@ export const FormBranch = ({
   equalRatio,
   isReference,
   experimentFeatureConfig,
+  onAddScreenshot,
+  onRemoveScreenshot,
   onRemove,
   defaultValues,
   setSubmitErrors,
@@ -45,6 +48,8 @@ export const FormBranch = ({
   equalRatio?: boolean;
   isReference?: boolean;
   experimentFeatureConfig: getExperiment_experimentBySlug["featureConfig"];
+  onAddScreenshot: () => void;
+  onRemoveScreenshot: (screenshotIdx: number) => void;
   onRemove?: () => void;
   defaultValues: Record<string, any>;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
@@ -66,6 +71,20 @@ export const FormBranch = ({
   const featureEnabled = watch(`${fieldNamePrefix}.featureEnabled`);
 
   const handleRemoveClick = () => onRemove && onRemove();
+
+  const AddScreenshotButton = () => (
+    <Button
+      data-testid="add-screenshot"
+      variant="outline-primary"
+      size="sm"
+      onClick={onAddScreenshot}
+    >
+      + Add screenshot
+    </Button>
+  );
+
+  const addScreenshotButtonAtEnd =
+    branch.screenshots && branch.screenshots.length > 0;
 
   return (
     <div
@@ -181,6 +200,54 @@ export const FormBranch = ({
             type="hidden"
             value=""
           />
+        )}
+      </Form.Group>
+      <Form.Group
+        className="px-3 pt-2 border-top"
+        data-testid="screenshots-edit"
+      >
+        <Form.Row className="my-3">
+          <Col>Screenshots</Col>
+          {!addScreenshotButtonAtEnd && (
+            <Form.Group
+              data-testid="add-screenshots-in-header"
+              as={Col}
+              className="align-top text-right"
+            >
+              <AddScreenshotButton />
+            </Form.Group>
+          )}
+        </Form.Row>
+        {branch.screenshots?.map((screenshot, idx) => (
+          <FormScreenshot
+            key={idx}
+            {...{
+              fieldNamePrefix: `${fieldNamePrefix}.screenshots[${idx}]`,
+              onRemove: () => onRemoveScreenshot!(idx),
+              defaultValues: defaultValues.screenshots?.[idx] || {},
+              setSubmitErrors,
+              //@ts-ignore react-hook-form types seem broken for nested fields
+              submitErrors: (submitErrors?.screenshots?.[idx] ||
+                {}) as FormScreenshotProps["submitErrors"],
+              //@ts-ignore react-hook-form types seem broken for nested fields
+              errors: (errors?.screenshots?.[idx] ||
+                {}) as FormScreenshotProps["errors"],
+              //@ts-ignore react-hook-form types seem broken for nested fields
+              touched: (touched?.screenshots?.[idx] ||
+                {}) as FormScreenshotProps["touched"],
+              //@ts-ignore react-hook-form types seem broken for nested fields
+              reviewErrors: (reviewErrors?.screenshots?.[idx] ||
+                {}) as FormScreenshotProps["reviewErrors"],
+            }}
+          />
+        ))}
+        {addScreenshotButtonAtEnd && (
+          <Form.Row
+            data-testid="add-screenshots-at-end"
+            className="align-top text-right justify-content-end"
+          >
+            <AddScreenshotButton />
+          </Form.Row>
         )}
       </Form.Group>
     </div>

@@ -17,7 +17,11 @@ import {
 } from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import FormBranch from "./FormBranch";
-import { FormBranchesSaveState, useFormBranchesReducer } from "./reducer";
+import {
+  FormBranchesSaveState,
+  REFERENCE_BRANCH_IDX,
+  useFormBranchesReducer,
+} from "./reducer";
 import { FormData } from "./reducer/update";
 
 type FormBranchesProps = {
@@ -127,6 +131,21 @@ export const FormBranches = ({
     return handleFeatureConfigChange(feature);
   };
 
+  const handleAddScreenshot = (branchIdx: number) => () => {
+    commitFormData();
+    dispatch({ type: "addScreenshotToBranch", branchIdx });
+  };
+
+  const handleRemoveScreenshot =
+    (branchIdx: number) => (screenshotIdx: number) => {
+      commitFormData();
+      dispatch({
+        type: "removeScreenshotFromBranch",
+        branchIdx,
+        screenshotIdx,
+      });
+    };
+
   type DefaultValues = typeof defaultValues;
   const [handleSave, handleSaveNext] = [false, true].map((next) =>
     handleSubmit((dataIn: DefaultValues) => {
@@ -232,6 +251,9 @@ export const FormBranches = ({
                 isReference: true,
                 branch: { ...referenceBranch, key: "branch-reference" },
                 reviewErrors: fieldMessages.reference_branch as SerializerSet,
+                onAddScreenshot: handleAddScreenshot(REFERENCE_BRANCH_IDX),
+                onRemoveScreenshot:
+                  handleRemoveScreenshot(REFERENCE_BRANCH_IDX),
                 defaultValues: defaultValues.referenceBranch || {},
               }}
             />
@@ -257,6 +279,8 @@ export const FormBranches = ({
                     branch,
                     reviewErrors,
                     onRemove: handleRemoveBranch(idx),
+                    onAddScreenshot: handleAddScreenshot(idx),
+                    onRemoveScreenshot: handleRemoveScreenshot(idx),
                     defaultValues: defaultValues.treatmentBranches?.[idx] || {},
                   }}
                 />

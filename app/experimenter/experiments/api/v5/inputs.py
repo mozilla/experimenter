@@ -13,8 +13,9 @@ from experimenter.experiments.api.v5.types import (
 
 
 class BranchScreenshotType(graphene.InputObjectType):
-    image = Upload(required=True)
-    description = graphene.String(required=True)
+    id = graphene.Int()
+    image = Upload()
+    description = graphene.String()
 
 
 class BranchType(graphene.InputObjectType):
