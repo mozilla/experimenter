@@ -2897,7 +2897,8 @@
               "default",
               "nightly",
               "beta",
-              "release"
+              "release",
+              "testflight"
             ],
             "type": "string"
           },
