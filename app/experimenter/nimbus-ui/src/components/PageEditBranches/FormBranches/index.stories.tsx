@@ -79,6 +79,27 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
         featureValue: "this is a default value",
       }}
     />
+  ))
+  .add("with several screenshots", () => (
+    <SubjectBranch
+      {...commonFormBranchProps}
+      experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
+      branch={{
+        ...MOCK_ANNOTATED_BRANCH,
+        featureEnabled: true,
+        featureValue: "this is a default value",
+        screenshots: [
+          {
+            description: "Meow meow.",
+            image: "https://placekitten.com/1280/720",
+          },
+          {
+            description: "Foo bar baz.",
+            image: "https://via.placeholder.com/800x600.png?text=Screenshot",
+          },
+        ],
+      }}
+    />
   ));
 
 storiesOf("pages/EditBranches/FormBranches", module)
@@ -100,12 +121,14 @@ storiesOf("pages/EditBranches/FormBranches", module)
         ...MOCK_EXPERIMENT,
         treatmentBranches: [
           {
+            id: null,
             name: "",
             slug: "",
             description: "",
             ratio: 1,
             featureValue: null,
             featureEnabled: false,
+            screenshots: [],
           },
         ],
       }}

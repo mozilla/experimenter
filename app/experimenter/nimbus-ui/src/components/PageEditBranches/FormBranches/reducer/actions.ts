@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { BranchScreenshotType } from "../../../../types/globalTypes";
 import {
   AnnotatedBranch,
   createAnnotatedBranch,
@@ -30,6 +31,10 @@ export function formBranchesActionReducer(
       return clearSubmitErrors(state);
     case "commitFormData":
       return commitFormData(state, action);
+    case "addScreenshotToBranch":
+      return addScreenshotToBranch(state, action);
+    case "removeScreenshotFromBranch":
+      return removeScreenshotFromBranch(state, action);
     default:
       return state;
   }
@@ -42,7 +47,9 @@ export type FormBranchesAction =
   | SetFeatureConfigAction
   | SetSubmitErrorsAction
   | ClearSubmitErrorsAction
-  | CommitFormDataAction;
+  | CommitFormDataAction
+  | AddScreenshotToBranchAction
+  | RemoveScreenshotFromBranchAction;
 
 type AddBranchAction = {
   type: "addBranch";
@@ -250,17 +257,19 @@ function commitFormData(
   let { referenceBranch, treatmentBranches } = state;
 
   if (referenceBranch) {
-    referenceBranch = {
-      ...referenceBranch,
-      ...formData.referenceBranch,
-    };
+    referenceBranch = branchUpdatedWithFormData(
+      referenceBranch,
+      formData.referenceBranch,
+    );
   }
 
   if (treatmentBranches) {
-    treatmentBranches = treatmentBranches.map((treatmentBranch, idx) => ({
-      ...treatmentBranch,
-      ...formData.treatmentBranches?.[idx],
-    }));
+    treatmentBranches = treatmentBranches.map((treatmentBranch, idx) =>
+      branchUpdatedWithFormData(
+        treatmentBranch,
+        formData.treatmentBranches?.[idx],
+      ),
+    );
   }
 
   return {
@@ -268,4 +277,126 @@ function commitFormData(
     referenceBranch,
     treatmentBranches,
   };
+}
+
+function branchUpdatedWithFormData(
+  branch: AnnotatedBranch,
+  formData: Partial<AnnotatedBranch> | null | undefined,
+) {
+  const screenshots = branch.screenshots?.map((screenshot, idx) => {
+    const { description, image } = formData?.screenshots?.[idx] || {};
+    return {
+      id: screenshot?.id,
+      description,
+      image,
+    };
+  });
+  return {
+    ...branch,
+    ...formData,
+    screenshots,
+  };
+}
+
+type AddScreenshotToBranchAction = {
+  type: "addScreenshotToBranch";
+  branchIdx: number;
+};
+
+function addScreenshotToBranch(
+  state: FormBranchesState,
+  action: AddScreenshotToBranchAction,
+) {
+  const { branchIdx } = action;
+  let { referenceBranch, treatmentBranches } = state;
+
+  const newScreenshot: BranchScreenshotType = { description: "", image: null };
+
+  if (branchIdx === REFERENCE_BRANCH_IDX && referenceBranch) {
+    referenceBranch = {
+      ...referenceBranch,
+      screenshots: [...(referenceBranch.screenshots || []), newScreenshot],
+    };
+  } else if (treatmentBranches) {
+    treatmentBranches = withModifiedBranch(
+      treatmentBranches,
+      branchIdx,
+      (selectedBranch) => ({
+        ...selectedBranch,
+        screenshots: [...(selectedBranch.screenshots || []), newScreenshot],
+      }),
+    );
+  }
+
+  return {
+    ...state,
+    referenceBranch,
+    treatmentBranches,
+  };
+}
+
+type RemoveScreenshotFromBranchAction = {
+  type: "removeScreenshotFromBranch";
+  branchIdx: number;
+  screenshotIdx: number;
+};
+
+function removeScreenshotFromBranch(
+  state: FormBranchesState,
+  action: RemoveScreenshotFromBranchAction,
+) {
+  const { branchIdx, screenshotIdx } = action;
+  let { referenceBranch, treatmentBranches } = state;
+
+  if (branchIdx === REFERENCE_BRANCH_IDX && referenceBranch) {
+    referenceBranch = {
+      ...referenceBranch,
+      screenshots: withoutScreenshot(
+        referenceBranch.screenshots,
+        screenshotIdx,
+      ),
+    };
+  } else if (treatmentBranches) {
+    treatmentBranches = withModifiedBranch(
+      treatmentBranches,
+      branchIdx,
+      (selectedBranch) => ({
+        ...selectedBranch,
+        screenshots: withoutScreenshot(
+          selectedBranch.screenshots,
+          screenshotIdx,
+        ),
+      }),
+    );
+  }
+
+  return {
+    ...state,
+    referenceBranch,
+    treatmentBranches,
+  };
+}
+
+function withModifiedBranch(
+  branches: AnnotatedBranch[] | null,
+  branchIdx: number,
+  modifier: (selectedBranch: AnnotatedBranch) => AnnotatedBranch,
+) {
+  const selectedBranch = branches?.[branchIdx];
+  if (selectedBranch) {
+    return [
+      ...branches!.slice(0, branchIdx),
+      modifier(selectedBranch),
+      ...branches!.slice(branchIdx + 1),
+    ];
+  }
+  return branches;
+}
+
+function withoutScreenshot(
+  screenshots: (BranchScreenshotType | null)[] | null | undefined,
+  idx: number,
+) {
+  if (!screenshots) return [];
+  return [...screenshots.slice(0, idx), ...screenshots.slice(idx + 1)];
 }

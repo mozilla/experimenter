@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { CONTROL_BRANCH_REQUIRED_ERROR } from "../../../../lib/constants";
-import { ExperimentInput } from "../../../../types/globalTypes";
+import {
+  BranchScreenshotType,
+  ExperimentInput,
+} from "../../../../types/globalTypes";
 import { AnnotatedBranch, FormBranchesState } from "./state";
 
 export type FormBranchesSaveState = Pick<
@@ -48,10 +51,15 @@ export function extractUpdateState(
 
 export function extractUpdateBranch(
   branch: AnnotatedBranch,
-  formBranch: Partial<FormBranchesSaveState["referenceBranch"]> | null,
+  formBranch: Partial<FormData["referenceBranch"]> | null,
 ): FormBranchesSaveState["referenceBranch"] {
   const merged = { ...branch, ...formBranch };
+  const screenshots = branch.screenshots?.map((branchScreenshot, idx) =>
+    extractUpdateScreenshot(branchScreenshot!, formBranch!.screenshots![idx]!),
+  );
   return {
+    // Branch ID should be read-only with respect to the form data
+    id: branch.id,
     name: merged.name,
     description: merged.description,
     ratio: merged.ratio,
@@ -59,5 +67,20 @@ export function extractUpdateBranch(
     // HACK: for some reason in tests, this ends up as "true" or undefined
     // rather than a boolean.
     featureEnabled: !!merged.featureEnabled,
+    screenshots,
+  };
+}
+
+export function extractUpdateScreenshot(
+  branchScreenshot: BranchScreenshotType,
+  { description, image }: BranchScreenshotType,
+): BranchScreenshotType {
+  return {
+    // Branch screenshot ID should be read-only with respect to the form data
+    id: branchScreenshot!.id,
+    description,
+    // An image of type string represents an already-uploaded resource, so
+    // treat it as undefined for purposes of saving an update.
+    image: typeof image === "string" ? undefined : image,
   };
 }

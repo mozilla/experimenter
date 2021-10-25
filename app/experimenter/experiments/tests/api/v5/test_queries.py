@@ -100,6 +100,9 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
         )
+        screenshot = experiment.reference_branch.screenshots.first()
+        screenshot.image = None
+        screenshot.save()
 
         response = self.query(
             """
@@ -107,9 +110,17 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 experiments {
                     referenceBranch {
                         slug
+                        screenshots {
+                            description
+                            image
+                        }
                     }
                     treatmentBranches {
                         slug
+                        screenshots {
+                            description
+                            image
+                        }
                     }
                 }
             }
@@ -121,11 +132,18 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         experiment_data = content["data"]["experiments"][0]
         self.assertEqual(
             experiment_data["referenceBranch"],
-            {"slug": experiment.reference_branch.slug},
+            {
+                "slug": experiment.reference_branch.slug,
+                "screenshots": [{"description": screenshot.description, "image": None}],
+            },
         )
         self.assertEqual(
             {b["slug"] for b in experiment_data["treatmentBranches"]},
             {b.slug for b in experiment.treatment_branches},
+        )
+        self.assertEqual(
+            {b["screenshots"][0]["image"] for b in experiment_data["treatmentBranches"]},
+            {b.screenshots.first().image.url for b in experiment.treatment_branches},
         )
 
     def test_experiments_with_documentation_links_return_link_data(self):

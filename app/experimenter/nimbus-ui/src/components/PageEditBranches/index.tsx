@@ -73,7 +73,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         if (next) {
           navigate("metrics");
         }
-      } catch (error) {
+      } catch (error: any) {
         setSubmitErrors({ "*": [error.message] });
       }
     },

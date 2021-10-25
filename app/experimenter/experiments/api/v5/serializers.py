@@ -48,9 +48,9 @@ class ExperimentNameValidatorMixin:
 
 
 class NimbusBranchScreenshotSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
-    description = serializers.CharField(max_length=1024, required=True)
-    image = serializers.ImageField(required=False, allow_empty_file=False, use_url=True)
+    id = serializers.IntegerField(required=False, allow_null=True)
+    description = serializers.CharField(max_length=1024, required=False, allow_blank=True)
+    image = serializers.ImageField(required=False, allow_null=True, allow_empty_file=True)
 
     class Meta:
         model = NimbusBranchScreenshot
@@ -62,7 +62,7 @@ class NimbusBranchScreenshotSerializer(serializers.ModelSerializer):
 
 
 class NimbusBranchSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
+    id = serializers.IntegerField(required=False, allow_null=True)
     screenshots = NimbusBranchScreenshotSerializer(many=True, required=False)
 
     class Meta:
@@ -623,6 +623,7 @@ class NimbusExperimentSerializer(
 class NimbusBranchScreenshotReadyForReviewSerializer(NimbusBranchScreenshotSerializer):
     # Round-trip serialization & validation for review can use a string path
     image = serializers.CharField(required=True)
+    description = serializers.CharField(required=True)
 
 
 class NimbusBranchReadyForReviewSerializer(NimbusBranchSerializer):
