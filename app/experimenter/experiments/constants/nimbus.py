@@ -11,6 +11,7 @@ class Channel(models.TextChoices):
     NIGHTLY = "nightly"
     BETA = "beta"
     RELEASE = "release"
+    TESTFLIGHT = "testflight"
 
 
 class BucketRandomizationUnit(models.TextChoices):
@@ -100,6 +101,33 @@ APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
 )
 
 
+APPLICATION_CONFIG_FOCUS_IOS = ApplicationConfig(
+    name="Focus for iOS",
+    slug="focus-ios",
+    app_name="focus_ios",
+    channel_app_id={
+        Channel.RELEASE: "org.mozilla.ios.Focus",
+        Channel.TESTFLIGHT: "org.mozilla.ios.Focus",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    randomization_unit=BucketRandomizationUnit.NIMBUS,
+    supports_locale_country=False,
+)
+
+APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
+    name="Klar for iOS",
+    slug="klar-ios",
+    app_name="klar_ios",
+    channel_app_id={
+        Channel.RELEASE: "org.mozilla.ios.Klar",
+        Channel.TESTFLIGHT: "org.mozilla.ios.Klar",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    randomization_unit=BucketRandomizationUnit.NIMBUS,
+    supports_locale_country=False,
+)
+
+
 class Application(models.TextChoices):
     DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)
     FENIX = (APPLICATION_CONFIG_FENIX.slug, APPLICATION_CONFIG_FENIX.name)
@@ -111,6 +139,14 @@ class Application(models.TextChoices):
     KLAR_ANDROID = (
         APPLICATION_CONFIG_KLAR_ANDROID.slug,
         APPLICATION_CONFIG_KLAR_ANDROID.name,
+    )
+    FOCUS_IOS = (
+        APPLICATION_CONFIG_FOCUS_IOS.slug,
+        APPLICATION_CONFIG_FOCUS_IOS.name,
+    )
+    KLAR_IOS = (
+        APPLICATION_CONFIG_KLAR_IOS.slug,
+        APPLICATION_CONFIG_KLAR_IOS.name,
     )
 
 
@@ -427,6 +463,8 @@ class NimbusConstants(object):
         Application.IOS: APPLICATION_CONFIG_IOS,
         Application.FOCUS_ANDROID: APPLICATION_CONFIG_FOCUS_ANDROID,
         Application.KLAR_ANDROID: APPLICATION_CONFIG_KLAR_ANDROID,
+        Application.FOCUS_IOS: APPLICATION_CONFIG_FOCUS_IOS,
+        Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
     }
 
     Channel = Channel
