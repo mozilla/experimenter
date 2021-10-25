@@ -6,8 +6,14 @@ import React, { useMemo } from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Select, { OptionsType, OptionTypeBase } from "react-select";
-import { NullableObjectArray } from "../../../lib/types";
-import { FilterOptions, FilterValue } from "../types";
+import { optionIndexKeys } from "../filterExperiments";
+import {
+  FilterOptions,
+  FilterValue,
+  FilterValueKeys,
+  NonNullFilterOption,
+  NonNullFilterOptions,
+} from "../types";
 
 export type FilterBarProps = {
   options: FilterOptions;
@@ -28,7 +34,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           fieldOptions={options.featureConfigs!}
           filterValueName="featureConfigs"
           optionLabelName="name"
-          optionValueName="slug"
           {...{ filterValue, onChange }}
         />
         <FilterSelect
@@ -36,7 +41,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           fieldOptions={options.applications!}
           filterValueName="applications"
           optionLabelName="label"
-          optionValueName="value"
           {...{ filterValue, onChange }}
         />
         <FilterSelect
@@ -44,7 +48,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           fieldOptions={options.owners!}
           filterValueName="owners"
           optionLabelName="username"
-          optionValueName="username"
           {...{ filterValue, onChange }}
         />
         <FilterSelect
@@ -52,7 +55,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           fieldOptions={options.firefoxVersions!}
           filterValueName="firefoxVersions"
           optionLabelName="label"
-          optionValueName="value"
           {...{ filterValue, onChange }}
         />
       </Nav>
@@ -60,29 +62,33 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   );
 };
 
-type FilterSelectProps<T extends NullableObjectArray> = {
+type FilterSelectProps<
+  K extends FilterValueKeys,
+  T extends NonNullFilterOptions<K>,
+> = {
   filterValue: FilterValue;
   onChange: (value: FilterValue) => void;
-  filterValueName: keyof FilterOptions;
+  filterValueName: K;
   fieldLabel: string;
   fieldOptions: T;
-  optionLabelName: keyof NonNullable<T[number]>;
-  optionValueName: keyof NonNullable<T[number]>;
+  optionLabelName: keyof NonNullFilterOption<K>;
 };
 
-const FilterSelect = <T extends NullableObjectArray>({
+const FilterSelect = <
+  K extends FilterValueKeys,
+  T extends NonNullFilterOptions<K>,
+>({
   filterValue,
   onChange,
   filterValueName,
   fieldLabel,
   fieldOptions,
   optionLabelName,
-  optionValueName,
-}: FilterSelectProps<T>) => {
+}: FilterSelectProps<K, T>) => {
   const filterOptions = useMemo(
     () =>
-      fieldOptions.filter(
-        (option): option is NonNullable<T[number]> => option !== null,
+      (fieldOptions! as NonNullFilterOptions<K>).filter(
+        (option): option is NonNullable<typeof option> => !!option,
       ),
     [fieldOptions],
   );
@@ -102,7 +108,10 @@ const FilterSelect = <T extends NullableObjectArray>({
           getOptionLabel: (item: OptionTypeBase) =>
             item[optionLabelName as string],
           getOptionValue: (item: OptionTypeBase) =>
-            item[optionValueName as string],
+            optionIndexKeys[filterValueName](
+              // @ts-ignore because this works in practice but types disagree
+              item as NonNullFilterOption<K>,
+            )!,
           options: filterOptions,
           onChange: (fieldValue: OptionsType<OptionTypeBase>) => {
             onChange({
