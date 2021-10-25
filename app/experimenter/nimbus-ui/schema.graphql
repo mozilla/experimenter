@@ -404,6 +404,7 @@ type NimbusFeatureConfigType {
   application: NimbusExperimentApplication
   ownerEmail: String
   schema: String
+  readOnly: Boolean!
   nimbusexperimentSet: [NimbusExperimentType!]!
 }
 

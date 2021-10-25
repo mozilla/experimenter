@@ -151,6 +151,12 @@ class NimbusExperimentAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
 
 class NimbusFeatureConfigAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
+    list_filter = ("application", "read_only")
+    list_display = ("name", "application", "read_only")
+    exclude = ("read_only",)
+
+    def has_change_permission(self, request, obj=None):
+        return obj and not obj.read_only
 
 
 class NimbusBranchScreenshotInlineAdmin(admin.TabularInline):
