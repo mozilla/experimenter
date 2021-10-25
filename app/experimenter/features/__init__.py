@@ -21,7 +21,6 @@ FEATURE_SCHEMA_TYPES = {
     FeatureVariableType.INT: "number",
     FeatureVariableType.STRING: "string",
     FeatureVariableType.BOOLEAN: "boolean",
-    FeatureVariableType.JSON: "string",
 }
 
 
@@ -50,9 +49,11 @@ class Feature(BaseModel):
 
         for variable_slug, variable in self.variables.items():
             variable_schema = {
-                "type": FEATURE_SCHEMA_TYPES[variable.type],
                 "description": variable.description,
             }
+
+            if variable.type in FEATURE_SCHEMA_TYPES:
+                variable_schema["type"] = FEATURE_SCHEMA_TYPES[variable.type]
 
             if variable.enum:
                 variable_schema["enum"] = variable.enum
