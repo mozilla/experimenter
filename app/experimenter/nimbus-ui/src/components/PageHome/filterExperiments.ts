@@ -18,7 +18,9 @@ type OptionIndexKey<K extends FilterValueKeys> = (
   option: NonNullFilterOption<K>,
 ) => OptionalString;
 
-const optionIndexKeys: { [key in FilterValueKeys]: OptionIndexKey<key> } = {
+export const optionIndexKeys: {
+  [key in FilterValueKeys]: OptionIndexKey<key>;
+} = {
   owners: (option) => option.username,
   applications: (option) => option.value,
   featureConfigs: (option) => `${option.application}:${option.slug}`,
