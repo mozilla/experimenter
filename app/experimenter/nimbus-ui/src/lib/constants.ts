@@ -117,6 +117,7 @@ export const CHANGELOG_MESSAGES = {
   END_APPROVED: "End Review Approved",
   ARCHIVING_EXPERIMENT: "Archiving experiment",
   UNARCHIVING_EXPERIMENT: "Unarchiving experiment",
+  UPDATED_TAKEAWAYS: "Updated Takeaways",
 } as const;
 
 export const FIELD_MESSAGES = {

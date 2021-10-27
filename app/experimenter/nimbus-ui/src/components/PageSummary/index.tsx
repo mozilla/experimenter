@@ -24,6 +24,7 @@ import FormLaunchDraftToPreview from "./FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "./FormLaunchDraftToReview";
 import FormLaunchPreviewToReview from "./FormLaunchPreviewToReview";
 import TableSignoff from "./TableSignoff";
+import Takeaways, { useTakeaways } from "./Takeaways";
 
 type PageSummaryProps = {
   polling?: boolean;
@@ -48,6 +49,7 @@ const PageContent: React.FC<{
 }> = ({ experiment, refetch }) => {
   const [showLaunchToReview, setShowLaunchToReview] = useState(false);
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
+  const takeawaysProps = useTakeaways(experiment, refetch);
 
   const status = getStatus(experiment);
 
@@ -173,6 +175,8 @@ const PageContent: React.FC<{
 
   return (
     <>
+      <Takeaways {...takeawaysProps} />
+
       <Head title={`${experiment.name} – ${summaryTitle}`} />
 
       {submitError && (

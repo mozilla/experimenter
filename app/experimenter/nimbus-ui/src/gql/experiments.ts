@@ -42,6 +42,9 @@ export const GET_EXPERIMENT_QUERY = gql`
       application
       publicDescription
 
+      conclusionRecommendation
+      takeawaysSummary
+
       owner {
         email
       }

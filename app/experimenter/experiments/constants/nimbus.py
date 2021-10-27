@@ -450,6 +450,8 @@ class NimbusConstants(object):
         "publish_status",
         "status_next",
         "status",
+        "takeaways_summary",
+        "conclusion_recommendation",
     )
 
     ARCHIVE_UPDATE_EXEMPT_FIELDS = (
