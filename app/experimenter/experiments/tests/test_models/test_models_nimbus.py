@@ -739,13 +739,15 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
             feature_config=feature,
             population_percent=Decimal("50.0"),
         )
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(
-            experiment.bucket_range.isolation_group.name, "firefox-desktop-feature"
+            experiment.bucket_range.isolation_group.name,
+            "firefox-desktop-feature-release",
         )
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
@@ -765,6 +767,7 @@ class TestNimbusExperiment(TestCase):
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
             feature_config=feature,
             population_percent=Decimal("50.0"),
         )
@@ -773,6 +776,7 @@ class TestNimbusExperiment(TestCase):
         experiment2 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
             feature_config=feature,
             population_percent=Decimal("100.0"),
         )
@@ -794,6 +798,7 @@ class TestNimbusExperiment(TestCase):
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
             feature_config=feature,
             population_percent=Decimal("50.0"),
         )
@@ -802,6 +807,7 @@ class TestNimbusExperiment(TestCase):
         experiment2 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
             feature_config=feature,
             population_percent=Decimal("25.0"),
         )
