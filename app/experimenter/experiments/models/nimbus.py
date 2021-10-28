@@ -399,6 +399,18 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         self.save()
         self.branches.all().delete()
 
+    @property
+    def bucket_namespace(self):
+        keys = [
+            self.application_config.slug,
+            self.feature_config.slug,
+        ]
+
+        if self.channel:
+            keys.append(self.channel)
+
+        return "-".join(keys)
+
     def allocate_bucket_range(self):
         existing_bucket_range = NimbusBucketRange.objects.filter(experiment=self)
         if existing_bucket_range.exists():
@@ -409,7 +421,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
                 NimbusIsolationGroup.objects.filter(id=isolation_group.id).delete()
 
         NimbusIsolationGroup.request_isolation_group_buckets(
-            f"{self.application_config.slug}-{self.feature_config.slug}",
+            self.bucket_namespace,
             self,
             int(
                 self.population_percent / Decimal("100.0") * NimbusExperiment.BUCKET_TOTAL
