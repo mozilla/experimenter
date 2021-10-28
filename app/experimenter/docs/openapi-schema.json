@@ -2863,7 +2863,7 @@
           "schemaVersion": {
             "type": "string",
             "readOnly": true,
-            "default": "1.5.0"
+            "default": "1.6.2"
           },
           "slug": {
             "type": "string",
