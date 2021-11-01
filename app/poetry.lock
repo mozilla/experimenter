@@ -939,7 +939,7 @@ test = ["pytest (<5.4)", "pytest-cov"]
 
 [[package]]
 name = "mozilla-nimbus-shared"
-version = "1.5.0"
+version = "1.6.2"
 description = "Shared data and schemas for Project Nimbus"
 category = "main"
 optional = false
@@ -1988,8 +1988,8 @@ mock = [
     {file = "mock-4.0.3.tar.gz", hash = "sha256:7d3fbbde18228f4ff2f1f119a45cdffa458b4c0dee32eb4d2bb2f82554bac7bc"},
 ]
 mozilla-nimbus-shared = [
-    {file = "mozilla_nimbus_shared-1.5.0-py3-none-any.whl", hash = "sha256:0544d5af4d97e3d603f99ad1306d5e42b5ff31ef208c26787896c3cd3388c970"},
-    {file = "mozilla_nimbus_shared-1.5.0.tar.gz", hash = "sha256:2ab8a15df5c45b17a9a07967f7574318c284668b1886fb75efe48cad09f7a3ef"},
+    {file = "mozilla_nimbus_shared-1.6.2-py3-none-any.whl", hash = "sha256:3e630bec4747204492e4db88c7dc561afd2fcaeba6078ac1fcab2a663373ccdc"},
+    {file = "mozilla_nimbus_shared-1.6.2.tar.gz", hash = "sha256:c63b5c5918c2461c2cc33dd0121a5881e3740a81f6e6145163c409d1390bbc11"},
 ]
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
@@ -2273,6 +2273,7 @@ python-dateutil = [
 ]
 python-decouple = [
     {file = "python-decouple-3.5.tar.gz", hash = "sha256:68e4b3fcc97e24bc90eecc514852d0bf970f4ff031f5f7a6728ddafa9afefcaf"},
+    {file = "python_decouple-3.5-py3-none-any.whl", hash = "sha256:011d3f785367c54a72cf8a07d3a7a48bb8cc1a0f8e6c70353ca5767ebf7c8c9d"},
 ]
 pytz = [
     {file = "pytz-2021.1-py2.py3-none-any.whl", hash = "sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798"},
