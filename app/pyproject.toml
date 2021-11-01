@@ -7,7 +7,7 @@ authors = [""]
 [tool.poetry.dependencies]
 python = "^3.9"
 Django = "3.2.5"
-black = "21.8b0"
+black = "21.10b0"
 celery = "5.1.2"
 coverage = "5.5"
 django-cors-headers = "3.10.0"
