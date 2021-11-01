@@ -10,7 +10,7 @@
         "@babel/plugin-transform-runtime": "7.16.0",
         "@babel/preset-env": "7.10.2",
         "@babel/preset-react": "7.16.0",
-        "@babel/preset-typescript": "7.15.0",
+        "@babel/preset-typescript": "7.16.0",
         "@testing-library/jest-dom": "5.14.1",
         "@testing-library/react": "^11.1.0",
         "@testing-library/user-event": "^12.1.10",
