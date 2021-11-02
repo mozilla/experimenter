@@ -35,7 +35,6 @@ storiesOf("components/Summary/TableBranches", module)
             description: "",
             ratio: 0,
             featureValue: null,
-            featureEnabled: false,
             screenshots: [],
           },
         ],
@@ -58,7 +57,6 @@ storiesOf("components/Summary/TableBranches", module)
             description: "",
             ratio: 0,
             featureValue: null,
-            featureEnabled: false,
             screenshots: [],
           },
         ],
@@ -71,7 +69,6 @@ storiesOf("components/Summary/TableBranches", module)
         ...MOCK_EXPERIMENT,
         referenceBranch: {
           ...MOCK_EXPERIMENT.referenceBranch!,
-          featureEnabled: false,
         },
       }}
     />
@@ -103,7 +100,6 @@ storiesOf("components/Summary/TableBranches", module)
           description: "",
           ratio: 0,
           featureValue: null,
-          featureEnabled: true,
         },
         treatmentBranches: [],
       }}

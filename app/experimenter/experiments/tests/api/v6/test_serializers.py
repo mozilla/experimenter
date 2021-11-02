@@ -87,7 +87,6 @@ class TestNimbusExperimentSerializer(TestCase):
                     "ratio": branch.ratio,
                     "feature": {
                         "featureId": experiment.feature_config.slug,
-                        "enabled": branch.feature_enabled,
                         "value": json.loads(branch.feature_value),
                     },
                 },

@@ -23,7 +23,7 @@ describe("FormBranch", () => {
     expect(screen.getByTestId("FormBranch")).toBeInTheDocument();
     expect(screen.queryByTestId("control-pill")).not.toBeInTheDocument();
     expect(screen.queryByTestId("equal-ratio")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("feature-value-edit")).toBeInTheDocument();
   });
 
   it("does nothing on form submission", () => {
@@ -42,35 +42,12 @@ describe("FormBranch", () => {
     expect(screen.getByTestId("equal-ratio")).toBeInTheDocument();
   });
 
-  it("reflects when feature is disabled", () => {
-    const { container } = render(
-      <SubjectBranch
-        branch={{ ...MOCK_ANNOTATED_BRANCH, featureEnabled: false }}
-      />,
-    );
-    const featureSwitchLabel = container.querySelector(
-      'label[for="referenceBranch.featureEnabled"]',
-    );
-    expect(featureSwitchLabel).toHaveTextContent("Off");
-  });
-
-  it("hides feature value edit when feature disabled", () => {
-    render(
-      <SubjectBranch
-        branch={{ ...MOCK_ANNOTATED_BRANCH, featureEnabled: false }}
-        experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
-      />,
-    );
-    expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
-  });
-
   it("displays feature value edit when value is non-null", () => {
     render(
       <SubjectBranch
         branch={{
           ...MOCK_ANNOTATED_BRANCH,
           featureValue: "this is a default value",
-          featureEnabled: true,
         }}
         experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
       />,
