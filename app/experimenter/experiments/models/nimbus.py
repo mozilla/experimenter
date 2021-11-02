@@ -559,7 +559,6 @@ class NimbusBranch(models.Model):
     slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, null=False)
     description = models.TextField(blank=True, default="")
     ratio = models.PositiveIntegerField(default=1)
-    feature_enabled = models.BooleanField(default=True)
     feature_value = models.TextField(blank=True, null=True)
 
     class Meta:

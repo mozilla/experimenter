@@ -229,43 +229,10 @@ class TestNimbusBranchSerializer(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "feature_enabled": True,
             "feature_value": "{}",
         }
         branch_serializer = NimbusBranchSerializer(data=branch_data)
         self.assertTrue(branch_serializer.is_valid())
-
-    def test_branch_missing_feature_value(self):
-        branch_data = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": True,
-        }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertFalse(branch_serializer.is_valid())
-        self.assertEqual(
-            branch_serializer.errors,
-            {"feature_value": ["A value must be supplied for an enabled feature."]},
-        )
-
-    def test_branch_missing_feature_enabled(self):
-        branch_data = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_value": "{}",
-        }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertFalse(branch_serializer.is_valid())
-        self.assertEqual(
-            branch_serializer.errors,
-            {
-                "feature_value": [
-                    "feature_enabled must be specificed to include a feature_value."
-                ]
-            },
-        )
 
     def test_branch_name_cant_slugify(self):
         branch_data = {
@@ -285,7 +252,6 @@ class TestNimbusBranchSerializer(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "feature_enabled": True,
             "feature_value": "invalid json",
         }
         branch_serializer = NimbusBranchReadyForReviewSerializer(data=branch_data)
@@ -418,14 +384,12 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
             "public_description": "changed reference",
             "reference_branch": {
                 "description": "changed",
-                "feature_enabled": False,
                 "name": "also changed reference",
                 "ratio": 1,
             },
             "treatment_branches": [
                 {
                     "description": "changed treatment",
-                    "feature_enabled": False,
                     "name": "also changed treatment",
                     "ratio": 1,
                 },
@@ -612,7 +576,6 @@ class TestNimbusExperimentBranchMixin(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "feature_enabled": True,
             "feature_value": reference_feature_value,
         }
         treatment_branches = [
@@ -621,7 +584,6 @@ class TestNimbusExperimentBranchMixin(TestCase):
                 "name": "treatment2",
                 "description": "desc2",
                 "ratio": 1,
-                "feature_enabled": True,
                 "feature_value": treatment_feature_value,
             },
         ]

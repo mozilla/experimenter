@@ -76,15 +76,7 @@ const TableBranch = ({
   experiment: getExperiment_experimentBySlug;
   branch: Branch;
 }) => {
-  const {
-    name,
-    slug,
-    description,
-    ratio,
-    featureValue,
-    featureEnabled,
-    screenshots,
-  } = branch;
+  const { name, slug, description, ratio, featureValue, screenshots } = branch;
   const cloneDialogProps = useCloneDialog(experiment, branch);
   return (
     <Table
@@ -136,13 +128,7 @@ const TableBranch = ({
           <th>Ratio</th>
           <td data-testid="branch-ratio">{ratio ? ratio : <NotSet />}</td>
         </tr>
-        <tr>
-          <th>Enabled</th>
-          <td data-testid="branch-enabled">
-            {featureEnabled ? "True" : "False"}
-          </td>
-        </tr>
-        {hasSchema && featureEnabled && (
+        {hasSchema && (
           <tr>
             <th>Value</th>
             <td data-testid="branch-featureValue">

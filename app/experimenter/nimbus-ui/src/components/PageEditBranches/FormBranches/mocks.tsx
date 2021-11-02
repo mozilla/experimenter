@@ -20,7 +20,6 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
     description: "Behind almost radio result personal none future current.",
     ratio: 1,
     featureValue: '{"environmental-fact": "really-citizen"}',
-    featureEnabled: true,
     screenshots: [],
   },
   treatmentBranches: [
@@ -31,7 +30,6 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       description: "Next ask then he in degree order.",
       ratio: 1,
       featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
-      featureEnabled: false,
       screenshots: [],
     },
     {
@@ -41,7 +39,6 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       description: "Flame the dark true.",
       ratio: 2,
       featureValue: '{"frosted-wake": "simple-hesitation"}',
-      featureEnabled: true,
       screenshots: [],
     },
   ],
