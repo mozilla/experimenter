@@ -105,6 +105,19 @@ export const AppLayoutWithSidebar = ({
                 </div>
               )}
 
+              <li>
+                <ul className="text-dark list-unstyled ml-4">
+                  <LinkNav
+                    className="mx-1 mb-2 ml-3"
+                    storiesOf="pages/SummaryDetails"
+                    testid={"nav-details"}
+                    route={`${slug}/details`}
+                  >
+                    Details
+                  </LinkNav>
+                </ul>
+              </li>
+
               <p className="edit-divider position-relative small my-2">
                 <span className="position-relative bg-light pl-1 pr-2 text-muted">
                   Edit
