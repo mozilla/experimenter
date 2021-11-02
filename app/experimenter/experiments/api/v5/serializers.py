@@ -610,16 +610,16 @@ class NimbusBranchScreenshotReadyForReviewSerializer(NimbusBranchScreenshotSeria
 
 
 class NimbusBranchReadyForReviewSerializer(NimbusBranchSerializer):
+    feature_value = serializers.CharField(required=True)
     screenshots = NimbusBranchScreenshotReadyForReviewSerializer(
         many=True, required=False
     )
 
     def validate_feature_value(self, value):
-        if value:
-            try:
-                json.loads(value)
-            except Exception as e:
-                raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
+        try:
+            json.loads(value)
+        except Exception as e:
+            raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
         return value
 
 
@@ -706,6 +706,7 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
 
     def _validate_feature_value_against_schema(self, schema, value):
         json_value = json.loads(value)
+
         try:
             jsonschema.validate(json_value, schema)
         except jsonschema.ValidationError as exc:
