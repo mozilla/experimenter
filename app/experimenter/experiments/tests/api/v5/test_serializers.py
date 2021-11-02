@@ -1771,6 +1771,62 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         if not expected_valid:
             self.assertIn("channel", serializer.errors)
 
+    def test_serializer_branch_with_empty_feature_value(self):
+        experiment = NimbusExperimentFactory(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_config=NimbusFeatureConfigFactory.create(
+                schema=BASIC_JSON_SCHEMA,
+                application=NimbusExperiment.Application.FENIX,
+            ),
+        )
+        experiment.reference_branch.feature_value = ""
+        experiment.reference_branch.save()
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["reference_branch"]["feature_value"][0],
+            "This field may not be blank.",
+        )
+
+    def test_serializer_branch_with_invalid_json_feature_value(self):
+        experiment = NimbusExperimentFactory(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_config=NimbusFeatureConfigFactory.create(
+                schema=BASIC_JSON_SCHEMA,
+                application=NimbusExperiment.Application.FENIX,
+            ),
+        )
+        experiment.reference_branch.feature_value = "{"
+        experiment.save()
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            "Invalid JSON",
+            serializer.errors["reference_branch"]["feature_value"][0],
+        )
+
     def test_serializer_feature_config_validation_application_mismatches_error(self):
         experiment = NimbusExperimentFactory(
             status=NimbusExperiment.Status.DRAFT,
