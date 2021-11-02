@@ -64,9 +64,6 @@ export function extractUpdateBranch(
     description: merged.description,
     ratio: merged.ratio,
     featureValue: merged.featureValue,
-    // HACK: for some reason in tests, this ends up as "true" or undefined
-    // rather than a boolean.
-    featureEnabled: !!merged.featureEnabled,
     screenshots,
   };
 }

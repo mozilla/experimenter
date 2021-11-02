@@ -190,11 +190,6 @@ describe("hooks/useCommonForm", () => {
               ).toBeInTheDocument();
             });
           })();
-          // featureEnabled does not call FormErrors because it is a global error
-        } else if (name !== "featureEnabled") {
-          expect(
-            screen.queryByTestId(`${fieldName}-form-errors`),
-          ).toBeInTheDocument();
         }
       });
     });

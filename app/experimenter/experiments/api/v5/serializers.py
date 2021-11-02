@@ -72,7 +72,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "ratio",
-            "feature_enabled",
             "feature_value",
             "screenshots",
         )
@@ -84,22 +83,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
                 "Name needs to contain alphanumeric characters."
             )
         return value
-
-    def validate(self, data):
-        data = super().validate(data)
-        if data.get("feature_enabled") and not data.get("feature_value"):
-            raise serializers.ValidationError(
-                {"feature_value": "A value must be supplied for an enabled feature."}
-            )
-        if data.get("feature_value") and not data.get("feature_enabled"):
-            raise serializers.ValidationError(
-                {
-                    "feature_value": (
-                        "feature_enabled must be specificed to include a feature_value."
-                    )
-                }
-            )
-        return data
 
     def create(self, data):
         data["slug"] = slugify(data["name"])
@@ -746,22 +729,20 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
 
         schema = json.loads(feature_config.schema)
         error_result = {}
-        if data["reference_branch"].get("feature_enabled"):
-            errors = self._validate_feature_value_against_schema(
-                schema, data["reference_branch"]["feature_value"]
-            )
-            if errors:
-                error_result["reference_branch"] = {"feature_value": errors}
+        errors = self._validate_feature_value_against_schema(
+            schema, data["reference_branch"]["feature_value"]
+        )
+        if errors:
+            error_result["reference_branch"] = {"feature_value": errors}
 
         treatment_branches_errors = []
         for branch_data in data["treatment_branches"]:
             branch_error = None
-            if branch_data.get("feature_enabled", False):
-                errors = self._validate_feature_value_against_schema(
-                    schema, branch_data["feature_value"]
-                )
-                if errors:
-                    branch_error = {"feature_value": errors}
+            errors = self._validate_feature_value_against_schema(
+                schema, branch_data["feature_value"]
+            )
+            if errors:
+                branch_error = {"feature_value": errors}
             treatment_branches_errors.append(branch_error)
 
         if any(x is not None for x in treatment_branches_errors):

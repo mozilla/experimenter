@@ -31,7 +31,6 @@ export interface getExperiment_experimentBySlug_referenceBranch {
   description: string;
   ratio: number;
   featureValue: string | null;
-  featureEnabled: boolean;
   screenshots: getExperiment_experimentBySlug_referenceBranch_screenshots[] | null;
 }
 
@@ -48,7 +47,6 @@ export interface getExperiment_experimentBySlug_treatmentBranches {
   description: string;
   ratio: number;
   featureValue: string | null;
-  featureEnabled: boolean;
   screenshots: getExperiment_experimentBySlug_treatmentBranches_screenshots[] | null;
 }
 
