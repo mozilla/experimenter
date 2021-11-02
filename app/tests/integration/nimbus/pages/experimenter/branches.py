@@ -15,6 +15,7 @@ class BranchesPage(ExperimenterBase):
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
     _feature_select_locator = (By.CSS_SELECTOR, '[data-testid="feature-config-select"]')
+    _feature_value_locator = (By.CSS_SELECTOR, "#referenceBranch-featureValue")
     NEXT_PAGE = MetricsPage
 
     @property
@@ -24,7 +25,7 @@ class BranchesPage(ExperimenterBase):
     @reference_branch_name.setter
     def reference_branch_name(self, text=None):
         name = self.find_element(*self._reference_branch_name_locator)
-        name.send_keys(f"{text}")
+        name.send_keys(text)
 
     @property
     def reference_branch_description(self):
@@ -33,7 +34,7 @@ class BranchesPage(ExperimenterBase):
     @reference_branch_description.setter
     def reference_branch_description(self, text=None):
         name = self.find_element(*self._reference_branch_description_locator)
-        name.send_keys(f"{text}")
+        name.send_keys(text)
 
     def remove_branch(self):
         el = self.find_element(*self._remove_branch_locator)
@@ -48,3 +49,12 @@ class BranchesPage(ExperimenterBase):
         el = self.find_element(*self._feature_select_locator)
         select = Select(el)
         select.select_by_visible_text(feature_config)
+
+    @property
+    def feature_value(self):
+        return self.find_element(*self._feature_value_locator).text
+
+    @feature_value.setter
+    def feature_value(self, feature_value="{}"):
+        el = self.find_element(*self._feature_value_locator)
+        el.send_keys(feature_value)
