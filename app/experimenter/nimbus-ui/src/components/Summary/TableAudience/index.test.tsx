@@ -149,6 +149,17 @@ describe("TableAudience", () => {
     });
   });
 
+  it("hides details when withFullDetails = false", () => {
+    const { experiment } = mockExperimentQuery("demo-slug");
+    render(<Subject {...{ experiment, withFullDetails: false }} />);
+    expect(
+      screen.queryByTestId("experiment-recipe-json"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("experiment-target-expression"),
+    ).not.toBeInTheDocument();
+  });
+
   describe("renders 'Locales' row as expected", () => {
     it("when locales exist, displays them", () => {
       const data = {
@@ -206,10 +217,12 @@ describe("TableAudience", () => {
 
 const Subject = ({
   experiment,
+  withFullDetails = true,
 }: {
   experiment: getExperiment_experimentBySlug;
+  withFullDetails?: boolean;
 }) => (
   <MockedCache>
-    <TableAudience {...{ experiment }} />
+    <TableAudience {...{ experiment, withFullDetails }} />
   </MockedCache>
 );

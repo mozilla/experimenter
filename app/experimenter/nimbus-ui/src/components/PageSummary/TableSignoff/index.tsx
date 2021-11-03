@@ -13,12 +13,10 @@ type TableSignoffProps = {
 };
 
 const TableSignoff = ({ signoffRecommendations }: TableSignoffProps) => (
-  <Table bordered data-testid="table-signoff" className="mb-4">
+  <Table data-testid="table-signoff" className="mb-4 border rounded">
     <tbody>
       <tr data-testid="table-signoff-qa">
-        <td>
-          <strong>QA Sign-off</strong>
-        </td>
+        <th className="w-25">QA Sign-off</th>
         <td>
           {signoffRecommendations?.qaSignoff && (
             <span className="text-success">Recommended: </span>
@@ -30,9 +28,7 @@ const TableSignoff = ({ signoffRecommendations }: TableSignoffProps) => (
         </td>
       </tr>
       <tr data-testid="table-signoff-vp">
-        <td>
-          <strong>VP Sign-off</strong>
-        </td>
+        <th>VP Sign-off</th>
         <td>
           {signoffRecommendations?.vpSignoff && (
             <span className="text-success">Recommended: </span>
@@ -44,9 +40,7 @@ const TableSignoff = ({ signoffRecommendations }: TableSignoffProps) => (
         </td>
       </tr>
       <tr data-testid="table-signoff-legal">
-        <td>
-          <strong>Legal Sign-off</strong>
-        </td>
+        <th>Legal Sign-off</th>
         <td>
           {signoffRecommendations?.legalSignoff && (
             <span className="text-success">Recommended: </span>

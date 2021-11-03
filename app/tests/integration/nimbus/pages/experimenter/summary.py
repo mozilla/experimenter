@@ -1,7 +1,5 @@
-import random
-import string
-
 from nimbus.pages.experimenter.base import ExperimenterBase
+from nimbus.pages.experimenter.summary_detail import SummaryDetailPage
 from pypom import Region
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -38,7 +36,7 @@ class SummaryPage(ExperimenterBase):
     )
     _clone_save_locator = (By.CSS_SELECTOR, ".modal .btn-primary")
     _clone_parent_locator = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-parent"]')
-    _promote_rollout_locator = (By.CSS_SELECTOR, 'button[data-testid="promote-rollout"]')
+    _sidebar_details_link = (By.CSS_SELECTOR, 'a[data-testid="nav-details"]')
 
     def wait_for_archive_label_visible(self):
         self.wait.until(
@@ -198,18 +196,7 @@ class SummaryPage(ExperimenterBase):
         self.clone_action.click()
         self.clone_save.click()
 
-    @property
-    def promote_to_rollout_buttons(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._clone_action_locator),
-            message="Summary Page: could not find promote to rollout buttons",
-        )
-        return self.find_elements(*self._promote_rollout_locator)
-
-    def promote_first_branch_to_rollout(self):
-        self.promote_to_rollout_buttons[0].click()
-        random_chars = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=6)
-        )
-        self.clone_name = f"Rollout {random_chars}"
-        self.clone_save.click()
+    def navigate_to_details(self):
+        element = self.selenium.find_element(*self._sidebar_details_link)
+        element.click()
+        return SummaryDetailPage(self.driver, self.base_url).wait_for_page_to_load()

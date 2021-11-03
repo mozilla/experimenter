@@ -12,18 +12,25 @@ import NotSet from "../../NotSet";
 
 type TableAudienceProps = {
   experiment: getExperiment_experimentBySlug;
+  withFullDetails?: boolean;
 };
 
 // `<tr>`s showing optional fields that are not set are not displayed.
 
-const TableAudience = ({ experiment }: TableAudienceProps) => {
+const TableAudience = ({
+  experiment,
+  withFullDetails = true,
+}: TableAudienceProps) => {
   const { firefoxVersions, channels, targetingConfigs } = useConfig();
 
   return (
-    <Table bordered data-testid="table-audience" className="mb-4 table-fixed">
+    <Table
+      data-testid="table-audience"
+      className="mb-4 table-fixed border rounded"
+    >
       <tbody>
         <tr>
-          <th className="w-33">Channel</th>
+          <th className="w-25">Channel</th>
           <td data-testid="experiment-channel">
             {displayConfigLabelOrNotSet(experiment.channel, channels)}
           </td>
@@ -94,7 +101,8 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
             )}
           </td>
         </tr>
-        {experiment.jexlTargetingExpression &&
+        {withFullDetails &&
+        experiment.jexlTargetingExpression &&
         experiment.jexlTargetingExpression !== "" ? (
           <tr>
             <th>Full targeting expression</th>
@@ -109,9 +117,11 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
             </td>
           </tr>
         ) : null}
-        {experiment.recipeJson && (
-          <tr>
-            <th>Recipe JSON</th>
+        {withFullDetails && experiment.recipeJson && (
+          <tr id="recipe-json">
+            <th>
+              Recipe JSON <a href={`#recipe-json`}>#</a>
+            </th>
             <td data-testid="experiment-recipe-json">
               <Code codeString={experiment.recipeJson} />
             </td>
