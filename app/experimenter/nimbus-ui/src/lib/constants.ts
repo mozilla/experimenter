@@ -60,6 +60,8 @@ export const EXTERNAL_URLS = {
   EXPERIMENTER_DOCUMENTATION: "https://experimenter.info",
   ASK_EXPERIMENTER_SLACK: "slack://channel?team=T027LFU12&id=CF94YGE03",
   FEEDBACK: "https://bit.ly/38dgkqR",
+  DETAILED_ANALYSIS_TEMPLATE: (slug: string) =>
+    `https://protosaur.dev/partybal/${slug.replace(/-/g, "_")}.html`,
 };
 
 export const RISK_QUESTIONS = {

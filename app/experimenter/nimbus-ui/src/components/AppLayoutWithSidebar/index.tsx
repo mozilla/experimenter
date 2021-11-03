@@ -142,7 +142,7 @@ export const AppLayoutWithSidebar = ({
                 </LinkNav>
               ))}
 
-              <SidebarActions {...{ experiment, refetch }} />
+              <SidebarActions {...{ experiment, refetch, status }} />
             </Nav>
           </nav>
         </Col>

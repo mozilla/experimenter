@@ -14,7 +14,6 @@ import {
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
-import LinkMonitoring from "../LinkMonitoring";
 import NotSet from "../NotSet";
 import TableSignoff from "../PageSummary/TableSignoff";
 import PreviewURL from "../PreviewURL";
@@ -91,8 +90,6 @@ const Summary = ({
       {(status.live || status.preview) && (
         <PreviewURL {...experiment} status={status} />
       )}
-
-      {status.launched && <LinkMonitoring {...experiment} />}
 
       <div className="d-flex flex-row justify-content-between">
         <h3 className="h5 mb-3">Overview</h3>

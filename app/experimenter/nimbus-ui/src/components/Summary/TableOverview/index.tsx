@@ -6,10 +6,8 @@ import React from "react";
 import { Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig, useOutcomes } from "../../../hooks";
-import { ReactComponent as ExternalIcon } from "../../../images/external.svg";
 import { RISK_QUESTIONS } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import LinkExternal from "../../LinkExternal";
 import NotSet from "../../NotSet";
 import RichText from "../../RichText";
 
@@ -26,8 +24,7 @@ const TableOverview = ({
   experiment,
   withFullDetails = true,
 }: TableOverviewProps) => {
-  const { applications, documentationLink: configDocumentationLinks } =
-    useConfig();
+  const { applications } = useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
   return (
@@ -69,19 +66,6 @@ const TableOverview = ({
         </tr>
         {withFullDetails && (
           <>
-            {experiment.riskMitigationLink && (
-              <tr>
-                <th>Risk mitigation checklist</th>
-                <td data-testid="experiment-risk-mitigation-link">
-                  <LinkExternal href={experiment.riskMitigationLink}>
-                    <span className="mr-1 align-middle">
-                      {experiment.riskMitigationLink}
-                    </span>
-                    <ExternalIcon />
-                  </LinkExternal>
-                </td>
-              </tr>
-            )}
             <tr>
               <th>Risk mitigation question (1):</th>
               <td data-testid="experiment-risk-mitigation-question-1">
@@ -115,33 +99,6 @@ const TableOverview = ({
                 )}
               </td>
             </tr>
-            {experiment.documentationLinks &&
-              experiment.documentationLinks?.length > 0 && (
-                <tr>
-                  <th>Additional links</th>
-                  <td data-testid="experiment-additional-links">
-                    {experiment.documentationLinks.map(
-                      (documentationLink, idx) => (
-                        <LinkExternal
-                          href={documentationLink.link}
-                          data-testid="experiment-additional-link"
-                          key={`doc-link-${idx}`}
-                          className="d-block"
-                        >
-                          <span className="mr-1 align-middle">
-                            {
-                              configDocumentationLinks!.find(
-                                (d) => d?.value === documentationLink.title,
-                              )?.label
-                            }
-                          </span>
-                          <ExternalIcon />
-                        </LinkExternal>
-                      ),
-                    )}
-                  </td>
-                </tr>
-              )}
             <tr>
               <th>Feature config</th>
               <td data-testid="experiment-feature-config">
