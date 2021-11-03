@@ -15,15 +15,19 @@ import {
   weeklyMockAnalysis,
 } from "../../lib/visualization/mocks";
 import { AnalysisData } from "../../lib/visualization/types";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const Subject = ({
+  experiment = {},
   analysis = mockAnalysis(),
 }: {
+  experiment?: Partial<getExperiment_experimentBySlug>;
   analysis?: AnalysisData;
 }) => {
   const { mock } = mockExperimentQuery("demo-slug", {
     status: NimbusExperimentStatus.COMPLETE,
+    ...experiment,
   });
   fetchMock.restore().getOnce("/api/v3/visualization/demo-slug/", analysis);
   return (

@@ -5,7 +5,11 @@
 import { withLinks } from "@storybook/addon-links";
 import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import {
+  NimbusExperimentConclusionRecommendation,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
+import { TAKEAWAYS_SUMMARY_LONG } from "../PageSummary/Takeaways/mocks";
 import { reviewRequestedBaseProps, Subject } from "./mocks";
 
 const storyWithExperimentProps = (
@@ -44,6 +48,12 @@ export const enrollmentEnded = storyWithExperimentProps({
 export const endRequestedEnrollmentEnded = storyWithExperimentProps({
   ...reviewRequestedBaseProps,
   enrollmentEndDate: new Date().toISOString(),
+});
+
+export const completeStatusWithTakeaways = storyWithExperimentProps({
+  status: NimbusExperimentStatus.COMPLETE,
+  takeawaysSummary: TAKEAWAYS_SUMMARY_LONG,
+  conclusionRecommendation: NimbusExperimentConclusionRecommendation.GRADUATE,
 });
 
 export const noBranches = storyWithExperimentProps({
