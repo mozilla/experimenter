@@ -10,6 +10,7 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
+  NimbusExperimentConclusionRecommendation,
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
@@ -29,6 +30,7 @@ import {
   reviewTimedoutBaseProps,
   Subject,
 } from "./mocks";
+import { TAKEAWAYS_SUMMARY_LONG } from "./Takeaways/mocks";
 
 const storyWithExperimentProps = (
   props: Partial<getExperiment_experimentBySlug | null>,
@@ -220,6 +222,15 @@ export const completeStatus = storyWithExperimentProps(
     status: NimbusExperimentStatus.COMPLETE,
   },
   "Complete status",
+);
+
+export const completeStatusWithTakeaways = storyWithExperimentProps(
+  {
+    status: NimbusExperimentStatus.COMPLETE,
+    takeawaysSummary: TAKEAWAYS_SUMMARY_LONG,
+    conclusionRecommendation: NimbusExperimentConclusionRecommendation.RERUN,
+  },
+  "Complete status with takeaways",
 );
 
 export const error = () => (

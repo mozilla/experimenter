@@ -96,6 +96,22 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "PLATYPUS_DOORSTOP",
     },
   ],
+  conclusionRecommendations: [
+    { label: "Rerun", value: "RERUN" },
+    {
+      label: "Graduate",
+      value: "GRADUATE",
+    },
+    {
+      label: "Change course",
+      value: "CHANGE_COURSE",
+    },
+    { label: "Stop", value: "STOP" },
+    {
+      label: "Run follow ups",
+      value: "FOLLOWUP",
+    },
+  ],
   applicationConfigs: [
     {
       application: NimbusExperimentApplication.DESKTOP,

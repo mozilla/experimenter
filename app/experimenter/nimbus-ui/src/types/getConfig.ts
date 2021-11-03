@@ -19,6 +19,11 @@ export interface getConfig_nimbusConfig_channels {
   value: string | null;
 }
 
+export interface getConfig_nimbusConfig_conclusionRecommendations {
+  label: string | null;
+  value: string | null;
+}
+
 export interface getConfig_nimbusConfig_applicationConfigs_channels {
   label: string | null;
   value: string | null;
@@ -88,6 +93,7 @@ export interface getConfig_nimbusConfig_countries {
 export interface getConfig_nimbusConfig {
   applications: (getConfig_nimbusConfig_applications | null)[] | null;
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
+  conclusionRecommendations: (getConfig_nimbusConfig_conclusionRecommendations | null)[] | null;
   applicationConfigs: (getConfig_nimbusConfig_applicationConfigs | null)[] | null;
   featureConfigs: (getConfig_nimbusConfig_featureConfigs | null)[] | null;
   firefoxVersions: (getConfig_nimbusConfig_firefoxVersions | null)[] | null;

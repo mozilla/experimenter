@@ -85,6 +85,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                 Detailed Analysis <ExternalIcon />
               </LinkExternal>
             </p>
+
             <h3 className="h4 mb-3 mt-4" id="overview">
               Overview
             </h3>
