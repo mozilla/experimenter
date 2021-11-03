@@ -15,22 +15,26 @@ import RichText from "../../RichText";
 
 type TableOverviewProps = {
   experiment: getExperiment_experimentBySlug;
+  withFullDetails?: boolean;
 };
 
 // `<tr>`s showing optional fields that are not set are not displayed.
 
 const getRiskLabel = (answer: boolean) => (answer ? "Yes" : "No");
 
-const TableOverview = ({ experiment }: TableOverviewProps) => {
+const TableOverview = ({
+  experiment,
+  withFullDetails = true,
+}: TableOverviewProps) => {
   const { applications, documentationLink: configDocumentationLinks } =
     useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
   return (
-    <Table bordered data-testid="table-overview" className="mb-4">
+    <Table data-testid="table-overview" className="mb-4 border rounded">
       <tbody>
         <tr>
-          <th className="w-33">Slug</th>
+          <th className="w-25">Slug</th>
           <td data-testid="experiment-slug" className="text-monospace">
             {experiment.slug}
           </td>
@@ -63,106 +67,112 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
             )}
           </td>
         </tr>
-        {experiment.riskMitigationLink && (
-          <tr>
-            <th>Risk mitigation checklist</th>
-            <td data-testid="experiment-risk-mitigation-link">
-              <LinkExternal href={experiment.riskMitigationLink}>
-                <span className="mr-1 align-middle">
-                  {experiment.riskMitigationLink}
-                </span>
-                <ExternalIcon />
-              </LinkExternal>
-            </td>
-          </tr>
-        )}
-        <tr>
-          <th>Risk mitigation question (1):</th>
-          <td>
-            {RISK_QUESTIONS.BRAND} —{" "}
-            {experiment.riskBrand !== null ? (
-              getRiskLabel(experiment.riskBrand)
-            ) : (
-              <NotSet />
-            )}
-          </td>
-        </tr>
-        <tr>
-          <th>Risk mitigation question (2):</th>
-          <td>
-            {RISK_QUESTIONS.REVENUE} —{" "}
-            {experiment.riskRevenue !== null ? (
-              getRiskLabel(experiment.riskRevenue)
-            ) : (
-              <NotSet />
-            )}
-          </td>
-        </tr>
-        <tr>
-          <th>Risk mitigation question (3):</th>
-          <td>
-            {RISK_QUESTIONS.PARTNER} —{" "}
-            {experiment.riskPartnerRelated !== null ? (
-              getRiskLabel(experiment.riskPartnerRelated)
-            ) : (
-              <NotSet />
-            )}
-          </td>
-        </tr>
-        {experiment.documentationLinks &&
-          experiment.documentationLinks?.length > 0 && (
-            <tr>
-              <th>Additional links</th>
-              <td data-testid="experiment-additional-links">
-                {experiment.documentationLinks.map((documentationLink, idx) => (
-                  <LinkExternal
-                    href={documentationLink.link}
-                    data-testid="experiment-additional-link"
-                    key={`doc-link-${idx}`}
-                    className="d-block"
-                  >
+        {withFullDetails && (
+          <>
+            {experiment.riskMitigationLink && (
+              <tr>
+                <th>Risk mitigation checklist</th>
+                <td data-testid="experiment-risk-mitigation-link">
+                  <LinkExternal href={experiment.riskMitigationLink}>
                     <span className="mr-1 align-middle">
-                      {
-                        configDocumentationLinks!.find(
-                          (d) => d?.value === documentationLink.title,
-                        )?.label
-                      }
+                      {experiment.riskMitigationLink}
                     </span>
                     <ExternalIcon />
                   </LinkExternal>
-                ))}
+                </td>
+              </tr>
+            )}
+            <tr>
+              <th>Risk mitigation question (1):</th>
+              <td data-testid="experiment-risk-mitigation-question-1">
+                {RISK_QUESTIONS.BRAND} —{" "}
+                {experiment.riskBrand !== null ? (
+                  getRiskLabel(experiment.riskBrand)
+                ) : (
+                  <NotSet />
+                )}
               </td>
             </tr>
-          )}
-        <tr>
-          <th>Feature config</th>
-          <td data-testid="experiment-feature-config">
-            {experiment.featureConfig?.name ? (
-              experiment.featureConfig.name
-            ) : (
-              <NotSet />
+            <tr>
+              <th>Risk mitigation question (2):</th>
+              <td data-testid="experiment-risk-mitigation-question-2">
+                {RISK_QUESTIONS.REVENUE} —{" "}
+                {experiment.riskRevenue !== null ? (
+                  getRiskLabel(experiment.riskRevenue)
+                ) : (
+                  <NotSet />
+                )}
+              </td>
+            </tr>
+            <tr>
+              <th>Risk mitigation question (3):</th>
+              <td data-testid="experiment-risk-mitigation-question-3">
+                {RISK_QUESTIONS.PARTNER} —{" "}
+                {experiment.riskPartnerRelated !== null ? (
+                  getRiskLabel(experiment.riskPartnerRelated)
+                ) : (
+                  <NotSet />
+                )}
+              </td>
+            </tr>
+            {experiment.documentationLinks &&
+              experiment.documentationLinks?.length > 0 && (
+                <tr>
+                  <th>Additional links</th>
+                  <td data-testid="experiment-additional-links">
+                    {experiment.documentationLinks.map(
+                      (documentationLink, idx) => (
+                        <LinkExternal
+                          href={documentationLink.link}
+                          data-testid="experiment-additional-link"
+                          key={`doc-link-${idx}`}
+                          className="d-block"
+                        >
+                          <span className="mr-1 align-middle">
+                            {
+                              configDocumentationLinks!.find(
+                                (d) => d?.value === documentationLink.title,
+                              )?.label
+                            }
+                          </span>
+                          <ExternalIcon />
+                        </LinkExternal>
+                      ),
+                    )}
+                  </td>
+                </tr>
+              )}
+            <tr>
+              <th>Feature config</th>
+              <td data-testid="experiment-feature-config">
+                {experiment.featureConfig?.name ? (
+                  experiment.featureConfig.name
+                ) : (
+                  <NotSet />
+                )}
+              </td>
+            </tr>
+            {primaryOutcomes.length > 0 && (
+              <tr>
+                <th>Primary outcomes</th>
+                <td data-testid="experiment-outcome-primary">
+                  {primaryOutcomes
+                    .map((outcome) => outcome?.friendlyName)
+                    .join(", ")}
+                </td>
+              </tr>
             )}
-          </td>
-        </tr>
-        {primaryOutcomes.length > 0 && (
-          <tr>
-            <th>Primary outcomes</th>
-            <td data-testid="experiment-outcome-primary">
-              {primaryOutcomes
-                .map((outcome) => outcome?.friendlyName)
-                .join(", ")}
-            </td>
-          </tr>
-        )}
-        {secondaryOutcomes.length > 0 && (
-          <tr>
-            <th>Secondary outcomes</th>
-            <td data-testid="experiment-outcome-secondary">
-              {secondaryOutcomes
-                .map((outcome) => outcome?.friendlyName)
-                .join(", ")}
-            </td>
-          </tr>
+            {secondaryOutcomes.length > 0 && (
+              <tr>
+                <th>Secondary outcomes</th>
+                <td data-testid="experiment-outcome-secondary">
+                  {secondaryOutcomes
+                    .map((outcome) => outcome?.friendlyName)
+                    .join(", ")}
+                </td>
+              </tr>
+            )}
+          </>
         )}
       </tbody>
     </Table>
