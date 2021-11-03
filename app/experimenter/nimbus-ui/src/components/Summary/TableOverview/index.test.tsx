@@ -33,6 +33,26 @@ describe("TableOverview", () => {
     );
   });
 
+  it("hides details when withFullDetails = false", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      primaryOutcomes: ["picture_in_picture", "feature_c"],
+      secondaryOutcomes: ["picture_in_picture", "feature_b"],
+    });
+    render(<Subject {...{ experiment, withFullDetails: false }} />);
+    const expectedMissingTestIDs = [
+      "experiment-risk-mitigation-link",
+      "experiment-additional-links",
+      "experiment-risk-mitigation-question-1",
+      "experiment-risk-mitigation-question-2",
+      "experiment-risk-mitigation-question-3",
+      "experiment-outcome-primary",
+      "experiment-outcome-secondary",
+    ];
+    for (const testid of expectedMissingTestIDs) {
+      expect(screen.queryByTestId(testid)).not.toBeInTheDocument();
+    }
+  });
+
   describe("renders 'Primary outcomes' row as expected", () => {
     it("with one outcome", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
@@ -225,10 +245,12 @@ describe("TableOverview", () => {
 
 const Subject = ({
   experiment,
+  withFullDetails = true,
 }: {
   experiment: getExperiment_experimentBySlug;
+  withFullDetails?: boolean;
 }) => (
   <MockedCache>
-    <TableOverview {...{ experiment }} />
+    <TableOverview {...{ experiment, withFullDetails }} />
   </MockedCache>
 );

@@ -49,5 +49,6 @@ def test_promote_to_rollout(
     create_experiment,
 ):
     summary = create_experiment(selenium)
-    summary.promote_first_branch_to_rollout()
-    summary.wait_for_clone_parent_link_visible()
+    summary_detail = summary.navigate_to_details()
+    summary_detail.promote_first_branch_to_rollout()
+    summary_detail.wait_for_clone_parent_link_visible()
