@@ -6,7 +6,6 @@ import { RouteComponentProps } from "@reach/router";
 import React, { useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
 import { useConfig } from "../../hooks";
-import { ReactComponent as ExternalIcon } from "../../images/external.svg";
 import { ReactComponent as CollapseMinus } from "../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
 import { ResultsContext, ResultsContextType } from "../../lib/contexts";
@@ -16,7 +15,6 @@ import {
   getSortedBranchNames,
 } from "../../lib/visualization/utils";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import LinkExternal from "../LinkExternal";
 import ExternalConfigAlert from "./ExternalConfigAlert";
 import TableHighlights from "./TableHighlights";
 import TableHighlightsOverview from "./TableHighlightsOverview";
@@ -63,28 +61,10 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
         };
 
         const { external_config: externalConfig } = analysis.metadata || {};
-        const slugUnderscored = experiment.slug.replace(/-/g, "_");
 
         return (
           <ResultsContext.Provider value={resultsContextValue}>
             {externalConfig && <ExternalConfigAlert {...{ externalConfig }} />}
-
-            <p className="mb-1">
-              <LinkExternal
-                href={experiment.monitoringDashboardUrl!}
-                data-testid="link-monitoring-dashboard"
-              >
-                Live Monitoring Dashboard <ExternalIcon />
-              </LinkExternal>
-            </p>
-            <p>
-              <LinkExternal
-                href={`https://protosaur.dev/partybal/${slugUnderscored}.html`}
-                data-testid="link-external-results"
-              >
-                Detailed Analysis <ExternalIcon />
-              </LinkExternal>
-            </p>
 
             <h3 className="h4 mb-3 mt-4" id="overview">
               Overview

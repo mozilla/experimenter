@@ -8,7 +8,6 @@ import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
-import Scrollspy from "react-scrollspy";
 import { useOutcomes } from "../../hooks";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { StatusCheck } from "../../lib/experiment";
@@ -25,7 +24,7 @@ import { ReactComponent as BarChart } from "./bar-chart.svg";
 
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
 
-const analysisNotRequiredLinkProps = {
+const analysisLinkProps = {
   storiesOf: "pages/Results",
   textColor: "inherit-color",
   className: "mx-1 mb-2 ml-3",
@@ -122,9 +121,6 @@ export const AppLayoutSidebarLaunched = ({
       );
     });
 
-    // Semantically speaking, nested items should be wrapped in another `<ul>`
-    // but Scrollspy doesn't work as of 3.4.3 so all links are top-level under
-    // a single `<ul>`
     sidebarItems.unshift(
       <li key={title} className="mb-2 ml-3">
         {title}
@@ -132,18 +128,6 @@ export const AppLayoutSidebarLaunched = ({
     );
     return sidebarItems;
   };
-
-  const sidebarKeys = [
-    "monitoring",
-    "overview",
-    "results_summary",
-    "primary_metrics",
-  ]
-    .concat(Object.keys(primaryMetrics || []))
-    .concat("secondary_metrics")
-    .concat(Object.keys(secondaryMetrics || []))
-    .concat("default_metrics")
-    .concat(Object.keys(otherMetrics || []));
 
   const ResultsAvailableNav = () => (
     <>
@@ -156,73 +140,24 @@ export const AppLayoutSidebarLaunched = ({
         Results
       </LinkNav>
       <li>
-        {/* We only need Scrollspy when analysis data is required on the page */}
-        {analysisRequired ? (
-          <Scrollspy
-            items={sidebarKeys}
-            className="text-dark list-unstyled ml-4"
-            currentClassName="text-primary"
+        <ul className="text-dark list-unstyled ml-4">
+          <LinkNav route={`${slug}/results#overview`} {...analysisLinkProps}>
+            Overview
+          </LinkNav>
+          <LinkNav
+            route={`${slug}/results#results_summary`}
+            {...analysisLinkProps}
           >
-            {/* NOTE: Scrollspy (as of 3.4.3) has caused serious headache while trying to DRY
-              this section up as it doesn't play nice with React fragments or even with a component
-              conditionally returning `<LinkNav` or `<a href`. If you're refactoring here,
-              check early on that Scrollspy still works. */}
-            <li className="ml-3 mb-2">
-              <a href="#monitoring" className="inherit-color">
-                Monitoring
-              </a>
-            </li>
-            <li className="ml-3 mb-2">
-              <a href="#overview" className="inherit-color">
-                Overview
-              </a>
-            </li>
-            <li className="ml-3 mb-2">
-              <a href="#results_summary" className="inherit-color">
-                Results Summary
-              </a>
-            </li>
-
-            {Object.keys(primaryMetrics).length > 0 &&
-              getNestedSidebarItems(primaryMetrics, "Primary Outcomes")}
-            {Object.keys(secondaryMetrics).length > 0 &&
-              getNestedSidebarItems(secondaryMetrics, "Secondary Outcomes")}
-            {otherMetrics &&
-              analysis?.overall &&
-              getNestedSidebarItems(otherMetrics, "Default Metrics")}
-          </Scrollspy>
-        ) : (
-          <ul className="text-dark list-unstyled ml-4">
-            <LinkNav
-              route={`${slug}/results#monitoring`}
-              {...analysisNotRequiredLinkProps}
-            >
-              Monitoring
-            </LinkNav>
-
-            <LinkNav
-              route={`${slug}/results#overview`}
-              {...analysisNotRequiredLinkProps}
-            >
-              Overview
-            </LinkNav>
-
-            <LinkNav
-              route={`${slug}/results#results_summary`}
-              {...analysisNotRequiredLinkProps}
-            >
-              Results Summary
-            </LinkNav>
-
-            {Object.keys(primaryMetrics).length > 0 &&
-              getNestedSidebarItems(primaryMetrics, "Primary Outcomes")}
-            {Object.keys(secondaryMetrics).length > 0 &&
-              getNestedSidebarItems(secondaryMetrics, "Secondary Outcomes")}
-            {otherMetrics &&
-              analysis?.overall &&
-              getNestedSidebarItems(otherMetrics, "Default Metrics")}
-          </ul>
-        )}
+            Results Summary
+          </LinkNav>
+          {Object.keys(primaryMetrics).length > 0 &&
+            getNestedSidebarItems(primaryMetrics, "Primary Outcomes")}
+          {Object.keys(secondaryMetrics).length > 0 &&
+            getNestedSidebarItems(secondaryMetrics, "Secondary Outcomes")}
+          {otherMetrics &&
+            analysis?.overall &&
+            getNestedSidebarItems(otherMetrics, "Default Metrics")}
+        </ul>
       </li>
     </>
   );
@@ -291,7 +226,7 @@ export const AppLayoutSidebarLaunched = ({
                   )}
                 </DisabledItem>
               )}
-              <SidebarActions {...{ experiment, refetch }} />
+              <SidebarActions {...{ experiment, refetch, status, analysis }} />
             </Nav>
           </nav>
         </Col>

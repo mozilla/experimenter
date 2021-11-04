@@ -40,32 +40,6 @@ describe("Summary", () => {
     expect(screen.queryAllByTestId("table-branch")).toHaveLength(0);
   });
 
-  it("renders monitoring dashboard URL if experiment has been launched", async () => {
-    render(
-      <Subject
-        props={{
-          status: NimbusExperimentStatus.LIVE,
-        }}
-      />,
-    );
-
-    await screen.findByTestId("link-monitoring-dashboard");
-  });
-
-  it("does not render monitoring dashboard URL if experiment has not been launched", () => {
-    render(
-      <Subject
-        props={{
-          status: NimbusExperimentStatus.DRAFT,
-        }}
-      />,
-    );
-
-    expect(
-      screen.queryByTestId("link-monitoring-dashboard"),
-    ).not.toBeInTheDocument();
-  });
-
   it("renders signoff table if experiment has been launched", async () => {
     render(
       <Subject
