@@ -175,7 +175,7 @@ const PageContent: React.FC<{
 
   return (
     <>
-      <Takeaways {...takeawaysProps} />
+      {status.complete && <Takeaways {...takeawaysProps} />}
 
       <Head title={`${experiment.name} – ${summaryTitle}`} />
 
