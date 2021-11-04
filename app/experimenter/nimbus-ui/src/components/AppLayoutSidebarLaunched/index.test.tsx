@@ -144,7 +144,6 @@ describe("AppLayoutSidebarLaunched", () => {
     it("shows correct sidebar items for 'other metrics'", () => {
       render(<Subject withAnalysis />);
       [
-        "Monitoring",
         "Overview",
         "Results Summary",
         "Default Metrics",
@@ -158,7 +157,6 @@ describe("AppLayoutSidebarLaunched", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject withAnalysis {...{ experiment }} />);
       [
-        "Monitoring",
         "Overview",
         "Results Summary",
         "Primary Outcomes",
@@ -176,7 +174,6 @@ describe("AppLayoutSidebarLaunched", () => {
         <Subject withAnalysis analysisRequired={false} {...{ experiment }} />,
       );
       [
-        "Monitoring",
         "Overview",
         "Results Summary",
         "Primary Outcomes",

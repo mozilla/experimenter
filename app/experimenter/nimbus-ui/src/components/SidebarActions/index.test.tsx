@@ -7,12 +7,85 @@ import React from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { mockExperiment, mockExperimentMutation } from "../../lib/mocks";
+import {
+  NimbusDocumentationLinkTitle,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
 import { Subject } from "./mocks";
 
 describe("SidebarActions", () => {
   it("renders sidebar actions content", () => {
     render(<Subject />);
     expect(screen.getByTestId("SidebarActions")).toBeInTheDocument();
+  });
+
+  it("displays expected links", async () => {
+    render(
+      <Subject
+        {...{
+          experiment: {
+            slug: "demo-slug",
+            status: NimbusExperimentStatus.LIVE,
+            riskMitigationLink: "https://mozilla.org",
+            documentationLinks: [
+              {
+                title: NimbusDocumentationLinkTitle.DESIGN_DOC,
+                link: "https://mozilla.org",
+              },
+              {
+                title: NimbusDocumentationLinkTitle.DS_JIRA,
+                link: "https://twitter.com",
+              },
+            ],
+          },
+        }}
+      />,
+    );
+    expect(screen.getAllByTestId("experiment-additional-link")).toHaveLength(2);
+    expect(screen.queryByTestId("link-monitoring-dashboard")).toHaveAttribute(
+      "href",
+      expect.stringContaining("https://mozilla.cloud.looker.com"),
+    );
+    expect(screen.queryByTestId("link-external-results")).toHaveAttribute(
+      "href",
+      "https://protosaur.dev/partybal/demo_slug.html",
+    );
+    expect(
+      screen.queryByTestId("risk-mitigation-checklist-link"),
+    ).toHaveAttribute("href", expect.stringContaining("https://mozilla.org"));
+  });
+
+  it("does not render risk mitigation link when not set", () => {
+    render(<Subject {...{ experiment: { riskMitigationLink: undefined } }} />);
+    expect(
+      screen.queryByTestId("risk-mitigation-checklist-link"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not render monitoring dashboard URL if experiment has not been launched", () => {
+    render(
+      <Subject
+        experiment={{
+          status: NimbusExperimentStatus.DRAFT,
+        }}
+      />,
+    );
+    expect(
+      screen.queryByTestId("link-monitoring-dashboard"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not render additional links where there are none", () => {
+    render(
+      <Subject
+        experiment={{
+          documentationLinks: [],
+        }}
+      />,
+    );
+    expect(
+      screen.queryByTestId("experiment-additional-links"),
+    ).not.toBeInTheDocument();
   });
 
   it("renders a disabled archive button for unarchived experiment", () => {

@@ -63,10 +63,6 @@ describe("PageResults", () => {
     expect(screen.queryAllByTestId("table-highlights")).toHaveLength(2);
     expect(screen.queryAllByTestId("table-results")).toHaveLength(2);
     expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(4);
-    expect(screen.queryByTestId("link-external-results")).toHaveAttribute(
-      "href",
-      "https://protosaur.dev/partybal/demo_slug.html",
-    );
   });
 
   it("displays the external config alert when an override exists", async () => {
@@ -75,18 +71,6 @@ describe("PageResults", () => {
     render(<Subject />);
 
     await screen.findByTestId("external-config-alert");
-  });
-
-  it("displays the monitoring dashboard link", async () => {
-    mockExperiment = mockExperimentQuery("demo-slug").experiment;
-    render(<Subject />);
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("link-monitoring-dashboard")).toHaveAttribute(
-        "href",
-        expect.stringContaining("https://mozilla.cloud.looker.com"),
-      );
-    });
   });
 
   it("redirects to the edit overview page if the experiment status is draft", async () => {
