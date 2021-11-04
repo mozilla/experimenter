@@ -12,7 +12,6 @@ import {
   MOCK_CONFIG,
 } from "../../../lib/mocks";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { NimbusDocumentationLinkTitle } from "../../../types/globalTypes";
 
 describe("TableOverview", () => {
   it("renders rows displaying required fields at experiment creation as expected", () => {
@@ -186,59 +185,6 @@ describe("TableOverview", () => {
       expect(screen.getByTestId("experiment-feature-config")).toHaveTextContent(
         "Not set",
       );
-    });
-  });
-
-  describe("renders 'Risk mitigation checklist' (obsolete implementation) row as expected", () => {
-    it("when set", () => {
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        riskMitigationLink: "https://mozilla.org",
-      });
-      render(<Subject {...{ experiment }} />);
-      const link = screen
-        .getByTestId("experiment-risk-mitigation-link")
-        .querySelector("a");
-      expect(link).toHaveTextContent(experiment.riskMitigationLink);
-      expect(link).toHaveAttribute("href", experiment.riskMitigationLink);
-    });
-    it("when not set", () => {
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        riskMitigationLink: undefined,
-      });
-      render(<Subject {...{ experiment }} />);
-      expect(
-        screen.queryByTestId("experiment-risk-mitigation-link"),
-      ).not.toBeInTheDocument();
-    });
-  });
-
-  describe("renders 'Additional links' row as expected", () => {
-    it("when set", () => {
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        documentationLinks: [
-          {
-            title: NimbusDocumentationLinkTitle.DESIGN_DOC,
-            link: "https://mozilla.org",
-          },
-          {
-            title: NimbusDocumentationLinkTitle.DS_JIRA,
-            link: "https://twitter.com",
-          },
-        ],
-      });
-      render(<Subject {...{ experiment }} />);
-      expect(screen.getAllByTestId("experiment-additional-link")).toHaveLength(
-        experiment.documentationLinks!.length,
-      );
-    });
-    it("when not set", () => {
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        documentationLinks: [],
-      });
-      render(<Subject {...{ experiment }} />);
-      expect(
-        screen.queryByTestId("experiment-additional-links"),
-      ).not.toBeInTheDocument();
     });
   });
 });

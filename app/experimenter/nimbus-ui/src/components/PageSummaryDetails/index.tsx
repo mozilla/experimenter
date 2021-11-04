@@ -4,6 +4,7 @@
 
 import { RouteComponentProps } from "@reach/router";
 import React from "react";
+import { useScrollToLocationHash } from "../../hooks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import Head from "../Head";
@@ -30,6 +31,7 @@ const PageContent: React.FC<{
   experiment: getExperiment_experimentBySlug;
   refetch: () => Promise<unknown>;
 }> = ({ experiment, refetch }) => {
+  useScrollToLocationHash();
   return (
     <>
       <Head title={`${experiment.name} – Details`} />
