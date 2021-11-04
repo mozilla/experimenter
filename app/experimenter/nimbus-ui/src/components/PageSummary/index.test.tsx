@@ -98,6 +98,24 @@ describe("PageSummary", () => {
     });
   });
 
+  it("hides takeaways section if experiment is not complete", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.DRAFT,
+    });
+    render(<Subject mocks={[mock]} />);
+    await screen.findByTestId("PageSummary");
+    expect(screen.queryByTestId("Takeaways")).not.toBeInTheDocument();
+  });
+
+  it("reveals takeaways section if experiment is complete", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.COMPLETE,
+    });
+    render(<Subject mocks={[mock]} />);
+    await screen.findByTestId("PageSummary");
+    expect(screen.queryByTestId("Takeaways")).toBeInTheDocument();
+  });
+
   it("displays a banner for pages missing fields required for review", async () => {
     const { mock } = mockExperimentQuery("demo-slug", {
       readyForReview: {
