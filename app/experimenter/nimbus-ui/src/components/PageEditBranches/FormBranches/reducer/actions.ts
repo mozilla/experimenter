@@ -102,13 +102,15 @@ function removeFeatureConfig(state: FormBranchesState) {
   if (referenceBranch) {
     referenceBranch = {
       ...referenceBranch,
+      featureEnabled: false,
       featureValue: null,
     };
   }
 
   if (Array.isArray(treatmentBranches)) {
     treatmentBranches = treatmentBranches.map(
-      (branch) => branch && { ...branch, featureValue: null },
+      (branch) =>
+        branch && { ...branch, featureEnabled: false, featureValue: null },
     );
   }
 
