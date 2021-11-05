@@ -297,6 +297,7 @@ class NimbusConfigurationType(graphene.ObjectType):
 class NimbusExperimentType(DjangoObjectType):
     id = graphene.Int()
     parent = graphene.Field(lambda: NimbusExperimentType)
+    is_rollout = graphene.Boolean()
     is_archived = graphene.Boolean()
     status = NimbusExperimentStatus()
     status_next = NimbusExperimentStatus()

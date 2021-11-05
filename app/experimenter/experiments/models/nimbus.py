@@ -89,6 +89,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     parent = models.ForeignKey(
         "experiments.NimbusExperiment", models.SET_NULL, blank=True, null=True
     )
+    is_rollout = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     owner = models.ForeignKey(
         get_user_model(),
