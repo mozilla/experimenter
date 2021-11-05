@@ -28,6 +28,7 @@ storiesOf("components/HeaderExperiment", module)
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
         isArchived={false}
+        isRollout={false}
       />
     </AppLayout>
   ))
@@ -46,6 +47,7 @@ storiesOf("components/HeaderExperiment", module)
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
         isArchived={false}
+        isRollout={false}
       />
     </AppLayout>
   ))
@@ -60,6 +62,7 @@ storiesOf("components/HeaderExperiment", module)
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({ status: NimbusExperimentStatus.PREVIEW })}
         isArchived={false}
+        isRollout={false}
       />
     </AppLayout>
   ))
@@ -76,6 +79,7 @@ storiesOf("components/HeaderExperiment", module)
           publishStatus: NimbusExperimentPublishStatus.REVIEW,
         })}
         isArchived={false}
+        isRollout={false}
       />
     </AppLayout>
   ))
@@ -90,6 +94,7 @@ storiesOf("components/HeaderExperiment", module)
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
         isArchived={false}
+        isRollout={false}
       />
     </AppLayout>
   ))
@@ -104,6 +109,7 @@ storiesOf("components/HeaderExperiment", module)
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
         isArchived={false}
+        isRollout={false}
       />
     </AppLayout>
   ))
@@ -118,6 +124,37 @@ storiesOf("components/HeaderExperiment", module)
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
         isArchived={true}
+        isRollout={false}
+      />
+    </AppLayout>
+  ))
+  .add("rollout", () => (
+    <AppLayout>
+      <HeaderExperiment
+        parent={null}
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
+        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
+        isArchived={false}
+        isRollout={true}
+      />
+    </AppLayout>
+  ))
+  .add("archived rollout", () => (
+    <AppLayout>
+      <HeaderExperiment
+        parent={null}
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
+        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
+        isArchived={true}
+        isRollout={true}
       />
     </AppLayout>
   ));

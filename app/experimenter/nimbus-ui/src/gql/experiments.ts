@@ -27,6 +27,7 @@ export const GET_EXPERIMENT_QUERY = gql`
   query getExperiment($slug: String!) {
     experimentBySlug(slug: $slug) {
       id
+      isRollout
       isArchived
       canEdit
       canArchive

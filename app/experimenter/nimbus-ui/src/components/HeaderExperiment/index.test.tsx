@@ -23,6 +23,7 @@ describe("HeaderExperiment", () => {
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
         isArchived={false}
+        isRollout={false}
       />,
     );
     expect(
@@ -54,6 +55,7 @@ describe("HeaderExperiment", () => {
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
         isArchived={false}
+        isRollout={false}
       />,
     );
 
@@ -81,6 +83,7 @@ describe("HeaderExperiment", () => {
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
         isArchived={false}
+        isRollout={false}
       />,
     );
     expect(
@@ -107,8 +110,27 @@ describe("HeaderExperiment", () => {
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus(experiment)}
         isArchived={true}
+        isRollout={false}
       />,
     );
     expect(screen.queryByText("Archived")).toBeInTheDocument();
+  });
+
+  it("renders with rollout", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {});
+    render(
+      <HeaderExperiment
+        parent={null}
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
+        status={mockGetStatus(experiment)}
+        isArchived={false}
+        isRollout={true}
+      />,
+    );
+    expect(screen.queryByText("Rollout")).toBeInTheDocument();
   });
 });
