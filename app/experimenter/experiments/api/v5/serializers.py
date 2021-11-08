@@ -382,6 +382,7 @@ class NimbusExperimentSerializer(
             "feature_config",
             "firefox_min_version",
             "hypothesis",
+            "is_rollout",
             "is_archived",
             "is_enrollment_paused",
             "locales",
