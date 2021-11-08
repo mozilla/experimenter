@@ -801,7 +801,7 @@ python-versions = "*"
 
 [[package]]
 name = "isort"
-version = "5.9.1"
+version = "5.10.0"
 description = "A Python utility / library to sort Python imports."
 category = "main"
 optional = false
@@ -1590,7 +1590,7 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b15132976e735cf5990dcc7bca413c4df5ea7d77206a4d25c1288cc52aa953fb"
+content-hash = "ea2c7430431f7fb2a0a50474b230050d591c3490d7b6846852c999dc2acb9f39"
 
 [metadata.files]
 amqp = [
@@ -1948,8 +1948,8 @@ ipython-genutils = [
     {file = "ipython_genutils-0.2.0.tar.gz", hash = "sha256:eb2e116e75ecef9d4d228fdc66af54269afa26ab4463042e33785b887c628ba8"},
 ]
 isort = [
-    {file = "isort-5.9.1-py3-none-any.whl", hash = "sha256:8e2c107091cfec7286bc0f68a547d0ba4c094d460b732075b6fba674f1035c0c"},
-    {file = "isort-5.9.1.tar.gz", hash = "sha256:83510593e07e433b77bd5bff0f6f607dbafa06d1a89022616f02d8b699cfcd56"},
+    {file = "isort-5.10.0-py3-none-any.whl", hash = "sha256:1a18ccace2ed8910bd9458b74a3ecbafd7b2f581301b0ab65cfdd4338272d76f"},
+    {file = "isort-5.10.0.tar.gz", hash = "sha256:e52ff6d38012b131628cf0f26c51e7bd3a7c81592eefe3ac71411e692f1b9345"},
 ]
 jedi = [
     {file = "jedi-0.18.0-py2.py3-none-any.whl", hash = "sha256:18456d83f65f400ab0c2d3319e48520420ef43b23a086fdc05dff34132f0fb93"},
@@ -2110,6 +2110,8 @@ protobuf = [
     {file = "protobuf-3.17.3.tar.gz", hash = "sha256:72804ea5eaa9c22a090d2803813e280fb273b62d5ae497aaf3553d141c4fdd7b"},
 ]
 psycopg2 = [
+    {file = "psycopg2-2.9.1-cp310-cp310-win32.whl", hash = "sha256:25615574419dd9bda6fdfdcd58afb22e721f5b807cb3d5e62f488c8acf8cb754"},
+    {file = "psycopg2-2.9.1-cp310-cp310-win_amd64.whl", hash = "sha256:e5a8ed9dbfca8dc162c4ada5ab017e10d5a66c542b4c73569f103fa5f342f498"},
     {file = "psycopg2-2.9.1-cp36-cp36m-win32.whl", hash = "sha256:7f91312f065df517187134cce8e395ab37f5b601a42446bdc0f0d51773621854"},
     {file = "psycopg2-2.9.1-cp36-cp36m-win_amd64.whl", hash = "sha256:830c8e8dddab6b6716a4bf73a09910c7954a92f40cf1d1e702fb93c8a919cc56"},
     {file = "psycopg2-2.9.1-cp37-cp37m-win32.whl", hash = "sha256:89409d369f4882c47f7ea20c42c5046879ce22c1e4ea20ef3b00a4dfc0a7f188"},
