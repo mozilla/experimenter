@@ -347,6 +347,7 @@ type NimbusExperimentTargetingConfig {
 type NimbusExperimentType {
   id: Int
   parent: NimbusExperimentType
+  isRollout: Boolean
   isArchived: Boolean
   owner: NimbusUser!
   status: NimbusExperimentStatus
