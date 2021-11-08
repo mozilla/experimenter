@@ -118,6 +118,7 @@ export interface getExperiment_experimentBySlug_countries {
 
 export interface getExperiment_experimentBySlug {
   id: number | null;
+  isRollout: boolean | null;
   isArchived: boolean | null;
   canEdit: boolean | null;
   canArchive: boolean | null;
