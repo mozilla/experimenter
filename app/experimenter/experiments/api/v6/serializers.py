@@ -49,6 +49,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             "featureId": obj.experiment.feature_config.slug
             if obj.experiment.feature_config
             else None,
+            "enabled": obj.feature_enabled,
             "value": feature_value,
         }
 

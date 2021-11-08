@@ -30,6 +30,7 @@ const emptyBranches: Partial<getExperiment_experimentBySlug> = {
     description: "",
     ratio: 1,
     featureValue: "",
+    featureEnabled: false,
     screenshots: [],
   },
   treatmentBranches: [
@@ -40,6 +41,7 @@ const emptyBranches: Partial<getExperiment_experimentBySlug> = {
       description: "",
       ratio: 1,
       featureValue: "woop woop",
+      featureEnabled: true,
       screenshots: [],
     },
   ],

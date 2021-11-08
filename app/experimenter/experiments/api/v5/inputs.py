@@ -23,6 +23,7 @@ class BranchType(graphene.InputObjectType):
     name = graphene.String(required=True)
     description = graphene.String(required=True)
     ratio = graphene.Int(required=True)
+    feature_enabled = graphene.Boolean()
     feature_value = graphene.String()
     screenshots = graphene.List(BranchScreenshotType)
 
