@@ -90,5 +90,6 @@ export function createAnnotatedBranch(
     description: "",
     ratio: 1,
     featureValue: null,
+    featureEnabled: false,
   };
 }

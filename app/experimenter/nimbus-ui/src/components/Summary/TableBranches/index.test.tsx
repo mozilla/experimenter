@@ -58,6 +58,7 @@ describe("TableBranches", () => {
               description: "",
               ratio: 0,
               featureValue: null,
+              featureEnabled: false,
               screenshots: [],
             },
           ],
@@ -93,10 +94,12 @@ describe("TableBranches", () => {
           ...MOCK_EXPERIMENT,
           referenceBranch: {
             ...MOCK_EXPERIMENT.referenceBranch!,
+            featureEnabled: false,
           },
           treatmentBranches: [
             {
               ...MOCK_EXPERIMENT.treatmentBranches![0]!,
+              featureEnabled: false,
             },
           ],
         }}
@@ -126,6 +129,7 @@ describe("TableBranches", () => {
               ...expected,
               id: 456,
               screenshots: [],
+              featureEnabled: true,
             },
             ...MOCK_EXPERIMENT.treatmentBranches!,
           ],
@@ -137,6 +141,10 @@ describe("TableBranches", () => {
     expect(branchTables).toHaveLength(3);
 
     const subjectTable = branchTables[1];
+
+    const cell = subjectTable.querySelector(`[data-testid='branch-enabled']`);
+    expect(cell).toBeInTheDocument();
+    expect(cell).toHaveTextContent("True");
 
     for (const [name, value] of Object.entries(expected)) {
       const cell = subjectTable.querySelector(`[data-testid='branch-${name}']`);
@@ -177,6 +185,7 @@ describe("TableBranches", () => {
               description: "expected description",
               ratio: 42,
               featureValue: '{ "thing": true }',
+              featureEnabled: true,
               screenshots: expectedScreenshots,
             },
             ...MOCK_EXPERIMENT.treatmentBranches!,
@@ -227,6 +236,7 @@ describe("TableBranches", () => {
           treatmentBranches: [
             {
               ...expected,
+              featureEnabled: true,
             },
             ...MOCK_EXPERIMENT.treatmentBranches!,
           ],
@@ -260,6 +270,7 @@ describe("TableBranches", () => {
               description: "",
               ratio: 0,
               featureValue: null,
+              featureEnabled: true,
               screenshots: [],
             },
             {
@@ -269,6 +280,7 @@ describe("TableBranches", () => {
               description: "",
               ratio: 0,
               featureValue: null,
+              featureEnabled: true,
               screenshots: [],
             },
           ],

@@ -226,6 +226,7 @@ export interface ReferenceBranchType {
   name: string;
   description: string;
   ratio: number;
+  featureEnabled?: boolean | null;
   featureValue?: string | null;
   screenshots?: (BranchScreenshotType | null)[] | null;
 }
@@ -235,6 +236,7 @@ export interface TreatmentBranchType {
   name: string;
   description: string;
   ratio: number;
+  featureEnabled?: boolean | null;
   featureValue?: string | null;
   screenshots?: (BranchScreenshotType | null)[] | null;
 }

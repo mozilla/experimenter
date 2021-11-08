@@ -62,6 +62,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         description
         ratio
         featureValue
+        featureEnabled
         screenshots {
           id
           description
@@ -76,6 +77,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         description
         ratio
         featureValue
+        featureEnabled
         screenshots {
           id
           description

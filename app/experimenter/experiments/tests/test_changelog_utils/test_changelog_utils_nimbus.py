@@ -160,6 +160,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             control_branch_data,
             {
                 "description": experiment.reference_branch.description,
+                "feature_enabled": experiment.reference_branch.feature_enabled,
                 "feature_value": experiment.reference_branch.feature_value,
                 "name": experiment.reference_branch.name,
                 "ratio": experiment.reference_branch.ratio,
@@ -170,6 +171,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             self.assertIn(
                 {
                     "description": branch.description,
+                    "feature_enabled": branch.feature_enabled,
                     "feature_value": branch.feature_value,
                     "name": branch.name,
                     "ratio": branch.ratio,

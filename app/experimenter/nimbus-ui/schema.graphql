@@ -88,6 +88,7 @@ type NimbusBranchType {
   slug: String!
   description: String!
   ratio: Int!
+  featureEnabled: Boolean!
   featureValue: String
   screenshots: [NimbusBranchScreenshotType!]
 }
@@ -504,6 +505,7 @@ input ReferenceBranchType {
   name: String!
   description: String!
   ratio: Int!
+  featureEnabled: Boolean
   featureValue: String
   screenshots: [BranchScreenshotType]
 }
@@ -513,6 +515,7 @@ input TreatmentBranchType {
   name: String!
   description: String!
   ratio: Int!
+  featureEnabled: Boolean
   featureValue: String
   screenshots: [BranchScreenshotType]
 }
