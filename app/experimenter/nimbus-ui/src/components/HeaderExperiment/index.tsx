@@ -19,6 +19,7 @@ type HeaderExperimentProps = Pick<
   | "computedEndDate"
   | "computedDurationDays"
   | "isArchived"
+  | "isRollout"
 > & { status: StatusCheck };
 
 const HeaderExperiment = ({
@@ -30,20 +31,32 @@ const HeaderExperiment = ({
   status,
   computedDurationDays,
   isArchived,
+  isRollout,
 }: HeaderExperimentProps) => (
   <header className="border-bottom" data-testid="header-experiment">
     <h1
-      className="h5 font-weight-normal d-inline"
+      className="h5 font-weight-normal d-inline mr-2"
       data-testid="header-experiment-name"
     >
       {name}
     </h1>
+    {isRollout && (
+      <StatusPill
+        label="Rollout"
+        color="info"
+        active={true}
+        padded={false}
+        className="mr-2"
+        testid="header-experiment-status-rollout"
+      />
+    )}
     {isArchived && (
       <StatusPill
-        className="ml-2"
         label="Archived"
         color="danger"
         active={true}
+        padded={false}
+        className="mr-2"
         testid="header-experiment-status-archived"
       />
     )}
