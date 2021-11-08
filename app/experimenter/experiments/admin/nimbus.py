@@ -136,6 +136,7 @@ class NimbusExperimentAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
     )
     list_display = (
         "name",
+        "is_rollout",
         "status",
         "publish_status",
         "status_next",
