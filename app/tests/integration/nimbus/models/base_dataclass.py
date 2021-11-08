@@ -23,7 +23,6 @@ class BaseExperimentBranchDataClass:
     name: str
     description: str
     feature_config: str
-    feature_value: str
 
 
 @dataclass

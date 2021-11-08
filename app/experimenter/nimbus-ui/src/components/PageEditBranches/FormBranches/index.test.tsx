@@ -182,6 +182,7 @@ describe("FormBranches", () => {
               description: "",
               ratio: 1,
               featureValue: null,
+              featureEnabled: false,
               screenshots: [],
             },
             treatmentBranches: null,
@@ -335,6 +336,7 @@ describe("FormBranches", () => {
       description: "example description",
       ratio: 42,
       featureValue: "example value",
+      featureEnabled: true,
     };
 
     for (const id of ["referenceBranch", `treatmentBranches[${branchIdx}]`]) {
@@ -415,6 +417,7 @@ describe("FormBranches", () => {
                 description: "",
                 ratio: 0,
                 featureValue: null,
+                featureEnabled: false,
                 screenshots: [],
               },
             ],
@@ -444,6 +447,7 @@ async function fillInBranch(
     description: "example description",
     ratio: 42,
     featureValue: "example value",
+    featureEnabled: true,
   },
 ) {
   for (const [name, value] of Object.entries(expectedData)) {

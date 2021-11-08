@@ -64,6 +64,7 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
       experimentFeatureConfig={MOCK_FEATURE_CONFIG}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
+        featureEnabled: false,
         featureValue: "this is a default value",
       }}
     />
@@ -74,6 +75,7 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
       experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
+        featureEnabled: true,
         featureValue: "this is a default value",
       }}
     />
@@ -84,6 +86,7 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
       experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
+        featureEnabled: true,
         featureValue: "this is a default value",
         screenshots: [
           {
@@ -124,6 +127,7 @@ storiesOf("pages/EditBranches/FormBranches", module)
             description: "",
             ratio: 1,
             featureValue: null,
+            featureEnabled: false,
             screenshots: [],
           },
         ],

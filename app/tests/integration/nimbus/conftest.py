@@ -132,7 +132,6 @@ def default_data(request):
                 name="name 1",
                 description="a nice experiment",
                 feature_config=feature,
-                feature_value="{}",
             )
         ],
         metrics=BaseExperimentMetricsDataClass(
@@ -172,7 +171,6 @@ def create_experiment(base_url, default_data):
         branches.reference_branch_name = default_data.branches[0].name
         branches.reference_branch_description = default_data.branches[0].description
         branches.feature_config = default_data.branches[0].feature_config
-        branches.feature_value = default_data.branches[0].feature_value
 
         # Fill Metrics page
         metrics = branches.save_and_continue()

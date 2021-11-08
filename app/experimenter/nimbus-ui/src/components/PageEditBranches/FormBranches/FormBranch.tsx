@@ -20,6 +20,7 @@ export const branchFieldNames = [
   "description",
   "ratio",
   "featureValue",
+  "featureEnabled",
 ] as const;
 
 type BranchFieldName = typeof branchFieldNames[number];
@@ -66,6 +67,8 @@ export const FormBranch = ({
       touched,
       reviewErrors,
     );
+
+  const featureEnabled = watch(`${fieldNamePrefix}.featureEnabled`);
 
   const handleRemoveClick = () => onRemove && onRemove();
 
@@ -161,7 +164,24 @@ export const FormBranch = ({
         className="p-1 mx-3 mt-2 mb-0"
         data-testid="feature-config-edit"
       >
-        {experimentFeatureConfig !== null ? (
+        <Form.Row>
+          <Col sm={1} md={1}>
+            Feature is
+          </Col>
+          <Form.Group as={Col} controlId={`${id}.featureEnabled`}>
+            <Form.Check
+              {...formControlAttrs("featureEnabled", {}, false)}
+              type="switch"
+              label={featureEnabled ? "On" : "Off"}
+            />
+          </Form.Group>
+        </Form.Row>
+      </Form.Group>
+      <Form.Group
+        className="p-1 mx-3 mt-2 mb-0"
+        data-testid="feature-config-edit"
+      >
+        {experimentFeatureConfig !== null && featureEnabled ? (
           <Form.Row data-testid="feature-value-edit">
             <Form.Group as={Col} controlId={`${id}-featureValue`}>
               <Form.Label>Value</Form.Label>
