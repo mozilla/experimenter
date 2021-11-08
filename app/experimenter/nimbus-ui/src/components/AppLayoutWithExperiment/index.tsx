@@ -147,6 +147,7 @@ const AppLayoutWithExperiment = ({
     computedEndDate,
     computedDurationDays,
     isArchived,
+    isRollout,
   } = experiment;
 
   return (
@@ -179,6 +180,7 @@ const AppLayoutWithExperiment = ({
             status,
             computedDurationDays,
             isArchived,
+            isRollout,
           }}
         />
         {hasPollError && (
