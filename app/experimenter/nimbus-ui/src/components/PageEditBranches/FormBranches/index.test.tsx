@@ -19,10 +19,19 @@ describe("FormBranches", () => {
   it("renders as expected", async () => {
     render(<SubjectBranches />);
     expect(screen.getByTestId("FormBranches")).toBeInTheDocument();
+    expect(screen.getByTestId("add-branch")).toBeInTheDocument();
     const branches = screen.queryAllByTestId("FormBranch");
     expect(branches.length).toEqual(
       MOCK_EXPERIMENT!.treatmentBranches!.length + 1,
     );
+  });
+
+  it("hides the add branch button for a rollout", async () => {
+    render(
+      <SubjectBranches experiment={{ ...MOCK_EXPERIMENT, isRollout: true }} />,
+    );
+    expect(screen.getByTestId("FormBranches")).toBeInTheDocument();
+    expect(screen.queryByTestId("add-branch")).not.toBeInTheDocument();
   });
 
   it("renders as expected while loading", async () => {

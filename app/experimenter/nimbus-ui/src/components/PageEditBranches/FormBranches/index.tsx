@@ -287,14 +287,16 @@ export const FormBranches = ({
               );
             })}
         </section>
-        <Button
-          data-testid="add-branch"
-          variant="outline-primary"
-          size="sm"
-          onClick={handleAddBranch}
-        >
-          + Add branch
-        </Button>
+        {!experiment.isRollout && (
+          <Button
+            data-testid="add-branch"
+            variant="outline-primary"
+            size="sm"
+            onClick={handleAddBranch}
+          >
+            + Add branch
+          </Button>
+        )}
         <div className="d-flex flex-row-reverse bd-highlight">
           <div className="p-2">
             <button
