@@ -823,6 +823,26 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(NimbusBucketRange.objects.count(), 2)
         self.assertEqual(NimbusIsolationGroup.objects.count(), 1)
 
+    def test_bucket_namespace_changes_for_rollout(self):
+        feature = NimbusFeatureConfigFactory(slug="feature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_config=feature,
+            population_percent=Decimal("50.0"),
+        )
+        original_namespace = experiment.bucket_namespace
+
+        experiment.is_rollout = True
+        experiment.save()
+
+        self.assertNotEqual(original_namespace, experiment.bucket_namespace)
+        self.assertEqual(
+            experiment.bucket_namespace,
+            "firefox-desktop-feature-release-rollout",
+        )
+
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
