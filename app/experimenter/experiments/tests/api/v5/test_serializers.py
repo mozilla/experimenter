@@ -1093,7 +1093,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("experiment", serializer.errors)
 
-    def test_status_generates_bucket_allocation(self):
+    def test_preview_status_generates_bucket_allocation(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED, population_percent=Decimal("50.0")
         )
@@ -1115,7 +1115,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
         self.assertEqual(experiment.bucket_range.count, 5000)
 
-    def test_publish_status_generates_bucket_allocation(self):
+    def test_publish_status_approved_generates_bucket_allocation(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             population_percent=Decimal("50.0"),
@@ -1141,6 +1141,28 @@ class TestNimbusExperimentSerializer(TestCase):
 
         self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
         self.assertEqual(experiment.bucket_range.count, 5000)
+
+    def test_live_experiment_does_not_allocate_buckets(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,
+            population_percent=Decimal("50.0"),
+        )
+
+        bucket_id = experiment.bucket_range.id
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.bucket_range.id, bucket_id)
 
     @parameterized.expand(
         [
