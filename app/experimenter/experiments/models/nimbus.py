@@ -208,7 +208,10 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         )
         SHOULD_ALLOCATE_BUCKETS = Q(
             Q(status=NimbusConstants.Status.PREVIEW)
-            | Q(publish_status=NimbusConstants.PublishStatus.APPROVED)
+            | Q(
+                status=NimbusConstants.Status.DRAFT,
+                publish_status=NimbusConstants.PublishStatus.APPROVED,
+            )
         )
 
     def __str__(self):
