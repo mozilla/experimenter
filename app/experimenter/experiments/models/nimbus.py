@@ -410,6 +410,9 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         if self.channel:
             keys.append(self.channel)
 
+        if self.is_rollout:
+            keys.append("rollout")
+
         return "-".join(keys)
 
     def allocate_bucket_range(self):
