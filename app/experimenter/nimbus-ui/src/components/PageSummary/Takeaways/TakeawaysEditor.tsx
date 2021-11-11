@@ -123,6 +123,14 @@ export const TakeawaysEditor = ({
               >
                 Recommendation:
               </Form.Label>
+              <Form.Check
+                type="radio"
+                value=""
+                label="None"
+                title="None"
+                {...conclusionRadioAttrs}
+                id="conclusionRecommendation-none"
+              />
               {conclusionRecommendations!.map((option, idx) => (
                 <Form.Check
                   key={idx}

@@ -871,6 +871,33 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertTrue(experiment.is_archived)
 
+    def test_update_conclusion_recommendation_null(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            conclusion_recommendation=NimbusExperiment.ConclusionRecommendation.FOLLOWUP,
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "conclusionRecommendation": None,
+                    "takeawaysSummary": "the test worked",
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.first()
+        self.assertEqual(experiment.conclusion_recommendation, None)
+        self.assertEqual(experiment.takeaways_summary, "the test worked")
+
 
 @mock_valid_outcomes
 class TestCloneExperimentMutation(GraphQLTestCase):
