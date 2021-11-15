@@ -64,7 +64,7 @@ class TestNimbusExperimentSerializer(TestCase):
                     {"priority": "secondary", "slug": "quux"},
                     {"priority": "secondary", "slug": "xyzzy"},
                 ],
-                "featureIds": [experiment.feature_config.slug],
+                "featureIds": [experiment.feature_configs.get().slug],
             },
         )
         self.assertEqual(
@@ -86,9 +86,9 @@ class TestNimbusExperimentSerializer(TestCase):
                     "slug": branch.slug,
                     "ratio": branch.ratio,
                     "feature": {
-                        "featureId": experiment.feature_config.slug,
-                        "enabled": branch.feature_enabled,
-                        "value": json.loads(branch.feature_value),
+                        "featureId": experiment.feature_configs.get().slug,
+                        "enabled": branch.feature_values.get().enabled,
+                        "value": json.loads(branch.feature_values.get().value),
                     },
                 },
                 branches_data,
@@ -101,10 +101,10 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=application,
-            branches=[],
         )
+        experiment.delete_branches()
         experiment.reference_branch = NimbusBranchFactory(
-            experiment=experiment, feature_value=None
+            experiment=experiment, feature_values=[]
         )
         experiment.save()
         serializer = NimbusExperimentSerializer(experiment)
@@ -114,7 +114,7 @@ class TestNimbusExperimentSerializer(TestCase):
     def test_serializer_with_branches_no_feature(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            feature_config=None,
+            feature_configs=[],
         )
         experiment.save()
         serializer = NimbusExperimentSerializer(experiment)
@@ -124,8 +124,9 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
         )
-        experiment.reference_branch.feature_value = "this is not json"
-        experiment.reference_branch.save()
+        feature_value = experiment.reference_branch.feature_values.get()
+        feature_value.value = "this is not json"
+        feature_value.save()
         serializer = NimbusExperimentSerializer(experiment)
         branch_slug = serializer.data["referenceBranch"]
         branch = [x for x in serializer.data["branches"] if x["slug"] == branch_slug][0]

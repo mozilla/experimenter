@@ -151,7 +151,7 @@ class TestConstants:
 
         WEEKLY_DATA = {
             "control": {
-                "is_control": False,
+                "is_control": True,
                 "branch_data": {
                     Group.SEARCH: {
                         "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
@@ -190,7 +190,7 @@ class TestConstants:
 
         OVERALL_DATA = {
             "control": {
-                "is_control": False,
+                "is_control": True,
                 "branch_data": {
                     Group.SEARCH: {
                         "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),

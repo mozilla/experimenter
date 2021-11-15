@@ -124,11 +124,19 @@ class NimbusBranchScreenshotType(DjangoObjectType):
 
 class NimbusBranchType(DjangoObjectType):
     id = graphene.Int(required=False)
+    feature_enabled = graphene.Boolean(required=True)
+    feature_value = graphene.String(required=False)
     screenshots = DjangoListField(NimbusBranchScreenshotType)
 
     class Meta:
         model = NimbusBranch
         exclude = ("experiment", "nimbusexperiment")
+
+    def resolve_feature_enabled(root, info):
+        return root.feature_values.exists() and root.feature_values.get().enabled
+
+    def resolve_feature_value(root, info):
+        return (root.feature_values.exists() and root.feature_values.get().value) or ""
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
@@ -312,6 +320,7 @@ class NimbusExperimentType(DjangoObjectType):
     jexl_targeting_expression = graphene.String()
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)
+    feature_config = graphene.Field(NimbusFeatureConfigType)
     ready_for_review = graphene.Field(NimbusReadyForReviewType)
     monitoring_dashboard_url = graphene.String()
     results_ready = graphene.Boolean()
@@ -335,23 +344,21 @@ class NimbusExperimentType(DjangoObjectType):
 
     class Meta:
         model = NimbusExperiment
-        exclude = ("branches",)
+        exclude = ("branches", "feature_configs")
+
+    def resolve_feature_config(self, info):
+        if self.feature_configs.exists():
+            return self.feature_configs.get()
 
     def resolve_reference_branch(self, info):
         if self.reference_branch:
             return self.reference_branch
-        return NimbusBranch(
-            name=NimbusConstants.DEFAULT_REFERENCE_BRANCH_NAME, feature_enabled=False
-        )
+        return NimbusBranch(name=NimbusConstants.DEFAULT_REFERENCE_BRANCH_NAME)
 
     def resolve_treatment_branches(self, info):
         if self.branches.exists():
             return self.treatment_branches
-        return [
-            NimbusBranch(
-                name=NimbusConstants.DEFAULT_TREATMENT_BRANCH_NAME, feature_enabled=False
-            )
-        ]
+        return [NimbusBranch(name=NimbusConstants.DEFAULT_TREATMENT_BRANCH_NAME)]
 
     def resolve_ready_for_review(self, info):
         serializer = NimbusReadyForReviewSerializer(
