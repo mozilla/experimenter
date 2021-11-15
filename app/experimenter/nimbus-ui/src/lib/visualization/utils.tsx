@@ -71,14 +71,15 @@ export const getExtremeBounds = (
 ) => {
   let extreme = 0;
   sortedBranchNames.forEach((branch) => {
-    const branchComparison = BRANCH_COMPARISON.UPLIFT;
-    const metricDataList =
-      results[branch].branch_data[group][outcomeSlug][branchComparison]["all"];
-    metricDataList.forEach((dataPoint: FormattedAnalysisPoint) => {
-      const { lower, upper } = dataPoint;
-      const max = Math.max(Math.abs(lower!), Math.abs(upper!));
-      extreme = max > extreme ? max : extreme;
-    });
+    if (results[branch].branch_data[group][outcomeSlug]) {
+      results[branch].branch_data[group][outcomeSlug][BRANCH_COMPARISON.UPLIFT][
+        "all"
+      ].forEach((dataPoint: FormattedAnalysisPoint) => {
+        const { lower, upper } = dataPoint;
+        const max = Math.max(Math.abs(lower!), Math.abs(upper!));
+        extreme = max > extreme ? max : extreme;
+      });
+    }
   });
   return extreme;
 };
