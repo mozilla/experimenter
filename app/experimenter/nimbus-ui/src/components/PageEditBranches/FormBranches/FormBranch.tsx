@@ -219,27 +219,31 @@ export const FormBranch = ({
           )}
         </Form.Row>
         {branch.screenshots?.map((screenshot, idx) => (
-          <FormScreenshot
-            key={idx}
-            {...{
-              fieldNamePrefix: `${fieldNamePrefix}.screenshots[${idx}]`,
-              onRemove: () => onRemoveScreenshot!(idx),
-              defaultValues: defaultValues.screenshots?.[idx] || {},
-              setSubmitErrors,
-              //@ts-ignore react-hook-form types seem broken for nested fields
-              submitErrors: (submitErrors?.screenshots?.[idx] ||
-                {}) as FormScreenshotProps["submitErrors"],
-              //@ts-ignore react-hook-form types seem broken for nested fields
-              errors: (errors?.screenshots?.[idx] ||
-                {}) as FormScreenshotProps["errors"],
-              //@ts-ignore react-hook-form types seem broken for nested fields
-              touched: (touched?.screenshots?.[idx] ||
-                {}) as FormScreenshotProps["touched"],
-              //@ts-ignore react-hook-form types seem broken for nested fields
-              reviewErrors: (reviewErrors?.screenshots?.[idx] ||
-                {}) as FormScreenshotProps["reviewErrors"],
-            }}
-          />
+          <div key={idx}>
+            <FormScreenshot
+              {...{
+                fieldNamePrefix: `${fieldNamePrefix}.screenshots[${idx}]`,
+                onRemove: () => onRemoveScreenshot!(idx),
+                defaultValues: defaultValues.screenshots?.[idx] || {},
+                setSubmitErrors,
+                //@ts-ignore react-hook-form types seem broken for nested fields
+                submitErrors: (submitErrors?.screenshots?.[idx] ||
+                  {}) as FormScreenshotProps["submitErrors"],
+                //@ts-ignore react-hook-form types seem broken for nested fields
+                errors: (errors?.screenshots?.[idx] ||
+                  {}) as FormScreenshotProps["errors"],
+                //@ts-ignore react-hook-form types seem broken for nested fields
+                touched: (touched?.screenshots?.[idx] ||
+                  {}) as FormScreenshotProps["touched"],
+                //@ts-ignore react-hook-form types seem broken for nested fields
+                reviewErrors: (reviewErrors?.screenshots?.[idx] ||
+                  {}) as FormScreenshotProps["reviewErrors"],
+              }}
+            />
+            {branch?.screenshots && idx !== branch.screenshots.length - 1 && (
+              <hr />
+            )}
+          </div>
         ))}
         {addScreenshotButtonAtEnd && (
           <Form.Row
