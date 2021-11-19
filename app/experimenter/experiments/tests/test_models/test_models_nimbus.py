@@ -629,7 +629,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         from_date = datetime.date.today() - datetime.timedelta(days=1)
-        to_date = datetime.date.today()
+        to_date = datetime.date.today() + datetime.timedelta(days=1)
 
         self.assertEqual(
             experiment.monitoring_dashboard_url,
@@ -654,7 +654,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         from_date = datetime.date(2019, 4, 30)
-        to_date = datetime.date.today()
+        to_date = datetime.date.today() + datetime.timedelta(days=1)
 
         self.assertEqual(
             experiment.monitoring_dashboard_url,
