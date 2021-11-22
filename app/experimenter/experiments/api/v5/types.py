@@ -331,7 +331,7 @@ class NimbusExperimentType(DjangoObjectType):
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
     recipe_json = graphene.String()
     review_url = graphene.String()
-    conclusion_recommendation = NimbusExperimentConclusionRecommendation()
+    conclusion_recommendation = graphene.Field(NimbusExperimentConclusionRecommendation)
 
     class Meta:
         model = NimbusExperiment

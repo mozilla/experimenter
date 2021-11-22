@@ -401,7 +401,9 @@ class NimbusExperimentSerializer(
         many=True,
     )
     conclusion_recommendation = serializers.ChoiceField(
-        choices=NimbusExperiment.ConclusionRecommendation.choices, required=False
+        choices=NimbusExperiment.ConclusionRecommendation.choices,
+        allow_null=True,
+        required=False,
     )
 
     class Meta:
