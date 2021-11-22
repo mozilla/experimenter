@@ -64,7 +64,7 @@ graphene-file-upload = "^1.3.0"
 dj-inmemorystorage = "^2.1.0"
 
 [tool.poetry.dev-dependencies]
-rope = "^0.21.0"
+rope = "^0.22.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
