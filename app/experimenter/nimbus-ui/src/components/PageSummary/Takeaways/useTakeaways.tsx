@@ -53,7 +53,7 @@ export const useTakeaways = (
           const variables = {
             input: {
               id,
-              conclusionRecommendation,
+              conclusionRecommendation: conclusionRecommendation || null,
               takeawaysSummary,
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_TAKEAWAYS,
             },
