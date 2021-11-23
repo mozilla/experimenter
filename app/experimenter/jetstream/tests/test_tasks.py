@@ -131,6 +131,11 @@ class TestFetchJetstreamDataTask(TestCase):
             primary_outcomes=[primary_outcome],
             secondary_outcomes=[secondary_outcome],
         )
+        experiment.reference_branch.slug = "control"
+        experiment.reference_branch.save()
+        treatment_branch = experiment.treatment_branches[0]
+        treatment_branch.slug = "variant"
+        treatment_branch.save()
 
         self.add_all_outcome_data(
             DAILY_DATA,

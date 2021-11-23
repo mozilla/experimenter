@@ -274,7 +274,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
         )
-        expected_feature_config = experiment.feature_config
+        expected_feature_config = experiment.feature_configs.get()
 
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -295,7 +295,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         self.assertEqual(result["message"], "success")
 
         experiment = NimbusExperiment.objects.first()
-        self.assertEqual(experiment.feature_config, expected_feature_config)
+        self.assertEqual(experiment.feature_configs.get(), expected_feature_config)
 
     def test_update_experiment_branches_with_feature_config(self):
         user_email = "user@example.com"
@@ -307,16 +307,30 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             application=NimbusExperiment.Application.FENIX,
         )
         experiment_id = experiment.id
-        reference_branch = {"name": "control", "description": "a control", "ratio": 1}
-        treatment_branches = [{"name": "treatment1", "description": "desc1", "ratio": 1}]
+        reference_branch_data = {
+            "name": "control",
+            "description": "a control",
+            "ratio": 1,
+            "featureEnabled": False,
+            "featureValue": "",
+        }
+        treatment_branches_data = [
+            {
+                "name": "treatment1",
+                "description": "desc1",
+                "ratio": 1,
+                "featureEnabled": True,
+                "featureValue": '{"key": "value"}',
+            }
+        ]
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
                     "featureConfigId": feature.id,
-                    "referenceBranch": reference_branch,
-                    "treatmentBranches": treatment_branches,
+                    "referenceBranch": reference_branch_data,
+                    "treatmentBranches": treatment_branches_data,
                     "changelogMessage": "test changelog message",
                 }
             },
@@ -325,11 +339,18 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
-        self.assertEqual(experiment.feature_config, feature)
+        self.assertEqual(experiment.feature_configs.get(), feature)
         self.assertEqual(experiment.branches.count(), 2)
-        self.assertEqual(experiment.reference_branch.name, reference_branch["name"])
+        self.assertEqual(experiment.reference_branch.name, reference_branch_data["name"])
+        self.assertEqual(experiment.reference_branch.feature_values.get().enabled, False)
+        self.assertEqual(experiment.reference_branch.feature_values.get().value, "")
         treatment_branch = experiment.treatment_branches[0]
-        self.assertEqual(treatment_branch.name, treatment_branches[0]["name"])
+        self.assertEqual(treatment_branch.name, treatment_branches_data[0]["name"])
+        self.assertEqual(treatment_branch.feature_values.get().enabled, True)
+        self.assertEqual(
+            treatment_branch.feature_values.get().value,
+            treatment_branches_data[0]["featureValue"],
+        )
 
     def test_update_experiment_branches_with_feature_config_error(self):
         user_email = "user@example.com"
