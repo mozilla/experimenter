@@ -42,7 +42,7 @@ class NimbusExperimentManager(models.Manager):
         return self.latest_changed().prefetch_related(
             "owner",
             "changes",
-            "feature_config",
+            "feature_configs",
         )
 
     def launch_queue(self, applications):
@@ -146,8 +146,9 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     hypothesis = models.TextField(default=NimbusConstants.HYPOTHESIS_DEFAULT)
     primary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
     secondary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
-    feature_config = models.ForeignKey(
-        "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
+    feature_configs = models.ManyToManyField(
+        "NimbusFeatureConfig",
+        blank=True,
     )
     targeting_config_slug = models.CharField(
         max_length=255,
@@ -408,8 +409,10 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     def bucket_namespace(self):
         keys = [
             self.application_config.slug,
-            self.feature_config.slug,
         ]
+
+        for feature_config in self.feature_configs.all().order_by("slug"):
+            keys.append(feature_config.slug)
 
         if self.channel:
             keys.append(self.channel)
@@ -542,6 +545,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             link.experiment = cloned
             link.save()
 
+        cloned.feature_configs.add(*self.feature_configs.all())
         cloned.countries.add(*self.countries.all())
         cloned.locales.add(*self.locales.all())
 
@@ -567,8 +571,6 @@ class NimbusBranch(models.Model):
     slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, null=False)
     description = models.TextField(blank=True, default="")
     ratio = models.PositiveIntegerField(default=1)
-    feature_enabled = models.BooleanField(default=True)
-    feature_value = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Nimbus Branch"
@@ -577,7 +579,7 @@ class NimbusBranch(models.Model):
         ordering = ("slug",)
 
     def __str__(self):
-        return self.name
+        return f"{self.experiment}: {self.name}"
 
     def clone(self, to_experiment):
         cloned = copy.copy(self)
@@ -589,6 +591,11 @@ class NimbusBranch(models.Model):
         for screenshot in screenshots:
             screenshot.clone(cloned)
 
+        for feature_value in self.feature_values.all():
+            feature_value.id = None
+            feature_value.branch = cloned
+            feature_value.save()
+
         return cloned
 
 
@@ -597,6 +604,25 @@ def nimbus_branch_screenshot_upload_to(screenshot, filename):
     id = uuid4()
     ext = filename.split(".")[-1].lower()
     return os.path.join(screenshot.branch.experiment.slug, f"{id}.{ext}")
+
+
+class NimbusBranchFeatureValue(models.Model):
+    branch = models.ForeignKey(
+        NimbusBranch, related_name="feature_values", on_delete=models.CASCADE
+    )
+    feature_config = models.ForeignKey(
+        "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
+    )
+    enabled = models.BooleanField(default=True)
+    value = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Nimbus Branch Feature Value"
+        verbose_name_plural = "Nimbus Branch Feature Values"
+        unique_together = (("branch", "feature_config"),)
+
+    def __str__(self):  # pragma: no cover
+        return f"{self.branch}: {self.feature_config}"
 
 
 class NimbusBranchScreenshot(models.Model):

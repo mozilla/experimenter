@@ -11,6 +11,7 @@ from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
+    NimbusBranchFeatureValue,
     NimbusBranchScreenshot,
     NimbusDocumentationLink,
     NimbusFeatureConfig,
@@ -64,6 +65,10 @@ class NimbusBranchScreenshotSerializer(serializers.ModelSerializer):
 class NimbusBranchSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False, allow_null=True)
     screenshots = NimbusBranchScreenshotSerializer(many=True, required=False)
+    feature_enabled = serializers.BooleanField(required=False, write_only=True)
+    feature_value = serializers.CharField(
+        required=False, allow_blank=True, write_only=True
+    )
 
     class Meta:
         model = NimbusBranch
@@ -72,10 +77,22 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "ratio",
+            "screenshots",
             "feature_enabled",
             "feature_value",
-            "screenshots",
         )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["feature_enabled"] = False
+        data["feature_value"] = ""
+
+        if instance.feature_values.exists():
+            feature_value = instance.feature_values.get()
+            data["feature_enabled"] = feature_value.enabled
+            data["feature_value"] = feature_value.value
+
+        return data
 
     def validate_name(self, value):
         slug_name = slugify(value)
@@ -145,6 +162,25 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
                     )
                     if serializer.is_valid(raise_exception=True):
                         serializer.save(branch=branch)
+
+        return branch
+
+    def save(self, *args, **kwargs):
+        feature_enabled = self.validated_data.pop("feature_enabled", False)
+        feature_value = self.validated_data.pop("feature_value", "")
+        branch = super().save(*args, **kwargs)
+
+        feature_config = None
+        if branch.experiment.feature_configs.exists():
+            feature_config = branch.experiment.feature_configs.get()
+
+        branch.feature_values.all().delete()
+        NimbusBranchFeatureValue.objects.create(
+            branch=branch,
+            feature_config=feature_config,
+            enabled=feature_enabled,
+            value=feature_value,
+        )
 
         return branch
 
@@ -357,6 +393,7 @@ class NimbusExperimentSerializer(
         queryset=NimbusFeatureConfig.objects.all(),
         allow_null=True,
         required=False,
+        write_only=True,
     )
     primary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
@@ -617,9 +654,12 @@ class NimbusExperimentSerializer(
         self.changelog_message = validated_data.pop("changelog_message")
         return super().create(validated_data)
 
-    def save(self, *args, **kwargs):
+    def save(self):
+        feature_config_provided = "feature_config" in self.validated_data
+        feature_config = self.validated_data.pop("feature_config", None)
+
         with transaction.atomic():
-            experiment = super().save(*args, **kwargs)
+            experiment = super().save()
 
             if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
                 experiment.allocate_bucket_range()
@@ -632,6 +672,12 @@ class NimbusExperimentSerializer(
                 nimbus_check_kinto_push_queue_by_collection.apply_async(
                     countdown=5, args=[collection]
                 )
+
+            if feature_config_provided:
+                experiment.feature_configs.clear()
+
+            if feature_config:
+                experiment.feature_configs.add(feature_config)
 
             generate_nimbus_changelog(
                 experiment, self.context["user"], message=self.changelog_message
@@ -690,6 +736,7 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
         queryset=NimbusFeatureConfig.objects.all(),
         allow_null=False,
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG},
+        write_only=True,
     )
     primary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
@@ -715,7 +762,14 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = NimbusExperiment
-        exclude = ("id",)
+        exclude = ("id", "feature_configs")
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["feature_config"] = None
+        if instance.feature_configs.exists():
+            data["feature_config"] = instance.feature_configs.get().id
+        return data
 
     def validate_reference_branch(self, value):
         if value["description"] == "":

@@ -608,14 +608,14 @@ class TestNimbusExperimentBranchMixin(TestCase):
         treatment_feature_value = """\
             {"directMigrateSingleProfile": false}
         """.strip()
-        reference_branch = {
+        reference_branch_data = {
             "name": "control",
             "description": "a control",
             "ratio": 1,
             "feature_enabled": True,
             "feature_value": reference_feature_value,
         }
-        treatment_branches = [
+        treatment_branches_data = [
             {"name": "treatment1", "description": "desc1", "ratio": 1},
             {
                 "name": "treatment2",
@@ -628,8 +628,8 @@ class TestNimbusExperimentBranchMixin(TestCase):
 
         data = {
             "feature_config": feature_config.id,
-            "reference_branch": reference_branch,
-            "treatment_branches": treatment_branches,
+            "reference_branch": reference_branch_data,
+            "treatment_branches": treatment_branches_data,
             "changelog_message": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(
@@ -640,13 +640,42 @@ class TestNimbusExperimentBranchMixin(TestCase):
         serializer.save()
         experiment = NimbusExperiment.objects.get(id=experiment.id)
 
-        for key, val in reference_branch.items():
-            self.assertEqual(getattr(experiment.reference_branch, key), val)
+        self.assertEqual(experiment.reference_branch.name, reference_branch_data["name"])
+        self.assertEqual(
+            experiment.reference_branch.description, reference_branch_data["description"]
+        )
+        self.assertEqual(
+            experiment.reference_branch.ratio, reference_branch_data["ratio"]
+        )
+        self.assertEqual(
+            experiment.reference_branch.feature_values.get().enabled,
+            reference_branch_data["feature_enabled"],
+        )
+        self.assertEqual(
+            experiment.reference_branch.feature_values.get().value,
+            reference_branch_data["feature_value"],
+        )
 
-        for branch_data in treatment_branches:
+        for branch_data in treatment_branches_data:
             branch = experiment.branches.get(name=branch_data["name"])
-            for key, val in branch_data.items():
-                self.assertEqual(getattr(branch, key), val)
+            self.assertEqual(branch.name, branch_data["name"])
+            self.assertEqual(
+                branch.description,
+                branch_data["description"],
+            )
+            self.assertEqual(branch.ratio, branch_data["ratio"])
+
+            if "feature_enabled" in branch_data:
+                self.assertEqual(
+                    branch.feature_values.get().enabled,
+                    branch_data["feature_enabled"],
+                )
+
+            if "feature_value" in branch_data:
+                self.assertEqual(
+                    branch.feature_values.get().value,
+                    branch_data["feature_value"],
+                )
 
     def test_does_not_delete_branches_when_other_fields_specified(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -813,7 +842,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.name, "")
         self.assertEqual(experiment.hypothesis, "")
         self.assertEqual(experiment.public_description, "")
-        self.assertEqual(experiment.feature_config, None)
+        self.assertFalse(experiment.feature_configs.exists())
         self.assertEqual(experiment.treatment_branches, [])
         self.assertEqual(experiment.primary_outcomes, [])
         self.assertEqual(experiment.secondary_outcomes, [])
@@ -1625,9 +1654,11 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1643,9 +1674,11 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
         experiment.hypothesis = NimbusExperiment.HYPOTHESIS_DEFAULT
         experiment.save()
@@ -1667,9 +1700,11 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
         experiment.reference_branch = None
         experiment.save()
@@ -1691,9 +1726,11 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
         experiment.reference_branch.description = ""
         experiment.save()
@@ -1716,9 +1753,11 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             population_percent=0.0,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1739,9 +1778,11 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             population_percent=0.0001,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1757,9 +1798,11 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
         treatment_branch = NimbusBranchFactory.create(
             experiment=experiment, description=""
@@ -1784,7 +1827,7 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=None,
+            feature_configs=[],
         )
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1807,9 +1850,11 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             risk_revenue=None,
             risk_brand=None,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1845,7 +1890,7 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            feature_config=NimbusFeatureConfigFactory(application=application),
+            feature_configs=[NimbusFeatureConfigFactory(application=application)],
         )
 
         serializer = NimbusReadyForReviewSerializer(
@@ -1866,20 +1911,13 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.RELEASE,
-            feature_config=NimbusFeatureConfigFactory.create(
-                schema=BASIC_JSON_SCHEMA,
-                application=NimbusExperiment.Application.IOS,
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=BASIC_JSON_SCHEMA,
+                    application=NimbusExperiment.Application.IOS,
+                )
+            ],
         )
-        experiment.reference_branch.feature_value = """\
-            {"directMigrateSingleProfile": true}
-        """.strip()
-        experiment.save()
-        treatment_branch = experiment.treatment_branches[0]
-        treatment_branch.feature_value = """\
-            {"directMigrateSingleProfile": true}
-        """.strip()
-        treatment_branch.save()
 
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1904,17 +1942,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
     def test_serializer_feature_config_validation_missing_feature_config(self):
         experiment = NimbusExperimentFactory(
             status=NimbusExperiment.Status.DRAFT,
-            feature_config=None,
+            application=NimbusExperiment.Application.FENIX,
+            feature_configs=[],
         )
-        experiment.reference_branch.feature_value = """\
-            {"directMigrateSingleProfile": true}
-        """.strip()
-        experiment.save()
-        treatment_branch = experiment.treatment_branches[0]
-        treatment_branch.feature_value = """\
-            {"directMigrateSingleProfile": true}
-        """.strip()
-        treatment_branch.save()
 
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1930,27 +1960,31 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             serializer.errors["feature_config"][0],
             "You must select a feature configuration from the drop down.",
         )
-        self.assertEqual(len(serializer.errors), 1)
 
     def test_serializer_feature_config_validation_bad_json_value(self):
         experiment = NimbusExperimentFactory(
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            feature_config=NimbusFeatureConfigFactory.create(
-                schema=BASIC_JSON_SCHEMA,
-                application=NimbusExperiment.Application.DESKTOP,
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=BASIC_JSON_SCHEMA,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
         )
-        experiment.reference_branch.feature_value = """\
+
+        reference_feature_value = experiment.reference_branch.feature_values.get()
+        reference_feature_value.value = """\
             {"directMigrateSingleProfile: true
         """.strip()
-        experiment.save()
-        treatment_branch = experiment.treatment_branches[0]
-        treatment_branch.feature_value = """\
+        reference_feature_value.save()
+
+        treatment_branch_value = experiment.treatment_branches[0].feature_values.get()
+        treatment_branch_value.value = """\
             {"directMigrateSingleProfile": true}
         """.strip()
-        treatment_branch.save()
+        treatment_branch_value.save()
 
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1973,20 +2007,25 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            feature_config=NimbusFeatureConfigFactory.create(
-                schema=BASIC_JSON_SCHEMA,
-                application=NimbusExperiment.Application.DESKTOP,
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=BASIC_JSON_SCHEMA,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
         )
-        experiment.reference_branch.feature_value = """\
+
+        reference_feature_value = experiment.reference_branch.feature_values.get()
+        reference_feature_value.value = """\
             {"DDirectMigrateSingleProfile": true}
         """.strip()
-        experiment.save()
-        treatment_branch = experiment.treatment_branches[0]
-        treatment_branch.feature_value = """\
+        reference_feature_value.save()
+
+        treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
+        treatment_feature_value.value = """\
             {"directMigrateSingleProfile": true}
         """.strip()
-        treatment_branch.save()
+        treatment_feature_value.save()
 
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -1997,10 +2036,11 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
-        self.assert_(
+        self.assertTrue(
             serializer.errors["reference_branch"]["feature_value"][0].startswith(
                 "Additional properties are not allowed"
-            )
+            ),
+            serializer.errors,
         )
         self.assertEqual(len(serializer.errors), 1)
 
@@ -2009,20 +2049,24 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            feature_config=NimbusFeatureConfigFactory.create(
-                schema=BASIC_JSON_SCHEMA,
-                application=NimbusExperiment.Application.DESKTOP,
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=BASIC_JSON_SCHEMA,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
         )
-        experiment.reference_branch.feature_value = """\
+        reference_feature_value = experiment.reference_branch.feature_values.get()
+        reference_feature_value.value = """\
             {"directMigrateSingleProfile": true}
         """.strip()
-        experiment.save()
-        treatment_branch = experiment.treatment_branches[0]
-        treatment_branch.feature_value = """\
+        reference_feature_value.save()
+
+        treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
+        treatment_feature_value.value = """\
             {"DDirectMigrateSingleProfile": true}
         """.strip()
-        treatment_branch.save()
+        treatment_feature_value.save()
 
         serializer = NimbusReadyForReviewSerializer(
             experiment,
@@ -2034,10 +2078,11 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
 
         self.assertFalse(serializer.is_valid())
-        self.assert_(
+        self.assertTrue(
             serializer.errors["treatment_branches"][0]["feature_value"][0].startswith(
                 "Additional properties are not allowed"
-            )
+            ),
+            serializer.errors,
         )
         self.assertEqual(len(serializer.errors), 1)
 
@@ -2046,10 +2091,12 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            feature_config=NimbusFeatureConfigFactory.create(
-                schema=None,
-                application=NimbusExperiment.Application.DESKTOP,
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=None,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
         )
         serializer = NimbusReadyForReviewSerializer(
             experiment,
