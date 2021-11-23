@@ -14,6 +14,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import F, Max, Q
+from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
@@ -619,7 +620,13 @@ class NimbusBranchFeatureValue(models.Model):
     class Meta:
         verbose_name = "Nimbus Branch Feature Value"
         verbose_name_plural = "Nimbus Branch Feature Values"
-        unique_together = (("branch", "feature_config"),)
+        constraints = (
+            UniqueConstraint(
+                fields=("branch", "feature_config"),
+                name="unique_with_branch_and_feature",
+                condition=Q(feature_config__isnull=False),
+            ),
+        )
 
     def __str__(self):  # pragma: no cover
         return f"{self.branch}: {self.feature_config}"
