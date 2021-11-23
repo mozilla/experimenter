@@ -740,7 +740,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
-            feature_config=feature,
+            feature_configs=[feature],
             population_percent=Decimal("50.0"),
         )
         experiment.allocate_bucket_range()
@@ -768,7 +768,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
-            feature_config=feature,
+            feature_configs=[feature],
             population_percent=Decimal("50.0"),
         )
         experiment1.allocate_bucket_range()
@@ -777,7 +777,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
-            feature_config=feature,
+            feature_configs=[feature],
             population_percent=Decimal("100.0"),
         )
         experiment2.allocate_bucket_range()
@@ -799,7 +799,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
-            feature_config=feature,
+            feature_configs=[feature],
             population_percent=Decimal("50.0"),
         )
         experiment1.allocate_bucket_range()
@@ -808,7 +808,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
-            feature_config=feature,
+            feature_configs=[feature],
             population_percent=Decimal("25.0"),
         )
         experiment2.allocate_bucket_range()
@@ -829,7 +829,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
-            feature_config=feature,
+            feature_configs=[feature],
             population_percent=Decimal("50.0"),
         )
         original_namespace = experiment.bucket_namespace
@@ -1118,7 +1118,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.hypothesis, NimbusExperiment.HYPOTHESIS_DEFAULT)
         self.assertEqual(child.primary_outcomes, [])
         self.assertEqual(child.secondary_outcomes, [])
-        self.assertIsNone(child.feature_config)
+        self.assertEqual(child.feature_configs.count(), 0)
         self.assertEqual(
             child.targeting_config_slug, NimbusExperiment.TargetingConfig.NO_TARGETING
         )
@@ -1184,7 +1184,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.risk_mitigation_link, parent.risk_mitigation_link)
         self.assertEqual(child.primary_outcomes, parent.primary_outcomes)
         self.assertEqual(child.secondary_outcomes, parent.secondary_outcomes)
-        self.assertEqual(child.feature_config, parent.feature_config)
+
         self.assertEqual(child.targeting_config_slug, parent.targeting_config_slug)
         self.assertIsNone(child.published_dto)
         self.assertIsNone(child.results_data)
@@ -1192,6 +1192,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.risk_revenue, parent.risk_revenue)
         self.assertEqual(child.risk_brand, parent.risk_brand)
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
+        self.assertEqual(
+            set(child.feature_configs.all().values_list("slug", flat=True)),
+            set(parent.feature_configs.all().values_list("slug", flat=True)),
+        )
         self.assertEqual(
             set(child.locales.all().values_list("code", flat=True)),
             set(parent.locales.all().values_list("code", flat=True)),
@@ -1227,7 +1231,10 @@ class TestNimbusExperiment(TestCase):
             self.assertEqual(child_branch.name, parent_branch.name)
             self.assertEqual(child_branch.description, parent_branch.description)
             self.assertEqual(child_branch.ratio, parent_branch.ratio)
-            self.assertEqual(child_branch.feature_value, parent_branch.feature_value)
+            self.assertEqual(
+                set(child_branch.feature_values.values_list("value", flat=True)),
+                set(parent_branch.feature_values.values_list("value", flat=True)),
+            )
         else:
             self.assertEqual(child.proposed_duration, parent.proposed_duration)
             self.assertEqual(child.proposed_enrollment, parent.proposed_enrollment)
@@ -1244,21 +1251,26 @@ class TestNimbusExperiment(TestCase):
                 self.assertEqual(child_branch.name, parent_branch.name)
                 self.assertEqual(child_branch.description, parent_branch.description)
                 self.assertEqual(child_branch.ratio, parent_branch.ratio)
-                self.assertEqual(child_branch.feature_value, parent_branch.feature_value)
-
+                self.assertEqual(
+                    set(child_branch.feature_values.values_list("value", flat=True)),
+                    set(parent_branch.feature_values.values_list("value", flat=True)),
+                )
         return child
 
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
-        branch = NimbusBranchFactory.create()
-        self.assertEqual(str(branch), branch.name)
+        experiment = NimbusExperimentFactory.create(name="experiment")
+        branch = NimbusBranchFactory.create(experiment=experiment, name="branch")
+        self.assertEqual(str(branch), "experiment: branch")
 
 
 class TestNimbusDocumentLink(TestCase):
     def test_str(self):
-        doco_link = NimbusDocumentationLinkFactory.create()
-        self.assertEqual(str(doco_link), f"{doco_link.title} ({doco_link.link})")
+        doco_link = NimbusDocumentationLinkFactory.create(
+            title="doc", link="www.example.com"
+        )
+        self.assertEqual(str(doco_link), "doc (www.example.com)")
 
 
 @parameterized_class(("application",), [list(NimbusExperiment.Application)])

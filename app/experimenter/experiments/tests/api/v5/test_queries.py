@@ -58,9 +58,10 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
 
     def test_experiments_with_no_branches_returns_empty_reference_treatment_values(self):
         user_email = "user@example.com"
-        NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED, branches=[]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
+        experiment.delete_branches()
 
         response = self.query(
             """
@@ -247,9 +248,11 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
 
         response = self.query(
@@ -339,9 +342,11 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             hypothesis=NimbusExperiment.HYPOTHESIS_DEFAULT,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP
-            ),
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
         )
 
         response = self.query(
@@ -868,6 +873,112 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             experiment_data["targetingConfigSlug"],
             "deprecated_targeting",
         )
+
+    def test_feature_config(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    featureConfig {
+                        id
+                        application
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        feature_config = experiment.feature_configs.get()
+        self.assertEqual(
+            experiment_data["featureConfig"],
+            {"id": feature_config.id, "application": "DESKTOP"},
+        )
+
+    def test_branches(self):
+        user_email = "user@example.com"
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    referenceBranch {
+                        id
+                        name
+                        slug
+                        description
+                        ratio
+                        featureEnabled
+                        featureValue
+                    }
+                    treatmentBranches {
+                        id
+                        name
+                        slug
+                        description
+                        ratio
+                        featureEnabled
+                        featureValue
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["referenceBranch"],
+            {
+                "id": experiment.reference_branch.id,
+                "name": experiment.reference_branch.name,
+                "slug": experiment.reference_branch.slug,
+                "ratio": experiment.reference_branch.ratio,
+                "description": experiment.reference_branch.description,
+                "featureEnabled": (
+                    experiment.reference_branch.feature_values.get().enabled
+                ),
+                "featureValue": experiment.reference_branch.feature_values.get().value,
+            },
+        )
+
+        for treatment_branch in experiment.treatment_branches:
+            self.assertIn(
+                {
+                    "id": treatment_branch.id,
+                    "name": treatment_branch.name,
+                    "slug": treatment_branch.slug,
+                    "ratio": treatment_branch.ratio,
+                    "description": treatment_branch.description,
+                    "featureEnabled": treatment_branch.feature_values.get().enabled,
+                    "featureValue": treatment_branch.feature_values.get().value,
+                },
+                experiment_data["treatmentBranches"],
+            )
 
 
 class TestNimbusConfigQuery(GraphQLTestCase):

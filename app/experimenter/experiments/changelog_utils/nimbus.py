@@ -6,6 +6,7 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusFeatureConfig,
 )
+from experimenter.experiments.models.nimbus import NimbusBranchFeatureValue
 
 
 class NimbusFeatureConfigChangeLogSerializer(serializers.ModelSerializer):
@@ -14,7 +15,15 @@ class NimbusFeatureConfigChangeLogSerializer(serializers.ModelSerializer):
         exclude = ("id",)
 
 
+class NimbusBranchFeatureValueChangeLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NimbusBranchFeatureValue
+        exclude = ("id",)
+
+
 class NimbusBranchChangeLogSerializer(serializers.ModelSerializer):
+    feature_values = NimbusBranchFeatureValueChangeLogSerializer(many=True)
+
     class Meta:
         model = NimbusBranch
         exclude = ("id", "experiment")
@@ -24,7 +33,7 @@ class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
     parent = serializers.SlugRelatedField(read_only=True, slug_field="slug")
     reference_branch = NimbusBranchChangeLogSerializer()
     branches = NimbusBranchChangeLogSerializer(many=True)
-    feature_config = NimbusFeatureConfigChangeLogSerializer()
+    feature_configs = NimbusFeatureConfigChangeLogSerializer(many=True)
     owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
     projects = serializers.SlugRelatedField(many=True, read_only=True, slug_field="slug")
 

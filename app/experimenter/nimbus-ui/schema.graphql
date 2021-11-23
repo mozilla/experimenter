@@ -88,9 +88,9 @@ type NimbusBranchType {
   slug: String!
   description: String!
   ratio: Int!
+  screenshots: [NimbusBranchScreenshotType!]
   featureEnabled: Boolean!
   featureValue: String
-  screenshots: [NimbusBranchScreenshotType!]
 }
 
 type NimbusBucketRangeType {
@@ -372,7 +372,6 @@ type NimbusExperimentType {
   hypothesis: String!
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
-  featureConfig: NimbusFeatureConfigType
   targetingConfigSlug: String
   referenceBranch: NimbusBranchType
   publishedDto: JSONString
@@ -388,6 +387,7 @@ type NimbusExperimentType {
   changes: [NimbusChangeLogType!]!
   treatmentBranches: [NimbusBranchType]
   jexlTargetingExpression: String
+  featureConfig: NimbusFeatureConfigType
   readyForReview: NimbusReadyForReviewType
   monitoringDashboardUrl: String
   resultsReady: Boolean

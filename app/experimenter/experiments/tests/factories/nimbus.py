@@ -27,7 +27,10 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusIsolationGroup,
 )
-from experimenter.experiments.models.nimbus import NimbusChangeLog
+from experimenter.experiments.models.nimbus import (
+    NimbusBranchFeatureValue,
+    NimbusChangeLog,
+)
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.projects.tests.factories import ProjectFactory
@@ -41,6 +44,35 @@ TINY_PNG = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+"
     "M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
 )
+
+
+FAKER_JSON_SCHEMA = """\
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Fake schema that matches NimbusBranchFactory feature_value factory",
+    "type": "object",
+    "patternProperties": {
+        "^.*$": { "type": "string" }
+    },
+    "additionalProperties": false
+}
+"""
+
+
+class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
+    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    slug = factory.LazyAttribute(
+        lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
+    )
+    description = factory.LazyAttribute(lambda o: faker.text(200))
+    application = factory.LazyAttribute(
+        lambda o: random.choice(list(NimbusExperiment.Application)).value
+    )
+    owner_email = factory.LazyAttribute(lambda o: faker.email())
+    schema = FAKER_JSON_SCHEMA
+
+    class Meta:
+        model = NimbusFeatureConfig
 
 
 class LifecycleStates(Enum):
@@ -206,9 +238,6 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.Channel)).value
     )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
-    feature_config = factory.SubFactory(
-        "experimenter.experiments.tests.factories.NimbusFeatureConfigFactory"
-    )
     targeting_config_slug = factory.LazyAttribute(
         lambda o: random.choice(list(NimbusExperiment.TargetingConfig)).value
     )
@@ -256,21 +285,6 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 self.projects.add(ProjectFactory.create())
 
     @factory.post_generation
-    def branches(self, create, extracted, **kwargs):
-        if not create:
-            # Simple build, do nothing.
-            return
-
-        if isinstance(extracted, Iterable):
-            # A list of groups were passed in, use them
-            for branch in extracted:
-                self.branches.add(branch)
-        else:
-            NimbusBranchFactory.create(experiment=self)
-            self.reference_branch = NimbusBranchFactory.create(experiment=self)
-            self.save()
-
-    @factory.post_generation
     def document_links(self, create, extracted, **kwargs):
         if not create:
             # Simple build, do nothing.
@@ -311,6 +325,35 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
         if extracted:
             self.countries.add(*extracted)
+
+    @classmethod
+    def create(cls, branches=None, feature_configs=None, *args, **kwargs):
+        experiment = super(NimbusExperimentFactory, cls).create(*args, **kwargs)
+
+        if branches is not None:
+            raise factory.FactoryError(
+                "A NimbusExperiment factory can not specify branches at creation time, "
+                "please modify the branches that are created or delete them and add "
+                "new ones."
+            )
+
+        # FeatureConfigs must be set on the experiment before branches are created
+        if feature_configs is not None:
+            experiment.feature_configs.add(*feature_configs)
+        else:
+            experiment.feature_configs.add(
+                NimbusFeatureConfigFactory.create(application=experiment.application)
+            )
+
+        # Branches will discover the set of FeatureConfigs on the experiment and create
+        # BranchFeatureValues accordingly
+        experiment.reference_branch = NimbusBranchFactory.create(
+            experiment=experiment, name="Control"
+        )
+        experiment.save()
+        NimbusBranchFactory.create(experiment=experiment, name="Treatment")
+
+        return experiment
 
     @classmethod
     def create_with_lifecycle(cls, lifecycle, with_latest_change_now=False, **kwargs):
@@ -358,9 +401,6 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
         lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
     )
     description = factory.LazyAttribute(lambda o: faker.text())
-    feature_value = factory.LazyAttribute(
-        lambda o: json.dumps({faker.slug(): faker.slug()})
-    )
 
     class Meta:
         model = NimbusBranch
@@ -376,6 +416,29 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
         else:
             NimbusBranchScreenshotFactory.create(branch=self)
             self.save()
+
+    @factory.post_generation
+    def feature_values(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if isinstance(extracted, Iterable):
+            for feature_value in extracted:
+                self.feature_values.add(feature_value)
+        else:
+            for feature_config in self.experiment.feature_configs.all():
+                NimbusBranchFeatureValueFactory.create(
+                    feature_config=feature_config, branch=self
+                )
+
+
+class NimbusBranchFeatureValueFactory(factory.django.DjangoModelFactory):
+    branch = factory.SubFactory(NimbusBranchFactory)
+    feature_config = factory.SubFactory(NimbusFeatureConfigFactory)
+    value = factory.LazyAttribute(lambda o: json.dumps({faker.slug(): faker.slug()}))
+
+    class Meta:
+        model = NimbusBranchFeatureValue
 
 
 class NimbusBranchScreenshotFactory(factory.django.DjangoModelFactory):
@@ -421,35 +484,6 @@ class NimbusBucketRangeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusBucketRange
-
-
-FAKER_JSON_SCHEMA = """\
-{
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "description": "Fake schema that matches NimbusBranchFactory feature_value factory",
-    "type": "object",
-    "patternProperties": {
-        "^.*$": { "type": "string" }
-    },
-    "additionalProperties": false
-}
-"""
-
-
-class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    slug = factory.LazyAttribute(
-        lambda o: slugify(o.name)[: NimbusExperiment.MAX_SLUG_LEN]
-    )
-    description = factory.LazyAttribute(lambda o: faker.text(200))
-    application = factory.LazyAttribute(
-        lambda o: random.choice(list(NimbusExperiment.Application)).value
-    )
-    owner_email = factory.LazyAttribute(lambda o: faker.email())
-    schema = FAKER_JSON_SCHEMA
-
-    class Meta:
-        model = NimbusFeatureConfig
 
 
 class NimbusChangeLogFactory(factory.django.DjangoModelFactory):

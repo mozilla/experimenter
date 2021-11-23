@@ -36,20 +36,27 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         fields = ("slug", "ratio", "feature")
 
     def get_feature(self, obj):
+        feature_config = None
+        feature_config_slug = None
         feature_value = {}
-        if obj.feature_value:
-            try:
-                feature_value = json.loads(obj.feature_value)
-            except json.JSONDecodeError:
-                # feature_value may be invalid JSON while the experiment is
-                # still being drafted
-                pass
+        feature_enabled = False
+
+        if obj.experiment.feature_configs.exists():
+            feature_config = obj.experiment.feature_configs.get()
+            feature_config_slug = feature_config.slug
+            if obj.feature_values.exists():
+                branch_feature_value = obj.feature_values.get()
+                feature_enabled = branch_feature_value.enabled
+                try:
+                    feature_value = json.loads(branch_feature_value.value)
+                except json.JSONDecodeError:
+                    # feature_value may be invalid JSON while the experiment is
+                    # still being drafted
+                    pass
 
         return {
-            "featureId": obj.experiment.feature_config.slug
-            if obj.experiment.feature_config
-            else None,
-            "enabled": obj.feature_enabled,
+            "featureId": feature_config_slug,
+            "enabled": feature_enabled,
             "value": feature_value,
         }
 
@@ -127,7 +134,4 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             return obj.reference_branch.slug
 
     def get_featureIds(self, obj):
-        feature_ids = []
-        if obj.feature_config:
-            feature_ids.append(obj.feature_config.slug)
-        return feature_ids
+        return list(obj.feature_configs.all().values_list("slug", flat=True))

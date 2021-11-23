@@ -38,7 +38,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "channel": NimbusExperiment.Channel.NO_CHANNEL,
                 "conclusion_recommendation": None,
                 "countries": [],
-                "feature_config": None,
+                "feature_configs": [],
                 "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
                 "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
                 "is_rollout": experiment.is_rollout,
@@ -83,7 +83,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=application,
-            feature_config=feature_config,
+            feature_configs=[feature_config],
             projects=[project],
             primary_outcomes=[primary_outcome],
             secondary_outcomes=[secondary_outcome],
@@ -94,7 +94,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         control_branch_data = dict(data.pop("reference_branch"))
         locales_data = data.pop("locales")
         countries_data = data.pop("countries")
-        feature_config_data = data.pop("feature_config")
+        feature_configs_data = data.pop("feature_configs")
         published_dto_data = data.pop("published_dto")
 
         self.assertEqual(
@@ -132,50 +132,71 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "total_enrolled_clients": experiment.total_enrolled_clients,
             },
         )
+
         self.assertEqual(
             published_dto_data.keys(),
             dict(NimbusExperimentSerializer(experiment).data).keys(),
         )
-        self.assertEqual(
-            feature_config_data,
-            {
-                "application": feature_config.application,
-                "description": feature_config.description,
-                "name": feature_config.name,
-                "owner_email": feature_config.owner_email,
-                "read_only": feature_config.read_only,
-                "schema": feature_config.schema,
-                "slug": feature_config.slug,
-            },
-        )
+
+        for feature_config in experiment.feature_configs.all():
+            self.assertIn(
+                {
+                    "application": feature_config.application,
+                    "description": feature_config.description,
+                    "name": feature_config.name,
+                    "owner_email": feature_config.owner_email,
+                    "read_only": feature_config.read_only,
+                    "schema": feature_config.schema,
+                    "slug": feature_config.slug,
+                },
+                feature_configs_data,
+            )
+
         self.assertEqual(
             set(locales_data),
             set(experiment.locales.all().values_list("code", flat=True)),
         )
+
         self.assertEqual(
             set(countries_data),
             set(experiment.countries.all().values_list("code", flat=True)),
         )
+
         self.assertEqual(
             control_branch_data,
             {
                 "description": experiment.reference_branch.description,
-                "feature_enabled": experiment.reference_branch.feature_enabled,
-                "feature_value": experiment.reference_branch.feature_value,
                 "name": experiment.reference_branch.name,
                 "ratio": experiment.reference_branch.ratio,
                 "slug": experiment.reference_branch.slug,
+                "feature_values": [
+                    {
+                        "enabled": (
+                            experiment.reference_branch.feature_values.get().enabled
+                        ),
+                        "value": experiment.reference_branch.feature_values.get().value,
+                        "branch": experiment.reference_branch.id,
+                        "feature_config": experiment.feature_configs.get().id,
+                    }
+                ],
             },
         )
+
         for branch in experiment.branches.all():
             self.assertIn(
                 {
                     "description": branch.description,
-                    "feature_enabled": branch.feature_enabled,
-                    "feature_value": branch.feature_value,
                     "name": branch.name,
                     "ratio": branch.ratio,
                     "slug": branch.slug,
+                    "feature_values": [
+                        {
+                            "enabled": branch.feature_values.get().enabled,
+                            "value": branch.feature_values.get().value,
+                            "branch": branch.id,
+                            "feature_config": experiment.feature_configs.get().id,
+                        }
+                    ],
                 },
                 branches_data,
             )
