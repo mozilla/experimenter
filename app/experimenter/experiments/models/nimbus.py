@@ -615,7 +615,7 @@ class NimbusBranchFeatureValue(models.Model):
         "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
     )
     enabled = models.BooleanField(default=True)
-    value = models.TextField(blank=True, null=True)
+    value = models.TextField(blank=True, default="")
 
     class Meta:
         verbose_name = "Nimbus Branch Feature Value"
