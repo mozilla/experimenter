@@ -1,0 +1,945 @@
+from decimal import Decimal
+
+import mock
+from django.test import TestCase
+from django.utils.text import slugify
+from parameterized import parameterized
+
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
+from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
+from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
+from experimenter.experiments.constants.nimbus import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models.nimbus import NimbusBucketRange
+from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.openidc.tests.factories import UserFactory
+from experimenter.outcomes import Outcomes
+from experimenter.outcomes.tests import mock_valid_outcomes
+
+
+@mock_valid_outcomes
+class TestNimbusExperimentSerializer(TestCase):
+    maxDiff = None
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Outcomes.clear_cache()
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory()
+
+        mock_preview_task_patcher = mock.patch(
+            "experimenter.experiments.api.v5.serializers."
+            "nimbus_synchronize_preview_experiments_in_kinto"
+        )
+        self.mock_preview_task = mock_preview_task_patcher.start()
+        self.addCleanup(mock_preview_task_patcher.stop)
+
+        mock_push_task_patcher = mock.patch(
+            "experimenter.experiments.api.v5.serializers."
+            "nimbus_check_kinto_push_queue_by_collection"
+        )
+        self.mock_push_task = mock_push_task_patcher.start()
+        self.addCleanup(mock_push_task_patcher.stop)
+
+    def test_serializer_creates_experiment_and_sets_slug_and_owner(self):
+        data = {
+            "name": "Test 1234",
+            "hypothesis": "Test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+            "risk_mitigation_link": "https://example.com/risk",
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.slug, slugify(data["name"]))
+        self.assertEqual(experiment.name, data["name"])
+        self.assertEqual(experiment.application, data["application"])
+        self.assertEqual(experiment.hypothesis, data["hypothesis"])
+        self.assertEqual(experiment.risk_mitigation_link, data["risk_mitigation_link"])
+        self.assertEqual(experiment.public_description, data["public_description"])
+        # Owner should match the email of the user who created the experiment
+        self.assertEqual(experiment.owner, self.user)
+        self.assertFalse(experiment.branches.exists())
+
+    @parameterized.expand(list(NimbusExperiment.Application))
+    def test_serializer_sets_channel_to_application_channel(self, application):
+        data = {
+            "name": "Test 1234",
+            "hypothesis": "Test hypothesis",
+            "application": application,
+            "risk_mitigation_link": "https://example.com/risk",
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+
+        self.assertIn(experiment.channel, experiment.application_config.channel_app_id)
+
+    def test_serializer_accepts_blank_risk_mitigation_link(self):
+        data = {
+            "name": "Test 1234",
+            "hypothesis": "Test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+            "public_description": "Test description",
+            "risk_mitigation_link": "",
+            "changelog_message": "test changelog message",
+        }
+        serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
+        self.assertTrue(serializer.is_valid())
+
+    def test_serializer_rejects_long_name(self):
+        data = {
+            "name": "a" * 81,
+            "hypothesis": "Test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("name", serializer.errors)
+
+    def test_required_fields_for_creating_experiment(self):
+        data = {
+            "name": "",
+            "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
+            "application": "",
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(
+            data=data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("name", serializer.errors)
+        self.assertIn("hypothesis", serializer.errors)
+        self.assertIn("application", serializer.errors)
+
+    def test_allows_empty_values_for_all_fields_existing_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        data = {
+            "name": "",
+            "hypothesis": "",
+            "public_description": "",
+            "feature_config": None,
+            "treatment_branches": [],
+            "primary_outcomes": [],
+            "secondary_outcomes": [],
+            "channel": NimbusExperiment.Channel.NO_CHANNEL,
+            "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
+            "population_percent": "0.0",
+            "proposed_duration": 0,
+            "proposed_enrollment": 0,
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
+            "total_enrolled_clients": 0,
+            "changelog_message": "test changelog message",
+            "countries": [],
+            "locales": [],
+        }
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        serializer.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.name, "")
+        self.assertEqual(experiment.hypothesis, "")
+        self.assertEqual(experiment.public_description, "")
+        self.assertFalse(experiment.feature_configs.exists())
+        self.assertEqual(experiment.treatment_branches, [])
+        self.assertEqual(experiment.primary_outcomes, [])
+        self.assertEqual(experiment.secondary_outcomes, [])
+        self.assertEqual(experiment.channel, NimbusExperiment.Channel.NO_CHANNEL)
+        self.assertEqual(
+            experiment.firefox_min_version, NimbusExperiment.Version.NO_VERSION
+        )
+        self.assertEqual(experiment.population_percent, 0.0)
+        self.assertEqual(experiment.proposed_duration, 0)
+        self.assertEqual(experiment.proposed_enrollment, 0)
+        self.assertEqual(
+            experiment.targeting_config_slug,
+            NimbusExperiment.TargetingConfig.NO_TARGETING,
+        )
+        self.assertEqual(experiment.total_enrolled_clients, 0)
+        self.assertEqual(list(experiment.countries.all()), [])
+        self.assertEqual(list(experiment.locales.all()), [])
+
+    def test_serializer_rejects_bad_name(self):
+        data = {
+            "name": "&^%&^%&^%&^%^&%^&",
+            "hypothesis": "Test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            "Name needs to contain alphanumeric characters", serializer.errors["name"]
+        )
+
+    def test_serializer_returns_error_for_non_unique_slug(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            name="non unique slug",
+            slug="non-unique-slug",
+        )
+
+        data = {
+            "name": "non-unique slug",
+            "hypothesis": "Test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP,
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
+        self.assertFalse(serializer.is_valid())
+
+        self.assertIn(
+            "Name maps to a pre-existing slug, please choose another name",
+            serializer.errors["name"],
+        )
+
+    def test_serializer_rejects_default_hypothesis(self):
+        data = {
+            "name": "Test 1234",
+            "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
+            "application": NimbusExperiment.Application.DESKTOP,
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("hypothesis", serializer.errors)
+
+    def test_saves_new_experiment_with_changelog(self):
+        data = {
+            "application": NimbusExperiment.Application.DESKTOP,
+            "hypothesis": "It does the thing",
+            "name": "The Thing",
+            "public_description": "Does it do the thing?",
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
+        self.assertEqual(experiment.hypothesis, "It does the thing")
+        self.assertEqual(experiment.name, "The Thing")
+        self.assertEqual(experiment.slug, "the-thing")
+
+    def test_saves_existing_experiment_with_changelog(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            hypothesis="Existing hypothesis",
+            name="Existing Name",
+            slug="existing-name",
+            public_description="Existing public description",
+        )
+        self.assertEqual(experiment.changes.count(), 1)
+
+        data = {
+            "application": NimbusExperiment.Application.DESKTOP,
+            "hypothesis": "New Hypothesis",
+            "name": "New Name",
+            "public_description": "New public description",
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(
+            experiment, data=data, context={"user": self.user}
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.changes.count(), 2)
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
+        self.assertEqual(experiment.hypothesis, "New Hypothesis")
+        self.assertEqual(experiment.name, "New Name")
+        self.assertEqual(experiment.slug, "existing-name")
+        self.assertEqual(experiment.public_description, "New public description")
+
+    def test_serializer_updates_audience_on_experiment(self):
+        country = CountryFactory.create()
+        locale = LocaleFactory.create()
+        experiment = NimbusExperimentFactory(
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            population_percent=0.0,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            total_enrolled_clients=0,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {
+                "channel": NimbusConstants.Channel.BETA,
+                "firefox_min_version": NimbusConstants.Version.FIREFOX_83,
+                "population_percent": 10,
+                "proposed_duration": 120,
+                "proposed_enrollment": 42,
+                "targeting_config_slug": (
+                    NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN
+                ),
+                "total_enrolled_clients": 100,
+                "changelog_message": "test changelog message",
+                "countries": [country.id],
+                "locales": [locale.id],
+            },
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA)
+        self.assertEqual(
+            experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83
+        )
+        self.assertEqual(experiment.population_percent, 10)
+        self.assertEqual(experiment.proposed_duration, 120)
+        self.assertEqual(experiment.proposed_enrollment, 42)
+        self.assertEqual(
+            experiment.targeting_config_slug,
+            NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN,
+        )
+        self.assertEqual(experiment.total_enrolled_clients, 100)
+        self.assertEqual(list(experiment.countries.all()), [country])
+        self.assertEqual(list(experiment.locales.all()), [locale])
+
+    @parameterized.expand(
+        [
+            [False, None],
+            [False, -1.0],
+            [False, 0.00001],
+            [True, 0.0],
+            [True, 1.0],
+            [True, 99.9999],
+            [True, 100.0],
+            [False, 101.0],
+        ]
+    )
+    def test_population_percent_bounds_check(self, expected_valid, population_percent):
+        experiment = NimbusExperimentFactory()
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {
+                "population_percent": population_percent,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEqual(serializer.is_valid(), expected_valid)
+        if not expected_valid:
+            self.assertIn("population_percent", serializer.errors)
+        else:
+            self.assertNotIn("population_percent", serializer.errors)
+
+    @parameterized.expand(
+        [
+            [NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.PREVIEW],
+            [NimbusExperiment.Status.PREVIEW, NimbusExperiment.Status.DRAFT],
+        ]
+    )
+    def test_valid_status_update(self, from_status, to_status):
+        experiment = NimbusExperimentFactory(status=from_status)
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": to_status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.status, to_status)
+
+    def test_status_with_invalid_target_status(self):
+        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.COMPLETE,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "status": [
+                    "Nimbus Experiment status cannot transition from Draft to Complete."
+                ]
+            },
+            serializer.errors,
+        )
+
+    def test_status_restriction(self):
+        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.LIVE)
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "name": "new name",
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("experiment", serializer.errors)
+
+    def test_preview_status_generates_bucket_allocation(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, population_percent=Decimal("50.0")
+        )
+
+        self.assertFalse(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.PREVIEW,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+        self.assertEqual(experiment.bucket_range.count, 5000)
+
+    def test_publish_status_approved_generates_bucket_allocation(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            population_percent=Decimal("50.0"),
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
+
+        self.assertFalse(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+        self.assertEqual(experiment.bucket_range.count, 5000)
+
+    def test_live_experiment_does_not_allocate_buckets(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,
+            population_percent=Decimal("50.0"),
+        )
+
+        bucket_id = experiment.bucket_range.id
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.bucket_range.id, bucket_id)
+
+    @parameterized.expand(
+        [
+            [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.Status.PREVIEW],
+            [NimbusExperimentFactory.Lifecycles.PREVIEW, NimbusExperiment.Status.DRAFT],
+        ]
+    )
+    def test_preview_draft_transition_invokes_kinto_task(
+        self, start_lifecycle, to_status
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            start_lifecycle, population_percent=Decimal("50.0")
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": to_status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.status, to_status)
+        self.mock_preview_task.apply_async.assert_called_with(countdown=5)
+
+    def test_set_status_already_draft_doesnt_invoke_kinto_task(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, population_percent=Decimal("50.0")
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.DRAFT,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.mock_preview_task.apply_async.assert_not_called()
+
+    @parameterized.expand(
+        [
+            [NimbusExperiment.PublishStatus.IDLE],
+            [NimbusExperiment.PublishStatus.REVIEW],
+        ]
+    )
+    def test_update_publish_status_doesnt_invoke_push_task(self, publish_status):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": publish_status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.publish_status, publish_status)
+        self.mock_preview_task.apply_async.assert_not_called()
+
+    @parameterized.expand(list(NimbusExperiment.Application))
+    def test_update_publish_status_to_approved_invokes_push_task(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
+            application=application,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+        self.mock_push_task.apply_async.assert_called_with(
+            countdown=5,
+            args=[experiment.application_config.kinto_collection],
+        )
+
+    def test_serializer_updates_outcomes_on_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        outcomes = [
+            o.slug for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
+        ]
+        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_OUTCOMES]
+        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_OUTCOMES :]
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "primary_outcomes": primary_outcomes,
+                "secondary_outcomes": secondary_outcomes,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.primary_outcomes, primary_outcomes)
+        self.assertEqual(experiment.secondary_outcomes, secondary_outcomes)
+
+    def test_serializer_rejects_invalid_outcome_slugs(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "primary_outcomes": ["invalid-slug"],
+                "secondary_outcomes": ["invalid-slug"],
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("primary_outcomes", serializer.errors)
+        self.assertIn("secondary_outcomes", serializer.errors)
+
+    def test_serializer_rejects_outcomes_for_wrong_application(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        outcomes = [
+            o.slug for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
+        ]
+        primary_outcomes = outcomes[: NimbusExperiment.MAX_PRIMARY_OUTCOMES]
+        secondary_outcomes = outcomes[NimbusExperiment.MAX_PRIMARY_OUTCOMES :]
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "primary_outcomes": primary_outcomes,
+                "secondary_outcomes": secondary_outcomes,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("primary_outcomes", serializer.errors)
+        self.assertIn("secondary_outcomes", serializer.errors)
+
+    def test_serializer_rejects_duplicate_outcomes(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        outcomes = [
+            o.slug
+            for o in Outcomes.by_application(NimbusExperiment.Application.DESKTOP)[
+                : NimbusExperiment.MAX_PRIMARY_OUTCOMES
+            ]
+        ]
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "primary_outcomes": outcomes,
+                "secondary_outcomes": outcomes,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("primary_outcomes", serializer.errors)
+
+    def test_serializer_rejects_too_many_primary_outcomes(self):
+        NimbusConstants.MAX_PRIMARY_OUTCOMES = 1
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "primary_outcomes": [
+                    "someoutcome",
+                    "someotheroutcome",
+                    "toomanyoutcomes",
+                ],
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("primary_outcomes", serializer.errors)
+
+    def test_can_request_review_from_preview(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.DRAFT,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
+    def test_can_review_for_non_requesting_user(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(
+            experiment.publish_status, NimbusExperiment.PublishStatus.APPROVED
+        )
+
+    def test_cant_review_for_requesting_user(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": experiment.owner},
+        )
+
+        self.assertFalse(serializer.is_valid(), serializer.errors)
+        self.assertIn("publish_status", serializer.errors)
+
+    def test_can_review_for_requesting_user_when_idle(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": experiment.owner},
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+    def test_can_update_publish_status_for_non_approved_state(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.IDLE,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": experiment.owner},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+    def test_targeting_config_for_correct_application(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        data = {
+            "targeting_config_slug": (
+                NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
+            ),
+            "changelog_message": "updating targeting config",
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+    def test_targeting_config_for_wrong_application(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.IOS,
+        )
+        data = {
+            "targeting_config_slug": (
+                NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
+            ),
+            "changelog_message": "updating targeting config",
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["targeting_config_slug"],
+            [
+                "Targeting config 'First start-up users on Windows 10 1903 "
+                "(build 18362) or newer' is not available for application "
+                "'Firefox for iOS'",
+            ],
+        )
+
+    def test_enrollment_must_be_less_or_equal_experiment_duration(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        data = {
+            "proposed_duration": 3,
+            "proposed_enrollment": 4,
+            "changelog_message": "updating durations",
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["proposed_enrollment"],
+            [
+                "The enrollment duration must be less than or "
+                "equal to the experiment duration."
+            ],
+        )
+
+    @parameterized.expand(
+        [
+            (True, NimbusExperimentFactory.Lifecycles.CREATED),
+            (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
+        ]
+    )
+    def test_can_update_is_archived(self, can_update, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            is_archived=False,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {"is_archived": True, "changelog_message": "archiving"},
+            context={"user": self.user},
+        )
+        self.assertEqual(serializer.is_valid(), can_update, serializer.errors)
+        if can_update:
+            experiment = serializer.save()
+            self.assertTrue(experiment.is_archived, serializer.errors)
+        else:
+            self.assertIn("is_archived", serializer.errors, serializer.errors)
+
+    def test_cant_update_other_fields_while_archived(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_archived=True,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {"name": "New Name", "changelog_message": "updating name"},
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("name", serializer.errors)
+
+    def test_can_unarchive_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_archived=True,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {"is_archived": False, "changelog_message": "unarchiving"},
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertFalse(experiment.is_archived)
