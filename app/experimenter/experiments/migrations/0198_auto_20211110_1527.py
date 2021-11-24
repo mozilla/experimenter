@@ -9,7 +9,8 @@ def migrate_feature_configs(apps, schema_editor):
     NimbusBranchFeatureValue = apps.get_model("experiments", "NimbusBranchFeatureValue")
 
     for experiment in NimbusExperiment.objects.all():
-        experiment.feature_configs.add(experiment.feature_config)
+        if experiment.feature_config:
+            experiment.feature_configs.add(experiment.feature_config)
 
         for branch in experiment.branches.all():
             NimbusBranchFeatureValue.objects.create(
@@ -69,8 +70,15 @@ class Migration(migrations.Migration):
             options={
                 "verbose_name": "Nimbus Branch Feature Value",
                 "verbose_name_plural": "Nimbus Branch Feature Values",
-                "unique_together": {("branch", "feature_config")},
             },
+        ),
+        migrations.AddConstraint(
+            model_name="nimbusbranchfeaturevalue",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("feature_config__isnull", False)),
+                fields=("branch", "feature_config"),
+                name="unique_with_branch_and_feature",
+            ),
         ),
         migrations.RunPython(migrate_feature_configs),
         migrations.RemoveField(
