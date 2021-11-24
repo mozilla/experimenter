@@ -181,11 +181,10 @@ export const FormBranch = ({
         className="p-1 mx-3 mt-2 mb-0"
         data-testid="feature-config-edit"
       >
-        {experimentFeatureConfig !== null && featureEnabled ? (
+        {featureEnabled ? (
           <Form.Row data-testid="feature-value-edit">
             <Form.Group as={Col} controlId={`${id}-featureValue`}>
               <Form.Label>Value</Form.Label>
-              {/* TODO: EXP-732 Maybe do some JSON schema validation here client-side? */}
               <Form.Control
                 {...formControlAttrs("featureValue")}
                 as="textarea"
