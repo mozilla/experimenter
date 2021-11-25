@@ -199,6 +199,7 @@ export interface ExperimentInput {
   isEnrollmentPaused?: boolean | null;
   riskMitigationLink?: string | null;
   featureConfigId?: number | null;
+  warnFeatureSchema?: boolean | null;
   documentationLinks?: (DocumentationLinkType | null)[] | null;
   referenceBranch?: ReferenceBranchType | null;
   treatmentBranches?: (TreatmentBranchType | null)[] | null;

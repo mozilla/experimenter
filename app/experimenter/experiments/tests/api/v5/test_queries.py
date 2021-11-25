@@ -34,6 +34,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     slug
                     publicDescription
                     riskMitigationLink
+                    warnFeatureSchema
                 }
             }
             """,
@@ -55,6 +56,10 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             experiment_data["riskMitigationLink"], experiment.risk_mitigation_link
         )
         self.assertEqual(experiment_data["canEdit"], experiment.can_edit)
+        self.assertEqual(
+            experiment_data["warnFeatureSchema"],
+            experiment.warn_feature_schema,
+        )
 
     def test_experiments_with_no_branches_returns_empty_reference_treatment_values(self):
         user_email = "user@example.com"
@@ -264,6 +269,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     publicDescription
                     readyForReview {
                         message
+                        warnings
                         ready
                     }
                 }
@@ -281,7 +287,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             experiment_data["publicDescription"], experiment.public_description
         )
         self.assertEqual(
-            experiment_data["readyForReview"], {"message": {}, "ready": True}
+            experiment_data["readyForReview"],
+            {"message": {}, "warnings": {}, "ready": True},
         )
 
     def test_experiment_by_slug_with_parent(self):
@@ -355,6 +362,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 experimentBySlug(slug: $slug) {
                     readyForReview {
                         message
+                        warnings
                         ready
                     }
                 }
@@ -370,6 +378,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             experiment_data["readyForReview"],
             {
                 "message": {"hypothesis": ["Hypothesis cannot be the default value."]},
+                "warnings": {},
                 "ready": False,
             },
         )

@@ -37,6 +37,7 @@ export const MissingDetails = storyWithExperimentProps(
         reference_branch: [SERVER_ERRORS.NULL_FIELD],
         channel: [SERVER_ERRORS.EMPTY_LIST],
       },
+      warnings: {},
     },
   },
   "Draft status, missing details",

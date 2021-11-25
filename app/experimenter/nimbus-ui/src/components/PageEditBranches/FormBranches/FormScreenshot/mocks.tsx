@@ -20,6 +20,7 @@ export const Subject = ({
   fieldNamePrefix = "treatmentBranches[0].screenshots[0]",
   onRemove = () => {},
   reviewErrors = {},
+  reviewWarnings = {},
   setSubmitErrors = () => {},
   submitErrors = {},
 }: Partial<React.ComponentProps<typeof FormScreenshot>> & {
@@ -44,6 +45,7 @@ export const Subject = ({
             fieldNamePrefix,
             onRemove,
             reviewErrors,
+            reviewWarnings,
             setSubmitErrors,
             submitErrors,
             touched,

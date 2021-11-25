@@ -60,6 +60,7 @@ describe("hooks/useReviewCheck", () => {
         readyForReview: {
           ready: false,
           message: readyMessage,
+          warnings: {},
         },
       });
       const { result } = renderHook(() => useReviewCheck(experiment), {
@@ -87,6 +88,7 @@ describe("hooks/useReviewCheck", () => {
       readyForReview: {
         ready: true,
         message: {},
+        warnings: { reference_branch: ["JSON is on fire"] },
       },
     });
 
@@ -111,6 +113,7 @@ describe("hooks/useReviewCheck", () => {
           reference_branch: [SERVER_ERRORS.NULL_FIELD],
           channel: [SERVER_ERRORS.EMPTY_LIST],
         },
+        warnings: {},
       },
     });
 

@@ -87,7 +87,13 @@ export const MissingFields = () =>
           {
             name: ["We're going down"],
             description: ["Down in an earlier round"],
-            featureValue: ["Sugar we're going down swinging"],
+          },
+        ],
+      },
+      warnings: {
+        treatment_branches: [
+          {
+            feature_value: ["Sugar we're going down swinging"],
           },
         ],
       },

@@ -30,6 +30,7 @@ export const FormBranch = ({
   touched,
   errors,
   reviewErrors,
+  reviewWarnings,
   branch,
   equalRatio,
   isReference,
@@ -44,6 +45,7 @@ export const FormBranch = ({
   touched: Record<string, boolean>;
   errors: Record<string, FieldError>;
   reviewErrors: SerializerSet;
+  reviewWarnings: SerializerSet;
   branch: AnnotatedBranch;
   equalRatio?: boolean;
   isReference?: boolean;
@@ -66,6 +68,7 @@ export const FormBranch = ({
       errors,
       touched,
       reviewErrors,
+      reviewWarnings,
     );
 
   const featureEnabled = watch(`${fieldNamePrefix}.featureEnabled`);
@@ -237,6 +240,9 @@ export const FormBranch = ({
                 //@ts-ignore react-hook-form types seem broken for nested fields
                 reviewErrors: (reviewErrors?.screenshots?.[idx] ||
                   {}) as FormScreenshotProps["reviewErrors"],
+                //@ts-ignore react-hook-form types seem broken for nested fields
+                reviewWarnings: (reviewWarnings?.screenshots?.[idx] ||
+                  {}) as FormScreenshotProps["reviewWarnings"],
               }}
             />
             {branch?.screenshots && idx !== branch.screenshots.length - 1 && (

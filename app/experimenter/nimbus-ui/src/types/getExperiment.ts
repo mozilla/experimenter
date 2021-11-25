@@ -65,6 +65,7 @@ export interface getExperiment_experimentBySlug_featureConfig {
 export interface getExperiment_experimentBySlug_readyForReview {
   ready: boolean | null;
   message: ObjectField | null;
+  warnings: ObjectField | null;
 }
 
 export interface getExperiment_experimentBySlug_signoffRecommendations {
@@ -138,6 +139,7 @@ export interface getExperiment_experimentBySlug {
   takeawaysSummary: string | null;
   owner: getExperiment_experimentBySlug_owner;
   parent: getExperiment_experimentBySlug_parent | null;
+  warnFeatureSchema: boolean | null;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
   featureConfig: getExperiment_experimentBySlug_featureConfig | null;

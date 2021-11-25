@@ -48,6 +48,7 @@ export const MissingFields = () =>
           },
         ],
       },
+      warnings: {},
     },
   });
 MissingFields.parameters = {

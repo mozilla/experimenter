@@ -45,6 +45,7 @@ input ExperimentInput {
   isEnrollmentPaused: Boolean
   riskMitigationLink: String
   featureConfigId: Int
+  warnFeatureSchema: Boolean
   documentationLinks: [DocumentationLinkType]
   referenceBranch: ReferenceBranchType
   treatmentBranches: [TreatmentBranchType]
@@ -372,6 +373,7 @@ type NimbusExperimentType {
   hypothesis: String!
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
+  warnFeatureSchema: Boolean
   targetingConfigSlug: String
   referenceBranch: NimbusBranchType
   publishedDto: JSONString
@@ -468,6 +470,7 @@ type NimbusOutcomeType {
 
 type NimbusReadyForReviewType {
   message: ObjectField
+  warnings: ObjectField
   ready: Boolean
 }
 

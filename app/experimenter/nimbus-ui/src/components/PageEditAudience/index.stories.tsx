@@ -50,6 +50,7 @@ export const MissingFields = () =>
         countries: ["Just come with me"],
         locales: ["We can shake it loose right away"],
       },
+      warnings: {},
     },
   });
 MissingFields.parameters = {
