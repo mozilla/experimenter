@@ -112,58 +112,59 @@ interface SortableColumnTitleProps {
   updateSearchParams: UpdateSearchParams;
 }
 
-export const SortableColumnTitle: React.FunctionComponent<SortableColumnTitleProps> =
-  ({ column, columnSortOrder, updateSearchParams }) => {
-    const { label } = column;
-    const { descending } = columnSortOrder;
-    const selected = columnSortOrder.column === column;
+export const SortableColumnTitle: React.FunctionComponent<
+  SortableColumnTitleProps
+> = ({ column, columnSortOrder, updateSearchParams }) => {
+  const { label } = column;
+  const { descending } = columnSortOrder;
+  const selected = columnSortOrder.column === column;
 
-    const onClick = useCallback(() => {
-      updateSearchParams((params) => {
-        // tri-state sort: ascending -> descending -> reset
-        if (!selected) {
-          // 1) ascending
+  const onClick = useCallback(() => {
+    updateSearchParams((params) => {
+      // tri-state sort: ascending -> descending -> reset
+      if (!selected) {
+        // 1) ascending
+        params.set("sortByLabel", label);
+        params.delete("descending");
+      } else {
+        if (!descending) {
+          // 2) descending
           params.set("sortByLabel", label);
-          params.delete("descending");
+          params.set("descending", "1");
         } else {
-          if (!descending) {
-            // 2) descending
-            params.set("sortByLabel", label);
-            params.set("descending", "1");
-          } else {
-            // 3) reset
-            params.delete("sortByLabel");
-            params.delete("descending");
-          }
+          // 3) reset
+          params.delete("sortByLabel");
+          params.delete("descending");
         }
-      });
-    }, [label, descending, selected, updateSearchParams]);
+      }
+    });
+  }, [label, descending, selected, updateSearchParams]);
 
-    return (
-      <th
-        className={classNames("border-top-0", {
-          "sort-selected": selected,
-          "sort-descending": selected && descending,
-        })}
-        key={label}
-        data-testid="directory-table-header"
+  return (
+    <th
+      className={classNames("border-top-0", {
+        "sort-selected": selected,
+        "sort-descending": selected && descending,
+      })}
+      key={label}
+      data-testid="directory-table-header"
+    >
+      <Button
+        variant="link"
+        className="p-0 border-0"
+        style={{ whiteSpace: "nowrap" }}
+        onClick={onClick}
+        title={label}
+        data-testid="sort-select"
       >
-        <Button
-          variant="link"
-          className="p-0 border-0"
-          style={{ whiteSpace: "nowrap" }}
-          onClick={onClick}
-          title={label}
-          data-testid="sort-select"
-        >
-          {label}
-          <span style={{ display: "inline-block", width: "2em" }}>
-            {selected ? (descending ? "▼" : "▲") : " "}
-          </span>
-        </Button>
-      </th>
-    );
-  };
+        {label}
+        <span style={{ display: "inline-block", width: "2em" }}>
+          {selected ? (descending ? "▼" : "▲") : " "}
+        </span>
+      </Button>
+    </th>
+  );
+};
 
 interface DirectoryTableProps {
   experiments: getAllExperiments_experiments[];
