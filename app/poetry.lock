@@ -1190,7 +1190,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "pyjexl"
-version = "0.2.3"
+version = "0.3.0"
 description = "A JEXL parser and evaluator."
 category = "main"
 optional = false
@@ -1593,7 +1593,7 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "1aa0266d7f5ccb0ea52a75fe03358f7c48abb096274cc075d99e4ba9b96f00d0"
+content-hash = "241ee8aae25f47da29649220c499ca2739980adc5d71c778f0e07399bf68a5cf"
 
 [metadata.files]
 amqp = [
@@ -2204,8 +2204,8 @@ pygments = [
     {file = "Pygments-2.9.0.tar.gz", hash = "sha256:a18f47b506a429f6f4b9df81bb02beab9ca21d0a5fee38ed15aef65f0545519f"},
 ]
 pyjexl = [
-    {file = "pyjexl-0.2.3-py2.py3-none-any.whl", hash = "sha256:1369c08c3f1f6931bc3c3089f24e79902680b6022412ccfc5e818441cf0dca52"},
-    {file = "pyjexl-0.2.3.tar.gz", hash = "sha256:56eb1ab1bd78eb12d3c514b6e2f2c93fe7f2fdd00bd821873e3f089706452c51"},
+    {file = "pyjexl-0.3.0-py2.py3-none-any.whl", hash = "sha256:da486f966546db71c3825fcb57ed2326cbb216e3e823bf4ba2bcda7ac9708a67"},
+    {file = "pyjexl-0.3.0.tar.gz", hash = "sha256:e7aea7f4d7c3574cb630ca5d026ec0ab5e4e48f20a5f1e495e2740779d0045dd"},
 ]
 pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
