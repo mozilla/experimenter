@@ -31,6 +31,7 @@ export function useCommonFormMethods<FieldNames extends string>(
   errors: UseFormMethods["errors"],
   touched: UseFormMethods["formState"]["touched"],
   reviewMessages: SerializerMessages = {},
+  reviewWarnings: SerializerMessages = {},
 ) {
   const hideSubmitError = <K extends FieldNames>(name: K) => {
     if (submitErrors && submitErrors[camelToSnakeCase(name)]) {
@@ -51,11 +52,14 @@ export function useCommonFormMethods<FieldNames extends string>(
     const snakeCaseName = camelToSnakeCase(name);
     const fieldName = prefix ? `${prefix}.${name}` : name;
     const hasReviewMessage = (reviewMessages[snakeCaseName] || []).length > 0;
+    const hasReviewWarning = (reviewWarnings[snakeCaseName] || []).length > 0;
     return {
       "data-testid": fieldName,
       name: fieldName,
       ref: register(registerOptions),
-      className: classNames(hasReviewMessage && "is-warning"),
+      className: classNames({
+        "is-warning": hasReviewMessage || hasReviewWarning,
+      }),
       // setting `setDefaultValue = false` is handy when an input needs a default
       // value via `value` instead of `defaultValue` or if the value is boolean,
       // usually for hidden form fields or checkbox inputs
@@ -87,6 +91,12 @@ export function useCommonFormMethods<FieldNames extends string>(
           SerializerMessage | SerializerSet[]
         >
       )[snakeCaseName] || [];
+    const fieldReviewWarnings =
+      (
+        reviewWarnings as SerializerMessages<
+          SerializerMessage | SerializerSet[]
+        >
+      )[snakeCaseName] || [];
     return (
       <>
         {fieldReviewMessages.length > 0 && (
@@ -94,6 +104,13 @@ export function useCommonFormMethods<FieldNames extends string>(
           // all it's doing is using the string in a class, so we can safely override.
           <Form.Control.Feedback type="warning" data-for={fieldName}>
             {fieldReviewMessages.join(", ")}
+          </Form.Control.Feedback>
+        )}
+        {fieldReviewWarnings.length > 0 && (
+          // @ts-ignore This component doesn't technically support type="warning", but
+          // all it's doing is using the string in a class, so we can safely override.
+          <Form.Control.Feedback type="warning" data-for={fieldName}>
+            {fieldReviewWarnings.join(", ")}
           </Form.Control.Feedback>
         )}
         {errors[name] && (

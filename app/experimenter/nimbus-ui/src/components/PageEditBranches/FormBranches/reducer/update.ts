@@ -11,7 +11,10 @@ import { AnnotatedBranch, FormBranchesState } from "./state";
 
 export type FormBranchesSaveState = Pick<
   ExperimentInput,
-  "featureConfigId" | "referenceBranch" | "treatmentBranches"
+  | "featureConfigId"
+  | "warnFeatureSchema"
+  | "referenceBranch"
+  | "treatmentBranches"
 >;
 
 export class UpdateStateError extends Error {}
@@ -25,7 +28,12 @@ export function extractUpdateState(
   state: FormBranchesState,
   formData: FormData,
 ): FormBranchesSaveState {
-  const { featureConfig, referenceBranch, treatmentBranches } = state;
+  const {
+    featureConfig,
+    warnFeatureSchema,
+    referenceBranch,
+    treatmentBranches,
+  } = state;
 
   if (!referenceBranch) {
     throw new UpdateStateError(CONTROL_BRANCH_REQUIRED_ERROR);
@@ -35,6 +43,7 @@ export function extractUpdateState(
 
   return {
     featureConfigId,
+    warnFeatureSchema,
     referenceBranch: extractUpdateBranch(
       referenceBranch,
       formData.referenceBranch,

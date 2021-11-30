@@ -134,6 +134,17 @@ describe("FormBranches", () => {
     }
   });
 
+  it("sets warnFeatureSchema when checkbox enabled", async () => {
+    const onSave = jest.fn();
+    render(<SubjectBranches {...{ onSave }} />);
+    fireEvent.click(
+      screen.getByTestId("equal-warn-on-feature-value-schema-invalid-checkbox"),
+    );
+    await clickAndWaitForSave(onSave);
+    const saveResult = onSave.mock.calls[0][0];
+    expect(saveResult.warnFeatureSchema).toBeTruthy();
+  });
+
   it("gracefully handles selecting an invalid feature config", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
@@ -399,6 +410,9 @@ describe("FormBranches", () => {
       },
     });
 
+    const FEATURE_VALUE_WARNING =
+      "'sdf' does not match any of the regexes: 'foo'";
+
     render(
       <SubjectBranches
         {...{
@@ -410,6 +424,11 @@ describe("FormBranches", () => {
                 feature_config: [SERVER_ERRORS.FEATURE_CONFIG],
                 reference_branch: {
                   description: [SERVER_ERRORS.BLANK_DESCRIPTION],
+                },
+              },
+              warnings: {
+                reference_branch: {
+                  feature_value: [FEATURE_VALUE_WARNING],
                 },
               },
             },
@@ -435,9 +454,10 @@ describe("FormBranches", () => {
       />,
     );
 
-    await waitFor(() =>
-      expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(1),
-    );
+    await waitFor(() => {
+      expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(1);
+      expect(screen.getAllByText(FEATURE_VALUE_WARNING)).toHaveLength(1);
+    });
   });
 });
 

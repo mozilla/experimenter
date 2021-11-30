@@ -42,11 +42,12 @@ export const FormBranches = ({
   featureConfigs,
   onSave,
 }: FormBranchesProps) => {
-  const { fieldMessages } = useReviewCheck(experiment);
+  const { fieldMessages, fieldWarnings } = useReviewCheck(experiment);
 
   const [
     {
       featureConfig: experimentFeatureConfig,
+      warnFeatureSchema,
       referenceBranch,
       treatmentBranches,
       equalRatio,
@@ -112,6 +113,14 @@ export const FormBranches = ({
   const handleEqualRatioChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     commitFormData();
     dispatch({ type: "setEqualRatio", value: ev.target.checked });
+  };
+
+  const handlewarnFeatureSchema = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    commitFormData();
+    dispatch({
+      type: "setwarnFeatureSchema",
+      value: ev.target.checked,
+    });
   };
 
   const handleFeatureConfigChange = (
@@ -197,9 +206,11 @@ export const FormBranches = ({
             data-testid="feature-config-select"
             // Displaying the review-readiness error is handled here instead of `formControlAttrs`
             // due to a state conflict between `react-hook-form` and our internal branch state mangement
-            className={classNames(
-              fieldMessages.feature_config?.length > 0 && "is-warning",
-            )}
+            className={classNames({
+              "is-warning":
+                fieldMessages.feature_config?.length > 0 ||
+                fieldWarnings.feature_config?.length > 0,
+            })}
             onChange={onFeatureConfigChange}
             value={featureConfigs!.findIndex(
               (feature) => feature?.slug === experimentFeatureConfig?.slug,
@@ -222,7 +233,26 @@ export const FormBranches = ({
               {(fieldMessages.feature_config as SerializerMessage).join(", ")}
             </Form.Control.Feedback>
           )}
+          {fieldWarnings.feature_config?.length > 0 && (
+            // @ts-ignore This component doesn't technically support type="warning", but
+            // all it's doing is using the string in a class, so we can safely override.
+            <Form.Control.Feedback type="warning" data-for="featureConfig">
+              {(fieldWarnings.feature_config as SerializerMessage).join(", ")}
+            </Form.Control.Feedback>
+          )}
         </Form.Group>
+
+        <Form.Row>
+          <Form.Group as={Col} controlId="warnFeatureSchema">
+            <Form.Check
+              data-testid="equal-warn-on-feature-value-schema-invalid-checkbox"
+              onChange={handlewarnFeatureSchema}
+              checked={!!warnFeatureSchema}
+              type="checkbox"
+              label="Warn only on feature schema validation failure"
+            />
+          </Form.Group>
+        </Form.Row>
 
         <Form.Row>
           <Form.Group as={Col} controlId="evenRatio">
@@ -251,6 +281,7 @@ export const FormBranches = ({
                 isReference: true,
                 branch: { ...referenceBranch, key: "branch-reference" },
                 reviewErrors: fieldMessages.reference_branch as SerializerSet,
+                reviewWarnings: fieldWarnings.reference_branch as SerializerSet,
                 onAddScreenshot: handleAddScreenshot(REFERENCE_BRANCH_IDX),
                 onRemoveScreenshot:
                   handleRemoveScreenshot(REFERENCE_BRANCH_IDX),
@@ -262,6 +293,9 @@ export const FormBranches = ({
             treatmentBranches.map((branch, idx) => {
               const reviewErrors = (
                 fieldMessages as SerializerMessages<SerializerSet[]>
+              ).treatment_branches?.[idx];
+              const reviewWarnings = (
+                fieldWarnings as SerializerMessages<SerializerSet[]>
               ).treatment_branches?.[idx];
 
               return (
@@ -278,6 +312,7 @@ export const FormBranches = ({
                       {}) as FormBranchProps["touched"],
                     branch,
                     reviewErrors,
+                    reviewWarnings,
                     onRemove: handleRemoveBranch(idx),
                     onAddScreenshot: handleAddScreenshot(idx),
                     onRemoveScreenshot: handleRemoveScreenshot(idx),

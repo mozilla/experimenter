@@ -52,6 +52,7 @@ const MOCK_STATE: FormBranchesState = {
   lastId: 0,
   globalErrors: [],
   featureConfig: MOCK_EXPERIMENT.featureConfig,
+  warnFeatureSchema: false,
   referenceBranch: {
     ...MOCK_EXPERIMENT.referenceBranch!,
     screenshots: [],
@@ -111,6 +112,7 @@ export const SubjectBranch = ({
             touched: (touched.referenceBranch ||
               {}) as FormBranchProps["touched"],
             reviewErrors: {},
+            reviewWarnings: {},
             branch,
             isReference,
             equalRatio,

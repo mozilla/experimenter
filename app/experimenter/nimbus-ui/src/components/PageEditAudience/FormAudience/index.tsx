@@ -66,7 +66,7 @@ export const FormAudience = ({
   onSubmit,
 }: FormAudienceProps) => {
   const config = useConfig();
-  const { fieldMessages } = useReviewCheck(experiment);
+  const { fieldMessages, fieldWarnings } = useReviewCheck(experiment);
 
   const [locales, setLocales] = useState<string[]>(
     experiment!.locales.map((v) => "" + v.id!),
@@ -105,6 +105,7 @@ export const FormAudience = ({
     submitErrors,
     setSubmitErrors,
     fieldMessages,
+    fieldWarnings,
   );
 
   type DefaultValues = typeof defaultValues;

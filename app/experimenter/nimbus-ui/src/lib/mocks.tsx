@@ -503,6 +503,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   readyForReview: {
     ready: true,
     message: {},
+    warnings: {},
   },
   signoffRecommendations: {
     qaSignoff: true,
@@ -573,6 +574,7 @@ export const MOCK_REVIEW: ReviewCheck = {
   ready: true,
   invalidPages: [],
   fieldMessages: {},
+  fieldWarnings: {},
   InvalidPagesList: () => <></>,
 };
 

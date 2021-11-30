@@ -36,6 +36,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
     async (
       {
         featureConfigId,
+        warnFeatureSchema,
         referenceBranch,
         treatmentBranches,
       }: FormBranchesSaveState,
@@ -52,6 +53,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
               id: nimbusExperimentId,
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_BRANCHES,
               featureConfigId,
+              warnFeatureSchema,
               referenceBranch,
               treatmentBranches,
             },

@@ -37,6 +37,8 @@ export function useReviewCheck(
   const fieldMessages = window.location.search.includes("show-errors")
     ? messages
     : {};
+  const fieldWarnings = (experiment?.readyForReview?.warnings ||
+    {}) as SerializerMessages;
   const invalidPages = Object.keys(fieldPageMap).filter((page) =>
     fieldPageMap[page].some((field) => Object.keys(messages).includes(field)),
   );
@@ -67,6 +69,7 @@ export function useReviewCheck(
     ready: experiment?.readyForReview?.ready || false,
     invalidPages,
     fieldMessages,
+    fieldWarnings,
     InvalidPagesList,
   };
 }

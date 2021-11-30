@@ -305,6 +305,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
+            warn_feature_schema=False,
         )
         experiment_id = experiment.id
         reference_branch_data = {
@@ -351,6 +352,30 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             treatment_branch.feature_values.get().value,
             treatment_branches_data[0]["featureValue"],
         )
+
+    def test_update_experiment_warn_feature_schema(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            warn_feature_schema=False,
+        )
+        experiment_id = experiment.id
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "warnFeatureSchema": True,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        self.assertTrue(experiment.warn_feature_schema)
 
     def test_update_experiment_branches_without_feature_config(self):
         user_email = "user@example.com"

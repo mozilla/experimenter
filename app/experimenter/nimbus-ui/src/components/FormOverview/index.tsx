@@ -65,7 +65,7 @@ const FormOverview = ({
   onCancel,
 }: FormOverviewProps) => {
   const { applications, hypothesisDefault } = useConfig();
-  const { fieldMessages } = useReviewCheck(experiment);
+  const { fieldMessages, fieldWarnings } = useReviewCheck(experiment);
 
   const defaultValues = {
     name: experiment?.name || "",
@@ -95,6 +95,7 @@ const FormOverview = ({
     submitErrors,
     setSubmitErrors,
     fieldMessages,
+    fieldWarnings,
   );
 
   const { documentationLinks, addDocumentationLink, removeDocumentationLink } =
