@@ -55,6 +55,8 @@ export const GET_EXPERIMENT_QUERY = gql`
         slug
       }
 
+      warnFeatureSchema
+
       referenceBranch {
         id
         name
@@ -111,6 +113,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       readyForReview {
         ready
         message
+        warnings
       }
 
       startDate

@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 
 import jsonschema
 from django.db import transaction
@@ -453,6 +454,7 @@ class NimbusExperimentSerializer(
             "countries",
             "documentation_links",
             "feature_config",
+            "warn_feature_schema",
             "firefox_min_version",
             "hypothesis",
             "is_rollout",
@@ -764,6 +766,10 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
         model = NimbusExperiment
         exclude = ("id", "feature_configs")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.warnings = defaultdict(list)
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["feature_config"] = None
@@ -804,6 +810,7 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
 
     def _validate_feature_configs(self, data):
         feature_config = data.get("feature_config", None)
+        warn_feature_schema = data.get("warn_feature_schema", False)
 
         if not feature_config or not feature_config.schema or not self.instance:
             return data
@@ -825,18 +832,30 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
                 schema, data["reference_branch"]["feature_value"]
             )
             if errors:
-                error_result["reference_branch"] = {"feature_value": errors}
+                if warn_feature_schema:
+                    self.warnings["reference_branch"] = {"feature_value": errors}
+                else:
+                    error_result["reference_branch"] = {"feature_value": errors}
 
         treatment_branches_errors = []
+        treatment_branches_warnings = []
         for branch_data in data["treatment_branches"]:
             branch_error = None
+            branch_warning = None
             if branch_data.get("feature_enabled", False):
                 errors = self._validate_feature_value_against_schema(
                     schema, branch_data["feature_value"]
                 )
                 if errors:
-                    branch_error = {"feature_value": errors}
+                    if warn_feature_schema:
+                        branch_warning = {"feature_value": errors}
+                    else:
+                        branch_error = {"feature_value": errors}
             treatment_branches_errors.append(branch_error)
+            treatment_branches_warnings.append(branch_warning)
+
+        if any(x is not None for x in treatment_branches_warnings):
+            self.warnings["treatment_branches"] = treatment_branches_warnings
 
         if any(x is not None for x in treatment_branches_errors):
             error_result["treatment_branches"] = treatment_branches_errors

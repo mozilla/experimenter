@@ -24,6 +24,7 @@ export type FormScreenshotProps = {
   fieldNamePrefix: string;
   onRemove: () => void;
   reviewErrors: SerializerSet;
+  reviewWarnings: SerializerSet;
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   submitErrors: { [x: string]: SerializerMessage };
   touched: Record<string, boolean>;
@@ -35,6 +36,7 @@ export const FormScreenshot = ({
   fieldNamePrefix,
   onRemove,
   reviewErrors,
+  reviewWarnings,
   setSubmitErrors,
   submitErrors,
   touched,
@@ -48,6 +50,7 @@ export const FormScreenshot = ({
       errors,
       touched,
       reviewErrors,
+      reviewWarnings,
     );
 
   const imageProps = formControlAttrs("image");

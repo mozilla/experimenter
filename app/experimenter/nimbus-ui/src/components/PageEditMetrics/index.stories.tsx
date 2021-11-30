@@ -37,6 +37,7 @@ export const MissingFields = () =>
         primary_outcomes: ["Primarily, tell me what's up."],
         secondary_outcomes: ["On second thought..."],
       },
+      warnings: {},
     },
   });
 MissingFields.parameters = {
