@@ -1,6 +1,8 @@
 import pytest
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
+from nimbus.pages.remote_settings.dashboard import Dashboard
+from nimbus.pages.remote_settings.login import Login
 
 
 @pytest.mark.run_once
@@ -52,3 +54,35 @@ def test_promote_to_rollout(
     summary_detail = summary.navigate_to_details()
     summary_detail.promote_first_branch_to_rollout()
     summary_detail.wait_for_clone_parent_link_visible()
+
+
+@pytest.mark.run_once
+def test_takeaways(
+    selenium,
+    kinto_url,
+    kinto_review_url,
+    experiment_url,
+    create_experiment,
+):
+    create_experiment(selenium).launch_and_approve()
+
+    Login(selenium, kinto_url).open().login()
+    Dashboard(selenium, kinto_review_url).open().approve()
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.wait_for_live_status()
+    summary.end_and_approve()
+
+    Dashboard(selenium, kinto_review_url).open().approve()
+
+    summary = SummaryPage(selenium, experiment_url).open()
+    summary.wait_for_complete_status()
+
+    expected_summary = "Example takeaways summary text"
+    summary.takeaways_edit_button.click()
+    summary.takeaways_summary_field = expected_summary
+    summary.takeaways_recommendation_radio_button("CHANGE_COURSE").click()
+    summary.takeaways_save_button.click()
+
+    assert summary.takeaways_summary_text == expected_summary
+    assert summary.takeaways_recommendation_badge_text == "Change course"

@@ -37,6 +37,27 @@ class SummaryPage(ExperimenterBase):
     _clone_save_locator = (By.CSS_SELECTOR, ".modal .btn-primary")
     _clone_parent_locator = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-parent"]')
     _sidebar_details_link = (By.CSS_SELECTOR, 'a[data-testid="nav-details"]')
+    _takeaways_edit_button = (By.CSS_SELECTOR, 'button[data-testid="edit-takeaways"]')
+    _takeaways_save_button = (
+        By.CSS_SELECTOR,
+        'button[data-testid="takeaways-edit-save"]',
+    )
+    _takeaways_recommendation_field = (
+        By.CSS_SELECTOR,
+        'form[data-testid="FormTakeaways"] input[name="conclusionRecommendation"]',
+    )
+    _takeaways_summary_field = (
+        By.CSS_SELECTOR,
+        'form[data-testid="FormTakeaways"] textarea[name="takeawaysSummary"]',
+    )
+    _takeaways_summary_text = (
+        By.CSS_SELECTOR,
+        'div[data-testid="takeaways-summary-rendered"]',
+    )
+    _takeaways_recommendation_badge = (
+        By.CSS_SELECTOR,
+        'span[data-testid="conclusion-recommendation-status"]',
+    )
 
     def wait_for_archive_label_visible(self):
         self.wait.until(
@@ -200,3 +221,63 @@ class SummaryPage(ExperimenterBase):
         element = self.selenium.find_element(*self._sidebar_details_link)
         element.click()
         return SummaryDetailPage(self.driver, self.base_url).wait_for_page_to_load()
+
+    @property
+    def takeaways_edit_button(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._takeaways_edit_button),
+            message="Summary Page: could not find takeaways edit button",
+        )
+        return self.find_element(*self._takeaways_edit_button)
+
+    @property
+    def takeaways_save_button(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._takeaways_save_button),
+            message="Summary Page: could not find takeaways save button",
+        )
+        return self.find_element(*self._takeaways_save_button)
+
+    def takeaways_recommendation_radio_button(self, value=""):
+        selection_locator = (
+            By.CSS_SELECTOR,
+            f'input[type=radio][name="conclusionRecommendation"][value="{value}"]',
+        )
+        self.wait.until(
+            EC.presence_of_all_elements_located(selection_locator),
+            message=(
+                f"Summary Page: could not find recommendation radio button "
+                f"for {value}"
+            ),
+        )
+        return self.find_element(*selection_locator)
+
+    @property
+    def takeaways_recommendation_badge_text(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._takeaways_recommendation_badge),
+            message="Summary Page: could not find takeaways recommendation badge",
+        )
+        return self.find_element(*self._takeaways_recommendation_badge).text
+
+    @property
+    def takeaways_summary_field(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._takeaways_summary_field),
+            message="Summary Page: could not find takeaways summary field",
+        )
+        return self.find_element(*self._takeaways_summary_field)
+
+    @takeaways_summary_field.setter
+    def takeaways_summary_field(self, text=None):
+        # Control-a before typing, in order to fully overwrite default value
+        self.takeaways_summary_field.send_keys(Keys.CONTROL + "a")
+        self.takeaways_summary_field.send_keys(f"{text}")
+
+    @property
+    def takeaways_summary_text(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._takeaways_summary_text),
+            message="Summary Page: could not find takeaways summary text",
+        )
+        return self.find_element(*self._takeaways_summary_text).text
