@@ -93,6 +93,7 @@ describe("AppLayoutWithSidebar", () => {
               message: {
                 channel: [SERVER_ERRORS.EMPTY_LIST],
               },
+              warnings: {},
             },
           }}
         />,

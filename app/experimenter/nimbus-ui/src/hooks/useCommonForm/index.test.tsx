@@ -224,6 +224,36 @@ describe("hooks/useCommonForm", () => {
       await findByText(feedback);
     });
 
+    it("displays warnings like errors", async () => {
+      const feedback = "Too spicy!!!";
+      const {
+        result: {
+          current: { formControlAttrs, FormErrors },
+        },
+      } = renderHook(() =>
+        useCommonForm<"spiceLevel">(
+          {},
+          true,
+          {},
+          jest.fn(),
+          {},
+          {
+            spice_level: [feedback],
+          },
+        ),
+      );
+
+      const { getByRole, findByText } = render(
+        <>
+          <Form.Control type="text" {...formControlAttrs("spiceLevel")} />
+          <FormErrors name="spiceLevel" />
+        </>,
+      );
+
+      expect(getByRole("textbox")).toHaveClass("is-warning");
+      await findByText(feedback);
+    });
+
     it("works with nested form fields", async () => {
       const feedback = "Too loud!!!";
       const Wrapper: React.FC = ({ children }) => {

@@ -75,6 +75,7 @@ const assertFieldErrors = async (errors: string[], selector: string) => {
 export const assertSerializerMessages = async (
   Subject: React.ComponentType<any>,
   messages: SerializerMessages,
+  warnings: SerializerMessages = {},
 ) => {
   Object.defineProperty(window, "location", {
     value: {
@@ -87,6 +88,7 @@ export const assertSerializerMessages = async (
     readyForReview: {
       ready: false,
       message: messages,
+      warnings: warnings,
     },
   });
 

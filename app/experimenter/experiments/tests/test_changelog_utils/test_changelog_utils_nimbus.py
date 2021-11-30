@@ -69,6 +69,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "takeaways_summary": None,
                 "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
                 "total_enrolled_clients": 0,
+                "warn_feature_schema": False,
             },
         )
 
@@ -130,6 +131,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "status": experiment.status,
                 "targeting_config_slug": experiment.targeting_config_slug,
                 "total_enrolled_clients": experiment.total_enrolled_clients,
+                "warn_feature_schema": False,
             },
         )
 

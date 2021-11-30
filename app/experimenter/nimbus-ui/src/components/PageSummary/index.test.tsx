@@ -123,6 +123,7 @@ describe("PageSummary", () => {
         message: {
           channel: [SERVER_ERRORS.EMPTY_LIST],
         },
+        warnings: {},
       },
     });
     render(<Subject mocks={[mock]} />);
@@ -245,6 +246,7 @@ describe("PageSummary", () => {
             '"urlbar_firefox_suggest_us_en" is not a valid choice.',
           ],
         },
+        warnings: {},
       },
     });
     render(<Subject mocks={[mock]} />);

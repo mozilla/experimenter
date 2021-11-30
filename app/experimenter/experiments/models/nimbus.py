@@ -151,6 +151,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         "NimbusFeatureConfig",
         blank=True,
     )
+    warn_feature_schema = models.BooleanField(default=False)
     targeting_config_slug = models.CharField(
         max_length=255,
         blank=True,

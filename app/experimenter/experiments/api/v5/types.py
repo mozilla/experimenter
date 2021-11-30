@@ -189,6 +189,7 @@ class NimbusOutcomeType(graphene.ObjectType):
 
 class NimbusReadyForReviewType(graphene.ObjectType):
     message = ObjectField()
+    warnings = ObjectField()
     ready = graphene.Boolean()
 
 
@@ -321,6 +322,7 @@ class NimbusExperimentType(DjangoObjectType):
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)
     feature_config = graphene.Field(NimbusFeatureConfigType)
+    warn_feature_schema = graphene.Boolean()
     ready_for_review = graphene.Field(NimbusReadyForReviewType)
     monitoring_dashboard_url = graphene.String()
     results_ready = graphene.Boolean()
@@ -366,7 +368,11 @@ class NimbusExperimentType(DjangoObjectType):
             data=NimbusReadyForReviewSerializer(self).data,
         )
         ready = serializer.is_valid()
-        return NimbusReadyForReviewType(message=serializer.errors, ready=ready)
+        return NimbusReadyForReviewType(
+            message=serializer.errors,
+            warnings=serializer.warnings,
+            ready=ready,
+        )
 
     def resolve_targeting_config_slug(self, info):
         if self.targeting_config_slug in self.TargetingConfig:

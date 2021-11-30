@@ -23,6 +23,8 @@ export function formBranchesActionReducer(
       return removeBranch(state, action);
     case "setFeatureConfig":
       return setFeatureConfig(state, action);
+    case "setwarnFeatureSchema":
+      return setwarnFeatureSchema(state, action);
     case "setEqualRatio":
       return setEqualRatio(state, action);
     case "setSubmitErrors":
@@ -45,6 +47,7 @@ export type FormBranchesAction =
   | RemoveBranchAction
   | SetEqualRatioAction
   | SetFeatureConfigAction
+  | SetwarnFeatureSchemaAction
   | SetSubmitErrorsAction
   | ClearSubmitErrorsAction
   | CommitFormDataAction
@@ -135,6 +138,21 @@ function setFeatureConfig(
   return {
     ...state,
     featureConfig,
+  };
+}
+
+type SetwarnFeatureSchemaAction = {
+  type: "setwarnFeatureSchema";
+  value: FormBranchesState["warnFeatureSchema"];
+};
+
+function setwarnFeatureSchema(
+  state: FormBranchesState,
+  { value: warnFeatureSchema }: SetwarnFeatureSchemaAction,
+) {
+  return {
+    ...state,
+    warnFeatureSchema,
   };
 }
 

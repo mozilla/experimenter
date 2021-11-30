@@ -179,6 +179,7 @@ storiesOf("pages/EditBranches/FormBranches", module)
             reference_branch: [SERVER_ERRORS.BLANK_DESCRIPTION],
             treatment_branches: [null, [SERVER_ERRORS.BLANK_DESCRIPTION]],
           },
+          warnings: {},
         },
       }}
     />
