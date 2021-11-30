@@ -78,6 +78,7 @@ export const TakeawaysEditor = ({
           <Col>Takeaways</Col>
           <Col className="text-right">
             <Button
+              data-testid="takeaways-edit-save"
               onClick={handleSave}
               disabled={isLoading}
               variant="primary"
@@ -87,6 +88,7 @@ export const TakeawaysEditor = ({
               Save
             </Button>
             <Button
+              data-testid="takeaways-edit-cancel"
               onClick={onClickCancel}
               disabled={isLoading}
               variant="secondary"
@@ -139,7 +141,7 @@ export const TakeawaysEditor = ({
                   label={option!.label!}
                   title={option!.label!}
                   {...conclusionRadioAttrs}
-                  id={`conclusionRecommendation-${option!.value!}}`}
+                  id={`conclusionRecommendation-${option!.value!}`}
                 />
               ))}
               <FormErrors name="conclusionRecommendation" />
