@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
@@ -86,3 +88,28 @@ def test_takeaways(
 
     assert summary.takeaways_summary_text == expected_summary
     assert summary.takeaways_recommendation_badge_text == "Change course"
+
+
+@pytest.mark.run_once
+def test_branch_screenshot(
+    selenium,
+    create_experiment,
+):
+    summary = create_experiment(selenium)
+    branches = summary.navigate_to_branches()
+    add_button = branches.add_screenshot_buttons[0]
+    add_button.click()
+
+    image_path = os.path.join(os.getcwd(), "example.jpg")
+    branches.screenshot_image_field().send_keys(image_path)
+
+    expected_description = "Example screenshot description text"
+    branches.screenshot_description_field().send_keys(expected_description)
+
+    branches.save()
+    summary_details = branches.navigate_to_details()
+
+    assert summary_details.branch_screenshot_description_text() == expected_description
+    # TODO: Maybe compare uploaded image to example image, but probably
+    # good enough for now to assert that an image is displayed
+    assert summary_details.branch_screenshot_image() is not None
