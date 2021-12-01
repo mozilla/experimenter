@@ -311,16 +311,26 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureEnabled": False,
-            "featureValue": "",
+            "featureValues": [
+                {
+                    "featureConfig": feature.id,
+                    "enabled": False,
+                    "value": "",
+                }
+            ],
         }
         treatment_branches_data = [
             {
                 "name": "treatment1",
                 "description": "desc1",
                 "ratio": 1,
-                "featureEnabled": True,
-                "featureValue": '{"key": "value"}',
+                "featureValues": [
+                    {
+                        "featureConfig": feature.id,
+                        "enabled": True,
+                        "value": '{"key": "value"}',
+                    }
+                ],
             }
         ]
         response = self.query(
@@ -328,7 +338,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": feature.id,
+                    "featureConfigs": [feature.id],
                     "referenceBranch": reference_branch_data,
                     "treatmentBranches": treatment_branches_data,
                     "changelogMessage": "test changelog message",
@@ -349,7 +359,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         self.assertEqual(treatment_branch.feature_values.get().enabled, True)
         self.assertEqual(
             treatment_branch.feature_values.get().value,
-            treatment_branches_data[0]["featureValue"],
+            '{"key": "value"}',
         )
 
     def test_update_experiment_branches_without_feature_config(self):
@@ -361,19 +371,29 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         )
         experiment_id = experiment.id
         reference_branch_data = {
-            "name": "control",
-            "description": "a control",
+            "name": "new control",
+            "description": "a new control",
             "ratio": 1,
-            "featureEnabled": False,
-            "featureValue": "",
+            "featureValues": [
+                {
+                    "featureConfig": None,
+                    "enabled": False,
+                    "value": "",
+                }
+            ],
         }
         treatment_branches_data = [
             {
-                "name": "treatment1",
-                "description": "desc1",
+                "name": "new treatment",
+                "description": "a new treatment",
                 "ratio": 1,
-                "featureEnabled": True,
-                "featureValue": '{"key": "value"}',
+                "featureValues": [
+                    {
+                        "featureConfig": None,
+                        "enabled": True,
+                        "value": '{"key": "value"}',
+                    }
+                ],
             }
         ]
         response = self.query(
@@ -381,7 +401,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": None,
+                    "featureConfigs": [],
                     "referenceBranch": reference_branch_data,
                     "treatmentBranches": treatment_branches_data,
                     "changelogMessage": "test changelog message",
@@ -389,7 +409,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertEqual(experiment.feature_configs.count(), 0)
@@ -408,7 +428,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         self.assertEqual(treatment_branch.feature_values.get().enabled, True)
         self.assertEqual(
             treatment_branch.feature_values.get().value,
-            treatment_branches_data[0]["featureValue"],
+            '{"key": "value"}',
         )
 
     def test_update_experiment_branches_with_feature_config_error(self):
@@ -424,7 +444,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": invalid_feature_config_id,
+                    "featureConfigs": [invalid_feature_config_id],
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                     "changelogMessage": "test changelog message",
@@ -439,7 +459,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         self.assertEqual(
             result["message"],
             {
-                "feature_config": [
+                "feature_configs": [
                     f'Invalid pk "{invalid_feature_config_id}" - object does not exist.'
                 ]
             },
@@ -485,7 +505,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": feature.id,
+                    "featureConfigs": [feature.id],
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                     "changelogMessage": "test changelog message",

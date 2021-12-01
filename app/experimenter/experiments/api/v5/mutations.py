@@ -27,8 +27,8 @@ def handle_with_serializer(cls, serializer):
         obj = serializer.save()
         msg = "success"
     else:
-        msg = serializer.errors
         obj = None
+        msg = serializer.errors
     return cls(
         nimbus_experiment=obj,
         message=msg,
@@ -60,8 +60,6 @@ class UpdateExperiment(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, input: ExperimentInput):
         experiment = NimbusExperiment.objects.get(id=input.id)
-        if "feature_config_id" in input:
-            input["feature_config"] = input.pop("feature_config_id", None)
         serializer = NimbusExperimentSerializer(
             experiment, data=input, partial=True, context={"user": info.context.user}
         )

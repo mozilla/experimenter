@@ -12,37 +12,30 @@ from experimenter.experiments.api.v5.types import (
 )
 
 
-class BranchScreenshotType(graphene.InputObjectType):
+class BranchScreenshotInput(graphene.InputObjectType):
     id = graphene.Int()
     image = Upload()
     description = graphene.String()
 
 
-class BranchType(graphene.InputObjectType):
+class BranchFeatureValueInput(graphene.InputObjectType):
+    feature_config = graphene.Int()
+    enabled = graphene.Boolean()
+    value = graphene.String()
+
+
+class BranchInput(graphene.InputObjectType):
     id = graphene.Int()
     name = graphene.String(required=True)
     description = graphene.String(required=True)
     ratio = graphene.Int(required=True)
-    feature_enabled = graphene.Boolean()
-    feature_value = graphene.String()
-    screenshots = graphene.List(BranchScreenshotType)
+    feature_values = graphene.List(BranchFeatureValueInput)
+    screenshots = graphene.List(BranchScreenshotInput)
 
 
-class DocumentationLinkType(graphene.InputObjectType):
+class DocumentationLinkInput(graphene.InputObjectType):
     title = NimbusExperimentDocumentationLink(required=True)
     link = graphene.String(required=True)
-
-
-class ReferenceBranchType(BranchType):
-    class Meta:
-        description = "The control branch"
-
-
-class TreatmentBranchType(BranchType):
-    class Meta:
-        description = (
-            "The treatment branch that should be in this position on the experiment."
-        )
 
 
 class ExperimentInput(graphene.InputObjectType):
@@ -57,10 +50,10 @@ class ExperimentInput(graphene.InputObjectType):
     public_description = graphene.String()
     is_enrollment_paused = graphene.Boolean()
     risk_mitigation_link = graphene.String()
-    feature_config_id = graphene.Int()
-    documentation_links = graphene.List(DocumentationLinkType)
-    reference_branch = graphene.Field(ReferenceBranchType)
-    treatment_branches = graphene.List(TreatmentBranchType)
+    feature_configs = graphene.List(graphene.Int)
+    documentation_links = graphene.List(DocumentationLinkInput)
+    reference_branch = graphene.Field(BranchInput)
+    treatment_branches = graphene.List(BranchInput)
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)
     channel = NimbusExperimentChannel()
