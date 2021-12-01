@@ -7,7 +7,6 @@ from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
 )
-from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
 
 
@@ -44,7 +43,7 @@ class TestNimbusExperimentBranchMixin(TestCase):
         ]
 
         data = {
-            "feature_config": None,
+            "feature_configs": [],
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
             "changelog_message": "test changelog message",
@@ -127,89 +126,6 @@ class TestNimbusExperimentBranchMixin(TestCase):
             experiment.treatment_branches[1].description,
             added_treatment_branch_data["description"],
         )
-
-    def test_serializer_feature_config_validation(self):
-        feature_config = NimbusFeatureConfigFactory.create(
-            schema=self.BASIC_JSON_SCHEMA, application=NimbusExperiment.Application.IOS
-        )
-        experiment = NimbusExperimentFactory(
-            status=NimbusExperiment.Status.DRAFT,
-            application=NimbusExperiment.Application.IOS,
-        )
-        reference_feature_value = """\
-            {"directMigrateSingleProfile": true}
-        """.strip()
-        treatment_feature_value = """\
-            {"directMigrateSingleProfile": false}
-        """.strip()
-        reference_branch_data = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": reference_feature_value,
-        }
-        treatment_branches_data = [
-            {"name": "treatment1", "description": "desc1", "ratio": 1},
-            {
-                "name": "treatment2",
-                "description": "desc2",
-                "ratio": 1,
-                "feature_enabled": True,
-                "feature_value": treatment_feature_value,
-            },
-        ]
-
-        data = {
-            "feature_config": feature_config.id,
-            "reference_branch": reference_branch_data,
-            "treatment_branches": treatment_branches_data,
-            "changelog_message": "test changelog message",
-        }
-        serializer = NimbusExperimentSerializer(
-            experiment, data=data, partial=True, context={"user": self.user}
-        )
-
-        self.assertTrue(serializer.is_valid())
-        serializer.save()
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-
-        self.assertEqual(experiment.reference_branch.name, reference_branch_data["name"])
-        self.assertEqual(
-            experiment.reference_branch.description, reference_branch_data["description"]
-        )
-        self.assertEqual(
-            experiment.reference_branch.ratio, reference_branch_data["ratio"]
-        )
-        self.assertEqual(
-            experiment.reference_branch.feature_values.get().enabled,
-            reference_branch_data["feature_enabled"],
-        )
-        self.assertEqual(
-            experiment.reference_branch.feature_values.get().value,
-            reference_branch_data["feature_value"],
-        )
-
-        for branch_data in treatment_branches_data:
-            branch = experiment.branches.get(name=branch_data["name"])
-            self.assertEqual(branch.name, branch_data["name"])
-            self.assertEqual(
-                branch.description,
-                branch_data["description"],
-            )
-            self.assertEqual(branch.ratio, branch_data["ratio"])
-
-            if "feature_enabled" in branch_data:
-                self.assertEqual(
-                    branch.feature_values.get().enabled,
-                    branch_data["feature_enabled"],
-                )
-
-            if "feature_value" in branch_data:
-                self.assertEqual(
-                    branch.feature_values.get().value,
-                    branch_data["feature_value"],
-                )
 
     def test_does_not_delete_branches_when_other_fields_specified(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

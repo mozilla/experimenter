@@ -1,86 +1,183 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
-from experimenter.experiments.api.v5.serializers import (
-    NimbusBranchReadyForReviewSerializer,
-    NimbusBranchSerializer,
-)
-from experimenter.experiments.models.nimbus import NimbusBranch
+from experimenter.experiments.api.v5.serializers import NimbusBranchSerializer
+from experimenter.experiments.models.nimbus import NimbusBranch, NimbusBranchFeatureValue
 from experimenter.experiments.tests.factories import (
     TINY_PNG,
     NimbusBranchFactory,
     NimbusBranchScreenshotFactory,
 )
+from experimenter.experiments.tests.factories.nimbus import (
+    NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
+)
 
 
 class TestNimbusBranchSerializer(TestCase):
-    def test_branch_validates(self):
-        branch_data = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": "{}",
-        }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertTrue(branch_serializer.is_valid())
+    def test_saves_new_branch_with_feature_values_without_feature(self):
+        experiment = NimbusExperimentFactory.create(feature_configs=[])
 
-    def test_branch_missing_feature_value(self):
-        branch_data = {
-            "name": "control",
-            "description": "a control",
+        data = {
+            "name": "new branch",
+            "description": "a new branch",
             "ratio": 1,
-            "feature_enabled": True,
+            "feature_values": [
+                {
+                    "feature_config": None,
+                    "enabled": True,
+                    "value": "feature1 value",
+                },
+                {
+                    "feature_config": None,
+                    "enabled": True,
+                    "value": "feature2 value",
+                },
+            ],
         }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertFalse(branch_serializer.is_valid())
-        self.assertEqual(
-            branch_serializer.errors,
-            {"feature_value": ["A value must be supplied for an enabled feature."]},
-        )
+        serializer = NimbusBranchSerializer(data=data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
-    def test_branch_missing_feature_enabled(self):
-        branch_data = {
-            "name": "control",
-            "description": "a control",
+        branch = serializer.save(experiment=experiment)
+        self.assertEqual(branch.experiment, experiment)
+        self.assertEqual(branch.name, "new branch")
+        self.assertEqual(branch.slug, "new-branch")
+        self.assertEqual(branch.description, "a new branch")
+        self.assertEqual(branch.ratio, 1)
+        self.assertEqual(branch.feature_values.count(), 2)
+
+        for feature_value_data in data["feature_values"]:
+            self.assertTrue(
+                NimbusBranchFeatureValue.objects.filter(
+                    branch=branch, **feature_value_data
+                ).exists()
+            )
+
+    def test_saves_new_branch_with_feature_values(self):
+        feature1 = NimbusFeatureConfigFactory.create(name="feature1")
+        feature2 = NimbusFeatureConfigFactory.create(name="feature2")
+        experiment = NimbusExperimentFactory.create(feature_configs=[feature1, feature2])
+
+        data = {
+            "name": "new branch",
+            "description": "a new branch",
             "ratio": 1,
-            "feature_value": "{}",
+            "feature_values": [
+                {
+                    "feature_config": feature1.id,
+                    "enabled": True,
+                    "value": "feature1 value",
+                },
+                {
+                    "feature_config": feature2.id,
+                    "enabled": True,
+                    "value": "feature2 value",
+                },
+            ],
         }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertFalse(branch_serializer.is_valid())
-        self.assertEqual(
-            branch_serializer.errors,
-            {
-                "feature_value": [
-                    "feature_enabled must be specificed to include a feature_value."
-                ]
-            },
-        )
+        serializer = NimbusBranchSerializer(data=data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        branch = serializer.save(experiment=experiment)
+        self.assertEqual(branch.experiment, experiment)
+        self.assertEqual(branch.name, "new branch")
+        self.assertEqual(branch.slug, "new-branch")
+        self.assertEqual(branch.description, "a new branch")
+        self.assertEqual(branch.ratio, 1)
+        self.assertEqual(branch.feature_values.count(), 2)
+
+        branch_feature1_value = branch.feature_values.get(feature_config=feature1)
+        self.assertEqual(branch_feature1_value.branch, branch)
+        self.assertEqual(branch_feature1_value.feature_config, feature1)
+        self.assertEqual(branch_feature1_value.enabled, True)
+        self.assertEqual(branch_feature1_value.value, "feature1 value")
+
+        branch_feature2_value = branch.feature_values.get(feature_config=feature2)
+        self.assertEqual(branch_feature2_value.branch, branch)
+        self.assertEqual(branch_feature2_value.feature_config, feature2)
+        self.assertEqual(branch_feature2_value.enabled, True)
+        self.assertEqual(branch_feature2_value.value, "feature2 value")
+
+    def test_updates_existing_branch_with_feature_values(self):
+        feature1 = NimbusFeatureConfigFactory.create(name="feature1")
+        feature2 = NimbusFeatureConfigFactory.create(name="feature2")
+        experiment = NimbusExperimentFactory.create(feature_configs=[feature1, feature2])
+        branch = experiment.branches.all()[:1][0]
+
+        data = {
+            "name": "new branch",
+            "description": "a new branch",
+            "ratio": 1,
+            "feature_values": [
+                {
+                    "feature_config": feature1.id,
+                    "enabled": True,
+                    "value": "feature1 value",
+                },
+                {
+                    "feature_config": feature2.id,
+                    "enabled": True,
+                    "value": "feature2 value",
+                },
+            ],
+        }
+        serializer = NimbusBranchSerializer(instance=branch, data=data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        branch = serializer.save(experiment=experiment)
+        self.assertEqual(branch.experiment, experiment)
+        self.assertEqual(branch.name, "new branch")
+        self.assertEqual(branch.description, "a new branch")
+        self.assertEqual(branch.ratio, 1)
+        self.assertEqual(branch.feature_values.count(), 2)
+
+        branch_feature1_value = branch.feature_values.get(feature_config=feature1)
+        self.assertEqual(branch_feature1_value.branch, branch)
+        self.assertEqual(branch_feature1_value.feature_config, feature1)
+        self.assertEqual(branch_feature1_value.enabled, True)
+        self.assertEqual(branch_feature1_value.value, "feature1 value")
+
+        branch_feature2_value = branch.feature_values.get(feature_config=feature2)
+        self.assertEqual(branch_feature2_value.branch, branch)
+        self.assertEqual(branch_feature2_value.feature_config, feature2)
+        self.assertEqual(branch_feature2_value.enabled, True)
+        self.assertEqual(branch_feature2_value.value, "feature2 value")
+
+    def test_no_duplicate_features(self):
+        feature1 = NimbusFeatureConfigFactory.create(name="feature1")
+
+        data = {
+            "name": "new branch",
+            "description": "a new branch",
+            "ratio": 1,
+            "feature_values": [
+                {
+                    "feature_config": feature1.id,
+                    "enabled": True,
+                    "value": "feature1 value",
+                },
+                {
+                    "feature_config": feature1.id,
+                    "enabled": True,
+                    "value": "feature2 value",
+                },
+            ],
+        }
+        serializer = NimbusBranchSerializer(data=data)
+        self.assertFalse(serializer.is_valid(), serializer.errors)
 
     def test_branch_name_cant_slugify(self):
-        branch_data = {
+        data = {
             "name": "******",
             "description": "a control",
             "ratio": 1,
         }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertFalse(branch_serializer.is_valid())
+        serializer = NimbusBranchSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            branch_serializer.errors,
+            serializer.errors,
             {"name": ["Name needs to contain alphanumeric characters."]},
         )
-
-    def test_branch_with_invalid_feature_value_json(self):
-        branch_data = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": "invalid json",
-        }
-        branch_serializer = NimbusBranchReadyForReviewSerializer(data=branch_data)
-        self.assertFalse(branch_serializer.is_valid())
-        self.assertIn("feature_value", branch_serializer.errors)
 
     def test_branch_update_screenshots(self):
         branch = NimbusBranchFactory()
@@ -101,7 +198,7 @@ class TestNimbusBranchSerializer(TestCase):
             "description": "02 new screenshot",
             "image": SimpleUploadedFile(name="Capture.PNG", content=image_content),
         }
-        branch_data = {
+        data = {
             "name": "updated name",
             "description": "updated description",
             "ratio": 1,
@@ -110,9 +207,9 @@ class TestNimbusBranchSerializer(TestCase):
                 new_screenshot_data,
             ],
         }
-        branch_serializer = NimbusBranchSerializer(branch, data=branch_data)
-        self.assertTrue(branch_serializer.is_valid(), branch_serializer.errors)
-        branch_serializer.save()
+        serializer = NimbusBranchSerializer(branch, data=data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        serializer.save()
 
         branch = NimbusBranch.objects.get(pk=branch.id)
         self.assertEqual(branch.screenshots.count(), 2)

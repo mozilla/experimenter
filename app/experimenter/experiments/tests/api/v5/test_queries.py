@@ -890,7 +890,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             """
             query experimentBySlug($slug: String!) {
                 experimentBySlug(slug: $slug) {
-                    featureConfig {
+                    featureConfigs {
                         id
                         application
                     }
@@ -905,8 +905,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         feature_config = experiment.feature_configs.get()
         self.assertEqual(
-            experiment_data["featureConfig"],
-            {"id": feature_config.id, "application": "DESKTOP"},
+            experiment_data["featureConfigs"],
+            [{"id": feature_config.id, "application": "DESKTOP"}],
         )
 
     def test_branches(self):
@@ -930,8 +930,13 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         slug
                         description
                         ratio
-                        featureEnabled
-                        featureValue
+                        featureValues {
+                            featureConfig {
+                                id
+                            }
+                            enabled
+                            value
+                        }
                     }
                     treatmentBranches {
                         id
@@ -939,8 +944,13 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         slug
                         description
                         ratio
-                        featureEnabled
-                        featureValue
+                        featureValues {
+                            featureConfig {
+                                id
+                            }
+                            enabled
+                            value
+                        }
                     }
                 }
             }
@@ -951,6 +961,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
+        reference_feature_value = experiment.reference_branch.feature_values.get()
         self.assertEqual(
             experiment_data["referenceBranch"],
             {
@@ -959,14 +970,20 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "slug": experiment.reference_branch.slug,
                 "ratio": experiment.reference_branch.ratio,
                 "description": experiment.reference_branch.description,
-                "featureEnabled": (
-                    experiment.reference_branch.feature_values.get().enabled
-                ),
-                "featureValue": experiment.reference_branch.feature_values.get().value,
+                "featureValues": [
+                    {
+                        "featureConfig": {
+                            "id": reference_feature_value.feature_config.id,
+                        },
+                        "enabled": reference_feature_value.enabled,
+                        "value": reference_feature_value.value,
+                    }
+                ],
             },
         )
 
         for treatment_branch in experiment.treatment_branches:
+            treatment_feature_value = treatment_branch.feature_values.get()
             self.assertIn(
                 {
                     "id": treatment_branch.id,
@@ -974,8 +991,15 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     "slug": treatment_branch.slug,
                     "ratio": treatment_branch.ratio,
                     "description": treatment_branch.description,
-                    "featureEnabled": treatment_branch.feature_values.get().enabled,
-                    "featureValue": treatment_branch.feature_values.get().value,
+                    "featureValues": [
+                        {
+                            "featureConfig": {
+                                "id": treatment_feature_value.feature_config.id,
+                            },
+                            "enabled": treatment_feature_value.enabled,
+                            "value": treatment_feature_value.value,
+                        }
+                    ],
                 },
                 experiment_data["treatmentBranches"],
             )

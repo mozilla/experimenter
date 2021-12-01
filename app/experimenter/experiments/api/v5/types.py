@@ -6,11 +6,12 @@ from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
 from experimenter.base.models import Country, Locale
-from experimenter.experiments.api.v5.serializers import NimbusReadyForReviewSerializer
+from experimenter.experiments.api.v5.serializers import NimbusExperimentReviewSerializer
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
+    NimbusBranchFeatureValue,
     NimbusBranchScreenshot,
     NimbusBucketRange,
     NimbusChangeLog,
@@ -54,7 +55,7 @@ class NimbusLocaleType(DjangoObjectType):
         model = Locale
 
 
-class NimbusUser(DjangoObjectType):
+class NimbusUserType(DjangoObjectType):
     id = graphene.Int()
 
     class Meta:
@@ -92,16 +93,24 @@ class NimbusExperimentConclusionRecommendation(graphene.Enum):
         enum = NimbusConstants.ConclusionRecommendation
 
 
-class NimbusExperimentApplicationConfig(graphene.ObjectType):
+class NimbusExperimentApplicationConfigType(graphene.ObjectType):
     application = NimbusExperimentApplication()
     channels = graphene.List(NimbusLabelValueType)
     supports_locale_country = graphene.Boolean()
 
 
-class NimbusExperimentTargetingConfig(graphene.ObjectType):
+class NimbusExperimentTargetingConfigType(graphene.ObjectType):
     label = graphene.String()
     value = graphene.String()
     application_values = graphene.List(graphene.String)
+
+
+class NimbusFeatureConfigType(DjangoObjectType):
+    id = graphene.Int()
+    application = NimbusExperimentApplication()
+
+    class Meta:
+        model = NimbusFeatureConfig
 
 
 class NimbusExperimentDocumentationLink(graphene.Enum):
@@ -122,35 +131,29 @@ class NimbusBranchScreenshotType(DjangoObjectType):
             return root.image.url
 
 
+class NimbusBranchFeatureValueType(DjangoObjectType):
+    feature_config = graphene.Field(NimbusFeatureConfigType)
+    enabled = graphene.Boolean()
+    value = graphene.String()
+
+    class Meta:
+        model = NimbusBranchFeatureValue
+
+
 class NimbusBranchType(DjangoObjectType):
     id = graphene.Int(required=False)
-    feature_enabled = graphene.Boolean(required=True)
-    feature_value = graphene.String(required=False)
+    feature_values = DjangoListField(NimbusBranchFeatureValueType)
     screenshots = DjangoListField(NimbusBranchScreenshotType)
 
     class Meta:
         model = NimbusBranch
         exclude = ("experiment", "nimbusexperiment")
 
-    def resolve_feature_enabled(root, info):
-        return root.feature_values.exists() and root.feature_values.get().enabled
-
-    def resolve_feature_value(root, info):
-        return (root.feature_values.exists() and root.feature_values.get().value) or ""
-
 
 class NimbusDocumentationLinkType(DjangoObjectType):
     class Meta:
         model = NimbusDocumentationLink
         exclude = ("id", "experiment")
-
-
-class NimbusFeatureConfigType(DjangoObjectType):
-    id = graphene.Int()
-    application = NimbusExperimentApplication()
-
-    class Meta:
-        model = NimbusFeatureConfig
 
 
 class ProjectType(DjangoObjectType):
@@ -187,7 +190,7 @@ class NimbusOutcomeType(graphene.ObjectType):
     metrics = graphene.List(NimbusOutcomeMetricType)
 
 
-class NimbusReadyForReviewType(graphene.ObjectType):
+class NimbusReviewType(graphene.ObjectType):
     message = ObjectField()
     ready = graphene.Boolean()
 
@@ -205,7 +208,7 @@ class NimbusSignoffRecommendationsType(graphene.ObjectType):
 
 
 class NimbusConfigurationType(graphene.ObjectType):
-    application_configs = graphene.List(NimbusExperimentApplicationConfig)
+    application_configs = graphene.List(NimbusExperimentApplicationConfigType)
     applications = graphene.List(NimbusLabelValueType)
     channels = graphene.List(NimbusLabelValueType)
     countries = graphene.List(NimbusCountryType)
@@ -216,8 +219,8 @@ class NimbusConfigurationType(graphene.ObjectType):
     locales = graphene.List(NimbusLocaleType)
     max_primary_outcomes = graphene.Int()
     outcomes = graphene.List(NimbusOutcomeType)
-    owners = graphene.List(NimbusUser)
-    targeting_configs = graphene.List(NimbusExperimentTargetingConfig)
+    owners = graphene.List(NimbusUserType)
+    targeting_configs = graphene.List(NimbusExperimentTargetingConfigType)
     conclusion_recommendations = graphene.List(NimbusLabelValueType)
 
     def _text_choices_to_label_value_list(root, text_choices):
@@ -240,7 +243,7 @@ class NimbusConfigurationType(graphene.ObjectType):
         for application in NimbusExperiment.Application:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
             configs.append(
-                NimbusExperimentApplicationConfig(
+                NimbusExperimentApplicationConfigType(
                     application=application,
                     channels=[
                         NimbusLabelValueType(label=channel.label, value=channel.name)
@@ -276,7 +279,7 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_targeting_configs(root, info):
         return [
-            NimbusExperimentTargetingConfig(
+            NimbusExperimentTargetingConfigType(
                 label=choice.label,
                 value=choice.value,
                 application_values=NimbusExperiment.TARGETING_CONFIGS[
@@ -320,8 +323,8 @@ class NimbusExperimentType(DjangoObjectType):
     jexl_targeting_expression = graphene.String()
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)
-    feature_config = graphene.Field(NimbusFeatureConfigType)
-    ready_for_review = graphene.Field(NimbusReadyForReviewType)
+    feature_configs = DjangoListField(NimbusFeatureConfigType)
+    ready_for_review = graphene.Field(NimbusReviewType)
     monitoring_dashboard_url = graphene.String()
     results_ready = graphene.Boolean()
     start_date = graphene.DateTime()
@@ -346,10 +349,6 @@ class NimbusExperimentType(DjangoObjectType):
         model = NimbusExperiment
         exclude = ("branches", "feature_configs")
 
-    def resolve_feature_config(self, info):
-        if self.feature_configs.exists():
-            return self.feature_configs.get()
-
     def resolve_reference_branch(self, info):
         if self.reference_branch:
             return self.reference_branch
@@ -361,12 +360,12 @@ class NimbusExperimentType(DjangoObjectType):
         return [NimbusBranch(name=NimbusConstants.DEFAULT_TREATMENT_BRANCH_NAME)]
 
     def resolve_ready_for_review(self, info):
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             self,
-            data=NimbusReadyForReviewSerializer(self).data,
+            data=NimbusExperimentReviewSerializer(self).data,
         )
         ready = serializer.is_valid()
-        return NimbusReadyForReviewType(message=serializer.errors, ready=ready)
+        return NimbusReviewType(message=serializer.errors, ready=ready)
 
     def resolve_targeting_config_slug(self, info):
         if self.targeting_config_slug in self.TargetingConfig:

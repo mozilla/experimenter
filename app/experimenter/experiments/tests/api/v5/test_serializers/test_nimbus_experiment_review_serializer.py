@@ -1,7 +1,7 @@
 from django.test import TestCase
 from parameterized import parameterized
 
-from experimenter.experiments.api.v5.serializers import NimbusReadyForReviewSerializer
+from experimenter.experiments.api.v5.serializers import NimbusExperimentReviewSerializer
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
@@ -12,7 +12,7 @@ from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigF
 from experimenter.openidc.tests.factories import UserFactory
 
 
-class TestNimbusReadyForReviewSerializer(TestCase):
+class TestNimbusReviewSerializer(TestCase):
     maxDiff = None
 
     BASIC_JSON_SCHEMA = """\
@@ -44,9 +44,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
                 )
             ],
         )
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -66,9 +66,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
         experiment.hypothesis = NimbusExperiment.HYPOTHESIS_DEFAULT
         experiment.save()
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -92,9 +92,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
         experiment.reference_branch = None
         experiment.save()
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -118,9 +118,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
         experiment.reference_branch.description = ""
         experiment.save()
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -143,9 +143,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
                 )
             ],
         )
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -168,9 +168,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
                 )
             ],
         )
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -178,7 +178,7 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
-    def test_invalid_experiment_treatment_branch_requires_description(self):
+    def test_invalid_experiment_branch_requires_description(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
@@ -188,22 +188,21 @@ class TestNimbusReadyForReviewSerializer(TestCase):
                 )
             ],
         )
-        treatment_branch = NimbusBranchFactory.create(
-            experiment=experiment, description=""
-        )
-        experiment.branches.add(treatment_branch)
-        experiment.save()
-        serializer = NimbusReadyForReviewSerializer(
+        experiment.reference_branch.description = ""
+        experiment.reference_branch.save()
+
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
             context={"user": self.user},
         )
+
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["treatment_branches"][1],
+            serializer.errors["reference_branch"],
             {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]},
         )
 
@@ -213,9 +212,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
         )
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -223,7 +222,7 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["feature_configs"],
             [NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG],
         )
 
@@ -240,9 +239,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
                 )
             ],
         )
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -277,9 +276,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
         )
 
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -297,15 +296,15 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
-                    schema=self.BASIC_JSON_SCHEMA,
+                    schema="{}",
                     application=NimbusExperiment.Application.IOS,
                 )
             ],
         )
 
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -316,33 +315,12 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         self.assertEqual(
             serializer.errors,
             {
-                "feature_config": [
+                "feature_configs": [
                     "Feature Config application ios does not "
                     "match experiment application fenix."
                 ]
             },
-        )
-
-    def test_serializer_feature_config_validation_missing_feature_config(self):
-        experiment = NimbusExperimentFactory(
-            status=NimbusExperiment.Status.DRAFT,
-            application=NimbusExperiment.Application.FENIX,
-            feature_configs=[],
-        )
-
-        serializer = NimbusReadyForReviewSerializer(
-            experiment,
-            data=NimbusReadyForReviewSerializer(
-                experiment,
-                context={"user": self.user},
-            ).data,
-            context={"user": self.user},
-        )
-
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["feature_config"][0],
-            "You must select a feature configuration from the drop down.",
+            serializer.errors,
         )
 
     def test_serializer_feature_config_validation_bad_json_value(self):
@@ -370,9 +348,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         """.strip()
         treatment_branch_value.save()
 
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -382,7 +360,7 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn(
             "Unterminated string",
-            serializer.errors["reference_branch"]["feature_value"][0],
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][0],
         )
         self.assertEqual(len(serializer.errors), 1)
 
@@ -411,9 +389,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         """.strip()
         treatment_feature_value.save()
 
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -421,40 +399,41 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertTrue(
-            serializer.errors["reference_branch"]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.errors["reference_branch"]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.errors,
         )
         self.assertEqual(len(serializer.errors), 1)
 
     def test_serializer_feature_config_validation_treatment_value_schema_error(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            schema=self.BASIC_JSON_SCHEMA,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
         experiment = NimbusExperimentFactory(
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            feature_configs=[
-                NimbusFeatureConfigFactory.create(
-                    schema=self.BASIC_JSON_SCHEMA,
-                    application=NimbusExperiment.Application.DESKTOP,
-                )
-            ],
+            feature_configs=[feature_config],
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
+        reference_feature_value.feature_config = feature_config
         reference_feature_value.value = """\
             {"directMigrateSingleProfile": true}
         """.strip()
         reference_feature_value.save()
 
         treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
+        treatment_feature_value.feature_config = feature_config
         treatment_feature_value.value = """\
             {"DDirectMigrateSingleProfile": true}
         """.strip()
         treatment_feature_value.save()
 
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
@@ -463,9 +442,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertTrue(
-            serializer.errors["treatment_branches"][0]["feature_value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.errors["treatment_branches"][0]["feature_values"][0]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.errors,
         )
         self.assertEqual(len(serializer.errors), 1)
@@ -482,9 +461,9 @@ class TestNimbusReadyForReviewSerializer(TestCase):
                 )
             ],
         )
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusExperimentReviewSerializer(
             experiment,
-            data=NimbusReadyForReviewSerializer(
+            data=NimbusExperimentReviewSerializer(
                 experiment,
                 context={"user": self.user},
             ).data,
