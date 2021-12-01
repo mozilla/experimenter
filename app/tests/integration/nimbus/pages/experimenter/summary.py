@@ -1,5 +1,4 @@
 from nimbus.pages.experimenter.base import ExperimenterBase
-from nimbus.pages.experimenter.summary_detail import SummaryDetailPage
 from pypom import Region
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -36,7 +35,6 @@ class SummaryPage(ExperimenterBase):
     )
     _clone_save_locator = (By.CSS_SELECTOR, ".modal .btn-primary")
     _clone_parent_locator = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-parent"]')
-    _sidebar_details_link = (By.CSS_SELECTOR, 'a[data-testid="nav-details"]')
     _takeaways_edit_button = (By.CSS_SELECTOR, 'button[data-testid="edit-takeaways"]')
     _takeaways_save_button = (
         By.CSS_SELECTOR,
@@ -216,11 +214,6 @@ class SummaryPage(ExperimenterBase):
     def clone(self):
         self.clone_action.click()
         self.clone_save.click()
-
-    def navigate_to_details(self):
-        element = self.selenium.find_element(*self._sidebar_details_link)
-        element.click()
-        return SummaryDetailPage(self.driver, self.base_url).wait_for_page_to_load()
 
     @property
     def takeaways_edit_button(self):
