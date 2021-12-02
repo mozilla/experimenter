@@ -35,7 +35,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   const onFormSave = useCallback(
     async (
       {
-        featureConfigId,
+        featureConfigs,
         referenceBranch,
         treatmentBranches,
       }: FormBranchesSaveState,
@@ -51,7 +51,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
             input: {
               id: nimbusExperimentId,
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_BRANCHES,
-              featureConfigId,
+              featureConfigs,
               referenceBranch,
               treatmentBranches,
             },
@@ -110,7 +110,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
             <FormBranches
               {...{
                 experiment,
-                featureConfigs: applicationFeatureConfigs,
+                allFeatureConfigs: applicationFeatureConfigs,
                 isLoading: loading,
                 onSave: onFormSave,
               }}

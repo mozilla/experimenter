@@ -4,14 +4,14 @@
 
 import { CONTROL_BRANCH_REQUIRED_ERROR } from "../../../../lib/constants";
 import {
-  BranchScreenshotType,
+  BranchScreenshotInput,
   ExperimentInput,
 } from "../../../../types/globalTypes";
 import { AnnotatedBranch, FormBranchesState } from "./state";
 
 export type FormBranchesSaveState = Pick<
   ExperimentInput,
-  "featureConfigId" | "referenceBranch" | "treatmentBranches"
+  "featureConfigs" | "referenceBranch" | "treatmentBranches"
 >;
 
 export class UpdateStateError extends Error {}
@@ -25,16 +25,14 @@ export function extractUpdateState(
   state: FormBranchesState,
   formData: FormData,
 ): FormBranchesSaveState {
-  const { featureConfig, referenceBranch, treatmentBranches } = state;
+  const { featureConfigs, referenceBranch, treatmentBranches } = state;
 
   if (!referenceBranch) {
     throw new UpdateStateError(CONTROL_BRANCH_REQUIRED_ERROR);
   }
 
-  const featureConfigId = featureConfig === null ? null : featureConfig.id;
-
   return {
-    featureConfigId,
+    featureConfigs,
     referenceBranch: extractUpdateBranch(
       referenceBranch,
       formData.referenceBranch,
@@ -63,18 +61,15 @@ export function extractUpdateBranch(
     name: merged.name,
     description: merged.description,
     ratio: merged.ratio,
-    featureValue: merged.featureValue,
-    // HACK: for some reason in tests, this ends up as "true" or undefined
-    // rather than a boolean.
-    featureEnabled: !!merged.featureEnabled,
+    featureValues: merged.featureValues,
     screenshots,
   };
 }
 
 export function extractUpdateScreenshot(
-  branchScreenshot: BranchScreenshotType,
-  { description, image }: BranchScreenshotType,
-): BranchScreenshotType {
+  branchScreenshot: BranchScreenshotInput,
+  { description, image }: BranchScreenshotInput,
+): BranchScreenshotInput {
   return {
     // Branch screenshot ID should be read-only with respect to the form data
     id: branchScreenshot!.id,

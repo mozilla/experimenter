@@ -11,11 +11,7 @@ import {
 } from "@testing-library/react";
 import React from "react";
 import { FIELD_MESSAGES } from "../../../lib/constants";
-import {
-  MOCK_ANNOTATED_BRANCH,
-  MOCK_FEATURE_CONFIG_WITH_SCHEMA,
-  SubjectBranch,
-} from "./mocks";
+import { MOCK_ANNOTATED_BRANCH, SubjectBranch } from "./mocks";
 
 describe("FormBranch", () => {
   it("renders as expected", () => {
@@ -45,7 +41,10 @@ describe("FormBranch", () => {
   it("reflects when feature is disabled", () => {
     const { container } = render(
       <SubjectBranch
-        branch={{ ...MOCK_ANNOTATED_BRANCH, featureEnabled: false }}
+        branch={{
+          ...MOCK_ANNOTATED_BRANCH,
+          featureValues: [{ featureConfig: null, enabled: false, value: "" }],
+        }}
       />,
     );
     const featureSwitchLabel = container.querySelector(
@@ -57,8 +56,10 @@ describe("FormBranch", () => {
   it("hides feature value edit when feature disabled", () => {
     render(
       <SubjectBranch
-        branch={{ ...MOCK_ANNOTATED_BRANCH, featureEnabled: false }}
-        experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
+        branch={{
+          ...MOCK_ANNOTATED_BRANCH,
+          featureValues: [{ featureConfig: null, enabled: false, value: "" }],
+        }}
       />,
     );
     expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
@@ -69,10 +70,14 @@ describe("FormBranch", () => {
       <SubjectBranch
         branch={{
           ...MOCK_ANNOTATED_BRANCH,
-          featureValue: "this is a default value",
-          featureEnabled: true,
+          featureValues: [
+            {
+              featureConfig: null,
+              enabled: true,
+              value: "this is a default value",
+            },
+          ],
         }}
-        experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
       />,
     );
     expect(screen.queryByTestId("feature-value-edit")).toBeInTheDocument();

@@ -55,20 +55,24 @@ export const DirectoryColumnOwner: ColumnComponent = (experiment) => (
   </td>
 );
 
-export const DirectoryColumnFeature: ColumnComponent = ({ featureConfig }) => (
+export const DirectoryColumnFeature: ColumnComponent = ({ featureConfigs }) => (
   <td data-testid="directory-table-cell">
-    {featureConfig ? (
+    {featureConfigs && featureConfigs.length ? (
       <>
-        <span data-testid="directory-feature-config-name">
-          {featureConfig.name}
-        </span>
-        <br />
-        <span
-          className="text-monospace text-secondary small"
-          data-testid="directory-feature-config-slug"
-        >
-          {featureConfig.slug}
-        </span>
+        {featureConfigs.map((featureConfig) => (
+          <>
+            <span data-testid="directory-feature-config-name">
+              {featureConfig.name}
+            </span>
+            <br />
+            <span
+              className="text-monospace text-secondary small"
+              data-testid="directory-feature-config-slug"
+            >
+              {featureConfig.slug}
+            </span>
+          </>
+        ))}
       </>
     ) : (
       <span data-testid="directory-feature-config-none">(None)</span>

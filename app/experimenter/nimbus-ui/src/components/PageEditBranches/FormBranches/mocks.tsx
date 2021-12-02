@@ -7,6 +7,7 @@ import { FormProvider } from "react-hook-form";
 import FormBranches from ".";
 import { useForm } from "../../../hooks";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
+import { BranchInput } from "../../../types/globalTypes";
 import FormBranch from "./FormBranch";
 import { AnnotatedBranch } from "./reducer";
 import { formBranchesActionReducer } from "./reducer/actions";
@@ -19,8 +20,13 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
     slug: "control",
     description: "Behind almost radio result personal none future current.",
     ratio: 1,
-    featureValue: '{"environmental-fact": "really-citizen"}',
-    featureEnabled: true,
+    featureValues: [
+      {
+        featureConfig: null,
+        enabled: true,
+        value: '{"environmental-fact": "really-citizen"}',
+      },
+    ],
     screenshots: [],
   },
   treatmentBranches: [
@@ -30,8 +36,13 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       slug: "managed-zero-tolerance-projection",
       description: "Next ask then he in degree order.",
       ratio: 1,
-      featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
-      featureEnabled: false,
+      featureValues: [
+        {
+          featureConfig: null,
+          enabled: false,
+          value: '{"effect-effect-whole": "close-teach-exactly"}',
+        },
+      ],
       screenshots: [],
     },
     {
@@ -40,8 +51,13 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       slug: "salt-way-link",
       description: "Flame the dark true.",
       ratio: 2,
-      featureValue: '{"frosted-wake": "simple-hesitation"}',
-      featureEnabled: true,
+      featureValues: [
+        {
+          featureConfig: null,
+          enabled: true,
+          value: '{"frosted-wake": "simple-hesitation"}',
+        },
+      ],
       screenshots: [],
     },
   ],
@@ -51,9 +67,15 @@ const MOCK_STATE: FormBranchesState = {
   equalRatio: true,
   lastId: 0,
   globalErrors: [],
-  featureConfig: MOCK_EXPERIMENT.featureConfig,
+  featureConfigs: MOCK_EXPERIMENT.featureConfigs!.map((f) => f.id),
   referenceBranch: {
     ...MOCK_EXPERIMENT.referenceBranch!,
+    featureValues: MOCK_EXPERIMENT.referenceBranch!.featureValues!.map(
+      (fv) => ({
+        ...fv,
+        featureConfig: fv!.featureConfig!.id,
+      }),
+    ),
     screenshots: [],
     key: "branch-reference",
     errors: {},
@@ -62,6 +84,10 @@ const MOCK_STATE: FormBranchesState = {
   },
   treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map((branch, idx) => ({
     ...branch!,
+    featureValues: branch!.featureValues!.map((fv) => ({
+      ...fv,
+      featureConfig: fv!.featureConfig!.id,
+    })),
     screenshots: [],
     key: `branch-${idx}`,
     errors: {},
@@ -77,7 +103,6 @@ export const SubjectBranch = ({
   branch = MOCK_ANNOTATED_BRANCH,
   equalRatio = false,
   isReference = false,
-  experimentFeatureConfig = MOCK_FEATURE_CONFIG,
   onAddScreenshot = () => {},
   onRemoveScreenshot = () => {},
   onRemove = () => {},
@@ -114,7 +139,6 @@ export const SubjectBranch = ({
             branch,
             isReference,
             equalRatio,
-            experimentFeatureConfig,
             onRemove,
             onAddScreenshot,
             onRemoveScreenshot,
@@ -130,7 +154,7 @@ export const SubjectBranch = ({
 export const SubjectBranches = ({
   isLoading = false,
   experiment = MOCK_EXPERIMENT,
-  featureConfigs = MOCK_CONFIG.featureConfigs,
+  allFeatureConfigs = MOCK_CONFIG.featureConfigs,
   onSave = () => {},
   saveOnInitialRender = false,
 }: Partial<React.ComponentProps<typeof FormBranches>> & {
@@ -152,7 +176,7 @@ export const SubjectBranches = ({
         {...{
           isLoading,
           experiment,
-          featureConfigs,
+          allFeatureConfigs,
           onSave,
         }}
       />
@@ -160,13 +184,18 @@ export const SubjectBranches = ({
   );
 };
 
-export const MOCK_BRANCH = MOCK_EXPERIMENT.treatmentBranches![0]!;
+export const MOCK_BRANCH: BranchInput = {
+  ...MOCK_EXPERIMENT.treatmentBranches![0]!,
+  featureValues: MOCK_EXPERIMENT.treatmentBranches![0]!.featureValues?.map(
+    (fv) => ({ ...fv, featureConfig: fv.featureConfig?.id }),
+  ),
+};
 export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {
+  ...MOCK_BRANCH,
   key: "branch-1",
   isValid: true,
   isDirty: false,
   errors: {},
-  ...MOCK_BRANCH,
   screenshots: [],
 };
 export const MOCK_FEATURE_CONFIG = MOCK_CONFIG.featureConfigs![0]!;

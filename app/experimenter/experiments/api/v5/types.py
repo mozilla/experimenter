@@ -151,6 +151,8 @@ class NimbusBranchType(DjangoObjectType):
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
+    title = NimbusExperimentDocumentationLink()
+
     class Meta:
         model = NimbusDocumentationLink
         exclude = ("id", "experiment")

@@ -34,7 +34,7 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
       {...commonFormBranchProps}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
-        featureValue: null,
+        featureValues: [{ featureConfig: null, enabled: false, value: null }],
       }}
       isReference={true}
     />
@@ -44,7 +44,7 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
       {...commonFormBranchProps}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
-        featureValue: null,
+        featureValues: [{ featureConfig: null, enabled: false, value: null }],
       }}
     />
   ))
@@ -54,40 +54,52 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
       equalRatio
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
-        featureValue: null,
+        featureValues: [{ featureConfig: null, enabled: false, value: null }],
       }}
     />
   ))
   .add("with feature", () => (
     <SubjectBranch
       {...commonFormBranchProps}
-      experimentFeatureConfig={MOCK_FEATURE_CONFIG}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
-        featureEnabled: false,
-        featureValue: "this is a default value",
+        featureValues: [
+          {
+            featureConfig: MOCK_FEATURE_CONFIG.id,
+            enabled: false,
+            value: "this is a default value",
+          },
+        ],
       }}
     />
   ))
   .add("with feature value", () => (
     <SubjectBranch
       {...commonFormBranchProps}
-      experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
-        featureEnabled: true,
-        featureValue: "this is a default value",
+        featureValues: [
+          {
+            featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA.id,
+            enabled: true,
+            value: "this is a default value",
+          },
+        ],
       }}
     />
   ))
   .add("with several screenshots", () => (
     <SubjectBranch
       {...commonFormBranchProps}
-      experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
-        featureEnabled: true,
-        featureValue: "this is a default value",
+        featureValues: [
+          {
+            featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA.id,
+            enabled: true,
+            value: "this is a default value",
+          },
+        ],
         screenshots: [
           {
             description: "Meow meow.",
@@ -126,8 +138,13 @@ storiesOf("pages/EditBranches/FormBranches", module)
             slug: "",
             description: "",
             ratio: 1,
-            featureValue: null,
-            featureEnabled: false,
+            featureValues: [
+              {
+                featureConfig: null,
+                enabled: false,
+                value: null,
+              },
+            ],
             screenshots: [],
           },
         ],
@@ -152,7 +169,7 @@ storiesOf("pages/EditBranches/FormBranches", module)
       {...commonFormBranchesProps}
       experiment={{
         ...MOCK_EXPERIMENT,
-        featureConfig: MOCK_FEATURE_CONFIG,
+        featureConfigs: [MOCK_FEATURE_CONFIG],
       }}
     />
   ))
@@ -161,7 +178,7 @@ storiesOf("pages/EditBranches/FormBranches", module)
       {...commonFormBranchesProps}
       experiment={{
         ...MOCK_EXPERIMENT,
-        featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+        featureConfigs: [MOCK_FEATURE_CONFIG_WITH_SCHEMA],
       }}
     />
   ))
@@ -172,7 +189,7 @@ storiesOf("pages/EditBranches/FormBranches", module)
       }}
       experiment={{
         ...MOCK_EXPERIMENT,
-        featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+        featureConfigs: [MOCK_FEATURE_CONFIG_WITH_SCHEMA],
         readyForReview: {
           ready: false,
           message: {
@@ -235,7 +252,7 @@ storiesOf("pages/EditBranches/FormBranches", module)
         }}
         experiment={{
           ...MOCK_EXPERIMENT,
-          featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+          featureConfigs: [MOCK_FEATURE_CONFIG_WITH_SCHEMA],
         }}
       />
     );

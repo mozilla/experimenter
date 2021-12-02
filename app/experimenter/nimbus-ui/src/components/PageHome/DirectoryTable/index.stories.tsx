@@ -75,6 +75,6 @@ export const CustomComponent = () => (
 
 export const NoFeature = () => (
   <DirectoryTable
-    experiments={mockDirectoryExperiments([{ featureConfig: null }])}
+    experiments={mockDirectoryExperiments([{ featureConfigs: [] }])}
   />
 );

@@ -66,7 +66,9 @@ describe("filterExperiments", () => {
   it("filters only an empty feature config if filter value has everything", () => {
     expect(
       filterExperiments(MOCK_EXPERIMENTS, EVERYTHING_SELECTED_VALUE),
-    ).toEqual(MOCK_EXPERIMENTS.filter((e) => e.featureConfig !== null));
+    ).toEqual(
+      MOCK_EXPERIMENTS.filter((e) => (e.featureConfigs?.length ?? 0) > 0),
+    );
   });
 
   it("filters per individual criteria as expected", () => {
@@ -86,9 +88,9 @@ describe("filterExperiments", () => {
             );
             break;
           case "featureConfigs":
-            expect(experiment.featureConfig).toEqual(
+            expect(experiment.featureConfigs).toEqual([
               MOCK_CONFIG!.featureConfigs![0]!,
-            );
+            ]);
             break;
           case "firefoxVersions":
             expect(experiment.firefoxMinVersion).toEqual(

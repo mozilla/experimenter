@@ -34,8 +34,14 @@ storiesOf("components/Summary/TableBranches", module)
             slug: "",
             description: "",
             ratio: 0,
-            featureValue: null,
-            featureEnabled: false,
+
+            featureValues: [
+              {
+                featureConfig: MOCK_EXPERIMENT.featureConfigs![0],
+                enabled: false,
+                value: null,
+              },
+            ],
             screenshots: [],
           },
         ],
@@ -57,8 +63,13 @@ storiesOf("components/Summary/TableBranches", module)
             slug: "",
             description: "",
             ratio: 0,
-            featureValue: null,
-            featureEnabled: false,
+            featureValues: [
+              {
+                featureConfig: MOCK_EXPERIMENT.featureConfigs![0],
+                enabled: false,
+                value: null,
+              },
+            ],
             screenshots: [],
           },
         ],
@@ -71,18 +82,12 @@ storiesOf("components/Summary/TableBranches", module)
         ...MOCK_EXPERIMENT,
         referenceBranch: {
           ...MOCK_EXPERIMENT.referenceBranch!,
-          featureEnabled: false,
-        },
-      }}
-    />
-  ))
-  .add("feature without schema", () => (
-    <Subject
-      experiment={{
-        ...MOCK_EXPERIMENT,
-        featureConfig: {
-          ...MOCK_EXPERIMENT.featureConfig!,
-          schema: null,
+          featureValues: [
+            {
+              ...MOCK_EXPERIMENT.referenceBranch!.featureValues![0],
+              enabled: false,
+            },
+          ],
         },
       }}
     />
@@ -91,10 +96,6 @@ storiesOf("components/Summary/TableBranches", module)
     <Subject
       experiment={{
         ...MOCK_EXPERIMENT,
-        featureConfig: {
-          ...MOCK_EXPERIMENT.featureConfig!,
-          schema: "{}",
-        },
         referenceBranch: {
           ...MOCK_EXPERIMENT.referenceBranch!,
           id: 456,
@@ -102,8 +103,13 @@ storiesOf("components/Summary/TableBranches", module)
           slug: "control",
           description: "",
           ratio: 0,
-          featureValue: null,
-          featureEnabled: true,
+          featureValues: [
+            {
+              featureConfig: MOCK_EXPERIMENT.featureConfigs![0],
+              enabled: true,
+              value: null,
+            },
+          ],
         },
         treatmentBranches: [],
       }}

@@ -21,12 +21,6 @@ export enum NimbusChangeLogOldStatusNext {
   PREVIEW = "PREVIEW",
 }
 
-export enum NimbusDocumentationLinkTitle {
-  DESIGN_DOC = "DESIGN_DOC",
-  DS_JIRA = "DS_JIRA",
-  ENG_TICKET = "ENG_TICKET",
-}
-
 export enum NimbusExperimentApplication {
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
@@ -169,13 +163,28 @@ export enum NimbusExperimentStatus {
   PREVIEW = "PREVIEW",
 }
 
-export interface BranchScreenshotType {
+export interface BranchFeatureValueInput {
+  featureConfig?: number | null;
+  enabled?: boolean | null;
+  value?: string | null;
+}
+
+export interface BranchInput {
+  id?: number | null;
+  name: string;
+  description: string;
+  ratio: number;
+  featureValues?: (BranchFeatureValueInput | null)[] | null;
+  screenshots?: (BranchScreenshotInput | null)[] | null;
+}
+
+export interface BranchScreenshotInput {
   id?: number | null;
   image?: Upload | null;
   description?: string | null;
 }
 
-export interface DocumentationLinkType {
+export interface DocumentationLinkInput {
   title: NimbusExperimentDocumentationLink;
   link: string;
 }
@@ -198,10 +207,10 @@ export interface ExperimentInput {
   publicDescription?: string | null;
   isEnrollmentPaused?: boolean | null;
   riskMitigationLink?: string | null;
-  featureConfigId?: number | null;
-  documentationLinks?: (DocumentationLinkType | null)[] | null;
-  referenceBranch?: ReferenceBranchType | null;
-  treatmentBranches?: (TreatmentBranchType | null)[] | null;
+  featureConfigs?: (number | null)[] | null;
+  documentationLinks?: (DocumentationLinkInput | null)[] | null;
+  referenceBranch?: BranchInput | null;
+  treatmentBranches?: (BranchInput | null)[] | null;
   primaryOutcomes?: (string | null)[] | null;
   secondaryOutcomes?: (string | null)[] | null;
   channel?: NimbusExperimentChannel | null;
@@ -219,26 +228,6 @@ export interface ExperimentInput {
   locales?: (number | null)[] | null;
   conclusionRecommendation?: NimbusExperimentConclusionRecommendation | null;
   takeawaysSummary?: string | null;
-}
-
-export interface ReferenceBranchType {
-  id?: number | null;
-  name: string;
-  description: string;
-  ratio: number;
-  featureEnabled?: boolean | null;
-  featureValue?: string | null;
-  screenshots?: (BranchScreenshotType | null)[] | null;
-}
-
-export interface TreatmentBranchType {
-  id?: number | null;
-  name: string;
-  description: string;
-  ratio: number;
-  featureEnabled?: boolean | null;
-  featureValue?: string | null;
-  screenshots?: (BranchScreenshotType | null)[] | null;
 }
 
 //==============================================================

@@ -6,9 +6,9 @@ import React from "react";
 import { FormProvider } from "react-hook-form";
 import FormScreenshot from ".";
 import { useForm } from "../../../../hooks";
-import { BranchScreenshotType } from "../../../../types/globalTypes";
+import { BranchScreenshotInput } from "../../../../types/globalTypes";
 
-export const MOCK_SCREENSHOT: BranchScreenshotType = {
+export const MOCK_SCREENSHOT: BranchScreenshotInput = {
   id: 123,
   description: "This is a screenshot",
   image: "/image/that/was/uploaded",

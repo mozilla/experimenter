@@ -27,7 +27,7 @@ import { FormData } from "./reducer/update";
 type FormBranchesProps = {
   isLoading: boolean;
   experiment: getExperiment_experimentBySlug;
-  featureConfigs: getConfig_nimbusConfig["featureConfigs"];
+  allFeatureConfigs: getConfig_nimbusConfig["featureConfigs"];
   onSave: (
     state: FormBranchesSaveState,
     setSubmitErrors: (submitErrors: any) => void,
@@ -39,14 +39,14 @@ type FormBranchesProps = {
 export const FormBranches = ({
   isLoading,
   experiment,
-  featureConfigs,
+  allFeatureConfigs,
   onSave,
 }: FormBranchesProps) => {
   const { fieldMessages } = useReviewCheck(experiment);
 
   const [
     {
-      featureConfig: experimentFeatureConfig,
+      featureConfigs: experimentFeatureConfigs,
       referenceBranch,
       treatmentBranches,
       equalRatio,
@@ -54,7 +54,9 @@ export const FormBranches = ({
     },
     extractSaveState,
     dispatch,
-  ] = useFormBranchesReducer(experiment);
+  ] = useFormBranchesReducer({
+    featureConfigs: experiment.featureConfigs?.map((f) => f.id),
+  });
 
   const defaultValues = useMemo(
     () => ({
@@ -115,10 +117,10 @@ export const FormBranches = ({
   };
 
   const handleFeatureConfigChange = (
-    value: getConfig_nimbusConfig_featureConfigs | null,
+    featureConfig: getConfig_nimbusConfig_featureConfigs | null,
   ) => {
     commitFormData();
-    dispatch({ type: "setFeatureConfig", value });
+    dispatch({ type: "setFeatureConfigs", value: [featureConfig?.id ?? null] });
   };
 
   const onFeatureConfigChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,7 +129,7 @@ export const FormBranches = ({
       return handleFeatureConfigChange(null);
     }
     // featureConfig shouldn't ever be null in practice
-    const feature = featureConfigs![selectedIdx];
+    const feature = allFeatureConfigs![selectedIdx];
     return handleFeatureConfigChange(feature);
   };
 
@@ -163,13 +165,15 @@ export const FormBranches = ({
     }),
   );
 
-  const commonBranchProps = {
+  type FormBranchProps = React.ComponentProps<typeof FormBranch>;
+
+  const commonBranchProps: Pick<
+    FormBranchProps,
+    "equalRatio" | "setSubmitErrors"
+  > = {
     equalRatio,
-    experimentFeatureConfig,
     setSubmitErrors,
   };
-
-  type FormBranchProps = React.ComponentProps<typeof FormBranch>;
 
   return (
     <FormProvider {...formMethods}>
@@ -201,12 +205,14 @@ export const FormBranches = ({
               fieldMessages.feature_config?.length > 0 && "is-warning",
             )}
             onChange={onFeatureConfigChange}
-            value={featureConfigs!.findIndex(
-              (feature) => feature?.slug === experimentFeatureConfig?.slug,
+            value={allFeatureConfigs!.findIndex(
+              (feature) =>
+                (experimentFeatureConfigs?.indexOf(feature?.id ?? 0) ?? -1) >
+                -1,
             )}
           >
             <option value="">Select...</option>
-            {featureConfigs?.map(
+            {allFeatureConfigs?.map(
               (feature, idx) =>
                 feature && (
                   <option key={`feature-${feature.slug}-${idx}`} value={idx}>

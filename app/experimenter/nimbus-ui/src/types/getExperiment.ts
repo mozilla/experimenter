@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentConclusionRecommendation, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusDocumentationLinkTitle, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
+import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentConclusionRecommendation, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusExperimentDocumentationLink, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -18,6 +18,16 @@ export interface getExperiment_experimentBySlug_parent {
   slug: string;
 }
 
+export interface getExperiment_experimentBySlug_referenceBranch_featureValues_featureConfig {
+  id: number | null;
+}
+
+export interface getExperiment_experimentBySlug_referenceBranch_featureValues {
+  featureConfig: getExperiment_experimentBySlug_referenceBranch_featureValues_featureConfig | null;
+  enabled: boolean | null;
+  value: string | null;
+}
+
 export interface getExperiment_experimentBySlug_referenceBranch_screenshots {
   id: number | null;
   description: string | null;
@@ -30,9 +40,18 @@ export interface getExperiment_experimentBySlug_referenceBranch {
   slug: string;
   description: string;
   ratio: number;
-  featureValue: string | null;
-  featureEnabled: boolean;
+  featureValues: getExperiment_experimentBySlug_referenceBranch_featureValues[] | null;
   screenshots: getExperiment_experimentBySlug_referenceBranch_screenshots[] | null;
+}
+
+export interface getExperiment_experimentBySlug_treatmentBranches_featureValues_featureConfig {
+  id: number | null;
+}
+
+export interface getExperiment_experimentBySlug_treatmentBranches_featureValues {
+  featureConfig: getExperiment_experimentBySlug_treatmentBranches_featureValues_featureConfig | null;
+  enabled: boolean | null;
+  value: string | null;
 }
 
 export interface getExperiment_experimentBySlug_treatmentBranches_screenshots {
@@ -47,12 +66,11 @@ export interface getExperiment_experimentBySlug_treatmentBranches {
   slug: string;
   description: string;
   ratio: number;
-  featureValue: string | null;
-  featureEnabled: boolean;
+  featureValues: getExperiment_experimentBySlug_treatmentBranches_featureValues[] | null;
   screenshots: getExperiment_experimentBySlug_treatmentBranches_screenshots[] | null;
 }
 
-export interface getExperiment_experimentBySlug_featureConfig {
+export interface getExperiment_experimentBySlug_featureConfigs {
   id: number | null;
   slug: string;
   name: string;
@@ -74,7 +92,7 @@ export interface getExperiment_experimentBySlug_signoffRecommendations {
 }
 
 export interface getExperiment_experimentBySlug_documentationLinks {
-  title: NimbusDocumentationLinkTitle;
+  title: NimbusExperimentDocumentationLink | null;
   link: string;
 }
 
@@ -140,7 +158,7 @@ export interface getExperiment_experimentBySlug {
   parent: getExperiment_experimentBySlug_parent | null;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
-  featureConfig: getExperiment_experimentBySlug_featureConfig | null;
+  featureConfigs: getExperiment_experimentBySlug_featureConfigs[] | null;
   primaryOutcomes: (string | null)[] | null;
   secondaryOutcomes: (string | null)[] | null;
   channel: NimbusExperimentChannel | null;
