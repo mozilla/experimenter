@@ -13,7 +13,7 @@ export interface getAllExperiments_experiments_owner {
   username: string;
 }
 
-export interface getAllExperiments_experiments_featureConfig {
+export interface getAllExperiments_experiments_featureConfigs {
   id: number | null;
   slug: string;
   name: string;
@@ -27,7 +27,7 @@ export interface getAllExperiments_experiments {
   isArchived: boolean | null;
   name: string;
   owner: getAllExperiments_experiments_owner;
-  featureConfig: getAllExperiments_experiments_featureConfig | null;
+  featureConfigs: getAllExperiments_experiments_featureConfigs[] | null;
   slug: string;
   application: NimbusExperimentApplication | null;
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;

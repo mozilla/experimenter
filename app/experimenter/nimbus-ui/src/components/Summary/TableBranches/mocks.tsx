@@ -11,13 +11,7 @@ import AppLayout from "../../AppLayout";
 type TableBranchesProps = React.ComponentProps<typeof TableBranches>;
 
 const { experiment } = mockExperimentQuery("demo-slug", {});
-export const MOCK_EXPERIMENT = {
-  ...experiment,
-  featureConfig: {
-    ...experiment.featureConfig!,
-    schema: "{}",
-  },
-};
+export const MOCK_EXPERIMENT = experiment;
 
 export const Subject = ({
   experiment = MOCK_EXPERIMENT,

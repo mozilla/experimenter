@@ -3,7 +3,22 @@ schema {
   mutation: Mutation
 }
 
-input BranchScreenshotType {
+input BranchFeatureValueInput {
+  featureConfig: Int
+  enabled: Boolean
+  value: String
+}
+
+input BranchInput {
+  id: Int
+  name: String!
+  description: String!
+  ratio: Int!
+  featureValues: [BranchFeatureValueInput]
+  screenshots: [BranchScreenshotInput]
+}
+
+input BranchScreenshotInput {
   id: Int
   image: Upload
   description: String
@@ -21,7 +36,7 @@ type CreateExperiment {
 
 scalar DateTime
 
-input DocumentationLinkType {
+input DocumentationLinkInput {
   title: NimbusExperimentDocumentationLink!
   link: String!
 }
@@ -44,10 +59,10 @@ input ExperimentInput {
   publicDescription: String
   isEnrollmentPaused: Boolean
   riskMitigationLink: String
-  featureConfigId: Int
-  documentationLinks: [DocumentationLinkType]
-  referenceBranch: ReferenceBranchType
-  treatmentBranches: [TreatmentBranchType]
+  featureConfigs: [Int]
+  documentationLinks: [DocumentationLinkInput]
+  referenceBranch: BranchInput
+  treatmentBranches: [BranchInput]
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
   channel: NimbusExperimentChannel
@@ -75,6 +90,14 @@ type Mutation {
   cloneExperiment(input: ExperimentCloneInput!): CloneExperiment
 }
 
+type NimbusBranchFeatureValueType {
+  id: ID!
+  branch: NimbusBranchType!
+  featureConfig: NimbusFeatureConfigType
+  enabled: Boolean
+  value: String
+}
+
 type NimbusBranchScreenshotType {
   id: Int
   branch: NimbusBranchType!
@@ -88,9 +111,8 @@ type NimbusBranchType {
   slug: String!
   description: String!
   ratio: Int!
+  featureValues: [NimbusBranchFeatureValueType!]
   screenshots: [NimbusBranchScreenshotType!]
-  featureEnabled: Boolean!
-  featureValue: String
 }
 
 type NimbusBucketRangeType {
@@ -144,7 +166,7 @@ enum NimbusChangeLogOldStatusNext {
 type NimbusChangeLogType {
   experiment: NimbusExperimentType!
   changedOn: DateTime!
-  changedBy: NimbusUser!
+  changedBy: NimbusUserType!
   oldStatus: NimbusChangeLogOldStatus
   oldStatusNext: NimbusChangeLogOldStatusNext
   oldPublishStatus: NimbusChangeLogOldPublishStatus
@@ -157,7 +179,7 @@ type NimbusChangeLogType {
 }
 
 type NimbusConfigurationType {
-  applicationConfigs: [NimbusExperimentApplicationConfig]
+  applicationConfigs: [NimbusExperimentApplicationConfigType]
   applications: [NimbusLabelValueType]
   channels: [NimbusLabelValueType]
   countries: [NimbusCountryType]
@@ -168,8 +190,8 @@ type NimbusConfigurationType {
   locales: [NimbusLocaleType]
   maxPrimaryOutcomes: Int
   outcomes: [NimbusOutcomeType]
-  owners: [NimbusUser]
-  targetingConfigs: [NimbusExperimentTargetingConfig]
+  owners: [NimbusUserType]
+  targetingConfigs: [NimbusExperimentTargetingConfigType]
   conclusionRecommendations: [NimbusLabelValueType]
 }
 
@@ -180,14 +202,8 @@ type NimbusCountryType {
   nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
-enum NimbusDocumentationLinkTitle {
-  DS_JIRA
-  DESIGN_DOC
-  ENG_TICKET
-}
-
 type NimbusDocumentationLinkType {
-  title: NimbusDocumentationLinkTitle!
+  title: NimbusExperimentDocumentationLink
   link: String!
 }
 
@@ -201,7 +217,7 @@ enum NimbusExperimentApplication {
   KLAR_IOS
 }
 
-type NimbusExperimentApplicationConfig {
+type NimbusExperimentApplicationConfigType {
   application: NimbusExperimentApplication
   channels: [NimbusLabelValueType]
   supportsLocaleCountry: Boolean
@@ -339,7 +355,7 @@ enum NimbusExperimentStatus {
   COMPLETE
 }
 
-type NimbusExperimentTargetingConfig {
+type NimbusExperimentTargetingConfigType {
   label: String
   value: String
   applicationValues: [String]
@@ -350,7 +366,7 @@ type NimbusExperimentType {
   parent: NimbusExperimentType
   isRollout: Boolean
   isArchived: Boolean
-  owner: NimbusUser!
+  owner: NimbusUserType!
   status: NimbusExperimentStatus
   statusNext: NimbusExperimentStatus
   publishStatus: NimbusExperimentPublishStatus
@@ -387,8 +403,8 @@ type NimbusExperimentType {
   changes: [NimbusChangeLogType!]!
   treatmentBranches: [NimbusBranchType]
   jexlTargetingExpression: String
-  featureConfig: NimbusFeatureConfigType
-  readyForReview: NimbusReadyForReviewType
+  featureConfigs: [NimbusFeatureConfigType!]
+  readyForReview: NimbusReviewType
   monitoringDashboardUrl: String
   resultsReady: Boolean
   startDate: DateTime
@@ -419,6 +435,7 @@ type NimbusFeatureConfigType {
   schema: String
   readOnly: Boolean!
   nimbusexperimentSet: [NimbusExperimentType!]!
+  nimbusbranchfeaturevalueSet: [NimbusBranchFeatureValueType!]!
 }
 
 enum NimbusIsolationGroupApplication {
@@ -466,7 +483,7 @@ type NimbusOutcomeType {
   metrics: [NimbusOutcomeMetricType]
 }
 
-type NimbusReadyForReviewType {
+type NimbusReviewType {
   message: ObjectField
   ready: Boolean
 }
@@ -477,7 +494,7 @@ type NimbusSignoffRecommendationsType {
   legalSignoff: Boolean
 }
 
-type NimbusUser {
+type NimbusUserType {
   id: Int
   username: String!
   firstName: String!
@@ -498,26 +515,6 @@ type Query {
   experiments: [NimbusExperimentType]
   experimentBySlug(slug: String!): NimbusExperimentType
   nimbusConfig: NimbusConfigurationType
-}
-
-input ReferenceBranchType {
-  id: Int
-  name: String!
-  description: String!
-  ratio: Int!
-  featureEnabled: Boolean
-  featureValue: String
-  screenshots: [BranchScreenshotType]
-}
-
-input TreatmentBranchType {
-  id: Int
-  name: String!
-  description: String!
-  ratio: Int!
-  featureEnabled: Boolean
-  featureValue: String
-  screenshots: [BranchScreenshotType]
 }
 
 type UpdateExperiment {

@@ -41,8 +41,6 @@ const TableBranches = ({
 }: {
   experiment: getExperiment_experimentBySlug;
 }) => {
-  const { featureConfig } = experiment;
-  const hasSchema = featureConfig?.schema !== null;
   const branches = [
     experiment.referenceBranch,
     ...(experiment.treatmentBranches || []),
@@ -59,7 +57,7 @@ const TableBranches = ({
       ) : (
         <>
           {savedBranches.map((branch, key) => (
-            <TableBranch key={key} {...{ hasSchema, experiment, branch }} />
+            <TableBranch key={key} {...{ experiment, branch }} />
           ))}
         </>
       )}
@@ -68,23 +66,13 @@ const TableBranches = ({
 };
 
 const TableBranch = ({
-  hasSchema,
   experiment,
   branch,
 }: {
-  hasSchema: boolean;
   experiment: getExperiment_experimentBySlug;
   branch: Branch;
 }) => {
-  const {
-    name,
-    slug,
-    description,
-    ratio,
-    featureValue,
-    featureEnabled,
-    screenshots,
-  } = branch;
+  const { name, slug, description, ratio, featureValues, screenshots } = branch;
   const cloneDialogProps = useCloneDialog(experiment, branch);
   return (
     <Table
@@ -135,20 +123,26 @@ const TableBranch = ({
           <th>Ratio</th>
           <td data-testid="branch-ratio">{ratio ? ratio : <NotSet />}</td>
         </tr>
-        <tr>
-          <th>Enabled</th>
-          <td data-testid="branch-enabled">
-            {featureEnabled ? "True" : "False"}
-          </td>
-        </tr>
-        {hasSchema && featureEnabled && (
-          <tr>
-            <th>Value</th>
-            <td data-testid="branch-featureValue">
-              {featureValue ? <Code codeString={featureValue} /> : <NotSet />}
-            </td>
-          </tr>
-        )}
+        {featureValues?.map((featureValue) => (
+          <>
+            <tr>
+              <th>Enabled</th>
+              <td data-testid="branch-enabled">
+                {featureValue.enabled ? "True" : "False"}
+              </td>
+            </tr>
+            <tr>
+              <th>Value</th>
+              <td data-testid="branch-featureValue">
+                {featureValue?.value ? (
+                  <Code codeString={featureValue.value} />
+                ) : (
+                  <NotSet />
+                )}
+              </td>
+            </tr>
+          </>
+        ))}
         {screenshots && screenshots.length > 0 && (
           <tr>
             <th>Screenshots</th>

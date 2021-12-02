@@ -12,9 +12,15 @@ const MOCK_STATE: FormBranchesState = {
   equalRatio: true,
   lastId: 0,
   globalErrors: [],
-  featureConfig: MOCK_EXPERIMENT.featureConfig,
+  featureConfigs: MOCK_EXPERIMENT.featureConfigs!.map((f) => f.id),
   referenceBranch: {
     ...MOCK_EXPERIMENT.referenceBranch!,
+    featureValues: MOCK_EXPERIMENT.referenceBranch!.featureValues?.map(
+      (fv) => ({
+        ...fv,
+        featureConfig: fv.featureConfig!.id,
+      }),
+    ),
     screenshots: [],
     key: "branch-reference",
     errors: {},
@@ -23,6 +29,10 @@ const MOCK_STATE: FormBranchesState = {
   },
   treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map((branch, idx) => ({
     ...branch!,
+    featureValues: branch!.featureValues?.map((fv) => ({
+      ...fv,
+      featureConfig: fv.featureConfig!.id,
+    })),
     screenshots: [],
     key: `branch-${idx}`,
     errors: {},
@@ -237,11 +247,15 @@ describe("formBranchesReducer", () => {
 
     const newState = formBranchesActionReducer(oldState, action);
 
-    expect(newState.featureConfig).toBeNull();
-    expect(newState.referenceBranch?.featureEnabled).toBe(false);
+    expect(newState.featureConfigs!.length).toEqual(0);
     expect(
-      newState.treatmentBranches?.every(
-        (branch) => branch?.featureEnabled === false,
+      newState.referenceBranch!.featureValues!.every(
+        (fv) => fv!.enabled === false,
+      ),
+    ).toEqual(true);
+    expect(
+      newState.treatmentBranches!.every((branch) =>
+        branch!.featureValues!.every((fv) => fv!.enabled === false),
       ),
     ).toEqual(true);
   };
@@ -250,8 +264,8 @@ describe("formBranchesReducer", () => {
     it(
       "disables any enabled features in branches when the config is set to null",
       commonClearFeatureConfigTest({
-        type: "setFeatureConfig",
-        value: null,
+        type: "setFeatureConfigs",
+        value: [],
       }),
     );
   });

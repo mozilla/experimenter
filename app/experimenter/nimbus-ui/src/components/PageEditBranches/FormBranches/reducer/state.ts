@@ -2,16 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  getExperiment_experimentBySlug,
-  getExperiment_experimentBySlug_treatmentBranches,
-} from "../../../../types/getExperiment";
-import { TreatmentBranchType } from "../../../../types/globalTypes";
+import { BranchInput, ExperimentInput } from "../../../../types/globalTypes";
 
-export type FormBranchesState = Pick<
-  getExperiment_experimentBySlug,
-  "featureConfig"
-> & {
+export type FormBranchesState = Pick<ExperimentInput, "featureConfigs"> & {
   referenceBranch: null | AnnotatedBranch;
   treatmentBranches: null | AnnotatedBranch[];
   equalRatio: boolean;
@@ -19,7 +12,7 @@ export type FormBranchesState = Pick<
   globalErrors: string[];
 };
 
-export type AnnotatedBranch = Omit<TreatmentBranchType, "id"> & {
+export type AnnotatedBranch = Omit<BranchInput, "id"> & {
   id?: number | null;
   key: string;
   isValid: boolean;
@@ -30,17 +23,21 @@ export type AnnotatedBranch = Omit<TreatmentBranchType, "id"> & {
 };
 
 export function createInitialState({
-  featureConfig,
+  featureConfigs,
   referenceBranch,
   treatmentBranches,
-}: getExperiment_experimentBySlug): FormBranchesState {
+}: Pick<
+  ExperimentInput,
+  "featureConfigs" | "referenceBranch" | "treatmentBranches"
+>): FormBranchesState {
   let lastId = 0;
 
   const equalRatio =
     treatmentBranches !== null &&
-    treatmentBranches?.every(
+    (treatmentBranches?.every(
       (branch) => branch?.ratio === referenceBranch?.ratio,
-    );
+    ) ??
+      true);
 
   const annotatedReferenceBranch =
     referenceBranch === null
@@ -56,7 +53,7 @@ export function createInitialState({
   return {
     lastId,
     equalRatio,
-    featureConfig,
+    featureConfigs,
     globalErrors: [],
     referenceBranch: annotatedReferenceBranch,
     treatmentBranches: annotatedTreatmentBranches,
@@ -65,7 +62,7 @@ export function createInitialState({
 
 export function annotateExperimentBranch(
   lastId: number | string,
-  branch: getExperiment_experimentBySlug_treatmentBranches,
+  branch: BranchInput,
 ): AnnotatedBranch {
   return {
     ...branch,
@@ -89,7 +86,12 @@ export function createAnnotatedBranch(
     name,
     description: "",
     ratio: 1,
-    featureValue: null,
-    featureEnabled: false,
+    featureValues: [
+      {
+        featureConfig: null,
+        enabled: false,
+        value: null,
+      },
+    ],
   };
 }

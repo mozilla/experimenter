@@ -93,16 +93,16 @@ describe("DirectoryColumnFeature", () => {
     );
     expect(
       screen.getByTestId("directory-feature-config-name"),
-    ).toHaveTextContent(experiment.featureConfig!.name);
+    ).toHaveTextContent(experiment.featureConfigs![0]!.name);
     expect(
       screen.getByTestId("directory-feature-config-slug"),
-    ).toHaveTextContent(experiment.featureConfig!.slug);
+    ).toHaveTextContent(experiment.featureConfigs![0]!.slug);
   });
 
   it("renders the None label if feature config is not present", () => {
     render(
       <TestTable>
-        <DirectoryColumnFeature {...experiment} featureConfig={null} />
+        <DirectoryColumnFeature {...experiment} featureConfigs={[]} />
       </TestTable>,
     );
     expect(
@@ -131,7 +131,7 @@ describe("DirectoryTable", () => {
     expectTableCells("directory-table-cell", [
       experiment.name,
       experiment.owner!.username,
-      experiment.featureConfig!.name,
+      experiment.featureConfigs![0]!.name,
     ]);
     expect(screen.getAllByTestId("directory-table-row")).toHaveLength(
       experiments.length,
@@ -256,7 +256,7 @@ describe("DirectoryLiveTable", () => {
       expectTableCells("directory-table-cell", [
         experiment.name,
         experiment.owner!.username,
-        experiment.featureConfig!.name,
+        experiment.featureConfigs![0]!.name,
         humanDate(experiment.startDate!),
         getProposedEnrollmentRange(experiment) as string,
         humanDate(experiment.computedEndDate!),
@@ -288,7 +288,7 @@ describe("DirectoryCompleteTable", () => {
     expectTableCells("directory-table-cell", [
       experiment.name,
       experiment.owner!.username,
-      experiment.featureConfig!.name,
+      experiment.featureConfigs![0]!.name,
       humanDate(experiment.startDate!),
       humanDate(experiment.computedEndDate!),
       "Results",
@@ -307,7 +307,7 @@ describe("DirectoryDraftsTable", () => {
     expectTableCells("directory-table-cell", [
       experiment.name,
       experiment.owner!.username,
-      experiment.featureConfig!.name,
+      experiment.featureConfigs![0]!.name,
     ]);
   });
 });

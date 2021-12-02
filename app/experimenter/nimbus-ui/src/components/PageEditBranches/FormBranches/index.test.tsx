@@ -190,8 +190,9 @@ describe("FormBranches", () => {
               slug: "",
               description: "",
               ratio: 1,
-              featureValue: null,
-              featureEnabled: false,
+              featureValues: [
+                { featureConfig: null, enabled: false, value: null },
+              ],
               screenshots: [],
             },
             treatmentBranches: null,
@@ -300,7 +301,7 @@ describe("FormBranches", () => {
     expect(
       saveResult.treatmentBranches.findIndex(
         (branch: typeof MOCK_BRANCH) =>
-          branch.slug === expectedDeletedBranch.slug,
+          branch.name === expectedDeletedBranch.name,
       ),
     ).toEqual(-1);
   });
@@ -313,7 +314,7 @@ describe("FormBranches", () => {
           onSave,
           experiment: {
             ...MOCK_EXPERIMENT,
-            featureConfig: null,
+            featureConfigs: [],
           },
         }}
       />,
@@ -333,7 +334,7 @@ describe("FormBranches", () => {
           onSave,
           experiment: {
             ...MOCK_EXPERIMENT,
-            featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+            featureConfigs: [MOCK_FEATURE_CONFIG_WITH_SCHEMA],
           },
         }}
       />,
@@ -407,7 +408,7 @@ describe("FormBranches", () => {
             readyForReview: {
               ready: false,
               message: {
-                feature_config: [SERVER_ERRORS.FEATURE_CONFIG],
+                feature_configs: [SERVER_ERRORS.FEATURE_CONFIG],
                 reference_branch: {
                   description: [SERVER_ERRORS.BLANK_DESCRIPTION],
                 },
@@ -425,8 +426,13 @@ describe("FormBranches", () => {
                 slug: "",
                 description: "",
                 ratio: 0,
-                featureValue: null,
-                featureEnabled: false,
+                featureValues: [
+                  {
+                    featureConfig: null,
+                    enabled: false,
+                    value: null,
+                  },
+                ],
                 screenshots: [],
               },
             ],

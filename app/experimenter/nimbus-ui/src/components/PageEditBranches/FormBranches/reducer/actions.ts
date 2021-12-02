@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BranchScreenshotType } from "../../../../types/globalTypes";
+import { BranchScreenshotInput } from "../../../../types/globalTypes";
 import {
   AnnotatedBranch,
   createAnnotatedBranch,
@@ -21,7 +21,7 @@ export function formBranchesActionReducer(
       return addBranch(state);
     case "removeBranch":
       return removeBranch(state, action);
-    case "setFeatureConfig":
+    case "setFeatureConfigs":
       return setFeatureConfig(state, action);
     case "setEqualRatio":
       return setEqualRatio(state, action);
@@ -102,15 +102,29 @@ function removeFeatureConfig(state: FormBranchesState) {
   if (referenceBranch) {
     referenceBranch = {
       ...referenceBranch,
-      featureEnabled: false,
-      featureValue: null,
+      featureValues: [
+        {
+          featureConfig: null,
+          enabled: false,
+          value: null,
+        },
+      ],
     };
   }
 
   if (Array.isArray(treatmentBranches)) {
     treatmentBranches = treatmentBranches.map(
       (branch) =>
-        branch && { ...branch, featureEnabled: false, featureValue: null },
+        branch && {
+          ...branch,
+          featureValues: [
+            {
+              featureConfig: null,
+              enabled: false,
+              value: null,
+            },
+          ],
+        },
     );
   }
 
@@ -123,8 +137,8 @@ function removeFeatureConfig(state: FormBranchesState) {
 }
 
 type SetFeatureConfigAction = {
-  type: "setFeatureConfig";
-  value: FormBranchesState["featureConfig"];
+  type: "setFeatureConfigs";
+  value: FormBranchesState["featureConfigs"];
 };
 
 function setFeatureConfig(
@@ -310,7 +324,7 @@ function addScreenshotToBranch(
   const { branchIdx } = action;
   let { referenceBranch, treatmentBranches } = state;
 
-  const newScreenshot: BranchScreenshotType = { description: "", image: null };
+  const newScreenshot: BranchScreenshotInput = { description: "", image: null };
 
   if (branchIdx === REFERENCE_BRANCH_IDX && referenceBranch) {
     referenceBranch = {
@@ -394,7 +408,7 @@ function withModifiedBranch(
 }
 
 function withoutScreenshot(
-  screenshots: (BranchScreenshotType | null)[] | null | undefined,
+  screenshots: (BranchScreenshotInput | null)[] | null | undefined,
   idx: number,
 ) {
   if (!screenshots) return [];

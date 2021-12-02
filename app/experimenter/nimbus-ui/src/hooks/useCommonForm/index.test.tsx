@@ -20,10 +20,7 @@ import { Subject as OverviewSubject } from "../../components/FormOverview/mocks"
 import { audienceFieldNames } from "../../components/PageEditAudience/FormAudience";
 import { Subject as AudienceSubject } from "../../components/PageEditAudience/FormAudience/mocks";
 import { branchFieldNames } from "../../components/PageEditBranches/FormBranches/FormBranch";
-import {
-  MOCK_FEATURE_CONFIG_WITH_SCHEMA,
-  SubjectBranch as BranchSubject,
-} from "../../components/PageEditBranches/FormBranches/mocks";
+import { SubjectBranch as BranchSubject } from "../../components/PageEditBranches/FormBranches/mocks";
 import { metricsFieldNames } from "../../components/PageEditMetrics/FormMetrics";
 import { Subject as MetricsSubject } from "../../components/PageEditMetrics/FormMetrics/mocks";
 import { mockExperimentQuery } from "../../lib/mocks";
@@ -164,11 +161,7 @@ describe("hooks/useCommonForm", () => {
     });
 
     it("FormBranch", () => {
-      const { container } = render(
-        <BranchSubject
-          experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
-        />,
-      );
+      const { container } = render(<BranchSubject />);
 
       branchFieldNames.forEach((name) => {
         const fieldName = `referenceBranch.${name}`;

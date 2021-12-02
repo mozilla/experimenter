@@ -36,8 +36,12 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
   owners: (option, experiment) => experiment.owner.username === option.username,
   applications: (option, experiment) => experiment.application === option.value,
   featureConfigs: (option, experiment) =>
-    experiment.featureConfig?.slug === option.slug &&
-    experiment.featureConfig?.application === option.application,
+    (experiment.featureConfigs?.length ?? 0) > 0 &&
+    (experiment.featureConfigs?.map((f) => f.slug).indexOf(option.slug) ?? -1) >
+      -1 &&
+    (experiment.featureConfigs
+      ?.map((f) => f.application)
+      .indexOf(option.application) ?? -1) > -1,
   firefoxVersions: (option, experiment) =>
     experiment.firefoxMinVersion === option.value,
 };

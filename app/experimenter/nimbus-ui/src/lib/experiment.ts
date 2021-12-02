@@ -90,7 +90,7 @@ export type ExperimentSortSelector =
 
 export const featureConfigNameSortSelector: ExperimentSortSelector = (
   experiment,
-) => experiment.featureConfig?.name;
+) => experiment.featureConfigs?.reduce((prev, curr, idx) => curr).name;
 
 export const ownerUsernameSortSelector: ExperimentSortSelector = (experiment) =>
   experiment.owner?.username;

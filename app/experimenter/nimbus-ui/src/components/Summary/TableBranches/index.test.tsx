@@ -57,8 +57,13 @@ describe("TableBranches", () => {
               slug: "",
               description: "",
               ratio: 0,
-              featureValue: null,
-              featureEnabled: false,
+              featureValues: [
+                {
+                  featureConfig: MOCK_EXPERIMENT.featureConfigs![0],
+                  enabled: false,
+                  value: null,
+                },
+              ],
               screenshots: [],
             },
           ],
@@ -72,21 +77,6 @@ describe("TableBranches", () => {
     );
   });
 
-  it("hides feature value when feature schema is null", () => {
-    render(
-      <Subject
-        experiment={{
-          ...MOCK_EXPERIMENT,
-          featureConfig: {
-            ...MOCK_EXPERIMENT.featureConfig!,
-            schema: null,
-          },
-        }}
-      />,
-    );
-    expect(screen.queryByTestId("branch-value")).not.toBeInTheDocument();
-  });
-
   it("hides feature value when feature is not enabled", () => {
     render(
       <Subject
@@ -94,12 +84,22 @@ describe("TableBranches", () => {
           ...MOCK_EXPERIMENT,
           referenceBranch: {
             ...MOCK_EXPERIMENT.referenceBranch!,
-            featureEnabled: false,
+            featureValues: [
+              {
+                ...MOCK_EXPERIMENT.referenceBranch!.featureValues![0],
+                enabled: false,
+              },
+            ],
           },
           treatmentBranches: [
             {
               ...MOCK_EXPERIMENT.treatmentBranches![0]!,
-              featureEnabled: false,
+              featureValues: [
+                {
+                  ...MOCK_EXPERIMENT.treatmentBranches![0]!.featureValues![0],
+                  enabled: false,
+                },
+              ],
             },
           ],
         }}
@@ -117,7 +117,13 @@ describe("TableBranches", () => {
       slug: "expected slug",
       description: "expected description",
       ratio: 42,
-      featureValue: '{ "thing": true }',
+      featureValues: [
+        {
+          featureConfig: MOCK_EXPERIMENT.featureConfigs![0],
+          enabled: true,
+          value: '{ "thing": true }',
+        },
+      ],
     };
 
     render(
@@ -129,7 +135,6 @@ describe("TableBranches", () => {
               ...expected,
               id: 456,
               screenshots: [],
-              featureEnabled: true,
             },
             ...MOCK_EXPERIMENT.treatmentBranches!,
           ],
@@ -184,8 +189,13 @@ describe("TableBranches", () => {
               slug: "expected slug",
               description: "expected description",
               ratio: 42,
-              featureValue: '{ "thing": true }',
-              featureEnabled: true,
+              featureValues: [
+                {
+                  featureConfig: MOCK_EXPERIMENT.featureConfigs![0],
+                  enabled: true,
+                  value: '{ "thing": true }',
+                },
+              ],
               screenshots: expectedScreenshots,
             },
             ...MOCK_EXPERIMENT.treatmentBranches!,
@@ -225,7 +235,13 @@ describe("TableBranches", () => {
       slug: "expected-slug",
       description: "expected description",
       ratio: 42,
-      featureValue: '{ "thing": true }',
+      featureValues: [
+        {
+          featureConfig: MOCK_EXPERIMENT.featureConfigs![0],
+          enabled: true,
+          value: '{ "thing": true }',
+        },
+      ],
       screenshots: [],
     };
 
@@ -233,13 +249,7 @@ describe("TableBranches", () => {
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
-          treatmentBranches: [
-            {
-              ...expected,
-              featureEnabled: true,
-            },
-            ...MOCK_EXPERIMENT.treatmentBranches!,
-          ],
+          treatmentBranches: [expected, ...MOCK_EXPERIMENT.treatmentBranches!],
         }}
       />,
     );
@@ -269,8 +279,13 @@ describe("TableBranches", () => {
               slug: "treatment-1",
               description: "",
               ratio: 0,
-              featureValue: null,
-              featureEnabled: true,
+              featureValues: [
+                {
+                  featureConfig: MOCK_EXPERIMENT.featureConfigs![0],
+                  enabled: true,
+                  value: null,
+                },
+              ],
               screenshots: [],
             },
             {
@@ -279,8 +294,13 @@ describe("TableBranches", () => {
               slug: "",
               description: "",
               ratio: 0,
-              featureValue: null,
-              featureEnabled: true,
+              featureValues: [
+                {
+                  featureConfig: MOCK_EXPERIMENT.featureConfigs![0],
+                  enabled: true,
+                  value: null,
+                },
+              ],
               screenshots: [],
             },
           ],

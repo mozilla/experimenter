@@ -12,15 +12,17 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentApplication } from "../../types/globalTypes";
 
-const featureConfig = {
-  id: 2,
-  name: "Mauris odio erat",
-  slug: "mauris-odio-erat",
-  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  application: NimbusExperimentApplication.FENIX,
-  ownerEmail: "dude23@yahoo.com",
-  schema: '{ "sample": "schema" }',
-};
+const featureConfigs = [
+  {
+    id: 2,
+    name: "Mauris odio erat",
+    slug: "mauris-odio-erat",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    application: NimbusExperimentApplication.FENIX,
+    ownerEmail: "dude23@yahoo.com",
+    schema: '{ "sample": "schema" }',
+  },
+];
 
 const emptyBranches: Partial<getExperiment_experimentBySlug> = {
   referenceBranch: {
@@ -29,8 +31,13 @@ const emptyBranches: Partial<getExperiment_experimentBySlug> = {
     slug: "",
     description: "",
     ratio: 1,
-    featureValue: "",
-    featureEnabled: false,
+    featureValues: [
+      {
+        featureConfig: featureConfigs[0],
+        enabled: false,
+        value: "",
+      },
+    ],
     screenshots: [],
   },
   treatmentBranches: [
@@ -40,8 +47,13 @@ const emptyBranches: Partial<getExperiment_experimentBySlug> = {
       slug: "",
       description: "",
       ratio: 1,
-      featureValue: "woop woop",
-      featureEnabled: true,
+      featureValues: [
+        {
+          featureConfig: featureConfigs[0],
+          enabled: true,
+          value: "woop woop",
+        },
+      ],
       screenshots: [],
     },
   ],
@@ -66,11 +78,11 @@ const storyWithExperiment = (
 
 export const Basic = () => storyWithExperiment(emptyBranches);
 
-export const FilledOutFields = () => storyWithExperiment({ featureConfig });
+export const FilledOutFields = () => storyWithExperiment({ featureConfigs });
 
 export const MissingFields = () =>
   storyWithExperiment({
-    featureConfig,
+    featureConfigs,
     ...emptyBranches,
     readyForReview: {
       ready: false,

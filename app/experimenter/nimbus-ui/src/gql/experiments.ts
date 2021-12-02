@@ -61,8 +61,13 @@ export const GET_EXPERIMENT_QUERY = gql`
         slug
         description
         ratio
-        featureValue
-        featureEnabled
+        featureValues {
+          featureConfig {
+            id
+          }
+          enabled
+          value
+        }
         screenshots {
           id
           description
@@ -76,8 +81,13 @@ export const GET_EXPERIMENT_QUERY = gql`
         slug
         description
         ratio
-        featureValue
-        featureEnabled
+        featureValues {
+          featureConfig {
+            id
+          }
+          enabled
+          value
+        }
         screenshots {
           id
           description
@@ -85,7 +95,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         }
       }
 
-      featureConfig {
+      featureConfigs {
         id
         slug
         name
@@ -183,7 +193,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       owner {
         username
       }
-      featureConfig {
+      featureConfigs {
         id
         slug
         name
@@ -206,7 +216,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       publishStatus
       monitoringDashboardUrl
       resultsReady
-      featureConfig {
+      featureConfigs {
         slug
         name
       }
