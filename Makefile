@@ -47,7 +47,7 @@ PUBLISH_STORYBOOKS = npx github:mozilla-fxa/storybook-gcp-publisher --commit-sum
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/jetstream-config/archive/main.zip
-FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/default/toolkit/components/nimbus/FeatureManifest.js
+FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/b12bc4e6534808fb9a5352b7545f573f6dec90d3/toolkit/components/nimbus/FeatureManifest.js
 
 ssl: nginx/key.pem nginx/cert.pem
 
