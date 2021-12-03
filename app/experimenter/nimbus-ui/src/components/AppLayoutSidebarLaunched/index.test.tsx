@@ -5,7 +5,11 @@
 import { RouteComponentProps } from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import { AppLayoutSidebarLaunched, RESULTS_LOADING_TEXT } from ".";
+import {
+  AppLayoutSidebarLaunched,
+  RESULTS_LOADING_TEXT,
+  RESULTS_WAITING_FOR_LAUNCH_TEXT,
+} from ".";
 import { BASE_PATH } from "../../lib/constants";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
@@ -15,7 +19,10 @@ import {
 } from "../../lib/visualization/mocks";
 import { AnalysisData } from "../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import {
+  NimbusExperimentPublishStatus,
+  NimbusExperimentStatus,
+} from "../../types/globalTypes";
 
 const { mock, experiment: defaultExperiment } = mockExperimentQuery(
   "my-special-slug/design",
@@ -24,6 +31,7 @@ const navLinkSelector = ".navbar a";
 
 const Subject = ({
   status = NimbusExperimentStatus.COMPLETE,
+  publishStatus = NimbusExperimentPublishStatus.IDLE,
   withAnalysis = false,
   analysisError,
   analysis,
@@ -32,6 +40,7 @@ const Subject = ({
   experiment = defaultExperiment,
 }: RouteComponentProps & {
   status?: NimbusExperimentStatus;
+  publishStatus?: NimbusExperimentPublishStatus;
   withAnalysis?: boolean;
   analysis?: AnalysisData;
   analysisError?: boolean;
@@ -55,7 +64,7 @@ const Subject = ({
     <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
       <AppLayoutSidebarLaunched
         {...{
-          status: mockGetStatus({ status }),
+          status: mockGetStatus({ status, publishStatus }),
           analysisLoadingInSidebar,
           analysisRequired,
           analysisError: analysisError ? new Error("boop") : undefined,
@@ -107,6 +116,19 @@ describe("AppLayoutSidebarLaunched", () => {
       expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
         RESULTS_LOADING_TEXT,
       );
+    });
+
+    it("does not display waiting to launch message when pending end", () => {
+      render(
+        <Subject
+          status={NimbusExperimentStatus.COMPLETE}
+          publishStatus={NimbusExperimentPublishStatus.WAITING}
+        />,
+      );
+      expect(
+        screen.queryByText(RESULTS_WAITING_FOR_LAUNCH_TEXT),
+      ).not.toBeInTheDocument();
+      screen.debug();
     });
 
     it("when analysis is skipped", () => {
