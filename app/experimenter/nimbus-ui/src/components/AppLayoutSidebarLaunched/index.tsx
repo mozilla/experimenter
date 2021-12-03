@@ -23,6 +23,8 @@ import SidebarActions from "../SidebarActions";
 import { ReactComponent as BarChart } from "./bar-chart.svg";
 
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
+export const RESULTS_WAITING_FOR_LAUNCH_TEXT =
+  "Waiting for experiment to launch";
 
 const analysisLinkProps = {
   storiesOf: "pages/Results",
@@ -206,8 +208,8 @@ export const AppLayoutSidebarLaunched = ({
                 <ResultsAvailableNav />
               ) : (
                 <DisabledItem name="Results" testId="show-no-results">
-                  {status.waiting || status.approved ? (
-                    "Waiting for experiment to launch"
+                  {!status.launched && (status.waiting || status.approved) ? (
+                    RESULTS_WAITING_FOR_LAUNCH_TEXT
                   ) : analysisLoadingInSidebar ? (
                     RESULTS_LOADING_TEXT
                   ) : analysisError ? (
