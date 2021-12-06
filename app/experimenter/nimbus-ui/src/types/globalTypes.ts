@@ -220,6 +220,7 @@ export interface ExperimentCloneInput {
 
 export interface ExperimentInput {
   id?: number | null;
+  isRollout?: boolean | null;
   isArchived?: boolean | null;
   status?: NimbusExperimentStatusEnum | null;
   statusNext?: NimbusExperimentStatusEnum | null;

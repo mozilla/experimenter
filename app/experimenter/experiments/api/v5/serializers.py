@@ -470,7 +470,6 @@ class NimbusExperimentBranchMixin:
     def validate(self, data):
         data = super().validate(data)
         data = self._validate_duplicate_branch_names(data)
-        data = self._validate_single_branch_for_rollout(data)
         return data
 
     def _validate_duplicate_branch_names(self, data):
@@ -494,22 +493,6 @@ class NimbusExperimentBranchMixin:
                         ],
                     }
                 )
-        return data
-
-    def _validate_single_branch_for_rollout(self, data):
-        if (
-            self.instance
-            and self.instance.is_rollout
-            and len(data.get("treatment_branches", [])) > 0
-        ):
-            raise serializers.ValidationError(
-                {
-                    "treatment_branches": [
-                        {"name": NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT}
-                        for i in data["treatment_branches"]
-                    ],
-                }
-            )
         return data
 
     def update(self, experiment, data):
@@ -1201,6 +1184,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         errors = []
         for branch in value:
             error = {}
+            if self.instance and self.instance.is_rollout:
+                error["name"] = [NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT]
             if branch["description"] == "":
                 error["description"] = [NimbusConstants.ERROR_REQUIRED_FIELD]
             errors.append(error)
