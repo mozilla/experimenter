@@ -262,33 +262,3 @@ class TestNimbusExperimentBranchMixin(TestCase):
                 ],
             },
         )
-
-    def test_no_treatment_branches_for_rollout(self):
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
-        )
-        experiment.is_rollout = True
-        experiment.save()
-        for branch in experiment.treatment_branches:
-            branch.delete()
-
-        data = {
-            "treatment_branches": [
-                {"name": "treatment A", "description": "desc1", "ratio": 1},
-                {"name": "treatment B", "description": "desc2", "ratio": 1},
-            ],
-            "changelog_message": "test changelog message",
-        }
-        serializer = NimbusExperimentSerializer(
-            experiment, data=data, partial=True, context={"user": self.user}
-        )
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors,
-            {
-                "treatment_branches": [
-                    {"name": NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT}
-                    for i in data["treatment_branches"]
-                ],
-            },
-        )

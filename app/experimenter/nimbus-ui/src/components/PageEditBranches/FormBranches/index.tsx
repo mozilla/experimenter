@@ -48,6 +48,7 @@ export const FormBranches = ({
     {
       featureConfig: experimentFeatureConfig,
       warnFeatureSchema,
+      isRollout,
       referenceBranch,
       treatmentBranches,
       equalRatio,
@@ -119,6 +120,14 @@ export const FormBranches = ({
     commitFormData();
     dispatch({
       type: "setwarnFeatureSchema",
+      value: ev.target.checked,
+    });
+  };
+
+  const handleIsRollout = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    commitFormData();
+    dispatch({
+      type: "setIsRollout",
       value: ev.target.checked,
     });
   };
@@ -241,6 +250,18 @@ export const FormBranches = ({
             </Form.Control.Feedback>
           )}
         </Form.Group>
+
+        <Form.Row>
+          <Form.Group as={Col} controlId="isRollout">
+            <Form.Check
+              data-testid="is-rollout-checkbox"
+              onChange={handleIsRollout}
+              checked={!!isRollout}
+              type="checkbox"
+              label="Handle this experiment as a single-branch rollout"
+            />
+          </Form.Group>
+        </Form.Row>
 
         <Form.Row>
           <Form.Group as={Col} controlId="warnFeatureSchema">

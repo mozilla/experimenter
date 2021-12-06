@@ -14,6 +14,7 @@ const MOCK_STATE: FormBranchesState = {
   globalErrors: [],
   featureConfig: MOCK_EXPERIMENT.featureConfig,
   warnFeatureSchema: false,
+  isRollout: false,
   referenceBranch: {
     ...MOCK_EXPERIMENT.referenceBranch!,
     screenshots: [],

@@ -13,6 +13,7 @@ export type FormBranchesSaveState = Pick<
   ExperimentInput,
   | "featureConfigId"
   | "warnFeatureSchema"
+  | "isRollout"
   | "referenceBranch"
   | "treatmentBranches"
 >;
@@ -31,6 +32,7 @@ export function extractUpdateState(
   const {
     featureConfig,
     warnFeatureSchema,
+    isRollout,
     referenceBranch,
     treatmentBranches,
   } = state;
@@ -44,6 +46,7 @@ export function extractUpdateState(
   return {
     featureConfigId,
     warnFeatureSchema,
+    isRollout,
     referenceBranch: extractUpdateBranch(
       referenceBranch,
       formData.referenceBranch,
