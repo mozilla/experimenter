@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from "@apollo/client/testing";
-import { fireEvent } from "@testing-library/dom";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import {
   act as hookAct,
   renderHook,

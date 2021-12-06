@@ -128,7 +128,6 @@ describe("AppLayoutSidebarLaunched", () => {
       expect(
         screen.queryByText(RESULTS_WAITING_FOR_LAUNCH_TEXT),
       ).not.toBeInTheDocument();
-      screen.debug();
     });
 
     it("when analysis is skipped", () => {
