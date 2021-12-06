@@ -19,7 +19,6 @@ import { updateExperiment_updateExperiment as UpdateExperimentBranchesResult } f
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
 import FormBranches from "./FormBranches";
-import { FormBranchesSaveState } from "./FormBranches/reducer";
 
 const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   const { allFeatureConfigs } = useConfig();
@@ -39,12 +38,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
 
   const onFormSave = useCallback(
     async (
-      {
-        featureConfigIds,
-        warnFeatureSchema,
-        referenceBranch,
-        treatmentBranches,
-      }: FormBranchesSaveState,
+      formBranchesSaveState,
       setSubmitErrors,
       clearSubmitErrors,
       next: boolean,
@@ -55,12 +49,9 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         const result = await updateExperimentBranches({
           variables: {
             input: {
+              ...formBranchesSaveState,
               id: nimbusExperimentId,
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_BRANCHES,
-              featureConfigIds,
-              warnFeatureSchema,
-              referenceBranch,
-              treatmentBranches,
             },
           },
         });

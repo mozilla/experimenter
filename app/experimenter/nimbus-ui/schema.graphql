@@ -40,6 +40,7 @@ input ExperimentCloneInput {
 
 input ExperimentInput {
   id: Int
+  isRollout: Boolean
   isArchived: Boolean
   status: NimbusExperimentStatusEnum
   statusNext: NimbusExperimentStatusEnum

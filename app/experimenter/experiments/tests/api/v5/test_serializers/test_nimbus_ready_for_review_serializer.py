@@ -1250,6 +1250,29 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         )
         self.assertTrue(serializer.is_valid())
 
+    def test_no_treatment_branches_for_rollout(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        experiment.is_rollout = True
+        experiment.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["treatment_branches"][0]["name"][0],
+            NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT,
+            serializer.errors,
+        )
+
     # Add schema warn logic for multifeature in #7028
     # def test_serializer_feature_config_validation_reference_value_schema_warn(self):
     #     experiment = NimbusExperimentFactory.create_with_lifecycle(
