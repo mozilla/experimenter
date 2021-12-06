@@ -577,3 +577,26 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             context={"user": self.user},
         )
         self.assertTrue(serializer.is_valid())
+
+    def test_no_treatment_branches_for_rollout(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        experiment.is_rollout = True
+        experiment.save()
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["treatment_branches"][0]["name"][0],
+            NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT,
+            serializer.errors,
+        )

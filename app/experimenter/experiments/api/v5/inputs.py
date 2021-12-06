@@ -47,6 +47,7 @@ class TreatmentBranchType(BranchType):
 
 class ExperimentInput(graphene.InputObjectType):
     id = graphene.Int()
+    is_rollout = graphene.Boolean()
     is_archived = graphene.Boolean()
     status = NimbusExperimentStatus()
     status_next = NimbusExperimentStatus()
