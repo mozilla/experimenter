@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from packaging import version
 from rest_framework import serializers
 
 from experimenter.experiments.models import (
@@ -28,7 +29,7 @@ class NimbusBucketRangeSerializer(serializers.ModelSerializer):
         )
 
 
-class NimbusBranchSerializer(serializers.ModelSerializer):
+class NimbusBranchSerializerSingleFeature(serializers.ModelSerializer):
     feature = serializers.SerializerMethodField()
 
     class Meta:
@@ -61,6 +62,39 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         }
 
 
+class NimbusBranchSerializerMultiFeature(serializers.ModelSerializer):
+    features = serializers.SerializerMethodField()
+
+    class Meta:
+        model = NimbusBranch
+        fields = ("slug", "ratio", "features")
+
+    def get_features(self, obj):
+        return [
+            {
+                "featureId": fv.feature_config.slug,
+                "enabled": fv.enabled,
+                "value": json.loads(fv.value) if fv.value is not None else {},
+            }
+            for fv in obj.feature_values.all()
+        ]
+
+
+class NimbusBranchSerializerMultiFeatureDesktop(NimbusBranchSerializerMultiFeature):
+    feature = serializers.SerializerMethodField()
+
+    class Meta:
+        model = NimbusBranch
+        fields = ("slug", "ratio", "feature", "features")
+
+    def get_feature(self, obj):
+        return {
+            "featureId": "this-is-included-for-desktop-pre-95-support",
+            "enabled": False,
+            "value": {},
+        }
+
+
 class NimbusExperimentSerializer(serializers.ModelSerializer):
     schemaVersion = serializers.ReadOnlyField(default=settings.NIMBUS_SCHEMA_VERSION)
     id = serializers.ReadOnlyField(source="slug")
@@ -68,19 +102,19 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     application = serializers.SerializerMethodField()
     appName = serializers.SerializerMethodField()
     appId = serializers.SerializerMethodField()
+    branches = serializers.SerializerMethodField()
     userFacingName = serializers.ReadOnlyField(source="name")
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     isEnrollmentPaused = serializers.ReadOnlyField(source="is_paused")
     bucketConfig = NimbusBucketRangeSerializer(source="bucket_range")
+    featureIds = serializers.SerializerMethodField()
     probeSets = serializers.ReadOnlyField(default=[])
     outcomes = serializers.SerializerMethodField()
-    branches = NimbusBranchSerializer(many=True)
     startDate = serializers.DateField(source="start_date")
     endDate = serializers.DateField(source="end_date")
     proposedDuration = serializers.ReadOnlyField(source="proposed_duration")
     proposedEnrollment = serializers.ReadOnlyField(source="proposed_enrollment")
     referenceBranch = serializers.SerializerMethodField()
-    featureIds = serializers.SerializerMethodField()
 
     class Meta:
         model = NimbusExperiment
@@ -97,6 +131,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "userFacingDescription",
             "isEnrollmentPaused",
             "bucketConfig",
+            "featureIds",
             "probeSets",
             "outcomes",
             "branches",
@@ -106,7 +141,6 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "proposedDuration",
             "proposedEnrollment",
             "referenceBranch",
-            "featureIds",
         )
 
     def get_application(self, obj):
@@ -117,6 +151,19 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
 
     def get_appId(self, obj):
         return obj.application_config.channel_app_id.get(obj.channel, "")
+
+    def get_branches(self, obj):
+        if obj.application == NimbusExperiment.Application.DESKTOP and version.parse(
+            obj.firefox_min_version
+        ) >= version.parse(NimbusExperiment.Version.FIREFOX_95):
+            return NimbusBranchSerializerMultiFeatureDesktop(
+                obj.branches.all(), many=True
+            ).data
+
+        return NimbusBranchSerializerSingleFeature(obj.branches.all(), many=True).data
+
+    def get_featureIds(self, obj):
+        return list(obj.feature_configs.all().values_list("slug", flat=True))
 
     def get_outcomes(self, obj):
         prioritized_outcomes = (
@@ -132,6 +179,3 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     def get_referenceBranch(self, obj):
         if obj.reference_branch:
             return obj.reference_branch.slug
-
-    def get_featureIds(self, obj):
-        return list(obj.feature_configs.all().values_list("slug", flat=True))

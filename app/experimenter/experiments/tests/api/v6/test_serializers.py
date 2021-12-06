@@ -8,13 +8,16 @@ from parameterized import parameterized
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.experiments.tests.factories.nimbus import NimbusBranchFactory
+from experimenter.experiments.tests.factories.nimbus import (
+    NimbusBranchFactory,
+    NimbusFeatureConfigFactory,
+)
 
 
 class TestNimbusExperimentSerializer(TestCase):
     maxDiff = None
 
-    def test_serializer_outputs_expected_schema_with_feature(self):
+    def test_expected_schema_with_desktop_single_feature(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
@@ -95,6 +98,132 @@ class TestNimbusExperimentSerializer(TestCase):
             )
 
         check_schema("experiments/NimbusExperiment", serializer.data)
+
+    def test_expected_schema_with_desktop_multifeature(self):
+        application = NimbusExperiment.Application.DESKTOP
+        feature1 = NimbusFeatureConfigFactory.create(application=application)
+        feature2 = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+            feature_configs=[feature1, feature2],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NIGHTLY,
+            primary_outcomes=["foo", "bar", "baz"],
+            secondary_outcomes=["quux", "xyzzy"],
+        )
+
+        serializer = NimbusExperimentSerializer(experiment)
+        experiment_data = serializer.data.copy()
+        bucket_data = dict(experiment_data.pop("bucketConfig"))
+        branches_data = [dict(b) for b in experiment_data.pop("branches")]
+
+        self.assertDictEqual(
+            experiment_data,
+            {
+                "arguments": {},
+                "application": "firefox-desktop",
+                "appName": "firefox_desktop",
+                "appId": "firefox-desktop",
+                "channel": "nightly",
+                # DRF manually replaces the isoformat suffix so we have to do the same
+                "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
+                "id": experiment.slug,
+                "isEnrollmentPaused": True,
+                "proposedDuration": experiment.proposed_duration,
+                "proposedEnrollment": experiment.proposed_enrollment,
+                "referenceBranch": experiment.reference_branch.slug,
+                "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
+                "slug": experiment.slug,
+                # DRF manually replaces the isoformat suffix so we have to do the same
+                "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
+                "targeting": (
+                    'browserSettings.update.channel == "nightly" '
+                    "&& version|versionCompare('95.!') >= 0 "
+                    "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+                ),
+                "userFacingDescription": experiment.public_description,
+                "userFacingName": experiment.name,
+                "probeSets": [],
+                "outcomes": [
+                    {"priority": "primary", "slug": "foo"},
+                    {"priority": "primary", "slug": "bar"},
+                    {"priority": "primary", "slug": "baz"},
+                    {"priority": "secondary", "slug": "quux"},
+                    {"priority": "secondary", "slug": "xyzzy"},
+                ],
+                "featureIds": [feature1.slug, feature2.slug],
+            },
+        )
+        self.assertEqual(
+            bucket_data,
+            {
+                "randomizationUnit": (
+                    experiment.bucket_range.isolation_group.randomization_unit
+                ),
+                "namespace": experiment.bucket_range.isolation_group.namespace,
+                "start": experiment.bucket_range.start,
+                "count": experiment.bucket_range.count,
+                "total": experiment.bucket_range.isolation_group.total,
+            },
+        )
+        self.assertEqual(len(branches_data), 2)
+        for branch in experiment.branches.all():
+            self.assertIn(
+                {
+                    "slug": branch.slug,
+                    "ratio": branch.ratio,
+                    "feature": {
+                        "featureId": "this-is-included-for-desktop-pre-95-support",
+                        "enabled": False,
+                        "value": {},
+                    },
+                    "features": [
+                        {
+                            "featureId": fv.feature_config.slug,
+                            "enabled": fv.enabled,
+                            "value": json.loads(fv.value),
+                        }
+                        for fv in branch.feature_values.all()
+                    ],
+                },
+                branches_data,
+            )
+
+        check_schema("experiments/NimbusExperiment", serializer.data)
+
+    def test_list_includes_single_and_multi_feature_schemas(self):
+        feature1 = NimbusFeatureConfigFactory.create()
+        feature2 = NimbusFeatureConfigFactory.create()
+        single_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            feature_configs=[feature1],
+        )
+        multi_feature_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+            feature_configs=[feature1, feature2],
+        )
+
+        serializer = NimbusExperimentSerializer(NimbusExperiment.objects.all(), many=True)
+        experiments_data = {e["slug"]: e for e in serializer.data.copy()}
+
+        self.assertIn(
+            "feature", experiments_data[single_feature_experiment.slug]["branches"][0]
+        )
+        self.assertNotIn(
+            "features", experiments_data[single_feature_experiment.slug]["branches"][0]
+        )
+        self.assertIn(
+            "feature", experiments_data[multi_feature_experiment.slug]["branches"][0]
+        )
+        self.assertIn(
+            "features", experiments_data[multi_feature_experiment.slug]["branches"][0]
+        )
 
     @parameterized.expand(list(NimbusExperiment.Application))
     def test_serializers_with_missing_feature_value(self, application):
