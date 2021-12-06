@@ -10,7 +10,7 @@ import { TreatmentBranchType } from "../../../../types/globalTypes";
 
 export type FormBranchesState = Pick<
   getExperiment_experimentBySlug,
-  "featureConfig" | "warnFeatureSchema"
+  "featureConfig" | "warnFeatureSchema" | "isRollout"
 > & {
   referenceBranch: null | AnnotatedBranch;
   treatmentBranches: null | AnnotatedBranch[];
@@ -32,6 +32,7 @@ export type AnnotatedBranch = Omit<TreatmentBranchType, "id"> & {
 export function createInitialState({
   featureConfig,
   warnFeatureSchema,
+  isRollout,
   referenceBranch,
   treatmentBranches,
 }: getExperiment_experimentBySlug): FormBranchesState {
@@ -59,6 +60,7 @@ export function createInitialState({
     equalRatio,
     featureConfig,
     warnFeatureSchema,
+    isRollout,
     globalErrors: [],
     referenceBranch: annotatedReferenceBranch,
     treatmentBranches: annotatedTreatmentBranches,

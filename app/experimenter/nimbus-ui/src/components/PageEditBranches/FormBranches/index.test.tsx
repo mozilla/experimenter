@@ -145,6 +145,15 @@ describe("FormBranches", () => {
     expect(saveResult.warnFeatureSchema).toBeTruthy();
   });
 
+  it("sets isRollout when checkbox enabled", async () => {
+    const onSave = jest.fn();
+    render(<SubjectBranches {...{ onSave }} />);
+    fireEvent.click(screen.getByTestId("is-rollout-checkbox"));
+    await clickAndWaitForSave(onSave);
+    const saveResult = onSave.mock.calls[0][0];
+    expect(saveResult.isRollout).toBeTruthy();
+  });
+
   it("gracefully handles selecting an invalid feature config", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
