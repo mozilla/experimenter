@@ -23,6 +23,8 @@ export function formBranchesActionReducer(
       return removeBranch(state, action);
     case "setFeatureConfigs":
       return setFeatureConfigs(state, action);
+    case "setIsRollout":
+      return setIsRollout(state, action);
     case "setwarnFeatureSchema":
       return setwarnFeatureSchema(state, action);
     case "setEqualRatio":
@@ -47,6 +49,7 @@ export type FormBranchesAction =
   | RemoveBranchAction
   | SetEqualRatioAction
   | SetFeatureConfigsAction
+  | SetIsRolloutAction
   | SetwarnFeatureSchemaAction
   | SetSubmitErrorsAction
   | ClearSubmitErrorsAction
@@ -114,6 +117,21 @@ function setFeatureConfigs(
   return {
     ...state,
     featureConfigIds: featureConfigIds || null,
+  };
+}
+
+type SetIsRolloutAction = {
+  type: "setIsRollout";
+  value: FormBranchesState["isRollout"];
+};
+
+function setIsRollout(
+  state: FormBranchesState,
+  { value: isRollout }: SetIsRolloutAction,
+) {
+  return {
+    ...state,
+    isRollout,
   };
 }
 
