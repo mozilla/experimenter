@@ -17936,12 +17936,12 @@ sockjs-client@1.4.0:
     url-parse "^1.4.3"
 
 sockjs@0.3.19, sockjs@^0.3.20:
-  version "0.3.21"
-  resolved "https://registry.yarnpkg.com/sockjs/-/sockjs-0.3.21.tgz#b34ffb98e796930b60a0cfa11904d6a339a7d417"
-  integrity sha512-DhbPFGpxjc6Z3I+uX07Id5ZO2XwYsWOrYjaSeieES78cq+JaJvVe5q/m1uvjIQhXinhIeCFRH6JgXe+mvVMyXw==
+  version "0.3.24"
+  resolved "https://registry.yarnpkg.com/sockjs/-/sockjs-0.3.24.tgz#c9bc8995f33a111bea0395ec30aa3206bdb5ccce"
+  integrity sha512-GJgLTZ7vYb/JtPSSZ10hsOYIvEYsjbNU+zPdIHcUaWVNUEPivzxku31865sSSud0Da0W4lEeOPlmw93zLQchuQ==
   dependencies:
     faye-websocket "^0.11.3"
-    uuid "^3.4.0"
+    uuid "^8.3.2"
     websocket-driver "^0.7.4"
 
 source-list-map@^2.0.0, source-list-map@^2.0.1:
@@ -18465,9 +18465,9 @@ strip-json-comments@^3.0.1, strip-json-comments@^3.1.0, strip-json-comments@^3.1
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
 
 strnum@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/strnum/-/strnum-1.0.4.tgz#e97e36a7d6ba9f93d0d6b496b2ed0678d422832b"
-  integrity sha512-lMzNMfDpaQOLt4B2mEbfzYS0+T7dvCXeojnlGf6f1AygvWDMcWyXYaLbyICfjVu29sErR8fnRagQfBW/N/hGgw==
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/strnum/-/strnum-1.0.5.tgz#5c4e829fe15ad4ff0d20c3db5ac97b73c9b072db"
+  integrity sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==
 
 style-loader@0.23.1:
   version "0.23.1"
@@ -19640,7 +19640,7 @@ uuid-browser@^3.1.0:
   resolved "https://registry.yarnpkg.com/uuid-browser/-/uuid-browser-3.1.0.tgz#0f05a40aef74f9e5951e20efbf44b11871e56410"
   integrity sha1-DwWkCu90+eWVHiDvv0SxGHHlZBA=
 
-uuid@^3.3.2, uuid@^3.4.0:
+uuid@^3.3.2:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
@@ -19654,6 +19654,11 @@ uuid@^8.3.0:
   version "8.3.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.0.tgz#ab738085ca22dc9a8c92725e459b1d507df5d6ea"
   integrity sha512-fX6Z5o4m6XsXBdli9g7DtWgAx+osMsRRZFKma1mIUsLCz6vRvv+pz5VNbyu9UEDzpMWulZfvpgb/cmDXVulYFQ==
+
+uuid@^8.3.2:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 v8-compile-cache@^2.0.0, v8-compile-cache@^2.0.3, v8-compile-cache@^2.2.0, v8-compile-cache@^2.3.0:
   version "2.3.0"
@@ -20205,10 +20210,10 @@ watchpack@^1.6.0, watchpack@^1.7.4:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.1"
 
-watchpack@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-2.2.0.tgz#47d78f5415fe550ecd740f99fe2882323a58b1ce"
-  integrity sha512-up4YAn/XHgZHIxFBVCdlMiWDj6WaLKpwVeGQk2I5thdYxF/KmF0aaz6TfJZ/hfl1h/XlcDr7k1KH7ThDagpFaA==
+watchpack@^2.2.0, watchpack@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-2.3.1.tgz#4200d9447b401156eeca7767ee610f8809bc9d25"
+  integrity sha512-x0t0JuydIo8qCNctdDrn1OzH/qDzk2+rdCOC3YzumZ42fiMqmQ7T3xQurykYMhYfHaPHTp4ZxAx2NfUo1K6QaA==
   dependencies:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
@@ -20454,10 +20459,10 @@ webpack@4.41.5:
     watchpack "^1.6.0"
     webpack-sources "^1.4.1"
 
-webpack@5.64.1:
-  version "5.64.1"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.64.1.tgz#fd59840c16f04fe315f2b2598a85026f12dfa1bb"
-  integrity sha512-b4FHmRgaaAjP+aVOVz41a9Qa5SmkUPQ+u8FntTQ1roPHahSComB6rXnLwc976VhUY4CqTaLu5mCswuHiNhOfVw==
+webpack@5.65.0:
+  version "5.65.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.65.0.tgz#ed2891d9145ba1f0d318e4ea4f89c3fa18e6f9be"
+  integrity sha512-Q5or2o6EKs7+oKmJo7LaqZaMOlDWQse9Tm5l1WAfU/ujLGN5Pb0SqGeVkN/4bpPmEqEP5RnVhiqsOtWtUVwGRw==
   dependencies:
     "@types/eslint-scope" "^3.7.0"
     "@types/estree" "^0.0.50"
@@ -20481,7 +20486,7 @@ webpack@5.64.1:
     schema-utils "^3.1.0"
     tapable "^2.1.1"
     terser-webpack-plugin "^5.1.3"
-    watchpack "^2.2.0"
+    watchpack "^2.3.1"
     webpack-sources "^3.2.2"
 
 websocket-driver@>=0.5.1, websocket-driver@^0.7.4:
