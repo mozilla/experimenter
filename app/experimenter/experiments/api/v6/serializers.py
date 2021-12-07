@@ -70,14 +70,20 @@ class NimbusBranchSerializerMultiFeature(serializers.ModelSerializer):
         fields = ("slug", "ratio", "features")
 
     def get_features(self, obj):
-        return [
-            {
+        features = []
+        for fv in obj.feature_values.all():
+            feature_value = {
                 "featureId": fv.feature_config.slug,
                 "enabled": fv.enabled,
-                "value": json.loads(fv.value) if fv.value is not None else {},
+                "value": {},
             }
-            for fv in obj.feature_values.all()
-        ]
+            try:
+                feature_value["value"] = json.loads(fv.value)
+            except Exception:
+                # The value may still be invalid at this time
+                pass
+            features.append(feature_value)
+        return features
 
 
 class NimbusBranchSerializerMultiFeatureDesktop(NimbusBranchSerializerMultiFeature):
