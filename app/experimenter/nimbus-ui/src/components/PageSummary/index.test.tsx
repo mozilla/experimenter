@@ -81,7 +81,7 @@ describe("PageSummary", () => {
     render(<Subject mocks={[mock]} />);
     await screen.findByTestId("PageSummary");
     expect(
-      await screen.queryByTestId("start-launch-draft-to-review"),
+      screen.queryByTestId("start-launch-draft-to-review"),
     ).not.toBeInTheDocument();
   });
 

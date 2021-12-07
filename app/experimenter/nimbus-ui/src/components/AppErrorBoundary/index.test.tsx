@@ -8,10 +8,8 @@ import AppErrorBoundary, { AppErrorAlert } from ".";
 
 describe("AppErrorAlert", () => {
   it("renders a general error dialog", async () => {
-    const { queryByTestId } = render(
-      <AppErrorAlert error={new Error("boop")} />,
-    );
-    expect(queryByTestId("error-loading-app")).toBeInTheDocument();
+    render(<AppErrorAlert error={new Error("boop")} />);
+    expect(screen.queryByTestId("error-loading-app")).toBeInTheDocument();
     await screen.findByText("boop");
   });
 });

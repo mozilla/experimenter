@@ -13,10 +13,10 @@ it("renders text with newlines converted to <br> tags", () => {
 
   We are not ready`;
 
-  const result = render(<RichText {...{ text }} />);
+  const view = render(<RichText {...{ text }} />);
 
   // Each return should be replaced with a <br />
-  const lineBreaks = result.container.querySelectorAll("br");
+  const lineBreaks = view.container.querySelectorAll("br");
   expect(lineBreaks).toHaveLength(4);
 });
 
@@ -30,9 +30,9 @@ it("renders text with strings that look like links converted to <a> tags", () =>
   Get Involved: ${url3}
   Leadership: ${url4}`;
 
-  const result = render(<RichText {...{ text }} />);
+  const view = render(<RichText {...{ text }} />);
 
-  const anchors = result.container.querySelectorAll("a");
+  const anchors = view.container.querySelectorAll("a");
   expect(anchors).toHaveLength(3);
 
   expect(anchors[0]).toHaveProperty("href", url1);

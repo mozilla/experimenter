@@ -89,6 +89,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "7.27.0",
     "eslint-plugin-react-hooks": "4.x",
+    "eslint-plugin-testing-library": "^5.0.1",
     "fetch-mock": "^9.11.0",
     "jest-canvas-mock": "^2.3.1",
     "jest-fetch-mock": "^3.0.3",
@@ -112,6 +113,9 @@
       "prettier/@typescript-eslint",
       "prettier/react"
     ],
+    "plugins": [
+      "testing-library"
+    ],
     "rules": {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
@@ -125,7 +129,14 @@
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/ban-ts-comment": "off",
-      "import/no-anonymous-default-export": "off"
+      "import/no-anonymous-default-export": "off",
+      "testing-library/await-async-query": "error",
+      "testing-library/await-async-utils": "error",
+      "testing-library/no-await-sync-query": "error",
+      "testing-library/no-debugging-utils": "error",
+      "testing-library/no-dom-import": "error",
+      "testing-library/prefer-wait-for": "error",
+      "testing-library/prefer-screen-queries": "error"
     }
   },
   "engines": {
