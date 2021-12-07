@@ -150,6 +150,101 @@ class Application(models.TextChoices):
     )
 
 
+class Version(models.TextChoices):
+    NO_VERSION = ""
+    FIREFOX_11 = "11.!"
+    FIREFOX_12 = "12.!"
+    FIREFOX_13 = "13.!"
+    FIREFOX_14 = "14.!"
+    FIREFOX_15 = "15.!"
+    FIREFOX_16 = "16.!"
+    FIREFOX_17 = "17.!"
+    FIREFOX_18 = "18.!"
+    FIREFOX_19 = "19.!"
+    FIREFOX_20 = "20.!"
+    FIREFOX_21 = "21.!"
+    FIREFOX_22 = "22.!"
+    FIREFOX_23 = "23.!"
+    FIREFOX_24 = "24.!"
+    FIREFOX_25 = "25.!"
+    FIREFOX_26 = "26.!"
+    FIREFOX_27 = "27.!"
+    FIREFOX_28 = "28.!"
+    FIREFOX_29 = "29.!"
+    FIREFOX_30 = "30.!"
+    FIREFOX_31 = "31.!"
+    FIREFOX_32 = "32.!"
+    FIREFOX_33 = "33.!"
+    FIREFOX_34 = "34.!"
+    FIREFOX_35 = "35.!"
+    FIREFOX_36 = "36.!"
+    FIREFOX_37 = "37.!"
+    FIREFOX_38 = "38.!"
+    FIREFOX_39 = "39.!"
+    FIREFOX_40 = "40.!"
+    FIREFOX_41 = "41.!"
+    FIREFOX_42 = "42.!"
+    FIREFOX_43 = "43.!"
+    FIREFOX_44 = "44.!"
+    FIREFOX_45 = "45.!"
+    FIREFOX_46 = "46.!"
+    FIREFOX_47 = "47.!"
+    FIREFOX_48 = "48.!"
+    FIREFOX_49 = "49.!"
+    FIREFOX_50 = "50.!"
+    FIREFOX_51 = "51.!"
+    FIREFOX_52 = "52.!"
+    FIREFOX_53 = "53.!"
+    FIREFOX_54 = "54.!"
+    FIREFOX_55 = "55.!"
+    FIREFOX_56 = "56.!"
+    FIREFOX_57 = "57.!"
+    FIREFOX_58 = "58.!"
+    FIREFOX_59 = "59.!"
+    FIREFOX_60 = "60.!"
+    FIREFOX_61 = "61.!"
+    FIREFOX_62 = "62.!"
+    FIREFOX_63 = "63.!"
+    FIREFOX_64 = "64.!"
+    FIREFOX_65 = "65.!"
+    FIREFOX_66 = "66.!"
+    FIREFOX_67 = "67.!"
+    FIREFOX_68 = "68.!"
+    FIREFOX_69 = "69.!"
+    FIREFOX_70 = "70.!"
+    FIREFOX_71 = "71.!"
+    FIREFOX_72 = "72.!"
+    FIREFOX_73 = "73.!"
+    FIREFOX_74 = "74.!"
+    FIREFOX_75 = "75.!"
+    FIREFOX_76 = "76.!"
+    FIREFOX_77 = "77.!"
+    FIREFOX_78 = "78.!"
+    FIREFOX_79 = "79.!"
+    FIREFOX_80 = "80.!"
+    FIREFOX_81 = "81.!"
+    FIREFOX_82 = "82.!"
+    FIREFOX_83 = "83.!"
+    FIREFOX_84 = "84.!"
+    FIREFOX_85 = "85.!"
+    FIREFOX_86 = "86.!"
+    FIREFOX_87 = "87.!"
+    FIREFOX_88 = "88.!"
+    FIREFOX_89 = "89.!"
+    FIREFOX_90 = "90.!"
+    FIREFOX_91 = "91.!"
+    FIREFOX_92 = "92.!"
+    FIREFOX_9201 = "92.0.1"
+    FIREFOX_93 = "93.!"
+    FIREFOX_94 = "94.!"
+    FIREFOX_95 = "95.!"
+    FIREFOX_96 = "96.!"
+    FIREFOX_97 = "97.!"
+    FIREFOX_98 = "98.!"
+    FIREFOX_99 = "99.!"
+    FIREFOX_100 = "100.!"
+
+
 @dataclass
 class NimbusTargetingConfig:
     name: str
@@ -425,7 +520,17 @@ TARGETING_POCKET_COMMON = NimbusTargetingConfig(
 )
 
 
+@dataclass
+class RolloutSupport:
+    application: object
+    firefox_min_version: object
+
+
 class NimbusConstants(object):
+    Application = Application
+    Channel = Channel
+    Version = Version
+
     class Status(models.TextChoices):
         DRAFT = "Draft"
         PREVIEW = "Preview"
@@ -445,7 +550,16 @@ class NimbusConstants(object):
         STOP = "STOP", "Stop"
         FOLLOWUP = "FOLLOWUP", "Run follow ups"
 
-    Application = Application
+    ROLLOUT_SUPPORT = (
+        RolloutSupport(
+            application=Application.DESKTOP,
+            firefox_min_version=Version.FIREFOX_97,
+        ),
+        RolloutSupport(
+            application=Application.FENIX,
+            firefox_min_version=Version.FIREFOX_95,
+        ),
+    )
 
     VALID_STATUS_TRANSITIONS = {
         Status.DRAFT: (Status.PREVIEW,),
@@ -493,106 +607,10 @@ class NimbusConstants(object):
         Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
     }
 
-    Channel = Channel
-
     class DocumentationLink(models.TextChoices):
         DS_JIRA = "DS_JIRA", "Data Science Jira Ticket"
         DESIGN_DOC = "DESIGN_DOC", "Experiment Design Document"
         ENG_TICKET = "ENG_TICKET", "Engineering Ticket (Bugzilla/Jira/GitHub)"
-
-    class Version(models.TextChoices):
-        NO_VERSION = ""
-        FIREFOX_11 = "11.!"
-        FIREFOX_12 = "12.!"
-        FIREFOX_13 = "13.!"
-        FIREFOX_14 = "14.!"
-        FIREFOX_15 = "15.!"
-        FIREFOX_16 = "16.!"
-        FIREFOX_17 = "17.!"
-        FIREFOX_18 = "18.!"
-        FIREFOX_19 = "19.!"
-        FIREFOX_20 = "20.!"
-        FIREFOX_21 = "21.!"
-        FIREFOX_22 = "22.!"
-        FIREFOX_23 = "23.!"
-        FIREFOX_24 = "24.!"
-        FIREFOX_25 = "25.!"
-        FIREFOX_26 = "26.!"
-        FIREFOX_27 = "27.!"
-        FIREFOX_28 = "28.!"
-        FIREFOX_29 = "29.!"
-        FIREFOX_30 = "30.!"
-        FIREFOX_31 = "31.!"
-        FIREFOX_32 = "32.!"
-        FIREFOX_33 = "33.!"
-        FIREFOX_34 = "34.!"
-        FIREFOX_35 = "35.!"
-        FIREFOX_36 = "36.!"
-        FIREFOX_37 = "37.!"
-        FIREFOX_38 = "38.!"
-        FIREFOX_39 = "39.!"
-        FIREFOX_40 = "40.!"
-        FIREFOX_41 = "41.!"
-        FIREFOX_42 = "42.!"
-        FIREFOX_43 = "43.!"
-        FIREFOX_44 = "44.!"
-        FIREFOX_45 = "45.!"
-        FIREFOX_46 = "46.!"
-        FIREFOX_47 = "47.!"
-        FIREFOX_48 = "48.!"
-        FIREFOX_49 = "49.!"
-        FIREFOX_50 = "50.!"
-        FIREFOX_51 = "51.!"
-        FIREFOX_52 = "52.!"
-        FIREFOX_53 = "53.!"
-        FIREFOX_54 = "54.!"
-        FIREFOX_55 = "55.!"
-        FIREFOX_56 = "56.!"
-        FIREFOX_57 = "57.!"
-        FIREFOX_58 = "58.!"
-        FIREFOX_59 = "59.!"
-        FIREFOX_60 = "60.!"
-        FIREFOX_61 = "61.!"
-        FIREFOX_62 = "62.!"
-        FIREFOX_63 = "63.!"
-        FIREFOX_64 = "64.!"
-        FIREFOX_65 = "65.!"
-        FIREFOX_66 = "66.!"
-        FIREFOX_67 = "67.!"
-        FIREFOX_68 = "68.!"
-        FIREFOX_69 = "69.!"
-        FIREFOX_70 = "70.!"
-        FIREFOX_71 = "71.!"
-        FIREFOX_72 = "72.!"
-        FIREFOX_73 = "73.!"
-        FIREFOX_74 = "74.!"
-        FIREFOX_75 = "75.!"
-        FIREFOX_76 = "76.!"
-        FIREFOX_77 = "77.!"
-        FIREFOX_78 = "78.!"
-        FIREFOX_79 = "79.!"
-        FIREFOX_80 = "80.!"
-        FIREFOX_81 = "81.!"
-        FIREFOX_82 = "82.!"
-        FIREFOX_83 = "83.!"
-        FIREFOX_84 = "84.!"
-        FIREFOX_85 = "85.!"
-        FIREFOX_86 = "86.!"
-        FIREFOX_87 = "87.!"
-        FIREFOX_88 = "88.!"
-        FIREFOX_89 = "89.!"
-        FIREFOX_90 = "90.!"
-        FIREFOX_91 = "91.!"
-        FIREFOX_92 = "92.!"
-        FIREFOX_9201 = "92.0.1"
-        FIREFOX_93 = "93.!"
-        FIREFOX_94 = "94.!"
-        FIREFOX_95 = "95.!"
-        FIREFOX_96 = "96.!"
-        FIREFOX_97 = "97.!"
-        FIREFOX_98 = "98.!"
-        FIREFOX_99 = "99.!"
-        FIREFOX_100 = "100.!"
 
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
@@ -741,6 +759,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "You must select a feature configuration from the drop down."
     )
     ERROR_POPULATION_PERCENT_MIN = "Ensure this value is greater than or equal to 0.0001."
+
+    WARNING_ROLLOUT_SUPPORT = (
+        "Rollouts may not be fully supported for the selected "
+        "application and minimum version"
+    )
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra

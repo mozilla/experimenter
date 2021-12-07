@@ -600,3 +600,55 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT,
             serializer.errors,
         )
+
+    def test_rollout_support(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+        )
+        experiment.is_rollout = True
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        experiment.save()
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertTrue("is_rollout" not in serializer.warnings)
+
+    def test_rollout_no_support(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.KLAR_ANDROID,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_50,
+        )
+        experiment.is_rollout = True
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        experiment.save()
+
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertEqual(
+            serializer.warnings["is_rollout"][0],
+            NimbusConstants.WARNING_ROLLOUT_SUPPORT,
+            serializer.warnings,
+        )
