@@ -8,5 +8,6 @@
   "python.formatting.blackArgs": [
     "--line-length",
     "90"
-  ]
+  ],
+  "jest.jestCommandLine": "yarn workspace @experimenter/nimbus-ui test:cov"
 }

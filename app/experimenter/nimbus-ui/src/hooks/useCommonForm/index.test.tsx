@@ -213,15 +213,15 @@ describe("hooks/useCommonForm", () => {
         }),
       );
 
-      const { getByRole, findByText } = render(
+      render(
         <>
           <Form.Control type="text" {...formControlAttrs("spiceLevel")} />
           <FormErrors name="spiceLevel" />
         </>,
       );
 
-      expect(getByRole("textbox")).toHaveClass("is-warning");
-      await findByText(feedback);
+      expect(screen.getByRole("textbox")).toHaveClass("is-warning");
+      await screen.findByText(feedback);
     });
 
     it("displays warnings like errors", async () => {
@@ -243,15 +243,15 @@ describe("hooks/useCommonForm", () => {
         ),
       );
 
-      const { getByRole, findByText } = render(
+      render(
         <>
           <Form.Control type="text" {...formControlAttrs("spiceLevel")} />
           <FormErrors name="spiceLevel" />
         </>,
       );
 
-      expect(getByRole("textbox")).toHaveClass("is-warning");
-      await findByText(feedback);
+      expect(screen.getByRole("textbox")).toHaveClass("is-warning");
+      await screen.findByText(feedback);
     });
 
     it("works with nested form fields", async () => {
@@ -282,15 +282,15 @@ describe("hooks/useCommonForm", () => {
         },
       );
 
-      const { getByRole, findByText } = render(
+      render(
         <>
           <Form.Control type="text" {...formControlAttrs("volume")} />
           <FormErrors name="volume" />
         </>,
       );
 
-      expect(getByRole("textbox")).toHaveClass("is-warning");
-      await findByText(feedback);
+      expect(screen.getByRole("textbox")).toHaveClass("is-warning");
+      await screen.findByText(feedback);
     });
   });
 });
