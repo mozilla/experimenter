@@ -2957,6 +2957,10 @@
               "count"
             ]
           },
+          "featureIds": {
+            "type": "string",
+            "readOnly": true
+          },
           "probeSets": {
             "type": "string",
             "readOnly": true,
@@ -2967,29 +2971,8 @@
             "readOnly": true
           },
           "branches": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "slug": {
-                  "type": "string",
-                  "maxLength": 80,
-                  "pattern": "^[-a-zA-Z0-9_]+$"
-                },
-                "ratio": {
-                  "type": "integer",
-                  "maximum": 2147483647,
-                  "minimum": 0
-                },
-                "feature": {
-                  "type": "string",
-                  "readOnly": true
-                }
-              },
-              "required": [
-                "slug"
-              ]
-            }
+            "type": "string",
+            "readOnly": true
           },
           "targeting": {
             "type": "string",
@@ -3014,17 +2997,12 @@
           "referenceBranch": {
             "type": "string",
             "readOnly": true
-          },
-          "featureIds": {
-            "type": "string",
-            "readOnly": true
           }
         },
         "required": [
           "slug",
           "channel",
           "bucketConfig",
-          "branches",
           "startDate",
           "endDate"
         ]
