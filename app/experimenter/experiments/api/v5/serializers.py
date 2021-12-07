@@ -89,7 +89,9 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         data["feature_value"] = ""
 
         if instance.feature_values.exists():
-            feature_value = instance.feature_values.get()
+            feature_value = (
+                instance.feature_values.all().order_by("feature_config__slug").first()
+            )
             data["feature_enabled"] = feature_value.enabled
             data["feature_value"] = feature_value.value
 
@@ -173,7 +175,9 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 
         feature_config = None
         if branch.experiment.feature_configs.exists():
-            feature_config = branch.experiment.feature_configs.get()
+            feature_config = (
+                branch.experiment.feature_configs.all().order_by("slug").first()
+            )
 
         branch.feature_values.all().delete()
         NimbusBranchFeatureValue.objects.create(
@@ -778,7 +782,9 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data["feature_config"] = None
         if instance.feature_configs.exists():
-            data["feature_config"] = instance.feature_configs.get().id
+            data["feature_config"] = (
+                instance.feature_configs.all().order_by("slug").first().id
+            )
         return data
 
     def validate_reference_branch(self, value):
