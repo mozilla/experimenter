@@ -4,6 +4,7 @@ from collections import defaultdict
 import jsonschema
 from django.db import transaction
 from django.utils.text import slugify
+from packaging import version
 from rest_framework import serializers
 
 from experimenter.base.models import Country, Locale
@@ -854,6 +855,23 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_rollout_support(self, data):
+        if not self.instance or not self.instance.is_rollout:
+            return data
+
+        for support in NimbusExperiment.ROLLOUT_SUPPORT:
+            if self.instance.application == support.application and version.parse(
+                self.instance.firefox_min_version
+            ) >= version.parse(support.firefox_min_version):
+                # Bail out if we run into a supported combo of application, channel,
+                # and min version
+                return data
+
+        # Otherwise, this experiment didn't match any of the fully supported clients,
+        # so signal a warning
+        self.warnings["is_rollout"] = [NimbusExperiment.WARNING_ROLLOUT_SUPPORT]
+        return data
+
     def validate(self, attrs):
         application = attrs.get("application")
         channel = attrs.get("channel")
@@ -863,6 +881,7 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
             )
         data = super().validate(attrs)
         data = self._validate_feature_configs(data)
+        data = self._validate_rollout_support(data)
         return data
 
 
