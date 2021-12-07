@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from "@apollo/client/testing";
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
 import { editPages } from "../components/AppLayoutWithSidebar";
@@ -123,7 +123,7 @@ describe("hooks/useReviewCheck", () => {
     });
 
     const { InvalidPagesList } = result.current;
-    const { getByText } = render(<InvalidPagesList />);
+    render(<InvalidPagesList />);
 
     editPages.forEach((page) => {
       // Currently metrics does not produce any
@@ -132,7 +132,7 @@ describe("hooks/useReviewCheck", () => {
         return;
       }
 
-      getByText(page.name);
+      screen.getByText(page.name);
     });
   });
 });

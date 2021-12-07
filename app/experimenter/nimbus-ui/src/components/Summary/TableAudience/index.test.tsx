@@ -176,12 +176,12 @@ describe("TableAudience", () => {
         ),
       );
     });
-    it("when locales don't exist, displays all", () => {
+    it("when locales don't exist, displays all", async () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         locales: [],
       });
       render(<Subject {...{ experiment }} />);
-      within(screen.getByTestId("experiment-locales")).findByText(
+      await within(screen.getByTestId("experiment-locales")).findByText(
         "All locales",
       );
     });
