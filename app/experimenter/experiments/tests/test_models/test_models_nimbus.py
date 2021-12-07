@@ -1212,6 +1212,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.changes.all().count(), 1)
 
         if rollout_branch_slug:
+            self.assertTrue(child.is_rollout)
             self.assertEqual(
                 child.proposed_duration, NimbusExperiment.DEFAULT_PROPOSED_DURATION
             )

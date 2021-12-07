@@ -526,6 +526,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
         if rollout_branch_slug:
             branch = self.branches.get(slug=rollout_branch_slug)
+            cloned.is_rollout = True
             cloned.reference_branch = branch.clone(cloned)
             cloned.proposed_duration = NimbusExperiment.DEFAULT_PROPOSED_DURATION
             cloned.proposed_enrollment = NimbusExperiment.DEFAULT_PROPOSED_ENROLLMENT
