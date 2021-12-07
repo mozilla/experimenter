@@ -261,7 +261,26 @@ export const FormBranches = ({
               checked={!!isRollout}
               type="checkbox"
               label="Handle this experiment as a single-branch rollout"
+              className={classNames({
+                "is-warning":
+                  fieldMessages.is_rollout?.length > 0 ||
+                  fieldWarnings.is_rollout?.length > 0,
+              })}
             />
+            {fieldMessages.is_rollout?.length > 0 && (
+              // @ts-ignore This component doesn't technically support type="warning", but
+              // all it's doing is using the string in a class, so we can safely override.
+              <Form.Control.Feedback type="warning" data-for="isRollout">
+                {(fieldMessages.is_rollout as SerializerMessage).join(", ")}
+              </Form.Control.Feedback>
+            )}
+            {fieldWarnings.is_rollout?.length > 0 && (
+              // @ts-ignore This component doesn't technically support type="warning", but
+              // all it's doing is using the string in a class, so we can safely override.
+              <Form.Control.Feedback type="warning" data-for="isRollout">
+                {(fieldWarnings.is_rollout as SerializerMessage).join(", ")}
+              </Form.Control.Feedback>
+            )}
           </Form.Group>
         </Form.Row>
 

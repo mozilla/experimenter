@@ -1130,6 +1130,58 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertTrue(serializer.is_valid())
 
+    def test_rollout_support(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+        )
+        experiment.is_rollout = True
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        experiment.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertTrue("is_rollout" not in serializer.warnings)
+
+    def test_rollout_no_support(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.KLAR_ANDROID,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_50,
+        )
+        experiment.is_rollout = True
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        experiment.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertEqual(
+            serializer.warnings["is_rollout"][0],
+            NimbusConstants.WARNING_ROLLOUT_SUPPORT,
+            serializer.warnings,
+        )
+
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
     def setUp(self):
@@ -1521,3 +1573,4 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
     #         ),
     #         serializer.warnings,
     #     )
+    
