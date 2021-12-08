@@ -661,6 +661,16 @@ class NimbusExperimentSerializer(
         feature_config = self.validated_data.pop("feature_config", None)
 
         with transaction.atomic():
+            # feature_configs must be set before we call super to make sure
+            # the feature_config is available when the branches save their
+            # feature_values
+            if self.instance:
+                if feature_config_provided:
+                    self.instance.feature_configs.clear()
+
+                if feature_config:
+                    self.instance.feature_configs.add(feature_config)
+
             experiment = super().save()
 
             if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
@@ -674,12 +684,6 @@ class NimbusExperimentSerializer(
                 nimbus_check_kinto_push_queue_by_collection.apply_async(
                     countdown=5, args=[collection]
                 )
-
-            if feature_config_provided:
-                experiment.feature_configs.clear()
-
-            if feature_config:
-                experiment.feature_configs.add(feature_config)
 
             generate_nimbus_changelog(
                 experiment, self.context["user"], message=self.changelog_message
