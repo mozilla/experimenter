@@ -58,7 +58,7 @@ export const EXTERNAL_URLS = {
   EXPERIMENTER_REVIEWERS:
     "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Reviewers",
   EXPERIMENTER_DOCUMENTATION: "https://experimenter.info",
-  ASK_EXPERIMENTER_SLACK: "slack://channel?team=T027LFU12&id=CF94YGE03",
+  ASK_EXPERIMENTER_SLACK: "https://slack.com/app_redirect?channel=CF94YGE03",
   FEEDBACK: "https://bit.ly/38dgkqR",
   DETAILED_ANALYSIS_TEMPLATE: (slug: string) =>
     `https://protosaur.dev/partybal/${slug.replace(/-/g, "_")}.html`,
