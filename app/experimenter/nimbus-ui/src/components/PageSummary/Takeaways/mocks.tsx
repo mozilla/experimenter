@@ -10,6 +10,7 @@ export const Subject = ({
   takeawaysSummary = null,
   conclusionRecommendation = null,
   isLoading = false,
+  isArchived = false,
   onSubmit = async (data) => {},
   ...props
 }: Partial<React.ComponentProps<typeof Takeaways>>) => {
@@ -31,6 +32,7 @@ export const Subject = ({
             takeawaysSummary,
             conclusionRecommendation,
             isLoading,
+            isArchived,
             onSubmit,
             showEditor,
             setShowEditor,
