@@ -23,6 +23,7 @@ export const Takeaways = (props: TakeawaysProps) => {
     setShowEditor,
     conclusionRecommendation,
     takeawaysSummary,
+    isArchived,
   } = props;
 
   const { conclusionRecommendations } = useConfig();
@@ -56,15 +57,17 @@ export const Takeaways = (props: TakeawaysProps) => {
             )}
           </Col>
           <Col className="text-right">
-            <Button
-              onClick={onClickEdit}
-              variant="outline-primary"
-              size="sm"
-              className="mx-1"
-              data-testid="edit-takeaways"
-            >
-              Edit
-            </Button>
+            {!isArchived && (
+              <Button
+                onClick={onClickEdit}
+                variant="outline-primary"
+                size="sm"
+                className="mx-1"
+                data-testid="edit-takeaways"
+              >
+                Edit
+              </Button>
+            )}
           </Col>
         </Row>
       </h3>

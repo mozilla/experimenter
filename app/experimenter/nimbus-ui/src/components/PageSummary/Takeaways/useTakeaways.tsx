@@ -17,7 +17,7 @@ import { updateExperiment_updateExperiment } from "../../../types/updateExperime
 // Params are a select subset of experiment properties
 export type UseTakeawaysExperimentSubset = Pick<
   getExperiment_experimentBySlug,
-  "id" | "conclusionRecommendation" | "takeawaysSummary"
+  "id" | "conclusionRecommendation" | "takeawaysSummary" | "isArchived"
 >;
 
 export type UseTakeawaysResult = UseTakeawaysExperimentSubset & {
@@ -49,7 +49,6 @@ export const useTakeaways = (
         const { conclusionRecommendation, takeawaysSummary } = data;
         try {
           setIsLoading(true);
-
           const variables = {
             input: {
               id,

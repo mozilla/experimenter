@@ -48,6 +48,7 @@ describe("Takeaways", () => {
     expect(
       screen.queryByTestId("conclusion-recommendation-status"),
     ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("edit-takeaways")).toBeInTheDocument();
     expect(
       screen.queryByTestId("takeaways-summary-rendered"),
     ).not.toBeInTheDocument();
@@ -64,6 +65,25 @@ describe("Takeaways", () => {
     expect(screen.getByTestId("takeaways-summary-rendered")).toContainHTML(
       "<p>sample <em>exciting</em> content</p>",
     );
+    expect(screen.queryByTestId("edit-takeaways")).toBeInTheDocument();
+    expect(screen.queryByTestId("not-set")).not.toBeInTheDocument();
+  });
+
+  it("renders takeaways without edit button when experiment is archived", () => {
+    render(
+      <Subject
+        {...{ takeawaysSummary, conclusionRecommendation, isArchived: true }}
+      />,
+    );
+    expect(screen.queryByTestId("Takeaways")).toBeInTheDocument();
+    expect(screen.queryByTestId("TakeawaysEditor")).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("conclusion-recommendation-status"),
+    ).toHaveTextContent(expectedConclusionRecommendationLabel);
+    expect(screen.getByTestId("takeaways-summary-rendered")).toContainHTML(
+      "<p>sample <em>exciting</em> content</p>",
+    );
+    expect(screen.queryByTestId("edit-takeaways")).not.toBeInTheDocument();
     expect(screen.queryByTestId("not-set")).not.toBeInTheDocument();
   });
 
