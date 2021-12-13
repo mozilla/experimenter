@@ -420,14 +420,15 @@ python-versions = "*"
 
 [[package]]
 name = "djangorestframework"
-version = "3.12.4"
+version = "3.13.0"
 description = "Web APIs for Django, made easy."
 category = "main"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.6"
 
 [package.dependencies]
 django = ">=2.2"
+pytz = "*"
 
 [[package]]
 name = "djangorestframework-csv"
@@ -1597,7 +1598,7 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "37402f193e020fdf7651c3e623e8ae5ce4245a96c71c6742a500c337e130728c"
+content-hash = "caf32349e6661079ebec2272a634117151a6238398d28f831b1b72f2d680db75"
 
 [metadata.files]
 amqp = [
@@ -1828,8 +1829,8 @@ django-widget-tweaks = [
     {file = "django_widget_tweaks-1.4.8-py2.py3-none-any.whl", hash = "sha256:f80bff4a8a59b278bb277a405a76a8b9a884e4bae7a6c70e78a39c626cd1c836"},
 ]
 djangorestframework = [
-    {file = "djangorestframework-3.12.4-py3-none-any.whl", hash = "sha256:6d1d59f623a5ad0509fe0d6bfe93cbdfe17b8116ebc8eda86d45f6e16e819aaf"},
-    {file = "djangorestframework-3.12.4.tar.gz", hash = "sha256:f747949a8ddac876e879190df194b925c177cdeb725a099db1460872f7c0a7f2"},
+    {file = "djangorestframework-3.13.0-py3-none-any.whl", hash = "sha256:48e64f08244fa0df9e2b8fbd405edec263d8e1251112a06d0073b546b7c86b9c"},
+    {file = "djangorestframework-3.13.0.tar.gz", hash = "sha256:8b987d5683f5b3553dd946d4972048d3117fc526cb0bc01a3f021e81af53f39e"},
 ]
 djangorestframework-csv = [
     {file = "djangorestframework-csv-2.1.1.tar.gz", hash = "sha256:aa0ee4c894fe319c68e042b05c61dace43a9fb6e6872e1abe1724ca7ea4d15f7"},
@@ -1936,6 +1937,7 @@ graphql-relay = [
     {file = "graphql_relay-2.0.1-py3-none-any.whl", hash = "sha256:ac514cb86db9a43014d7e73511d521137ac12cf0101b2eaa5f0a3da2e10d913d"},
 ]
 gunicorn = [
+    {file = "gunicorn-20.1.0-py3-none-any.whl", hash = "sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e"},
     {file = "gunicorn-20.1.0.tar.gz", hash = "sha256:e0a968b5ba15f8a328fdfd7ab1fcb5af4470c28aaf7e55df02a99bc13138e6e8"},
 ]
 idna = [
