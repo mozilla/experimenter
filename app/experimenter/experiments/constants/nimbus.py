@@ -217,7 +217,7 @@ TARGETING_FX95_DESKTOP_USERS = NimbusTargetingConfig(
     name="Desktop Users on Fx95",
     slug="fx95_desktop_users",
     description=("Firefox 95 Desktop users"),
-    targeting=("version|versionCompare('95.!') >= 0 && version|versionCompare('96.!') < 0"),
+    targeting=("(version|versionCompare('95.!') >= 0) && (version|versionCompare('96.!') < 0)"),
 )
 
 TARGETING_MOBILE_NEW_USER = NimbusTargetingConfig(
