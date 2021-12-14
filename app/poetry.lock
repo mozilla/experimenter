@@ -298,7 +298,7 @@ six = ">=1.10"
 
 [[package]]
 name = "django"
-version = "3.2.5"
+version = "3.2.10"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
@@ -1598,7 +1598,7 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "25618d032a2cd9688f8b268db49972e162d422f9e36490457653139ef57ce6fd"
+content-hash = "cfa93c8b2d1edc7dd600e2260574a0292908fe47c1fc411b1acd24a4c9116fb2"
 
 [metadata.files]
 amqp = [
@@ -1790,8 +1790,8 @@ dj-inmemorystorage = [
     {file = "dj_inmemorystorage-2.1.0-py2.py3-none-any.whl", hash = "sha256:81aa007a7cdb1899b3cd92404f656c82cd690a831b8698a43045f859d7276945"},
 ]
 django = [
-    {file = "Django-3.2.5-py3-none-any.whl", hash = "sha256:c58b5f19c5ae0afe6d75cbdd7df561e6eb929339985dbbda2565e1cabb19a62e"},
-    {file = "Django-3.2.5.tar.gz", hash = "sha256:3da05fea54fdec2315b54a563d5b59f3b4e2b1e69c3a5841dda35019c01855cd"},
+    {file = "Django-3.2.10-py3-none-any.whl", hash = "sha256:df6f5eb3c797b27c096d61494507b7634526d4ce8d7c8ca1e57a4fb19c0738a3"},
+    {file = "Django-3.2.10.tar.gz", hash = "sha256:074e8818b4b40acdc2369e67dcd6555d558329785408dcd25340ee98f1f1d5c4"},
 ]
 django-admin-rangefilter = [
     {file = "django-admin-rangefilter-0.8.0.tar.gz", hash = "sha256:9a302bb6f6b04d15789baa239ec2ee077613cd8503a3d6602ea2fedf289f5dac"},
