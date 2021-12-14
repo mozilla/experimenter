@@ -71,7 +71,14 @@ const HeaderExperiment = ({
         className="text-secondary mb-1 small"
         data-testid="header-experiment-parent"
       >
-        Cloned from <a href={`${BASE_PATH}/${parent.slug}`}>{parent.name}</a>
+        Cloned from{" "}
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href={`${BASE_PATH}/${parent.slug}`}
+        >
+          {parent.name}
+        </a>
       </p>
     )}
     <div className="row">
