@@ -3,11 +3,11 @@ import time
 
 import pytest
 import requests
+from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.pages.browser import Browser
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.pages.remote_settings.dashboard import Dashboard
 from nimbus.pages.remote_settings.login import Login
-from nimbus.models.base_dataclass import BaseExperimentApplications
 
 LOAD_DATA_RETRIES = 10
 LOAD_DATA_RETRY_DELAY = 1.0
