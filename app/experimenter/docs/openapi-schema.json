@@ -1310,7 +1310,7 @@
     },
     "/api/v3/visualization/{slug}/": {
       "get": {
-        "operationId": "retrieveanalysis_results_view",
+        "operationId": "retrieveWrapped",
         "description": "",
         "parameters": [
           {
