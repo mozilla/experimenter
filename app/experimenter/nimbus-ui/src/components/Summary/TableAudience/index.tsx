@@ -45,6 +45,15 @@ const TableAudience = ({
           </td>
         </tr>
         <tr>
+          <th>Maximum version</th>
+          <td data-testid="experiment-ff-max">
+            {displayConfigLabelOrNotSet(
+              experiment.firefoxMaxVersion,
+              firefoxVersions,
+            )}
+          </td>
+        </tr>
+        <tr>
           <th>Population %</th>
           <td data-testid="experiment-population">
             {experiment.populationPercent ? (

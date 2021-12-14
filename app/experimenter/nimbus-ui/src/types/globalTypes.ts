@@ -60,7 +60,7 @@ export enum NimbusExperimentDocumentationLink {
   ENG_TICKET = "ENG_TICKET",
 }
 
-export enum NimbusExperimentFirefoxMinVersion {
+export enum NimbusExperimentFirefoxVersion {
   FIREFOX_100 = "FIREFOX_100",
   FIREFOX_11 = "FIREFOX_11",
   FIREFOX_12 = "FIREFOX_12",
@@ -206,7 +206,8 @@ export interface ExperimentInput {
   primaryOutcomes?: (string | null)[] | null;
   secondaryOutcomes?: (string | null)[] | null;
   channel?: NimbusExperimentChannel | null;
-  firefoxMinVersion?: NimbusExperimentFirefoxMinVersion | null;
+  firefoxMinVersion?: NimbusExperimentFirefoxVersion | null;
+  firefoxMaxVersion?: NimbusExperimentFirefoxVersion | null;
   populationPercent?: string | null;
   proposedDuration?: number | null;
   proposedEnrollment?: string | null;

@@ -133,6 +133,11 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         choices=NimbusConstants.Version.choices,
         default=NimbusConstants.Version.NO_VERSION,
     )
+    firefox_max_version = models.CharField(
+        max_length=255,
+        choices=NimbusConstants.Version.choices,
+        default=NimbusConstants.Version.NO_VERSION,
+    )
     application = models.CharField(
         max_length=255,
         choices=NimbusConstants.Application.choices,
@@ -255,6 +260,14 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
                 expressions.append(
                     "version|versionCompare('{version}') >= 0".format(
                         version=self.firefox_min_version
+                    )
+                )
+            if self.firefox_max_version:
+                # HACK: tweak the min version to better match max version pattern
+                max_version = self.firefox_max_version.replace("!", "*")
+                expressions.append(
+                    "version|versionCompare('{max_version}') < 0".format(
+                        max_version=max_version
                     )
                 )
 

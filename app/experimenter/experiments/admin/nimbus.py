@@ -101,6 +101,9 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     firefox_min_version = forms.ChoiceField(
         choices=NimbusExperiment.Version.choices, required=False
     )
+    firefox_max_version = forms.ChoiceField(
+        choices=NimbusExperiment.Version.choices, required=False
+    )
     channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices, required=False)
     primary_outcomes = SimpleArrayField(forms.CharField(), required=False)
     secondary_outcomes = SimpleArrayField(forms.CharField(), required=False)

@@ -6,7 +6,7 @@ from experimenter.experiments.api.v5.types import (
     NimbusExperimentChannel,
     NimbusExperimentConclusionRecommendation,
     NimbusExperimentDocumentationLink,
-    NimbusExperimentFirefoxMinVersion,
+    NimbusExperimentFirefoxVersion,
     NimbusExperimentPublishStatus,
     NimbusExperimentStatus,
 )
@@ -65,7 +65,8 @@ class ExperimentInput(graphene.InputObjectType):
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)
     channel = NimbusExperimentChannel()
-    firefox_min_version = NimbusExperimentFirefoxMinVersion()
+    firefox_min_version = NimbusExperimentFirefoxVersion()
+    firefox_max_version = NimbusExperimentFirefoxVersion()
     population_percent = graphene.String()
     proposed_duration = graphene.Int()
     proposed_enrollment = graphene.String()

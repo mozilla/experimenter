@@ -102,6 +102,7 @@ export const GET_EXPERIMENT_QUERY = gql`
 
       channel
       firefoxMinVersion
+      firefoxMaxVersion
       targetingConfigSlug
       jexlTargetingExpression
 
@@ -198,6 +199,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       slug
       application
       firefoxMinVersion
+      firefoxMaxVersion
       startDate
       isEnrollmentPausePending
       isEnrollmentPaused
