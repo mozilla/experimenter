@@ -47,7 +47,7 @@ PUBLISH_STORYBOOKS = npx github:mozilla-fxa/storybook-gcp-publisher --commit-sum
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/jetstream-config/archive/main.zip
-FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/b12bc4e6534808fb9a5352b7545f573f6dec90d3/toolkit/components/nimbus/FeatureManifest.js
+FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/nimbus/FeatureManifest.yaml
 
 ssl: nginx/key.pem nginx/cert.pem
 
@@ -67,9 +67,7 @@ jetstream_config:
 	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/jetstream-config.zip
 
 feature_manifests:
-	curl -LJ --create-dirs -o app/experimenter/features/manifests/firefox-desktop.js $(FEATURE_MANIFEST_DESKTOP_URL)
-	echo "console.log(JSON.stringify(FeatureManifest));" >> app/experimenter/features/manifests/firefox-desktop.js
-	node app/experimenter/features/manifests/firefox-desktop.js > app/experimenter/features/manifests/firefox-desktop.json
+	curl -LJ --create-dirs -o app/experimenter/features/manifests/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
 
 fetch_external_resources: jetstream_config feature_manifests
 	echo "External Resources Fetched"
