@@ -267,7 +267,7 @@ toml = ["toml"]
 
 [[package]]
 name = "datadog"
-version = "0.42.0"
+version = "0.43.0"
 description = "The Datadog Python library"
 category = "main"
 optional = false
@@ -298,7 +298,7 @@ six = ">=1.10"
 
 [[package]]
 name = "django"
-version = "3.2.5"
+version = "3.2.10"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
@@ -420,14 +420,15 @@ python-versions = "*"
 
 [[package]]
 name = "djangorestframework"
-version = "3.12.4"
+version = "3.13.0"
 description = "Web APIs for Django, made easy."
 category = "main"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.6"
 
 [package.dependencies]
 django = ">=2.2"
+pytz = "*"
 
 [[package]]
 name = "djangorestframework-csv"
@@ -1320,7 +1321,7 @@ watchdog = ">=0.6.0"
 
 [[package]]
 name = "pytest-xdist"
-version = "2.4.0"
+version = "2.5.0"
 description = "pytest xdist plugin for distributed testing and loop-on-failing modes"
 category = "main"
 optional = false
@@ -1328,7 +1329,7 @@ python-versions = ">=3.6"
 
 [package.dependencies]
 execnet = ">=1.1"
-pytest = ">=6.0.0"
+pytest = ">=6.2.0"
 pytest-forked = "*"
 
 [package.extras]
@@ -1597,7 +1598,7 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "37402f193e020fdf7651c3e623e8ae5ce4245a96c71c6742a500c337e130728c"
+content-hash = "cfa93c8b2d1edc7dd600e2260574a0292908fe47c1fc411b1acd24a4c9116fb2"
 
 [metadata.files]
 amqp = [
@@ -1777,8 +1778,8 @@ coverage = [
     {file = "coverage-5.5.tar.gz", hash = "sha256:ebe78fe9a0e874362175b02371bdfbee64d8edc42a044253ddf4ee7d3c15212c"},
 ]
 datadog = [
-    {file = "datadog-0.42.0-py2.py3-none-any.whl", hash = "sha256:140b51f5db3f46d6f3ec022c05830c6b3e13e4f62c19c823e1227ac322b26667"},
-    {file = "datadog-0.42.0.tar.gz", hash = "sha256:7a6fac17a7d09f1883ab9a45ce4ff7a16aa1a5eb3cc4c6cddac7f8c53e7d1e9b"},
+    {file = "datadog-0.43.0-py2.py3-none-any.whl", hash = "sha256:fe82d6c1d74a713371768f1851b004c8df7ec074bae10ad4509036601f84b605"},
+    {file = "datadog-0.43.0.tar.gz", hash = "sha256:1f2123083d9e1add6f238c62714b76ac2fc134d7d1c435cd82b976487b191b96"},
 ]
 decorator = [
     {file = "decorator-5.0.9-py3-none-any.whl", hash = "sha256:6e5c199c16f7a9f0e3a61a4a54b3d27e7dad0dbdde92b944426cb20914376323"},
@@ -1789,8 +1790,8 @@ dj-inmemorystorage = [
     {file = "dj_inmemorystorage-2.1.0-py2.py3-none-any.whl", hash = "sha256:81aa007a7cdb1899b3cd92404f656c82cd690a831b8698a43045f859d7276945"},
 ]
 django = [
-    {file = "Django-3.2.5-py3-none-any.whl", hash = "sha256:c58b5f19c5ae0afe6d75cbdd7df561e6eb929339985dbbda2565e1cabb19a62e"},
-    {file = "Django-3.2.5.tar.gz", hash = "sha256:3da05fea54fdec2315b54a563d5b59f3b4e2b1e69c3a5841dda35019c01855cd"},
+    {file = "Django-3.2.10-py3-none-any.whl", hash = "sha256:df6f5eb3c797b27c096d61494507b7634526d4ce8d7c8ca1e57a4fb19c0738a3"},
+    {file = "Django-3.2.10.tar.gz", hash = "sha256:074e8818b4b40acdc2369e67dcd6555d558329785408dcd25340ee98f1f1d5c4"},
 ]
 django-admin-rangefilter = [
     {file = "django-admin-rangefilter-0.8.0.tar.gz", hash = "sha256:9a302bb6f6b04d15789baa239ec2ee077613cd8503a3d6602ea2fedf289f5dac"},
@@ -1828,8 +1829,8 @@ django-widget-tweaks = [
     {file = "django_widget_tweaks-1.4.8-py2.py3-none-any.whl", hash = "sha256:f80bff4a8a59b278bb277a405a76a8b9a884e4bae7a6c70e78a39c626cd1c836"},
 ]
 djangorestframework = [
-    {file = "djangorestframework-3.12.4-py3-none-any.whl", hash = "sha256:6d1d59f623a5ad0509fe0d6bfe93cbdfe17b8116ebc8eda86d45f6e16e819aaf"},
-    {file = "djangorestframework-3.12.4.tar.gz", hash = "sha256:f747949a8ddac876e879190df194b925c177cdeb725a099db1460872f7c0a7f2"},
+    {file = "djangorestframework-3.13.0-py3-none-any.whl", hash = "sha256:48e64f08244fa0df9e2b8fbd405edec263d8e1251112a06d0073b546b7c86b9c"},
+    {file = "djangorestframework-3.13.0.tar.gz", hash = "sha256:8b987d5683f5b3553dd946d4972048d3117fc526cb0bc01a3f021e81af53f39e"},
 ]
 djangorestframework-csv = [
     {file = "djangorestframework-csv-2.1.1.tar.gz", hash = "sha256:aa0ee4c894fe319c68e042b05c61dace43a9fb6e6872e1abe1724ca7ea4d15f7"},
@@ -1936,6 +1937,7 @@ graphql-relay = [
     {file = "graphql_relay-2.0.1-py3-none-any.whl", hash = "sha256:ac514cb86db9a43014d7e73511d521137ac12cf0101b2eaa5f0a3da2e10d913d"},
 ]
 gunicorn = [
+    {file = "gunicorn-20.1.0-py3-none-any.whl", hash = "sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e"},
     {file = "gunicorn-20.1.0.tar.gz", hash = "sha256:e0a968b5ba15f8a328fdfd7ab1fcb5af4470c28aaf7e55df02a99bc13138e6e8"},
 ]
 idna = [
@@ -2264,8 +2266,8 @@ pytest-watch = [
     {file = "pytest-watch-4.2.0.tar.gz", hash = "sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9"},
 ]
 pytest-xdist = [
-    {file = "pytest-xdist-2.4.0.tar.gz", hash = "sha256:89b330316f7fc475f999c81b577c2b926c9569f3d397ae432c0c2e2496d61ff9"},
-    {file = "pytest_xdist-2.4.0-py3-none-any.whl", hash = "sha256:7b61ebb46997a0820a263553179d6d1e25a8c50d8a8620cd1aa1e20e3be99168"},
+    {file = "pytest-xdist-2.5.0.tar.gz", hash = "sha256:4580deca3ff04ddb2ac53eba39d76cb5dd5edeac050cb6fbc768b0dd712b4edf"},
+    {file = "pytest_xdist-2.5.0-py3-none-any.whl", hash = "sha256:6fe5c74fec98906deb8f2d2b616b5c782022744978e7bd4695d39c8f42d0ce65"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
