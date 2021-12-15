@@ -10,6 +10,8 @@ import { getExperiment_experimentBySlug as Experiment } from "../types/getExperi
 import { ExperimentInput } from "../types/globalTypes";
 import { updateExperiment_updateExperiment as UpdateExperiment } from "../types/updateExperiment";
 
+const CHANGE_MUTATION_DISPLAY_ERROR_FIELDS = ["status", "status_next"];
+
 export function useChangeOperationMutation(
   experiment: Experiment | undefined,
   refetch?: () => Promise<unknown>,
@@ -57,9 +59,16 @@ export function useChangeOperationMutation(
                 message !== "success" &&
                 typeof message === "object"
               ) {
-                return void setSubmitError(message.status.join(", "));
+                const errors = [];
+                for (const name of CHANGE_MUTATION_DISPLAY_ERROR_FIELDS) {
+                  if (message[name]) {
+                    errors.push(...message[name]);
+                  }
+                }
+                setSubmitError(
+                  errors.length ? errors.join(", ") : SUBMIT_ERROR,
+                );
               }
-
               if (refetch) {
                 await refetch();
               }
