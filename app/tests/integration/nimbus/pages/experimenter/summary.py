@@ -9,6 +9,7 @@ class SummaryPage(ExperimenterBase):
     """Experiment Summary Page."""
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary")
+    _header_slug = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-slug"]')
     _approve_request_button_locator = (By.CSS_SELECTOR, "#approve-request-button")
     _launch_to_preview_locator = (By.CSS_SELECTOR, "#launch-to-preview-button")
     _launch_without_preview_locator = (By.CSS_SELECTOR, "#launch-to-review-button")
@@ -100,6 +101,10 @@ class SummaryPage(ExperimenterBase):
             EC.presence_of_all_elements_located(self._clone_parent_locator),
             message="Summary Page: could not find clone parent",
         )
+
+    @property
+    def experiment_slug(self):
+        return self.wait_for_and_find_element(self._header_slug, "header slug").text
 
     @property
     def experiment_status(self):
