@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from experimenter.base.models import SiteFlag, SiteFlagNameChoices
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
@@ -47,4 +48,25 @@ class TestNimbusStatusTransitionValidator(TestCase):
         self.assertEqual(
             serializer.errors["publish_status"][0],
             "Nimbus Experiment publish_status cannot transition from Approved to Review.",
+        )
+
+    def test_launch_request_while_disabled_error(self):
+        SiteFlag(name=SiteFlagNameChoices.LAUNCHING_DISABLED.name, value=True).save()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.DRAFT,
+                "status_next": NimbusExperiment.Status.LIVE,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "Review Requested for Launch",
+            },
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["status_next"][0],
+            NimbusExperiment.ERROR_LAUNCHING_DISABLED,
         )
