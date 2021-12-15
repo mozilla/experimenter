@@ -18,6 +18,14 @@ class SummaryDetailPage(ExperimenterBase):
     )
     _clone_save_locator = (By.CSS_SELECTOR, ".modal .btn-primary")
     _clone_parent_locator = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-parent"]')
+    _branch_screenshot_description_locator = (
+        By.CSS_SELECTOR,
+        'figure[data-testid="branch-screenshot"] figcaption',
+    )
+    _branch_screenshot_image_locator = (
+        By.CSS_SELECTOR,
+        'figure[data-testid="branch-screenshot"] img',
+    )
     PAGE_TITLE = "Summary Detail Page"
 
     @property
@@ -68,19 +76,14 @@ class SummaryDetailPage(ExperimenterBase):
             message="Summary Page: could not find clone parent",
         )
 
-    def _branch_screenshot(self, slug, screenshot_idx, child):
+    @property
+    def branch_screenshot_description(self):
         return self.wait_for_and_find_elements(
-            (
-                By.CSS_SELECTOR,
-                f'table#{slug} figure[data-testid="branch-screenshot"] {child}',
-            ),
-            f"branch screenshot {child}",
-        )[screenshot_idx]
+            self._branch_screenshot_description_locator, "branch screenshot description"
+        )[0].text
 
-    def branch_screenshot_description_text(
-        self, branch_slug="controlname-1", screenshot_idx=0
-    ):
-        return self._branch_screenshot(branch_slug, screenshot_idx, "figcaption").text
-
-    def branch_screenshot_image(self, branch_slug="controlname-1", screenshot_idx=0):
-        return self._branch_screenshot(branch_slug, screenshot_idx, "img")
+    @property
+    def branch_screenshot_image(self):
+        return self.wait_for_and_find_elements(
+            self._branch_screenshot_image_locator, "branch screenshot image"
+        )[0]

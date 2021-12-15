@@ -120,19 +120,23 @@ def experiment_url(base_url, default_data, slugify):
 )
 def default_data(request):
     application = request.param
-    feature = APPLICATION_FEATURES[application]
+    feature_config = APPLICATION_FEATURES[application]
 
     return BaseExperimentDataClass(
         public_name=f"{request.node.name}-{str(uuid.uuid4())[:4]}",
         hypothesis="smart stuff here",
         application=application,
         public_description="description stuff",
+        feature_config=feature_config,
         branches=[
             BaseExperimentBranchDataClass(
-                name="name 1",
-                description="a nice experiment",
-                feature_config=feature,
-            )
+                name="control",
+                description="control description",
+            ),
+            BaseExperimentBranchDataClass(
+                name="treatment",
+                description="treatment description",
+            ),
         ],
         metrics=BaseExperimentMetricsDataClass(
             primary_outcomes=[], secondary_outcomes=[]
@@ -167,10 +171,11 @@ def create_experiment(base_url, default_data):
 
         # Fill Branches page
         branches = overview.save_and_continue()
-        branches.remove_branch()
-        branches.reference_branch_name = default_data.branches[0].name
+        branches.feature_config = default_data.feature_config
         branches.reference_branch_description = default_data.branches[0].description
-        branches.feature_config = default_data.branches[0].feature_config
+        branches.treatment_branch_description = default_data.branches[0].description
+        branches.treatment_branch_enabled.click()
+        branches.treatment_branch_value = '{"value": true}'
 
         # Fill Metrics page
         metrics = branches.save_and_continue()

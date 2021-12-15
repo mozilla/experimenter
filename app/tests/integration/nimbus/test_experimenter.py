@@ -97,8 +97,7 @@ def test_branch_screenshot(
 ):
     summary = create_experiment(selenium)
     branches = summary.navigate_to_branches()
-    add_button = branches.add_screenshot_buttons[0]
-    add_button.click()
+    branches.add_screenshot_buttons[0].click()
 
     image_path = os.path.join(os.getcwd(), "example.jpg")
     branches.screenshot_image_field().send_keys(image_path)
@@ -109,7 +108,7 @@ def test_branch_screenshot(
     branches.save()
     summary_details = branches.navigate_to_details()
 
-    assert summary_details.branch_screenshot_description_text() == expected_description
+    assert summary_details.branch_screenshot_description == expected_description
     # TODO: Maybe compare uploaded image to example image, but probably
     # good enough for now to assert that an image is displayed
-    assert summary_details.branch_screenshot_image() is not None
+    assert summary_details.branch_screenshot_image is not None
