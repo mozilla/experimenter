@@ -62,6 +62,7 @@ Pillow = "^8.4.0"
 graphene-file-upload = "^1.3.0"
 dj-inmemorystorage = "^2.1.0"
 mozilla-nimbus-shared = "^1.6.2"
+PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.21.0"
