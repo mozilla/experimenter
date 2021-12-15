@@ -3,6 +3,7 @@ import os
 from enum import Enum
 from typing import Literal, Optional, Union
 
+import yaml
 from django.conf import settings
 from django.core.checks import Error, register
 from pydantic import BaseModel
@@ -71,15 +72,17 @@ class Features:
         features = []
 
         for application in NimbusConstants.APPLICATION_CONFIGS.values():
-            application_json_path = os.path.join(
-                settings.FEATURE_MANIFESTS_PATH, f"{application.slug}.json"
+            application_yaml_path = os.path.join(
+                settings.FEATURE_MANIFESTS_PATH, f"{application.slug}.yaml"
             )
 
-            if os.path.exists(application_json_path):
-                with open(application_json_path) as application_json_file:
-                    application_json_data = json.loads(application_json_file.read())
-                    for feature_slug in application_json_data.keys():
-                        feature_data = application_json_data[feature_slug]
+            if os.path.exists(application_yaml_path):
+                with open(application_yaml_path) as application_yaml_file:
+                    application_data = yaml.load(
+                        application_yaml_file.read(), Loader=yaml.Loader
+                    )
+                    for feature_slug in application_data.keys():
+                        feature_data = application_data[feature_slug]
                         feature_data["slug"] = feature_slug
                         feature_data["applicationSlug"] = application.slug
                         features.append(Feature.parse_obj(feature_data))
