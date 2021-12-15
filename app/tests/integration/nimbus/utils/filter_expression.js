@@ -1,8 +1,3 @@
-Components.utils.import("resource://gre/modules/components-utils/FilterExpressions.jsm");
-Components.utils.import("resource://gre/modules/components-utils/ClientEnvironment.jsm");
-
-// Targeting
-
 async function remoteSettings(arguments) {
 
     /*
