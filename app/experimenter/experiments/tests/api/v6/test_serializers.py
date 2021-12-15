@@ -119,6 +119,7 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment_data = serializer.data.copy()
         bucket_data = dict(experiment_data.pop("bucketConfig"))
         branches_data = [dict(b) for b in experiment_data.pop("branches")]
+        feature_ids_data = experiment_data.pop("featureIds")
 
         self.assertDictEqual(
             experiment_data,
@@ -154,9 +155,11 @@ class TestNimbusExperimentSerializer(TestCase):
                     {"priority": "secondary", "slug": "quux"},
                     {"priority": "secondary", "slug": "xyzzy"},
                 ],
-                "featureIds": [feature1.slug, feature2.slug],
             },
         )
+
+        self.assertEqual(set(feature_ids_data), set([feature1.slug, feature2.slug]))
+
         self.assertEqual(
             bucket_data,
             {
@@ -169,6 +172,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "total": experiment.bucket_range.isolation_group.total,
             },
         )
+
         self.assertEqual(len(branches_data), 2)
         for branch in experiment.branches.all():
             self.assertIn(
