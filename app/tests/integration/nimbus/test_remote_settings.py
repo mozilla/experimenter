@@ -1,48 +1,7 @@
-import json
-import time
-
 import pytest
-import requests
-from nimbus.models.base_dataclass import BaseExperimentApplications
-from nimbus.pages.browser import Browser
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.pages.remote_settings.dashboard import Dashboard
 from nimbus.pages.remote_settings.login import Login
-
-LOAD_DATA_RETRIES = 10
-LOAD_DATA_RETRY_DELAY = 1.0
-
-
-def load_data():
-    for retry in range(0, LOAD_DATA_RETRIES):
-        try:
-            apps = []
-            data = requests.post(
-                "https://nginx/api/v5/graphql",
-                json={
-                    "operationName": "getConfig",
-                    "variables": {},
-                    "query": "\nquery getConfig {\n  nimbusConfig "
-                    "{\n    targetingConfigs {\n      "
-                    "label\n      value\n      applicationValues\n    "
-                    "}\n  }\n}\n",
-                },
-                verify=False,
-            ).json()
-            for item in data["data"]["nimbusConfig"]["targetingConfigs"]:
-                if "DESKTOP" in item["applicationValues"]:
-                    apps.append(item["value"])
-            return apps
-        except json.JSONDecodeError:
-            if retry + 1 >= LOAD_DATA_RETRIES:
-                raise
-            else:
-                time.sleep(LOAD_DATA_RETRY_DELAY)
-
-
-@pytest.fixture(params=load_data())
-def app_data(request):
-    return request.param
 
 
 @pytest.mark.run_per_app
@@ -131,39 +90,3 @@ def test_end_experiment_and_reject_end(
     Dashboard(selenium, kinto_review_url).open().reject()
 
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
-
-
-@pytest.mark.run_parallel
-def test_check_targeting(
-    selenium, base_url, default_data, create_experiment, app_data, json_url
-):
-    # TODO #6791
-    # If the targeting config slug includes the word desktop it will cause this test
-    # to run against applications other than desktop, which will then fail.
-    # This check will prevent the test from executing fully but we should dig
-    # into preventing this case altogether when we have time.
-    if default_data.application != BaseExperimentApplications.DESKTOP:
-        return
-
-    default_data.audience.targeting = app_data
-    default_data.public_name = default_data.public_name.replace("-", "", 1)
-    experiment = create_experiment(selenium)
-    experiment.launch_to_preview()
-    experiment.wait_for_preview_status()
-    json_url = json_url(base_url, default_data.public_name)
-    # Get experiment JSON and parse
-    experiment_json = requests.get(f"{json_url}", verify=False).json()
-    experiment_json = {"experiment": experiment_json}
-    targeting = experiment_json["experiment"]["targeting"]
-    experiment_json = json.dumps(experiment_json)
-    # Inject filter expression
-    selenium.get("about:blank")
-    with open("nimbus/utils/filter_expression.js") as js:
-        script = Browser.execute_script(
-            selenium,
-            targeting,
-            experiment_json,
-            script=js.read(),
-            context="chrome",
-        )
-    assert script is not None, "Invalid Targeting, or bad recipe"
