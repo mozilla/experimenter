@@ -213,6 +213,17 @@ TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_FX95_DESKTOP_USERS = NimbusTargetingConfig(
+    name="Desktop Users on Fx95",
+    slug="fx95_desktop_users",
+    description=("Firefox 95 Desktop users"),
+    targeting=(
+        "(version|versionCompare('95.!') >= 0) && (version|versionCompare('96.!') < 0)"
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TARGETING_MOBILE_NEW_USER = NimbusTargetingConfig(
     name="New Users on Mobile",
     slug="mobile_new_users",
@@ -617,6 +628,7 @@ class NimbusConstants(object):
         TARGETING_URLBAR_FIREFOX_SUGGEST.slug: TARGETING_URLBAR_FIREFOX_SUGGEST,
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
         TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
+        TARGETING_FX95_DESKTOP_USERS.slug: TARGETING_FX95_DESKTOP_USERS,
         TARGETING_MOBILE_NEW_USER.slug: TARGETING_MOBILE_NEW_USER,
         TARGETING_MOBILE_RECENTLY_UPDATED.slug: TARGETING_MOBILE_RECENTLY_UPDATED,
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug: TARGETING_NO_ENTERPRISE_OR_PAST_VPN,
@@ -657,6 +669,10 @@ class NimbusConstants(object):
         TARGETING_NO_ENTERPRISE = (
             TARGETING_NO_ENTERPRISE.slug,
             TARGETING_NO_ENTERPRISE.name,
+        )
+        TARGETING_FX95_DESKTOP_USERS = (
+            TARGETING_FX95_DESKTOP_USERS.slug,
+            TARGETING_FX95_DESKTOP_USERS.name,
         )
         TARGETING_MOBILE_NEW_USER = (
             TARGETING_MOBILE_NEW_USER.slug,
@@ -739,6 +755,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_REQUIRED_FIELD = "This field may not be blank."
     ERROR_REQUIRED_FEATURE_CONFIG = (
         "You must select a feature configuration from the drop down."
+    )
+    ERROR_LAUNCHING_DISABLED = (
+        "Launching experiments has been temporarily disabled by the site administrators."
     )
     ERROR_POPULATION_PERCENT_MIN = "Ensure this value is greater than or equal to 0.0001."
 

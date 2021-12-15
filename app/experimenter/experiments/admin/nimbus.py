@@ -12,6 +12,7 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusIsolationGroup,
 )
+from experimenter.experiments.models.nimbus import NimbusBranchFeatureValue
 from experimenter.jetstream import tasks
 
 
@@ -160,13 +161,21 @@ class NimbusFeatureConfigAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
         return obj and not obj.read_only
 
 
-class NimbusBranchScreenshotInlineAdmin(admin.TabularInline):
+class NimbusBranchScreenshotInlineAdmin(NoDeleteAdminMixin, admin.TabularInline):
     model = NimbusBranchScreenshot
     extra = 0
 
 
+class NimbusBranchFeatureValueInlineAdmin(NoDeleteAdminMixin, admin.TabularInline):
+    model = NimbusBranchFeatureValue
+    extra = 0
+
+
 class NimbusBranchAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
-    inlines = (NimbusBranchScreenshotInlineAdmin,)
+    inlines = (
+        NimbusBranchFeatureValueInlineAdmin,
+        NimbusBranchScreenshotInlineAdmin,
+    )
     list_display = (
         "name",
         "slug",

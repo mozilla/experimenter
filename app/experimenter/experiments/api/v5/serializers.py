@@ -6,7 +6,7 @@ from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
 
-from experimenter.base.models import Country, Locale
+from experimenter.base.models import Country, Locale, SiteFlag, SiteFlagNameChoices
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
@@ -582,6 +582,12 @@ class NimbusExperimentSerializer(
                 f"'{self.instance.status}', the only valid choices are "
                 f"'{choices_str}'"
             )
+
+        if (
+            SiteFlag.objects.value(SiteFlagNameChoices.LAUNCHING_DISABLED)
+            and value == NimbusExperiment.Status.LIVE
+        ):
+            raise serializers.ValidationError(NimbusExperiment.ERROR_LAUNCHING_DISABLED)
 
         return value
 

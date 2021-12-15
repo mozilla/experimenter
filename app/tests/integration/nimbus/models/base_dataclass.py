@@ -22,7 +22,6 @@ class BaseExperimentAudienceChannels(Enum):
 class BaseExperimentBranchDataClass:
     name: str
     description: str
-    feature_config: str
 
 
 @dataclass
@@ -51,3 +50,4 @@ class BaseExperimentDataClass:
     branches: Optional[List[BaseExperimentBranchDataClass]]
     metrics: BaseExperimentMetricsDataClass
     audience: BaseExperimentAudienceDataClass
+    feature_config: str
