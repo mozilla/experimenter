@@ -43,10 +43,12 @@ class NimbusBranchSerializerSingleFeature(serializers.ModelSerializer):
         feature_enabled = False
 
         if obj.experiment.feature_configs.exists():
-            feature_config = obj.experiment.feature_configs.get()
+            feature_config = obj.experiment.feature_configs.all().order_by("slug").first()
             feature_config_slug = feature_config.slug
-            if obj.feature_values.exists():
-                branch_feature_value = obj.feature_values.get()
+            if obj.feature_values.filter(feature_config=feature_config).exists():
+                branch_feature_value = obj.feature_values.get(
+                    feature_config=feature_config
+                )
                 feature_enabled = branch_feature_value.enabled
                 try:
                     feature_value = json.loads(branch_feature_value.value)

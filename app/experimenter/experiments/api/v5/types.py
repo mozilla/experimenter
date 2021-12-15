@@ -133,10 +133,16 @@ class NimbusBranchType(DjangoObjectType):
         exclude = ("experiment", "nimbusexperiment")
 
     def resolve_feature_enabled(root, info):
-        return root.feature_values.exists() and root.feature_values.get().enabled
+        return (
+            root.feature_values.exists()
+            and root.feature_values.all().order_by("feature_config__slug").first().enabled
+        )
 
     def resolve_feature_value(root, info):
-        return (root.feature_values.exists() and root.feature_values.get().value) or ""
+        return (
+            root.feature_values.exists()
+            and root.feature_values.all().order_by("feature_config__slug").first().value
+        ) or ""
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
@@ -350,7 +356,7 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_feature_config(self, info):
         if self.feature_configs.exists():
-            return self.feature_configs.get()
+            return self.feature_configs.all().order_by("slug").first()
 
     def resolve_reference_branch(self, info):
         if self.reference_branch:

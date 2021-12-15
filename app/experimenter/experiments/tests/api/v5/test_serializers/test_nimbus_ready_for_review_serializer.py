@@ -34,7 +34,7 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         super().setUp()
         self.user = UserFactory()
 
-    def test_valid_experiment(self):
+    def test_valid_experiment_with_single_feature(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
@@ -42,6 +42,29 @@ class TestNimbusReadyForReviewSerializer(TestCase):
                 NimbusFeatureConfigFactory(
                     application=NimbusExperiment.Application.DESKTOP
                 )
+            ],
+        )
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+    def test_valid_experiment_with_multiple_features(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                ),
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                ),
             ],
         )
         serializer = NimbusReadyForReviewSerializer(
