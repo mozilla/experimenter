@@ -883,7 +883,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             "deprecated_targeting",
         )
 
-    def test_feature_config(self):
+    def test_feature_config_with_single_feature(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -918,15 +918,57 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             {"id": feature_config.id, "application": "DESKTOP"},
         )
 
+    def test_feature_config_with_multiple_features(self):
+        user_email = "user@example.com"
+        feature_config1 = NimbusFeatureConfigFactory.create(
+            slug="a", application=NimbusExperiment.Application.DESKTOP
+        )
+        feature_config2 = NimbusFeatureConfigFactory.create(
+            slug="b", application=NimbusExperiment.Application.DESKTOP
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config1, feature_config2],
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    featureConfig {
+                        id
+                        application
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["featureConfig"],
+            {"id": feature_config1.id, "application": "DESKTOP"},
+        )
+
     def test_branches(self):
         user_email = "user@example.com"
-        feature_config = NimbusFeatureConfigFactory.create(
-            application=NimbusExperiment.Application.DESKTOP
+        feature_config1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="a",
+        )
+        feature_config2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="b",
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[feature_config],
+            feature_configs=[feature_config1, feature_config2],
         )
 
         response = self.query(
@@ -969,9 +1011,13 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "ratio": experiment.reference_branch.ratio,
                 "description": experiment.reference_branch.description,
                 "featureEnabled": (
-                    experiment.reference_branch.feature_values.get().enabled
+                    experiment.reference_branch.feature_values.get(
+                        feature_config=feature_config1
+                    ).enabled
                 ),
-                "featureValue": experiment.reference_branch.feature_values.get().value,
+                "featureValue": experiment.reference_branch.feature_values.get(
+                    feature_config=feature_config1
+                ).value,
             },
         )
 
@@ -983,8 +1029,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     "slug": treatment_branch.slug,
                     "ratio": treatment_branch.ratio,
                     "description": treatment_branch.description,
-                    "featureEnabled": treatment_branch.feature_values.get().enabled,
-                    "featureValue": treatment_branch.feature_values.get().value,
+                    "featureEnabled": treatment_branch.feature_values.get(
+                        feature_config=feature_config1
+                    ).enabled,
+                    "featureValue": treatment_branch.feature_values.get(
+                        feature_config=feature_config1
+                    ).value,
                 },
                 experiment_data["treatmentBranches"],
             )
