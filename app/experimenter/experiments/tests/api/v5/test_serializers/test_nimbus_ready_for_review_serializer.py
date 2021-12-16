@@ -155,6 +155,30 @@ class TestNimbusReadyForReviewSerializer(TestCase):
             {"reference_branch": {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]}},
         )
 
+    def test_invalid_experiment_requires_min_version_less_than_max_version(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_83,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+        )
+        experiment.save()
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "firefox_min_version": [NimbusExperiment.ERROR_FIREFOX_VERSION_MIN],
+                "firefox_max_version": [NimbusExperiment.ERROR_FIREFOX_VERSION_MAX],
+            },
+        )
+
     def test_invalid_experiment_requires_non_zero_population_percent(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,

@@ -30,6 +30,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
       {
         channel,
         firefoxMinVersion,
+        firefoxMaxVersion,
         targetingConfigSlug,
         populationPercent,
         totalEnrolledClients,
@@ -50,6 +51,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_AUDIENCE,
               channel,
               firefoxMinVersion,
+              firefoxMaxVersion,
               targetingConfigSlug,
               populationPercent,
               totalEnrolledClients,

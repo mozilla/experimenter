@@ -760,6 +760,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Launching experiments has been temporarily disabled by the site administrators."
     )
     ERROR_POPULATION_PERCENT_MIN = "Ensure this value is greater than or equal to 0.0001."
+    ERROR_FIREFOX_VERSION_MIN = "Ensure this value is less than the maximum version"
+    ERROR_FIREFOX_VERSION_MAX = "Ensure this value is greater than the minimum version"
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
