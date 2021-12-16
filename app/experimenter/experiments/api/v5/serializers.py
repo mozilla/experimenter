@@ -4,6 +4,7 @@ from collections import defaultdict
 import jsonschema
 from django.db import transaction
 from django.utils.text import slugify
+from packaging import version
 from rest_framework import serializers
 
 from experimenter.base.models import Country, Locale, SiteFlag, SiteFlagNameChoices
@@ -460,6 +461,7 @@ class NimbusExperimentSerializer(
             "feature_config",
             "warn_feature_schema",
             "firefox_min_version",
+            "firefox_max_version",
             "hypothesis",
             "is_rollout",
             "is_archived",
@@ -881,6 +883,22 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_versions(self, data):
+        min_version = data.get("firefox_min_version", "")
+        max_version = data.get("firefox_max_version", "")
+        if (
+            min_version != ""
+            and max_version != ""
+            and version.parse(min_version) >= version.parse(max_version)
+        ):
+            raise serializers.ValidationError(
+                {
+                    "firefox_min_version": [NimbusExperiment.ERROR_FIREFOX_VERSION_MIN],
+                    "firefox_max_version": [NimbusExperiment.ERROR_FIREFOX_VERSION_MAX],
+                }
+            )
+        return data
+
     def validate(self, attrs):
         application = attrs.get("application")
         channel = attrs.get("channel")
@@ -890,6 +908,7 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
             )
         data = super().validate(attrs)
         data = self._validate_feature_configs(data)
+        data = self._validate_versions(data)
         return data
 
 

@@ -52,7 +52,8 @@ input ExperimentInput {
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
   channel: NimbusExperimentChannel
-  firefoxMinVersion: NimbusExperimentFirefoxMinVersion
+  firefoxMinVersion: NimbusExperimentFirefoxVersion
+  firefoxMaxVersion: NimbusExperimentFirefoxVersion
   populationPercent: String
   proposedDuration: Int
   proposedEnrollment: String
@@ -231,7 +232,7 @@ enum NimbusExperimentDocumentationLink {
   ENG_TICKET
 }
 
-enum NimbusExperimentFirefoxMinVersion {
+enum NimbusExperimentFirefoxVersion {
   NO_VERSION
   FIREFOX_11
   FIREFOX_12
@@ -364,7 +365,8 @@ type NimbusExperimentType {
   proposedEnrollment: Int!
   populationPercent: String
   totalEnrolledClients: Int!
-  firefoxMinVersion: NimbusExperimentFirefoxMinVersion
+  firefoxMinVersion: NimbusExperimentFirefoxVersion
+  firefoxMaxVersion: NimbusExperimentFirefoxVersion
   application: NimbusExperimentApplication
   channel: NimbusExperimentChannel
   locales: [NimbusLocaleType!]!

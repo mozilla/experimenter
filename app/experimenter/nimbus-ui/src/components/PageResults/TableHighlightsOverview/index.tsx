@@ -28,7 +28,12 @@ const TableHighlightsOverview = ({
             <td className="p-3">
               <h3 className="h6">Targeting</h3>
               <div>
+                Minimum{" "}
                 {getConfigLabel(experiment.firefoxMinVersion, firefoxVersions)}+
+              </div>
+              <div>
+                Maximum{" "}
+                {getConfigLabel(experiment.firefoxMaxVersion, firefoxVersions)}+
               </div>
               <div>{getConfigLabel(experiment.channel, channels)}</div>
               <div>

@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentConclusionRecommendation, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusDocumentationLinkTitle, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
+import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentConclusionRecommendation, NimbusExperimentChannel, NimbusExperimentFirefoxVersion, NimbusDocumentationLinkTitle, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -146,7 +146,8 @@ export interface getExperiment_experimentBySlug {
   primaryOutcomes: (string | null)[] | null;
   secondaryOutcomes: (string | null)[] | null;
   channel: NimbusExperimentChannel | null;
-  firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;
+  firefoxMinVersion: NimbusExperimentFirefoxVersion | null;
+  firefoxMaxVersion: NimbusExperimentFirefoxVersion | null;
   targetingConfigSlug: string | null;
   jexlTargetingExpression: string | null;
   populationPercent: string | null;

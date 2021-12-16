@@ -42,6 +42,7 @@ type SelectIdItems = {
 export const audienceFieldNames = [
   "channel",
   "firefoxMinVersion",
+  "firefoxMaxVersion",
   "targetingConfigSlug",
   "populationPercent",
   "totalEnrolledClients",
@@ -83,6 +84,7 @@ export const FormAudience = ({
   const defaultValues = {
     channel: experiment.channel,
     firefoxMinVersion: experiment.firefoxMinVersion,
+    firefoxMaxVersion: experiment.firefoxMaxVersion,
     targetingConfigSlug: experiment.targetingConfigSlug,
     populationPercent: experiment.populationPercent,
     totalEnrolledClients: experiment.totalEnrolledClients,
@@ -169,6 +171,18 @@ export const FormAudience = ({
               <SelectOptions options={config.firefoxVersions} />
             </Form.Control>
             <FormErrors name="firefoxMinVersion" />
+          </Form.Group>
+          <Form.Group as={Col} controlId="maxVersion">
+            <Form.Label className="d-flex align-items-center">
+              Max Version
+            </Form.Label>
+            <Form.Control
+              {...formControlAttrs("firefoxMaxVersion")}
+              as="select"
+            >
+              <SelectOptions options={config.firefoxVersions} />
+            </Form.Control>
+            <FormErrors name="firefoxMaxVersion" />
           </Form.Group>
         </Form.Row>
         <Form.Row>

@@ -22,7 +22,7 @@ import { assertSerializerMessages } from "../../../lib/test-utils";
 import {
   NimbusExperimentApplication,
   NimbusExperimentChannel,
-  NimbusExperimentFirefoxMinVersion,
+  NimbusExperimentFirefoxVersion,
 } from "../../../types/globalTypes";
 import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
@@ -146,6 +146,7 @@ describe("FormAudience", () => {
       "*": ["Big bad server thing happened"],
       channel: ["Cannot tune in this channel"],
       firefox_min_version: ["Bad min version"],
+      firefox_max_version: ["Bad max version"],
       targeting_config_slug: ["This slug is icky"],
       countries: ["This place doesn't even exist"],
       locales: ["We don't have that locale"],
@@ -173,7 +174,8 @@ describe("FormAudience", () => {
     await screen.findByTestId("FormAudience");
 
     for (const [fieldName, expected] of [
-      ["firefoxMinVersion", NimbusExperimentFirefoxMinVersion.NO_VERSION],
+      ["firefoxMinVersion", NimbusExperimentFirefoxVersion.NO_VERSION],
+      ["firefoxMaxVersion", NimbusExperimentFirefoxVersion.NO_VERSION],
       ["populationPercent", "0.0"],
       ["proposedDuration", "0"],
       ["proposedEnrollment", "0"],
@@ -193,6 +195,7 @@ describe("FormAudience", () => {
     const expected = {
       channel: MOCK_EXPERIMENT.channel,
       firefoxMinVersion: MOCK_EXPERIMENT.firefoxMinVersion,
+      firefoxMaxVersion: MOCK_EXPERIMENT.firefoxMaxVersion,
       targetingConfigSlug: MOCK_EXPERIMENT.targetingConfigSlug,
       populationPercent: "" + MOCK_EXPERIMENT.populationPercent,
       totalEnrolledClients: MOCK_EXPERIMENT.totalEnrolledClients,
@@ -402,8 +405,8 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         ],
         firefoxVersions: [
           {
-            label: NimbusExperimentFirefoxMinVersion.NO_VERSION,
-            value: NimbusExperimentFirefoxMinVersion.NO_VERSION,
+            label: NimbusExperimentFirefoxVersion.NO_VERSION,
+            value: NimbusExperimentFirefoxVersion.NO_VERSION,
           },
         ],
         channels: [
@@ -416,7 +419,8 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
       experiment={{
         ...MOCK_EXPERIMENT,
         application: NimbusExperimentApplication.DESKTOP,
-        firefoxMinVersion: NimbusExperimentFirefoxMinVersion.NO_VERSION,
+        firefoxMinVersion: NimbusExperimentFirefoxVersion.NO_VERSION,
+        firefoxMaxVersion: NimbusExperimentFirefoxVersion.NO_VERSION,
         channel: NimbusExperimentChannel.NO_CHANNEL,
         populationPercent: "0.0",
         proposedDuration: 0,

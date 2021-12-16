@@ -207,6 +207,7 @@ class TestNimbusExperiment(TestCase):
     def test_targeting_for_experiment_without_channels(self):
         experiment = NimbusExperimentFactory.create(
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_95,
             targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -219,6 +220,7 @@ class TestNimbusExperiment(TestCase):
             (
                 "os.isMac "
                 "&& version|versionCompare('83.!') >= 0 "
+                "&& version|versionCompare('95.*') < 0 "
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
         )
@@ -227,6 +229,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_95,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -242,6 +245,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_95,
             targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NIGHTLY,
@@ -254,6 +258,31 @@ class TestNimbusExperiment(TestCase):
             (
                 "os.isMac "
                 '&& browserSettings.update.channel == "nightly" '
+                "&& version|versionCompare('95.*') < 0 "
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+            ),
+        )
+
+    def test_targeting_without_firefox_max_version(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NIGHTLY,
+            locales=[],
+            countries=[],
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "os.isMac "
+                '&& browserSettings.update.channel == "nightly" '
+                "&& version|versionCompare('83.!') >= 0 "
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
         )
@@ -262,6 +291,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -280,6 +310,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[locale_ca, locale_us],
@@ -301,6 +332,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[],
@@ -324,6 +356,7 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_MAC_ONLY,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[locale_ca, locale_us],
@@ -1113,6 +1146,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.population_percent, 0)
         self.assertEqual(child.total_enrolled_clients, 0)
         self.assertEqual(child.firefox_min_version, NimbusExperiment.Version.NO_VERSION)
+        self.assertEqual(child.firefox_max_version, NimbusExperiment.Version.NO_VERSION)
         self.assertEqual(child.application, NimbusExperiment.Application.DESKTOP)
         self.assertEqual(child.channel, NimbusExperiment.Channel.NO_CHANNEL)
         self.assertEqual(child.hypothesis, NimbusExperiment.HYPOTHESIS_DEFAULT)
@@ -1181,6 +1215,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.channel, parent.channel)
         self.assertEqual(child.hypothesis, parent.hypothesis)
         self.assertEqual(child.firefox_min_version, parent.firefox_min_version)
+        self.assertEqual(child.firefox_max_version, parent.firefox_max_version)
         self.assertEqual(child.risk_mitigation_link, parent.risk_mitigation_link)
         self.assertEqual(child.primary_outcomes, parent.primary_outcomes)
         self.assertEqual(child.secondary_outcomes, parent.secondary_outcomes)

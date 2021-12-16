@@ -631,6 +631,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             application=NimbusConstants.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             population_percent=0.0,
             proposed_duration=0,
             proposed_enrollment=0,
@@ -644,6 +645,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
                     "id": experiment.id,
                     "channel": NimbusConstants.Channel.BETA.name,
                     "firefoxMinVersion": NimbusConstants.Version.FIREFOX_83.name,
+                    "firefoxMaxVersion": NimbusConstants.Version.FIREFOX_95.name,
                     "populationPercent": "10",
                     "proposedDuration": 120,
                     "proposedEnrollment": 42,
@@ -666,6 +668,9 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA)
         self.assertEqual(
             experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83
+        )
+        self.assertEqual(
+            experiment.firefox_max_version, NimbusConstants.Version.FIREFOX_95
         )
         self.assertEqual(experiment.population_percent, 10.0)
         self.assertEqual(experiment.proposed_duration, 120)

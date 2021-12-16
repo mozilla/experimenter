@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentApplication, NimbusExperimentFirefoxMinVersion, NimbusExperimentStatus, NimbusExperimentPublishStatus } from "./globalTypes";
+import { NimbusExperimentApplication, NimbusExperimentFirefoxVersion, NimbusExperimentStatus, NimbusExperimentPublishStatus } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getAllExperiments
@@ -30,7 +30,8 @@ export interface getAllExperiments_experiments {
   featureConfig: getAllExperiments_experiments_featureConfig | null;
   slug: string;
   application: NimbusExperimentApplication | null;
-  firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;
+  firefoxMinVersion: NimbusExperimentFirefoxVersion | null;
+  firefoxMaxVersion: NimbusExperimentFirefoxVersion | null;
   startDate: DateTime | null;
   isEnrollmentPausePending: boolean | null;
   isEnrollmentPaused: boolean | null;
