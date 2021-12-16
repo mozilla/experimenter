@@ -39,7 +39,7 @@ import {
   NimbusDocumentationLinkTitle,
   NimbusExperimentApplication,
   NimbusExperimentChannel,
-  NimbusExperimentFirefoxMinVersion,
+  NimbusExperimentFirefoxVersion,
   NimbusExperimentPublishStatus,
   NimbusExperimentStatus,
 } from "../types/globalTypes";
@@ -493,7 +493,8 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   primaryOutcomes: ["picture_in_picture", "feature_c", "feature_nodata"],
   secondaryOutcomes: ["feature_b"],
   channel: NimbusExperimentChannel.NIGHTLY,
-  firefoxMinVersion: NimbusExperimentFirefoxMinVersion.FIREFOX_83,
+  firefoxMinVersion: NimbusExperimentFirefoxVersion.FIREFOX_16,
+  firefoxMaxVersion: NimbusExperimentFirefoxVersion.FIREFOX_64,
   targetingConfigSlug: "MAC_ONLY",
   jexlTargetingExpression: "localeLanguageCode == 'en' && region == 'US'",
   populationPercent: "40",
@@ -650,7 +651,9 @@ export function mockSingleDirectoryExperiment(
     application: MOCK_CONFIG.applications![0]!
       .value as NimbusExperimentApplication,
     firefoxMinVersion: MOCK_CONFIG.firefoxVersions![0]!
-      .value as NimbusExperimentFirefoxMinVersion,
+      .value as NimbusExperimentFirefoxVersion,
+    firefoxMaxVersion: MOCK_CONFIG.firefoxVersions![3]!
+      .value as NimbusExperimentFirefoxVersion,
     monitoringDashboardUrl:
       "https://mozilla.cloud.looker.com/dashboards-next/216?Experiment=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
     name: "Open-architected background installation",

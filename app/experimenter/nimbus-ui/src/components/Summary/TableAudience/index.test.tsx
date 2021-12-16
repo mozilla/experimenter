@@ -35,7 +35,10 @@ describe("TableAudience", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-ff-min")).toHaveTextContent(
-        "Firefox 80",
+        "Firefox 16",
+      );
+      expect(screen.getByTestId("experiment-ff-max")).toHaveTextContent(
+        "Firefox 64",
       );
     });
     it("when not set", () => {

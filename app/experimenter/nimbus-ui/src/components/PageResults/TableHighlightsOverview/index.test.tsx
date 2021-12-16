@@ -32,7 +32,8 @@ describe("TableHighlightsOverview", () => {
       </RouterSlugProvider>,
     );
 
-    expect(screen.getByText("Firefox 80+")).toBeInTheDocument();
+    expect(screen.getByText("Minimum Firefox 16+")).toBeInTheDocument();
+    expect(screen.getByText("Maximum Firefox 64+")).toBeInTheDocument();
     expect(screen.getByText("Desktop Nightly")).toBeInTheDocument();
     expect(screen.getByText("Mac Only")).toBeInTheDocument();
   });

@@ -15,7 +15,7 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 import {
   ExperimentInput,
   NimbusExperimentChannel,
-  NimbusExperimentFirefoxMinVersion,
+  NimbusExperimentFirefoxVersion,
 } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment } from "../../types/updateExperiment";
 import FormAudience from "./FormAudience";
@@ -99,7 +99,8 @@ describe("PageEditAudience", () => {
 
 const MOCK_FORM_DATA = {
   channel: NimbusExperimentChannel.NIGHTLY,
-  firefoxMinVersion: NimbusExperimentFirefoxMinVersion.FIREFOX_83,
+  firefoxMinVersion: NimbusExperimentFirefoxVersion.FIREFOX_83,
+  firefoxMaxVersion: NimbusExperimentFirefoxVersion.FIREFOX_95,
   targetingConfigSlug: "TARGETING_FIRST_RUN",
   populationPercent: "40",
   totalEnrolledClients: 68000,
