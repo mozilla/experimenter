@@ -340,6 +340,15 @@ class NimbusStatusValidationMixin:
                         }
                     )
 
+            if (
+                SiteFlag.objects.value(SiteFlagNameChoices.LAUNCHING_DISABLED)
+                and self.instance.status == NimbusExperiment.Status.DRAFT
+                and data.get("status_next") == NimbusExperiment.Status.LIVE
+            ):
+                raise serializers.ValidationError(
+                    {"status_next": NimbusExperiment.ERROR_LAUNCHING_DISABLED}
+                )
+
         return data
 
 
@@ -584,12 +593,6 @@ class NimbusExperimentSerializer(
                 f"'{self.instance.status}', the only valid choices are "
                 f"'{choices_str}'"
             )
-
-        if (
-            SiteFlag.objects.value(SiteFlagNameChoices.LAUNCHING_DISABLED)
-            and value == NimbusExperiment.Status.LIVE
-        ):
-            raise serializers.ValidationError(NimbusExperiment.ERROR_LAUNCHING_DISABLED)
 
         return value
 
