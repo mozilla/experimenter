@@ -52,8 +52,8 @@ class TestNimbusStatusTransitionValidator(TestCase):
 
     def test_launch_request_while_disabled_error(self):
         SiteFlag(name=SiteFlagNameChoices.LAUNCHING_DISABLED.name, value=True).save()
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -70,3 +70,37 @@ class TestNimbusStatusTransitionValidator(TestCase):
             serializer.errors["status_next"][0],
             NimbusExperiment.ERROR_LAUNCHING_DISABLED,
         )
+
+    def test_end_enrolment_request_while_disabled_error(self):
+        SiteFlag(name=SiteFlagNameChoices.LAUNCHING_DISABLED.name, value=True).save()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.LIVE,
+                "status_next": NimbusExperiment.Status.LIVE,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "Review Requested for Launch",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+    def test_end_experiment_request_while_disabled_error(self):
+        SiteFlag(name=SiteFlagNameChoices.LAUNCHING_DISABLED.name, value=True).save()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.LIVE,
+                "status_next": NimbusExperiment.Status.COMPLETE,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "Review Requested for Launch",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
