@@ -4,6 +4,7 @@ WAIT_FOR_DB = /app/bin/wait-for-it.sh -t 30 db:5432 &&
 WAIT_FOR_RUNSERVER = /app/bin/wait-for-it.sh -t 30 localhost:7001 &&
 
 COMPOSE = docker-compose -f docker-compose.yml
+COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
 COMPOSE_PROD = docker-compose -f docker-compose-prod.yml
 COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
@@ -20,7 +21,7 @@ PY_IMPORT_CHECK =  python -m isort . --profile black --check
 PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 PYTHON_MIGRATE = python manage.py migrate
-ESLINT_CORE = yarn workspace @experimenter/core lint
+ESLINT_LEGACY = yarn workspace @experimenter/core lint
 ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
 ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint
 ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint-fix
@@ -29,7 +30,7 @@ ESLINT_REPORTING = yarn workspace @experimenter/reporting lint:eslint --max-warn
 ESLINT_FIX_REPORTING = yarn workspace @experimenter/reporting lint:eslint --fix --max-warnings=1
 TYPECHECK_REPORTING = yarn workspace @experimenter/reporting lint:tsc
 
-JS_TEST_CORE = yarn workspace @experimenter/core test
+JS_TEST_LEGACY = yarn workspace @experimenter/core test
 JS_TEST_NIMBUS_UI = CI=yes yarn workspace @experimenter/nimbus-ui test:cov
 JS_TEST_REPORTING = yarn workspace @experimenter/reporting test
 NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-ui/test_schema.graphql&&diff experimenter/nimbus-ui/test_schema.graphql experimenter/nimbus-ui/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
@@ -111,13 +112,19 @@ kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
 check: build_test
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_REPORTING)" "$(TYPECHECK_NIMBUS_UI)" "$(TYPECHECK_REPORTING)" "$(JS_TEST_CORE)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)" "$(PYTHON_TEST)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)") ${COLOR_CHECK}'
+
+check_legacy: build_test
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(ESLINT_REPORTING)" "$(TYPECHECK_NIMBUS_UI)" "$(TYPECHECK_REPORTING)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)" "$(PYTHON_TEST)") ${COLOR_CHECK}'
 
 pytest: build_test
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
 
 up: build_dev
 	$(COMPOSE) up
+
+up_legacy: build_dev
+	$(COMPOSE_LEGACY) up
 
 up_prod: build_prod
 	$(COMPOSE_PROD) up
