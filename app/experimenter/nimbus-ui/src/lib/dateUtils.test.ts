@@ -26,9 +26,9 @@ describe("humanDate", () => {
   });
 
   it("normalizes time and timezone", () => {
-    expect(humanDate("2021-06-21T10:00:00Z")).toEqual("Jun 21");
-    expect(humanDate("2021-06-21T00:00:00Z")).toEqual("Jun 21");
-    expect(humanDate("2021-06-21")).toEqual("Jun 21");
+    expect(humanDate("2021-06-21T10:00:00Z")).toEqual("Jun 21, 2021");
+    expect(humanDate("2021-06-21T00:00:00Z")).toEqual("Jun 21, 2021");
+    expect(humanDate("2021-06-21")).toEqual("Jun 21, 2021");
   });
 });
 
