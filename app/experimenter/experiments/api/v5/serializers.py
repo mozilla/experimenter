@@ -892,7 +892,7 @@ class NimbusReadyForReviewSerializer(serializers.ModelSerializer):
         if (
             min_version != ""
             and max_version != ""
-            and version.parse(min_version) >= version.parse(max_version)
+            and version.parse(min_version) > version.parse(max_version)
         ):
             raise serializers.ValidationError(
                 {
