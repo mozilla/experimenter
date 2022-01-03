@@ -401,14 +401,14 @@ sftp = ["paramiko"]
 
 [[package]]
 name = "django-test-migrations"
-version = "1.1.0"
+version = "1.2.0"
 description = "Test django schema and data migrations, including ordering"
 category = "main"
 optional = false
 python-versions = ">=3.6,<4.0"
 
 [package.dependencies]
-typing_extensions = ">=3.7.4,<4.0.0"
+typing_extensions = ">=3.6,<5"
 
 [[package]]
 name = "django-widget-tweaks"
@@ -1606,7 +1606,7 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "8098fb59e7d40b94c80358128da0347b6dea2a5d8ceecdbaab65bb11d0b6da45"
+content-hash = "fa899682f86b25d68f8bc820538d32300afd521e5289595fbb5752c27428294a"
 
 [metadata.files]
 amqp = [
@@ -1829,8 +1829,8 @@ django-storages = [
     {file = "django_storages-1.12.1-py3-none-any.whl", hash = "sha256:a88199d67e2fc032e92de02106315ed005ae22a2bf4df5269c0add4148fec739"},
 ]
 django-test-migrations = [
-    {file = "django-test-migrations-1.1.0.tar.gz", hash = "sha256:27c0127552920bbdc339a84de360f1792abc8c353e2c8d2b86af92dc1ade6703"},
-    {file = "django_test_migrations-1.1.0-py3-none-any.whl", hash = "sha256:7ea17dac1a0b0c8084681899c6563d85f4262832f2fbb0c6240b12e554333934"},
+    {file = "django-test-migrations-1.2.0.tar.gz", hash = "sha256:874884ff4e980583cd9f1c986bb9fbfe72b436e759be23004e4f52c26a15f363"},
+    {file = "django_test_migrations-1.2.0-py3-none-any.whl", hash = "sha256:9e8b9b4364fef70dde10a5f85c5a75d447ca2189ec648325610fab1268daec97"},
 ]
 django-widget-tweaks = [
     {file = "django-widget-tweaks-1.4.8.tar.gz", hash = "sha256:9f91ca4217199b7671971d3c1f323a2bec71a0c27dec6260b3c006fa541bc489"},
