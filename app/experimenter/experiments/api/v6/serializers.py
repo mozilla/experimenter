@@ -75,7 +75,7 @@ class NimbusBranchSerializerMultiFeature(serializers.ModelSerializer):
         features = []
         for fv in obj.feature_values.all():
             feature_value = {
-                "featureId": fv.feature_config.slug,
+                "featureId": fv.feature_config and fv.feature_config.slug or "",
                 "enabled": fv.enabled,
                 "value": {},
             }
