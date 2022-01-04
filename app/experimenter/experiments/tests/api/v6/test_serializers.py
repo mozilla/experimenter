@@ -267,7 +267,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(serializer.data["branches"][0]["feature"]["value"], {})
         check_schema("experiments/NimbusExperiment", serializer.data)
 
-    def test_serializer_with_branches_no_feature(self):
+    def test_serializer_with_branches_no_feature_94(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
@@ -277,6 +277,26 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment.save()
         serializer = NimbusExperimentSerializer(experiment)
         self.assertIsNone(serializer.data["branches"][0]["feature"]["featureId"])
+
+    def test_serializer_with_branches_no_feature_95(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+            feature_configs=[],
+        )
+        experiment.save()
+        NimbusBranchFeatureValue.objects.create(
+            branch=experiment.reference_branch,
+            feature_config=None,
+            enabled=False,
+            value="",
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(
+            serializer.data["branches"][0]["features"],
+            [{"featureId": "", "enabled": False, "value": {}}],
+        )
 
     def test_serializer_with_branch_invalid_single_feature_value(self):
         application = NimbusExperiment.Application.DESKTOP
