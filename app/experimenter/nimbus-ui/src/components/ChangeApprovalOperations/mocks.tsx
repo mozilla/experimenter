@@ -14,7 +14,7 @@ import {
 import {
   NimbusChangeLogOldStatus,
   NimbusChangeLogOldStatusNext,
-  NimbusExperimentPublishStatus,
+  NimbusExperimentPublishStatusEnum,
 } from "../../types/globalTypes";
 
 type BaseSubjectProps = Partial<
@@ -32,7 +32,7 @@ export const BaseSubject = ({
   isLoading = false,
   canReview = false,
   status = getStatus(MOCK_EXPERIMENT),
-  publishStatus = NimbusExperimentPublishStatus.IDLE,
+  publishStatus = NimbusExperimentPublishStatusEnum.IDLE,
   reviewRequestEvent,
   rejectionEvent,
   timeoutEvent,
@@ -71,7 +71,7 @@ export const BaseSubject = ({
 );
 
 export const reviewRequestedBaseProps: BaseSubjectProps = {
-  publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
   reviewRequestEvent: mockChangelog(
     "abc@def.com",
     null,
@@ -80,7 +80,7 @@ export const reviewRequestedBaseProps: BaseSubjectProps = {
 };
 
 export const reviewApprovedBaseProps: BaseSubjectProps = {
-  publishStatus: NimbusExperimentPublishStatus.APPROVED,
+  publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
   reviewRequestEvent: mockChangelog(
     "abc@def.com",
     null,
@@ -89,7 +89,7 @@ export const reviewApprovedBaseProps: BaseSubjectProps = {
 };
 
 export const reviewPendingInRemoteSettingsBaseProps: BaseSubjectProps = {
-  publishStatus: NimbusExperimentPublishStatus.WAITING,
+  publishStatus: NimbusExperimentPublishStatusEnum.WAITING,
   reviewRequestEvent: mockChangelog(
     "abc@def.com",
     null,
@@ -98,7 +98,7 @@ export const reviewPendingInRemoteSettingsBaseProps: BaseSubjectProps = {
 };
 
 export const reviewTimedOutBaseProps: BaseSubjectProps = {
-  publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
   reviewRequestEvent: mockChangelog(
     "abc@def.com",
     null,
@@ -108,7 +108,7 @@ export const reviewTimedOutBaseProps: BaseSubjectProps = {
 };
 
 export const reviewRejectedBaseProps: BaseSubjectProps = {
-  publishStatus: NimbusExperimentPublishStatus.IDLE,
+  publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
   reviewRequestEvent: mockChangelog(
     "abc@def.com",
     null,
@@ -125,7 +125,7 @@ export const reviewRejectedBaseProps: BaseSubjectProps = {
 
 export const reviewRequestedAfterRejectionBaseProps: BaseSubjectProps = {
   ...reviewRejectedBaseProps,
-  publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
   reviewRequestEvent: mockChangelog(
     "abc@def.com",
     null,
@@ -135,5 +135,5 @@ export const reviewRequestedAfterRejectionBaseProps: BaseSubjectProps = {
 
 export const reviewApprovedAfterTimeoutBaseProps: BaseSubjectProps = {
   ...reviewTimedOutBaseProps,
-  publishStatus: NimbusExperimentPublishStatus.APPROVED,
+  publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
 };

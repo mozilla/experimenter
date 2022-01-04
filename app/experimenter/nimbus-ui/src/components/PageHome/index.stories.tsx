@@ -7,7 +7,7 @@ import React from "react";
 import PageHome from ".";
 import { mockDirectoryExperimentsQuery, MockedCache } from "../../lib/mocks";
 import { CurrentLocation, RouterSlugProvider } from "../../lib/test-utils";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
 
 interface StoryContext {
   args: {
@@ -59,9 +59,9 @@ export const NoExperiments = storyTemplate([mockDirectoryExperimentsQuery([])]);
 
 export const OnlyDrafts = storyTemplate([
   mockDirectoryExperimentsQuery([
-    { status: NimbusExperimentStatus.DRAFT },
-    { status: NimbusExperimentStatus.DRAFT },
-    { status: NimbusExperimentStatus.DRAFT },
-    { status: NimbusExperimentStatus.DRAFT },
+    { status: NimbusExperimentStatusEnum.DRAFT },
+    { status: NimbusExperimentStatusEnum.DRAFT },
+    { status: NimbusExperimentStatusEnum.DRAFT },
+    { status: NimbusExperimentStatusEnum.DRAFT },
   ]),
 ]);

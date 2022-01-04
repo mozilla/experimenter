@@ -23,6 +23,41 @@ from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 
 
+class NimbusExperimentStatusEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Status
+
+
+class NimbusExperimentPublishStatusEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.PublishStatus
+
+
+class NimbusExperimentFirefoxVersionEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Version
+
+
+class NimbusExperimentApplicationEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Application
+
+
+class NimbusExperimentChannelEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Channel
+
+
+class NimbusExperimentConclusionRecommendationEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.ConclusionRecommendation
+
+
+class NimbusExperimentDocumentationLinkEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.DocumentationLink
+
+
 class ObjectField(graphene.Scalar):
     """Utilized to serialize out Serializer errors"""
 
@@ -54,7 +89,7 @@ class NimbusLocaleType(DjangoObjectType):
         model = Locale
 
 
-class NimbusUser(DjangoObjectType):
+class NimbusUserType(DjangoObjectType):
     id = graphene.Int()
 
     class Meta:
@@ -62,51 +97,16 @@ class NimbusUser(DjangoObjectType):
         fields = ("id", "username", "first_name", "last_name", "email")
 
 
-class NimbusExperimentStatus(graphene.Enum):
-    class Meta:
-        enum = NimbusConstants.Status
-
-
-class NimbusExperimentPublishStatus(graphene.Enum):
-    class Meta:
-        enum = NimbusConstants.PublishStatus
-
-
-class NimbusExperimentFirefoxVersion(graphene.Enum):
-    class Meta:
-        enum = NimbusConstants.Version
-
-
-class NimbusExperimentApplication(graphene.Enum):
-    class Meta:
-        enum = NimbusConstants.Application
-
-
-class NimbusExperimentChannel(graphene.Enum):
-    class Meta:
-        enum = NimbusConstants.Channel
-
-
-class NimbusExperimentConclusionRecommendation(graphene.Enum):
-    class Meta:
-        enum = NimbusConstants.ConclusionRecommendation
-
-
-class NimbusExperimentApplicationConfig(graphene.ObjectType):
-    application = NimbusExperimentApplication()
+class NimbusExperimentApplicationConfigType(graphene.ObjectType):
+    application = NimbusExperimentApplicationEnum()
     channels = graphene.List(NimbusLabelValueType)
     supports_locale_country = graphene.Boolean()
 
 
-class NimbusExperimentTargetingConfig(graphene.ObjectType):
+class NimbusExperimentTargetingConfigType(graphene.ObjectType):
     label = graphene.String()
     value = graphene.String()
     application_values = graphene.List(graphene.String)
-
-
-class NimbusExperimentDocumentationLink(graphene.Enum):
-    class Meta:
-        enum = NimbusConstants.DocumentationLink
 
 
 class NimbusBranchScreenshotType(DjangoObjectType):
@@ -153,7 +153,7 @@ class NimbusDocumentationLinkType(DjangoObjectType):
 
 class NimbusFeatureConfigType(DjangoObjectType):
     id = graphene.Int()
-    application = NimbusExperimentApplication()
+    application = NimbusExperimentApplicationEnum()
 
     class Meta:
         model = NimbusFeatureConfig
@@ -187,7 +187,7 @@ class NimbusOutcomeMetricType(graphene.ObjectType):
 class NimbusOutcomeType(graphene.ObjectType):
     friendly_name = graphene.String()
     slug = graphene.String()
-    application = NimbusExperimentApplication()
+    application = NimbusExperimentApplicationEnum()
     description = graphene.String()
     isDefault = graphene.Boolean()
     metrics = graphene.List(NimbusOutcomeMetricType)
@@ -212,7 +212,7 @@ class NimbusSignoffRecommendationsType(graphene.ObjectType):
 
 
 class NimbusConfigurationType(graphene.ObjectType):
-    application_configs = graphene.List(NimbusExperimentApplicationConfig)
+    application_configs = graphene.List(NimbusExperimentApplicationConfigType)
     applications = graphene.List(NimbusLabelValueType)
     channels = graphene.List(NimbusLabelValueType)
     countries = graphene.List(NimbusCountryType)
@@ -223,8 +223,8 @@ class NimbusConfigurationType(graphene.ObjectType):
     locales = graphene.List(NimbusLocaleType)
     max_primary_outcomes = graphene.Int()
     outcomes = graphene.List(NimbusOutcomeType)
-    owners = graphene.List(NimbusUser)
-    targeting_configs = graphene.List(NimbusExperimentTargetingConfig)
+    owners = graphene.List(NimbusUserType)
+    targeting_configs = graphene.List(NimbusExperimentTargetingConfigType)
     conclusion_recommendations = graphene.List(NimbusLabelValueType)
 
     def _text_choices_to_label_value_list(root, text_choices):
@@ -247,7 +247,7 @@ class NimbusConfigurationType(graphene.ObjectType):
         for application in NimbusExperiment.Application:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
             configs.append(
-                NimbusExperimentApplicationConfig(
+                NimbusExperimentApplicationConfigType(
                     application=application,
                     channels=[
                         NimbusLabelValueType(label=channel.label, value=channel.name)
@@ -283,7 +283,7 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_targeting_configs(root, info):
         return [
-            NimbusExperimentTargetingConfig(
+            NimbusExperimentTargetingConfigType(
                 label=choice.label,
                 value=choice.value,
                 application_values=NimbusExperiment.TARGETING_CONFIGS[
@@ -314,14 +314,14 @@ class NimbusExperimentType(DjangoObjectType):
     parent = graphene.Field(lambda: NimbusExperimentType)
     is_rollout = graphene.Boolean()
     is_archived = graphene.Boolean()
-    status = NimbusExperimentStatus()
-    status_next = NimbusExperimentStatus()
-    publish_status = NimbusExperimentPublishStatus()
-    application = NimbusExperimentApplication()
-    firefox_min_version = NimbusExperimentFirefoxVersion()
-    firefox_max_version = NimbusExperimentFirefoxVersion()
+    status = NimbusExperimentStatusEnum()
+    status_next = NimbusExperimentStatusEnum()
+    publish_status = NimbusExperimentPublishStatusEnum()
+    application = NimbusExperimentApplicationEnum()
+    firefox_min_version = NimbusExperimentFirefoxVersionEnum()
+    firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     population_percent = graphene.String()
-    channel = NimbusExperimentChannel()
+    channel = NimbusExperimentChannelEnum()
     documentation_links = DjangoListField(NimbusDocumentationLinkType)
     treatment_branches = graphene.List(NimbusBranchType)
     targeting_config_slug = graphene.String()
@@ -349,7 +349,9 @@ class NimbusExperimentType(DjangoObjectType):
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
     recipe_json = graphene.String()
     review_url = graphene.String()
-    conclusion_recommendation = graphene.Field(NimbusExperimentConclusionRecommendation)
+    conclusion_recommendation = graphene.Field(
+        NimbusExperimentConclusionRecommendationEnum
+    )
 
     class Meta:
         model = NimbusExperiment

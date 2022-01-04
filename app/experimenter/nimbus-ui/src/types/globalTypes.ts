@@ -27,7 +27,7 @@ export enum NimbusDocumentationLinkTitle {
   ENG_TICKET = "ENG_TICKET",
 }
 
-export enum NimbusExperimentApplication {
+export enum NimbusExperimentApplicationEnum {
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
   FOCUS_ANDROID = "FOCUS_ANDROID",
@@ -37,7 +37,7 @@ export enum NimbusExperimentApplication {
   KLAR_IOS = "KLAR_IOS",
 }
 
-export enum NimbusExperimentChannel {
+export enum NimbusExperimentChannelEnum {
   BETA = "BETA",
   NIGHTLY = "NIGHTLY",
   NO_CHANNEL = "NO_CHANNEL",
@@ -46,7 +46,7 @@ export enum NimbusExperimentChannel {
   UNBRANDED = "UNBRANDED",
 }
 
-export enum NimbusExperimentConclusionRecommendation {
+export enum NimbusExperimentConclusionRecommendationEnum {
   CHANGE_COURSE = "CHANGE_COURSE",
   FOLLOWUP = "FOLLOWUP",
   GRADUATE = "GRADUATE",
@@ -54,13 +54,13 @@ export enum NimbusExperimentConclusionRecommendation {
   STOP = "STOP",
 }
 
-export enum NimbusExperimentDocumentationLink {
+export enum NimbusExperimentDocumentationLinkEnum {
   DESIGN_DOC = "DESIGN_DOC",
   DS_JIRA = "DS_JIRA",
   ENG_TICKET = "ENG_TICKET",
 }
 
-export enum NimbusExperimentFirefoxVersion {
+export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_100 = "FIREFOX_100",
   FIREFOX_11 = "FIREFOX_11",
   FIREFOX_12 = "FIREFOX_12",
@@ -155,28 +155,28 @@ export enum NimbusExperimentFirefoxVersion {
   NO_VERSION = "NO_VERSION",
 }
 
-export enum NimbusExperimentPublishStatus {
+export enum NimbusExperimentPublishStatusEnum {
   APPROVED = "APPROVED",
   IDLE = "IDLE",
   REVIEW = "REVIEW",
   WAITING = "WAITING",
 }
 
-export enum NimbusExperimentStatus {
+export enum NimbusExperimentStatusEnum {
   COMPLETE = "COMPLETE",
   DRAFT = "DRAFT",
   LIVE = "LIVE",
   PREVIEW = "PREVIEW",
 }
 
-export interface BranchScreenshotType {
+export interface BranchScreenshotInput {
   id?: number | null;
   image?: Upload | null;
   description?: string | null;
 }
 
-export interface DocumentationLinkType {
-  title: NimbusExperimentDocumentationLink;
+export interface DocumentationLinkInput {
+  title: NimbusExperimentDocumentationLinkEnum;
   link: string;
 }
 
@@ -189,25 +189,25 @@ export interface ExperimentCloneInput {
 export interface ExperimentInput {
   id?: number | null;
   isArchived?: boolean | null;
-  status?: NimbusExperimentStatus | null;
-  statusNext?: NimbusExperimentStatus | null;
-  publishStatus?: NimbusExperimentPublishStatus | null;
+  status?: NimbusExperimentStatusEnum | null;
+  statusNext?: NimbusExperimentStatusEnum | null;
+  publishStatus?: NimbusExperimentPublishStatusEnum | null;
   name?: string | null;
   hypothesis?: string | null;
-  application?: NimbusExperimentApplication | null;
+  application?: NimbusExperimentApplicationEnum | null;
   publicDescription?: string | null;
   isEnrollmentPaused?: boolean | null;
   riskMitigationLink?: string | null;
   featureConfigId?: number | null;
   warnFeatureSchema?: boolean | null;
-  documentationLinks?: (DocumentationLinkType | null)[] | null;
-  referenceBranch?: ReferenceBranchType | null;
-  treatmentBranches?: (TreatmentBranchType | null)[] | null;
+  documentationLinks?: (DocumentationLinkInput | null)[] | null;
+  referenceBranch?: ReferenceBranchInput | null;
+  treatmentBranches?: (TreatmentBranchInput | null)[] | null;
   primaryOutcomes?: (string | null)[] | null;
   secondaryOutcomes?: (string | null)[] | null;
-  channel?: NimbusExperimentChannel | null;
-  firefoxMinVersion?: NimbusExperimentFirefoxVersion | null;
-  firefoxMaxVersion?: NimbusExperimentFirefoxVersion | null;
+  channel?: NimbusExperimentChannelEnum | null;
+  firefoxMinVersion?: NimbusExperimentFirefoxVersionEnum | null;
+  firefoxMaxVersion?: NimbusExperimentFirefoxVersionEnum | null;
   populationPercent?: string | null;
   proposedDuration?: number | null;
   proposedEnrollment?: string | null;
@@ -219,28 +219,28 @@ export interface ExperimentInput {
   riskBrand?: boolean | null;
   countries?: (number | null)[] | null;
   locales?: (number | null)[] | null;
-  conclusionRecommendation?: NimbusExperimentConclusionRecommendation | null;
+  conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   takeawaysSummary?: string | null;
 }
 
-export interface ReferenceBranchType {
+export interface ReferenceBranchInput {
   id?: number | null;
   name: string;
   description: string;
   ratio: number;
   featureEnabled?: boolean | null;
   featureValue?: string | null;
-  screenshots?: (BranchScreenshotType | null)[] | null;
+  screenshots?: (BranchScreenshotInput | null)[] | null;
 }
 
-export interface TreatmentBranchType {
+export interface TreatmentBranchInput {
   id?: number | null;
   name: string;
   description: string;
   ratio: number;
   featureEnabled?: boolean | null;
   featureValue?: string | null;
-  screenshots?: (BranchScreenshotType | null)[] | null;
+  screenshots?: (BranchScreenshotInput | null)[] | null;
 }
 
 //==============================================================

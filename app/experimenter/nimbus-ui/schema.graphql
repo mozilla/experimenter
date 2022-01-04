@@ -3,7 +3,7 @@ schema {
   mutation: Mutation
 }
 
-input BranchScreenshotType {
+input BranchScreenshotInput {
   id: Int
   image: Upload
   description: String
@@ -21,8 +21,8 @@ type CreateExperiment {
 
 scalar DateTime
 
-input DocumentationLinkType {
-  title: NimbusExperimentDocumentationLink!
+input DocumentationLinkInput {
+  title: NimbusExperimentDocumentationLinkEnum!
   link: String!
 }
 
@@ -35,25 +35,25 @@ input ExperimentCloneInput {
 input ExperimentInput {
   id: Int
   isArchived: Boolean
-  status: NimbusExperimentStatus
-  statusNext: NimbusExperimentStatus
-  publishStatus: NimbusExperimentPublishStatus
+  status: NimbusExperimentStatusEnum
+  statusNext: NimbusExperimentStatusEnum
+  publishStatus: NimbusExperimentPublishStatusEnum
   name: String
   hypothesis: String
-  application: NimbusExperimentApplication
+  application: NimbusExperimentApplicationEnum
   publicDescription: String
   isEnrollmentPaused: Boolean
   riskMitigationLink: String
   featureConfigId: Int
   warnFeatureSchema: Boolean
-  documentationLinks: [DocumentationLinkType]
-  referenceBranch: ReferenceBranchType
-  treatmentBranches: [TreatmentBranchType]
+  documentationLinks: [DocumentationLinkInput]
+  referenceBranch: ReferenceBranchInput
+  treatmentBranches: [TreatmentBranchInput]
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
-  channel: NimbusExperimentChannel
-  firefoxMinVersion: NimbusExperimentFirefoxVersion
-  firefoxMaxVersion: NimbusExperimentFirefoxVersion
+  channel: NimbusExperimentChannelEnum
+  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
+  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
   populationPercent: String
   proposedDuration: Int
   proposedEnrollment: String
@@ -65,7 +65,7 @@ input ExperimentInput {
   riskBrand: Boolean
   countries: [Int]
   locales: [Int]
-  conclusionRecommendation: NimbusExperimentConclusionRecommendation
+  conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
 }
 
@@ -146,7 +146,7 @@ enum NimbusChangeLogOldStatusNext {
 type NimbusChangeLogType {
   experiment: NimbusExperimentType!
   changedOn: DateTime!
-  changedBy: NimbusUser!
+  changedBy: NimbusUserType!
   oldStatus: NimbusChangeLogOldStatus
   oldStatusNext: NimbusChangeLogOldStatusNext
   oldPublishStatus: NimbusChangeLogOldPublishStatus
@@ -159,7 +159,7 @@ type NimbusChangeLogType {
 }
 
 type NimbusConfigurationType {
-  applicationConfigs: [NimbusExperimentApplicationConfig]
+  applicationConfigs: [NimbusExperimentApplicationConfigType]
   applications: [NimbusLabelValueType]
   channels: [NimbusLabelValueType]
   countries: [NimbusCountryType]
@@ -170,8 +170,8 @@ type NimbusConfigurationType {
   locales: [NimbusLocaleType]
   maxPrimaryOutcomes: Int
   outcomes: [NimbusOutcomeType]
-  owners: [NimbusUser]
-  targetingConfigs: [NimbusExperimentTargetingConfig]
+  owners: [NimbusUserType]
+  targetingConfigs: [NimbusExperimentTargetingConfigType]
   conclusionRecommendations: [NimbusLabelValueType]
 }
 
@@ -193,7 +193,13 @@ type NimbusDocumentationLinkType {
   link: String!
 }
 
-enum NimbusExperimentApplication {
+type NimbusExperimentApplicationConfigType {
+  application: NimbusExperimentApplicationEnum
+  channels: [NimbusLabelValueType]
+  supportsLocaleCountry: Boolean
+}
+
+enum NimbusExperimentApplicationEnum {
   DESKTOP
   FENIX
   IOS
@@ -203,13 +209,7 @@ enum NimbusExperimentApplication {
   KLAR_IOS
 }
 
-type NimbusExperimentApplicationConfig {
-  application: NimbusExperimentApplication
-  channels: [NimbusLabelValueType]
-  supportsLocaleCountry: Boolean
-}
-
-enum NimbusExperimentChannel {
+enum NimbusExperimentChannelEnum {
   NO_CHANNEL
   UNBRANDED
   NIGHTLY
@@ -218,7 +218,7 @@ enum NimbusExperimentChannel {
   TESTFLIGHT
 }
 
-enum NimbusExperimentConclusionRecommendation {
+enum NimbusExperimentConclusionRecommendationEnum {
   RERUN
   GRADUATE
   CHANGE_COURSE
@@ -226,13 +226,13 @@ enum NimbusExperimentConclusionRecommendation {
   FOLLOWUP
 }
 
-enum NimbusExperimentDocumentationLink {
+enum NimbusExperimentDocumentationLinkEnum {
   DS_JIRA
   DESIGN_DOC
   ENG_TICKET
 }
 
-enum NimbusExperimentFirefoxVersion {
+enum NimbusExperimentFirefoxVersionEnum {
   NO_VERSION
   FIREFOX_11
   FIREFOX_12
@@ -327,21 +327,21 @@ enum NimbusExperimentFirefoxVersion {
   FIREFOX_100
 }
 
-enum NimbusExperimentPublishStatus {
+enum NimbusExperimentPublishStatusEnum {
   IDLE
   REVIEW
   APPROVED
   WAITING
 }
 
-enum NimbusExperimentStatus {
+enum NimbusExperimentStatusEnum {
   DRAFT
   PREVIEW
   LIVE
   COMPLETE
 }
 
-type NimbusExperimentTargetingConfig {
+type NimbusExperimentTargetingConfigType {
   label: String
   value: String
   applicationValues: [String]
@@ -352,10 +352,10 @@ type NimbusExperimentType {
   parent: NimbusExperimentType
   isRollout: Boolean
   isArchived: Boolean
-  owner: NimbusUser!
-  status: NimbusExperimentStatus
-  statusNext: NimbusExperimentStatus
-  publishStatus: NimbusExperimentPublishStatus
+  owner: NimbusUserType!
+  status: NimbusExperimentStatusEnum
+  statusNext: NimbusExperimentStatusEnum
+  publishStatus: NimbusExperimentPublishStatusEnum
   name: String!
   slug: String!
   publicDescription: String!
@@ -365,10 +365,10 @@ type NimbusExperimentType {
   proposedEnrollment: Int!
   populationPercent: String
   totalEnrolledClients: Int!
-  firefoxMinVersion: NimbusExperimentFirefoxVersion
-  firefoxMaxVersion: NimbusExperimentFirefoxVersion
-  application: NimbusExperimentApplication
-  channel: NimbusExperimentChannel
+  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
+  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
+  application: NimbusExperimentApplicationEnum
+  channel: NimbusExperimentChannelEnum
   locales: [NimbusLocaleType!]!
   countries: [NimbusCountryType!]!
   projects: [ProjectType!]!
@@ -383,7 +383,7 @@ type NimbusExperimentType {
   riskPartnerRelated: Boolean
   riskRevenue: Boolean
   riskBrand: Boolean
-  conclusionRecommendation: NimbusExperimentConclusionRecommendation
+  conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
   nimbusexperimentSet: [NimbusExperimentType!]!
   documentationLinks: [NimbusDocumentationLinkType!]
@@ -418,7 +418,7 @@ type NimbusFeatureConfigType {
   name: String!
   slug: String!
   description: String
-  application: NimbusExperimentApplication
+  application: NimbusExperimentApplicationEnum
   ownerEmail: String
   schema: String
   readOnly: Boolean!
@@ -464,7 +464,7 @@ type NimbusOutcomeMetricType {
 type NimbusOutcomeType {
   friendlyName: String
   slug: String
-  application: NimbusExperimentApplication
+  application: NimbusExperimentApplicationEnum
   description: String
   isDefault: Boolean
   metrics: [NimbusOutcomeMetricType]
@@ -482,7 +482,7 @@ type NimbusSignoffRecommendationsType {
   legalSignoff: Boolean
 }
 
-type NimbusUser {
+type NimbusUserType {
   id: Int
   username: String!
   firstName: String!
@@ -505,24 +505,24 @@ type Query {
   nimbusConfig: NimbusConfigurationType
 }
 
-input ReferenceBranchType {
+input ReferenceBranchInput {
   id: Int
   name: String!
   description: String!
   ratio: Int!
   featureEnabled: Boolean
   featureValue: String
-  screenshots: [BranchScreenshotType]
+  screenshots: [BranchScreenshotInput]
 }
 
-input TreatmentBranchType {
+input TreatmentBranchInput {
   id: Int
   name: String!
   description: String!
   ratio: Int!
   featureEnabled: Boolean
   featureValue: String
-  screenshots: [BranchScreenshotType]
+  screenshots: [BranchScreenshotInput]
 }
 
 type UpdateExperiment {

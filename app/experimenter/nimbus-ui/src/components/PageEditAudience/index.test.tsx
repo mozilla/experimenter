@@ -14,8 +14,8 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import {
   ExperimentInput,
-  NimbusExperimentChannel,
-  NimbusExperimentFirefoxVersion,
+  NimbusExperimentChannelEnum,
+  NimbusExperimentFirefoxVersionEnum,
 } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment } from "../../types/updateExperiment";
 import FormAudience from "./FormAudience";
@@ -98,9 +98,9 @@ describe("PageEditAudience", () => {
 });
 
 const MOCK_FORM_DATA = {
-  channel: NimbusExperimentChannel.NIGHTLY,
-  firefoxMinVersion: NimbusExperimentFirefoxVersion.FIREFOX_83,
-  firefoxMaxVersion: NimbusExperimentFirefoxVersion.FIREFOX_95,
+  channel: NimbusExperimentChannelEnum.NIGHTLY,
+  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_83,
+  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_95,
   targetingConfigSlug: "TARGETING_FIRST_RUN",
   populationPercent: "40",
   totalEnrolledClients: 68000,

@@ -7,14 +7,14 @@ import React from "react";
 import LinkNavSummary from ".";
 import { mockGetStatus } from "../../lib/mocks";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 
 type SubjectProps = {
-  status?: NimbusExperimentStatus;
-  statusNext?: NimbusExperimentStatus | null;
-  publishStatus?: NimbusExperimentPublishStatus;
+  status?: NimbusExperimentStatusEnum;
+  statusNext?: NimbusExperimentStatusEnum | null;
+  publishStatus?: NimbusExperimentPublishStatusEnum;
   isEnrollmentPausePending?: boolean;
   canReview?: boolean;
   showSummaryAction?: boolean;
@@ -22,9 +22,9 @@ type SubjectProps = {
 };
 
 const Subject = ({
-  status = NimbusExperimentStatus.DRAFT,
+  status = NimbusExperimentStatusEnum.DRAFT,
   statusNext = null,
-  publishStatus = NimbusExperimentPublishStatus.IDLE,
+  publishStatus = NimbusExperimentPublishStatusEnum.IDLE,
   isEnrollmentPausePending = false,
   showSummaryAction = true,
   canReview = false,
@@ -64,16 +64,18 @@ describe("LinkNavSummary", () => {
 
   describe("user cannot review", () => {
     it("renders 'Requested Launch' when expected", () => {
-      render(<Subject publishStatus={NimbusExperimentPublishStatus.REVIEW} />);
+      render(
+        <Subject publishStatus={NimbusExperimentPublishStatusEnum.REVIEW} />,
+      );
       expect(screen.queryByText("Requested Launch")).toBeInTheDocument();
     });
 
     it("renders 'Requested End' when expected", () => {
       render(
         <Subject
-          status={NimbusExperimentStatus.LIVE}
-          statusNext={NimbusExperimentStatus.COMPLETE}
-          publishStatus={NimbusExperimentPublishStatus.REVIEW}
+          status={NimbusExperimentStatusEnum.LIVE}
+          statusNext={NimbusExperimentStatusEnum.COMPLETE}
+          publishStatus={NimbusExperimentPublishStatusEnum.REVIEW}
         />,
       );
       expect(screen.queryByText("Requested End")).toBeInTheDocument();
@@ -82,9 +84,9 @@ describe("LinkNavSummary", () => {
     it("renders 'Requested End Enrollment' when expected", () => {
       render(
         <Subject
-          status={NimbusExperimentStatus.LIVE}
-          statusNext={NimbusExperimentStatus.LIVE}
-          publishStatus={NimbusExperimentPublishStatus.REVIEW}
+          status={NimbusExperimentStatusEnum.LIVE}
+          statusNext={NimbusExperimentStatusEnum.LIVE}
+          publishStatus={NimbusExperimentPublishStatusEnum.REVIEW}
           isEnrollmentPausePending={true}
         />,
       );
@@ -98,9 +100,9 @@ describe("LinkNavSummary", () => {
     it("renders 'Review End Request' when expected", () => {
       render(
         <Subject
-          status={NimbusExperimentStatus.LIVE}
-          statusNext={NimbusExperimentStatus.COMPLETE}
-          publishStatus={NimbusExperimentPublishStatus.REVIEW}
+          status={NimbusExperimentStatusEnum.LIVE}
+          statusNext={NimbusExperimentStatusEnum.COMPLETE}
+          publishStatus={NimbusExperimentPublishStatusEnum.REVIEW}
           canReview
         />,
       );
@@ -110,7 +112,7 @@ describe("LinkNavSummary", () => {
     it("renders 'Review Launch Request' when expected", () => {
       render(
         <Subject
-          publishStatus={NimbusExperimentPublishStatus.REVIEW}
+          publishStatus={NimbusExperimentPublishStatusEnum.REVIEW}
           canReview
         />,
       );
@@ -120,9 +122,9 @@ describe("LinkNavSummary", () => {
     it("renders 'Review End Enrollment Request' when expected", () => {
       render(
         <Subject
-          status={NimbusExperimentStatus.LIVE}
-          statusNext={NimbusExperimentStatus.LIVE}
-          publishStatus={NimbusExperimentPublishStatus.REVIEW}
+          status={NimbusExperimentStatusEnum.LIVE}
+          statusNext={NimbusExperimentStatusEnum.LIVE}
+          publishStatus={NimbusExperimentPublishStatusEnum.REVIEW}
           isEnrollmentPausePending={true}
           canReview
         />,

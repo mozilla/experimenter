@@ -6,7 +6,7 @@ import React from "react";
 import EndExperiment from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { getExperiment } from "../../../types/getExperiment";
-import { NimbusExperimentStatus } from "../../../types/globalTypes";
+import { NimbusExperimentStatusEnum } from "../../../types/globalTypes";
 
 export const Subject = ({
   experiment: overrides = {},
@@ -18,7 +18,7 @@ export const Subject = ({
   onSubmit?: () => void;
 }) => {
   const { experiment } = mockExperimentQuery("demo-slug", {
-    status: NimbusExperimentStatus.LIVE,
+    status: NimbusExperimentStatusEnum.LIVE,
     ...overrides,
   });
 

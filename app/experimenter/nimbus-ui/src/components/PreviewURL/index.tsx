@@ -7,7 +7,7 @@ import Select from "react-select";
 import { SelectOption } from "../../hooks/useCommonForm/useCommonFormMethods";
 import { StatusCheck } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentApplication } from "../../types/globalTypes";
+import { NimbusExperimentApplicationEnum } from "../../types/globalTypes";
 
 type CopyableURLProps = {
   experimentSlug: string;
@@ -49,7 +49,7 @@ export const PreviewURL: React.FC<
   const slugs: SelectOption[] = [];
 
   if (
-    application !== NimbusExperimentApplication.DESKTOP ||
+    application !== NimbusExperimentApplicationEnum.DESKTOP ||
     !referenceBranch ||
     !Array.isArray(treatmentBranches)
   ) {
