@@ -317,31 +317,30 @@ describe("PageSummary", () => {
     );
   });
 
-  // TODO: #6802
-  // it("handles submission with server-side validation errors", async () => {
-  //   const { mock, experiment } = mockExperimentQuery("demo-slug", {
-  //     status: NimbusExperimentStatus.DRAFT,
-  //   });
-  //   const mutationMock = createFullStatusMutationMock(
-  //     experiment.id!,
-  //     NimbusExperimentStatus.DRAFT,
-  //     NimbusExperimentStatus.LIVE,
-  //     NimbusExperimentPublishStatus.REVIEW,
-  //     CHANGELOG_MESSAGES.REQUESTED_REVIEW,
-  //   );
-  //   const errorMessage = "Something went very wrong.";
-  //   mutationMock.result.data.updateExperiment.message = {
-  //     status: [errorMessage],
-  //   };
-  //   render(<Subject mocks={[mock, mutationMock]} />);
-  //   await launchFromDraftToReview();
-  //   await waitFor(() => {
-  //     expect(screen.getByTestId("submit-error")).toBeInTheDocument();
-  //     expect(screen.getByTestId("submit-error")).toHaveTextContent(
-  //       errorMessage,
-  //     );
-  //   });
-  // });
+  it("handles submission with server-side validation errors", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.DRAFT,
+    });
+    const mutationMock = createFullStatusMutationMock(
+      experiment.id!,
+      NimbusExperimentStatus.DRAFT,
+      NimbusExperimentStatus.LIVE,
+      NimbusExperimentPublishStatus.REVIEW,
+      CHANGELOG_MESSAGES.REQUESTED_REVIEW,
+    );
+    const errorMessage = "Something went very wrong.";
+    mutationMock.result.data.updateExperiment.message = {
+      status: [errorMessage],
+    };
+    render(<Subject mocks={[mock, mutationMock]} />);
+    await launchFromDraftToReview();
+    await waitFor(() => {
+      expect(screen.getByTestId("submit-error")).toBeInTheDocument();
+      expect(screen.getByTestId("submit-error")).toHaveTextContent(
+        errorMessage,
+      );
+    });
+  });
 
   it("handles rejection of end as expected", async () => {
     const expectedReason = "This smells bad.";
