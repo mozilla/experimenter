@@ -5,7 +5,7 @@
 import { action } from "@storybook/addon-actions";
 import React from "react";
 import Takeaways from ".";
-import { NimbusExperimentConclusionRecommendation } from "../../../types/globalTypes";
+import { NimbusExperimentConclusionRecommendationEnum } from "../../../types/globalTypes";
 import { Subject as BaseSubject, TAKEAWAYS_SUMMARY_LONG } from "./mocks";
 
 export default {
@@ -27,7 +27,7 @@ export const Blank = () => <Subject />;
 const commonContent = {
   takeawaysSummary: TAKEAWAYS_SUMMARY_LONG,
   conclusionRecommendation:
-    NimbusExperimentConclusionRecommendation.CHANGE_COURSE,
+    NimbusExperimentConclusionRecommendationEnum.CHANGE_COURSE,
 };
 
 export const WithContent = () => <Subject {...commonContent} />;

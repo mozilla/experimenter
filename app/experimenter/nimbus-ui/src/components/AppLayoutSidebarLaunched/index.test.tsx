@@ -20,8 +20,8 @@ import {
 import { AnalysisData } from "../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 
 const { mock, experiment: defaultExperiment } = mockExperimentQuery(
@@ -30,8 +30,8 @@ const { mock, experiment: defaultExperiment } = mockExperimentQuery(
 const navLinkSelector = ".navbar a";
 
 const Subject = ({
-  status = NimbusExperimentStatus.COMPLETE,
-  publishStatus = NimbusExperimentPublishStatus.IDLE,
+  status = NimbusExperimentStatusEnum.COMPLETE,
+  publishStatus = NimbusExperimentPublishStatusEnum.IDLE,
   withAnalysis = false,
   analysisError,
   analysis,
@@ -39,8 +39,8 @@ const Subject = ({
   analysisRequired = true,
   experiment = defaultExperiment,
 }: RouteComponentProps & {
-  status?: NimbusExperimentStatus;
-  publishStatus?: NimbusExperimentPublishStatus;
+  status?: NimbusExperimentStatusEnum;
+  publishStatus?: NimbusExperimentPublishStatusEnum;
   withAnalysis?: boolean;
   analysis?: AnalysisData;
   analysisError?: boolean;
@@ -82,7 +82,7 @@ const Subject = ({
 describe("AppLayoutSidebarLaunched", () => {
   describe("navigation links", () => {
     it("when live, hides edit links, displays summary link and disabled results item", () => {
-      render(<Subject status={NimbusExperimentStatus.LIVE} />);
+      render(<Subject status={NimbusExperimentStatusEnum.LIVE} />);
       ["Overview", "Branches", "Metrics", "Audience"].forEach((text) => {
         expect(
           screen.queryByText(text, { selector: navLinkSelector }),
@@ -121,8 +121,8 @@ describe("AppLayoutSidebarLaunched", () => {
     it("does not display waiting to launch message when pending end", () => {
       render(
         <Subject
-          status={NimbusExperimentStatus.COMPLETE}
-          publishStatus={NimbusExperimentPublishStatus.WAITING}
+          status={NimbusExperimentStatusEnum.COMPLETE}
+          publishStatus={NimbusExperimentPublishStatusEnum.WAITING}
         />,
       );
       expect(

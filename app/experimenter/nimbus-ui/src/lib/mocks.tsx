@@ -37,11 +37,11 @@ import {
   NimbusChangeLogOldStatus,
   NimbusChangeLogOldStatusNext,
   NimbusDocumentationLinkTitle,
-  NimbusExperimentApplication,
-  NimbusExperimentChannel,
-  NimbusExperimentFirefoxVersion,
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentApplicationEnum,
+  NimbusExperimentChannelEnum,
+  NimbusExperimentFirefoxVersionEnum,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../types/globalTypes";
 import { ResultsContext } from "./contexts";
 import { getStatus } from "./experiment";
@@ -67,7 +67,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   applications: [
     {
       label: "Desktop",
-      value: NimbusExperimentApplication.DESKTOP,
+      value: NimbusExperimentApplicationEnum.DESKTOP,
     },
     {
       label: "Toaster",
@@ -75,11 +75,11 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
     {
       label: "iOS",
-      value: NimbusExperimentApplication.IOS,
+      value: NimbusExperimentApplicationEnum.IOS,
     },
     {
       label: "Android",
-      value: NimbusExperimentApplication.FENIX,
+      value: NimbusExperimentApplicationEnum.FENIX,
     },
   ],
   channels: [
@@ -114,7 +114,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   ],
   applicationConfigs: [
     {
-      application: NimbusExperimentApplication.DESKTOP,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
       channels: [
         {
           label: "Desktop Beta",
@@ -132,7 +132,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       supportsLocaleCountry: true,
     },
     {
-      application: NimbusExperimentApplication.FENIX,
+      application: NimbusExperimentApplicationEnum.FENIX,
       channels: [
         {
           label: "Desktop Beta",
@@ -150,7 +150,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       supportsLocaleCountry: false,
     },
     {
-      application: NimbusExperimentApplication.IOS,
+      application: NimbusExperimentApplicationEnum.IOS,
       channels: [
         {
           label: "Desktop Beta",
@@ -175,7 +175,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       slug: "picture-in-picture",
       description:
         "Quickly above also mission action. Become thing item institution plan.\nImpact friend wonder. Interview strategy nature question. Admit room without impact its enter forward.",
-      application: NimbusExperimentApplication.FENIX,
+      application: NimbusExperimentApplicationEnum.FENIX,
       ownerEmail: "sheila43@yahoo.com",
       schema: null,
     },
@@ -184,7 +184,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       name: "Mauris odio erat",
       slug: "mauris-odio-erat",
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      application: NimbusExperimentApplication.DESKTOP,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
     },
@@ -193,7 +193,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       name: "Foo lila sat (iOS)",
       slug: "foo-lila-sat",
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      application: NimbusExperimentApplication.IOS,
+      application: NimbusExperimentApplicationEnum.IOS,
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
     },
@@ -202,7 +202,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       name: "Foo lila sat (Android)",
       slug: "foo-lila-sat",
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      application: NimbusExperimentApplication.FENIX,
+      application: NimbusExperimentApplicationEnum.FENIX,
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
     },
@@ -229,7 +229,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       friendlyName: "Picture-in-Picture",
       slug: "picture_in_picture",
-      application: NimbusExperimentApplication.DESKTOP,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
       description: "foo",
       isDefault: true,
       metrics: [
@@ -243,7 +243,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       friendlyName: "Feature B",
       slug: "feature_b",
-      application: NimbusExperimentApplication.DESKTOP,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
       description: "bar",
       isDefault: false,
       metrics: [
@@ -257,7 +257,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       friendlyName: "Feature C",
       slug: "feature_c",
-      application: NimbusExperimentApplication.DESKTOP,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
       description: "baz",
       isDefault: false,
       metrics: [
@@ -271,7 +271,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       friendlyName: "Feature No Data",
       slug: "feature_nodata",
-      application: NimbusExperimentApplication.DESKTOP,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
       description: "meep",
       isDefault: false,
       metrics: [
@@ -285,7 +285,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       friendlyName: "Feature D",
       slug: "feature_d",
-      application: NimbusExperimentApplication.FENIX,
+      application: NimbusExperimentApplicationEnum.FENIX,
       description: "feature_d",
       isDefault: false,
       metrics: [
@@ -460,12 +460,12 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   },
   name: "Open-architected background installation",
   slug: "open-architected-background-installation",
-  status: NimbusExperimentStatus.DRAFT,
+  status: NimbusExperimentStatusEnum.DRAFT,
   statusNext: null,
-  publishStatus: NimbusExperimentPublishStatus.IDLE,
+  publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
   monitoringDashboardUrl: "https://mozilla.cloud.looker.com",
   hypothesis: "Realize material say pretty.",
-  application: NimbusExperimentApplication.DESKTOP,
+  application: NimbusExperimentApplicationEnum.DESKTOP,
   publicDescription: "Official approach present industry strategy dream piece.",
   referenceBranch: {
     id: 123,
@@ -492,9 +492,9 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   ],
   primaryOutcomes: ["picture_in_picture", "feature_c", "feature_nodata"],
   secondaryOutcomes: ["feature_b"],
-  channel: NimbusExperimentChannel.NIGHTLY,
-  firefoxMinVersion: NimbusExperimentFirefoxVersion.FIREFOX_16,
-  firefoxMaxVersion: NimbusExperimentFirefoxVersion.FIREFOX_64,
+  channel: NimbusExperimentChannelEnum.NIGHTLY,
+  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_16,
+  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_64,
   targetingConfigSlug: "MAC_ONLY",
   jexlTargetingExpression: "localeLanguageCode == 'en' && region == 'US'",
   populationPercent: "40",
@@ -649,17 +649,17 @@ export function mockSingleDirectoryExperiment(
       username: "example@mozilla.com",
     },
     application: MOCK_CONFIG.applications![0]!
-      .value as NimbusExperimentApplication,
+      .value as NimbusExperimentApplicationEnum,
     firefoxMinVersion: MOCK_CONFIG.firefoxVersions![0]!
-      .value as NimbusExperimentFirefoxVersion,
+      .value as NimbusExperimentFirefoxVersionEnum,
     firefoxMaxVersion: MOCK_CONFIG.firefoxVersions![3]!
-      .value as NimbusExperimentFirefoxVersion,
+      .value as NimbusExperimentFirefoxVersionEnum,
     monitoringDashboardUrl:
       "https://mozilla.cloud.looker.com/dashboards-next/216?Experiment=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
     name: "Open-architected background installation",
-    status: NimbusExperimentStatus.COMPLETE,
+    status: NimbusExperimentStatusEnum.COMPLETE,
     statusNext: null,
-    publishStatus: NimbusExperimentPublishStatus.IDLE,
+    publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     featureConfig: MOCK_CONFIG.featureConfigs![0],
     isEnrollmentPaused: false,
     isEnrollmentPausePending: false,
@@ -676,24 +676,24 @@ export function mockDirectoryExperiments(
   overrides: Partial<getAllExperiments_experiments>[] = [
     {
       name: "Lorem ipsum dolor sit amet",
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
       owner: { username: "alpha-example@mozilla.com" },
       startDate: null,
       computedEndDate: null,
     },
     {
       name: "Ipsum dolor sit amet",
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
       owner: { username: "gamma-example@mozilla.com" },
       featureConfig: MOCK_CONFIG.featureConfigs![0],
       application: MOCK_CONFIG.applications![1]!
-        .value as NimbusExperimentApplication,
+        .value as NimbusExperimentApplicationEnum,
       startDate: null,
       computedEndDate: null,
     },
     {
       name: "Dolor sit amet",
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
       owner: { username: "beta-example@mozilla.com" },
       featureConfig: MOCK_CONFIG.featureConfigs![1],
       startDate: null,
@@ -701,60 +701,60 @@ export function mockDirectoryExperiments(
     },
     {
       name: "Consectetur adipiscing elit",
-      status: NimbusExperimentStatus.PREVIEW,
+      status: NimbusExperimentStatusEnum.PREVIEW,
       owner: { username: "alpha-example@mozilla.com" },
       featureConfig: MOCK_CONFIG.featureConfigs![2],
       application: MOCK_CONFIG.applications![1]!
-        .value as NimbusExperimentApplication,
+        .value as NimbusExperimentApplicationEnum,
       computedEndDate: null,
     },
     {
       name: "Aliquam interdum ac lacus at dictum",
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
       owner: { username: "beta-example@mozilla.com" },
       featureConfig: MOCK_CONFIG.featureConfigs![0],
       computedEndDate: null,
     },
     {
       name: "Nam semper sit amet orci in imperdiet",
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
       application: MOCK_CONFIG.applications![1]!
-        .value as NimbusExperimentApplication,
+        .value as NimbusExperimentApplicationEnum,
       owner: { username: "gamma-example@mozilla.com" },
     },
     {
       name: "Duis ornare mollis sem.",
-      status: NimbusExperimentStatus.LIVE,
+      status: NimbusExperimentStatusEnum.LIVE,
       owner: { username: "alpha-example@mozilla.com" },
       featureConfig: MOCK_CONFIG.featureConfigs![1],
     },
     {
       name: "Nec suscipit mi accumsan id",
-      status: NimbusExperimentStatus.LIVE,
+      status: NimbusExperimentStatusEnum.LIVE,
       owner: { username: "beta-example@mozilla.com" },
       featureConfig: MOCK_CONFIG.featureConfigs![2],
       application: MOCK_CONFIG.applications![1]!
-        .value as NimbusExperimentApplication,
+        .value as NimbusExperimentApplicationEnum,
       resultsReady: true,
     },
     {
       name: "Etiam congue risus quis aliquet eleifend",
-      status: NimbusExperimentStatus.LIVE,
+      status: NimbusExperimentStatusEnum.LIVE,
       owner: { username: "gamma-example@mozilla.com" },
     },
     {
       name: "Nam gravida",
-      status: NimbusExperimentStatus.COMPLETE,
+      status: NimbusExperimentStatusEnum.COMPLETE,
       owner: { username: "alpha-example@mozilla.com" },
       featureConfig: MOCK_CONFIG.featureConfigs![0],
       application: MOCK_CONFIG.applications![1]!
-        .value as NimbusExperimentApplication,
+        .value as NimbusExperimentApplicationEnum,
       resultsReady: false,
     },
     {
       name: "Quam quis volutpat ornare",
-      status: NimbusExperimentStatus.DRAFT,
-      publishStatus: NimbusExperimentPublishStatus.REVIEW,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
       featureConfig: MOCK_CONFIG.featureConfigs![1],
       owner: { username: "beta-example@mozilla.com" },
     },
@@ -762,7 +762,7 @@ export function mockDirectoryExperiments(
       name: "Lorem arcu faucibus tortor",
       featureConfig: null,
       application: MOCK_CONFIG.applications![1]!
-        .value as NimbusExperimentApplication,
+        .value as NimbusExperimentApplicationEnum,
       owner: { username: "gamma-example@mozilla.com" },
     },
     {
@@ -770,7 +770,7 @@ export function mockDirectoryExperiments(
       name: "Archived Experiment",
       featureConfig: null,
       application: MOCK_CONFIG.applications![1]!
-        .value as NimbusExperimentApplication,
+        .value as NimbusExperimentApplicationEnum,
       owner: { username: "gamma-example@mozilla.com" },
     },
   ],

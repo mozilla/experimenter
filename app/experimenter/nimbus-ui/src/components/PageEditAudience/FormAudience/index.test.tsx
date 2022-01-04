@@ -20,9 +20,9 @@ import {
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import { assertSerializerMessages } from "../../../lib/test-utils";
 import {
-  NimbusExperimentApplication,
-  NimbusExperimentChannel,
-  NimbusExperimentFirefoxVersion,
+  NimbusExperimentApplicationEnum,
+  NimbusExperimentChannelEnum,
+  NimbusExperimentFirefoxVersionEnum,
 } from "../../../types/globalTypes";
 import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
@@ -32,8 +32,8 @@ describe("FormAudience", () => {
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplication.DESKTOP,
-          channel: NimbusExperimentChannel.NIGHTLY,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
         }}
         config={{
           ...MOCK_CONFIG,
@@ -43,7 +43,7 @@ describe("FormAudience", () => {
           ],
           applicationConfigs: [
             {
-              application: NimbusExperimentApplication.DESKTOP,
+              application: NimbusExperimentApplicationEnum.DESKTOP,
               channels: [{ label: "Nightly", value: "NIGHTLY" }],
               supportsLocaleCountry: true,
             },
@@ -53,14 +53,14 @@ describe("FormAudience", () => {
               label: "No Targeting",
               value: "NO_TARGETING",
               applicationValues: [
-                NimbusExperimentApplication.DESKTOP,
+                NimbusExperimentApplicationEnum.DESKTOP,
                 "TOASTER",
               ],
             },
             {
               label: "Mac Only",
               value: "MAC_ONLY",
-              applicationValues: [NimbusExperimentApplication.DESKTOP],
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
             },
             {
               label: "Toaster thing",
@@ -110,13 +110,13 @@ describe("FormAudience", () => {
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplication.DESKTOP,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
         }}
         config={{
           ...MOCK_CONFIG,
           applicationConfigs: [
             {
-              application: NimbusExperimentApplication.DESKTOP,
+              application: NimbusExperimentApplicationEnum.DESKTOP,
               channels: [{ label: "Nightly", value: "NIGHTLY" }],
               supportsLocaleCountry: false,
             },
@@ -174,8 +174,8 @@ describe("FormAudience", () => {
     await screen.findByTestId("FormAudience");
 
     for (const [fieldName, expected] of [
-      ["firefoxMinVersion", NimbusExperimentFirefoxVersion.NO_VERSION],
-      ["firefoxMaxVersion", NimbusExperimentFirefoxVersion.NO_VERSION],
+      ["firefoxMinVersion", NimbusExperimentFirefoxVersionEnum.NO_VERSION],
+      ["firefoxMaxVersion", NimbusExperimentFirefoxVersionEnum.NO_VERSION],
       ["populationPercent", "0.0"],
       ["proposedDuration", "0"],
       ["proposedEnrollment", "0"],
@@ -350,12 +350,12 @@ describe("filterTargetingConfigSlug", () => {
     const expectedNoTargetingLabel = "No Targeting";
     const expectedLabel = "Foo Bar";
     const expectedMissingLabel = "Baz Quux";
-    const application = NimbusExperimentApplication.DESKTOP;
+    const application = NimbusExperimentApplicationEnum.DESKTOP;
     const targetingConfigSlug = [
       {
         label: expectedNoTargetingLabel,
         value: "NO_TARGETING",
-        applicationValues: [application, NimbusExperimentApplication.IOS],
+        applicationValues: [application, NimbusExperimentApplicationEnum.IOS],
       },
       {
         label: expectedLabel,
@@ -365,7 +365,7 @@ describe("filterTargetingConfigSlug", () => {
       {
         label: expectedMissingLabel,
         value: "BAZ_QUUX",
-        applicationValues: [NimbusExperimentApplication.IOS],
+        applicationValues: [NimbusExperimentApplicationEnum.IOS],
       },
     ];
     const result = filterTargetingConfigs(targetingConfigSlug, application);
@@ -390,12 +390,15 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
           {
             label: "No Targeting",
             value: "NO_TARGETING",
-            applicationValues: [NimbusExperimentApplication.DESKTOP, "TOASTER"],
+            applicationValues: [
+              NimbusExperimentApplicationEnum.DESKTOP,
+              "TOASTER",
+            ],
           },
           {
             label: "Mac Only",
             value: "MAC_ONLY",
-            applicationValues: [NimbusExperimentApplication.DESKTOP],
+            applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
           },
           {
             label: "Some toaster thing",
@@ -405,23 +408,23 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         ],
         firefoxVersions: [
           {
-            label: NimbusExperimentFirefoxVersion.NO_VERSION,
-            value: NimbusExperimentFirefoxVersion.NO_VERSION,
+            label: NimbusExperimentFirefoxVersionEnum.NO_VERSION,
+            value: NimbusExperimentFirefoxVersionEnum.NO_VERSION,
           },
         ],
         channels: [
           {
-            label: NimbusExperimentChannel.NO_CHANNEL,
-            value: NimbusExperimentChannel.NO_CHANNEL,
+            label: NimbusExperimentChannelEnum.NO_CHANNEL,
+            value: NimbusExperimentChannelEnum.NO_CHANNEL,
           },
         ],
       }}
       experiment={{
         ...MOCK_EXPERIMENT,
-        application: NimbusExperimentApplication.DESKTOP,
-        firefoxMinVersion: NimbusExperimentFirefoxVersion.NO_VERSION,
-        firefoxMaxVersion: NimbusExperimentFirefoxVersion.NO_VERSION,
-        channel: NimbusExperimentChannel.NO_CHANNEL,
+        application: NimbusExperimentApplicationEnum.DESKTOP,
+        firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.NO_VERSION,
+        firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.NO_VERSION,
+        channel: NimbusExperimentChannelEnum.NO_CHANNEL,
         populationPercent: "0.0",
         proposedDuration: 0,
         proposedEnrollment: 0,

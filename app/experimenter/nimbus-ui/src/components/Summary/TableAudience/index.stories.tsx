@@ -7,13 +7,13 @@ import React from "react";
 import TableAudience from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
-import { NimbusExperimentChannel } from "../../../types/globalTypes";
+import { NimbusExperimentChannelEnum } from "../../../types/globalTypes";
 import AppLayout from "../../AppLayout";
 
 storiesOf("components/Summary/TableAudience", module)
   .add("all fields filled out", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      channel: NimbusExperimentChannel.BETA,
+      channel: NimbusExperimentChannelEnum.BETA,
     });
     return (
       <Subject>

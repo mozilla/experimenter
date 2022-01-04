@@ -12,8 +12,8 @@ import {
   mockExperimentMutation,
 } from "../lib/mocks";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../types/globalTypes";
 import { useChangeOperationMutation } from "./useChangeOperationMutation";
 
@@ -70,15 +70,15 @@ const setupTestHook = (refetch?: () => Promise<unknown>) => {
   const experiment = mockExperiment();
   const mutationSets = [
     {
-      statusNext: NimbusExperimentStatus.COMPLETE,
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      statusNext: NimbusExperimentStatusEnum.COMPLETE,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
     },
     {
-      status: NimbusExperimentStatus.LIVE,
+      status: NimbusExperimentStatusEnum.LIVE,
     },
     {
-      status: NimbusExperimentStatus.DRAFT,
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
     },
   ];
 

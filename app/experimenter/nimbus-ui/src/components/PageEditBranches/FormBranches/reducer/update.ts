@@ -4,7 +4,7 @@
 
 import { CONTROL_BRANCH_REQUIRED_ERROR } from "../../../../lib/constants";
 import {
-  BranchScreenshotType,
+  BranchScreenshotInput,
   ExperimentInput,
 } from "../../../../types/globalTypes";
 import { AnnotatedBranch, FormBranchesState } from "./state";
@@ -81,9 +81,9 @@ export function extractUpdateBranch(
 }
 
 export function extractUpdateScreenshot(
-  branchScreenshot: BranchScreenshotType,
-  { description, image }: BranchScreenshotType,
-): BranchScreenshotType {
+  branchScreenshot: BranchScreenshotInput,
+  { description, image }: BranchScreenshotInput,
+): BranchScreenshotInput {
   return {
     // Branch screenshot ID should be read-only with respect to the form data
     id: branchScreenshot!.id,

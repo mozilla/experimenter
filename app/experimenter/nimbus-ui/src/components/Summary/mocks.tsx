@@ -14,14 +14,14 @@ import {
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import AppLayout from "../AppLayout";
 
 export function createMutationMock(
   id: number,
-  publishStatus: NimbusExperimentPublishStatus,
+  publishStatus: NimbusExperimentPublishStatusEnum,
   additionalProps: Record<string, any> = {},
 ) {
   return mockExperimentMutation(
@@ -64,32 +64,32 @@ export const Subject = ({
 };
 
 export const reviewRequestedBaseProps = {
-  status: NimbusExperimentStatus.LIVE,
-  statusNext: NimbusExperimentStatus.COMPLETE,
-  publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: NimbusExperimentStatusEnum.COMPLETE,
+  publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
   canReview: false,
   reviewRequest: mockChangelog(),
 };
 
 export const reviewPendingBaseProps = {
-  status: NimbusExperimentStatus.LIVE,
-  statusNext: NimbusExperimentStatus.COMPLETE,
-  publishStatus: NimbusExperimentPublishStatus.WAITING,
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: NimbusExperimentStatusEnum.COMPLETE,
+  publishStatus: NimbusExperimentPublishStatusEnum.WAITING,
   reviewRequest: mockChangelog(),
 };
 
 export const reviewTimedoutBaseProps = {
-  status: NimbusExperimentStatus.LIVE,
-  statusNext: NimbusExperimentStatus.COMPLETE,
-  publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: NimbusExperimentStatusEnum.COMPLETE,
+  publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
   reviewRequest: mockChangelog(),
   timeout: mockChangelog("def@mozilla.com"),
 };
 
 export const reviewRejectedBaseProps = {
-  status: NimbusExperimentStatus.LIVE,
+  status: NimbusExperimentStatusEnum.LIVE,
   statusNext: null,
-  publishStatus: NimbusExperimentPublishStatus.IDLE,
+  publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
   reviewRequest: mockChangelog(),
   rejection: mockChangelog("def@mozilla.com", "It's bad. Just start over."),
 };

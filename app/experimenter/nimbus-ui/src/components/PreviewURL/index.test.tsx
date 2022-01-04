@@ -7,7 +7,7 @@ import React from "react";
 import selectEvent from "react-select-event";
 import PreviewURL from ".";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
 
 const { experiment } = mockExperimentQuery("preview-url-slug");
 
@@ -24,7 +24,7 @@ describe("PreviewURL", () => {
     render(
       <PreviewURL
         {...experiment}
-        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.LIVE })}
       />,
     );
 
@@ -34,7 +34,7 @@ describe("PreviewURL", () => {
     render(
       <PreviewURL
         {...experiment}
-        status={mockGetStatus({ status: NimbusExperimentStatus.PREVIEW })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.PREVIEW })}
       />,
     );
 
@@ -45,7 +45,7 @@ describe("PreviewURL", () => {
       <PreviewURL
         {...experiment}
         application={null}
-        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.LIVE })}
       />,
     );
 
@@ -56,7 +56,7 @@ describe("PreviewURL", () => {
       <PreviewURL
         {...experiment}
         referenceBranch={null}
-        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.LIVE })}
       />,
     );
 
@@ -66,7 +66,7 @@ describe("PreviewURL", () => {
     render(
       <PreviewURL
         {...experiment}
-        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.LIVE })}
       />,
     );
 
@@ -80,7 +80,7 @@ describe("PreviewURL", () => {
     render(
       <PreviewURL
         {...experiment}
-        status={mockGetStatus({ status: NimbusExperimentStatus.PREVIEW })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.PREVIEW })}
       />,
     );
 
@@ -94,7 +94,7 @@ describe("PreviewURL", () => {
     render(
       <PreviewURL
         {...experiment}
-        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.LIVE })}
       />,
     );
 
@@ -112,7 +112,7 @@ describe("PreviewURL", () => {
     render(
       <PreviewURL
         {...experiment}
-        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.LIVE })}
       />,
     );
     const previewArea = await screen.findByText(

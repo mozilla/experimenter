@@ -5,7 +5,7 @@
 import { storiesOf } from "@storybook/react";
 import MockDate from "mockdate";
 import React from "react";
-import { NimbusExperimentStatus } from "../../../types/globalTypes";
+import { NimbusExperimentStatusEnum } from "../../../types/globalTypes";
 import { Subject } from "./mocks";
 
 storiesOf("components/Summary/SummaryTimeline", module)
@@ -15,9 +15,11 @@ storiesOf("components/Summary/SummaryTimeline", module)
   .add("draft, review, accepted", () => <Subject />)
   .add("live", () => {
     MockDate.set("2020-12-06T14:52:44.704811+00:00");
-    return <Subject status={NimbusExperimentStatus.LIVE} />;
+    return <Subject status={NimbusExperimentStatusEnum.LIVE} />;
   })
-  .add("complete", () => <Subject status={NimbusExperimentStatus.COMPLETE} />)
+  .add("complete", () => (
+    <Subject status={NimbusExperimentStatusEnum.COMPLETE} />
+  ))
   .add("missing details", () => (
     <Subject computedDurationDays={0} computedEnrollmentDays={0} />
   ));

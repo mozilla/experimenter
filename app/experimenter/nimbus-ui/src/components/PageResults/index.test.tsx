@@ -17,7 +17,7 @@ import {
 } from "../../lib/visualization/mocks";
 import { AnalysisData } from "../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 
 const Subject = () => (
@@ -75,7 +75,7 @@ describe("PageResults", () => {
 
   it("redirects to the edit overview page if the experiment status is draft", async () => {
     mockExperiment = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
     }).experiment;
     render(<Subject />);
     expect(redirectPath).toEqual("edit/overview");
@@ -84,7 +84,7 @@ describe("PageResults", () => {
   it("redirects to the summary page if the visualization flag is set to false", async () => {
     mockAnalysisData = mockAnalysis({ show_analysis: false });
     mockExperiment = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.COMPLETE,
+      status: NimbusExperimentStatusEnum.COMPLETE,
     }).experiment;
     render(<Subject />);
     expect(redirectPath).toEqual("");
@@ -93,7 +93,7 @@ describe("PageResults", () => {
   it("redirects to the summary page if the visualization results are not ready", async () => {
     mockAnalysisData = MOCK_UNAVAILABLE_ANALYSIS;
     mockExperiment = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.COMPLETE,
+      status: NimbusExperimentStatusEnum.COMPLETE,
     }).experiment;
     render(<Subject />);
     expect(redirectPath).toEqual("");
