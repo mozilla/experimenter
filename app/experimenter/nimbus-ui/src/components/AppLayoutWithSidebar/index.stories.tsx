@@ -9,8 +9,8 @@ import { SERVER_ERRORS } from "../../lib/constants";
 import { mockChangelog } from "../../lib/mocks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import { Subject } from "./mocks";
 
@@ -45,20 +45,20 @@ export const MissingDetails = storyWithExperimentProps(
 
 export const DraftStatus = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.DRAFT,
+    status: NimbusExperimentStatusEnum.DRAFT,
   },
   "Draft status, filled out",
 );
 
 export const PreviewStatus = storyWithExperimentProps({
-  status: NimbusExperimentStatus.PREVIEW,
+  status: NimbusExperimentStatusEnum.PREVIEW,
 });
 
 export const ReviewRequestedCannotReview = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.DRAFT,
-    statusNext: NimbusExperimentStatus.LIVE,
-    publishStatus: NimbusExperimentPublishStatus.REVIEW,
+    status: NimbusExperimentStatusEnum.DRAFT,
+    statusNext: NimbusExperimentStatusEnum.LIVE,
+    publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
     reviewRequest: mockChangelog(),
     canArchive: false,
   },
@@ -67,9 +67,9 @@ export const ReviewRequestedCannotReview = storyWithExperimentProps(
 
 export const ReviewRequestedCanReview = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.DRAFT,
-    statusNext: NimbusExperimentStatus.LIVE,
-    publishStatus: NimbusExperimentPublishStatus.REVIEW,
+    status: NimbusExperimentStatusEnum.DRAFT,
+    statusNext: NimbusExperimentStatusEnum.LIVE,
+    publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
     reviewRequest: mockChangelog(),
     canReview: true,
     canArchive: false,
@@ -79,7 +79,7 @@ export const ReviewRequestedCanReview = storyWithExperimentProps(
 
 export const LiveStatus = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.LIVE,
+    status: NimbusExperimentStatusEnum.LIVE,
     canArchive: false,
   },
   "Live status",

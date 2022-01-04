@@ -11,7 +11,7 @@ import AppLayoutWithExperiment, { POLL_INTERVAL, RedirectCheck } from ".";
 import { BASE_PATH } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
-import { NimbusExperimentPublishStatus } from "../../types/globalTypes";
+import { NimbusExperimentPublishStatusEnum } from "../../types/globalTypes";
 
 describe("AppLayoutWithExperiment", () => {
   it("renders as expected with default props", async () => {
@@ -57,7 +57,7 @@ describe("AppLayoutWithExperiment", () => {
     jest.useFakeTimers();
     const { mock: initialMock } = mockExperimentQuery("demo-slug");
     const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
-      publishStatus: NimbusExperimentPublishStatus.WAITING,
+      publishStatus: NimbusExperimentPublishStatusEnum.WAITING,
     });
 
     it("polls useExperiment when the prop is passed in", async () => {
@@ -121,7 +121,7 @@ describe("AppLayoutWithExperiment", () => {
 
   it("can redirect you somewhere else", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      publishStatus: NimbusExperimentPublishStatus.REVIEW,
+      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
     });
 
     render(

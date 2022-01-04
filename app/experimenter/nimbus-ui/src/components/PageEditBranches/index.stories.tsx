@@ -10,14 +10,14 @@ import { SERVER_ERRORS } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentApplication } from "../../types/globalTypes";
+import { NimbusExperimentApplicationEnum } from "../../types/globalTypes";
 
 const featureConfig = {
   id: 2,
   name: "Mauris odio erat",
   slug: "mauris-odio-erat",
   description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  application: NimbusExperimentApplication.FENIX,
+  application: NimbusExperimentApplicationEnum.FENIX,
   ownerEmail: "dude23@yahoo.com",
   schema: '{ "sample": "schema" }',
 };

@@ -7,13 +7,13 @@ import React from "react";
 import TableAudience from ".";
 import { MockedCache, mockExperimentQuery } from "../../../lib/mocks";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { NimbusExperimentChannel } from "../../../types/globalTypes";
+import { NimbusExperimentChannelEnum } from "../../../types/globalTypes";
 
 describe("TableAudience", () => {
   describe("renders 'Channel' row as expected", () => {
     it("with one channel", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        channel: NimbusExperimentChannel.BETA,
+        channel: NimbusExperimentChannelEnum.BETA,
       });
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-channel")).toHaveTextContent(

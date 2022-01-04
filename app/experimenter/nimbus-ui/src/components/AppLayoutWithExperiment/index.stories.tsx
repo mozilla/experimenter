@@ -8,8 +8,8 @@ import AppLayoutWithExperiment, { AppLayoutWithExperimentProps } from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 
 const Subject = ({
@@ -44,13 +44,13 @@ export const StatusDraft = storyWithProps();
 
 export const StatusPreview = storyWithProps(
   mockExperimentQuery("demo-slug", {
-    status: NimbusExperimentStatus.PREVIEW,
+    status: NimbusExperimentStatusEnum.PREVIEW,
   }),
 );
 
 export const StatusLaunched = storyWithProps(
   mockExperimentQuery("demo-slug", {
-    status: NimbusExperimentStatus.LIVE,
+    status: NimbusExperimentStatusEnum.LIVE,
   }),
   {},
   'Status: Launched ("Live" or "Complete")',
@@ -58,7 +58,7 @@ export const StatusLaunched = storyWithProps(
 
 export const PublishStatusReview = storyWithProps(
   mockExperimentQuery("demo-slug", {
-    publishStatus: NimbusExperimentPublishStatus.REVIEW,
+    publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
   }),
 );
 

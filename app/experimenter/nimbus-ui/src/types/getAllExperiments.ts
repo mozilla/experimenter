@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentApplication, NimbusExperimentFirefoxVersion, NimbusExperimentStatus, NimbusExperimentPublishStatus } from "./globalTypes";
+import { NimbusExperimentApplicationEnum, NimbusExperimentFirefoxVersionEnum, NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getAllExperiments
@@ -18,7 +18,7 @@ export interface getAllExperiments_experiments_featureConfig {
   slug: string;
   name: string;
   description: string | null;
-  application: NimbusExperimentApplication | null;
+  application: NimbusExperimentApplicationEnum | null;
   ownerEmail: string | null;
   schema: string | null;
 }
@@ -29,18 +29,18 @@ export interface getAllExperiments_experiments {
   owner: getAllExperiments_experiments_owner;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
   slug: string;
-  application: NimbusExperimentApplication | null;
-  firefoxMinVersion: NimbusExperimentFirefoxVersion | null;
-  firefoxMaxVersion: NimbusExperimentFirefoxVersion | null;
+  application: NimbusExperimentApplicationEnum | null;
+  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum | null;
+  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum | null;
   startDate: DateTime | null;
   isEnrollmentPausePending: boolean | null;
   isEnrollmentPaused: boolean | null;
   proposedDuration: number;
   proposedEnrollment: number;
   computedEndDate: DateTime | null;
-  status: NimbusExperimentStatus | null;
-  statusNext: NimbusExperimentStatus | null;
-  publishStatus: NimbusExperimentPublishStatus | null;
+  status: NimbusExperimentStatusEnum | null;
+  statusNext: NimbusExperimentStatusEnum | null;
+  publishStatus: NimbusExperimentPublishStatusEnum | null;
   monitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
 }

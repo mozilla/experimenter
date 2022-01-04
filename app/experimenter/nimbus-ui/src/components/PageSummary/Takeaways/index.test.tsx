@@ -20,12 +20,12 @@ import {
   mockExperimentQuery,
 } from "../../../lib/mocks";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { NimbusExperimentConclusionRecommendation } from "../../../types/globalTypes";
+import { NimbusExperimentConclusionRecommendationEnum } from "../../../types/globalTypes";
 import { Subject as BaseSubject } from "./mocks";
 
 const { experiment } = mockExperimentQuery("demo-slug", {
   takeawaysSummary: "old content",
-  conclusionRecommendation: NimbusExperimentConclusionRecommendation.RERUN,
+  conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.RERUN,
 });
 
 const Subject = ({
@@ -37,7 +37,7 @@ const Subject = ({
 
 const takeawaysSummary = "sample *exciting* content";
 const conclusionRecommendation =
-  NimbusExperimentConclusionRecommendation.CHANGE_COURSE;
+  NimbusExperimentConclusionRecommendationEnum.CHANGE_COURSE;
 const expectedConclusionRecommendationLabel = "Change course";
 
 describe("Takeaways", () => {
@@ -214,7 +214,7 @@ describe("TakeawaysEditor", () => {
 describe("useTakeaways", () => {
   const submitData = {
     takeawaysSummary: "super exciting results",
-    conclusionRecommendation: NimbusExperimentConclusionRecommendation.STOP,
+    conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum.STOP,
   };
   const mutationVariables = {
     id: experiment.id,

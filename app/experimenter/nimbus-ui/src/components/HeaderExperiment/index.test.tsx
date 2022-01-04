@@ -8,7 +8,7 @@ import HeaderExperiment from ".";
 import { BASE_PATH } from "../../lib/constants";
 import { humanDate } from "../../lib/dateUtils";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
 
 describe("HeaderExperiment", () => {
   it("renders as expected", () => {
@@ -71,7 +71,7 @@ describe("HeaderExperiment", () => {
 
   it("displays expected dates", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.LIVE,
+      status: NimbusExperimentStatusEnum.LIVE,
     });
     render(
       <HeaderExperiment

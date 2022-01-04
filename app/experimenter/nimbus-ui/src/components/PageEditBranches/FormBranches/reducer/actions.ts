@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BranchScreenshotType } from "../../../../types/globalTypes";
+import { BranchScreenshotInput } from "../../../../types/globalTypes";
 import {
   AnnotatedBranch,
   createAnnotatedBranch,
@@ -328,7 +328,7 @@ function addScreenshotToBranch(
   const { branchIdx } = action;
   let { referenceBranch, treatmentBranches } = state;
 
-  const newScreenshot: BranchScreenshotType = { description: "", image: null };
+  const newScreenshot: BranchScreenshotInput = { description: "", image: null };
 
   if (branchIdx === REFERENCE_BRANCH_IDX && referenceBranch) {
     referenceBranch = {
@@ -412,7 +412,7 @@ function withModifiedBranch(
 }
 
 function withoutScreenshot(
-  screenshots: (BranchScreenshotType | null)[] | null | undefined,
+  screenshots: (BranchScreenshotInput | null)[] | null | undefined,
   idx: number,
 ) {
   if (!screenshots) return [];

@@ -6,8 +6,8 @@ import { RedirectCheck } from "../components/AppLayoutWithExperiment";
 import { getAllExperiments_experiments } from "../types/getAllExperiments";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../types/globalTypes";
 import { LIFECYCLE_REVIEW_FLOWS } from "./constants";
 
@@ -24,28 +24,28 @@ export function getStatus(
 
   // The experiment is or was out in the wild (live or complete)
   const launched = [
-    NimbusExperimentStatus.LIVE,
-    NimbusExperimentStatus.COMPLETE,
+    NimbusExperimentStatusEnum.LIVE,
+    NimbusExperimentStatusEnum.COMPLETE,
   ].includes(status!);
 
   return {
     archived: isArchived,
-    draft: status === NimbusExperimentStatus.DRAFT,
-    preview: status === NimbusExperimentStatus.PREVIEW,
-    live: status === NimbusExperimentStatus.LIVE,
-    complete: status === NimbusExperimentStatus.COMPLETE,
-    idle: publishStatus === NimbusExperimentPublishStatus.IDLE,
-    approved: publishStatus === NimbusExperimentPublishStatus.APPROVED,
-    review: publishStatus === NimbusExperimentPublishStatus.REVIEW,
-    waiting: publishStatus === NimbusExperimentPublishStatus.WAITING,
+    draft: status === NimbusExperimentStatusEnum.DRAFT,
+    preview: status === NimbusExperimentStatusEnum.PREVIEW,
+    live: status === NimbusExperimentStatusEnum.LIVE,
+    complete: status === NimbusExperimentStatusEnum.COMPLETE,
+    idle: publishStatus === NimbusExperimentPublishStatusEnum.IDLE,
+    approved: publishStatus === NimbusExperimentPublishStatusEnum.APPROVED,
+    review: publishStatus === NimbusExperimentPublishStatusEnum.REVIEW,
+    waiting: publishStatus === NimbusExperimentPublishStatusEnum.WAITING,
     // TODO: EXP-1325 Need to check something else here for end enrollment in particular?
     pauseRequested:
-      status === NimbusExperimentStatus.LIVE &&
-      statusNext === NimbusExperimentStatus.LIVE &&
+      status === NimbusExperimentStatusEnum.LIVE &&
+      statusNext === NimbusExperimentStatusEnum.LIVE &&
       isEnrollmentPausePending === true,
     endRequested:
-      status === NimbusExperimentStatus.LIVE &&
-      statusNext === NimbusExperimentStatus.COMPLETE,
+      status === NimbusExperimentStatusEnum.LIVE &&
+      statusNext === NimbusExperimentStatusEnum.COMPLETE,
     launched,
   };
 }
