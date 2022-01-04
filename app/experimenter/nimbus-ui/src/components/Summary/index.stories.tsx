@@ -6,8 +6,8 @@ import { withLinks } from "@storybook/addon-links";
 import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
-  NimbusExperimentConclusionRecommendation,
-  NimbusExperimentStatus,
+  NimbusExperimentConclusionRecommendationEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import { TAKEAWAYS_SUMMARY_LONG } from "../PageSummary/Takeaways/mocks";
 import { reviewRequestedBaseProps, Subject } from "./mocks";
@@ -32,16 +32,16 @@ export default {
 export const draftStatus = storyWithExperimentProps();
 
 export const liveStatus = storyWithExperimentProps({
-  status: NimbusExperimentStatus.LIVE,
+  status: NimbusExperimentStatusEnum.LIVE,
 });
 
 export const enrollmentActive = storyWithExperimentProps({
-  status: NimbusExperimentStatus.LIVE,
+  status: NimbusExperimentStatusEnum.LIVE,
   isEnrollmentPaused: false,
 });
 
 export const enrollmentEnded = storyWithExperimentProps({
-  status: NimbusExperimentStatus.LIVE,
+  status: NimbusExperimentStatusEnum.LIVE,
   enrollmentEndDate: new Date().toISOString(),
 });
 
@@ -51,9 +51,10 @@ export const endRequestedEnrollmentEnded = storyWithExperimentProps({
 });
 
 export const completeStatusWithTakeaways = storyWithExperimentProps({
-  status: NimbusExperimentStatus.COMPLETE,
+  status: NimbusExperimentStatusEnum.COMPLETE,
   takeawaysSummary: TAKEAWAYS_SUMMARY_LONG,
-  conclusionRecommendation: NimbusExperimentConclusionRecommendation.GRADUATE,
+  conclusionRecommendation:
+    NimbusExperimentConclusionRecommendationEnum.GRADUATE,
 });
 
 export const noBranches = storyWithExperimentProps({

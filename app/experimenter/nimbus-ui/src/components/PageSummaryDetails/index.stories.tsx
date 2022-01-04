@@ -7,8 +7,8 @@ import React from "react";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import { Subject } from "./mocks";
 
@@ -32,8 +32,8 @@ export default {
 
 export const draftStatus = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.DRAFT,
-    publishStatus: NimbusExperimentPublishStatus.IDLE,
+    status: NimbusExperimentStatusEnum.DRAFT,
+    publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
   },
   "Draft status, no missing fields",
 );
@@ -48,8 +48,8 @@ export const draftArchived = storyWithExperimentProps(
 
 export const previewStatus = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.PREVIEW,
-    publishStatus: NimbusExperimentPublishStatus.IDLE,
+    status: NimbusExperimentStatusEnum.PREVIEW,
+    publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     signoffRecommendations: {
       qaSignoff: true,
       vpSignoff: false,
@@ -61,7 +61,7 @@ export const previewStatus = storyWithExperimentProps(
 
 export const liveStatus = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.LIVE,
+    status: NimbusExperimentStatusEnum.LIVE,
     isEnrollmentPaused: false,
   },
   "Live status",
@@ -69,7 +69,7 @@ export const liveStatus = storyWithExperimentProps(
 
 export const liveStatusPaused = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.LIVE,
+    status: NimbusExperimentStatusEnum.LIVE,
     isEnrollmentPaused: true,
     enrollmentEndDate: new Date().toISOString(),
   },
@@ -78,14 +78,14 @@ export const liveStatusPaused = storyWithExperimentProps(
 
 export const completeStatus = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.COMPLETE,
+    status: NimbusExperimentStatusEnum.COMPLETE,
   },
   "Complete status",
 );
 
 export const completeArchived = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.COMPLETE,
+    status: NimbusExperimentStatusEnum.COMPLETE,
     isArchived: true,
     canEdit: false,
   },

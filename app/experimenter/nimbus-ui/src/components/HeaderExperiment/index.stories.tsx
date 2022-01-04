@@ -8,8 +8,8 @@ import React from "react";
 import HeaderExperiment from ".";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import AppLayout from "../AppLayout";
 
@@ -60,7 +60,7 @@ storiesOf("components/HeaderExperiment", module)
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
-        status={mockGetStatus({ status: NimbusExperimentStatus.PREVIEW })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.PREVIEW })}
         isArchived={false}
         isRollout={false}
       />
@@ -76,7 +76,7 @@ storiesOf("components/HeaderExperiment", module)
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
         status={mockGetStatus({
-          publishStatus: NimbusExperimentPublishStatus.REVIEW,
+          publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
         })}
         isArchived={false}
         isRollout={false}
@@ -92,7 +92,7 @@ storiesOf("components/HeaderExperiment", module)
         startDate={experiment.startDate}
         computedEndDate={null}
         computedDurationDays={experiment.computedDurationDays}
-        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.LIVE })}
         isArchived={false}
         isRollout={false}
       />
@@ -107,7 +107,7 @@ storiesOf("components/HeaderExperiment", module)
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
-        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.COMPLETE })}
         isArchived={false}
         isRollout={false}
       />
@@ -122,7 +122,7 @@ storiesOf("components/HeaderExperiment", module)
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
-        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.COMPLETE })}
         isArchived={true}
         isRollout={false}
       />
@@ -137,7 +137,7 @@ storiesOf("components/HeaderExperiment", module)
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
-        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.COMPLETE })}
         isArchived={false}
         isRollout={true}
       />
@@ -152,7 +152,7 @@ storiesOf("components/HeaderExperiment", module)
         startDate={experiment.startDate}
         computedEndDate={experiment.computedEndDate}
         computedDurationDays={experiment.computedDurationDays}
-        status={mockGetStatus({ status: NimbusExperimentStatus.COMPLETE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.COMPLETE })}
         isArchived={true}
         isRollout={true}
       />

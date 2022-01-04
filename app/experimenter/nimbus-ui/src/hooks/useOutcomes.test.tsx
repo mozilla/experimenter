@@ -12,7 +12,7 @@ import {
   mockOutcomeSets,
   MOCK_CONFIG,
 } from "../lib/mocks";
-import { NimbusExperimentApplication } from "../types/globalTypes";
+import { NimbusExperimentApplicationEnum } from "../types/globalTypes";
 
 describe("hooks/useOutcomes", () => {
   it("matches experiment outcome slugs to available configuration outcomes", () => {
@@ -61,7 +61,7 @@ describe("hooks/useOutcomes", () => {
 
   it("returns an array of outcomes that are eligible for that experiment based on application", () => {
     const { mock, experiment } = mockExperimentQuery("howdy", {
-      application: NimbusExperimentApplication.FENIX,
+      application: NimbusExperimentApplicationEnum.FENIX,
     });
     const { result } = renderHook(() => useOutcomes(experiment), {
       wrapper,
@@ -72,13 +72,14 @@ describe("hooks/useOutcomes", () => {
       expect.arrayContaining(
         MOCK_CONFIG.outcomes!.filter(
           (outcome) =>
-            outcome?.application === NimbusExperimentApplication.DESKTOP,
+            outcome?.application === NimbusExperimentApplicationEnum.DESKTOP,
         ),
       ),
     );
     expect(result.current.available).toEqual(
       MOCK_CONFIG.outcomes!.filter(
-        (outcome) => outcome?.application === NimbusExperimentApplication.FENIX,
+        (outcome) =>
+          outcome?.application === NimbusExperimentApplicationEnum.FENIX,
       ),
     );
   });

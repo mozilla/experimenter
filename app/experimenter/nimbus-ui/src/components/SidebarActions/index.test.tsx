@@ -9,7 +9,7 @@ import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { mockExperiment, mockExperimentMutation } from "../../lib/mocks";
 import {
   NimbusDocumentationLinkTitle,
-  NimbusExperimentStatus,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import { Subject } from "./mocks";
 
@@ -25,7 +25,7 @@ describe("SidebarActions", () => {
         {...{
           experiment: {
             slug: "demo-slug",
-            status: NimbusExperimentStatus.LIVE,
+            status: NimbusExperimentStatusEnum.LIVE,
             riskMitigationLink: "https://mozilla.org",
             documentationLinks: [
               {
@@ -66,7 +66,7 @@ describe("SidebarActions", () => {
     render(
       <Subject
         experiment={{
-          status: NimbusExperimentStatus.DRAFT,
+          status: NimbusExperimentStatusEnum.DRAFT,
         }}
       />,
     );

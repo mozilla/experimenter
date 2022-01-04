@@ -6,8 +6,8 @@ import React from "react";
 import SummaryTimeline from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../../types/globalTypes";
 
 export const Subject = ({
@@ -15,15 +15,15 @@ export const Subject = ({
   computedEndDate = "2020-12-08T14:52:44.704811+00:00",
   computedDurationDays = 10,
   computedEnrollmentDays = 1,
-  status = NimbusExperimentStatus.DRAFT,
-  publishStatus = NimbusExperimentPublishStatus.IDLE,
+  status = NimbusExperimentStatusEnum.DRAFT,
+  publishStatus = NimbusExperimentPublishStatusEnum.IDLE,
 }: {
   startDate?: string;
   computedEndDate?: string;
   computedDurationDays?: number;
   computedEnrollmentDays?: number;
-  status?: NimbusExperimentStatus;
-  publishStatus?: NimbusExperimentPublishStatus;
+  status?: NimbusExperimentStatusEnum;
+  publishStatus?: NimbusExperimentPublishStatusEnum;
 }) => {
   const { experiment } = mockExperimentQuery("something-vague", {
     startDate,

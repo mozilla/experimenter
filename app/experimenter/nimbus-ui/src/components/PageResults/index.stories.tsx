@@ -16,7 +16,7 @@ import {
 } from "../../lib/visualization/mocks";
 import { AnalysisData } from "../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
 
 const Subject = ({
   experiment = {},
@@ -26,7 +26,7 @@ const Subject = ({
   analysis?: AnalysisData;
 }) => {
   const { mock } = mockExperimentQuery("demo-slug", {
-    status: NimbusExperimentStatus.COMPLETE,
+    status: NimbusExperimentStatusEnum.COMPLETE,
     ...experiment,
   });
   fetchMock.restore().getOnce("/api/v3/visualization/demo-slug/", analysis);

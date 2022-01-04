@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../types/globalTypes";
 import {
   editCommonRedirects,
@@ -26,30 +26,30 @@ const { experiment } = mockExperimentQuery("boo");
 
 describe("getStatus", () => {
   it("correctly returns available experiment states", () => {
-    experiment.status = NimbusExperimentStatus.DRAFT;
+    experiment.status = NimbusExperimentStatusEnum.DRAFT;
     expect(getStatus(experiment).draft).toBeTruthy();
 
-    experiment.status = NimbusExperimentStatus.PREVIEW;
+    experiment.status = NimbusExperimentStatusEnum.PREVIEW;
     expect(getStatus(experiment).preview).toBeTruthy();
 
-    experiment.status = NimbusExperimentStatus.LIVE;
+    experiment.status = NimbusExperimentStatusEnum.LIVE;
     expect(getStatus(experiment).live).toBeTruthy();
     expect(getStatus(experiment).launched).toBeTruthy();
 
-    experiment.status = NimbusExperimentStatus.COMPLETE;
+    experiment.status = NimbusExperimentStatusEnum.COMPLETE;
     expect(getStatus(experiment).complete).toBeTruthy();
     expect(getStatus(experiment).launched).toBeTruthy();
 
-    experiment.publishStatus = NimbusExperimentPublishStatus.IDLE;
+    experiment.publishStatus = NimbusExperimentPublishStatusEnum.IDLE;
     expect(getStatus(experiment).idle).toBeTruthy();
 
-    experiment.publishStatus = NimbusExperimentPublishStatus.APPROVED;
+    experiment.publishStatus = NimbusExperimentPublishStatusEnum.APPROVED;
     expect(getStatus(experiment).approved).toBeTruthy();
 
-    experiment.publishStatus = NimbusExperimentPublishStatus.REVIEW;
+    experiment.publishStatus = NimbusExperimentPublishStatusEnum.REVIEW;
     expect(getStatus(experiment).review).toBeTruthy();
 
-    experiment.publishStatus = NimbusExperimentPublishStatus.WAITING;
+    experiment.publishStatus = NimbusExperimentPublishStatusEnum.WAITING;
     expect(getStatus(experiment).waiting).toBeTruthy();
   });
 });
@@ -59,8 +59,8 @@ describe("editCommonRedirects", () => {
     status,
     publishStatus,
   }: {
-    status?: NimbusExperimentStatus;
-    publishStatus?: NimbusExperimentPublishStatus;
+    status?: NimbusExperimentStatusEnum;
+    publishStatus?: NimbusExperimentPublishStatusEnum;
   }) => {
     const { experiment } = mockExperimentQuery("boo", {
       status,
@@ -70,12 +70,16 @@ describe("editCommonRedirects", () => {
   };
 
   it("returns '' (root) if the experiment is in a launched, non-idle, or preview state", () => {
-    expect(mockedCall({ status: NimbusExperimentStatus.LIVE })).toEqual("");
-    expect(mockedCall({ status: NimbusExperimentStatus.COMPLETE })).toEqual("");
+    expect(mockedCall({ status: NimbusExperimentStatusEnum.LIVE })).toEqual("");
+    expect(mockedCall({ status: NimbusExperimentStatusEnum.COMPLETE })).toEqual(
+      "",
+    );
     expect(
-      mockedCall({ publishStatus: NimbusExperimentPublishStatus.WAITING }),
+      mockedCall({ publishStatus: NimbusExperimentPublishStatusEnum.WAITING }),
     ).toEqual("");
-    expect(mockedCall({ status: NimbusExperimentStatus.PREVIEW })).toEqual("");
+    expect(mockedCall({ status: NimbusExperimentStatusEnum.PREVIEW })).toEqual(
+      "",
+    );
   });
 });
 

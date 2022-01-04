@@ -7,8 +7,8 @@ import React from "react";
 import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import { createMutationMock, Subject } from "./mocks";
 
@@ -44,7 +44,7 @@ describe("Summary", () => {
     render(
       <Subject
         props={{
-          status: NimbusExperimentStatus.LIVE,
+          status: NimbusExperimentStatusEnum.LIVE,
         }}
       />,
     );
@@ -56,7 +56,7 @@ describe("Summary", () => {
     render(
       <Subject
         props={{
-          status: NimbusExperimentStatus.DRAFT,
+          status: NimbusExperimentStatusEnum.DRAFT,
         }}
       />,
     );
@@ -68,7 +68,7 @@ describe("Summary", () => {
     render(
       <Subject
         props={{
-          status: NimbusExperimentStatus.LIVE,
+          status: NimbusExperimentStatusEnum.LIVE,
           isEnrollmentPaused: false,
         }}
       />,
@@ -80,7 +80,7 @@ describe("Summary", () => {
     render(
       <Subject
         props={{
-          status: NimbusExperimentStatus.LIVE,
+          status: NimbusExperimentStatusEnum.LIVE,
           isEnrollmentPaused: true,
           enrollmentEndDate: new Date().toISOString(),
         }}
@@ -105,15 +105,15 @@ describe("Summary", () => {
     it("can mark the experiment as requesting review on end confirmation", async () => {
       const refetch = jest.fn();
       const { experiment } = mockExperimentQuery("demo-slug", {
-        status: NimbusExperimentStatus.LIVE,
+        status: NimbusExperimentStatusEnum.LIVE,
       });
       const mutationMock = createMutationMock(
         experiment.id!,
-        NimbusExperimentPublishStatus.REVIEW,
+        NimbusExperimentPublishStatusEnum.REVIEW,
         {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
-          status: NimbusExperimentStatus.LIVE,
-          statusNext: NimbusExperimentStatus.COMPLETE,
+          status: NimbusExperimentStatusEnum.LIVE,
+          statusNext: NimbusExperimentStatusEnum.COMPLETE,
         },
       );
       render(
@@ -130,11 +130,11 @@ describe("Summary", () => {
 
     it("handles submission with server API error", async () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        status: NimbusExperimentStatus.LIVE,
+        status: NimbusExperimentStatusEnum.LIVE,
       });
       const mutationMock = createMutationMock(
         experiment.id!,
-        NimbusExperimentPublishStatus.REVIEW,
+        NimbusExperimentPublishStatusEnum.REVIEW,
         { changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END },
       );
       mutationMock.result.errors = [new Error("Boo")];
@@ -148,15 +148,15 @@ describe("Summary", () => {
 
     it("handles submission with server-side validation errors", async () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        status: NimbusExperimentStatus.LIVE,
+        status: NimbusExperimentStatusEnum.LIVE,
       });
       const mutationMock = createMutationMock(
         experiment.id!,
-        NimbusExperimentPublishStatus.REVIEW,
+        NimbusExperimentPublishStatusEnum.REVIEW,
         {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
-          statusNext: NimbusExperimentStatus.COMPLETE,
-          status: NimbusExperimentStatus.LIVE,
+          statusNext: NimbusExperimentStatusEnum.COMPLETE,
+          status: NimbusExperimentStatusEnum.LIVE,
         },
       );
       const errorMessage = "Something went very wrong.";
@@ -188,17 +188,17 @@ describe("Summary", () => {
     it("can mark the experiment as requesting review on enrollment end confirmation", async () => {
       const refetch = jest.fn();
       const { experiment } = mockExperimentQuery("demo-slug", {
-        status: NimbusExperimentStatus.LIVE,
+        status: NimbusExperimentStatusEnum.LIVE,
         statusNext: null,
         isEnrollmentPaused: false,
       });
       const mutationMock = createMutationMock(
         experiment.id!,
-        NimbusExperimentPublishStatus.REVIEW,
+        NimbusExperimentPublishStatusEnum.REVIEW,
         {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
-          status: NimbusExperimentStatus.LIVE,
-          statusNext: NimbusExperimentStatus.LIVE,
+          status: NimbusExperimentStatusEnum.LIVE,
+          statusNext: NimbusExperimentStatusEnum.LIVE,
           isEnrollmentPaused: true,
         },
       );
@@ -216,13 +216,13 @@ describe("Summary", () => {
 
     it("handles submission with server API error", async () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        status: NimbusExperimentStatus.LIVE,
+        status: NimbusExperimentStatusEnum.LIVE,
         isEnrollmentPaused: false,
         statusNext: null,
       });
       const mutationMock = createMutationMock(
         experiment.id!,
-        NimbusExperimentPublishStatus.REVIEW,
+        NimbusExperimentPublishStatusEnum.REVIEW,
         {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
         },
@@ -238,17 +238,17 @@ describe("Summary", () => {
 
     it("handles submission with server-side validation errors", async () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        status: NimbusExperimentStatus.LIVE,
+        status: NimbusExperimentStatusEnum.LIVE,
         isEnrollmentPaused: false,
         statusNext: null,
       });
       const mutationMock = createMutationMock(
         experiment.id!,
-        NimbusExperimentPublishStatus.REVIEW,
+        NimbusExperimentPublishStatusEnum.REVIEW,
         {
           changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
-          statusNext: NimbusExperimentStatus.LIVE,
-          status: NimbusExperimentStatus.LIVE,
+          statusNext: NimbusExperimentStatusEnum.LIVE,
+          status: NimbusExperimentStatusEnum.LIVE,
           isEnrollmentPaused: true,
         },
       );

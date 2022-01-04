@@ -6,8 +6,8 @@ import { cleanup, render, screen } from "@testing-library/react";
 import React from "react";
 import { TOOLTIP_DURATION } from "../../../lib/constants";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../../types/globalTypes";
 import { Subject } from "./mocks";
 
@@ -20,9 +20,9 @@ const innerBar = () => {
 describe("SummaryTimeline", () => {
   it("renders with a draft, in-review, and accepted/waiting experiment", () => {
     [
-      { status: NimbusExperimentStatus.DRAFT },
-      { publishStatus: NimbusExperimentPublishStatus.REVIEW },
-      { publishStatus: NimbusExperimentPublishStatus.WAITING },
+      { status: NimbusExperimentStatusEnum.DRAFT },
+      { publishStatus: NimbusExperimentPublishStatusEnum.REVIEW },
+      { publishStatus: NimbusExperimentPublishStatusEnum.WAITING },
     ].forEach((set) => {
       render(<Subject {...set} />);
 
@@ -37,7 +37,7 @@ describe("SummaryTimeline", () => {
   });
 
   it("renders with a live experiment", async () => {
-    render(<Subject status={NimbusExperimentStatus.LIVE} />);
+    render(<Subject status={NimbusExperimentStatusEnum.LIVE} />);
 
     expect(innerBar().classList).toContain("progress-bar-animated");
     expect(innerBar().classList).toContain("progress-bar-striped");
@@ -53,7 +53,7 @@ describe("SummaryTimeline", () => {
   });
 
   it("renders with a completed experiment", () => {
-    render(<Subject status={NimbusExperimentStatus.COMPLETE} />);
+    render(<Subject status={NimbusExperimentStatusEnum.COMPLETE} />);
 
     expect(innerBar().classList).toContain("bg-success");
 

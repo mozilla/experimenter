@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentApplication } from "./globalTypes";
+import { NimbusExperimentApplicationEnum } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getConfig
@@ -30,7 +30,7 @@ export interface getConfig_nimbusConfig_applicationConfigs_channels {
 }
 
 export interface getConfig_nimbusConfig_applicationConfigs {
-  application: NimbusExperimentApplication | null;
+  application: NimbusExperimentApplicationEnum | null;
   channels: (getConfig_nimbusConfig_applicationConfigs_channels | null)[] | null;
   supportsLocaleCountry: boolean | null;
 }
@@ -40,7 +40,7 @@ export interface getConfig_nimbusConfig_featureConfigs {
   name: string;
   slug: string;
   description: string | null;
-  application: NimbusExperimentApplication | null;
+  application: NimbusExperimentApplicationEnum | null;
   ownerEmail: string | null;
   schema: string | null;
 }
@@ -59,7 +59,7 @@ export interface getConfig_nimbusConfig_outcomes_metrics {
 export interface getConfig_nimbusConfig_outcomes {
   friendlyName: string | null;
   slug: string | null;
-  application: NimbusExperimentApplication | null;
+  application: NimbusExperimentApplicationEnum | null;
   description: string | null;
   isDefault: boolean | null;
   metrics: (getConfig_nimbusConfig_outcomes_metrics | null)[] | null;

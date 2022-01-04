@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatus, NimbusExperimentPublishStatus, NimbusExperimentApplication, NimbusExperimentConclusionRecommendation, NimbusExperimentChannel, NimbusExperimentFirefoxVersion, NimbusDocumentationLinkTitle, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
+import { NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentApplicationEnum, NimbusExperimentConclusionRecommendationEnum, NimbusExperimentChannelEnum, NimbusExperimentFirefoxVersionEnum, NimbusDocumentationLinkTitle, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -57,7 +57,7 @@ export interface getExperiment_experimentBySlug_featureConfig {
   slug: string;
   name: string;
   description: string | null;
-  application: NimbusExperimentApplication | null;
+  application: NimbusExperimentApplicationEnum | null;
   ownerEmail: string | null;
   schema: string | null;
 }
@@ -127,15 +127,15 @@ export interface getExperiment_experimentBySlug {
   canArchive: boolean | null;
   name: string;
   slug: string;
-  status: NimbusExperimentStatus | null;
-  statusNext: NimbusExperimentStatus | null;
-  publishStatus: NimbusExperimentPublishStatus | null;
+  status: NimbusExperimentStatusEnum | null;
+  statusNext: NimbusExperimentStatusEnum | null;
+  publishStatus: NimbusExperimentPublishStatusEnum | null;
   monitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
   hypothesis: string;
-  application: NimbusExperimentApplication | null;
+  application: NimbusExperimentApplicationEnum | null;
   publicDescription: string;
-  conclusionRecommendation: NimbusExperimentConclusionRecommendation | null;
+  conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum | null;
   takeawaysSummary: string | null;
   owner: getExperiment_experimentBySlug_owner;
   parent: getExperiment_experimentBySlug_parent | null;
@@ -145,9 +145,9 @@ export interface getExperiment_experimentBySlug {
   featureConfig: getExperiment_experimentBySlug_featureConfig | null;
   primaryOutcomes: (string | null)[] | null;
   secondaryOutcomes: (string | null)[] | null;
-  channel: NimbusExperimentChannel | null;
-  firefoxMinVersion: NimbusExperimentFirefoxVersion | null;
-  firefoxMaxVersion: NimbusExperimentFirefoxVersion | null;
+  channel: NimbusExperimentChannelEnum | null;
+  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum | null;
+  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum | null;
   targetingConfigSlug: string | null;
   jexlTargetingExpression: string | null;
   populationPercent: string | null;

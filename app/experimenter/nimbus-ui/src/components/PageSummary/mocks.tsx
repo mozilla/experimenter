@@ -16,15 +16,15 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 import {
   NimbusChangeLogOldStatus,
   NimbusChangeLogOldStatusNext,
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 
 export const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 export function createStatusMutationMock(
   id: number,
-  status = NimbusExperimentStatus.DRAFT,
+  status = NimbusExperimentStatusEnum.DRAFT,
   changelogMessage = CHANGELOG_MESSAGES.RETURNED_TO_DRAFT as string,
 ) {
   return mockExperimentMutation(
@@ -45,9 +45,9 @@ export function createStatusMutationMock(
 
 export function createFullStatusMutationMock(
   id: number,
-  status = NimbusExperimentStatus.DRAFT,
-  statusNext = null as NimbusExperimentStatus | null,
-  publishStatus = NimbusExperimentPublishStatus.IDLE,
+  status = NimbusExperimentStatusEnum.DRAFT,
+  statusNext = null as NimbusExperimentStatusEnum | null,
+  publishStatus = NimbusExperimentPublishStatusEnum.IDLE,
   changelogMessage?: string,
 ) {
   return mockExperimentMutation(
@@ -71,31 +71,31 @@ export const Subject = ({
 };
 
 export const reviewRequestedBaseProps = {
-  status: NimbusExperimentStatus.DRAFT,
-  statusNext: NimbusExperimentStatus.LIVE,
-  publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  status: NimbusExperimentStatusEnum.DRAFT,
+  statusNext: NimbusExperimentStatusEnum.LIVE,
+  publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
   reviewRequest: mockChangelog(),
 };
 
 export const reviewPendingBaseProps = {
-  status: NimbusExperimentStatus.DRAFT,
-  statusNext: NimbusExperimentStatus.LIVE,
-  publishStatus: NimbusExperimentPublishStatus.WAITING,
+  status: NimbusExperimentStatusEnum.DRAFT,
+  statusNext: NimbusExperimentStatusEnum.LIVE,
+  publishStatus: NimbusExperimentPublishStatusEnum.WAITING,
   reviewRequest: mockChangelog(),
 };
 
 export const reviewTimedoutBaseProps = {
-  status: NimbusExperimentStatus.DRAFT,
-  statusNext: NimbusExperimentStatus.LIVE,
-  publishStatus: NimbusExperimentPublishStatus.REVIEW,
+  status: NimbusExperimentStatusEnum.DRAFT,
+  statusNext: NimbusExperimentStatusEnum.LIVE,
+  publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
   reviewRequest: mockChangelog(),
   timeout: mockChangelog("def@mozilla.com"),
 };
 
 export const reviewRejectedBaseProps = {
-  status: NimbusExperimentStatus.DRAFT,
+  status: NimbusExperimentStatusEnum.DRAFT,
   statusNext: null,
-  publishStatus: NimbusExperimentPublishStatus.IDLE,
+  publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
   reviewRequest: mockChangelog(),
   rejection: mockRejectionChangelog(
     "def@mozilla.com",
@@ -107,25 +107,25 @@ export const reviewRejectedBaseProps = {
 
 export const endReviewRequestedBaseProps = {
   ...reviewRequestedBaseProps,
-  status: NimbusExperimentStatus.LIVE,
-  statusNext: NimbusExperimentStatus.COMPLETE,
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: NimbusExperimentStatusEnum.COMPLETE,
 };
 
 export const endPendingBaseProps = {
   ...reviewPendingBaseProps,
-  status: NimbusExperimentStatus.LIVE,
-  statusNext: NimbusExperimentStatus.COMPLETE,
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: NimbusExperimentStatusEnum.COMPLETE,
 };
 
 export const endTimedoutBaseProps = {
   ...reviewTimedoutBaseProps,
-  status: NimbusExperimentStatus.LIVE,
-  statusNext: NimbusExperimentStatus.COMPLETE,
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: NimbusExperimentStatusEnum.COMPLETE,
 };
 
 export const endRejectedBaseProps = {
   ...reviewRejectedBaseProps,
-  status: NimbusExperimentStatus.LIVE,
+  status: NimbusExperimentStatusEnum.LIVE,
   rejection: mockRejectionChangelog(
     "def@mozilla.com",
     "Let this run a bit longer",
@@ -136,31 +136,31 @@ export const endRejectedBaseProps = {
 
 export const enrollmentPauseReviewRequestedBaseProps = {
   ...reviewRequestedBaseProps,
-  status: NimbusExperimentStatus.LIVE,
-  statusNext: NimbusExperimentStatus.LIVE,
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: NimbusExperimentStatusEnum.LIVE,
   isEnrollmentPaused: false,
   isEnrollmentPausePending: true,
 };
 
 export const enrollmentPausePendingBaseProps = {
   ...reviewPendingBaseProps,
-  status: NimbusExperimentStatus.LIVE,
-  statusNext: NimbusExperimentStatus.LIVE,
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: NimbusExperimentStatusEnum.LIVE,
   isEnrollmentPaused: false,
   isEnrollmentPausePending: true,
 };
 
 export const enrollmentPauseTimedoutBaseProps = {
   ...reviewTimedoutBaseProps,
-  status: NimbusExperimentStatus.LIVE,
-  statusNext: NimbusExperimentStatus.LIVE,
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: NimbusExperimentStatusEnum.LIVE,
   isEnrollmentPaused: false,
   isEnrollmentPausePending: true,
 };
 
 export const enrollmentPauseRejectedBaseProps = {
   ...reviewRejectedBaseProps,
-  status: NimbusExperimentStatus.LIVE,
+  status: NimbusExperimentStatusEnum.LIVE,
   statusNext: null,
   isEnrollmentPaused: false,
   isEnrollmentPausePending: false,

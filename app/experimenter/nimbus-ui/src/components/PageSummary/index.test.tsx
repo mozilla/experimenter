@@ -14,8 +14,8 @@ import React from "react";
 import { CHANGELOG_MESSAGES, SERVER_ERRORS } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import { createMutationMock } from "../Summary/mocks";
 import {
@@ -88,7 +88,7 @@ describe("PageSummary", () => {
   it("hides signoff section if experiment is launched", async () => {
     // this table is shown in the Summary component instead
     const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.LIVE,
+      status: NimbusExperimentStatusEnum.LIVE,
     });
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
@@ -100,7 +100,7 @@ describe("PageSummary", () => {
 
   it("hides takeaways section if experiment is not complete", async () => {
     const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
     });
     render(<Subject mocks={[mock]} />);
     await screen.findByTestId("PageSummary");
@@ -109,7 +109,7 @@ describe("PageSummary", () => {
 
   it("reveals takeaways section if experiment is complete", async () => {
     const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.COMPLETE,
+      status: NimbusExperimentStatusEnum.COMPLETE,
     });
     render(<Subject mocks={[mock]} />);
     await screen.findByTestId("PageSummary");
@@ -133,7 +133,7 @@ describe("PageSummary", () => {
 
   it("indicates status in review", async () => {
     const { mock } = mockExperimentQuery("demo-slug", {
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
     });
     render(<Subject mocks={[mock]} />);
     await waitFor(() =>
@@ -143,7 +143,7 @@ describe("PageSummary", () => {
 
   it("indicates status in preview", async () => {
     const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.PREVIEW,
+      status: NimbusExperimentStatusEnum.PREVIEW,
     });
     render(<Subject mocks={[mock]} />);
     await screen.findByTestId("in-preview-label");
@@ -151,11 +151,11 @@ describe("PageSummary", () => {
 
   it("handles Launch to Preview from Draft as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
     });
     const mutationMock = createStatusMutationMock(
       experiment.id!,
-      NimbusExperimentStatus.PREVIEW,
+      NimbusExperimentStatusEnum.PREVIEW,
       CHANGELOG_MESSAGES.LAUNCHED_TO_PREVIEW,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -167,13 +167,13 @@ describe("PageSummary", () => {
 
   it("handles Launch without Preview from Draft as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
     });
     const mutationMock = createFullStatusMutationMock(
       experiment.id!,
-      NimbusExperimentStatus.DRAFT,
-      NimbusExperimentStatus.LIVE,
-      NimbusExperimentPublishStatus.REVIEW,
+      NimbusExperimentStatusEnum.DRAFT,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.REVIEW,
       CHANGELOG_MESSAGES.REQUESTED_REVIEW,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -182,7 +182,7 @@ describe("PageSummary", () => {
 
   it("handles cancelled Launch to Review as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
     });
     const mutationMock = createStatusMutationMock(experiment.id!);
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -200,11 +200,11 @@ describe("PageSummary", () => {
 
   it("handles Launch to Preview after reconsidering Launch to Review from Draft", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
     });
     const mutationMock = createStatusMutationMock(
       experiment.id!,
-      NimbusExperimentStatus.PREVIEW,
+      NimbusExperimentStatusEnum.PREVIEW,
       CHANGELOG_MESSAGES.LAUNCHED_TO_PREVIEW,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -222,11 +222,11 @@ describe("PageSummary", () => {
 
   it("handles Back to Draft from Preview", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.PREVIEW,
+      status: NimbusExperimentStatusEnum.PREVIEW,
     });
     const mutationMock = createStatusMutationMock(
       experiment.id!,
-      NimbusExperimentStatus.DRAFT,
+      NimbusExperimentStatusEnum.DRAFT,
       CHANGELOG_MESSAGES.RETURNED_TO_DRAFT,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -238,7 +238,7 @@ describe("PageSummary", () => {
 
   it("can go back to Draft from Preview with invalid experiment info", async () => {
     const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.PREVIEW,
+      status: NimbusExperimentStatusEnum.PREVIEW,
       readyForReview: {
         ready: false,
         message: {
@@ -260,9 +260,9 @@ describe("PageSummary", () => {
     });
     const mutationMock = createFullStatusMutationMock(
       experiment.id!,
-      NimbusExperimentStatus.DRAFT,
-      NimbusExperimentStatus.LIVE,
-      NimbusExperimentPublishStatus.APPROVED,
+      NimbusExperimentStatusEnum.DRAFT,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.APPROVED,
       CHANGELOG_MESSAGES.REVIEW_APPROVED,
     );
     render(<Subject mocks={[mock, mock, mutationMock]} />);
@@ -286,9 +286,9 @@ describe("PageSummary", () => {
     });
     const mutationMock = createFullStatusMutationMock(
       experiment.id!,
-      NimbusExperimentStatus.DRAFT,
+      NimbusExperimentStatusEnum.DRAFT,
       null,
-      NimbusExperimentPublishStatus.IDLE,
+      NimbusExperimentPublishStatusEnum.IDLE,
       expectedReason,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -306,7 +306,7 @@ describe("PageSummary", () => {
 
   it("handles submission with server API error", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
     });
     const mutationMock = createStatusMutationMock(experiment.id!);
     mutationMock.result.errors = [new Error("Boo")];
@@ -320,13 +320,13 @@ describe("PageSummary", () => {
   // TODO: #6802
   // it("handles submission with server-side validation errors", async () => {
   //   const { mock, experiment } = mockExperimentQuery("demo-slug", {
-  //     status: NimbusExperimentStatus.DRAFT,
+  //     status: NimbusExperimentStatusEnum.DRAFT,
   //   });
   //   const mutationMock = createFullStatusMutationMock(
   //     experiment.id!,
-  //     NimbusExperimentStatus.DRAFT,
-  //     NimbusExperimentStatus.LIVE,
-  //     NimbusExperimentPublishStatus.REVIEW,
+  //     NimbusExperimentStatusEnum.DRAFT,
+  //     NimbusExperimentStatusEnum.LIVE,
+  //     NimbusExperimentPublishStatusEnum.REVIEW,
   //     CHANGELOG_MESSAGES.REQUESTED_REVIEW,
   //   );
   //   const errorMessage = "Something went very wrong.";
@@ -351,7 +351,7 @@ describe("PageSummary", () => {
     });
     const mutationMock = createMutationMock(
       experiment.id!,
-      NimbusExperimentPublishStatus.IDLE,
+      NimbusExperimentPublishStatusEnum.IDLE,
       { statusNext: null, changelogMessage: expectedReason },
     );
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -377,7 +377,7 @@ describe("PageSummary", () => {
     });
     const mutationMock = createMutationMock(
       experiment.id!,
-      NimbusExperimentPublishStatus.APPROVED,
+      NimbusExperimentPublishStatusEnum.APPROVED,
       { changelogMessage: CHANGELOG_MESSAGES.END_APPROVED },
     );
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -402,7 +402,7 @@ describe("PageSummary", () => {
     });
     const mutationMock = createMutationMock(
       experiment.id!,
-      NimbusExperimentPublishStatus.IDLE,
+      NimbusExperimentPublishStatusEnum.IDLE,
       { statusNext: null, changelogMessage: expectedReason },
     );
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -428,7 +428,7 @@ describe("PageSummary", () => {
     });
     const mutationMock = createMutationMock(
       experiment.id!,
-      NimbusExperimentPublishStatus.APPROVED,
+      NimbusExperimentPublishStatusEnum.APPROVED,
       { changelogMessage: CHANGELOG_MESSAGES.END_APPROVED },
     );
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -463,7 +463,7 @@ describe("PageSummary", () => {
 
   it("will not allow submitting if already in review", async () => {
     const { mock } = mockExperimentQuery("demo-slug", {
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
     });
     render(<Subject mocks={[mock]} />);
     await waitFor(() =>

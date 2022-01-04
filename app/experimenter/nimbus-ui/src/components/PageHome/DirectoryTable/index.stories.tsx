@@ -12,8 +12,8 @@ import DirectoryTable, {
 import { mockDirectoryExperiments } from "../../../lib/mocks";
 import { CurrentLocation, RouterSlugProvider } from "../../../lib/test-utils";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../../types/globalTypes";
 
 const withRouterAndCurrentUrl = (Story: React.FC) => (
@@ -34,18 +34,18 @@ export default {
 const experiments = mockDirectoryExperiments();
 const draftExperiments = experiments.filter(
   ({ status, publishStatus }) =>
-    status === NimbusExperimentStatus.DRAFT &&
-    publishStatus === NimbusExperimentPublishStatus.IDLE,
+    status === NimbusExperimentStatusEnum.DRAFT &&
+    publishStatus === NimbusExperimentPublishStatusEnum.IDLE,
 );
 const liveExperiments = experiments.filter(
   ({ status, publishStatus }) =>
-    status === NimbusExperimentStatus.LIVE &&
-    publishStatus === NimbusExperimentPublishStatus.IDLE,
+    status === NimbusExperimentStatusEnum.LIVE &&
+    publishStatus === NimbusExperimentPublishStatusEnum.IDLE,
 );
 const completedExperiments = experiments.filter(
   ({ status, publishStatus }) =>
-    status === NimbusExperimentStatus.COMPLETE &&
-    publishStatus === NimbusExperimentPublishStatus.IDLE,
+    status === NimbusExperimentStatusEnum.COMPLETE &&
+    publishStatus === NimbusExperimentPublishStatusEnum.IDLE,
 );
 
 export const Basic = () => <DirectoryTable experiments={experiments} />;

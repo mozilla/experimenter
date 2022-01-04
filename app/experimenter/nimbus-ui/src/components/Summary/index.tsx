@@ -11,8 +11,8 @@ import { getStatus } from "../../lib/experiment";
 import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import NotSet from "../NotSet";
 import TableSignoff from "../PageSummary/TableSignoff";
@@ -45,15 +45,15 @@ const Summary = ({
     experiment,
     refetch,
     {
-      publishStatus: NimbusExperimentPublishStatus.REVIEW,
-      status: NimbusExperimentStatus.LIVE,
-      statusNext: NimbusExperimentStatus.COMPLETE,
+      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: NimbusExperimentStatusEnum.COMPLETE,
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END,
     },
     {
-      publishStatus: NimbusExperimentPublishStatus.REVIEW,
-      status: NimbusExperimentStatus.LIVE,
-      statusNext: NimbusExperimentStatus.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: NimbusExperimentStatusEnum.LIVE,
       isEnrollmentPaused: true,
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
     },

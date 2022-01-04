@@ -18,7 +18,7 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   ExperimentInput,
-  NimbusExperimentApplication,
+  NimbusExperimentApplicationEnum,
 } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment } from "../../types/updateExperiment";
 import FormBranches from "./FormBranches";
@@ -41,7 +41,7 @@ describe("PageEditBranches", () => {
 
   it("renders as expected with experiment data", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      application: NimbusExperimentApplication.FENIX,
+      application: NimbusExperimentApplicationEnum.FENIX,
     });
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {

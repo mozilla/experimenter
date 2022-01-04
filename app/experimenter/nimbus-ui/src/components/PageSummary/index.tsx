@@ -13,8 +13,8 @@ import {
 import { getStatus, getSummaryAction } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import ChangeApprovalOperations from "../ChangeApprovalOperations";
@@ -71,53 +71,53 @@ const PageContent: React.FC<{
     experiment,
     refetch,
     {
-      status: NimbusExperimentStatus.PREVIEW,
+      status: NimbusExperimentStatusEnum.PREVIEW,
       changelogMessage: CHANGELOG_MESSAGES.LAUNCHED_TO_PREVIEW,
     },
     {
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
       changelogMessage: CHANGELOG_MESSAGES.RETURNED_TO_DRAFT,
     },
     {
-      status: NimbusExperimentStatus.DRAFT,
-      statusNext: NimbusExperimentStatus.LIVE,
-      publishStatus: NimbusExperimentPublishStatus.REVIEW,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      statusNext: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW,
     },
     {
-      status: NimbusExperimentStatus.DRAFT,
-      statusNext: NimbusExperimentStatus.LIVE,
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      statusNext: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
       changelogMessage: CHANGELOG_MESSAGES.REVIEW_APPROVED,
     },
     {
-      status: NimbusExperimentStatus.DRAFT,
+      status: NimbusExperimentStatusEnum.DRAFT,
       statusNext: null,
-      publishStatus: NimbusExperimentPublishStatus.IDLE,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     },
     {
-      status: NimbusExperimentStatus.LIVE,
-      statusNext: NimbusExperimentStatus.COMPLETE,
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: NimbusExperimentStatusEnum.COMPLETE,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
       changelogMessage: CHANGELOG_MESSAGES.END_APPROVED,
     },
     {
-      status: NimbusExperimentStatus.LIVE,
+      status: NimbusExperimentStatusEnum.LIVE,
       statusNext: null,
-      publishStatus: NimbusExperimentPublishStatus.IDLE,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     },
     {
-      status: NimbusExperimentStatus.LIVE,
-      statusNext: NimbusExperimentStatus.LIVE,
-      publishStatus: NimbusExperimentPublishStatus.APPROVED,
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
       isEnrollmentPaused: true,
       changelogMessage: CHANGELOG_MESSAGES.END_ENROLLMENT_APPROVED,
     },
     {
-      status: NimbusExperimentStatus.LIVE,
+      status: NimbusExperimentStatusEnum.LIVE,
       statusNext: null,
       isEnrollmentPaused: false,
-      publishStatus: NimbusExperimentPublishStatus.IDLE,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     },
   );
 

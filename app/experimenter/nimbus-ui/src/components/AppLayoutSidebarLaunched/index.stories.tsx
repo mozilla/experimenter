@@ -12,7 +12,7 @@ import {
   MOCK_METADATA_WITH_CONFIG,
 } from "../../lib/visualization/mocks";
 import { AnalysisData } from "../../lib/visualization/types";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
 
 const Subject = ({
   analysisLoadingInSidebar,
@@ -27,7 +27,7 @@ const Subject = ({
   return (
     <RouterSlugProvider>
       <AppLayoutSidebarLaunched
-        status={mockGetStatus({ status: NimbusExperimentStatus.LIVE })}
+        status={mockGetStatus({ status: NimbusExperimentStatusEnum.LIVE })}
         {...{ analysisLoadingInSidebar, experiment, analysisError, analysis }}
       >
         <p>App contents go here</p>

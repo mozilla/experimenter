@@ -7,7 +7,7 @@ import Alert from "react-bootstrap/Alert";
 import { EXTERNAL_URLS } from "../../lib/constants";
 import { StatusCheck } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentPublishStatus } from "../../types/globalTypes";
+import { NimbusExperimentPublishStatusEnum } from "../../types/globalTypes";
 import LinkExternal from "../LinkExternal";
 import FormApproveOrReject from "./FormApproveOrReject";
 import FormRejectReason from "./FormRejectReason";
@@ -71,12 +71,12 @@ export const ChangeApprovalOperations: React.FC<
     }
 
     switch (publishStatus) {
-      case NimbusExperimentPublishStatus.APPROVED:
-      case NimbusExperimentPublishStatus.WAITING:
+      case NimbusExperimentPublishStatusEnum.APPROVED:
+      case NimbusExperimentPublishStatusEnum.WAITING:
         return canReview
           ? ChangeApprovalOperationsState.ShowRemoteSettingsPending
           : ChangeApprovalOperationsState.ApprovalPending;
-      case NimbusExperimentPublishStatus.REVIEW:
+      case NimbusExperimentPublishStatusEnum.REVIEW:
         return canReview
           ? ChangeApprovalOperationsState.ShowFormApproveOrReject
           : ChangeApprovalOperationsState.ApprovalPending;

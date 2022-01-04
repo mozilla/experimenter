@@ -10,9 +10,9 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
-  NimbusExperimentConclusionRecommendation,
-  NimbusExperimentPublishStatus,
-  NimbusExperimentStatus,
+  NimbusExperimentConclusionRecommendationEnum,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import {
   endPendingBaseProps,
@@ -66,8 +66,8 @@ export const missingRequiredFields = storyWithExperimentProps(
 
 export const draftStatus = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.DRAFT,
-    publishStatus: NimbusExperimentPublishStatus.IDLE,
+    status: NimbusExperimentStatusEnum.DRAFT,
+    publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
   },
   "Draft status, no missing fields",
 );
@@ -82,8 +82,8 @@ export const draftArchived = storyWithExperimentProps(
 
 export const previewStatus = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.PREVIEW,
-    publishStatus: NimbusExperimentPublishStatus.IDLE,
+    status: NimbusExperimentStatusEnum.PREVIEW,
+    publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     signoffRecommendations: {
       qaSignoff: true,
       vpSignoff: false,
@@ -142,7 +142,7 @@ export const reviewRejected = storyWithExperimentProps(
 
 export const liveStatus = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.LIVE,
+    status: NimbusExperimentStatusEnum.LIVE,
     isEnrollmentPaused: false,
   },
   "Live status",
@@ -220,16 +220,17 @@ export const endTimedoutCannotReview = storyWithExperimentProps(
 
 export const completeStatus = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.COMPLETE,
+    status: NimbusExperimentStatusEnum.COMPLETE,
   },
   "Complete status",
 );
 
 export const completeStatusWithTakeaways = storyWithExperimentProps(
   {
-    status: NimbusExperimentStatus.COMPLETE,
+    status: NimbusExperimentStatusEnum.COMPLETE,
     takeawaysSummary: TAKEAWAYS_SUMMARY_LONG,
-    conclusionRecommendation: NimbusExperimentConclusionRecommendation.RERUN,
+    conclusionRecommendation:
+      NimbusExperimentConclusionRecommendationEnum.RERUN,
   },
   "Complete status with takeaways",
 );
