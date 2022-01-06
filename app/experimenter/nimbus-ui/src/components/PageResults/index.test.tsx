@@ -128,11 +128,15 @@ jest.mock("../AppLayoutWithExperiment", () => ({
 
     return (
       <div data-testid="PageResults">
-        {props.children({
-          experiment,
-          analysis,
-          refetch: () => Promise.resolve(),
-        })}
+        {/* EXP-1597: pages not yet using the experiment context still
+            expect a function call */}
+        {typeof props.children === "function"
+          ? props.children({
+              experiment,
+              analysis,
+              refetch: () => Promise.resolve(),
+            })
+          : props.children}
       </div>
     );
   },
