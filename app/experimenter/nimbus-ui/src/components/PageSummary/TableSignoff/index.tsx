@@ -21,7 +21,7 @@ const TableSignoff = ({ signoffRecommendations }: TableSignoffProps) => (
           {signoffRecommendations?.qaSignoff && (
             <span className="text-success">Recommended: </span>
           )}
-          Please file a PI request.{" "}
+          Please file a QA request.{" "}
           <LinkExternal href={EXTERNAL_URLS.SIGNOFF_QA}>
             Learn More
           </LinkExternal>
