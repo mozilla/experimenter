@@ -17,7 +17,9 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import { SearchParamsStateProvider } from "../hooks";
 import { snakeToCamelCase } from "./caseConversions";
-import { MockedCache, mockExperimentQuery } from "./mocks";
+import { ExperimentContext, ExperimentContextType } from "./contexts";
+import { getStatus } from "./experiment";
+import { MockedCache, mockExperimentQuery, MOCK_EXPERIMENT } from "./mocks";
 
 export function renderWithRouter(
   ui: React.ReactElement,
@@ -32,18 +34,53 @@ export function renderWithRouter(
 export const RouterSlugProvider = ({
   path = "/demo-slug/edit",
   mocks = [],
+  disableSingleExperimentHack = false,
   children,
   mockHistorySource,
   mockHistory,
 }: {
   path?: string;
   mocks?: MockedResponse<Record<string, any>>[];
+  disableSingleExperimentHack?: boolean;
   mockHistorySource?: HistorySource;
   mockHistory?: History;
   children: React.ReactElement;
 }) => {
   const source = mockHistorySource || createMemorySource(path);
   const history = mockHistory || createHistory(source);
+
+  // HACK: many tests are using a mock apollo query result to simulate
+  // successful fetch of a single experiment. This hack is transitional
+  // to using just the context provider
+  let routeComponent;
+  if (
+    !disableSingleExperimentHack &&
+    mocks.length > 0 &&
+    !mocks[0]?.error &&
+    //@ts-ignore next hack
+    mocks[0]?.result?.data?.experimentBySlug
+  ) {
+    // Shift off the first mock to get the experiment. Subsequent mocks
+    // may be supplied for further GQL queries, so we preserve them.
+    const experiment =
+      mocks.length > 0
+        ? //@ts-ignore next hack
+          mocks!.shift()!.result!.data.experimentBySlug
+        : MOCK_EXPERIMENT;
+    routeComponent = () => (
+      <MockedCache {...{ mocks }}>
+        <MockExperimentContextProvider
+          value={{
+            experiment,
+          }}
+        >
+          {children}
+        </MockExperimentContextProvider>
+      </MockedCache>
+    );
+  } else {
+    routeComponent = () => <MockedCache {...{ mocks }}>{children}</MockedCache>;
+  }
 
   return (
     <SearchParamsStateProvider>
@@ -52,13 +89,45 @@ export const RouterSlugProvider = ({
           <Route
             path=":slug/edit"
             data-testid="app"
-            component={() => (
-              <MockedCache {...{ mocks }}>{children}</MockedCache>
-            )}
+            component={routeComponent}
           />
         </Router>
       </LocationProvider>
     </SearchParamsStateProvider>
+  );
+};
+
+export const MockExperimentContextProvider = ({
+  children,
+  value: overrides = {},
+}: {
+  children: React.ReactElement;
+  value?: Partial<ExperimentContextType>;
+}) => {
+  const experiment =
+    overrides.experiment ||
+    (MOCK_EXPERIMENT! as ExperimentContextType["experiment"]);
+
+  const value: ExperimentContextType = {
+    slug: "demo-slug",
+    loading: false,
+    notFound: false,
+    error: undefined,
+    experiment,
+    status: getStatus(experiment),
+    analysis: undefined,
+    fetchAnalysis: () => {},
+    analysisFetchStatus: "not-requested",
+    analysisError: undefined,
+    refetch: () => Promise.resolve(),
+    startPolling: () => {},
+    stopPolling: () => {},
+    ...overrides,
+  };
+  return (
+    <ExperimentContext.Provider value={value}>
+      {children}
+    </ExperimentContext.Provider>
   );
 };
 

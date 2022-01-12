@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import {
+  createHistory,
+  createMemorySource,
+  LocationProvider,
+} from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import LinkNavSummary from ".";
@@ -29,19 +34,27 @@ const Subject = ({
   showSummaryAction = true,
   canReview = false,
   isArchived = false,
-}: SubjectProps) => (
-  <LinkNavSummary
-    slug="my-beautiful-slug"
-    status={mockGetStatus({
-      status,
-      statusNext,
-      publishStatus,
-      isEnrollmentPausePending,
-      isArchived,
-    })}
-    {...{ showSummaryAction, canReview }}
-  />
-);
+}: SubjectProps) => {
+  // Create a LocationProvider context since LinkNav uses `useLocation()`
+  // to detect current page
+  const source = createMemorySource("/");
+  const history = createHistory(source);
+  return (
+    <LocationProvider history={history}>
+      <LinkNavSummary
+        slug="my-beautiful-slug"
+        status={mockGetStatus({
+          status,
+          statusNext,
+          publishStatus,
+          isEnrollmentPausePending,
+          isArchived,
+        })}
+        {...{ showSummaryAction, canReview }}
+      />
+    </LocationProvider>
+  );
+};
 
 describe("LinkNavSummary", () => {
   it("renders 'Request Launch' when expected", () => {

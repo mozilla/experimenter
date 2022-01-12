@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from "@reach/router";
-import React, { useMemo, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import { useChangeOperationMutation, useReviewCheck } from "../../hooks";
 import {
   CHANGELOG_MESSAGES,
   LIFECYCLE_REVIEW_FLOWS,
 } from "../../lib/constants";
+import { ExperimentContext } from "../../lib/contexts";
 import { getStatus, getSummaryAction } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
@@ -33,20 +33,23 @@ type PageSummaryProps = {
 const PageSummary = ({
   /* istanbul ignore next - only used in tests & stories */
   polling = true,
-}: PageSummaryProps) => (
-  <AppLayoutWithExperiment
-    testId="PageSummary"
-    setHead={false}
-    {...{ polling }}
-  >
-    {({ experiment, refetch }) => <PageContent {...{ experiment, refetch }} />}
-  </AppLayoutWithExperiment>
-);
+}: PageSummaryProps) => {
+  return (
+    <AppLayoutWithExperiment
+      testId="PageSummary"
+      setHead={false}
+      {...{ polling }}
+    >
+      {/* EXP-1597: Use of this PageContent component should be temporary
+          until / unless we move the experiment not found and reload
+          polling out of the app layout and into ExperimentRoot in router */}
+      <PageContent />
+    </AppLayoutWithExperiment>
+  );
+};
 
-const PageContent: React.FC<{
-  experiment: getExperiment_experimentBySlug;
-  refetch: () => Promise<unknown>;
-}> = ({ experiment, refetch }) => {
+const PageContent = () => {
+  const { experiment, refetch } = useContext(ExperimentContext)!;
   const [showLaunchToReview, setShowLaunchToReview] = useState(false);
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
   const takeawaysProps = useTakeaways(experiment, refetch);

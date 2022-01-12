@@ -7,7 +7,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./components/App";
 import AppErrorBoundary from "./components/AppErrorBoundary";
-import { BASE_PATH } from "./lib/constants";
 import { createApolloClient } from "./services/apollo";
 import config, { readConfig } from "./services/config";
 import sentryMetrics from "./services/sentry";
@@ -25,7 +24,7 @@ try {
     <React.StrictMode>
       <AppErrorBoundary>
         <ApolloProvider client={createApolloClient()}>
-          <App basepath={BASE_PATH} />
+          <App />
         </ApolloProvider>
       </AppErrorBoundary>
     </React.StrictMode>,

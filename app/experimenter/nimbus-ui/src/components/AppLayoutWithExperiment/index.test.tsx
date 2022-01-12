@@ -12,6 +12,7 @@ import { BASE_PATH } from "../../lib/constants";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentPublishStatusEnum } from "../../types/globalTypes";
+import ExperimentRoot from "../App/ExperimentRoot";
 
 describe("AppLayoutWithExperiment", () => {
   it("renders as expected with default props", async () => {
@@ -153,15 +154,19 @@ const Subject = ({
   polling,
   title,
   redirect,
+  disableSingleExperimentHack = true,
 }: {
   mocks?: MockedResponse[];
   polling?: boolean;
   title?: string;
   redirect?: (check: RedirectCheck) => void;
+  disableSingleExperimentHack?: boolean;
 }) => (
-  <RouterSlugProvider {...{ mocks }}>
-    <AppLayoutWithExperiment {...{ title, polling, redirect }}>
-      {({ experiment }) => <p>{experiment.slug}</p>}
-    </AppLayoutWithExperiment>
+  <RouterSlugProvider {...{ mocks, disableSingleExperimentHack }}>
+    <ExperimentRoot basepath="/">
+      <AppLayoutWithExperiment {...{ title, polling, redirect }}>
+        {({ experiment }) => <p>{experiment.slug}</p>}
+      </AppLayoutWithExperiment>
+    </ExperimentRoot>
   </RouterSlugProvider>
 );
