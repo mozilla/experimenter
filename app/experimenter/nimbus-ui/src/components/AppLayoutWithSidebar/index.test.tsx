@@ -40,19 +40,12 @@ describe("AppLayoutWithSidebar", () => {
     });
 
     it("renders expected active page class", async () => {
-      function pushState(page: string) {
-        window.history.pushState(
-          {},
-          "",
-          `${BASE_PATH}/my-special-slug/${page}`,
-        );
-      }
       const { mock } = mockExperimentQuery("my-special-slug");
       const {
         history: { navigate },
       } = renderWithRouter(
         <MockedCache mocks={[mock, mock, mock]}>
-          <App basepath="/" />
+          <App />
         </MockedCache>,
         {
           route: `/my-special-slug/`,
@@ -61,8 +54,7 @@ describe("AppLayoutWithSidebar", () => {
 
       let overviewLink: HTMLElement, branchesLink: HTMLElement;
 
-      pushState("edit/overview");
-      await act(() => navigate("/my-special-slug/edit/overview"));
+      await act(() => navigate(`${BASE_PATH}/my-special-slug/edit/overview`));
       await waitFor(() => {
         overviewLink = screen.getByTestId("nav-edit-overview");
         branchesLink = screen.getByTestId("nav-edit-branches");
@@ -72,8 +64,7 @@ describe("AppLayoutWithSidebar", () => {
       expect(branchesLink!).toHaveClass("text-dark");
       expect(branchesLink!).not.toHaveClass("text-primary");
 
-      pushState("edit/branches");
-      await act(() => navigate("/my-special-slug/edit/branches"));
+      await act(() => navigate(`${BASE_PATH}/my-special-slug/edit/branches`));
       await waitFor(() => {
         overviewLink = screen.getByTestId("nav-edit-overview");
         branchesLink = screen.getByTestId("nav-edit-branches");

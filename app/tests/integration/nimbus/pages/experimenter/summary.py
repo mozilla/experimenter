@@ -113,6 +113,10 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def launch_without_preview(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._launch_without_preview_locator),
+            message="Summary Page: could not find launch without preview button",
+        )
         return self.find_element(*self._launch_without_preview_locator)
 
     def launch_to_preview(self):
