@@ -7,6 +7,7 @@ import { Redirect, RouteComponentProps, Router } from "@reach/router";
 import React from "react";
 import { GET_CONFIG_QUERY } from "../../gql/config";
 import { SearchParamsStateProvider, useRefetchOnError } from "../../hooks";
+import { BASE_PATH } from "../../lib/constants";
 import PageEditAudience from "../PageEditAudience";
 import PageEditBranches from "../PageEditBranches";
 import PageEditMetrics from "../PageEditMetrics";
@@ -17,6 +18,7 @@ import PageNew from "../PageNew";
 import PageResults from "../PageResults";
 import PageSummary from "../PageSummary";
 import PageSummaryDetail from "../PageSummaryDetails";
+import ExperimentRoot from "./ExperimentRoot";
 
 type RootProps = {
   children: React.ReactNode;
@@ -24,7 +26,7 @@ type RootProps = {
 
 const Root = (props: RootProps) => <>{props.children}</>;
 
-const App = ({ basepath }: { basepath: string }) => {
+const App = () => {
   const { loading, error, refetch } = useQuery(GET_CONFIG_QUERY);
   const ErrorAlert = useRefetchOnError(error, refetch, "mt-0");
 
@@ -38,19 +40,21 @@ const App = ({ basepath }: { basepath: string }) => {
 
   return (
     <SearchParamsStateProvider>
-      <Router {...{ basepath }}>
+      <Router basepath={BASE_PATH}>
         <PageHome path="/" />
         <PageNew path="new" />
-        <PageSummary path=":slug" />
-        <PageSummaryDetail path=":slug/details" />
-        <Root path=":slug/edit">
-          <Redirect from="/" to="overview" noThrow />
-          <PageEditOverview path="overview" />
-          <PageEditBranches path="branches" />
-          <PageEditMetrics path="metrics" />
-          <PageEditAudience path="audience" />
-        </Root>
-        <PageResults path=":slug/results" />
+        <ExperimentRoot path=":slug">
+          <PageSummary path="/" />
+          <PageSummaryDetail path="details" />
+          <Root path="edit">
+            <Redirect from="/" to="overview" noThrow />
+            <PageEditOverview path="overview" />
+            <PageEditBranches path="branches" />
+            <PageEditMetrics path="metrics" />
+            <PageEditAudience path="audience" />
+          </Root>
+          <PageResults path="results" />
+        </ExperimentRoot>
       </Router>
     </SearchParamsStateProvider>
   );

@@ -3,11 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as apollo from "@apollo/client";
+import { MockedResponse } from "@apollo/client/testing";
 import { screen, waitFor } from "@testing-library/react";
 import React, { ReactNode } from "react";
 import { act } from "react-dom/test-utils";
 import App from ".";
 import { REFETCH_DELAY } from "../../hooks";
+import { BASE_PATH } from "../../lib/constants";
 import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
 import { renderWithRouter } from "../../lib/test-utils";
 
@@ -18,12 +20,7 @@ describe("App", () => {
     (jest.spyOn(apollo, "useQuery") as jest.Mock).mockReturnValueOnce({
       loading: true,
     });
-
-    renderWithRouter(
-      <MockedCache mocks={[]}>
-        <App basepath="/" />
-      </MockedCache>,
-    );
+    renderSubject([]);
     expect(screen.getByTestId("page-loading")).toBeInTheDocument();
   });
 
@@ -37,11 +34,8 @@ describe("App", () => {
       refetch,
     });
 
-    renderWithRouter(
-      <MockedCache mocks={[]}>
-        <App basepath="/" />
-      </MockedCache>,
-    );
+    renderSubject([]);
+
     expect(screen.queryByTestId("refetch-alert")).toBeInTheDocument();
     act(() => {
       jest.advanceTimersByTime(REFETCH_DELAY);
@@ -50,45 +44,47 @@ describe("App", () => {
     spy.mockRestore();
   });
 
-  it("routes to PageHome page", () => {
-    renderWithRouter(
-      <MockedCache>
-        <App basepath="/" />
-      </MockedCache>,
-    );
+  it("routes to PageHome page", async () => {
+    const { navigate } = renderSubject();
+    await act(() => navigate());
     expect(screen.getByTestId("PageHome")).toBeInTheDocument();
   });
 
-  it("routes to PageNew page", () => {
-    renderWithRouter(
-      <MockedCache>
-        <App basepath="/foo/bar" />
-      </MockedCache>,
-      {
-        route: "/foo/bar/new",
-      },
-    );
+  it("routes to PageNew page", async () => {
+    const { navigate } = renderSubject();
+    await act(() => navigate("/new"));
     expect(screen.getByTestId("PageNew")).toBeInTheDocument();
   });
 
   describe(":slug routes", () => {
     it("redirects from ':slug/edit' to ':slug/edit/overview'", async () => {
-      renderWithRouter(
-        <MockedCache mocks={[mock]}>
-          <App basepath="/" />
-        </MockedCache>,
-        {
-          route: `/my-special-slug/edit`,
-        },
-      );
-
-      // waitFor the redirect
+      const { navigate } = renderSubject();
+      await act(() => navigate("/my-special-slug/edit"));
       await waitFor(() => {
         expect(screen.getByTestId("PageEditOverview")).toBeInTheDocument();
       });
     });
   });
 });
+
+const renderSubject = (
+  mocks: MockedResponse<Record<string, any>>[] = [mock],
+) => {
+  const {
+    history: { navigate },
+  } = renderWithRouter(
+    <MockedCache mocks={mocks}>
+      <App />
+    </MockedCache>,
+    {
+      route: `/my-special-slug/`,
+    },
+  );
+  return {
+    // Modified `navigate` to include BASE_PATH from constants
+    navigate: (path = "") => navigate(`${BASE_PATH}${path}`),
+  };
+};
 
 jest.mock("../PageHome", () => ({
   __esModule: true,

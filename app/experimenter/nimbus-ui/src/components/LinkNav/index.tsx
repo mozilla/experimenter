@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Link } from "@reach/router";
+import { Link, useLocation } from "@reach/router";
 import classNames from "classnames";
 import React from "react";
 import { Button } from "react-bootstrap";
@@ -34,10 +34,8 @@ export const LinkNav = ({
   onClick,
   useButton = false,
 }: LinkNavProps) => {
+  const location = useLocation();
   const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
-  // an alternative to reach-router's `isCurrent` with identical
-  // functionality; explicitly setting it here allows us to test.
-  // eslint-disable-next-line
   const isCurrentPage = location.pathname === to;
 
   // If we supplied a text color, use it. Otherwise use current page colors
