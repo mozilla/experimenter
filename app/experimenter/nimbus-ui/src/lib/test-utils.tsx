@@ -97,6 +97,8 @@ export const RouterSlugProvider = ({
   );
 };
 
+const noop = () => jest.fn();
+
 export const MockExperimentContextProvider = ({
   children,
   value: overrides = {},
@@ -110,18 +112,14 @@ export const MockExperimentContextProvider = ({
 
   const value: ExperimentContextType = {
     slug: "demo-slug",
-    loading: false,
-    notFound: false,
-    error: undefined,
     experiment,
     status: getStatus(experiment),
-    analysis: undefined,
-    fetchAnalysis: () => {},
-    analysisFetchStatus: "not-requested",
-    analysisError: undefined,
-    refetch: () => Promise.resolve(),
-    startPolling: () => {},
-    stopPolling: () => {},
+    refetch: noop(),
+    useRedirectCondition: noop(),
+    useExperimentPolling: noop(),
+    useAnalysisRequired: noop(),
+    polling: false,
+    analysisRequired: false,
     ...overrides,
   };
   return (
@@ -131,7 +129,7 @@ export const MockExperimentContextProvider = ({
   );
 };
 
-const Route = (
+export const Route = (
   props: { component: () => React.ReactNode } & RouteComponentProps,
 ) => <div {...{ props }}>{props.component()}</div>;
 

@@ -81,3 +81,5 @@ export const LinkNav = ({
     </Nav.Item>
   );
 };
+
+export default LinkNav;

@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import React from "react";
 import { BASE_PATH, SERVER_ERRORS } from "../../lib/constants";
-import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
-import { renderWithRouter } from "../../lib/test-utils";
-import App from "../App";
 import { Subject } from "./mocks";
 
 describe("AppLayoutWithSidebar", () => {
@@ -37,42 +34,6 @@ describe("AppLayoutWithSidebar", () => {
         "href",
         `${BASE_PATH}/my-special-slug/edit/audience`,
       );
-    });
-
-    it("renders expected active page class", async () => {
-      const { mock } = mockExperimentQuery("my-special-slug");
-      const {
-        history: { navigate },
-      } = renderWithRouter(
-        <MockedCache mocks={[mock, mock, mock]}>
-          <App />
-        </MockedCache>,
-        {
-          route: `/my-special-slug/`,
-        },
-      );
-
-      let overviewLink: HTMLElement, branchesLink: HTMLElement;
-
-      await act(() => navigate(`${BASE_PATH}/my-special-slug/edit/overview`));
-      await waitFor(() => {
-        overviewLink = screen.getByTestId("nav-edit-overview");
-        branchesLink = screen.getByTestId("nav-edit-branches");
-      });
-      expect(overviewLink!).toHaveClass("text-primary");
-      expect(overviewLink!).not.toHaveClass("text-dark");
-      expect(branchesLink!).toHaveClass("text-dark");
-      expect(branchesLink!).not.toHaveClass("text-primary");
-
-      await act(() => navigate(`${BASE_PATH}/my-special-slug/edit/branches`));
-      await waitFor(() => {
-        overviewLink = screen.getByTestId("nav-edit-overview");
-        branchesLink = screen.getByTestId("nav-edit-branches");
-      });
-      expect(branchesLink!).toHaveClass("text-primary");
-      expect(branchesLink!).not.toHaveClass("text-dark");
-      expect(overviewLink!).toHaveClass("text-dark");
-      expect(overviewLink!).not.toHaveClass("text-primary");
     });
 
     it("renders information about missing experiment details", async () => {

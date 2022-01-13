@@ -26,30 +26,11 @@ import FormLaunchPreviewToReview from "./FormLaunchPreviewToReview";
 import TableSignoff from "./TableSignoff";
 import Takeaways, { useTakeaways } from "./Takeaways";
 
-type PageSummaryProps = {
-  polling?: boolean;
-} & RouteComponentProps;
+const PageSummary = (props: RouteComponentProps) => {
+  const { experiment, refetch, useExperimentPolling } =
+    useContext(ExperimentContext)!;
+  useExperimentPolling();
 
-const PageSummary = ({
-  /* istanbul ignore next - only used in tests & stories */
-  polling = true,
-}: PageSummaryProps) => {
-  return (
-    <AppLayoutWithExperiment
-      testId="PageSummary"
-      setHead={false}
-      {...{ polling }}
-    >
-      {/* EXP-1597: Use of this PageContent component should be temporary
-          until / unless we move the experiment not found and reload
-          polling out of the app layout and into ExperimentRoot in router */}
-      <PageContent />
-    </AppLayoutWithExperiment>
-  );
-};
-
-const PageContent = () => {
-  const { experiment, refetch } = useContext(ExperimentContext)!;
   const [showLaunchToReview, setShowLaunchToReview] = useState(false);
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
   const takeawaysProps = useTakeaways(experiment, refetch);
@@ -177,7 +158,7 @@ const PageContent = () => {
   ]);
 
   return (
-    <>
+    <AppLayoutWithExperiment testId="PageSummary" setHead={false}>
       {status.complete && <Takeaways {...takeawaysProps} />}
 
       <Head title={`${experiment.name} – ${summaryTitle}`} />
@@ -256,7 +237,7 @@ const PageContent = () => {
 
       <h2 className="mt-3 mb-4 h4">Summary</h2>
       <Summary {...{ experiment, refetch, withFullDetails: false }} />
-    </>
+    </AppLayoutWithExperiment>
   );
 };
 

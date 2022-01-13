@@ -7,9 +7,13 @@ import fetchMock from "jest-fetch-mock";
 import React from "react";
 import { act } from "react-dom/test-utils";
 import PageResults from ".";
+import { ExperimentContextType, RedirectCondition } from "../../lib/contexts";
 import { getStatus as mockGetStatus } from "../../lib/experiment";
 import { mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
+import {
+  MockExperimentContextProvider,
+  RouterSlugProvider,
+} from "../../lib/test-utils";
 import {
   mockAnalysis,
   MOCK_METADATA_WITH_CONFIG,
@@ -18,17 +22,9 @@ import {
 import { AnalysisData } from "../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
-import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-
-const Subject = () => (
-  <RouterSlugProvider>
-    <PageResults />
-  </RouterSlugProvider>
-);
 
 let mockExperiment: getExperiment_experimentBySlug;
 let mockAnalysisData: AnalysisData | undefined;
-let redirectPath: string | void;
 
 describe("PageResults", () => {
   beforeAll(() => {
@@ -40,7 +36,6 @@ describe("PageResults", () => {
   });
 
   it("renders as expected", async () => {
-    mockExperiment = mockExperimentQuery("demo-slug").experiment;
     render(<Subject />);
     await waitFor(() => {
       expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
@@ -48,8 +43,6 @@ describe("PageResults", () => {
   });
 
   it("fetches analysis data and displays expected tables when analysis is ready", async () => {
-    mockExperiment = mockExperimentQuery("demo-slug").experiment;
-    mockAnalysisData = mockAnalysis();
     render(<Subject />);
 
     await waitFor(() => {
@@ -66,78 +59,102 @@ describe("PageResults", () => {
   });
 
   it("displays the external config alert when an override exists", async () => {
-    mockExperiment = mockExperimentQuery("demo-slug").experiment;
-    mockAnalysisData = mockAnalysis({ metadata: MOCK_METADATA_WITH_CONFIG });
-    render(<Subject />);
+    render(
+      <Subject
+        mockAnalysisData={mockAnalysis({ metadata: MOCK_METADATA_WITH_CONFIG })}
+      />,
+    );
 
     await screen.findByTestId("external-config-alert");
   });
 
   it("redirects to the edit overview page if the experiment status is draft", async () => {
-    mockExperiment = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatusEnum.DRAFT,
-    }).experiment;
-    render(<Subject />);
-    expect(redirectPath).toEqual("edit/overview");
+    expect(
+      redirectTestCommon({
+        mockExperiment: mockExperimentQuery("demo-slug", {
+          status: NimbusExperimentStatusEnum.DRAFT,
+        }).experiment,
+      }),
+    ).toEqual("edit/overview");
   });
 
   it("redirects to the summary page if the visualization flag is set to false", async () => {
-    mockAnalysisData = mockAnalysis({ show_analysis: false });
-    mockExperiment = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatusEnum.COMPLETE,
-    }).experiment;
-    render(<Subject />);
-    expect(redirectPath).toEqual("");
+    expect(
+      redirectTestCommon({
+        mockAnalysisData: mockAnalysis({ show_analysis: false }),
+        mockExperiment: mockExperimentQuery("demo-slug", {
+          status: NimbusExperimentStatusEnum.COMPLETE,
+        }).experiment,
+      }),
+    ).toEqual("");
   });
 
   it("redirects to the summary page if the visualization results are not ready", async () => {
-    mockAnalysisData = MOCK_UNAVAILABLE_ANALYSIS;
-    mockExperiment = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatusEnum.COMPLETE,
-    }).experiment;
-    render(<Subject />);
-    expect(redirectPath).toEqual("");
-  });
-});
-
-it("displays grouped metrics via onClick", async () => {
-  mockExperiment = mockExperimentQuery("demo-slug").experiment;
-  mockAnalysisData = mockAnalysis();
-  render(<Subject />);
-  await waitFor(() => {
-    expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
+    expect(
+      redirectTestCommon({
+        mockAnalysisData: MOCK_UNAVAILABLE_ANALYSIS,
+        mockExperiment: mockExperimentQuery("demo-slug", {
+          status: NimbusExperimentStatusEnum.COMPLETE,
+        }).experiment,
+      }),
+    ).toEqual("");
   });
 
-  await act(async () => {
-    fireEvent.click(screen.getByText("Hide other metrics"));
-  });
-  expect(screen.getByText("Show other metrics")).toBeInTheDocument();
-});
-
-// Mocking form component because validation is exercised in its own tests.
-jest.mock("../AppLayoutWithExperiment", () => ({
-  __esModule: true,
-  default: (props: React.ComponentProps<typeof AppLayoutWithExperiment>) => {
-    const experiment = mockExperiment;
-    const analysis = mockAnalysisData;
-
-    redirectPath = props.redirect!({
-      status: mockGetStatus(experiment),
+  const redirectTestCommon = (props: React.ComponentProps<typeof Subject>) => {
+    const { mockAnalysisData, mockExperiment } = props;
+    const useRedirectCondition = jest.fn();
+    render(
+      <Subject
+        {...{
+          ...props,
+          context: {
+            useRedirectCondition,
+          },
+        }}
+      />,
+    );
+    expect(useRedirectCondition).toHaveBeenCalled();
+    const condition = useRedirectCondition.mock
+      .calls[0][0] as RedirectCondition;
+    return condition({
       analysis: mockAnalysisData,
+      status: mockGetStatus(mockExperiment),
+    });
+  };
+
+  xit("displays grouped metrics via onClick", async () => {
+    render(<Subject />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
     });
 
-    return (
-      <div data-testid="PageResults">
-        {/* EXP-1597: pages not yet using the experiment context still
-            expect a function call */}
-        {typeof props.children === "function"
-          ? props.children({
-              experiment,
-              analysis,
-              refetch: () => Promise.resolve(),
-            })
-          : props.children}
-      </div>
-    );
-  },
-}));
+    await act(async () => {
+      fireEvent.click(screen.getByText("Hide other metrics"));
+    });
+    expect(screen.getByText("Show other metrics")).toBeInTheDocument();
+  });
+});
+
+const Subject = ({
+  mockExperiment = mockExperimentQuery("demo-slug").experiment,
+  mockAnalysisData = mockAnalysis(),
+  context = {},
+}: {
+  mockExperiment?: getExperiment_experimentBySlug;
+  mockAnalysisData?: AnalysisData | undefined;
+  context?: Partial<ExperimentContextType>;
+}) => (
+  <RouterSlugProvider>
+    <MockExperimentContextProvider
+      value={{
+        experiment: mockExperiment,
+        analysis: mockAnalysisData,
+        status: mockGetStatus(mockExperiment),
+        analysisRequired: true,
+        ...context,
+      }}
+    >
+      <PageResults />
+    </MockExperimentContextProvider>
+  </RouterSlugProvider>
+);

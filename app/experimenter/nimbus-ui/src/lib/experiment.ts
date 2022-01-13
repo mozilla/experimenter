@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RedirectCheck } from "../components/AppLayoutWithExperiment";
+import { RedirectCheck } from "../lib/contexts";
 import { getAllExperiments_experiments } from "../types/getAllExperiments";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
 import {
@@ -53,7 +53,9 @@ export function getStatus(
 export type StatusCheck = ReturnType<typeof getStatus>;
 
 // Common redirects used on all Edit page components
-export function editCommonRedirects({ status }: RedirectCheck) {
+//export function editCommonRedirects({ status }: RedirectCheck) {
+export function editCommonRedirects(check: RedirectCheck) {
+  const { status } = check;
   // If experiment is launched or the user can't edit the experiment,
   // send them to the summary page
   if (status.launched || !status.idle || status.preview || status.archived) {

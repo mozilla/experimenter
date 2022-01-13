@@ -5,11 +5,7 @@
 import { RouteComponentProps } from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import {
-  AppLayoutSidebarLaunched,
-  RESULTS_LOADING_TEXT,
-  RESULTS_WAITING_FOR_LAUNCH_TEXT,
-} from ".";
+import { AppLayoutSidebarLaunched, RESULTS_WAITING_FOR_LAUNCH_TEXT } from ".";
 import { BASE_PATH } from "../../lib/constants";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
@@ -35,7 +31,6 @@ const Subject = ({
   withAnalysis = false,
   analysisError,
   analysis,
-  analysisLoadingInSidebar = false,
   analysisRequired = true,
   experiment = defaultExperiment,
 }: RouteComponentProps & {
@@ -44,7 +39,6 @@ const Subject = ({
   withAnalysis?: boolean;
   analysis?: AnalysisData;
   analysisError?: boolean;
-  analysisLoadingInSidebar?: boolean;
   analysisRequired?: boolean;
   experiment?: getExperiment_experimentBySlug;
 }) => {
@@ -65,7 +59,6 @@ const Subject = ({
       <AppLayoutSidebarLaunched
         {...{
           status: mockGetStatus({ status, publishStatus }),
-          analysisLoadingInSidebar,
           analysisRequired,
           analysisError: analysisError ? new Error("boop") : undefined,
           analysis: mockedAnalysis,
@@ -106,15 +99,6 @@ describe("AppLayoutSidebarLaunched", () => {
       expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
       expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
         "Could not get visualization data. Please contact data science",
-      );
-    });
-
-    it("when complete and analysis is required in sidebar and loading", () => {
-      render(<Subject analysisLoadingInSidebar />);
-
-      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
-      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
-        RESULTS_LOADING_TEXT,
       );
     });
 
