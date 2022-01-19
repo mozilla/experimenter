@@ -27,7 +27,6 @@ class ApplicationConfig:
     channel_app_id: Dict[str, str]
     kinto_collection: str
     randomization_unit: str
-    supports_locale_country: bool
 
 
 APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
@@ -43,7 +42,6 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
-    supports_locale_country=True,
 )
 
 APPLICATION_CONFIG_FENIX = ApplicationConfig(
@@ -57,7 +55,6 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
-    supports_locale_country=False,
 )
 
 APPLICATION_CONFIG_IOS = ApplicationConfig(
@@ -71,7 +68,6 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
-    supports_locale_country=False,
 )
 
 APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
@@ -85,7 +81,6 @@ APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
-    supports_locale_country=False,
 )
 
 APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
@@ -97,7 +92,6 @@ APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
-    supports_locale_country=False,
 )
 
 
@@ -111,7 +105,6 @@ APPLICATION_CONFIG_FOCUS_IOS = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
-    supports_locale_country=False,
 )
 
 APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
@@ -124,7 +117,6 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
-    supports_locale_country=False,
 )
 
 
