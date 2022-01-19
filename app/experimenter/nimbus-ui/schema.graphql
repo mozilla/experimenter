@@ -322,6 +322,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_95
   FIREFOX_96
   FIREFOX_9601
+  FIREFOX_9602
   FIREFOX_97
   FIREFOX_98
   FIREFOX_99
