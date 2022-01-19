@@ -196,7 +196,6 @@ type NimbusDocumentationLinkType {
 type NimbusExperimentApplicationConfigType {
   application: NimbusExperimentApplicationEnum
   channels: [NimbusLabelValueType]
-  supportsLocaleCountry: Boolean
 }
 
 enum NimbusExperimentApplicationEnum {
