@@ -32,7 +32,6 @@ export interface getConfig_nimbusConfig_applicationConfigs_channels {
 export interface getConfig_nimbusConfig_applicationConfigs {
   application: NimbusExperimentApplicationEnum | null;
   channels: (getConfig_nimbusConfig_applicationConfigs_channels | null)[] | null;
-  supportsLocaleCountry: boolean | null;
 }
 
 export interface getConfig_nimbusConfig_featureConfigs {

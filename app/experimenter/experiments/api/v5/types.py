@@ -100,7 +100,6 @@ class NimbusUserType(DjangoObjectType):
 class NimbusExperimentApplicationConfigType(graphene.ObjectType):
     application = NimbusExperimentApplicationEnum()
     channels = graphene.List(NimbusLabelValueType)
-    supports_locale_country = graphene.Boolean()
 
 
 class NimbusExperimentTargetingConfigType(graphene.ObjectType):
@@ -254,7 +253,6 @@ class NimbusConfigurationType(graphene.ObjectType):
                         for channel in NimbusExperiment.Channel
                         if channel in application_config.channel_app_id
                     ],
-                    supports_locale_country=application_config.supports_locale_country,
                 )
             )
         return configs

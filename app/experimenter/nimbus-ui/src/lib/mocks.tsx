@@ -129,7 +129,6 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
           value: "PLATYPUS_DOORSTOP",
         },
       ],
-      supportsLocaleCountry: true,
     },
     {
       application: NimbusExperimentApplicationEnum.FENIX,
@@ -147,7 +146,6 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
           value: "PLATYPUS_DOORSTOP",
         },
       ],
-      supportsLocaleCountry: false,
     },
     {
       application: NimbusExperimentApplicationEnum.IOS,
@@ -165,7 +163,6 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
           value: "PLATYPUS_DOORSTOP",
         },
       ],
-      supportsLocaleCountry: false,
     },
   ],
   featureConfigs: [

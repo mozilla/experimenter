@@ -1070,7 +1070,6 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                             label
                             value
                         }
-                        supportsLocaleCountry
                     }
                     firefoxVersions {
                         label
@@ -1146,10 +1145,6 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                 set(
                     [channel.name for channel in application_config.channel_app_id.keys()]
                 ),
-            )
-            self.assertEqual(
-                application_config_data["supportsLocaleCountry"],
-                application_config.supports_locale_country,
             )
 
         self.assertEqual(config["owners"], [{"username": experiment.owner.username}])
