@@ -4,16 +4,16 @@
 
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import {
   CHANGELOG_MESSAGES,
   SAVE_FAILED_NO_ERROR,
   SUBMIT_ERROR,
 } from "../../lib/constants";
+import { ExperimentContext } from "../../lib/contexts";
 import { editCommonRedirects } from "../../lib/experiment";
 import { optionalStringBool } from "../../lib/utils";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment as UpdateExperimentOverviewResult } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
@@ -22,14 +22,16 @@ import FormOverview from "../FormOverview";
 type PageEditOverviewProps = Record<string, any> & RouteComponentProps;
 
 const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
+  const { experiment, refetch, useRedirectCondition } =
+    useContext(ExperimentContext)!;
+  useRedirectCondition(editCommonRedirects);
+
   const [updateExperimentOverview, { loading }] = useMutation<
     { updateExperiment: UpdateExperimentOverviewResult },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
-  const currentExperiment = useRef<getExperiment_experimentBySlug>();
-  const refetchReview = useRef<() => void>();
   const [isServerValid, setIsServerValid] = useState(true);
 
   const onFormSubmit = useCallback(
@@ -49,7 +51,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
         const result = await updateExperimentOverview({
           variables: {
             input: {
-              id: currentExperiment.current!.id,
+              id: experiment!.id,
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_OVERVIEW,
               name,
               hypothesis,
@@ -74,8 +76,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
         } else {
           setIsServerValid(true);
           setSubmitErrors({});
-          // In practice this should be defined by the time we get here
-          refetchReview.current!();
+          refetch();
 
           if (next) {
             navigate(`branches`);
@@ -85,32 +86,21 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
         setSubmitErrors({ "*": SUBMIT_ERROR });
       }
     },
-    [updateExperimentOverview, currentExperiment],
+    [updateExperimentOverview, experiment, refetch],
   );
 
   return (
-    <AppLayoutWithExperiment
-      title="Overview"
-      testId="PageEditOverview"
-      redirect={editCommonRedirects}
-    >
-      {({ experiment, refetch }) => {
-        currentExperiment.current = experiment;
-        refetchReview.current = refetch;
-
-        return (
-          <FormOverview
-            {...{
-              isLoading: loading,
-              isServerValid,
-              experiment,
-              submitErrors,
-              setSubmitErrors,
-              onSubmit: onFormSubmit,
-            }}
-          />
-        );
-      }}
+    <AppLayoutWithExperiment title="Overview" testId="PageEditOverview">
+      <FormOverview
+        {...{
+          isLoading: loading,
+          isServerValid,
+          experiment,
+          submitErrors,
+          setSubmitErrors,
+          onSubmit: onFormSubmit,
+        }}
+      />
     </AppLayoutWithExperiment>
   );
 };

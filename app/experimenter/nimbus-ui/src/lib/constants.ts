@@ -160,3 +160,5 @@ export const URL_FIELD = {
 } as RegisterOptions;
 
 export const IMAGE_UPLOAD_ACCEPT = ".gif,.jpg,.jpeg,.png";
+
+export const POLL_INTERVAL = 30000;
