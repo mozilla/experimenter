@@ -5,20 +5,31 @@
 import { withLinks } from "@storybook/addon-links";
 import React from "react";
 import AppLayoutWithExperiment, { AppLayoutWithExperimentProps } from ".";
+import { ExperimentContextType } from "../../lib/contexts";
 import { mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
+import {
+  MockExperimentContextProvider,
+  RouterSlugProvider,
+} from "../../lib/test-utils";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 
 const Subject = ({
+  context = {},
   ...props
-}: Omit<AppLayoutWithExperimentProps, "children">) => (
-  <AppLayoutWithExperiment title="Howdy!" {...props}>
-    {({ experiment }) => <p>{experiment.name}</p>}
-  </AppLayoutWithExperiment>
-);
+}: {
+  context?: Partial<ExperimentContextType>;
+} & Omit<AppLayoutWithExperimentProps, "children">) => {
+  return (
+    <MockExperimentContextProvider value={context}>
+      <AppLayoutWithExperiment title="Howdy!" {...props}>
+        <p>Experiment goes here</p>
+      </AppLayoutWithExperiment>
+    </MockExperimentContextProvider>
+  );
+};
 
 export default {
   title: "components/AppLayoutWithExperiment",
@@ -64,9 +75,6 @@ export const PublishStatusReview = storyWithProps(
 
 export const PollingError = storyWithProps(
   mockExperimentQuery("demo-slug"),
-  {
-    polling: true,
-    pollInterval: 2000,
-  },
-  "Polling error (wait 2 seconds)",
+  { context: { hasPollError: true } },
+  "Polling error",
 );

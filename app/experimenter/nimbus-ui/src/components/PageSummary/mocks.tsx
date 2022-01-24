@@ -65,7 +65,7 @@ export const Subject = ({
 }) => {
   return (
     <RouterSlugProvider {...{ mocks }}>
-      <PageSummary polling={false} />
+      <PageSummary />
     </RouterSlugProvider>
   );
 };

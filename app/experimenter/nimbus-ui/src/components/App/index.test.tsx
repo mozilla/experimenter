@@ -96,6 +96,11 @@ jest.mock("../PageNew", () => ({
   default: mockComponent("PageNew"),
 }));
 
+jest.mock("../PageEditOverview", () => ({
+  __esModule: true,
+  default: mockComponent("PageEditOverview"),
+}));
+
 function mockComponent(testid: string) {
   return (props: { children: ReactNode }) => (
     <div data-testid={testid}>{props.children}</div>

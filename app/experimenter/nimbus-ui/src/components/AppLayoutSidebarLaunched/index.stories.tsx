@@ -15,11 +15,9 @@ import { AnalysisData } from "../../lib/visualization/types";
 import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
 
 const Subject = ({
-  analysisLoadingInSidebar,
   analysisError,
   analysis,
 }: {
-  analysisLoadingInSidebar?: boolean;
   analysisError?: Error;
   analysis?: AnalysisData;
 }) => {
@@ -28,7 +26,7 @@ const Subject = ({
     <RouterSlugProvider>
       <AppLayoutSidebarLaunched
         status={mockGetStatus({ status: NimbusExperimentStatusEnum.LIVE })}
-        {...{ analysisLoadingInSidebar, experiment, analysisError, analysis }}
+        {...{ experiment, analysisError, analysis }}
       >
         <p>App contents go here</p>
       </AppLayoutSidebarLaunched>
@@ -50,10 +48,6 @@ const storyWithProps = (
   if (storyName) story.storyName = storyName;
   return story;
 };
-
-export const AnalysisResultsLoading = storyWithProps({
-  analysisLoadingInSidebar: true,
-});
 
 export const AnalysisResultsError = storyWithProps({
   analysisError: new Error("Boop"),
