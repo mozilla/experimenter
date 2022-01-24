@@ -66,7 +66,6 @@ type AppLayoutSidebarLaunchedProps = {
   status: StatusCheck;
   analysis?: AnalysisData;
   analysisRequired?: boolean; // the page and sidebar need analysis data
-  analysisLoadingInSidebar?: boolean; // only the sidebar needs analysis data & is loading
   analysisError?: Error;
   experiment: getExperiment_experimentBySlug;
   refetch?: () => Promise<any>;
@@ -78,7 +77,6 @@ export const AppLayoutSidebarLaunched = ({
   status,
   analysis,
   analysisRequired,
-  analysisLoadingInSidebar = false,
   analysisError,
   experiment,
   refetch = async () => {},
@@ -210,8 +208,6 @@ export const AppLayoutSidebarLaunched = ({
                 <DisabledItem name="Results" testId="show-no-results">
                   {!status.launched && (status.waiting || status.approved) ? (
                     RESULTS_WAITING_FOR_LAUNCH_TEXT
-                  ) : analysisLoadingInSidebar ? (
-                    RESULTS_LOADING_TEXT
                   ) : analysisError ? (
                     <>
                       Could not get visualization data. Please contact data

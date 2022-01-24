@@ -4,15 +4,15 @@
 
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   SUBMIT_ERROR,
 } from "../../lib/constants";
+import { ExperimentContext } from "../../lib/contexts";
 import { editCommonRedirects } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment as UpdateExperimentOutcomesResult } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
@@ -20,14 +20,16 @@ import LinkExternal from "../LinkExternal";
 import FormMetrics from "./FormMetrics";
 
 const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
+  const { experiment, refetch, useRedirectCondition } =
+    useContext(ExperimentContext)!;
+  useRedirectCondition(editCommonRedirects);
+
   const [updateExperimentOutcomes, { loading }] = useMutation<
     { updateExperiment: UpdateExperimentOutcomesResult },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
-  const currentExperiment = useRef<getExperiment_experimentBySlug>();
-  const refetchReview = useRef<() => void>();
   const [isServerValid, setIsServerValid] = useState(true);
 
   const onSave = useCallback(
@@ -36,7 +38,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
       next: boolean,
     ) => {
       try {
-        const nimbusExperimentId = currentExperiment.current!.id;
+        const nimbusExperimentId = experiment.id;
         const result = await updateExperimentOutcomes({
           variables: {
             input: {
@@ -61,7 +63,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
           setIsServerValid(true);
           setSubmitErrors({});
           // In practice this should be defined by the time we get here
-          refetchReview.current!();
+          refetch();
 
           if (next) {
             navigate("audience");
@@ -71,47 +73,33 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
         setSubmitErrors({ "*": SUBMIT_ERROR });
       }
     },
-    [updateExperimentOutcomes, currentExperiment],
+    [updateExperimentOutcomes, experiment, refetch],
   );
 
   return (
-    <AppLayoutWithExperiment
-      title="Metrics"
-      testId="PageEditMetrics"
-      redirect={editCommonRedirects}
-    >
-      {({ experiment, refetch }) => {
-        currentExperiment.current = experiment;
-        refetchReview.current = refetch;
-
-        return (
-          <>
-            <p>
-              Every experiment analysis automatically includes how your
-              experiment has impacted{" "}
-              <strong>Retention, Search Count, and Ad Click</strong> metrics.
-              Get more information on{" "}
-              <LinkExternal
-                href={EXTERNAL_URLS.METRICS_GOOGLE_DOC}
-                data-testid="core-metrics-link"
-              >
-                Core Firefox Metrics
-              </LinkExternal>
-              .
-            </p>
-            <FormMetrics
-              {...{
-                experiment,
-                isLoading: loading,
-                isServerValid,
-                submitErrors,
-                setSubmitErrors,
-                onSave,
-              }}
-            />
-          </>
-        );
-      }}
+    <AppLayoutWithExperiment title="Metrics" testId="PageEditMetrics">
+      <p>
+        Every experiment analysis automatically includes how your experiment has
+        impacted <strong>Retention, Search Count, and Ad Click</strong> metrics.
+        Get more information on{" "}
+        <LinkExternal
+          href={EXTERNAL_URLS.METRICS_GOOGLE_DOC}
+          data-testid="core-metrics-link"
+        >
+          Core Firefox Metrics
+        </LinkExternal>
+        .
+      </p>
+      <FormMetrics
+        {...{
+          experiment,
+          isLoading: loading,
+          isServerValid,
+          submitErrors,
+          setSubmitErrors,
+          onSave,
+        }}
+      />
     </AppLayoutWithExperiment>
   );
 };

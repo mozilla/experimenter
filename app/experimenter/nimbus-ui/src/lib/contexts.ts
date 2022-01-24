@@ -2,11 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ApolloError } from "@apollo/client";
 import React from "react";
-import { AsyncStateStatus } from "react-async-hook";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
-import { getStatus } from "./experiment";
+import { getStatus, StatusCheck } from "./experiment";
 import { AnalysisData } from "./visualization/types";
 import { getSortedBranchNames } from "./visualization/utils";
 
@@ -32,20 +30,36 @@ export const ResultsContext = React.createContext<ResultsContextType>(
   defaultResultsContext,
 );
 
+export type RedirectCheck = {
+  status: StatusCheck;
+  review?: {
+    ready: boolean;
+    invalidPages: string[];
+  };
+  analysis?: AnalysisData;
+  analysisError?: Error;
+};
+
+export type RedirectCondition = ({
+  status,
+  analysis,
+  analysisError,
+}: RedirectCheck) => string | void;
+
 export type ExperimentContextType = {
   slug: string;
-  loading: boolean;
-  error: ApolloError | undefined;
   status: ReturnType<typeof getStatus>;
-  notFound: boolean;
   experiment: getExperiment_experimentBySlug;
-  fetchAnalysis: (slugs: string[]) => void;
-  analysis: AnalysisData | undefined;
-  analysisFetchStatus: AsyncStateStatus;
-  analysisError: Error | undefined;
+  analysis?: AnalysisData;
+  analysisLoading?: boolean;
+  analysisError?: Error;
   refetch: () => Promise<unknown>;
-  startPolling: (pollInterval: number) => void;
-  stopPolling: () => void;
+  hasPollError?: boolean;
+  useRedirectCondition: (redirect: RedirectCondition) => void;
+  useExperimentPolling: () => void;
+  useAnalysisRequired: () => void;
+  polling: boolean;
+  analysisRequired: boolean;
 };
 
 export const ExperimentContext = React.createContext<

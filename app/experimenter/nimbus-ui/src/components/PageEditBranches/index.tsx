@@ -4,7 +4,7 @@
 
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useContext } from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { useConfig } from "../../hooks";
 import {
@@ -12,8 +12,8 @@ import {
   EXTERNAL_URLS,
   SUBMIT_ERROR,
 } from "../../lib/constants";
+import { ExperimentContext } from "../../lib/contexts";
 import { editCommonRedirects } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { ExperimentInput } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment as UpdateExperimentBranchesResult } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
@@ -23,14 +23,19 @@ import { FormBranchesSaveState } from "./FormBranches/reducer";
 
 const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   const { featureConfigs } = useConfig();
+  const { experiment, refetch, useRedirectCondition } =
+    useContext(ExperimentContext)!;
+  useRedirectCondition(editCommonRedirects);
 
   const [updateExperimentBranches, { loading }] = useMutation<
     { updateExperiment: UpdateExperimentBranchesResult },
     { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_MUTATION);
 
-  const currentExperiment = useRef<getExperiment_experimentBySlug>();
-  const refetchReview = useRef<() => void>();
+  const applicationFeatureConfigs =
+    featureConfigs?.filter(
+      (config) => config?.application === experiment.application,
+    ) || [];
 
   const onFormSave = useCallback(
     async (
@@ -46,7 +51,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
     ) => {
       try {
         // issue #3954: Need to parse string IDs into numbers
-        const nimbusExperimentId = currentExperiment.current!.id;
+        const nimbusExperimentId = experiment.id;
         const result = await updateExperimentBranches({
           variables: {
             input: {
@@ -69,7 +74,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         if (message !== "success" && typeof message === "object") {
           return void setSubmitErrors(message);
         }
-        refetchReview.current!();
+        refetch();
         clearSubmitErrors();
 
         if (next) {
@@ -79,47 +84,29 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         setSubmitErrors({ "*": [error.message] });
       }
     },
-    [updateExperimentBranches, refetchReview],
+    [updateExperimentBranches, experiment, refetch],
   );
 
   return (
-    <AppLayoutWithExperiment
-      title="Branches"
-      testId="PageEditBranches"
-      redirect={editCommonRedirects}
-    >
-      {({ experiment, refetch }) => {
-        currentExperiment.current = experiment;
-        refetchReview.current = refetch;
-
-        const applicationFeatureConfigs =
-          featureConfigs?.filter(
-            (config) => config?.application === experiment.application,
-          ) || [];
-
-        return (
-          <>
-            <p>
-              You must select a <strong>feature</strong> configuration for your
-              experiment. Experiments can only change one feature at a time.{" "}
-              <LinkExternal
-                href={EXTERNAL_URLS.BRANCHES_GOOGLE_DOC}
-                data-testid="learn-more-link"
-              >
-                Learn more
-              </LinkExternal>
-            </p>
-            <FormBranches
-              {...{
-                experiment,
-                featureConfigs: applicationFeatureConfigs,
-                isLoading: loading,
-                onSave: onFormSave,
-              }}
-            />
-          </>
-        );
-      }}
+    <AppLayoutWithExperiment title="Branches" testId="PageEditBranches">
+      <p>
+        You must select a <strong>feature</strong> configuration for your
+        experiment. Experiments can only change one feature at a time.{" "}
+        <LinkExternal
+          href={EXTERNAL_URLS.BRANCHES_GOOGLE_DOC}
+          data-testid="learn-more-link"
+        >
+          Learn more
+        </LinkExternal>
+      </p>
+      <FormBranches
+        {...{
+          experiment,
+          featureConfigs: applicationFeatureConfigs,
+          isLoading: loading,
+          onSave: onFormSave,
+        }}
+      />
     </AppLayoutWithExperiment>
   );
 };

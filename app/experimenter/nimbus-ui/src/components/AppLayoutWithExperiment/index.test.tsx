@@ -4,13 +4,13 @@
 
 import * as apollo from "@apollo/client";
 import { MockedResponse } from "@apollo/client/testing";
-import { navigate } from "@reach/router";
-import { act, render, screen, waitFor } from "@testing-library/react";
-import React from "react";
-import AppLayoutWithExperiment, { POLL_INTERVAL, RedirectCheck } from ".";
-import { BASE_PATH } from "../../lib/constants";
+import { render, screen } from "@testing-library/react";
+import React, { useContext } from "react";
+import AppLayoutWithExperiment from ".";
+import { POLL_INTERVAL } from "../../lib/constants";
+import { ExperimentContext, RedirectCheck } from "../../lib/contexts";
 import { mockExperimentQuery } from "../../lib/mocks";
-import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentPublishStatusEnum } from "../../types/globalTypes";
 import ExperimentRoot from "../App/ExperimentRoot";
 
@@ -54,106 +54,37 @@ describe("AppLayoutWithExperiment", () => {
     await screen.findByRole("heading", { name: "Experiment Not Found" });
   });
 
-  describe("polling", () => {
+  it("renders the error warning when an error occurs polling the experiment", async () => {
     jest.useFakeTimers();
     const { mock: initialMock } = mockExperimentQuery("demo-slug");
     const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
       publishStatus: NimbusExperimentPublishStatusEnum.WAITING,
     });
-
-    it("polls useExperiment when the prop is passed in", async () => {
-      render(<Subject mocks={[initialMock, updatedMock]} polling />);
-      await screen.findByText("Draft", { selector: ".text-primary" });
-      jest.advanceTimersByTime(POLL_INTERVAL);
-      await screen.findByText("Review", { selector: ".text-primary" });
-    });
-
-    it("does not poll useExperiment when the prop is not passed in", async () => {
-      render(<Subject mocks={[initialMock, updatedMock]} />);
-      await screen.findByText("Draft", { selector: ".text-primary" });
-      jest.advanceTimersByTime(POLL_INTERVAL);
-      // Review would be the next state, so ensure Draft is still "primary"
-      await screen.findByText("Draft", { selector: ".text-primary" });
-    });
-
-    it("stops polling when the user navigates to a page without it", async () => {
-      const {
-        history: { navigate },
-      } = renderWithRouter(
-        <Subject mocks={[initialMock, updatedMock]} polling />,
-        {
-          route: "/demo-slug",
-        },
-      );
-
-      await screen.findByText("Draft", { selector: ".text-primary" });
-      window.history.pushState({}, "", `${BASE_PATH}/demo-slug/edit/overview`);
-      await act(() => navigate("/demo-slug/edit/overview"));
-
-      jest.advanceTimersByTime(POLL_INTERVAL);
-      // Review would be the next state, so ensure Draft is still "primary"
-      await screen.findByText("Draft", { selector: ".text-primary" });
-    });
-
-    it("renders the error warning when an error occurs polling the experiment", async () => {
-      const mockWithError = { ...initialMock, error: new Error("boop") };
-      render(
-        <Subject mocks={[initialMock, mockWithError, updatedMock]} polling />,
-      );
-      await screen.findByText("Draft", { selector: ".text-primary" });
-      expect(
-        screen.queryByTestId("polling-error-alert"),
-      ).not.toBeInTheDocument();
-
-      jest.advanceTimersByTime(POLL_INTERVAL);
-      await screen.findByTestId("polling-error-alert");
-      expect(
-        screen.queryByText("30 seconds", { exact: false }),
-      ).toBeInTheDocument();
-
-      // error is hidden when polling works as expected, should show updatedMock
-      jest.advanceTimersByTime(POLL_INTERVAL);
-      await screen.findByText("Review", { selector: ".text-primary" });
-      expect(
-        screen.queryByTestId("polling-error-alert"),
-      ).not.toBeInTheDocument();
-    });
-  });
-
-  it("can redirect you somewhere else", async () => {
-    const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
-    });
-
+    const mockWithError = { ...initialMock, error: new Error("boop") };
     render(
-      <Subject
-        mocks={[mock]}
-        redirect={({ status }) => {
-          if (status.review) {
-            return "";
-          }
-        }}
-      />,
+      <Subject mocks={[initialMock, mockWithError, updatedMock]} polling />,
     );
+    await screen.findByText("Draft", { selector: ".text-primary" });
+    expect(screen.queryByTestId("polling-error-alert")).not.toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(`${BASE_PATH}/${experiment.slug}`, {
-        replace: true,
-      });
-    });
+    jest.advanceTimersByTime(POLL_INTERVAL);
+    await screen.findByTestId("polling-error-alert");
+    expect(
+      screen.queryByText("30 seconds", { exact: false }),
+    ).toBeInTheDocument();
+
+    // error is hidden when polling works as expected, should show updatedMock
+    jest.advanceTimersByTime(POLL_INTERVAL);
+    await screen.findByText("Review", { selector: ".text-primary" });
+    expect(screen.queryByTestId("polling-error-alert")).not.toBeInTheDocument();
   });
 });
 
-jest.mock("@reach/router", () => ({
-  ...(jest.requireActual("@reach/router") as any),
-  navigate: jest.fn(),
-}));
-
 const Subject = ({
   mocks = [],
-  polling,
   title,
   redirect,
+  polling = false,
   disableSingleExperimentHack = true,
 }: {
   mocks?: MockedResponse[];
@@ -164,9 +95,20 @@ const Subject = ({
 }) => (
   <RouterSlugProvider {...{ mocks, disableSingleExperimentHack }}>
     <ExperimentRoot basepath="/">
-      <AppLayoutWithExperiment {...{ title, polling, redirect }}>
-        {({ experiment }) => <p>{experiment.slug}</p>}
+      <AppLayoutWithExperiment {...{ title, redirect }}>
+        {polling ? <SubjectInnerWithPolling /> : <SubjectInner />}
       </AppLayoutWithExperiment>
     </ExperimentRoot>
   </RouterSlugProvider>
 );
+
+const SubjectInner = () => {
+  const { experiment } = useContext(ExperimentContext)!;
+  return <p>{experiment.slug}</p>;
+};
+
+const SubjectInnerWithPolling = () => {
+  const { experiment, useExperimentPolling } = useContext(ExperimentContext)!;
+  useExperimentPolling();
+  return <p>{experiment.slug}</p>;
+};

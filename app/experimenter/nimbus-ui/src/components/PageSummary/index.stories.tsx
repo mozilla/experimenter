@@ -237,6 +237,6 @@ export const completeStatusWithTakeaways = storyWithExperimentProps(
 
 export const error = () => (
   <RouterSlugProvider mocks={[mock]}>
-    <PageSummary polling={false} />
+    <PageSummary />
   </RouterSlugProvider>
 );
