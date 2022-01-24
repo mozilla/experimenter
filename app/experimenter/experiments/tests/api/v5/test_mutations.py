@@ -479,7 +479,6 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
         )
-        experiment_id = experiment.id
 
         reference_branch = {
             "name": "control",
@@ -536,7 +535,7 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
             content["data"]["updateExperiment"]["message"], "success", content
         )
 
-        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.branches.count(), 2)
 
         self.assertEqual(experiment.reference_branch.name, reference_branch["name"])
@@ -836,37 +835,6 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
 
-    def test_end_experiment_fails_with_nonlive_status(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
-        )
-        response = self.query(
-            UPDATE_EXPERIMENT_MUTATION,
-            variables={
-                "input": {
-                    "id": experiment.id,
-                    "publishStatus": NimbusExperiment.PublishStatus.REVIEW.name,
-                    "statusNext": NimbusExperiment.Status.COMPLETE.name,
-                    "changelogMessage": "test changelog message",
-                }
-            },
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-
-        content = json.loads(response.content)
-        result = content["data"]["updateExperiment"]
-        self.assertEqual(
-            result["message"],
-            {
-                "status_next": [
-                    "Invalid choice for status_next: 'Complete' - with status 'Draft',"
-                    " the only valid choices are 'None, Live'"
-                ]
-            },
-        )
-
     def test_launch_experiment_valid_with_preview_status(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(
@@ -1053,25 +1021,6 @@ class TestCloneExperimentMutation(GraphQLTestCase):
         content = json.loads(response.content)
         self.assertIn("parent_slug", content["data"]["cloneExperiment"]["message"])
 
-    def test_clone_experiment_error_name(self):
-        user_email = "user@example.com"
-        parent = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
-        )
-        response = self.query(
-            CLONE_EXPERIMENT_MUTATION,
-            variables={
-                "input": {
-                    "parentSlug": parent.slug,
-                    "name": parent.name,
-                }
-            },
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-        self.assertIn("name", content["data"]["cloneExperiment"]["message"])
-
     def test_clone_experiment_with_rollout_branch_slug_success(self):
         user_email = "user@example.com"
         parent = NimbusExperimentFactory.create_with_lifecycle(
@@ -1099,25 +1048,3 @@ class TestCloneExperimentMutation(GraphQLTestCase):
         self.assertEqual(child.parent, parent)
         self.assertEqual(child.branches.count(), 1)
         self.assertEqual(child.reference_branch.slug, rollout_branch.slug)
-
-    def test_clone_experiment_with_rollout_branch_slug_error(self):
-        user_email = "user@example.com"
-        parent = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
-        )
-        response = self.query(
-            CLONE_EXPERIMENT_MUTATION,
-            variables={
-                "input": {
-                    "parentSlug": parent.slug,
-                    "name": "New Experiment",
-                    "rolloutBranchSlug": "BAD SLUG NOPE",
-                }
-            },
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-        self.assertIn(
-            "rollout_branch_slug", content["data"]["cloneExperiment"]["message"]
-        )
