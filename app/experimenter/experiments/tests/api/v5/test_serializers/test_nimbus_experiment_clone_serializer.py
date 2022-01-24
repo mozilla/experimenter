@@ -62,3 +62,18 @@ class TestNimbusExperimentCloneSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertIn("name", serializer.errors)
+
+    def test_invalid_rollout_branch_slug(self):
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        serializer = NimbusExperimentCloneSerializer(
+            data={
+                "parent_slug": parent.slug,
+                "name": "New Experiment",
+                "rollout_branch_slug": "BAD SLUG NOPE",
+            },
+            context={"user": parent.owner},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("rollout_branch_slug", serializer.errors)

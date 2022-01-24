@@ -124,56 +124,9 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         data["slug"] = slugify(data["name"])
-        screenshots = data.pop("screenshots", None)
-        branch = super().create(data)
+        return super().create(data)
 
-        if screenshots is not None:
-            for screenshot_data in screenshots:
-                serializer = NimbusBranchScreenshotSerializer(
-                    data=screenshot_data, partial=True
-                )
-                if serializer.is_valid(raise_exception=True):
-                    serializer.save(branch=branch)
-
-        return branch
-
-    def update(self, branch, data):
-        with transaction.atomic():
-            screenshots = data.pop("screenshots", None)
-            branch = super().update(branch, data)
-
-            if screenshots is not None:
-                updated_screenshots = dict(
-                    (x["id"], x) for x in screenshots if x.get("id", None)
-                )
-                for screenshot in branch.screenshots.all():
-                    screenshot_id = screenshot.id
-                    if screenshot_id not in updated_screenshots:
-                        screenshot.delete()
-                    else:
-                        serializer = NimbusBranchScreenshotSerializer(
-                            screenshot,
-                            data=updated_screenshots[screenshot_id],
-                            partial=True,
-                        )
-                        if serializer.is_valid(raise_exception=True):
-                            serializer.save()
-
-                new_screenshots = (x for x in screenshots if not x.get("id", None))
-                for screenshot_data in new_screenshots:
-                    serializer = NimbusBranchScreenshotSerializer(
-                        data=screenshot_data, partial=True
-                    )
-                    if serializer.is_valid(raise_exception=True):
-                        serializer.save(branch=branch)
-
-        return branch
-
-    def save(self, *args, **kwargs):
-        feature_enabled = self.validated_data.pop("feature_enabled", False)
-        feature_value = self.validated_data.pop("feature_value", "")
-        branch = super().save(*args, **kwargs)
-
+    def _save_feature_values(self, feature_enabled, feature_value, branch):
         feature_config = None
         if branch.experiment.feature_configs.exists():
             feature_config = (
@@ -187,6 +140,42 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             enabled=feature_enabled,
             value=feature_value,
         )
+
+    def _save_screenshots(self, screenshots, branch):
+        if screenshots is not None:
+            updated_screenshots = dict(
+                (x["id"], x) for x in screenshots if x.get("id", None)
+            )
+            for screenshot in branch.screenshots.all():
+                screenshot_id = screenshot.id
+                if screenshot_id not in updated_screenshots:
+                    screenshot.delete()
+                else:
+                    serializer = NimbusBranchScreenshotSerializer(
+                        screenshot,
+                        data=updated_screenshots[screenshot_id],
+                        partial=True,
+                    )
+                    if serializer.is_valid(raise_exception=True):
+                        serializer.save()
+
+            new_screenshots = (x for x in screenshots if not x.get("id", None))
+            for screenshot_data in new_screenshots:
+                serializer = NimbusBranchScreenshotSerializer(
+                    data=screenshot_data, partial=True
+                )
+                if serializer.is_valid(raise_exception=True):
+                    serializer.save(branch=branch)
+
+    def save(self, *args, **kwargs):
+        feature_enabled = self.validated_data.pop("feature_enabled", False)
+        feature_value = self.validated_data.pop("feature_value", "")
+        screenshots = self.validated_data.pop("screenshots", None)
+
+        branch = super().save(*args, **kwargs)
+
+        self._save_feature_values(feature_enabled, feature_value, branch)
+        self._save_screenshots(screenshots, branch)
 
         return branch
 

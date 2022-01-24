@@ -410,6 +410,30 @@ class TestNimbusExperimentSerializer(TestCase):
             serializer.errors,
         )
 
+    def test_status_with_invalid_target_status_next(self):
+        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "status_next": NimbusExperiment.Status.COMPLETE,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "status_next": [
+                    "Invalid choice for status_next: 'Complete' - with status 'Draft',"
+                    " the only valid choices are 'None, Live'"
+                ]
+            },
+            serializer.errors,
+        )
+
     def test_status_restriction(self):
         experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.LIVE)
         serializer = NimbusExperimentSerializer(
