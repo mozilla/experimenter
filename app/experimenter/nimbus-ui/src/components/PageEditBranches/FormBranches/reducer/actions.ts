@@ -58,7 +58,7 @@ type AddBranchAction = {
   type: "addBranch";
 };
 
-function addBranch(state: FormBranchesState) {
+function addBranch(state: FormBranchesState): FormBranchesState {
   let { lastId, referenceBranch, treatmentBranches } = state;
   lastId++;
 
@@ -88,7 +88,10 @@ type RemoveBranchAction = {
   idx: number;
 };
 
-function removeBranch(state: FormBranchesState, { idx }: RemoveBranchAction) {
+function removeBranch(
+  state: FormBranchesState,
+  { idx }: RemoveBranchAction,
+): FormBranchesState {
   const treatmentBranches = state.treatmentBranches || [];
   return {
     ...state,
@@ -99,7 +102,7 @@ function removeBranch(state: FormBranchesState, { idx }: RemoveBranchAction) {
   };
 }
 
-function removeFeatureConfig(state: FormBranchesState) {
+function removeFeatureConfig(state: FormBranchesState): FormBranchesState {
   let { referenceBranch, treatmentBranches } = state;
 
   if (referenceBranch) {
@@ -119,7 +122,7 @@ function removeFeatureConfig(state: FormBranchesState) {
 
   return {
     ...state,
-    featureConfig: null,
+    featureConfigId: null,
     referenceBranch,
     treatmentBranches,
   };
@@ -127,17 +130,17 @@ function removeFeatureConfig(state: FormBranchesState) {
 
 type SetFeatureConfigAction = {
   type: "setFeatureConfig";
-  value: FormBranchesState["featureConfig"];
+  value: FormBranchesState["featureConfigId"];
 };
 
 function setFeatureConfig(
   state: FormBranchesState,
-  { value: featureConfig }: SetFeatureConfigAction,
-) {
-  if (!featureConfig) return removeFeatureConfig(state);
+  { value: featureConfigId }: SetFeatureConfigAction,
+): FormBranchesState {
+  if (!featureConfigId) return removeFeatureConfig(state);
   return {
     ...state,
-    featureConfig,
+    featureConfigId,
   };
 }
 
@@ -149,7 +152,7 @@ type SetwarnFeatureSchemaAction = {
 function setwarnFeatureSchema(
   state: FormBranchesState,
   { value: warnFeatureSchema }: SetwarnFeatureSchemaAction,
-) {
+): FormBranchesState {
   return {
     ...state,
     warnFeatureSchema,
@@ -164,7 +167,7 @@ type SetEqualRatioAction = {
 function setEqualRatio(
   state: FormBranchesState,
   { value: equalRatio }: SetEqualRatioAction,
-) {
+): FormBranchesState {
   let { referenceBranch, treatmentBranches } = state;
   if (equalRatio) {
     if (referenceBranch !== null) {
@@ -196,7 +199,7 @@ type SetSubmitErrorsAction = {
 function setSubmitErrors(
   state: FormBranchesState,
   action: SetSubmitErrorsAction,
-) {
+): FormBranchesState {
   let { referenceBranch, treatmentBranches } = state;
   const { submitErrors } = action;
   const globalErrors = [];
@@ -239,7 +242,7 @@ type ClearSubmitErrorsAction = {
   type: "clearSubmitErrors";
 };
 
-function clearSubmitErrors(state: FormBranchesState) {
+function clearSubmitErrors(state: FormBranchesState): FormBranchesState {
   let { referenceBranch, treatmentBranches } = state;
   const globalErrors = [] as string[];
 
@@ -270,7 +273,7 @@ type CommitFormDataAction = {
 function commitFormData(
   state: FormBranchesState,
   action: CommitFormDataAction,
-) {
+): FormBranchesState {
   const { formData } = action;
   let { referenceBranch, treatmentBranches } = state;
 
@@ -324,7 +327,7 @@ type AddScreenshotToBranchAction = {
 function addScreenshotToBranch(
   state: FormBranchesState,
   action: AddScreenshotToBranchAction,
-) {
+): FormBranchesState {
   const { branchIdx } = action;
   let { referenceBranch, treatmentBranches } = state;
 
@@ -362,7 +365,7 @@ type RemoveScreenshotFromBranchAction = {
 function removeScreenshotFromBranch(
   state: FormBranchesState,
   action: RemoveScreenshotFromBranchAction,
-) {
+): FormBranchesState {
   const { branchIdx, screenshotIdx } = action;
   let { referenceBranch, treatmentBranches } = state;
 

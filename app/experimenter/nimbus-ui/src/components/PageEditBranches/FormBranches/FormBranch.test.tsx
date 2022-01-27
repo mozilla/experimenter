@@ -11,11 +11,7 @@ import {
 } from "@testing-library/react";
 import React from "react";
 import { FIELD_MESSAGES } from "../../../lib/constants";
-import {
-  MOCK_ANNOTATED_BRANCH,
-  MOCK_FEATURE_CONFIG_WITH_SCHEMA,
-  SubjectBranch,
-} from "./mocks";
+import { MOCK_ANNOTATED_BRANCH, SubjectBranch } from "./mocks";
 
 describe("FormBranch", () => {
   it("renders as expected", () => {
@@ -58,7 +54,6 @@ describe("FormBranch", () => {
     render(
       <SubjectBranch
         branch={{ ...MOCK_ANNOTATED_BRANCH, featureEnabled: false }}
-        experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
       />,
     );
     expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
@@ -72,7 +67,6 @@ describe("FormBranch", () => {
           featureValue: "this is a default value",
           featureEnabled: true,
         }}
-        experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
       />,
     );
     expect(screen.queryByTestId("feature-value-edit")).toBeInTheDocument();

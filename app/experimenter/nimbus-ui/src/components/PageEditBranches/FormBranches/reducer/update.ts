@@ -29,7 +29,7 @@ export function extractUpdateState(
   formData: FormData,
 ): FormBranchesSaveState {
   const {
-    featureConfig,
+    featureConfigId,
     warnFeatureSchema,
     referenceBranch,
     treatmentBranches,
@@ -38,8 +38,6 @@ export function extractUpdateState(
   if (!referenceBranch) {
     throw new UpdateStateError(CONTROL_BRANCH_REQUIRED_ERROR);
   }
-
-  const featureConfigId = featureConfig === null ? null : featureConfig.id;
 
   return {
     featureConfigId,
