@@ -427,6 +427,21 @@ TARGETING_POCKET_COMMON = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_PIP_NEVER_USED = NimbusTargetingConfig(
+    name="PiP Never Used",
+    slug="pip_never_used",
+    description="Users that have never used Picture in Picture",
+    targeting="""
+    (
+        !('media.videocontrols.picture-in-picture.video-toggle.has-used'|preferenceValue)
+        &&
+        ('media.videocontrols.picture-in-picture.enabled'|preferenceValue)
+    )
+    """,
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class NimbusConstants(object):
     class Status(models.TextChoices):
@@ -640,6 +655,7 @@ class NimbusConstants(object):
         TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN.slug: (
             TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN
         ),
+        TARGETING_PIP_NEVER_USED.slug: TARGETING_PIP_NEVER_USED,
     }
 
     class TargetingConfig(models.TextChoices):
@@ -719,6 +735,10 @@ class NimbusConstants(object):
         TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN = (
             TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN.slug,
             TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN.name,
+        )
+        TARGETING_PIP_NEVER_USED = (
+            TARGETING_PIP_NEVER_USED.slug,
+            TARGETING_PIP_NEVER_USED.name,
         )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
