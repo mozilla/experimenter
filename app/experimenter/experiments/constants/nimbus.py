@@ -315,6 +315,18 @@ TARGETING_INFREQUENT_USER_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_INFREQUENT_WIN_USER_NEED_PIN = NimbusTargetingConfig(
+    name="Infrequent Windows user (need pin)",
+    slug="infrequent_windows_user_need_pin",
+    description="Between 1 and 6 days of activity in the past 28 days needing pin on Win",
+    targeting="({infrequent_user} && os.isWindows && doesAppNeedPin || {sticky})".format(
+        infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting,
+        sticky=TARGETING_STICKY,
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TARGETING_INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
     name="Infrequent non-default Windows user",
     slug="infrequent_win_user_uris",
@@ -421,6 +433,21 @@ TARGETING_POCKET_COMMON = NimbusTargetingConfig(
             &&
             !('browser.newtabpage.activity-stream.feeds.section.highlights'|preferenceIsUserSet)
         )
+    )
+    """,
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_PIP_NEVER_USED = NimbusTargetingConfig(
+    name="PiP Never Used",
+    slug="pip_never_used",
+    description="Users that have never used Picture in Picture",
+    targeting="""
+    (
+        !('media.videocontrols.picture-in-picture.video-toggle.has-used'|preferenceValue)
+        &&
+        ('media.videocontrols.picture-in-picture.enabled'|preferenceValue)
     )
     """,
     desktop_telemetry="",
@@ -628,6 +655,9 @@ class NimbusConstants(object):
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug: TARGETING_NO_ENTERPRISE_OR_PAST_VPN,
         TARGETING_INFREQUENT_USER_URIS.slug: TARGETING_INFREQUENT_USER_URIS,
         TARGETING_INFREQUENT_USER_NEED_PIN.slug: TARGETING_INFREQUENT_USER_NEED_PIN,
+        TARGETING_INFREQUENT_WIN_USER_NEED_PIN.slug: (
+            TARGETING_INFREQUENT_WIN_USER_NEED_PIN
+        ),
         TARGETING_INFREQUENT_WIN_USER_URIS.slug: TARGETING_INFREQUENT_WIN_USER_URIS,
         TARGETING_CASUAL_USER_URIS.slug: TARGETING_CASUAL_USER_URIS,
         TARGETING_CASUAL_USER_NEED_PIN.slug: TARGETING_CASUAL_USER_NEED_PIN,
@@ -640,6 +670,7 @@ class NimbusConstants(object):
         TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN.slug: (
             TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN
         ),
+        TARGETING_PIP_NEVER_USED.slug: TARGETING_PIP_NEVER_USED,
     }
 
     class TargetingConfig(models.TextChoices):
@@ -684,6 +715,10 @@ class NimbusConstants(object):
             TARGETING_INFREQUENT_USER_NEED_PIN.slug,
             TARGETING_INFREQUENT_USER_NEED_PIN.name,
         )
+        TARGETING_INFREQUENT_WIN_USER_NEED_PIN = (
+            TARGETING_INFREQUENT_WIN_USER_NEED_PIN.slug,
+            TARGETING_INFREQUENT_WIN_USER_NEED_PIN.name,
+        )
         TARGETING_INFREQUENT_WIN_USER_URIS = (
             TARGETING_INFREQUENT_WIN_USER_URIS.slug,
             TARGETING_INFREQUENT_WIN_USER_URIS.name,
@@ -719,6 +754,10 @@ class NimbusConstants(object):
         TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN = (
             TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN.slug,
             TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN.name,
+        )
+        TARGETING_PIP_NEVER_USED = (
+            TARGETING_PIP_NEVER_USED.slug,
+            TARGETING_PIP_NEVER_USED.name,
         )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
