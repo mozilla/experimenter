@@ -13,6 +13,7 @@ import { formBranchesActionReducer } from "./reducer/actions";
 import { FormBranchesState } from "./reducer/state";
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
+  featureConfig: null, //MOCK_CONFIG!.featureConfigs![0],
   referenceBranch: {
     id: 123,
     name: "User-centric mobile solution",
@@ -51,7 +52,7 @@ const MOCK_STATE: FormBranchesState = {
   equalRatio: true,
   lastId: 0,
   globalErrors: [],
-  featureConfig: MOCK_EXPERIMENT.featureConfig,
+  featureConfigId: null,
   warnFeatureSchema: false,
   referenceBranch: {
     ...MOCK_EXPERIMENT.referenceBranch!,
@@ -78,7 +79,6 @@ export const SubjectBranch = ({
   branch = MOCK_ANNOTATED_BRANCH,
   equalRatio = false,
   isReference = false,
-  experimentFeatureConfig = MOCK_FEATURE_CONFIG,
   onAddScreenshot = () => {},
   onRemoveScreenshot = () => {},
   onRemove = () => {},
@@ -116,7 +116,6 @@ export const SubjectBranch = ({
             branch,
             isReference,
             equalRatio,
-            experimentFeatureConfig,
             onRemove,
             onAddScreenshot,
             onRemoveScreenshot,

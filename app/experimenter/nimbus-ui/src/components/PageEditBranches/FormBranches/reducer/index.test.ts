@@ -12,7 +12,7 @@ const MOCK_STATE: FormBranchesState = {
   equalRatio: true,
   lastId: 0,
   globalErrors: [],
-  featureConfig: MOCK_EXPERIMENT.featureConfig,
+  featureConfigId: null,
   warnFeatureSchema: false,
   referenceBranch: {
     ...MOCK_EXPERIMENT.referenceBranch!,
@@ -226,6 +226,7 @@ describe("formBranchesReducer", () => {
   const commonClearFeatureConfigTest = (action: FormBranchesAction) => () => {
     const oldState = {
       ...MOCK_STATE,
+      featureConfigId: null,
       referenceBranch: {
         ...MOCK_STATE.referenceBranch!,
         featureEnabled: true,
@@ -238,7 +239,7 @@ describe("formBranchesReducer", () => {
 
     const newState = formBranchesActionReducer(oldState, action);
 
-    expect(newState.featureConfig).toBeNull();
+    expect(newState.featureConfigId).toBeNull();
     expect(newState.referenceBranch?.featureEnabled).toBe(false);
     expect(
       newState.treatmentBranches?.every(
