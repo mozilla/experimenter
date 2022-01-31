@@ -61,7 +61,6 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
   .add("with feature", () => (
     <SubjectBranch
       {...commonFormBranchProps}
-      experimentFeatureConfig={MOCK_FEATURE_CONFIG}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
         featureEnabled: false,
@@ -72,7 +71,6 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
   .add("with feature value", () => (
     <SubjectBranch
       {...commonFormBranchProps}
-      experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
         featureEnabled: true,
@@ -83,7 +81,6 @@ storiesOf("pages/EditBranches/FormBranches/FormBranch", module)
   .add("with several screenshots", () => (
     <SubjectBranch
       {...commonFormBranchProps}
-      experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
       branch={{
         ...MOCK_ANNOTATED_BRANCH,
         featureEnabled: true,

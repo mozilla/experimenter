@@ -11,7 +11,6 @@ import { FieldError } from "react-hook-form";
 import { useCommonNestedForm } from "../../../hooks";
 import { ReactComponent as DeleteIcon } from "../../../images/x.svg";
 import { NUMBER_FIELD, REQUIRED_FIELD } from "../../../lib/constants";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import FormScreenshot, { FormScreenshotProps } from "./FormScreenshot";
 import { AnnotatedBranch } from "./reducer";
 
@@ -34,7 +33,6 @@ export const FormBranch = ({
   branch,
   equalRatio,
   isReference,
-  experimentFeatureConfig,
   onAddScreenshot,
   onRemoveScreenshot,
   onRemove,
@@ -49,7 +47,6 @@ export const FormBranch = ({
   branch: AnnotatedBranch;
   equalRatio?: boolean;
   isReference?: boolean;
-  experimentFeatureConfig: getExperiment_experimentBySlug["featureConfig"];
   onAddScreenshot: () => void;
   onRemoveScreenshot: (screenshotIdx: number) => void;
   onRemove?: () => void;
