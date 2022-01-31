@@ -52,7 +52,7 @@ describe("FormBranches", () => {
     await clickAndWaitForSave(onSave);
     const onSaveArgs = onSave.mock.calls[0];
     expect(onSaveArgs[0]).toEqual({
-      featureConfigId: null,
+      featureConfigId: undefined,
       // @ts-ignore type mismatch covers discarded annotation properties
       referenceBranch: extractUpdateBranch(MOCK_EXPERIMENT.referenceBranch!),
       treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map(
@@ -329,7 +329,7 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    selectFeatureConfig();
+    selectFeatureConfig(1);
     await clickAndWaitForSave(onSave);
     expect(onSave.mock.calls[0][0].featureConfigId).toEqual(
       MOCK_CONFIG.featureConfigs![1]!.id,

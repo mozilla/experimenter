@@ -11,10 +11,7 @@ import Form from "react-bootstrap/Form";
 import { FormProvider } from "react-hook-form";
 import { useExitWarning, useForm, useReviewCheck } from "../../../hooks";
 import { IsDirtyUnsaved } from "../../../hooks/useCommonForm/useCommonFormMethods";
-import {
-  getConfig_nimbusConfig,
-  getConfig_nimbusConfig_featureConfigs,
-} from "../../../types/getConfig";
+import { getConfig_nimbusConfig } from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import FormBranch from "./FormBranch";
 import {
@@ -46,7 +43,7 @@ export const FormBranches = ({
 
   const [
     {
-      featureConfig: experimentFeatureConfig,
+      featureConfigId: experimentFeatureConfigId,
       warnFeatureSchema,
       referenceBranch,
       treatmentBranches,
@@ -123,9 +120,7 @@ export const FormBranches = ({
     });
   };
 
-  const handleFeatureConfigChange = (
-    value: getConfig_nimbusConfig_featureConfigs | null,
-  ) => {
+  const handleFeatureConfigChange = (value: number | null | undefined) => {
     commitFormData();
     dispatch({ type: "setFeatureConfig", value });
   };
@@ -137,7 +132,7 @@ export const FormBranches = ({
     }
     // featureConfig shouldn't ever be null in practice
     const feature = featureConfigs![selectedIdx];
-    return handleFeatureConfigChange(feature);
+    return handleFeatureConfigChange(feature?.id);
   };
 
   const handleAddScreenshot = (branchIdx: number) => () => {
@@ -174,7 +169,6 @@ export const FormBranches = ({
 
   const commonBranchProps = {
     equalRatio,
-    experimentFeatureConfig,
     setSubmitErrors,
   };
 
@@ -212,9 +206,7 @@ export const FormBranches = ({
                 fieldWarnings.feature_config?.length > 0,
             })}
             onChange={onFeatureConfigChange}
-            value={featureConfigs!.findIndex(
-              (feature) => feature?.slug === experimentFeatureConfig?.slug,
-            )}
+            value={experimentFeatureConfigId || undefined}
           >
             <option value="">Select...</option>
             {featureConfigs?.map(

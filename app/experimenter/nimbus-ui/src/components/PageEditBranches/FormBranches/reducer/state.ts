@@ -6,11 +6,14 @@ import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "../../../../types/getExperiment";
-import { TreatmentBranchInput } from "../../../../types/globalTypes";
+import {
+  ExperimentInput,
+  TreatmentBranchInput,
+} from "../../../../types/globalTypes";
 
 export type FormBranchesState = Pick<
-  getExperiment_experimentBySlug,
-  "featureConfig" | "warnFeatureSchema"
+  ExperimentInput,
+  "featureConfigId" | "warnFeatureSchema"
 > & {
   referenceBranch: null | AnnotatedBranch;
   treatmentBranches: null | AnnotatedBranch[];
@@ -57,7 +60,7 @@ export function createInitialState({
   return {
     lastId,
     equalRatio,
-    featureConfig,
+    featureConfigId: featureConfig?.id,
     warnFeatureSchema,
     globalErrors: [],
     referenceBranch: annotatedReferenceBranch,
