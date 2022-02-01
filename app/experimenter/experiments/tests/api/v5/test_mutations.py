@@ -105,7 +105,9 @@ class TestCreateExperimentMutation(GraphQLTestCase):
 
 
 @mock_valid_outcomes
-class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
+class TestUpdateExperimentMutationSingleFeature(
+    GraphQLTestCase, GraphQLFileUploadTestCase
+):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
     maxDiff = None
 
@@ -975,6 +977,187 @@ class TestUpdateExperimentMutation(GraphQLTestCase, GraphQLFileUploadTestCase):
         experiment = NimbusExperiment.objects.first()
         self.assertEqual(experiment.conclusion_recommendation, None)
         self.assertEqual(experiment.takeaways_summary, "the test worked")
+
+
+@mock_valid_outcomes
+class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
+    GRAPHQL_URL = reverse("nimbus-api-graphql")
+    maxDiff = None
+
+    def test_update_experiment_branches_with_feature_configs(self):
+        user_email = "user@example.com"
+        feature1 = NimbusFeatureConfigFactory(
+            schema="{}", application=NimbusExperiment.Application.FENIX
+        )
+        feature2 = NimbusFeatureConfigFactory(
+            schema="{}", application=NimbusExperiment.Application.FENIX
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            warn_feature_schema=False,
+            feature_configs=[],
+        )
+        reference_branch_data = {
+            "name": "control",
+            "description": "a control",
+            "ratio": 1,
+            "featureValues": [
+                {"featureConfig": feature1.id, "enabled": False, "value": ""},
+                {"featureConfig": feature2.id, "enabled": False, "value": ""},
+            ],
+        }
+        treatment_branches_data = [
+            {
+                "name": "treatment1",
+                "description": "desc1",
+                "ratio": 1,
+                "featureValues": [
+                    {
+                        "featureConfig": feature1.id,
+                        "enabled": True,
+                        "value": "{'key': 'value'}",
+                    },
+                    {
+                        "featureConfig": feature2.id,
+                        "enabled": True,
+                        "value": "{'key': 'value'}",
+                    },
+                ],
+            }
+        ]
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "featureConfigs": [feature1.id, feature2.id],
+                    "referenceBranch": reference_branch_data,
+                    "treatmentBranches": treatment_branches_data,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(
+            set(experiment.feature_configs.all().values_list("id", flat=True)),
+            set([feature1.id, feature2.id]),
+        )
+
+        self.assertEqual(experiment.branches.count(), 2)
+
+        self.assertEqual(experiment.reference_branch.name, reference_branch_data["name"])
+        self.assertEqual(
+            experiment.reference_branch.description, reference_branch_data["description"]
+        )
+        for feature_config in (feature1, feature2):
+            feature_value = experiment.reference_branch.feature_values.get(
+                feature_config=feature_config
+            )
+            self.assertEqual(feature_value.enabled, False)
+            self.assertEqual(feature_value.value, "")
+
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, treatment_branches_data[0]["name"])
+        self.assertEqual(
+            treatment_branch.description, treatment_branches_data[0]["description"]
+        )
+        for feature_config in (feature1, feature2):
+            feature_value = treatment_branch.feature_values.get(
+                feature_config=feature_config
+            )
+            self.assertEqual(feature_value.enabled, True)
+            self.assertEqual(feature_value.value, "{'key': 'value'}")
+
+    def test_update_experiment_branches_without_feature_configs(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            feature_configs=[],
+        )
+        reference_branch_data = {
+            "name": "control",
+            "description": "a control",
+            "ratio": 1,
+            "featureValues": [],
+        }
+        treatment_branches_data = [
+            {
+                "name": "treatment1",
+                "description": "desc1",
+                "ratio": 1,
+                "featureValues": [],
+            }
+        ]
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "featureConfigId": None,
+                    "referenceBranch": reference_branch_data,
+                    "treatmentBranches": treatment_branches_data,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.feature_configs.count(), 0)
+        self.assertEqual(experiment.branches.count(), 2)
+
+        self.assertEqual(experiment.reference_branch.name, reference_branch_data["name"])
+        self.assertEqual(
+            experiment.reference_branch.description, reference_branch_data["description"]
+        )
+        self.assertEqual(experiment.reference_branch.feature_values.count(), 0)
+
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, treatment_branches_data[0]["name"])
+        self.assertEqual(
+            treatment_branch.description, treatment_branches_data[0]["description"]
+        )
+        self.assertEqual(treatment_branch.feature_values.count(), 0)
+
+    def test_update_experiment_branches_with_feature_configs_error(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
+        reference_branch = {"name": "control", "description": "a control", "ratio": 1}
+        treatment_branches = [{"name": "treatment1", "description": "desc1", "ratio": 1}]
+        invalid_feature_config_id = (
+            NimbusFeatureConfig.objects.all().order_by("-id").first().id + 1
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "featureConfigs": [invalid_feature_config_id],
+                    "referenceBranch": reference_branch,
+                    "treatmentBranches": treatment_branches,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(
+            result["message"],
+            {
+                "feature_configs": [
+                    f'Invalid pk "{invalid_feature_config_id}" - object does not exist.'
+                ]
+            },
+        )
 
 
 @mock_valid_outcomes

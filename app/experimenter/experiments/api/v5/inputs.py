@@ -18,6 +18,12 @@ class BranchScreenshotInput(graphene.InputObjectType):
     description = graphene.String()
 
 
+class BranchFeatureValueInput(graphene.InputObjectType):
+    feature_config = graphene.Int()
+    enabled = graphene.Boolean()
+    value = graphene.String()
+
+
 class BranchInput(graphene.InputObjectType):
     id = graphene.Int()
     name = graphene.String(required=True)
@@ -25,6 +31,7 @@ class BranchInput(graphene.InputObjectType):
     ratio = graphene.Int(required=True)
     feature_enabled = graphene.Boolean()
     feature_value = graphene.String()
+    feature_values = graphene.List(BranchFeatureValueInput)
     screenshots = graphene.List(BranchScreenshotInput)
 
 
@@ -58,6 +65,7 @@ class ExperimentInput(graphene.InputObjectType):
     is_enrollment_paused = graphene.Boolean()
     risk_mitigation_link = graphene.String()
     feature_config_id = graphene.Int()
+    feature_configs = graphene.List(graphene.Int)
     warn_feature_schema = graphene.Boolean()
     documentation_links = graphene.List(DocumentationLinkInput)
     reference_branch = graphene.Field(ReferenceBranchInput)
