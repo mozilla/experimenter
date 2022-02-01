@@ -3,6 +3,12 @@ schema {
   mutation: Mutation
 }
 
+input BranchFeatureValueInput {
+  featureConfig: Int
+  enabled: Boolean
+  value: String
+}
+
 input BranchScreenshotInput {
   id: Int
   image: Upload
@@ -45,6 +51,7 @@ input ExperimentInput {
   isEnrollmentPaused: Boolean
   riskMitigationLink: String
   featureConfigId: Int
+  featureConfigs: [Int]
   warnFeatureSchema: Boolean
   documentationLinks: [DocumentationLinkInput]
   referenceBranch: ReferenceBranchInput
@@ -77,6 +84,14 @@ type Mutation {
   cloneExperiment(input: ExperimentCloneInput!): CloneExperiment
 }
 
+type NimbusBranchFeatureValueType {
+  id: Int
+  branch: NimbusBranchType!
+  featureConfig: NimbusFeatureConfigType
+  enabled: Boolean
+  value: String
+}
+
 type NimbusBranchScreenshotType {
   id: Int
   branch: NimbusBranchType!
@@ -90,6 +105,7 @@ type NimbusBranchType {
   slug: String!
   description: String!
   ratio: Int!
+  featureValues: [NimbusBranchFeatureValueType]
   screenshots: [NimbusBranchScreenshotType!]
   featureEnabled: Boolean!
   featureValue: String
@@ -393,7 +409,8 @@ type NimbusExperimentType {
   treatmentBranches: [NimbusBranchType]
   jexlTargetingExpression: String
   featureConfig: NimbusFeatureConfigType
-  readyForReview: NimbusReadyForReviewType
+  featureConfigs: [NimbusFeatureConfigType]
+  readyForReview: NimbusReviewType
   monitoringDashboardUrl: String
   resultsReady: Boolean
   startDate: DateTime
@@ -424,6 +441,7 @@ type NimbusFeatureConfigType {
   schema: String
   readOnly: Boolean!
   nimbusexperimentSet: [NimbusExperimentType!]!
+  nimbusbranchfeaturevalueSet: [NimbusBranchFeatureValueType!]!
 }
 
 enum NimbusIsolationGroupApplication {
@@ -471,7 +489,7 @@ type NimbusOutcomeType {
   metrics: [NimbusOutcomeMetricType]
 }
 
-type NimbusReadyForReviewType {
+type NimbusReviewType {
   message: ObjectField
   warnings: ObjectField
   ready: Boolean
@@ -513,6 +531,7 @@ input ReferenceBranchInput {
   ratio: Int!
   featureEnabled: Boolean
   featureValue: String
+  featureValues: [BranchFeatureValueInput]
   screenshots: [BranchScreenshotInput]
 }
 
@@ -523,6 +542,7 @@ input TreatmentBranchInput {
   ratio: Int!
   featureEnabled: Boolean
   featureValue: String
+  featureValues: [BranchFeatureValueInput]
   screenshots: [BranchScreenshotInput]
 }
 
