@@ -98,8 +98,12 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     application = forms.ChoiceField(choices=NimbusExperiment.Application.choices)
     channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices)
     public_description = forms.CharField(required=False, widget=forms.Textarea())
-    firefox_min_version = forms.CharField(required=False)
-    firefox_max_version = forms.CharField(required=False)
+    firefox_min_version = forms.ChoiceField(
+        choices=NimbusExperiment.Version.choices, required=False
+    )
+    firefox_max_version = forms.ChoiceField(
+        choices=NimbusExperiment.Version.choices, required=False
+    )
     channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices, required=False)
     primary_outcomes = SimpleArrayField(forms.CharField(), required=False)
     secondary_outcomes = SimpleArrayField(forms.CharField(), required=False)
