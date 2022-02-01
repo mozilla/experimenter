@@ -16,6 +16,7 @@ from experimenter.outcomes import Outcomes
 
 class TestNimbusExperimentsQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
+    maxDiff = None
 
     def test_experiments(self):
         user_email = "user@example.com"
@@ -101,10 +102,13 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             [{"name": "Treatment A", "slug": "", "description": "", "ratio": 1}],
         )
 
-    def test_experiments_with_branches_returns_branch_data(self):
+    def test_experiments_with_branches_returns_branch_data_single_feature(self):
         user_email = "user@example.com"
+        feature_config = NimbusFeatureConfigFactory(
+            application=NimbusExperiment.Application.DESKTOP
+        )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED, feature_configs=[feature_config]
         )
         screenshot = experiment.reference_branch.screenshots.first()
         screenshot.image = None
@@ -114,8 +118,17 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             """
             query {
                 experiments {
+                    featureConfig {
+                        id
+                        name
+                    }
                     referenceBranch {
                         slug
+                        name
+                        description
+                        ratio
+                        featureEnabled
+                        featureValue
                         screenshots {
                             description
                             image
@@ -123,6 +136,11 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     }
                     treatmentBranches {
                         slug
+                        name
+                        description
+                        ratio
+                        featureEnabled
+                        featureValue
                         screenshots {
                             description
                             image
@@ -133,24 +151,181 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             """,
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experiments"][0]
+
+        self.assertEqual(
+            experiment_data["featureConfig"],
+            {"id": feature_config.id, "name": feature_config.name},
+        )
+
         self.assertEqual(
             experiment_data["referenceBranch"],
             {
                 "slug": experiment.reference_branch.slug,
+                "name": experiment.reference_branch.name,
+                "description": experiment.reference_branch.description,
+                "ratio": experiment.reference_branch.ratio,
+                "featureEnabled": (
+                    experiment.reference_branch.feature_values.get().enabled
+                ),
+                "featureValue": experiment.reference_branch.feature_values.get().value,
                 "screenshots": [{"description": screenshot.description, "image": None}],
             },
         )
-        self.assertEqual(
-            {b["slug"] for b in experiment_data["treatmentBranches"]},
-            {b.slug for b in experiment.treatment_branches},
+
+        for treatment_branch_data in experiment_data["treatmentBranches"]:
+            treatment_branch = experiment.branches.get(slug=treatment_branch_data["slug"])
+            self.assertEqual(
+                treatment_branch_data,
+                {
+                    "slug": treatment_branch.slug,
+                    "name": treatment_branch.name,
+                    "description": treatment_branch.description,
+                    "ratio": treatment_branch.ratio,
+                    "featureEnabled": treatment_branch.feature_values.get().enabled,
+                    "featureValue": treatment_branch.feature_values.get().value,
+                    "screenshots": [
+                        {"description": s.description, "image": s.image.url}
+                        for s in treatment_branch.screenshots.all()
+                    ],
+                },
+            )
+
+    def test_experiments_with_branches_returns_branch_data_multi_feature(self):
+        user_email = "user@example.com"
+        feature_config1 = NimbusFeatureConfigFactory(
+            application=NimbusExperiment.Application.DESKTOP
         )
-        self.assertEqual(
-            {b["screenshots"][0]["image"] for b in experiment_data["treatmentBranches"]},
-            {b.screenshots.first().image.url for b in experiment.treatment_branches},
+        feature_config2 = NimbusFeatureConfigFactory(
+            application=NimbusExperiment.Application.DESKTOP
         )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config1, feature_config2],
+        )
+        screenshot = experiment.reference_branch.screenshots.first()
+        screenshot.image = None
+        screenshot.save()
+
+        response = self.query(
+            """
+            query {
+                experiments {
+                    featureConfigs {
+                        id
+                        name
+                    }
+                    referenceBranch {
+                        slug
+                        name
+                        description
+                        ratio
+                        featureValues {
+                            featureConfig {
+                                id
+                            }
+                            enabled
+                            value
+                        }
+                        screenshots {
+                            description
+                            image
+                        }
+                    }
+                    treatmentBranches {
+                        slug
+                        name
+                        description
+                        ratio
+                        featureValues {
+                            featureConfig {
+                                id
+                            }
+                            enabled
+                            value
+                        }
+                        screenshots {
+                            description
+                            image
+                        }
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experiments"][0]
+
+        for feature_config in (feature_config1, feature_config2):
+            self.assertIn(
+                {"id": feature_config.id, "name": feature_config.name},
+                experiment_data["featureConfigs"],
+            )
+
+        reference_branch_feature_values_data = experiment_data["referenceBranch"].pop(
+            "featureValues"
+        )
+        for (
+            reference_branch_feature_value
+        ) in experiment.reference_branch.feature_values.all():
+            self.assertIn(
+                {
+                    "featureConfig": {
+                        "id": reference_branch_feature_value.feature_config.id
+                    },
+                    "enabled": reference_branch_feature_value.enabled,
+                    "value": reference_branch_feature_value.value,
+                },
+                reference_branch_feature_values_data,
+            )
+
+        self.assertEqual(
+            experiment_data["referenceBranch"],
+            {
+                "slug": experiment.reference_branch.slug,
+                "name": experiment.reference_branch.name,
+                "description": experiment.reference_branch.description,
+                "ratio": experiment.reference_branch.ratio,
+                "screenshots": [{"description": screenshot.description, "image": None}],
+            },
+        )
+
+        for treatment_branch_data in experiment_data["treatmentBranches"]:
+            treatment_branch = experiment.branches.get(slug=treatment_branch_data["slug"])
+
+            treatment_branch_feature_values_data = treatment_branch_data.pop(
+                "featureValues"
+            )
+            for treatment_branch_feature_value in treatment_branch.feature_values.all():
+                self.assertIn(
+                    {
+                        "featureConfig": {
+                            "id": treatment_branch_feature_value.feature_config.id
+                        },
+                        "enabled": treatment_branch_feature_value.enabled,
+                        "value": treatment_branch_feature_value.value,
+                    },
+                    treatment_branch_feature_values_data,
+                )
+
+            self.assertEqual(
+                treatment_branch_data,
+                {
+                    "slug": treatment_branch.slug,
+                    "name": treatment_branch.name,
+                    "description": treatment_branch.description,
+                    "ratio": treatment_branch.ratio,
+                    "screenshots": [
+                        {"description": s.description, "image": s.image.url}
+                        for s in treatment_branch.screenshots.all()
+                    ],
+                },
+            )
 
     def test_experiments_with_documentation_links_return_link_data(self):
         user_email = "user@example.com"
