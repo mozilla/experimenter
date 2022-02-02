@@ -318,6 +318,7 @@ describe("FormBranches", () => {
 
   it("supports adding feature config", async () => {
     const onSave = jest.fn();
+    const expectedFeatureId = MOCK_CONFIG.featureConfigs![1]!.id;
     render(
       <SubjectBranches
         {...{
@@ -329,11 +330,9 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    selectFeatureConfig(1);
+    selectFeatureConfig(expectedFeatureId);
     await clickAndWaitForSave(onSave);
-    expect(onSave.mock.calls[0][0].featureConfigId).toEqual(
-      MOCK_CONFIG.featureConfigs![1]!.id,
-    );
+    expect(onSave.mock.calls[0][0].featureConfigId).toEqual(expectedFeatureId);
   });
 
   it("updates save result with edits", async () => {
