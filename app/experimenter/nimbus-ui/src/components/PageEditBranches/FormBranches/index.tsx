@@ -126,13 +126,10 @@ export const FormBranches = ({
   };
 
   const onFeatureConfigChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedIdx = parseInt(ev.target.value, 10);
-    if (isNaN(selectedIdx)) {
-      return handleFeatureConfigChange(null);
-    }
-    // featureConfig shouldn't ever be null in practice
-    const feature = featureConfigs![selectedIdx];
-    return handleFeatureConfigChange(feature?.id);
+    const selectedFeatureId = parseInt(ev.target.value, 10);
+    return handleFeatureConfigChange(
+      isNaN(selectedFeatureId) ? null : selectedFeatureId,
+    );
   };
 
   const handleAddScreenshot = (branchIdx: number) => () => {
@@ -210,9 +207,12 @@ export const FormBranches = ({
           >
             <option value="">Select...</option>
             {featureConfigs?.map(
-              (feature, idx) =>
+              (feature) =>
                 feature && (
-                  <option key={`feature-${feature.slug}-${idx}`} value={idx}>
+                  <option
+                    key={`feature-${feature.slug}-${feature.id!}`}
+                    value={feature.id!}
+                  >
                     {feature.name}
                   </option>
                 ),
