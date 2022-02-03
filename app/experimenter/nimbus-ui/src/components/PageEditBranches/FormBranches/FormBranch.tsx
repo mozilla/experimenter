@@ -11,8 +11,10 @@ import { FieldError } from "react-hook-form";
 import { useCommonNestedForm } from "../../../hooks";
 import { ReactComponent as DeleteIcon } from "../../../images/x.svg";
 import { NUMBER_FIELD, REQUIRED_FIELD } from "../../../lib/constants";
+import { getConfig_nimbusConfig } from "../../../types/getConfig";
 import FormScreenshot, { FormScreenshotProps } from "./FormScreenshot";
 import { AnnotatedBranch } from "./reducer";
+import { FormBranchesState } from "./reducer/state";
 
 export const branchFieldNames = [
   "name",
@@ -30,6 +32,8 @@ export const FormBranch = ({
   errors,
   reviewErrors,
   reviewWarnings,
+  featureConfigs,
+  experimentFeatureConfigs,
   branch,
   equalRatio,
   isReference,
@@ -44,6 +48,8 @@ export const FormBranch = ({
   errors: Record<string, FieldError>;
   reviewErrors: SerializerSet;
   reviewWarnings: SerializerSet;
+  featureConfigs: getConfig_nimbusConfig["featureConfigs"];
+  experimentFeatureConfigs: FormBranchesState["featureConfigs"];
   branch: AnnotatedBranch;
   equalRatio?: boolean;
   isReference?: boolean;
@@ -201,6 +207,68 @@ export const FormBranch = ({
           />
         )}
       </Form.Group>
+
+      {!!experimentFeatureConfigs && (
+        <Form.Group
+          className="px-3 pt-2 border-top"
+          data-testid="feature-configs-edit"
+        >
+          <Form.Row className="my-3">
+            <Col>Feature configurations</Col>
+          </Form.Row>
+          {experimentFeatureConfigs?.map((featureId, idx) => {
+            const featureConfig = featureConfigs?.find(
+              (featureConfig) => featureConfig?.id === featureId,
+            );
+            return (
+              <div key={idx}>
+                <Form.Group
+                  className="p-1 mx-3 mt-2 mb-0"
+                  data-testid="feature-config-edit"
+                >
+                  <Form.Row>
+                    <Col sm={1} md={1}>
+                      {featureConfig?.name} is
+                    </Col>
+                    <Form.Group as={Col} controlId={`${id}.featureEnabled`}>
+                      <Form.Check
+                        {...formControlAttrs("featureEnabled", {}, false)}
+                        type="switch"
+                        label={featureEnabled ? "On" : "Off"}
+                      />
+                    </Form.Group>
+                  </Form.Row>
+                </Form.Group>
+                <Form.Group
+                  className="p-1 mx-3 mt-2 mb-0"
+                  data-testid="feature-config-edit"
+                >
+                  {featureEnabled ? (
+                    <Form.Row data-testid="feature-value-edit">
+                      <Form.Group as={Col} controlId={`${id}-featureValue`}>
+                        <Form.Label>Value</Form.Label>
+                        <Form.Control
+                          {...formControlAttrs("featureValue")}
+                          as="textarea"
+                          rows={4}
+                        />
+                        <FormErrors name="featureValue" />
+                      </Form.Group>
+                    </Form.Row>
+                  ) : (
+                    <Form.Control
+                      {...formControlAttrs("featureValue", {}, false)}
+                      type="hidden"
+                      value=""
+                    />
+                  )}
+                </Form.Group>
+              </div>
+            );
+          })}
+        </Form.Group>
+      )}
+
       <Form.Group
         className="px-3 pt-2 border-top"
         data-testid="screenshots-edit"

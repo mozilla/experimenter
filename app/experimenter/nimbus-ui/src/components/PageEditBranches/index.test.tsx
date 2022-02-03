@@ -8,11 +8,7 @@ import fetchMock from "jest-fetch-mock";
 import React from "react";
 import PageEditBranches from ".";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import {
-  CHANGELOG_MESSAGES,
-  EXTERNAL_URLS,
-  SUBMIT_ERROR,
-} from "../../lib/constants";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -50,10 +46,6 @@ describe("PageEditBranches", () => {
     });
     expect(screen.getByTestId("FormBranches")).toBeInTheDocument();
     expect(screen.getByTestId("feature-config")).toBeInTheDocument();
-    expect(screen.getByTestId("learn-more-link")).toHaveAttribute(
-      "href",
-      EXTERNAL_URLS.BRANCHES_GOOGLE_DOC,
-    );
 
     for (const feature of MOCK_CONFIG!.featureConfigs!) {
       const { name, application } = feature!;
