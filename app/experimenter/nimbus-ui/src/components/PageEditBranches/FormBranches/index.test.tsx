@@ -4,7 +4,7 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { SERVER_ERRORS } from "../../../lib/constants";
+import { EXTERNAL_URLS, SERVER_ERRORS } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import { assertSerializerMessages } from "../../../lib/test-utils";
 import {
@@ -20,6 +20,10 @@ describe("FormBranches", () => {
     render(<SubjectBranches />);
     expect(screen.getByTestId("FormBranches")).toBeInTheDocument();
     expect(screen.getByTestId("add-branch")).toBeInTheDocument();
+    expect(screen.getByTestId("learn-more-link")).toHaveAttribute(
+      "href",
+      EXTERNAL_URLS.BRANCHES_GOOGLE_DOC,
+    );
     const branches = screen.queryAllByTestId("FormBranch");
     expect(branches.length).toEqual(
       MOCK_EXPERIMENT!.treatmentBranches!.length + 1,

@@ -7,17 +7,12 @@ import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useContext } from "react";
 import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { useConfig } from "../../hooks";
-import {
-  CHANGELOG_MESSAGES,
-  EXTERNAL_URLS,
-  SUBMIT_ERROR,
-} from "../../lib/constants";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
 import { ExperimentContext } from "../../lib/contexts";
 import { editCommonRedirects } from "../../lib/experiment";
 import { ExperimentInput } from "../../types/globalTypes";
 import { updateExperiment_updateExperiment as UpdateExperimentBranchesResult } from "../../types/updateExperiment";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import LinkExternal from "../LinkExternal";
 import FormBranches from "./FormBranches";
 import { FormBranchesSaveState } from "./FormBranches/reducer";
 
@@ -89,16 +84,6 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
 
   return (
     <AppLayoutWithExperiment title="Branches" testId="PageEditBranches">
-      <p>
-        You must select a <strong>feature</strong> configuration for your
-        experiment. Experiments can only change one feature at a time.{" "}
-        <LinkExternal
-          href={EXTERNAL_URLS.BRANCHES_GOOGLE_DOC}
-          data-testid="learn-more-link"
-        >
-          Learn more
-        </LinkExternal>
-      </p>
       <FormBranches
         {...{
           experiment,

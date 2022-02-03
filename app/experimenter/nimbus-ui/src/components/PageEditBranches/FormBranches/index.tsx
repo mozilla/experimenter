@@ -9,10 +9,18 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import { FormProvider } from "react-hook-form";
+import Select from "react-select";
+import ReactTooltip from "react-tooltip";
 import { useExitWarning, useForm, useReviewCheck } from "../../../hooks";
 import { IsDirtyUnsaved } from "../../../hooks/useCommonForm/useCommonFormMethods";
-import { getConfig_nimbusConfig } from "../../../types/getConfig";
+import { ReactComponent as Info } from "../../../images/info.svg";
+import { EXTERNAL_URLS } from "../../../lib/constants";
+import {
+  getConfig_nimbusConfig,
+  getConfig_nimbusConfig_featureConfigs,
+} from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import LinkExternal from "../../LinkExternal";
 import FormBranch from "./FormBranch";
 import {
   FormBranchesSaveState,
@@ -20,6 +28,9 @@ import {
   useFormBranchesReducer,
 } from "./reducer";
 import { FormData } from "./reducer/update";
+
+const FEATURE_CONFIGURATIONS_TOOLTIP =
+  "Feature configurations tooltip goes here";
 
 type FormBranchesProps = {
   isLoading: boolean;
@@ -44,6 +55,7 @@ export const FormBranches = ({
   const [
     {
       featureConfigId: experimentFeatureConfigId,
+      featureConfigs: experimentFeatureConfigs,
       warnFeatureSchema,
       referenceBranch,
       treatmentBranches,
@@ -112,7 +124,7 @@ export const FormBranches = ({
     dispatch({ type: "setEqualRatio", value: ev.target.checked });
   };
 
-  const handlewarnFeatureSchema = (ev: React.ChangeEvent<HTMLInputElement>) => {
+  const handleWarnFeatureSchema = (ev: React.ChangeEvent<HTMLInputElement>) => {
     commitFormData();
     dispatch({
       type: "setwarnFeatureSchema",
@@ -130,6 +142,16 @@ export const FormBranches = ({
     return handleFeatureConfigChange(
       isNaN(selectedFeatureId) ? null : selectedFeatureId,
     );
+  };
+
+  const onFeatureConfigsChange = (
+    ev: Array<{ label: string; value: number | null }>,
+  ) => {
+    commitFormData();
+    dispatch({
+      type: "setFeatureConfigs",
+      value: ev.map(({ value }) => value),
+    });
   };
 
   const handleAddScreenshot = (branchIdx: number) => () => {
@@ -167,7 +189,19 @@ export const FormBranches = ({
   const commonBranchProps = {
     equalRatio,
     setSubmitErrors,
+    featureConfigs,
+    experimentFeatureConfigs,
   };
+
+  const featureConfigOptions = featureConfigs
+    ?.filter(
+      (featureConfig): featureConfig is getConfig_nimbusConfig_featureConfigs =>
+        featureConfig !== null,
+    )
+    .map(({ id, name }) => ({
+      label: name,
+      value: id,
+    }));
 
   type FormBranchProps = React.ComponentProps<typeof FormBranch>;
 
@@ -190,7 +224,50 @@ export const FormBranches = ({
           </Alert>
         ))}
 
+        <Form.Group controlId="featureConfigs" data-testid="feature-configs">
+          <Form.Label>
+            Features{" "}
+            <Info
+              data-tip={FEATURE_CONFIGURATIONS_TOOLTIP}
+              data-testid="tooltip-feature-configs"
+              width="20"
+              height="20"
+              className="ml-1"
+            />
+            <ReactTooltip />
+          </Form.Label>
+          <Select
+            isMulti
+            options={featureConfigOptions}
+            onChange={onFeatureConfigsChange}
+          />
+          {fieldMessages.feature_configs?.length > 0 && (
+            // @ts-ignore This component doesn't technically support type="warning", but
+            // all it's doing is using the string in a class, so we can safely override.
+            <Form.Control.Feedback type="warning" data-for="featureConfigs">
+              {(fieldMessages.feature_configs as SerializerMessage).join(", ")}
+            </Form.Control.Feedback>
+          )}
+          {fieldWarnings.feature_configs?.length > 0 && (
+            // @ts-ignore This component doesn't technically support type="warning", but
+            // all it's doing is using the string in a class, so we can safely override.
+            <Form.Control.Feedback type="warning" data-for="featureConfigs">
+              {(fieldWarnings.feature_configs as SerializerMessage).join(", ")}
+            </Form.Control.Feedback>
+          )}
+        </Form.Group>
+
         <Form.Group>
+          <p>
+            You must select a <strong>feature</strong> configuration for your
+            experiment. Experiments can only change one feature at a time.{" "}
+            <LinkExternal
+              href={EXTERNAL_URLS.BRANCHES_GOOGLE_DOC}
+              data-testid="learn-more-link"
+            >
+              Learn more
+            </LinkExternal>
+          </p>
           <Form.Control
             as="select"
             name="featureConfig"
@@ -238,7 +315,7 @@ export const FormBranches = ({
           <Form.Group as={Col} controlId="warnFeatureSchema">
             <Form.Check
               data-testid="equal-warn-on-feature-value-schema-invalid-checkbox"
-              onChange={handlewarnFeatureSchema}
+              onChange={handleWarnFeatureSchema}
               checked={!!warnFeatureSchema}
               type="checkbox"
               label="Warn only on feature schema validation failure"
