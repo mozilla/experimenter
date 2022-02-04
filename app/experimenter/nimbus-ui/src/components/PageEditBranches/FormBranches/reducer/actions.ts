@@ -23,6 +23,8 @@ export function formBranchesActionReducer(
       return removeBranch(state, action);
     case "setFeatureConfig":
       return setFeatureConfig(state, action);
+    case "setFeatureConfigs":
+      return setFeatureConfigs(state, action);
     case "setwarnFeatureSchema":
       return setwarnFeatureSchema(state, action);
     case "setEqualRatio":
@@ -47,6 +49,7 @@ export type FormBranchesAction =
   | RemoveBranchAction
   | SetEqualRatioAction
   | SetFeatureConfigAction
+  | SetFeatureConfigsAction
   | SetwarnFeatureSchemaAction
   | SetSubmitErrorsAction
   | ClearSubmitErrorsAction
@@ -141,6 +144,21 @@ function setFeatureConfig(
   return {
     ...state,
     featureConfigId,
+  };
+}
+
+type SetFeatureConfigsAction = {
+  type: "setFeatureConfigs";
+  value: FormBranchesState["featureConfigs"];
+};
+
+function setFeatureConfigs(
+  state: FormBranchesState,
+  { value: featureConfigs }: SetFeatureConfigsAction,
+): FormBranchesState {
+  return {
+    ...state,
+    featureConfigs: featureConfigs || null,
   };
 }
 
@@ -279,6 +297,7 @@ function commitFormData(
 
   if (referenceBranch) {
     referenceBranch = branchUpdatedWithFormData(
+      state,
       referenceBranch,
       formData.referenceBranch,
     );
@@ -287,6 +306,7 @@ function commitFormData(
   if (treatmentBranches) {
     treatmentBranches = treatmentBranches.map((treatmentBranch, idx) =>
       branchUpdatedWithFormData(
+        state,
         treatmentBranch,
         formData.treatmentBranches?.[idx],
       ),
@@ -301,9 +321,10 @@ function commitFormData(
 }
 
 function branchUpdatedWithFormData(
+  state: FormBranchesState,
   branch: AnnotatedBranch,
   formData: Partial<AnnotatedBranch> | null | undefined,
-) {
+): AnnotatedBranch {
   const screenshots = branch.screenshots?.map((screenshot, idx) => {
     const { description, image } = formData?.screenshots?.[idx] || {};
     return {
@@ -312,10 +333,19 @@ function branchUpdatedWithFormData(
       image,
     };
   });
+  const featureValues = state.featureConfigs?.map((featureConfig, idx) => {
+    const { enabled, value } = formData?.featureValues?.[idx] || {};
+    return {
+      featureConfig,
+      enabled,
+      value,
+    };
+  });
   return {
     ...branch,
     ...formData,
     screenshots,
+    featureValues,
   };
 }
 

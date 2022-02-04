@@ -13,7 +13,7 @@ import {
 
 export type FormBranchesState = Pick<
   ExperimentInput,
-  "featureConfigId" | "warnFeatureSchema"
+  "featureConfigId" | "featureConfigs" | "warnFeatureSchema"
 > & {
   referenceBranch: null | AnnotatedBranch;
   treatmentBranches: null | AnnotatedBranch[];
