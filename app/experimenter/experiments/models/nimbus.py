@@ -130,13 +130,13 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     total_enrolled_clients = models.PositiveIntegerField(default=0)
     firefox_min_version = models.CharField(
         max_length=255,
-        choices=NimbusConstants.Version.choices,
         default=NimbusConstants.Version.NO_VERSION,
+        blank=True,
     )
     firefox_max_version = models.CharField(
         max_length=255,
-        choices=NimbusConstants.Version.choices,
         default=NimbusConstants.Version.NO_VERSION,
+        blank=True,
     )
     application = models.CharField(
         max_length=255,
