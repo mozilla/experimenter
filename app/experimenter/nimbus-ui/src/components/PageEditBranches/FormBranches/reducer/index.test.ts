@@ -258,6 +258,37 @@ describe("formBranchesReducer", () => {
     );
   });
 
+  describe("setFeatureConfigs", () => {
+    const initialState = {
+      ...MOCK_STATE,
+      featureConfigs: [1, 2, 3, 4, 5],
+    };
+
+    it("accepts a null value to clear the list", () => {
+      const { featureConfigs } = formBranchesActionReducer(initialState, {
+        type: "setFeatureConfigs",
+        value: null,
+      });
+      expect(featureConfigs).toEqual(null);
+    });
+
+    it("accepts an undefined value to clear the list", () => {
+      const { featureConfigs } = formBranchesActionReducer(initialState, {
+        type: "setFeatureConfigs",
+        value: undefined,
+      });
+      expect(featureConfigs).toEqual(null);
+    });
+
+    it("accepts a list of ids to update the list", () => {
+      const { featureConfigs } = formBranchesActionReducer(initialState, {
+        type: "setFeatureConfigs",
+        value: [8, 6, 7, 5],
+      });
+      expect(featureConfigs).toEqual([8, 6, 7, 5]);
+    });
+  });
+
   describe("setSubmitErrors", () => {
     const submitErrors = {
       "*": ["This is bad"],
@@ -408,7 +439,14 @@ describe("formBranchesReducer", () => {
       referenceBranch: { name: "Name from form" },
       treatmentBranches: [
         { description: "Description 1" },
-        { description: "Description 2" },
+        {
+          description: "Description 2",
+          featureValues: [
+            { enabled: true, value: "{ foo: true }" },
+            { enabled: false },
+            { value: "{ bar: 123 }" },
+          ],
+        },
       ],
     };
 
@@ -427,6 +465,42 @@ describe("formBranchesReducer", () => {
       expect(newState.treatmentBranches![1]!.description).toEqual(
         formData.treatmentBranches[1].description,
       );
+      expect(newState.treatmentBranches![1]!.featureValues).toBeUndefined();
+    });
+
+    it("accepts feature configs per branch", () => {
+      const oldState = { ...MOCK_STATE, featureConfigs: [8, 6, 7, 5] };
+      const newState = formBranchesActionReducer(oldState, {
+        type: "commitFormData",
+        formData,
+      });
+      expect(newState.referenceBranch!.name).toEqual(
+        formData.referenceBranch.name,
+      );
+      expect(newState.treatmentBranches![0]!.description).toEqual(
+        formData.treatmentBranches[0].description,
+      );
+      expect(newState.treatmentBranches![1]!.description).toEqual(
+        formData.treatmentBranches[1].description,
+      );
+      expect(newState.treatmentBranches![1]!.featureValues).toEqual([
+        {
+          featureConfig: 8,
+          enabled: true,
+          value: "{ foo: true }",
+        },
+        {
+          featureConfig: 6,
+          enabled: false,
+        },
+        {
+          featureConfig: 7,
+          value: "{ bar: 123 }",
+        },
+        {
+          featureConfig: 5,
+        },
+      ]);
     });
 
     it("does not fail when missing data", () => {
