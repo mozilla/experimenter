@@ -8,16 +8,13 @@ from parameterized import parameterized
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.jetstream import tasks
-from experimenter.jetstream.models import (
-    BranchComparisonData,
-    DataPoint,
-    Group,
-    JetstreamDataPoint,
-    MetricData,
-    SignificanceData,
-)
+from experimenter.jetstream.models import Group
 from experimenter.jetstream.tests import mock_valid_outcomes
-from experimenter.jetstream.tests.constants import TestConstants
+from experimenter.jetstream.tests.constants import (
+    JetstreamTestData,
+    NonePointJetstreamTestData,
+    ZeroJetstreamTestData,
+)
 from experimenter.outcomes import Outcomes
 
 
@@ -30,57 +27,6 @@ class TestFetchJetstreamDataTask(TestCase):
         super().setUp()
         Outcomes.clear_cache()
 
-    def get_metric_data(self, data_point):
-        return MetricData(
-            absolute=BranchComparisonData(first=data_point, all=[data_point]),
-            difference=BranchComparisonData(),
-            relative_uplift=BranchComparisonData(),
-            significance=SignificanceData(),
-        ).dict(exclude_none=True)
-
-    def add_outcome_data(self, data, overall_data, weekly_data, primary_outcome):
-        primary_metrics = ["default_browser_action"]
-        range_data = DataPoint(lower=2, point=4, upper=8)
-
-        for primary_metric in primary_metrics:
-            for branch in ["control", "variant"]:
-                if Group.OTHER not in overall_data[branch]["branch_data"]:
-                    overall_data[branch]["branch_data"][Group.OTHER] = {}
-                if Group.OTHER not in weekly_data[branch]["branch_data"]:
-                    weekly_data[branch]["branch_data"][Group.OTHER] = {}
-
-                data_point_overall = range_data.copy()
-                data_point_overall.count = 48.0
-                overall_data[branch]["branch_data"][Group.OTHER][
-                    primary_metric
-                ] = self.get_metric_data(data_point_overall)
-
-                data_point_weekly = range_data.copy()
-                data_point_weekly.window_index = "1"
-                weekly_data[branch]["branch_data"][Group.OTHER][
-                    primary_metric
-                ] = self.get_metric_data(data_point_weekly)
-
-                data.append(
-                    JetstreamDataPoint(
-                        **range_data.dict(exclude_none=True),
-                        metric=primary_metric,
-                        branch=branch,
-                        statistic="binomial",
-                        window_index="1",
-                    ).dict(exclude_none=True)
-                )
-
-    def add_all_outcome_data(
-        self,
-        data,
-        overall_data,
-        weekly_data,
-        primary_outcomes,
-    ):
-        for primary_outcome in primary_outcomes:
-            self.add_outcome_data(data, overall_data, weekly_data, primary_outcome)
-
     @parameterized.expand(
         [
             (NimbusExperimentFactory.Lifecycles.CREATED,),
@@ -89,12 +35,27 @@ class TestFetchJetstreamDataTask(TestCase):
     )
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
-    def test_results_data_not_null(self, lifecycle, mock_exists, mock_open):
+    def test_valid_results_data_parsed_and_stored(
+        self, lifecycle, mock_exists, mock_open
+    ):
+        primary_outcomes = ["default-browser"]
+        secondary_outcomes = ["secondary_outcome"]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            primary_outcomes=primary_outcomes,
+            secondary_outcomes=secondary_outcomes,
+        )
+        experiment.reference_branch.slug = "control"
+        experiment.reference_branch.save()
+        treatment_branch = experiment.treatment_branches[0]
+        treatment_branch.slug = "variant"
+        treatment_branch.save()
+
         (
             DAILY_DATA,
             WEEKLY_DATA,
             OVERALL_DATA,
-        ) = TestConstants.get_test_data()
+        ) = JetstreamTestData.get_test_data(primary_outcomes)
 
         FULL_DATA = {
             "daily": DAILY_DATA,
@@ -124,12 +85,28 @@ class TestFetchJetstreamDataTask(TestCase):
 
         mock_open.side_effect = open_file
         mock_exists.return_value = True
-        primary_outcome = "default-browser"
-        secondary_outcome = "secondary_outcome"
+
+        tasks.fetch_experiment_data(experiment.id)
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.results_data, FULL_DATA)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    @patch("django.core.files.storage.default_storage.open")
+    @patch("django.core.files.storage.default_storage.exists")
+    def test_results_data_with_zeros_parsed_and_stored(
+        self, lifecycle, mock_exists, mock_open
+    ):
+        primary_outcomes = ["default-browser"]
+        secondary_outcomes = ["secondary_outcome"]
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=[primary_outcome],
-            secondary_outcomes=[secondary_outcome],
+            primary_outcomes=primary_outcomes,
+            secondary_outcomes=secondary_outcomes,
         )
         experiment.reference_branch.slug = "control"
         experiment.reference_branch.save()
@@ -137,16 +114,96 @@ class TestFetchJetstreamDataTask(TestCase):
         treatment_branch.slug = "variant"
         treatment_branch.save()
 
-        self.add_all_outcome_data(
+        (
             DAILY_DATA,
-            OVERALL_DATA,
             WEEKLY_DATA,
-            experiment.primary_outcomes,
-        )
+            OVERALL_DATA,
+        ) = ZeroJetstreamTestData.get_test_data(primary_outcomes)
+
+        FULL_DATA = {
+            "daily": DAILY_DATA,
+            "weekly": WEEKLY_DATA,
+            "overall": OVERALL_DATA,
+            "other_metrics": {
+                Group.OTHER: {
+                    "some_count": "Some Count",
+                    "another_count": "Another Count",
+                },
+            },
+            "metadata": {},
+            "show_analysis": False,
+        }
+
+        class File:
+            def __init__(self, filename):
+                self.name = filename
+
+            def read(self):
+                if "metadata" in self.name:
+                    return "{}"
+                return json.dumps(DAILY_DATA)
+
+        def open_file(filename):
+            return File(filename)
+
+        mock_open.side_effect = open_file
+        mock_exists.return_value = True
 
         tasks.fetch_experiment_data(experiment.id)
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.results_data, FULL_DATA)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    @patch("django.core.files.storage.default_storage.open")
+    @patch("django.core.files.storage.default_storage.exists")
+    def test_results_data_with_null_conversion_percent(
+        self, lifecycle, mock_exists, mock_open
+    ):
+        primary_outcomes = ["default-browser"]
+        secondary_outcomes = ["secondary_outcome"]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            primary_outcomes=primary_outcomes,
+            secondary_outcomes=secondary_outcomes,
+        )
+        experiment.reference_branch.slug = "control"
+        experiment.reference_branch.save()
+        treatment_branch = experiment.treatment_branches[0]
+        treatment_branch.slug = "variant"
+        treatment_branch.save()
+
+        (
+            DAILY_DATA,
+            WEEKLY_DATA,
+            OVERALL_DATA,
+        ) = NonePointJetstreamTestData.get_test_data(primary_outcomes)
+
+        class File:
+            def __init__(self, filename):
+                self.name = filename
+
+            def read(self):
+                if "metadata" in self.name:
+                    return "{}"
+                return json.dumps(DAILY_DATA)
+
+        def open_file(filename):
+            return File(filename)
+
+        mock_open.side_effect = open_file
+        mock_exists.return_value = True
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertIsNone(experiment.results_data)
+
+        tasks.fetch_experiment_data(experiment.id)
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertIsNotNone(experiment.results_data)
 
     @parameterized.expand(
         [
