@@ -171,6 +171,12 @@ export enum NimbusExperimentStatusEnum {
   PREVIEW = "PREVIEW",
 }
 
+export interface BranchFeatureValueInput {
+  featureConfig?: number | null;
+  enabled?: boolean | null;
+  value?: string | null;
+}
+
 export interface BranchScreenshotInput {
   id?: number | null;
   image?: Upload | null;
@@ -201,6 +207,7 @@ export interface ExperimentInput {
   isEnrollmentPaused?: boolean | null;
   riskMitigationLink?: string | null;
   featureConfigId?: number | null;
+  featureConfigs?: (number | null)[] | null;
   warnFeatureSchema?: boolean | null;
   documentationLinks?: (DocumentationLinkInput | null)[] | null;
   referenceBranch?: ReferenceBranchInput | null;
@@ -232,6 +239,7 @@ export interface ReferenceBranchInput {
   ratio: number;
   featureEnabled?: boolean | null;
   featureValue?: string | null;
+  featureValues?: (BranchFeatureValueInput | null)[] | null;
   screenshots?: (BranchScreenshotInput | null)[] | null;
 }
 
@@ -242,6 +250,7 @@ export interface TreatmentBranchInput {
   ratio: number;
   featureEnabled?: boolean | null;
   featureValue?: string | null;
+  featureValues?: (BranchFeatureValueInput | null)[] | null;
   screenshots?: (BranchScreenshotInput | null)[] | null;
 }
 

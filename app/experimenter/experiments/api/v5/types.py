@@ -6,11 +6,12 @@ from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
 from experimenter.base.models import Country, Locale
-from experimenter.experiments.api.v5.serializers import NimbusReadyForReviewSerializer
+from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
+    NimbusBranchFeatureValue,
     NimbusBranchScreenshot,
     NimbusBucketRange,
     NimbusChangeLog,
@@ -108,6 +109,14 @@ class NimbusExperimentTargetingConfigType(graphene.ObjectType):
     application_values = graphene.List(graphene.String)
 
 
+class NimbusFeatureConfigType(DjangoObjectType):
+    id = graphene.Int()
+    application = NimbusExperimentApplicationEnum()
+
+    class Meta:
+        model = NimbusFeatureConfig
+
+
 class NimbusBranchScreenshotType(DjangoObjectType):
     id = graphene.Int()
     description = graphene.String()
@@ -121,15 +130,29 @@ class NimbusBranchScreenshotType(DjangoObjectType):
             return root.image.url
 
 
+class NimbusBranchFeatureValueType(DjangoObjectType):
+    id = graphene.Int()
+    feature_config = graphene.Field(NimbusFeatureConfigType)
+    enabled = graphene.Boolean()
+    value = graphene.String()
+
+    class Meta:
+        model = NimbusBranchFeatureValue
+
+
 class NimbusBranchType(DjangoObjectType):
     id = graphene.Int(required=False)
     feature_enabled = graphene.Boolean(required=True)
     feature_value = graphene.String(required=False)
+    feature_values = graphene.List(NimbusBranchFeatureValueType)
     screenshots = DjangoListField(NimbusBranchScreenshotType)
 
     class Meta:
         model = NimbusBranch
         exclude = ("experiment", "nimbusexperiment")
+
+    def resolve_feature_values(root, info):
+        return root.feature_values.all()
 
     def resolve_feature_enabled(root, info):
         return (
@@ -148,14 +171,6 @@ class NimbusDocumentationLinkType(DjangoObjectType):
     class Meta:
         model = NimbusDocumentationLink
         exclude = ("id", "experiment")
-
-
-class NimbusFeatureConfigType(DjangoObjectType):
-    id = graphene.Int()
-    application = NimbusExperimentApplicationEnum()
-
-    class Meta:
-        model = NimbusFeatureConfig
 
 
 class ProjectType(DjangoObjectType):
@@ -192,7 +207,7 @@ class NimbusOutcomeType(graphene.ObjectType):
     metrics = graphene.List(NimbusOutcomeMetricType)
 
 
-class NimbusReadyForReviewType(graphene.ObjectType):
+class NimbusReviewType(graphene.ObjectType):
     message = ObjectField()
     warnings = ObjectField()
     ready = graphene.Boolean()
@@ -327,8 +342,9 @@ class NimbusExperimentType(DjangoObjectType):
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)
     feature_config = graphene.Field(NimbusFeatureConfigType)
+    feature_configs = graphene.List(NimbusFeatureConfigType)
     warn_feature_schema = graphene.Boolean()
-    ready_for_review = graphene.Field(NimbusReadyForReviewType)
+    ready_for_review = graphene.Field(NimbusReviewType)
     monitoring_dashboard_url = graphene.String()
     results_ready = graphene.Boolean()
     start_date = graphene.DateTime()
@@ -359,6 +375,9 @@ class NimbusExperimentType(DjangoObjectType):
         if self.feature_configs.exists():
             return self.feature_configs.all().order_by("slug").first()
 
+    def resolve_feature_configs(self, info):
+        return self.feature_configs.all()
+
     def resolve_reference_branch(self, info):
         if self.reference_branch:
             return self.reference_branch
@@ -370,12 +389,12 @@ class NimbusExperimentType(DjangoObjectType):
         return [NimbusBranch(name=NimbusConstants.DEFAULT_TREATMENT_BRANCH_NAME)]
 
     def resolve_ready_for_review(self, info):
-        serializer = NimbusReadyForReviewSerializer(
+        serializer = NimbusReviewSerializer(
             self,
-            data=NimbusReadyForReviewSerializer(self).data,
+            data=NimbusReviewSerializer(self).data,
         )
         ready = serializer.is_valid()
-        return NimbusReadyForReviewType(
+        return NimbusReviewType(
             message=serializer.errors,
             warnings=serializer.warnings,
             ready=ready,
