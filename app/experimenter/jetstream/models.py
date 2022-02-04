@@ -103,16 +103,21 @@ class JetstreamData(BaseModel):
                 continue
 
             if jetstream_data_point.metric == Metric.USER_COUNT:
-                total_population += jetstream_data_point.point
+                if jetstream_data_point.point is not None:
+                    total_population += jetstream_data_point.point
                 branches[jetstream_data_point.branch] = jetstream_data_point.point
 
         for branch_name, branch_user_count in sorted(branches.items()):
+            point = 0
+            if total_population > 0:
+                point = round(branch_user_count / total_population * 100)
+
             self.append(
                 JetstreamDataPoint(
                     metric=Metric.USER_COUNT,
                     statistic=Statistic.PERCENT,
                     branch=branch_name,
-                    point=round(branch_user_count / total_population * 100),
+                    point=point,
                 )
             )
 
@@ -247,7 +252,10 @@ class ResultsObjectModelBase(BaseModel):
 
                 population_count = absolute_user_counts.first.point
                 conversion_percent = absolute_primary_metric_vals.first.point
-                conversion_count = population_count * conversion_percent
+
+                conversion_count = 0.0
+                if None not in (population_count, conversion_percent):
+                    conversion_count = population_count * conversion_percent
 
                 absolute_primary_metric_vals.first.count = conversion_count
                 absolute_primary_metric_vals.all[0].count = conversion_count
