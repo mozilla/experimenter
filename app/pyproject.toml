@@ -25,7 +25,7 @@ pytest = "6.2.4"
 pytest-django = "4.5.1"
 pytest-testmon = "1.2.0"
 pytest-watch = "4.2.0"
-python-decouple = "3.5"
+python-decouple = "3.6"
 raven = "6.10.0"
 redis = "3.5.3"
 requests = {version = "2.26.0", extras = ["security"]}
