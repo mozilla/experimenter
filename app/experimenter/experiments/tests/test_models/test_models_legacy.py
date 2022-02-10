@@ -1652,14 +1652,14 @@ class TestVariantPreferences(TestCase):
 
         pv2.save()
 
-        self.assertTrue(self.variant.preferences.count, 2)
+        self.assertEqual(self.variant.preferences.count(), 2)
 
     def test_valid_pref_is_able_to_update_itself(self):
         self.pref.value = 6
 
         self.pref.save()
 
-        self.assertTrue(self.variant.preferences.count, 1)
+        self.assertEqual(self.variant.preferences.count(), 1)
 
     def test_is_json_string_type_returns_false(self):
         self.assertFalse(self.pref.is_json_string_type)
