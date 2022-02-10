@@ -169,7 +169,7 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(self.experiment.changes.count(), 0)
 
         experiment = serializer.save()
-        self.assertTrue(experiment.variants.all().count(), 1)
+        self.assertEqual(experiment.variants.all().count(), 1)
         self.assertEqual(experiment.changes.count(), 1)
 
         control = ExperimentVariant.objects.get(experiment=experiment, is_control=True)
