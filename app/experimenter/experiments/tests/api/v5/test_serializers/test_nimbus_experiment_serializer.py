@@ -12,6 +12,7 @@ from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.models.nimbus import NimbusBucketRange
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
@@ -287,6 +288,153 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.name, "New Name")
         self.assertEqual(experiment.slug, "existing-name")
         self.assertEqual(experiment.public_description, "New public description")
+
+    def test_saves_branches_single_feature(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+        )
+        experiment.branches.all().delete()
+
+        data = {
+            "feature_config": feature_config.id,
+            "reference_branch": {
+                "name": "control",
+                "description": "a control",
+                "ratio": 1,
+                "feature_enabled": False,
+                "feature_value": "",
+            },
+            "treatment_branches": [
+                {
+                    "name": "treatment",
+                    "description": "a treatment",
+                    "ratio": 1,
+                    "feature_enabled": True,
+                    "feature_value": "{'this': 'that'}",
+                }
+            ],
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(
+            experiment, data=data, context={"user": self.user}
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        experiment = serializer.save()
+        self.assertEqual(list(experiment.feature_configs.all()), [feature_config])
+        self.assertEqual(experiment.reference_branch.name, "control")
+        self.assertEqual(experiment.reference_branch.description, "a control")
+        self.assertEqual(experiment.reference_branch.ratio, 1)
+
+        reference_feature_value = experiment.reference_branch.feature_values.get()
+        self.assertEqual(reference_feature_value.feature_config, feature_config)
+        self.assertFalse(reference_feature_value.enabled)
+        self.assertEqual(reference_feature_value.value, "")
+
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, "treatment")
+        self.assertEqual(treatment_branch.description, "a treatment")
+        self.assertEqual(treatment_branch.ratio, 1)
+
+        treatment_feature_value = treatment_branch.feature_values.get()
+        self.assertEqual(treatment_feature_value.feature_config, feature_config)
+        self.assertTrue(treatment_feature_value.enabled)
+        self.assertEqual(treatment_feature_value.value, "{'this': 'that'}")
+
+    def test_saves_branches_multi_feature(self):
+        feature1 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        feature2 = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+        )
+        experiment.branches.all().delete()
+
+        data = {
+            "feature_configs": [feature1.id, feature2.id],
+            "reference_branch": {
+                "name": "control",
+                "description": "a control",
+                "ratio": 1,
+                "feature_values": [
+                    {
+                        "feature_config": feature1.id,
+                        "enabled": False,
+                        "value": "",
+                    },
+                    {
+                        "feature_config": feature2.id,
+                        "enabled": False,
+                        "value": "",
+                    },
+                ],
+            },
+            "treatment_branches": [
+                {
+                    "name": "treatment",
+                    "description": "a treatment",
+                    "ratio": 1,
+                    "feature_values": [
+                        {
+                            "feature_config": feature1.id,
+                            "enabled": True,
+                            "value": f"{{'{feature1.name}': 'value'}}",
+                        },
+                        {
+                            "feature_config": feature2.id,
+                            "enabled": True,
+                            "value": f"{{'{feature2.name}': 'value'}}",
+                        },
+                    ],
+                }
+            ],
+            "changelog_message": "test changelog message",
+        }
+
+        serializer = NimbusExperimentSerializer(
+            experiment, data=data, context={"user": self.user}
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        experiment = serializer.save()
+        self.assertEqual(set(experiment.feature_configs.all()), {feature1, feature2})
+        self.assertEqual(experiment.reference_branch.name, "control")
+        self.assertEqual(experiment.reference_branch.description, "a control")
+        self.assertEqual(experiment.reference_branch.ratio, 1)
+
+        for feature in [feature1, feature2]:
+            reference_feature_value = experiment.reference_branch.feature_values.get(
+                feature_config=feature
+            )
+            self.assertFalse(reference_feature_value.enabled)
+            self.assertEqual(reference_feature_value.value, "")
+
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, "treatment")
+        self.assertEqual(treatment_branch.description, "a treatment")
+        self.assertEqual(treatment_branch.ratio, 1)
+
+        for feature in [feature1, feature2]:
+            treatment_feature_value = treatment_branch.feature_values.get(
+                feature_config=feature
+            )
+            self.assertTrue(treatment_feature_value.enabled)
+            self.assertEqual(
+                treatment_feature_value.value, f"{{'{feature.name}': 'value'}}"
+            )
 
     def test_serializer_updates_audience_on_experiment(self):
         country = CountryFactory.create()
