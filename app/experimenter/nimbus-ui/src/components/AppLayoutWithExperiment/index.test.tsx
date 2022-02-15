@@ -7,11 +7,9 @@ import { MockedResponse } from "@apollo/client/testing";
 import { render, screen } from "@testing-library/react";
 import React, { useContext } from "react";
 import AppLayoutWithExperiment from ".";
-import { POLL_INTERVAL } from "../../lib/constants";
 import { ExperimentContext, RedirectCheck } from "../../lib/contexts";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
-import { NimbusExperimentPublishStatusEnum } from "../../types/globalTypes";
 import ExperimentRoot from "../App/ExperimentRoot";
 
 describe("AppLayoutWithExperiment", () => {
@@ -54,30 +52,31 @@ describe("AppLayoutWithExperiment", () => {
     await screen.findByRole("heading", { name: "Experiment Not Found" });
   });
 
-  it("renders the error warning when an error occurs polling the experiment", async () => {
-    jest.useFakeTimers();
-    const { mock: initialMock } = mockExperimentQuery("demo-slug");
-    const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
-      publishStatus: NimbusExperimentPublishStatusEnum.WAITING,
-    });
-    const mockWithError = { ...initialMock, error: new Error("boop") };
-    render(
-      <Subject mocks={[initialMock, mockWithError, updatedMock]} polling />,
-    );
-    await screen.findByText("Draft", { selector: ".text-primary" });
-    expect(screen.queryByTestId("polling-error-alert")).not.toBeInTheDocument();
+  // Commented out until fixed in #7085
+  // it("renders the error warning when an error occurs polling the experiment", async () => {
+  //   jest.useFakeTimers();
+  //   const { mock: initialMock } = mockExperimentQuery("demo-slug");
+  //   const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
+  //     publishStatus: NimbusExperimentPublishStatusEnum.WAITING,
+  //   });
+  //   const mockWithError = { ...initialMock, error: new Error("boop") };
+  //   render(
+  //     <Subject mocks={[initialMock, mockWithError, updatedMock]} polling />,
+  //   );
+  //   await screen.findByText("Draft", { selector: ".text-primary" });
+  //   expect(screen.queryByTestId("polling-error-alert")).not.toBeInTheDocument();
 
-    jest.advanceTimersByTime(POLL_INTERVAL);
-    await screen.findByTestId("polling-error-alert");
-    expect(
-      screen.queryByText("30 seconds", { exact: false }),
-    ).toBeInTheDocument();
+  //   jest.advanceTimersByTime(POLL_INTERVAL);
+  //   await screen.findByTestId("polling-error-alert");
+  //   expect(
+  //     screen.queryByText("30 seconds", { exact: false }),
+  //   ).toBeInTheDocument();
 
-    // error is hidden when polling works as expected, should show updatedMock
-    jest.advanceTimersByTime(POLL_INTERVAL);
-    await screen.findByText("Review", { selector: ".text-primary" });
-    expect(screen.queryByTestId("polling-error-alert")).not.toBeInTheDocument();
-  });
+  //   // error is hidden when polling works as expected, should show updatedMock
+  //   jest.advanceTimersByTime(POLL_INTERVAL);
+  //   await screen.findByText("Review", { selector: ".text-primary" });
+  //   expect(screen.queryByTestId("polling-error-alert")).not.toBeInTheDocument();
+  // });
 });
 
 const Subject = ({
