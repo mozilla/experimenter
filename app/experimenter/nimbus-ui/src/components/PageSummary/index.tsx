@@ -6,8 +6,10 @@ import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import { useChangeOperationMutation, useReviewCheck } from "../../hooks";
+import { ReactComponent as InfoCircle } from "../../images/info-circle.svg";
 import {
   CHANGELOG_MESSAGES,
+  EXTERNAL_URLS,
   LIFECYCLE_REVIEW_FLOWS,
 } from "../../lib/constants";
 import { ExperimentContext } from "../../lib/contexts";
@@ -157,6 +159,22 @@ const PageSummary = (props: RouteComponentProps) => {
     onPauseReviewRejectedClicked,
   ]);
 
+  let launchDocs;
+  if (
+    summaryAction === LIFECYCLE_REVIEW_FLOWS.LAUNCH.reviewSummary ||
+    summaryAction === "Request Launch"
+  ) {
+    launchDocs = (
+      <a
+        href={EXTERNAL_URLS.LAUNCH_DOCUMENTATION}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <InfoCircle />
+      </a>
+    );
+  }
+
   return (
     <AppLayoutWithExperiment testId="PageSummary" setHead={false}>
       {status.complete && <Takeaways {...takeawaysProps} />}
@@ -169,7 +187,11 @@ const PageSummary = (props: RouteComponentProps) => {
         </Alert>
       )}
 
-      {summaryAction && <h2 className="mt-3 mb-4 h4">{summaryAction}</h2>}
+      {summaryAction && (
+        <h2 className="mt-3 mb-4 h4">
+          {summaryAction} {launchDocs}
+        </h2>
+      )}
 
       <ChangeApprovalOperations
         {...{
