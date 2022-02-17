@@ -62,6 +62,8 @@ export const EXTERNAL_URLS = {
   FEEDBACK: "https://bit.ly/38dgkqR",
   DETAILED_ANALYSIS_TEMPLATE: (slug: string) =>
     `https://protosaur.dev/partybal/${slug.replace(/-/g, "_")}.html`,
+  LAUNCH_DOCUMENTATION:
+    "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
 };
 
 export const RISK_QUESTIONS = {
