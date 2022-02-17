@@ -448,8 +448,22 @@ TARGETING_PIP_NEVER_USED = NimbusTargetingConfig(
         !('media.videocontrols.picture-in-picture.video-toggle.has-used'|preferenceValue)
         &&
         ('media.videocontrols.picture-in-picture.enabled'|preferenceValue)
+        &&
+        ('media.videocontrols.picture-in-picture.video-toggle.enabled'|preferenceValue)
     )
     """,
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_PIP_NEVER_USED_STICKY = NimbusTargetingConfig(
+    name="PiP Never Used (Sticky)",
+    slug="pip_never_used_sticky",
+    description="Users that have never used Picture in Picture, with sticky enrollment",
+    targeting="(({pip}) || ({sticky}))".format(
+        pip=TARGETING_PIP_NEVER_USED.targeting,
+        sticky=TARGETING_STICKY,
+    ),
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -671,6 +685,7 @@ class NimbusConstants(object):
             TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN
         ),
         TARGETING_PIP_NEVER_USED.slug: TARGETING_PIP_NEVER_USED,
+        TARGETING_PIP_NEVER_USED_STICKY.slug: TARGETING_PIP_NEVER_USED_STICKY,
     }
 
     class TargetingConfig(models.TextChoices):
@@ -758,6 +773,10 @@ class NimbusConstants(object):
         TARGETING_PIP_NEVER_USED = (
             TARGETING_PIP_NEVER_USED.slug,
             TARGETING_PIP_NEVER_USED.name,
+        )
+        TARGETING_PIP_NEVER_USED_STICKY = (
+            TARGETING_PIP_NEVER_USED_STICKY.slug,
+            TARGETING_PIP_NEVER_USED_STICKY.name,
         )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
