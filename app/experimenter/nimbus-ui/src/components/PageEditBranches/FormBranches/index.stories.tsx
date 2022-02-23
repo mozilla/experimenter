@@ -149,7 +149,7 @@ storiesOf("pages/EditBranches/FormBranches", module)
       {...commonFormBranchesProps}
       experiment={{
         ...MOCK_EXPERIMENT,
-        featureConfig: MOCK_FEATURE_CONFIG,
+        featureConfigs: [MOCK_FEATURE_CONFIG],
       }}
     />
   ))
@@ -158,7 +158,7 @@ storiesOf("pages/EditBranches/FormBranches", module)
       {...commonFormBranchesProps}
       experiment={{
         ...MOCK_EXPERIMENT,
-        featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+        featureConfigs: [MOCK_FEATURE_CONFIG_WITH_SCHEMA],
       }}
     />
   ))
@@ -169,7 +169,7 @@ storiesOf("pages/EditBranches/FormBranches", module)
       }}
       experiment={{
         ...MOCK_EXPERIMENT,
-        featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+        featureConfigs: [MOCK_FEATURE_CONFIG_WITH_SCHEMA],
         readyForReview: {
           ready: false,
           message: {
@@ -233,7 +233,7 @@ storiesOf("pages/EditBranches/FormBranches", module)
         }}
         experiment={{
           ...MOCK_EXPERIMENT,
-          featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+          featureConfigs: [MOCK_FEATURE_CONFIG_WITH_SCHEMA],
         }}
       />
     );

@@ -52,7 +52,7 @@ export interface getExperiment_experimentBySlug_treatmentBranches {
   screenshots: getExperiment_experimentBySlug_treatmentBranches_screenshots[] | null;
 }
 
-export interface getExperiment_experimentBySlug_featureConfig {
+export interface getExperiment_experimentBySlug_featureConfigs {
   id: number | null;
   slug: string;
   name: string;
@@ -142,7 +142,7 @@ export interface getExperiment_experimentBySlug {
   warnFeatureSchema: boolean | null;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
-  featureConfig: getExperiment_experimentBySlug_featureConfig | null;
+  featureConfigs: (getExperiment_experimentBySlug_featureConfigs | null)[] | null;
   primaryOutcomes: (string | null)[] | null;
   secondaryOutcomes: (string | null)[] | null;
   channel: NimbusExperimentChannelEnum | null;

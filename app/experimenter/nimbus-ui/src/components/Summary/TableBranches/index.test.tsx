@@ -77,10 +77,10 @@ describe("TableBranches", () => {
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
-          featureConfig: {
-            ...MOCK_EXPERIMENT.featureConfig!,
+          featureConfigs: MOCK_EXPERIMENT.featureConfigs!.map((f) => ({
+            ...f!,
             schema: null,
-          },
+          })),
         }}
       />,
     );

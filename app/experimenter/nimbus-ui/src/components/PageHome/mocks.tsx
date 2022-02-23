@@ -12,14 +12,14 @@ export const MOCK_EXPERIMENTS = mockDirectoryExperiments();
 export const DEFAULT_OPTIONS: FilterOptions = {
   owners: MOCK_CONFIG!.owners,
   applications: MOCK_CONFIG!.applications!,
-  featureConfigs: MOCK_CONFIG!.featureConfigs!,
+  allFeatureConfigs: MOCK_CONFIG!.allFeatureConfigs!,
   firefoxVersions: MOCK_CONFIG!.firefoxVersions!,
 };
 
 export const DEFAULT_VALUE: FilterValue = {
   owners: [],
   applications: [],
-  featureConfigs: [],
+  allFeatureConfigs: [],
   firefoxVersions: [],
 };
 

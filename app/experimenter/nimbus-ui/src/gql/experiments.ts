@@ -87,7 +87,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         }
       }
 
-      featureConfig {
+      featureConfigs {
         id
         slug
         name
@@ -187,7 +187,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       owner {
         username
       }
-      featureConfig {
+      featureConfigs {
         id
         slug
         name

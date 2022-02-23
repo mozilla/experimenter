@@ -21,8 +21,6 @@ export function formBranchesActionReducer(
       return addBranch(state);
     case "removeBranch":
       return removeBranch(state, action);
-    case "setFeatureConfig":
-      return setFeatureConfig(state, action);
     case "setFeatureConfigs":
       return setFeatureConfigs(state, action);
     case "setwarnFeatureSchema":
@@ -48,7 +46,6 @@ export type FormBranchesAction =
   | AddBranchAction
   | RemoveBranchAction
   | SetEqualRatioAction
-  | SetFeatureConfigAction
   | SetFeatureConfigsAction
   | SetwarnFeatureSchemaAction
   | SetSubmitErrorsAction
@@ -105,60 +102,18 @@ function removeBranch(
   };
 }
 
-function removeFeatureConfig(state: FormBranchesState): FormBranchesState {
-  let { referenceBranch, treatmentBranches } = state;
-
-  if (referenceBranch) {
-    referenceBranch = {
-      ...referenceBranch,
-      featureEnabled: false,
-      featureValue: null,
-    };
-  }
-
-  if (Array.isArray(treatmentBranches)) {
-    treatmentBranches = treatmentBranches.map(
-      (branch) =>
-        branch && { ...branch, featureEnabled: false, featureValue: null },
-    );
-  }
-
-  return {
-    ...state,
-    featureConfigId: null,
-    referenceBranch,
-    treatmentBranches,
-  };
-}
-
-type SetFeatureConfigAction = {
-  type: "setFeatureConfig";
-  value: FormBranchesState["featureConfigId"];
-};
-
-function setFeatureConfig(
-  state: FormBranchesState,
-  { value: featureConfigId }: SetFeatureConfigAction,
-): FormBranchesState {
-  if (!featureConfigId) return removeFeatureConfig(state);
-  return {
-    ...state,
-    featureConfigId,
-  };
-}
-
 type SetFeatureConfigsAction = {
   type: "setFeatureConfigs";
-  value: FormBranchesState["featureConfigs"];
+  value: FormBranchesState["featureConfigIds"];
 };
 
 function setFeatureConfigs(
   state: FormBranchesState,
-  { value: featureConfigs }: SetFeatureConfigsAction,
+  { value: featureConfigIds }: SetFeatureConfigsAction,
 ): FormBranchesState {
   return {
     ...state,
-    featureConfigs: featureConfigs || null,
+    featureConfigIds: featureConfigIds || null,
   };
 }
 
@@ -333,10 +288,10 @@ function branchUpdatedWithFormData(
       image,
     };
   });
-  const featureValues = state.featureConfigs?.map((featureConfig, idx) => {
+  const featureValues = state.featureConfigIds?.map((featureConfigId, idx) => {
     const { enabled, value } = formData?.featureValues?.[idx] || {};
     return {
-      featureConfig,
+      featureConfigId,
       enabled,
       value,
     };

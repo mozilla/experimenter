@@ -41,8 +41,6 @@ const TableBranches = ({
 }: {
   experiment: getExperiment_experimentBySlug;
 }) => {
-  const { featureConfig } = experiment;
-  const hasSchema = featureConfig?.schema !== null;
   const branches = [
     experiment.referenceBranch,
     ...(experiment.treatmentBranches || []),
@@ -59,7 +57,7 @@ const TableBranches = ({
       ) : (
         <>
           {savedBranches.map((branch, key) => (
-            <TableBranch key={key} {...{ hasSchema, experiment, branch }} />
+            <TableBranch key={key} {...{ experiment, branch }} />
           ))}
         </>
       )}
@@ -68,11 +66,9 @@ const TableBranches = ({
 };
 
 const TableBranch = ({
-  hasSchema,
   experiment,
   branch,
 }: {
-  hasSchema: boolean;
   experiment: getExperiment_experimentBySlug;
   branch: Branch;
 }) => {
@@ -141,7 +137,7 @@ const TableBranch = ({
             {featureEnabled ? "True" : "False"}
           </td>
         </tr>
-        {hasSchema && featureEnabled && (
+        {featureEnabled && (
           <tr>
             <th>Value</th>
             <td data-testid="branch-featureValue">

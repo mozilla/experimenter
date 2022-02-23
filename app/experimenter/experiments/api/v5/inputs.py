@@ -65,7 +65,7 @@ class ExperimentInput(graphene.InputObjectType):
     is_enrollment_paused = graphene.Boolean()
     risk_mitigation_link = graphene.String()
     feature_config_id = graphene.Int()
-    feature_configs = graphene.List(graphene.Int)
+    feature_config_ids = graphene.List(graphene.Int)
     warn_feature_schema = graphene.Boolean()
     documentation_links = graphene.List(DocumentationLinkInput)
     reference_branch = graphene.Field(ReferenceBranchInput)
