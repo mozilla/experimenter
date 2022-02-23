@@ -292,6 +292,19 @@ TARGETING_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_NO_ENTERPRISE_OR_RECENT_VPN = NimbusTargetingConfig(
+    name="No enterprise and no VPN connection in the last 30 days",
+    slug="no_enterprise_and_no_vpn_connection_last_30_days",
+    description="Exclude enterprise & users who have used MozVPN in the last 30 days",
+    targeting=(
+        f"{TARGETING_NO_ENTERPRISE.targeting} && "
+        '(("e6eb0d1e856335fc" in attachedFxAOAuthClients|mapToProperty("id")) ? '
+        '(attachedFxAOAuthClients[.id == "e6eb0d1e856335fc"].lastAccessedDaysAgo > 29) : '
+        "true)"
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
 
 TARGETING_INFREQUENT_USER_URIS = NimbusTargetingConfig(
     name="Infrequent user (uris)",
@@ -667,6 +680,7 @@ class NimbusConstants(object):
         TARGETING_MOBILE_NEW_USER.slug: TARGETING_MOBILE_NEW_USER,
         TARGETING_MOBILE_RECENTLY_UPDATED.slug: TARGETING_MOBILE_RECENTLY_UPDATED,
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug: TARGETING_NO_ENTERPRISE_OR_PAST_VPN,
+        TARGETING_NO_ENTERPRISE_OR_RECENT_VPN.slug: TARGETING_NO_ENTERPRISE_OR_RECENT_VPN,
         TARGETING_INFREQUENT_USER_URIS.slug: TARGETING_INFREQUENT_USER_URIS,
         TARGETING_INFREQUENT_USER_NEED_PIN.slug: TARGETING_INFREQUENT_USER_NEED_PIN,
         TARGETING_INFREQUENT_WIN_USER_NEED_PIN.slug: (
@@ -761,6 +775,10 @@ class NimbusConstants(object):
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN = (
             TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug,
             TARGETING_NO_ENTERPRISE_OR_PAST_VPN.name,
+        )
+        TARGETING_NO_ENTERPRISE_OR_RECENT_VPN = (
+            TARGETING_NO_ENTERPRISE_OR_RECENT_VPN.slug,
+            TARGETING_NO_ENTERPRISE_OR_RECENT_VPN.name,
         )
         TARGETING_POCKET_COMMON = (
             TARGETING_POCKET_COMMON.slug,
