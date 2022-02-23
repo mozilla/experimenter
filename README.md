@@ -43,7 +43,7 @@ On all platforms:
 - Install [Node](https://nodejs.org/en/) ^14.0.0
 - On Linux [setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
 - On MacOS
-  - [Install Docker Desktop 3.3.2](https://docs.docker.com/docker-for-mac/release-notes/#docker-desktop-332) (Newer versions have been buggy)
+  - [Install Docker Desktop](https://www.docker.com/products/docker-desktop)
   - Adjust resource settings
     - CPU: Max number of cores
     - Memory: 50% of system memory
