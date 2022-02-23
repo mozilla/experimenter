@@ -7,7 +7,7 @@ import { getConfig_nimbusConfig } from "../../types/getConfig";
 export const filterValueKeys = [
   "owners",
   "applications",
-  "featureConfigs",
+  "allFeatureConfigs",
   "firefoxVersions",
 ] as const;
 

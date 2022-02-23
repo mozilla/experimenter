@@ -6,17 +6,18 @@ import React from "react";
 import TableBranches from ".";
 import { mockExperimentQuery } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import AppLayout from "../../AppLayout";
 
 type TableBranchesProps = React.ComponentProps<typeof TableBranches>;
 
 const { experiment } = mockExperimentQuery("demo-slug", {});
-export const MOCK_EXPERIMENT = {
+export const MOCK_EXPERIMENT: getExperiment_experimentBySlug = {
   ...experiment,
-  featureConfig: {
-    ...experiment.featureConfig!,
+  featureConfigs: experiment.featureConfigs!.map((f) => ({
+    ...f!,
     schema: "{}",
-  },
+  })),
 };
 
 export const Subject = ({

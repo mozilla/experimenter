@@ -26,7 +26,7 @@ export const GET_CONFIG_QUERY = gql`
           value
         }
       }
-      featureConfigs {
+      allFeatureConfigs {
         id
         name
         slug

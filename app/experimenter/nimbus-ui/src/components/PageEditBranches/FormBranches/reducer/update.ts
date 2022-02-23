@@ -11,7 +11,7 @@ import { AnnotatedBranch, FormBranchesState } from "./state";
 
 export type FormBranchesSaveState = Pick<
   ExperimentInput,
-  | "featureConfigId"
+  | "featureConfigIds"
   | "warnFeatureSchema"
   | "referenceBranch"
   | "treatmentBranches"
@@ -29,7 +29,7 @@ export function extractUpdateState(
   formData: FormData,
 ): FormBranchesSaveState {
   const {
-    featureConfigId,
+    featureConfigIds,
     warnFeatureSchema,
     referenceBranch,
     treatmentBranches,
@@ -40,7 +40,7 @@ export function extractUpdateState(
   }
 
   return {
-    featureConfigId,
+    featureConfigIds,
     warnFeatureSchema,
     referenceBranch: extractUpdateBranch(
       referenceBranch,

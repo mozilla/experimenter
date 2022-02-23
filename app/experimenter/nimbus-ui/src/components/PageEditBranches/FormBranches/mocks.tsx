@@ -13,7 +13,7 @@ import { formBranchesActionReducer } from "./reducer/actions";
 import { FormBranchesState } from "./reducer/state";
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
-  featureConfig: null, //MOCK_CONFIG!.featureConfigs![0],
+  featureConfigs: [], //MOCK_CONFIG!.featureConfigs![0],
   referenceBranch: {
     id: 123,
     name: "User-centric mobile solution",
@@ -52,7 +52,7 @@ const MOCK_STATE: FormBranchesState = {
   equalRatio: true,
   lastId: 0,
   globalErrors: [],
-  featureConfigId: null,
+  featureConfigIds: [],
   warnFeatureSchema: false,
   referenceBranch: {
     ...MOCK_EXPERIMENT.referenceBranch!,
@@ -131,7 +131,7 @@ export const SubjectBranch = ({
 export const SubjectBranches = ({
   isLoading = false,
   experiment = MOCK_EXPERIMENT,
-  featureConfigs = MOCK_CONFIG.featureConfigs,
+  allFeatureConfigs = MOCK_CONFIG.allFeatureConfigs,
   onSave = () => {},
   saveOnInitialRender = false,
 }: Partial<React.ComponentProps<typeof FormBranches>> & {
@@ -153,7 +153,7 @@ export const SubjectBranches = ({
         {...{
           isLoading,
           experiment,
-          featureConfigs,
+          allFeatureConfigs,
           onSave,
         }}
       />
@@ -170,5 +170,6 @@ export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {
   ...MOCK_BRANCH,
   screenshots: [],
 };
-export const MOCK_FEATURE_CONFIG = MOCK_CONFIG.featureConfigs![0]!;
-export const MOCK_FEATURE_CONFIG_WITH_SCHEMA = MOCK_CONFIG.featureConfigs![1]!;
+export const MOCK_FEATURE_CONFIG = MOCK_CONFIG.allFeatureConfigs![0]!;
+export const MOCK_FEATURE_CONFIG_WITH_SCHEMA =
+  MOCK_CONFIG.allFeatureConfigs![1]!;

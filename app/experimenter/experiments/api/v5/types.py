@@ -231,7 +231,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     channels = graphene.List(NimbusLabelValueType)
     countries = graphene.List(NimbusCountryType)
     documentation_link = graphene.List(NimbusLabelValueType)
-    feature_configs = graphene.List(NimbusFeatureConfigType)
+    all_feature_configs = graphene.List(NimbusFeatureConfigType)
     firefox_versions = graphene.List(NimbusLabelValueType)
     hypothesis_default = graphene.String()
     locales = graphene.List(NimbusLocaleType)
@@ -272,7 +272,7 @@ class NimbusConfigurationType(graphene.ObjectType):
             )
         return configs
 
-    def resolve_feature_configs(root, info):
+    def resolve_all_feature_configs(root, info):
         return NimbusFeatureConfig.objects.all().order_by("name")
 
     def resolve_firefox_versions(root, info):

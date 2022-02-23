@@ -12,7 +12,7 @@ import AppLayout from "../../AppLayout";
 storiesOf("components/Summary/TableOverview", module)
   .add("all fields filled out", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      featureConfig: MOCK_CONFIG.featureConfigs![1],
+      featureConfigs: [MOCK_CONFIG.allFeatureConfigs![1]],
     });
     return (
       <Subject>
@@ -22,7 +22,7 @@ storiesOf("components/Summary/TableOverview", module)
   })
   .add("filled out with multiple outcomes", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      featureConfig: MOCK_CONFIG.featureConfigs![1],
+      featureConfigs: [MOCK_CONFIG.allFeatureConfigs![1]],
       primaryOutcomes: ["picture_in_picture", "feature_C"],
       secondaryOutcomes: ["feature_b", "feature_d"],
     });

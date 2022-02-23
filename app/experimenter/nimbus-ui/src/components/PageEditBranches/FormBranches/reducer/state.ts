@@ -13,7 +13,7 @@ import {
 
 export type FormBranchesState = Pick<
   ExperimentInput,
-  "featureConfigId" | "featureConfigs" | "warnFeatureSchema"
+  "featureConfigIds" | "warnFeatureSchema"
 > & {
   referenceBranch: null | AnnotatedBranch;
   treatmentBranches: null | AnnotatedBranch[];
@@ -33,7 +33,7 @@ export type AnnotatedBranch = Omit<TreatmentBranchInput, "id"> & {
 };
 
 export function createInitialState({
-  featureConfig,
+  featureConfigs,
   warnFeatureSchema,
   referenceBranch,
   treatmentBranches,
@@ -60,7 +60,7 @@ export function createInitialState({
   return {
     lastId,
     equalRatio,
-    featureConfigId: featureConfig?.id,
+    featureConfigIds: featureConfigs?.map((f) => f?.id || null),
     warnFeatureSchema,
     globalErrors: [],
     referenceBranch: annotatedReferenceBranch,

@@ -12,15 +12,17 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentApplicationEnum } from "../../types/globalTypes";
 
-const featureConfig = {
-  id: 2,
-  name: "Mauris odio erat",
-  slug: "mauris-odio-erat",
-  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  application: NimbusExperimentApplicationEnum.FENIX,
-  ownerEmail: "dude23@yahoo.com",
-  schema: '{ "sample": "schema" }',
-};
+const featureConfigs = [
+  {
+    id: 2,
+    name: "Mauris odio erat",
+    slug: "mauris-odio-erat",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    application: NimbusExperimentApplicationEnum.FENIX,
+    ownerEmail: "dude23@yahoo.com",
+    schema: '{ "sample": "schema" }',
+  },
+];
 
 const emptyBranches: Partial<getExperiment_experimentBySlug> = {
   referenceBranch: {
@@ -66,11 +68,11 @@ const storyWithExperiment = (
 
 export const Basic = () => storyWithExperiment(emptyBranches);
 
-export const FilledOutFields = () => storyWithExperiment({ featureConfig });
+export const FilledOutFields = () => storyWithExperiment({ featureConfigs });
 
 export const MissingFields = () =>
   storyWithExperiment({
-    featureConfig,
+    featureConfigs,
     ...emptyBranches,
     readyForReview: {
       ready: false,

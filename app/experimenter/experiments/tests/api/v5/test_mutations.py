@@ -1031,7 +1031,7 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigs": [feature1.id, feature2.id],
+                    "featureConfigIds": [feature1.id, feature2.id],
                     "referenceBranch": reference_branch_data,
                     "treatmentBranches": treatment_branches_data,
                     "changelogMessage": "test changelog message",
@@ -1138,7 +1138,7 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigs": [invalid_feature_config_id],
+                    "featureConfigIds": [invalid_feature_config_id],
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                     "changelogMessage": "test changelog message",

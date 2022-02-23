@@ -151,7 +151,7 @@ export const assertSerializerMessages = async (
   });
 
   const { experiment } = mockExperimentQuery("boo", {
-    featureConfig: null,
+    featureConfigs: [],
     readyForReview: {
       ready: false,
       message: messages,

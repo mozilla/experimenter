@@ -19,12 +19,13 @@ import {
   REFERENCE_BRANCH_IDX,
   useFormBranchesReducer,
 } from "./reducer";
+import { FormBranchesState } from "./reducer/state";
 import { FormData } from "./reducer/update";
 
 type FormBranchesProps = {
   isLoading: boolean;
   experiment: getExperiment_experimentBySlug;
-  featureConfigs: getConfig_nimbusConfig["featureConfigs"];
+  allFeatureConfigs: getConfig_nimbusConfig["allFeatureConfigs"];
   onSave: (
     state: FormBranchesSaveState,
     setSubmitErrors: (submitErrors: any) => void,
@@ -36,14 +37,14 @@ type FormBranchesProps = {
 export const FormBranches = ({
   isLoading,
   experiment,
-  featureConfigs,
+  allFeatureConfigs,
   onSave,
 }: FormBranchesProps) => {
   const { fieldMessages, fieldWarnings } = useReviewCheck(experiment);
 
   const [
     {
-      featureConfigId: experimentFeatureConfigId,
+      featureConfigIds: experimentFeatureConfigIds,
       warnFeatureSchema,
       referenceBranch,
       treatmentBranches,
@@ -120,15 +121,17 @@ export const FormBranches = ({
     });
   };
 
-  const handleFeatureConfigChange = (value: number | null | undefined) => {
+  const handleFeatureConfigsChange = (
+    value: FormBranchesState["featureConfigIds"],
+  ) => {
     commitFormData();
-    dispatch({ type: "setFeatureConfig", value });
+    dispatch({ type: "setFeatureConfigs", value });
   };
 
   const onFeatureConfigChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFeatureId = parseInt(ev.target.value, 10);
-    return handleFeatureConfigChange(
-      isNaN(selectedFeatureId) ? null : selectedFeatureId,
+    return handleFeatureConfigsChange(
+      isNaN(selectedFeatureId) ? [] : [selectedFeatureId],
     );
   };
 
@@ -203,10 +206,14 @@ export const FormBranches = ({
                 fieldWarnings.feature_config?.length > 0,
             })}
             onChange={onFeatureConfigChange}
-            value={experimentFeatureConfigId || undefined}
+            value={
+              experimentFeatureConfigIds?.length
+                ? experimentFeatureConfigIds[0] || undefined
+                : undefined
+            }
           >
             <option value="">Select...</option>
-            {featureConfigs?.map(
+            {allFeatureConfigs?.map(
               (feature) =>
                 feature && (
                   <option

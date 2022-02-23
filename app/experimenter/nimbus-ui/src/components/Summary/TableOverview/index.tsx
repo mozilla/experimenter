@@ -102,8 +102,12 @@ const TableOverview = ({
             <tr>
               <th>Feature config</th>
               <td data-testid="experiment-feature-config">
-                {experiment.featureConfig?.name ? (
-                  experiment.featureConfig.name
+                {experiment.featureConfigs?.length ? (
+                  experiment.featureConfigs.map((f) => (
+                    <>
+                      <p>{f?.name}</p>
+                    </>
+                  ))
                 ) : (
                   <NotSet />
                 )}
