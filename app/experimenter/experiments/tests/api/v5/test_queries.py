@@ -1250,7 +1250,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         label
                         value
                     }
-                    featureConfigs {
+                    allFeatureConfigs {
                         name
                         slug
                         id
@@ -1306,7 +1306,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
         )
         assertChoices(config["firefoxVersions"], NimbusExperiment.Version)
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
-        self.assertEqual(len(config["featureConfigs"]), 18)
+        self.assertEqual(len(config["allFeatureConfigs"]), 18)
 
         for application_config_data in config["applicationConfigs"]:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[
@@ -1343,7 +1343,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                     "slug": feature_config.slug,
                     "description": feature_config.description,
                 },
-                config["featureConfigs"],
+                config["allFeatureConfigs"],
             )
 
         for choice in NimbusExperiment.TargetingConfig:

@@ -55,7 +55,7 @@ describe("PageEditBranches", () => {
       EXTERNAL_URLS.BRANCHES_GOOGLE_DOC,
     );
 
-    for (const feature of MOCK_CONFIG!.featureConfigs!) {
+    for (const feature of MOCK_CONFIG!.allFeatureConfigs!) {
       const { name, application } = feature!;
       const configEl = screen.queryByText(name);
       if (application === experiment!.application) {
@@ -181,10 +181,9 @@ const mockClearSubmitErrors = jest.fn();
 let mockUpdateState: FormBranchesSaveState;
 
 function setMockUpdateState(experiment: getExperiment_experimentBySlug) {
-  const featureConfigId =
-    experiment.featureConfig === null ? null : experiment.featureConfig.id;
+  const featureConfigIds = experiment.featureConfigs?.map((f) => f?.id || null);
   mockUpdateState = {
-    featureConfigId,
+    featureConfigIds,
     // @ts-ignore type mismatch covers discarded annotation properties
     referenceBranch: extractUpdateBranch(experiment.referenceBranch!),
     treatmentBranches: experiment.treatmentBranches!.map(
@@ -199,7 +198,7 @@ jest.mock("./FormBranches", () => ({
   __esModule: true,
   default: ({
     experiment,
-    featureConfigs,
+    allFeatureConfigs,
     onSave,
   }: React.ComponentProps<typeof FormBranches>) => {
     return (
@@ -207,9 +206,9 @@ jest.mock("./FormBranches", () => ({
         {experiment && (
           <span data-testid="experiment-slug">{experiment.slug}</span>
         )}
-        {featureConfigs && (
+        {allFeatureConfigs && (
           <ul data-testid="feature-config">
-            {featureConfigs.map(
+            {allFeatureConfigs.map(
               (feature, idx) =>
                 feature && <li key={`feature-${idx}`}>{feature.name}</li>,
             )}

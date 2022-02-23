@@ -12,7 +12,7 @@ const MOCK_STATE: FormBranchesState = {
   equalRatio: true,
   lastId: 0,
   globalErrors: [],
-  featureConfigId: null,
+  featureConfigIds: [],
   warnFeatureSchema: false,
   referenceBranch: {
     ...MOCK_EXPERIMENT.referenceBranch!,
@@ -239,7 +239,7 @@ describe("formBranchesReducer", () => {
 
     const newState = formBranchesActionReducer(oldState, action);
 
-    expect(newState.featureConfigId).toBeNull();
+    expect(newState.featureConfigIds).toBeNull();
     expect(newState.referenceBranch?.featureEnabled).toBe(false);
     expect(
       newState.treatmentBranches?.every(
@@ -248,16 +248,6 @@ describe("formBranchesReducer", () => {
     ).toEqual(true);
   };
 
-  describe("setFeatureConfig", () => {
-    it(
-      "disables any enabled features in branches when the config is set to null",
-      commonClearFeatureConfigTest({
-        type: "setFeatureConfig",
-        value: null,
-      }),
-    );
-  });
-
   describe("setFeatureConfigs", () => {
     const initialState = {
       ...MOCK_STATE,
@@ -265,27 +255,27 @@ describe("formBranchesReducer", () => {
     };
 
     it("accepts a null value to clear the list", () => {
-      const { featureConfigs } = formBranchesActionReducer(initialState, {
+      const { featureConfigIds } = formBranchesActionReducer(initialState, {
         type: "setFeatureConfigs",
         value: null,
       });
-      expect(featureConfigs).toEqual(null);
+      expect(featureConfigIds).toEqual(null);
     });
 
     it("accepts an undefined value to clear the list", () => {
-      const { featureConfigs } = formBranchesActionReducer(initialState, {
+      const { featureConfigIds } = formBranchesActionReducer(initialState, {
         type: "setFeatureConfigs",
         value: undefined,
       });
-      expect(featureConfigs).toEqual(null);
+      expect(featureConfigIds).toEqual(null);
     });
 
     it("accepts a list of ids to update the list", () => {
-      const { featureConfigs } = formBranchesActionReducer(initialState, {
+      const { featureConfigIds } = formBranchesActionReducer(initialState, {
         type: "setFeatureConfigs",
         value: [8, 6, 7, 5],
       });
-      expect(featureConfigs).toEqual([8, 6, 7, 5]);
+      expect(featureConfigIds).toEqual([8, 6, 7, 5]);
     });
   });
 
@@ -465,11 +455,14 @@ describe("formBranchesReducer", () => {
       expect(newState.treatmentBranches![1]!.description).toEqual(
         formData.treatmentBranches[1].description,
       );
-      expect(newState.treatmentBranches![1]!.featureValues).toBeUndefined();
+      expect(newState.treatmentBranches![1]!.featureValues).toEqual([]);
     });
 
     it("accepts feature configs per branch", () => {
-      const oldState = { ...MOCK_STATE, featureConfigs: [8, 6, 7, 5] };
+      const oldState: FormBranchesState = {
+        ...MOCK_STATE,
+        featureConfigIds: [8, 6, 7, 5],
+      };
       const newState = formBranchesActionReducer(oldState, {
         type: "commitFormData",
         formData,
@@ -485,20 +478,24 @@ describe("formBranchesReducer", () => {
       );
       expect(newState.treatmentBranches![1]!.featureValues).toEqual([
         {
-          featureConfig: 8,
+          featureConfigId: 8,
           enabled: true,
           value: "{ foo: true }",
         },
         {
-          featureConfig: 6,
+          featureConfigId: 6,
           enabled: false,
+          value: undefined,
         },
         {
-          featureConfig: 7,
+          featureConfigId: 7,
+          enabled: undefined,
           value: "{ bar: 123 }",
         },
         {
-          featureConfig: 5,
+          featureConfigId: 5,
+          enabled: undefined,
+          value: undefined,
         },
       ]);
     });

@@ -13,7 +13,7 @@ export interface getAllExperiments_experiments_owner {
   username: string;
 }
 
-export interface getAllExperiments_experiments_featureConfig {
+export interface getAllExperiments_experiments_featureConfigs {
   id: number | null;
   slug: string;
   name: string;
@@ -23,11 +23,16 @@ export interface getAllExperiments_experiments_featureConfig {
   schema: string | null;
 }
 
+export interface getAllExperiments_experiments_featureConfig {
+  slug: string;
+  name: string;
+}
+
 export interface getAllExperiments_experiments {
   isArchived: boolean | null;
   name: string;
   owner: getAllExperiments_experiments_owner;
-  featureConfig: getAllExperiments_experiments_featureConfig | null;
+  featureConfigs: (getAllExperiments_experiments_featureConfigs | null)[] | null;
   slug: string;
   application: NimbusExperimentApplicationEnum | null;
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum | null;
@@ -43,6 +48,7 @@ export interface getAllExperiments_experiments {
   publishStatus: NimbusExperimentPublishStatusEnum | null;
   monitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
+  featureConfig: getAllExperiments_experiments_featureConfig | null;
 }
 
 export interface getAllExperiments {

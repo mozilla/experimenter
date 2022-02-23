@@ -301,7 +301,7 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment.branches.all().delete()
 
         data = {
-            "feature_config": feature_config.id,
+            "feature_configs": [feature_config.id],
             "reference_branch": {
                 "name": "control",
                 "description": "a control",

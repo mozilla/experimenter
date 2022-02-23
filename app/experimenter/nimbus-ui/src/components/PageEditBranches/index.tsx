@@ -22,7 +22,7 @@ import FormBranches from "./FormBranches";
 import { FormBranchesSaveState } from "./FormBranches/reducer";
 
 const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
-  const { featureConfigs } = useConfig();
+  const { allFeatureConfigs } = useConfig();
   const { experiment, refetch, useRedirectCondition } =
     useContext(ExperimentContext)!;
   useRedirectCondition(editCommonRedirects);
@@ -33,14 +33,14 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   >(UPDATE_EXPERIMENT_MUTATION);
 
   const applicationFeatureConfigs =
-    featureConfigs?.filter(
+    allFeatureConfigs?.filter(
       (config) => config?.application === experiment.application,
     ) || [];
 
   const onFormSave = useCallback(
     async (
       {
-        featureConfigId,
+        featureConfigIds,
         warnFeatureSchema,
         referenceBranch,
         treatmentBranches,
@@ -57,7 +57,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
             input: {
               id: nimbusExperimentId,
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_BRANCHES,
-              featureConfigId,
+              featureConfigIds,
               warnFeatureSchema,
               referenceBranch,
               treatmentBranches,
@@ -102,7 +102,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
       <FormBranches
         {...{
           experiment,
-          featureConfigs: applicationFeatureConfigs,
+          allFeatureConfigs: applicationFeatureConfigs,
           isLoading: loading,
           onSave: onFormSave,
         }}

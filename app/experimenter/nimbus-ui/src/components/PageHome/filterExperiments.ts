@@ -23,7 +23,7 @@ export const optionIndexKeys: {
 } = {
   owners: (option) => option.username,
   applications: (option) => option.value,
-  featureConfigs: (option) => `${option.application}:${option.slug}`,
+  allFeatureConfigs: (option) => `${option.application}:${option.slug}`,
   firefoxVersions: (option) => option.value,
 };
 
@@ -35,9 +35,23 @@ type ExperimentFilter<K extends FilterValueKeys> = (
 const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
   owners: (option, experiment) => experiment.owner.username === option.username,
   applications: (option, experiment) => experiment.application === option.value,
-  featureConfigs: (option, experiment) =>
-    experiment.featureConfig?.slug === option.slug &&
-    experiment.featureConfig?.application === option.application,
+  allFeatureConfigs: (option, experiment) => {
+    let featureConfigMatch = false;
+    if (experiment.featureConfigs?.length) {
+      featureConfigMatch =
+        experiment.featureConfigs.filter((f) => f?.slug === option.slug)
+          .length > 0;
+    }
+
+    let applicationMatch = false;
+    if (experiment.featureConfigs?.length) {
+      applicationMatch =
+        experiment.featureConfigs.filter(
+          (f) => f?.application === option.application,
+        ).length > 0;
+    }
+    return featureConfigMatch && applicationMatch;
+  },
   firefoxVersions: (option, experiment) =>
     experiment.firefoxMinVersion === option.value,
 };
@@ -66,8 +80,8 @@ export function getFilterValueFromParams(
           values,
         );
         break;
-      case "featureConfigs":
-        filterValue[key] = selectFilterOptions<"featureConfigs">(
+      case "allFeatureConfigs":
+        filterValue[key] = selectFilterOptions<"allFeatureConfigs">(
           options[key],
           optionIndexKeys[key],
           values,
@@ -121,8 +135,8 @@ export function updateParamsFromFilterValue(
             optionIndexKeys[key],
           );
           break;
-        case "featureConfigs":
-          values = indexFilterOptions<"featureConfigs">(
+        case "allFeatureConfigs":
+          values = indexFilterOptions<"allFeatureConfigs">(
             filterValue[key],
             optionIndexKeys[key],
           );
@@ -173,8 +187,8 @@ export function filterExperiments(
           filteredExperiments,
         );
         break;
-      case "featureConfigs":
-        filteredExperiments = filterExperimentsByOptions<"featureConfigs">(
+      case "allFeatureConfigs":
+        filteredExperiments = filterExperimentsByOptions<"allFeatureConfigs">(
           filterState[key],
           experimentFilters[key],
           filteredExperiments,

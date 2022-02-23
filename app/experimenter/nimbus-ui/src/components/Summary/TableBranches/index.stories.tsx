@@ -80,10 +80,10 @@ storiesOf("components/Summary/TableBranches", module)
     <Subject
       experiment={{
         ...MOCK_EXPERIMENT,
-        featureConfig: {
-          ...MOCK_EXPERIMENT.featureConfig!,
+        featureConfigs: MOCK_EXPERIMENT.featureConfigs!.map((f) => ({
+          ...f!,
           schema: null,
-        },
+        })),
       }}
     />
   ))
@@ -91,10 +91,10 @@ storiesOf("components/Summary/TableBranches", module)
     <Subject
       experiment={{
         ...MOCK_EXPERIMENT,
-        featureConfig: {
-          ...MOCK_EXPERIMENT.featureConfig!,
+        featureConfigs: MOCK_EXPERIMENT.featureConfigs!.map((f) => ({
+          ...f!,
           schema: "{}",
-        },
+        })),
         referenceBranch: {
           ...MOCK_EXPERIMENT.referenceBranch!,
           id: 456,

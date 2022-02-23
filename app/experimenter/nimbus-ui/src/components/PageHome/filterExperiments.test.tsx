@@ -14,18 +14,18 @@ import {
 } from "./mocks";
 import { filterValueKeys } from "./types";
 
-const { owners, applications, featureConfigs } = MOCK_CONFIG!;
+const { owners, applications, allFeatureConfigs } = MOCK_CONFIG!;
 
 describe("getFilterValueFromParams", () => {
   it("converts comma-separated list representation from filter params into a filter value", () => {
     const params = new URLSearchParams();
     params.set("owners", "alpha-example@mozilla.com,beta-example@mozilla.com");
     params.set("applications", "DESKTOP,FENIX");
-    params.set("featureConfigs", "IOS:foo-lila-sat");
+    params.set("allFeatureConfigs", "IOS:foo-lila-sat");
     expect(getFilterValueFromParams(MOCK_CONFIG, params)).toEqual({
       owners: [owners![0], owners![1]],
       applications: [applications![0], applications![3]],
-      featureConfigs: [featureConfigs![2]],
+      allFeatureConfigs: [allFeatureConfigs![2]],
     });
   });
 });
@@ -37,13 +37,13 @@ describe("updateParamsFromFilterValue", () => {
     updateParamsFromFilterValue(updateSearchParams, {
       owners: [owners![0], owners![1]],
       applications: [applications![0], applications![3]],
-      featureConfigs: [featureConfigs![2], featureConfigs![3]],
+      allFeatureConfigs: [allFeatureConfigs![2], allFeatureConfigs![3]],
     });
     expect(params.get("owners")).toEqual(
       "alpha-example@mozilla.com,beta-example@mozilla.com",
     );
     expect(params.get("applications")).toEqual("DESKTOP,FENIX");
-    expect(params.get("featureConfigs")).toEqual(
+    expect(params.get("allFeatureConfigs")).toEqual(
       "IOS:foo-lila-sat,FENIX:foo-lila-sat",
     );
   });
@@ -66,7 +66,9 @@ describe("filterExperiments", () => {
   it("filters only an empty feature config if filter value has everything", () => {
     expect(
       filterExperiments(MOCK_EXPERIMENTS, EVERYTHING_SELECTED_VALUE),
-    ).toEqual(MOCK_EXPERIMENTS.filter((e) => e.featureConfig !== null));
+    ).toEqual(
+      MOCK_EXPERIMENTS.filter((e) => (e.featureConfigs?.length || 0) > 0),
+    );
   });
 
   it("filters per individual criteria as expected", () => {
@@ -85,10 +87,10 @@ describe("filterExperiments", () => {
               MOCK_CONFIG!.applications![0]!.value,
             );
             break;
-          case "featureConfigs":
-            expect(experiment.featureConfig).toEqual(
-              MOCK_CONFIG!.featureConfigs![0]!,
-            );
+          case "allFeatureConfigs":
+            expect(experiment.featureConfigs).toEqual([
+              MOCK_CONFIG!.allFeatureConfigs![0]!,
+            ]);
             break;
           case "firefoxVersions":
             expect(experiment.firefoxMinVersion).toEqual(

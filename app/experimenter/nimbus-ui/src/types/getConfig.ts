@@ -34,7 +34,7 @@ export interface getConfig_nimbusConfig_applicationConfigs {
   channels: (getConfig_nimbusConfig_applicationConfigs_channels | null)[] | null;
 }
 
-export interface getConfig_nimbusConfig_featureConfigs {
+export interface getConfig_nimbusConfig_allFeatureConfigs {
   id: number | null;
   name: string;
   slug: string;
@@ -94,7 +94,7 @@ export interface getConfig_nimbusConfig {
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
   conclusionRecommendations: (getConfig_nimbusConfig_conclusionRecommendations | null)[] | null;
   applicationConfigs: (getConfig_nimbusConfig_applicationConfigs | null)[] | null;
-  featureConfigs: (getConfig_nimbusConfig_featureConfigs | null)[] | null;
+  allFeatureConfigs: (getConfig_nimbusConfig_allFeatureConfigs | null)[] | null;
   firefoxVersions: (getConfig_nimbusConfig_firefoxVersions | null)[] | null;
   outcomes: (getConfig_nimbusConfig_outcomes | null)[] | null;
   owners: (getConfig_nimbusConfig_owners | null)[] | null;

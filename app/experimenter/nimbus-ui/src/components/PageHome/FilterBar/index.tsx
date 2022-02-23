@@ -31,8 +31,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <Nav className="w-100">
         <FilterSelect
           fieldLabel="Feature"
-          fieldOptions={options.featureConfigs!}
-          filterValueName="featureConfigs"
+          fieldOptions={options.allFeatureConfigs!}
+          filterValueName="allFeatureConfigs"
           optionLabelName="name"
           {...{ filterValue, onChange }}
         />
