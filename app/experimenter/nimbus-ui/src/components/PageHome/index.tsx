@@ -65,7 +65,7 @@ export const Body = () => {
 
   const filterOptions: FilterOptions = {
     applications: config!.applications!,
-    featureConfigs: config!.featureConfigs!,
+    allFeatureConfigs: config!.allFeatureConfigs!,
     firefoxVersions: config!.firefoxVersions!,
     owners: config!.owners!,
   };

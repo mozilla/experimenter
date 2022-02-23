@@ -739,6 +739,7 @@ class NimbusExperimentSerializer(
     def save(self):
         feature_config_provided = "feature_config" in self.validated_data
         feature_config = self.validated_data.pop("feature_config", None)
+        feature_configs_provided = "feature_configs" in self.validated_data
         feature_configs = self.validated_data.pop("feature_configs", None)
 
         with transaction.atomic():
@@ -751,6 +752,12 @@ class NimbusExperimentSerializer(
 
                 if feature_config:
                     self.instance.feature_configs.add(feature_config)
+
+                if feature_configs_provided:
+                    self.instance.feature_configs.clear()
+
+                if feature_configs:
+                    self.instance.feature_configs.add(*feature_configs)
 
             experiment = super().save()
 
@@ -765,12 +772,6 @@ class NimbusExperimentSerializer(
                 nimbus_check_kinto_push_queue_by_collection.apply_async(
                     countdown=5, args=[collection]
                 )
-
-            if feature_configs is not None:
-                experiment.feature_configs.clear()
-
-            if feature_configs:
-                experiment.feature_configs.add(*feature_configs)
 
             generate_nimbus_changelog(
                 experiment, self.context["user"], message=self.changelog_message

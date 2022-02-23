@@ -51,7 +51,7 @@ input ExperimentInput {
   isEnrollmentPaused: Boolean
   riskMitigationLink: String
   featureConfigId: Int
-  featureConfigs: [Int]
+  featureConfigIds: [Int]
   warnFeatureSchema: Boolean
   documentationLinks: [DocumentationLinkInput]
   referenceBranch: ReferenceBranchInput
@@ -180,7 +180,7 @@ type NimbusConfigurationType {
   channels: [NimbusLabelValueType]
   countries: [NimbusCountryType]
   documentationLink: [NimbusLabelValueType]
-  featureConfigs: [NimbusFeatureConfigType]
+  allFeatureConfigs: [NimbusFeatureConfigType]
   firefoxVersions: [NimbusLabelValueType]
   hypothesisDefault: String
   locales: [NimbusLocaleType]

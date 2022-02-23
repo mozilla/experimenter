@@ -52,7 +52,7 @@ describe("FormBranches", () => {
     await clickAndWaitForSave(onSave);
     const onSaveArgs = onSave.mock.calls[0];
     expect(onSaveArgs[0]).toEqual({
-      featureConfigId: undefined,
+      featureConfigIds: [],
       // @ts-ignore type mismatch covers discarded annotation properties
       referenceBranch: extractUpdateBranch(MOCK_EXPERIMENT.referenceBranch!),
       treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map(
@@ -151,7 +151,7 @@ describe("FormBranches", () => {
     selectFeatureConfig(null);
     await clickAndWaitForSave(onSave);
     const saveResult = onSave.mock.calls[0][0];
-    expect(saveResult.featureConfigId).toEqual(null);
+    expect(saveResult.featureConfigIds).toEqual([]);
   });
 
   it("requires adding a valid control branch before save is completed", async () => {
@@ -318,21 +318,23 @@ describe("FormBranches", () => {
 
   it("supports adding feature config", async () => {
     const onSave = jest.fn();
-    const expectedFeatureId = MOCK_CONFIG.featureConfigs![1]!.id;
+    const expectedFeatureId = MOCK_CONFIG.allFeatureConfigs![1]!.id;
     render(
       <SubjectBranches
         {...{
           onSave,
           experiment: {
             ...MOCK_EXPERIMENT,
-            featureConfig: null,
+            featureConfigs: [],
           },
         }}
       />,
     );
     selectFeatureConfig(expectedFeatureId);
     await clickAndWaitForSave(onSave);
-    expect(onSave.mock.calls[0][0].featureConfigId).toEqual(expectedFeatureId);
+    expect(onSave.mock.calls[0][0].featureConfigIds).toEqual([
+      expectedFeatureId,
+    ]);
   });
 
   it("updates save result with edits", async () => {
@@ -343,7 +345,7 @@ describe("FormBranches", () => {
           onSave,
           experiment: {
             ...MOCK_EXPERIMENT,
-            featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+            featureConfigs: [MOCK_FEATURE_CONFIG_WITH_SCHEMA],
           },
         }}
       />,
@@ -365,9 +367,9 @@ describe("FormBranches", () => {
     await clickAndWaitForSave(onSave);
     const saveResult = onSave.mock.calls[0][0];
 
-    expect(saveResult.featureConfigId).toEqual(
+    expect(saveResult.featureConfigIds).toEqual([
       MOCK_FEATURE_CONFIG_WITH_SCHEMA.id,
-    );
+    ]);
     expect(saveResult.referenceBranch).toEqual({
       id: MOCK_EXPERIMENT.referenceBranch!.id,
       screenshots: [],

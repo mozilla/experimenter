@@ -165,7 +165,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       ],
     },
   ],
-  featureConfigs: [
+  allFeatureConfigs: [
     {
       id: 1,
       name: "Picture-in-Picture",
@@ -474,7 +474,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
     featureEnabled: true,
     screenshots: [],
   },
-  featureConfig: null,
+  featureConfigs: [],
   treatmentBranches: [
     {
       id: 456,
@@ -657,7 +657,8 @@ export function mockSingleDirectoryExperiment(
     status: NimbusExperimentStatusEnum.COMPLETE,
     statusNext: null,
     publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
-    featureConfig: MOCK_CONFIG.featureConfigs![0],
+    featureConfig: MOCK_CONFIG.allFeatureConfigs![0],
+    featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],
     isEnrollmentPaused: false,
     isEnrollmentPausePending: false,
     proposedEnrollment: 7,
@@ -682,7 +683,7 @@ export function mockDirectoryExperiments(
       name: "Ipsum dolor sit amet",
       status: NimbusExperimentStatusEnum.DRAFT,
       owner: { username: "gamma-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfigs![0],
+      featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],
       application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplicationEnum,
       startDate: null,
@@ -692,7 +693,7 @@ export function mockDirectoryExperiments(
       name: "Dolor sit amet",
       status: NimbusExperimentStatusEnum.DRAFT,
       owner: { username: "beta-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfigs![1],
+      featureConfigs: [MOCK_CONFIG.allFeatureConfigs![1]],
       startDate: null,
       computedEndDate: null,
     },
@@ -700,7 +701,7 @@ export function mockDirectoryExperiments(
       name: "Consectetur adipiscing elit",
       status: NimbusExperimentStatusEnum.PREVIEW,
       owner: { username: "alpha-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfigs![2],
+      featureConfigs: [MOCK_CONFIG.allFeatureConfigs![2]],
       application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplicationEnum,
       computedEndDate: null,
@@ -709,7 +710,7 @@ export function mockDirectoryExperiments(
       name: "Aliquam interdum ac lacus at dictum",
       publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
       owner: { username: "beta-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfigs![0],
+      featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],
       computedEndDate: null,
     },
     {
@@ -723,13 +724,13 @@ export function mockDirectoryExperiments(
       name: "Duis ornare mollis sem.",
       status: NimbusExperimentStatusEnum.LIVE,
       owner: { username: "alpha-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfigs![1],
+      featureConfigs: [MOCK_CONFIG.allFeatureConfigs![1]],
     },
     {
       name: "Nec suscipit mi accumsan id",
       status: NimbusExperimentStatusEnum.LIVE,
       owner: { username: "beta-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfigs![2],
+      featureConfigs: [MOCK_CONFIG.allFeatureConfigs![2]],
       application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplicationEnum,
       resultsReady: true,
@@ -743,7 +744,7 @@ export function mockDirectoryExperiments(
       name: "Nam gravida",
       status: NimbusExperimentStatusEnum.COMPLETE,
       owner: { username: "alpha-example@mozilla.com" },
-      featureConfig: MOCK_CONFIG.featureConfigs![0],
+      featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],
       application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplicationEnum,
       resultsReady: false,
@@ -752,12 +753,12 @@ export function mockDirectoryExperiments(
       name: "Quam quis volutpat ornare",
       status: NimbusExperimentStatusEnum.DRAFT,
       publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
-      featureConfig: MOCK_CONFIG.featureConfigs![1],
+      featureConfigs: [MOCK_CONFIG.allFeatureConfigs![1]],
       owner: { username: "beta-example@mozilla.com" },
     },
     {
       name: "Lorem arcu faucibus tortor",
-      featureConfig: null,
+      featureConfigs: null,
       application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplicationEnum,
       owner: { username: "gamma-example@mozilla.com" },
@@ -765,7 +766,7 @@ export function mockDirectoryExperiments(
     {
       isArchived: true,
       name: "Archived Experiment",
-      featureConfig: null,
+      featureConfigs: null,
       application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplicationEnum,
       owner: { username: "gamma-example@mozilla.com" },
