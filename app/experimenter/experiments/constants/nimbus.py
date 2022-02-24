@@ -222,7 +222,14 @@ TARGETING_MOBILE_NEW_USER = NimbusTargetingConfig(
     description=("New users on mobile who installed the app less than a week ago"),
     targeting=("is_already_enrolled || days_since_install < 7"),
     desktop_telemetry="",
-    application_choice_names=(Application.FENIX.name, Application.IOS.name),
+    application_choice_names=(
+        Application.FENIX.name,
+        Application.IOS.name,
+        Application.FOCUS_ANDROID.name,
+        Application.FOCUS_IOS.name,
+        Application.KLAR_ANDROID.name,
+        Application.KLAR_IOS.name,
+    ),
 )
 
 TARGETING_MOBILE_RECENTLY_UPDATED = NimbusTargetingConfig(
@@ -236,7 +243,14 @@ TARGETING_MOBILE_RECENTLY_UPDATED = NimbusTargetingConfig(
         "is_already_enrolled || (days_since_update < 7 && days_since_install >= 7)"
     ),
     desktop_telemetry="",
-    application_choice_names=(Application.FENIX.name, Application.IOS.name),
+    application_choice_names=(
+        Application.FENIX.name,
+        Application.IOS.name,
+        Application.FOCUS_ANDROID.name,
+        Application.FOCUS_IOS.name,
+        Application.KLAR_ANDROID.name,
+        Application.KLAR_IOS.name,
+    ),
 )
 
 
