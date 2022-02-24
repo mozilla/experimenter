@@ -5,7 +5,7 @@
 import React, { useMemo } from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import Select, { OptionsType, OptionTypeBase } from "react-select";
+import Select, { OptionsType, OptionTypeBase, components, GroupProps } from "react-select";
 import { optionIndexKeys } from "../filterExperiments";
 import {
   FilterOptions,
@@ -21,6 +21,12 @@ export type FilterBarProps = {
   onChange: (value: FilterValue) => void;
 };
 
+const Group = (props: GroupProps<FilterOptions , false>) => (
+    <div>
+      <components.Group {...props} />
+    </div>
+);
+
 export const FilterBar: React.FC<FilterBarProps> = ({
   options,
   value: filterValue,
@@ -29,7 +35,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <Navbar variant="light" bg="light" className="nav-fill mt-4 mb-4">
       <Nav className="w-100">
-        <FilterSelect
+        <GroupedFilterSelect
           fieldLabel="Feature"
           fieldOptions={options.allFeatureConfigs!}
           filterValueName="allFeatureConfigs"
@@ -62,6 +68,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   );
 };
 
+
+
 type FilterSelectProps<
   K extends FilterValueKeys,
   T extends NonNullFilterOptions<K>,
@@ -72,6 +80,71 @@ type FilterSelectProps<
   fieldLabel: string;
   fieldOptions: T;
   optionLabelName: keyof NonNullFilterOption<K>;
+};
+
+const GroupedFilterSelect = <
+    K extends FilterValueKeys,
+    T extends NonNullFilterOptions<K>,
+    >({
+        filterValue,
+        onChange,
+        filterValueName,
+        fieldLabel,
+        fieldOptions,
+        optionLabelName,
+      }: FilterSelectProps<K, T>) => {
+  const filterOptions = useMemo(
+      () =>
+          (fieldOptions! as NonNullFilterOptions<K>).filter(
+              (option): option is NonNullable<typeof option> => !!option,
+          ),
+      [fieldOptions],
+  );
+
+  const featureOptions: any[] = [];
+  filterOptions.forEach((elem: any) =>{
+      if(!featureOptions.some(option => option.label === elem.application)){
+          featureOptions.push({label: elem.application, options: [elem]})
+      }
+      else{
+          let currOption = featureOptions.findIndex((obj => obj.label === elem.application))
+          featureOptions[currOption].options.push(elem)
+      }
+  });
+
+
+  const fieldValue = filterValue[filterValueName];
+
+  return (
+      <Nav.Item className="m-1 mw-25 text-left flex-basis-0 flex-grow-1 flex-shrink-1">
+        <label className="ml-1 mr-1" htmlFor={`filter-${filterValueName}`}>
+          {fieldLabel}
+        </label>
+        <Select<FilterOptions>
+            {...{
+              name: `filter-${filterValueName}`,
+              inputId: `filter-${filterValueName}`,
+              isMulti: true,
+              value: fieldValue,
+              getOptionLabel: (item: OptionTypeBase) =>
+                  item[optionLabelName as string],
+              getOptionValue: (item: OptionTypeBase) =>
+                  optionIndexKeys[filterValueName](
+                      // @ts-ignore because this works in practice but types disagree
+                      item as NonNullFilterOption<K>,
+                  )!,
+              options: featureOptions,
+              onChange: (fieldValue: OptionsType<OptionTypeBase>) => {
+                onChange({
+                  ...filterValue,
+                  [filterValueName]: fieldValue,
+                });
+              },
+              components: {...Group},
+            }}
+        />
+      </Nav.Item>
+  );
 };
 
 const FilterSelect = <
