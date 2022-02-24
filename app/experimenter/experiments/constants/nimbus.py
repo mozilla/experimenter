@@ -294,7 +294,7 @@ TARGETING_NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
 
 TARGETING_NO_ENTERPRISE_OR_RECENT_VPN = NimbusTargetingConfig(
     name="No enterprise and no VPN connection in the last 30 days",
-    slug="no_enterprise_and_no_vpn_connection_last_30_days",
+    slug="no_enterprise_or_last_30d_vpn_use",
     description="Exclude enterprise & users who have used MozVPN in the last 30 days",
     targeting=(
         f"{TARGETING_NO_ENTERPRISE.targeting} && "
