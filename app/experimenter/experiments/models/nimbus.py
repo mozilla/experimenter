@@ -276,13 +276,33 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
         if self.locales.count():
             locales = [locale.code for locale in self.locales.all().order_by("code")]
-            expressions.append(f"locale in {locales}")
 
+            if self.application == self.Application.DESKTOP:
+                expressions.append(f"locale in {locales}")
+            else:
+                iso_locales_expression = (
+                    f"locale in {list(filter(lambda s: '-' in s, locales))}"
+                )
+                iso_languages_expression = " || ".join(
+                    [
+                        f"{language} in locale"
+                        for language in list(filter(lambda s: "-" not in s, locales))
+                    ]
+                )
+                locale_expressions = (
+                    f"{iso_locales_expression} || {iso_languages_expression}"
+                )
+                expressions.append(locale_expressions)
+
+        # Region matching
         if self.countries.count():
             countries = [
                 country.code for country in self.countries.all().order_by("code")
             ]
-            expressions.append(f"region in {countries}")
+            if self.application == self.Application.DESKTOP:
+                expressions.append(f"region in {countries}")
+            else:
+                expressions.append(f"locale in {countries}")
 
         #  If there is no targeting defined all clients should match, so we return "true"
         if len(expressions) == 0:
