@@ -121,9 +121,10 @@ def experiment_url(base_url, default_data, slugify):
 def default_data(request):
     application = request.param
     feature_config = APPLICATION_FEATURES[application]
+    public_name = f"{request.node.name}-{str(uuid.uuid4())[:4]}"
 
     return BaseExperimentDataClass(
-        public_name=f"{request.node.name}-{str(uuid.uuid4())[:4]}",
+        public_name=public_name[:80],
         hypothesis="smart stuff here",
         application=application,
         public_description="description stuff",
