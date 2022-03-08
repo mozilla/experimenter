@@ -58,7 +58,7 @@ export const CloneDialog = ({
 }: CloneDialogProps) => {
   const defaultValues: CloneParams = {
     name: rolloutBranch
-      ? `${rolloutBranch.name} Rollout`
+      ? `${experiment!.name} - ${rolloutBranch.name} Rollout`
       : `${experiment!.name} Copy`,
   };
 
