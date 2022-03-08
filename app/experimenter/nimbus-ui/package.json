@@ -87,7 +87,7 @@
     "eslint-plugin-import": "2.25.2",
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-prettier": "^3.4.0",
-    "eslint-plugin-react": "7.28.0",
+    "eslint-plugin-react": "7.29.3",
     "eslint-plugin-react-hooks": "4.x",
     "eslint-plugin-testing-library": "^5.0.1",
     "fetch-mock": "^9.11.0",
