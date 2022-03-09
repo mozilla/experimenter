@@ -334,17 +334,20 @@ Django = ">=2.2"
 
 [[package]]
 name = "django-countries"
-version = "7.2.1"
+version = "7.3.2"
 description = "Provides a country field for Django models."
 category = "main"
 optional = false
 python-versions = "*"
 
+[package.dependencies]
+typing-extensions = "*"
+
 [package.extras]
 dev = ["tox", "black", "django", "pytest", "pytest-django", "djangorestframework", "graphene-django"]
 maintainer = ["transifex-client", "zest.releaser", "django"]
 pyuca = ["pyuca"]
-test = ["pytest", "pytest-django", "pytest-cov", "graphene-django"]
+test = ["pytest", "pytest-django", "pytest-cov", "djangorestframework", "graphene-django"]
 
 [[package]]
 name = "django-filter"
@@ -1297,15 +1300,15 @@ pytest = ">=3.10"
 
 [[package]]
 name = "pytest-testmon"
-version = "1.2.0"
+version = "1.3.0"
 description = "selects tests affected by changed files and methods"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-coverage = ">=4,<7"
-pytest = ">=5,<7"
+coverage = ">=5,<7"
+pytest = ">=5,<8"
 
 [[package]]
 name = "pytest-watch"
@@ -1417,14 +1420,14 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "rope"
-version = "0.21.0"
+version = "0.23.0"
 description = "a python refactoring library..."
 category = "dev"
 optional = false
 python-versions = "*"
 
 [package.extras]
-dev = ["pytest", "pytest-timeout"]
+dev = ["build", "pytest", "pytest-timeout"]
 
 [[package]]
 name = "rsa"
@@ -1608,7 +1611,7 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "262667e8338921b01e62a76b182ffd0dadc24dd4fdd011ab49ee5e302fa9c94e"
+content-hash = "f73caed59ffebf82ecfb60f33cc6aa98f96ee4f6eef42eff4ba729f518535b21"
 
 [metadata.files]
 amqp = [
@@ -1812,8 +1815,8 @@ django-cors-headers = [
     {file = "django_cors_headers-3.11.0-py3-none-any.whl", hash = "sha256:a22be2befd4069c4fc174f11cf067351df5c061a3a5f94a01650b4e928b0372b"},
 ]
 django-countries = [
-    {file = "django-countries-7.2.1.tar.gz", hash = "sha256:26878b54d36bedff30b4535ceefcb8af6784741a8b30b1b8a662fb14a936a4ab"},
-    {file = "django_countries-7.2.1-py3-none-any.whl", hash = "sha256:adc965f1d348124274b7d918fc1aad5e29609758af999e1822baa9f2cc06d1b8"},
+    {file = "django-countries-7.3.2.tar.gz", hash = "sha256:0df6d34193667c2343da8935cbfb8a2bd4fb0c97baf01ac10db4628ba1557a82"},
+    {file = "django_countries-7.3.2-py3-none-any.whl", hash = "sha256:27fc8a0f66a87c9d839493f3926b4e0f4dd873ef66465aa8cd3e953f99758cc9"},
 ]
 django-filter = [
     {file = "django-filter-2.4.0.tar.gz", hash = "sha256:84e9d5bb93f237e451db814ed422a3a625751cbc9968b484ecc74964a8696b06"},
@@ -2274,7 +2277,7 @@ pytest-forked = [
     {file = "pytest_forked-1.3.0-py2.py3-none-any.whl", hash = "sha256:dc4147784048e70ef5d437951728825a131b81714b398d5d52f17c7c144d8815"},
 ]
 pytest-testmon = [
-    {file = "pytest-testmon-1.2.0.tar.gz", hash = "sha256:2c61ae6185ea7dc07ea0d4db3984be62f1a176a5c16615fd208c5945aa411599"},
+    {file = "pytest-testmon-1.3.0.tar.gz", hash = "sha256:d50caba2ae83bf5d44682191023d7d6ca4017d1cf6e974a1e53258ef103fbc11"},
 ]
 pytest-watch = [
     {file = "pytest-watch-4.2.0.tar.gz", hash = "sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9"},
@@ -2343,7 +2346,8 @@ requests = [
     {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
 ]
 rope = [
-    {file = "rope-0.21.0.tar.gz", hash = "sha256:366789e069a267296889b2ee7631f9278173b5e7d468f2ea08abe26069a52aef"},
+    {file = "rope-0.23.0-py3-none-any.whl", hash = "sha256:edf2ed3c9b35a8814752ffd3ea55b293c791e5087e252461de898e953cf9c146"},
+    {file = "rope-0.23.0.tar.gz", hash = "sha256:f87662c565086d660fc855cc07f37820267876634c3e9e51bddb32ff51547268"},
 ]
 rsa = [
     {file = "rsa-4.7.2-py3-none-any.whl", hash = "sha256:78f9a9bf4e7be0c5ded4583326e7461e3a3c5aae24073648b4bdfa797d78c9d2"},
