@@ -175,7 +175,7 @@ class ExperimentConstants(object):
         ("97.0", "Firefox 97.0"),
         ("98.0", "Firefox 98.0"),
         ("99.0", "Firefox 99.0"),
-        ("100.0", "Firefox 100.0"),        
+        ("100.0", "Firefox 100.0"),
         ("101.0", "Firefox 101.0"),
         ("102.0", "Firefox 102.0"),
         ("103.0", "Firefox 103.0"),
@@ -195,7 +195,7 @@ class ExperimentConstants(object):
         ("117.0", "Firefox 117.0"),
         ("118.0", "Firefox 118.0"),
         ("119.0", "Firefox 119.0"),
-        ("120.0", "Firefox 120.0"),            
+        ("120.0", "Firefox 120.0"),
     )
 
     VERSION_REGEX = re.compile(r"[\d]+")
