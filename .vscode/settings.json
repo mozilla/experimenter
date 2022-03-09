@@ -1,6 +1,6 @@
 {
   "python.linting.enabled": true,
-  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Enabled": false,
   "python.linting.flake8Args": [
     "--config=app/.flake8"
   ],
@@ -9,5 +9,6 @@
     "--line-length",
     "90"
   ],
-  "jest.jestCommandLine": "yarn workspace @experimenter/nimbus-ui test:cov"
+  "jest.jestCommandLine": "yarn workspace @experimenter/nimbus-ui test:cov",
+  "python.linting.pylintEnabled": true
 }

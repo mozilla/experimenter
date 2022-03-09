@@ -16,6 +16,7 @@ import PageHome from "../PageHome";
 import PageLoading from "../PageLoading";
 import PageNew from "../PageNew";
 import PageResults from "../PageResults";
+import PageReporting from "../PageReporting";
 import PageSummary from "../PageSummary";
 import PageSummaryDetail from "../PageSummaryDetails";
 import ExperimentRoot from "./ExperimentRoot";
@@ -43,6 +44,7 @@ const App = () => {
       <Router basepath={BASE_PATH}>
         <PageHome path="/" />
         <PageNew path="new" />
+        <PageReporting path="reporting" />
         <ExperimentRoot path=":slug">
           <PageSummary path="/" />
           <PageSummaryDetail path="details" />

@@ -116,6 +116,16 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
         <h2 className="mb-0 mr-1">Nimbus Experiments </h2>
         <div>
           <Link
+            to="reporting"
+            data-sb-kind="pages/Reporting"
+            className="btn btn-primary btn-small ml-2"
+            id="reporting-button"
+          >
+            Reporting
+          </Link>
+        </div>
+        <div>
+          <Link
             to="new"
             data-sb-kind="pages/New"
             className="btn btn-primary btn-small ml-2"
