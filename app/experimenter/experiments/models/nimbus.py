@@ -247,12 +247,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         expressions = []
 
         if self.targeting_config and self.targeting_config.targeting:
-            if self.application == self.Application.DESKTOP:
-                expressions.append(self.targeting_config.targeting)
-            else:
-                expressions.append(f"({self.targeting_config.targeting})")
-
-
+            expressions.append(self.targeting_config.targeting)
 
         if self.application == self.Application.DESKTOP:
             if self.channel:
@@ -285,13 +280,15 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             if self.application == self.Application.DESKTOP:
                 expressions.append(f"locale in {locales}")
             else:
+                iso_locales = [locale for locale in locales if '-' in locale]
                 iso_locales_expression = (
-                    f"locale in {list(filter(lambda s: '-' in s, locales))}"
+                    f"locale in {iso_locales}"
                 )
+                iso_languages = [locale for locale in locales if '-' not in locale]
                 iso_languages_expression = " || ".join(
                     [
                         f"'{language}' in locale"
-                        for language in list(filter(lambda s: "-" not in s, locales))
+                        for language in iso_languages
                     ]
                 )
                 locale_expressions = (
@@ -299,20 +296,11 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
                 )
                 expressions.append(locale_expressions)
 
-        # Region matching
         if self.countries.count():
             countries = [
                 country.code for country in self.countries.all().order_by("code")
             ]
-            if self.application == self.Application.DESKTOP:
-                expressions.append(f"region in '{countries}'")
-            else:
-                iso_region_expression = " || ".join(
-                    [
-                        f"'{region}' in locale" for region in countries
-                    ]
-                )
-                expressions.append(f"({iso_region_expression})")
+            expressions.append(f"region in {countries}")
 
         #  If there is no targeting defined all clients should match, so we return "true"
         if len(expressions) == 0:

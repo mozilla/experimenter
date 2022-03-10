@@ -377,9 +377,6 @@ class TestNimbusExperiment(TestCase):
         locale_ro = LocaleFactory.create(code="ro")
         locale_de = LocaleFactory.create(code="de")
         locale_en = LocaleFactory.create(code="en")
-        country_ca = CountryFactory.create(code="CA")
-        country_ro = CountryFactory.create(code="RO")
-        country_de = CountryFactory.create(code="DE")
         targeting_config = NimbusExperiment.TargetingConfig
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
@@ -389,14 +386,12 @@ class TestNimbusExperiment(TestCase):
             targeting_config_slug=targeting_config.TARGETING_MOBILE_NEW_USER,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[locale_ca, locale_ro, locale_de, locale_en],
-            countries=[country_ca, country_ro, country_de],
         )
         self.assertEqual(
             experiment.targeting,
             (
-                "(is_already_enrolled || days_since_install < 7) "
-                "&& (locale in ['en-CA'] || 'de' in locale || 'en' in locale || 'ro' in locale) "
-                "&& ('CA' in locale || 'DE' in locale || 'RO' in locale)"
+                "is_already_enrolled || days_since_install < 7 "
+                "&& (locale in ['en-CA'] || 'de' in locale || 'en' in locale || 'ro' in locale)"
             ),
         )
 
