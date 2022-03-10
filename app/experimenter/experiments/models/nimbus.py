@@ -247,7 +247,12 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         expressions = []
 
         if self.targeting_config and self.targeting_config.targeting:
-            expressions.append(self.targeting_config.targeting)
+            if self.application == self.Application.DESKTOP:
+                expressions.append(self.targeting_config.targeting)
+            else:
+                expressions.append(f"({self.targeting_config.targeting})")
+
+
 
         if self.application == self.Application.DESKTOP:
             if self.channel:
@@ -285,12 +290,12 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
                 )
                 iso_languages_expression = " || ".join(
                     [
-                        f"{language} in locale"
+                        f"'{language}' in locale"
                         for language in list(filter(lambda s: "-" not in s, locales))
                     ]
                 )
                 locale_expressions = (
-                    f"{iso_locales_expression} || {iso_languages_expression}"
+                    f"({iso_locales_expression} || {iso_languages_expression})"
                 )
                 expressions.append(locale_expressions)
 
@@ -300,9 +305,14 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
                 country.code for country in self.countries.all().order_by("code")
             ]
             if self.application == self.Application.DESKTOP:
-                expressions.append(f"region in {countries}")
+                expressions.append(f"region in '{countries}'")
             else:
-                expressions.append(f"locale in {countries}")
+                iso_region_expression = " || ".join(
+                    [
+                        f"'{region}' in locale" for region in countries
+                    ]
+                )
+                expressions.append(f"({iso_region_expression})")
 
         #  If there is no targeting defined all clients should match, so we return "true"
         if len(expressions) == 0:
