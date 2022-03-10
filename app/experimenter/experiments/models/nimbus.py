@@ -280,16 +280,11 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             if self.application == self.Application.DESKTOP:
                 expressions.append(f"locale in {locales}")
             else:
-                iso_locales = [locale for locale in locales if '-' in locale]
-                iso_locales_expression = (
-                    f"locale in {iso_locales}"
-                )
-                iso_languages = [locale for locale in locales if '-' not in locale]
+                iso_locales = [locale for locale in locales if "-" in locale]
+                iso_locales_expression = f"locale in {iso_locales}"
+                iso_languages = [locale for locale in locales if "-" not in locale]
                 iso_languages_expression = " || ".join(
-                    [
-                        f"'{language}' in locale"
-                        for language in iso_languages
-                    ]
+                    [f"'{language}' in locale" for language in iso_languages]
                 )
                 locale_expressions = (
                     f"({iso_locales_expression} || {iso_languages_expression})"
