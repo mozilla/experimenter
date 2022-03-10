@@ -345,10 +345,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
         "schedule": 28800,
     },
-    "reporting_generate_report_logs": {
-        "task": "experimenter.reporting.tasks.generate_reportlogs",
-        "schedule": config("CELERY_REPORTING_INTERVAL", default=86400, cast=int),
-    },
+    # "reporting_generate_report_logs": {
+    #     "task": "experimenter.reporting.tasks.generate_reportlogs",
+    #     "schedule": config("CELERY_REPORTING_INTERVAL", default=86400, cast=int),
+    # },
 }
 
 # Recipe Configuration
