@@ -374,9 +374,10 @@ class TestNimbusExperiment(TestCase):
 
     def test_targeting_with_locales_and_countries_mobile(self):
         locale_ca = LocaleFactory.create(code="en-CA")
+        locale_us = LocaleFactory.create(code="en-US")
         locale_ro = LocaleFactory.create(code="ro")
         locale_de = LocaleFactory.create(code="de")
-        locale_en = LocaleFactory.create(code="en")
+        locale_es = LocaleFactory.create(code="es-ES")
         targeting_config = NimbusExperiment.TargetingConfig
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
@@ -385,13 +386,13 @@ class TestNimbusExperiment(TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=targeting_config.TARGETING_MOBILE_NEW_USER,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            locales=[locale_ca, locale_ro, locale_de, locale_en],
+            locales=[locale_ca, locale_ro, locale_de, locale_es, locale_us],
         )
         self.assertEqual(
             experiment.targeting,
             (
                 "is_already_enrolled || days_since_install < 7 "
-                "&& (locale in ['en-CA'] || 'de' in locale || 'en' in locale "
+                "&& ('en' in locale || 'es' in locale || 'de' in locale "
                 "|| 'ro' in locale)"
             ),
         )
