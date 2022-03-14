@@ -392,7 +392,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 "is_already_enrolled || days_since_install < 7 "
-                "&& ('en' in locale || 'es' in locale || 'de' in locale "
+                "&& ('de' in locale || 'en' in locale || 'es' in locale "
                 "|| 'ro' in locale)"
             ),
         )
