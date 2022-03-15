@@ -256,23 +256,24 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
                         channel=self.channel
                     )
                 )
-            if self.firefox_min_version:
-                expressions.append(
-                    "version|versionCompare('{version}') >= 0".format(
-                        version=self.firefox_min_version
-                    )
-                )
-            if self.firefox_max_version:
-                # HACK: tweak the min version to better match max version pattern
-                max_version = self.firefox_max_version.replace("!", "*")
-                expressions.append(
-                    "version|versionCompare('{max_version}') < 0".format(
-                        max_version=max_version
-                    )
-                )
 
             # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
             expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
+
+        if self.firefox_min_version:
+            expressions.append(
+                "version|versionCompare('{version}') >= 0".format(
+                    version=self.firefox_min_version
+                )
+            )
+        if self.firefox_max_version:
+            # HACK: tweak the min version to better match max version pattern
+            max_version = self.firefox_max_version.replace("!", "*")
+            expressions.append(
+                "version|versionCompare('{max_version}') < 0".format(
+                    max_version=max_version
+                )
+            )
 
         if self.locales.count():
             locales = [locale.code for locale in self.locales.all().order_by("code")]

@@ -611,6 +611,8 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             targeting_config_slug="",
             application=NimbusExperiment.Application.FENIX,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
         )
         response = self.query(
             """
