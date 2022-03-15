@@ -875,6 +875,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
+    ERROR_FIREFOX_VERSION_MOBILE = (
+        "Version targeting is not supported on this application for this version"
+    )
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
