@@ -1043,6 +1043,42 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
         return data
 
+    def _validate_versions_mobile(self, data):
+        application = data.get("application")
+        min_version = data.get("firefox_min_version")
+        max_version = data.get("firefox_max_version")
+
+        supported_versions = {
+            NimbusExperiment.Application.FENIX: NimbusExperiment.Version.FIREFOX_98,
+            NimbusExperiment.Application.FOCUS_ANDROID: (
+                NimbusExperiment.Version.FIREFOX_98
+            ),
+            NimbusExperiment.Application.IOS: NimbusExperiment.Version.FIREFOX_97,
+            NimbusExperiment.Application.FOCUS_IOS: NimbusExperiment.Version.FIREFOX_97,
+        }
+
+        errors = {}
+
+        if application in supported_versions:
+            supported_version = supported_versions[application]
+
+            if min_version and min_version < supported_version:
+
+                errors["firefox_min_version"] = [
+                    NimbusExperiment.ERROR_FIREFOX_VERSION_MOBILE
+                ]
+
+            if max_version and max_version < supported_version:
+
+                errors["firefox_max_version"] = [
+                    NimbusExperiment.ERROR_FIREFOX_VERSION_MOBILE
+                ]
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1054,6 +1090,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_config(data)
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
+        data = self._validate_versions_mobile(data)
         return data
 
 

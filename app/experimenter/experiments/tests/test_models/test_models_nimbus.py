@@ -205,6 +205,19 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(str(experiment), experiment.name)
 
+    def test_empty_targeting(self):
+        experiment = NimbusExperimentFactory.create(
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[],
+            countries=[],
+        )
+
+        self.assertEqual(experiment.targeting, "true")
+
     def test_targeting_for_experiment_without_channels(self):
         experiment = NimbusExperimentFactory.create(
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
@@ -220,14 +233,14 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 "(os.isMac) "
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
                 "&& (version|versionCompare('83.!') >= 0) "
-                "&& (version|versionCompare('95.*') < 0) "
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue)"
+                "&& (version|versionCompare('95.*') < 0)"
             ),
         )
         JEXLParser().parse(experiment.targeting)
 
-    def test_empty_targeting_for_mobile(self):
+    def test_targeting_for_mobile_includes_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
@@ -239,7 +252,13 @@ class TestNimbusExperiment(TestCase):
             countries=[],
         )
 
-        self.assertEqual(experiment.targeting, "true")
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "(app_version|versionCompare('83.!') >= 0) "
+                "&& (app_version|versionCompare('95.*') < 0)"
+            ),
+        )
         JEXLParser().parse(experiment.targeting)
 
     def test_targeting_without_firefox_min_version(
@@ -261,8 +280,8 @@ class TestNimbusExperiment(TestCase):
             (
                 "(os.isMac) "
                 '&& (browserSettings.update.channel == "nightly") '
-                "&& (version|versionCompare('95.*') < 0) "
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue)"
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (version|versionCompare('95.*') < 0)"
             ),
         )
         JEXLParser().parse(experiment.targeting)
@@ -286,8 +305,8 @@ class TestNimbusExperiment(TestCase):
             (
                 "(os.isMac) "
                 '&& (browserSettings.update.channel == "nightly") '
-                "&& (version|versionCompare('83.!') >= 0) "
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue)"
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (version|versionCompare('83.!') >= 0)"
             ),
         )
         JEXLParser().parse(experiment.targeting)

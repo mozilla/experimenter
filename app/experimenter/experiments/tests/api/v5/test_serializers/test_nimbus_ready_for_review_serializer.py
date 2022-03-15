@@ -97,7 +97,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             serializer.errors,
             {"hypothesis": ["Hypothesis cannot be the default value."]},
@@ -123,7 +123,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             serializer.errors,
             {"reference_branch": ["This field may not be null."]},
@@ -149,7 +149,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             serializer.errors,
             {"reference_branch": {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]}},
@@ -170,7 +170,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             serializer.errors,
             {
@@ -215,7 +215,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             str(serializer.errors["population_percent"][0]),
             "Ensure this value is greater than or equal to 0.0001.",
@@ -265,7 +265,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             serializer.errors["treatment_branches"][1],
             {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]},
@@ -285,7 +285,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             serializer.errors["feature_config"],
             [NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG],
@@ -312,7 +312,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             str(serializer.errors["risk_partner_related"][0]),
             NimbusConstants.ERROR_REQUIRED_QUESTION,
@@ -357,7 +357,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_serializer_feature_config_validation_application_mismatches_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[
@@ -377,7 +376,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             serializer.errors["feature_config"],
             [
@@ -389,7 +388,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_serializer_feature_config_validation_missing_feature_config(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             feature_configs=[],
         )
@@ -403,7 +401,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             serializer.errors["feature_config"],
             ["You must select a feature configuration from the drop down."],
@@ -412,7 +410,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_serializer_feature_config_validation_bad_json_value(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
@@ -444,7 +441,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertIn(
             "Unterminated string",
             serializer.errors["reference_branch"]["feature_value"][0],
@@ -454,7 +451,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_serializer_feature_config_validation_reference_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
@@ -485,7 +481,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertTrue(
             serializer.errors["reference_branch"]["feature_value"][0].startswith(
                 "Additional properties are not allowed"
@@ -497,7 +493,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_serializer_feature_config_validation_reference_value_schema_warn(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             warn_feature_schema=True,
@@ -541,7 +536,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_serializer_feature_config_validation_treatment_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
@@ -572,7 +566,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertTrue(
             serializer.errors["treatment_branches"][0]["feature_value"][0].startswith(
                 "Additional properties are not allowed"
@@ -584,7 +578,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_serializer_feature_config_validation_treatment_value_schema_warn(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             warn_feature_schema=True,
@@ -628,7 +621,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_serializer_feature_config_validation_treatment_value_no_schema(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
@@ -648,6 +640,156 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertTrue(serializer.is_valid())
 
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.FENIX,),
+            (NimbusExperiment.Application.FOCUS_ANDROID,),
+        ]
+    )
+    def test_serializer_valid_min_version_android_above_98(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_98,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.FENIX,),
+            (NimbusExperiment.Application.FOCUS_ANDROID,),
+        ]
+    )
+    def test_serializer_no_min_version_android_below_98(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_97,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid(), serializer.errors)
+        self.assertIn("firefox_min_version", serializer.errors)
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.FENIX,),
+            (NimbusExperiment.Application.FOCUS_ANDROID,),
+        ]
+    )
+    def test_serializer_no_max_version_android_below_98(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_96,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_97,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid(), serializer.errors)
+        self.assertIn("firefox_min_version", serializer.errors)
+        self.assertIn("firefox_max_version", serializer.errors)
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.IOS,),
+            (NimbusExperiment.Application.FOCUS_IOS,),
+        ]
+    )
+    def test_serializer_valid_min_version_ios_above_97(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_97,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.IOS,),
+            (NimbusExperiment.Application.FOCUS_IOS,),
+        ]
+    )
+    def test_serializer_no_min_version_ios_below_97(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_96,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid(), serializer.errors)
+        self.assertIn("firefox_min_version", serializer.errors)
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.IOS,),
+            (NimbusExperiment.Application.FOCUS_IOS,),
+        ]
+    )
+    def test_serializer_no_max_version_ios_below_97(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_96,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid(), serializer.errors)
+        self.assertIn("firefox_min_version", serializer.errors)
+        self.assertIn("firefox_max_version", serializer.errors)
+
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
     def setUp(self):
@@ -665,7 +807,6 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
     def test_serializer_feature_config_validation_application_mismatches_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[
@@ -689,7 +830,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             serializer.errors["feature_configs"],
             [
@@ -701,7 +842,6 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
     def test_serializer_feature_config_validation_missing_feature_config(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             feature_configs=[],
         )
@@ -715,7 +855,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(
             serializer.errors["feature_configs"],
             [
@@ -726,7 +866,6 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
     def test_serializer_feature_config_validation_bad_json_value(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
@@ -760,7 +899,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(len(serializer.errors), 1)
         feature_values_errors = [
             e
@@ -776,7 +915,6 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
     def test_serializer_feature_config_validation_reference_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
@@ -810,7 +948,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(len(serializer.errors), 1)
         feature_values_errors = [
             e
@@ -828,7 +966,6 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
     def test_serializer_feature_config_validation_treatment_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
@@ -861,7 +998,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertEqual(len(serializer.errors), 1)
         feature_values_errors = [
             e
@@ -887,7 +1024,6 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[feature1, feature2],
