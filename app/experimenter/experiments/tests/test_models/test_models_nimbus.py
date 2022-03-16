@@ -218,10 +218,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "os.isMac "
-                "&& version|versionCompare('83.!') >= 0 "
-                "&& version|versionCompare('95.*') < 0 "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+                "(os.isMac) "
+                "&& (version|versionCompare('83.!') >= 0) "
+                "&& (version|versionCompare('95.*') < 0) "
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue)"
             ),
         )
 
@@ -256,10 +256,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "os.isMac "
-                '&& browserSettings.update.channel == "nightly" '
-                "&& version|versionCompare('95.*') < 0 "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+                "(os.isMac) "
+                '&& (browserSettings.update.channel == "nightly") '
+                "&& (version|versionCompare('95.*') < 0) "
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue)"
             ),
         )
 
@@ -280,10 +280,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "os.isMac "
-                '&& browserSettings.update.channel == "nightly" '
-                "&& version|versionCompare('83.!') >= 0 "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+                "(os.isMac) "
+                '&& (browserSettings.update.channel == "nightly") '
+                "&& (version|versionCompare('83.!') >= 0) "
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue)"
             ),
         )
 
@@ -300,7 +300,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            "os.isMac && 'app.shield.optoutstudies.enabled'|preferenceValue",
+            "(os.isMac) && ('app.shield.optoutstudies.enabled'|preferenceValue)",
         )
 
     def test_targeting_with_locales(self):
@@ -319,9 +319,9 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "os.isMac "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& locale in ['en-CA', 'en-US']"
+                "(os.isMac) "
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (locale in ['en-CA', 'en-US'])"
             ),
         )
 
@@ -341,9 +341,9 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "os.isMac "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& region in ['CA', 'US']"
+                "(os.isMac) "
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (region in ['CA', 'US'])"
             ),
         )
 
@@ -365,10 +365,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "os.isMac "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue "
-                "&& locale in ['en-CA', 'en-US'] "
-                "&& region in ['CA', 'US']"
+                "(os.isMac) "
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (locale in ['en-CA', 'en-US']) "
+                "&& (region in ['CA', 'US'])"
             ),
         )
 
@@ -391,7 +391,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "is_already_enrolled || days_since_install < 7 "
+                "(is_already_enrolled || days_since_install < 7) "
                 "&& ('de' in locale || 'en' in locale || 'es' in locale "
                 "|| 'ro' in locale)"
             ),
