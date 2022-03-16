@@ -22,6 +22,7 @@ from experimenter.experiments.models import (
     NimbusIsolationGroup,
 )
 from experimenter.experiments.models.nimbus import NimbusBucketRange
+from experimenter.experiments.tests import JEXLParser
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
@@ -224,6 +225,7 @@ class TestNimbusExperiment(TestCase):
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_empty_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -238,6 +240,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertEqual(experiment.targeting, "true")
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_without_firefox_min_version(
         self,
@@ -262,6 +265,7 @@ class TestNimbusExperiment(TestCase):
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_without_firefox_max_version(
         self,
@@ -286,6 +290,7 @@ class TestNimbusExperiment(TestCase):
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_without_channel_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -302,6 +307,7 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             "os.isMac && 'app.shield.optoutstudies.enabled'|preferenceValue",
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_with_locales(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -324,6 +330,7 @@ class TestNimbusExperiment(TestCase):
                 "&& locale in ['en-CA', 'en-US']"
             ),
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_with_countries(self):
         country_ca = CountryFactory.create(code="CA")
@@ -346,6 +353,7 @@ class TestNimbusExperiment(TestCase):
                 "&& region in ['CA', 'US']"
             ),
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_with_locales_and_countries(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -371,6 +379,7 @@ class TestNimbusExperiment(TestCase):
                 "&& region in ['CA', 'US']"
             ),
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_with_locales_and_countries_mobile(self):
         locale_ca = LocaleFactory.create(code="en-CA")
@@ -396,6 +405,7 @@ class TestNimbusExperiment(TestCase):
                 "|| 'ro' in locale)"
             ),
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_uses_published_targeting_string(self):
         published_targeting = "published targeting jexl"
