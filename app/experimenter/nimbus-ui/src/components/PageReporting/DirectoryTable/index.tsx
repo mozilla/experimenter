@@ -17,6 +17,7 @@ import {
   resultsReadySortSelector,
 } from "../../../lib/experiment";
 import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
+import { getReporting_totals } from "../../../types/getReporting";
 import LinkExternal from "../../LinkExternal";
 import NotSet from "../../NotSet";
 
@@ -87,6 +88,66 @@ export const DirectoryColumnApplication: ColumnComponent = ({ featureConfig }) =
     ) : (
       <span data-testid="directory-feature-config-none">(None)</span>
     )}
+  </td>
+);
+
+export const DirectoryColumnStartDate: ColumnComponent = (experiment) => (
+  <td data-testid="directory-table-cell">
+    {experiment.startDate || <NotSet />}
+  </td>
+);
+
+export const DirectoryColumnEndDate: ColumnComponent = (experiment) => (
+  <td data-testid="directory-table-cell">
+    {experiment.computedEndDate || <NotSet />}
+  </td>
+);
+
+export const DirectoryColumnDuration: ColumnComponent = (experiment) => (
+  <td data-testid="directory-table-cell">
+    {experiment.proposedDuration || <NotSet />}
+  </td>
+);
+
+export const DirectoryColumnName: ColumnComponent = (experiment) => (
+  <td data-testid="directory-table-cell">{experiment.name || <NotSet />}</td>
+);
+
+export const DirectoryColumnFeatureName: ColumnComponent = ({ featureConfig }) => (
+  <td data-testid="directory-table-cell">
+    {featureConfig ? (
+      <>
+        <span data-testid="directory-application-config-name">
+          {featureConfig.name}
+        </span>
+      </>
+    ) : (
+      <span data-testid="directory-feature-config-none">(None)</span>
+    )}
+  </td>
+);
+
+export const DirectoryColumnProductArea: ColumnComponent = (experiment) => (
+  <td data-testid="directory-table-cell">
+    {experiment.application || <NotSet />}
+  </td>
+);
+
+export const DirectoryColumnResults: ColumnComponent = (experiment) => (
+  <td data-testid="directory-table-cell">
+    {experiment.monitoringDashboardUrl || <NotSet />}
+  </td>
+);
+
+export const DirectoryColumnTakeaways: ColumnComponent = (experiment) => (
+  <td data-testid="directory-table-cell">
+    {experiment.conclusionRecommendation || <NotSet />}
+  </td>
+);
+
+export const DirectoryColumnRollout: ColumnComponent = (experiment) => (
+  <td data-testid="directory-table-cell">
+    {experiment.conclusionRecommendation || <NotSet />}
   </td>
 );
 
@@ -198,28 +259,71 @@ interface DirectoryTableProps {
   experiments: getAllExperiments_experiments[];
   columns?: Column[];
 }
-// const { application, num_in_release, num_with_kpi_impact, cdou, other_business_goals } = sortByStatus(
 
 const commonColumns: Column[] = [
-  { 
-    label: "Application", 
-    component: DirectoryColumnApplication 
+  {
+    label: "Start Date",
+    component: DirectoryColumnStartDate,
   },
   {
-    label: "# in Release",
+    label: "CDoU improve goals",
+    component: DirectoryColumnStartDate,
+  },
+  {
+    label: "CDoU stat sig",
+    component: DirectoryColumnStartDate,
+  },
+  {
+    label: "Leading indicator stat sig",
+    component: DirectoryColumnStartDate,
+  },
+  {
+    label: "A/A test",
+    component: DirectoryColumnStartDate,
+  },
+  {
+    label: "Op Mon/Do no harm",
+    component: DirectoryColumnStartDate,
+  },
+  {
+    label: "Product area",
+    component: DirectoryColumnProductArea,
+  },
+  {
+    label: "Experiment name",
+    component: DirectoryColumnName,
+  },
+  {
+    label: "Owner",
     component: DirectoryColumnOwner,
   },
   {
-    label: "# with KPI impact",
-    component: DirectoryColumnFeature,
+    label: "Feature",
+    component: DirectoryColumnFeatureName,
   },
   {
-    label: "CDoU",
-    component: DirectoryColumnFeature,
+    label: "Started",
+    component: DirectoryColumnStartDate,
   },
   {
-    label: "Other business goals",
-    component: DirectoryColumnFeature,
+    label: "Duration",
+    component: DirectoryColumnDuration,
+  },
+  {
+    label: "Ended",
+    component: DirectoryColumnEndDate,
+  },
+  {
+    label: "Results",
+    component: DirectoryColumnResults,
+  },
+  {
+    label: "Takeaway recommendation",
+    component: DirectoryColumnTakeaways,
+  },
+  {
+    label: "Rollout/Promotion",
+    component: DirectoryColumnRollout,
   },
 ];
 

@@ -219,6 +219,29 @@ export const GET_EXPERIMENTS_QUERY = gql`
   }
 `;
 
+export const GET_REPORTING_QUERY = gql`
+  query getAllExperiments {
+    experiments {
+      application
+      name
+      owner {
+        username
+      }
+      featureConfigs {
+        name
+        application
+        ownerEmail
+      }
+      startDate
+      proposedDuration
+      computedEndDate
+      monitoringDashboardUrl
+      resultsReady
+      takeawaysSummary
+    }
+  }
+`;
+
 export const CLONE_EXPERIMENT_MUTATION = gql`
   mutation cloneExperiment($input: ExperimentCloneInput!) {
     cloneExperiment(input: $input) {

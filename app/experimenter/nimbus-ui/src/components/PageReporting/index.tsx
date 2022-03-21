@@ -28,6 +28,7 @@ import {
 } from "./filterExperiments";
 import sortByStatus from "./sortByStatus";
 import { FilterOptions, FilterValue } from "./types";
+import { Link } from "@reach/router";
 
 const PageReporting: React.FunctionComponent<RouteComponentProps> = () => {
   return (
@@ -36,11 +37,18 @@ const PageReporting: React.FunctionComponent<RouteComponentProps> = () => {
 
       <div className="d-flex justify-content-between">
         <h1 className="h2">Reporting!</h1>
-
+        <div>
+          <Link
+            to="new"
+            data-sb-kind="pages/New"
+            className="btn btn-primary btn-small ml-2"
+            id="create-new-button"
+          >
+            Download CSV
+          </Link>
+        </div>
       </div>
-
       <Body />
-
     </AppLayout>
   );
 };
@@ -48,8 +56,6 @@ const PageReporting: React.FunctionComponent<RouteComponentProps> = () => {
 // const { application, num_in_release, num_with_kpi_impact, cdou, other_business_goals } = sortByStatus(
   // filterExperiments(data.experiments, filterValue),
 // );
-
-
 
 export const Body = () => {
   const { data, loading, error, refetch } = useQuery<{
@@ -63,9 +69,7 @@ export const Body = () => {
   if (!data) {
     return <div>No experiments found.</div>;
   }
-  const { complete } = sortByStatus(
-    data.experiments
-  );
+  const { complete } = sortByStatus(data.experiments);
   // const filterOptions: FilterOptions = {
   //   channels: config!.channels!
   // };
