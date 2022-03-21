@@ -284,7 +284,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
                 iso_locales_expression = " || ".join(
                     [f"'{language}' in locale" for language in sorted(iso_locales)]
                 )
-                expressions.append(f"({iso_locales_expression})")
+                expressions.append(iso_locales_expression)
 
         if self.countries.count():
             countries = [
@@ -296,7 +296,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         if len(expressions) == 0:
             return "true"
 
-        return " && ".join(expressions)
+        return " && ".join([f"({expression})" for expression in expressions])
 
     @property
     def application_config(self):
