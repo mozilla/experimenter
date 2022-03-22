@@ -54,9 +54,9 @@ class TestNimbusExperimentSerializer(TestCase):
                 # DRF manually replaces the isoformat suffix so we have to do the same
                 "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
                 "targeting": (
-                    'browserSettings.update.channel == "nightly" '
-                    "&& version|versionCompare('94.!') >= 0 "
-                    "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+                    '(browserSettings.update.channel == "nightly") '
+                    "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                    "&& (version|versionCompare('94.!') >= 0)"
                 ),
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,
@@ -141,9 +141,9 @@ class TestNimbusExperimentSerializer(TestCase):
                 # DRF manually replaces the isoformat suffix so we have to do the same
                 "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
                 "targeting": (
-                    'browserSettings.update.channel == "nightly" '
-                    "&& version|versionCompare('95.!') >= 0 "
-                    "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+                    '(browserSettings.update.channel == "nightly") '
+                    "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                    "&& (version|versionCompare('95.!') >= 0)"
                 ),
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,

@@ -238,6 +238,32 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             "https://{host}".format(host=settings.HOSTNAME), self.get_absolute_url()
         )
 
+    def _get_targeting_versions(self):
+        expressions = []
+
+        version_key = "version"
+        if self.application != self.Application.DESKTOP:
+            version_key = "app_version"
+
+        version_supported = True
+        if self.application in self.TARGETING_APPLICATION_SUPPORTED_VERSION:
+            supported_version = self.TARGETING_APPLICATION_SUPPORTED_VERSION[
+                self.application
+            ]
+            version_supported = self.firefox_min_version >= supported_version
+
+        if version_supported:
+            if self.firefox_min_version:
+                expressions.append(
+                    f"{version_key}|versionCompare('{self.firefox_min_version}') >= 0"
+                )
+            if self.firefox_max_version:
+                # HACK: tweak the min version to better match max version pattern
+                max_version = self.firefox_max_version.replace("!", "*")
+                expressions.append(f"{version_key}|versionCompare('{max_version}') < 0")
+
+        return expressions
+
     # This is the full JEXL expression processed by clients
     @property
     def targeting(self):
@@ -251,28 +277,12 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
         if self.application == self.Application.DESKTOP:
             if self.channel:
-                expressions.append(
-                    'browserSettings.update.channel == "{channel}"'.format(
-                        channel=self.channel
-                    )
-                )
-            if self.firefox_min_version:
-                expressions.append(
-                    "version|versionCompare('{version}') >= 0".format(
-                        version=self.firefox_min_version
-                    )
-                )
-            if self.firefox_max_version:
-                # HACK: tweak the min version to better match max version pattern
-                max_version = self.firefox_max_version.replace("!", "*")
-                expressions.append(
-                    "version|versionCompare('{max_version}') < 0".format(
-                        max_version=max_version
-                    )
-                )
+                expressions.append(f'browserSettings.update.channel == "{self.channel}"')
 
             # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
             expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
+
+        expressions.extend(self._get_targeting_versions())
 
         if self.locales.count():
             locales = [locale.code for locale in self.locales.all().order_by("code")]
@@ -284,7 +294,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
                 iso_locales_expression = " || ".join(
                     [f"'{language}' in locale" for language in sorted(iso_locales)]
                 )
-                expressions.append(f"({iso_locales_expression})")
+                expressions.append(iso_locales_expression)
 
         if self.countries.count():
             countries = [
@@ -296,7 +306,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         if len(expressions) == 0:
             return "true"
 
-        return " && ".join(expressions)
+        return " && ".join([f"({expression})" for expression in expressions])
 
     @property
     def application_config(self):
