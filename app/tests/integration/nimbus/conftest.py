@@ -123,7 +123,7 @@ def default_data(request):
     feature_config = APPLICATION_FEATURES[application]
 
     return BaseExperimentDataClass(
-        public_name=f"{request.node.name}-{str(uuid.uuid4())[:4]}",
+        public_name=f"{request.node.name[:76]}-{str(uuid.uuid4())[:4]}",
         hypothesis="smart stuff here",
         application=application,
         public_description="description stuff",
