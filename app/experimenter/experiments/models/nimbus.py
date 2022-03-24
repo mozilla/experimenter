@@ -245,22 +245,24 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         if self.application != self.Application.DESKTOP:
             version_key = "app_version"
 
-        version_supported = True
+        min_version_supported = True
+        max_version_supported = True
         if self.application in self.TARGETING_APPLICATION_SUPPORTED_VERSION:
             supported_version = self.TARGETING_APPLICATION_SUPPORTED_VERSION[
                 self.application
             ]
-            version_supported = self.firefox_min_version >= supported_version
+            min_version_supported = self.firefox_min_version >= supported_version
+            max_version_supported = self.firefox_max_version >= supported_version
 
-        if version_supported:
-            if self.firefox_min_version:
-                expressions.append(
-                    f"{version_key}|versionCompare('{self.firefox_min_version}') >= 0"
-                )
-            if self.firefox_max_version:
-                # HACK: tweak the min version to better match max version pattern
-                max_version = self.firefox_max_version.replace("!", "*")
-                expressions.append(f"{version_key}|versionCompare('{max_version}') < 0")
+        if min_version_supported and self.firefox_min_version:
+            expressions.append(
+                f"{version_key}|versionCompare('{self.firefox_min_version}') >= 0"
+            )
+
+        if max_version_supported and self.firefox_max_version:
+            # HACK: tweak the min version to better match max version pattern
+            max_version = self.firefox_max_version.replace("!", "*")
+            expressions.append(f"{version_key}|versionCompare('{max_version}') < 0")
 
         return expressions
 
