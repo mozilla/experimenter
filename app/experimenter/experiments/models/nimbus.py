@@ -267,7 +267,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         if max_version_supported and self.firefox_max_version:
             # HACK: tweak the min version to better match max version pattern
             max_version = self.firefox_max_version.replace("!", "*")
-            expressions.append(f"{version_key}|versionCompare('{max_version}') < 0")
+            expressions.append(f"{version_key}|versionCompare('{max_version}') <= 0")
 
         return expressions
 
