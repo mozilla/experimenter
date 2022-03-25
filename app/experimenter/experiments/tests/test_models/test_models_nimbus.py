@@ -222,7 +222,7 @@ class TestNimbusExperiment(TestCase):
                 "(os.isMac) "
                 "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
                 "&& (version|versionCompare('83.!') >= 0) "
-                "&& (version|versionCompare('95.*') < 0)"
+                "&& (version|versionCompare('95.*') <= 0)"
             ),
         )
         JEXLParser().parse(experiment.targeting)
@@ -325,7 +325,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertEqual(
-            experiment.targeting, "(app_version|versionCompare('100.*') < 0)"
+            experiment.targeting, "(app_version|versionCompare('100.*') <= 0)"
         )
 
     @parameterized.expand(
@@ -355,7 +355,7 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(
             experiment.targeting,
-            f"(app_version|versionCompare('{version.replace('!', '*')}') < 0)",
+            f"(app_version|versionCompare('{version.replace('!', '*')}') <= 0)",
         )
 
     @parameterized.expand(
@@ -386,7 +386,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             f"(app_version|versionCompare('{version}') >= 0) "
-            f"&& (app_version|versionCompare('{version.replace('!', '*')}') < 0)",
+            f"&& (app_version|versionCompare('{version.replace('!', '*')}') <= 0)",
         )
 
     def test_targeting_without_firefox_min_version(
@@ -409,7 +409,7 @@ class TestNimbusExperiment(TestCase):
                 "(os.isMac) "
                 '&& (browserSettings.update.channel == "nightly") '
                 "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
-                "&& (version|versionCompare('95.*') < 0)"
+                "&& (version|versionCompare('95.*') <= 0)"
             ),
         )
         JEXLParser().parse(experiment.targeting)
