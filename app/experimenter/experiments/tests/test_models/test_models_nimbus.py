@@ -296,6 +296,38 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting, f"(app_version|versionCompare('{version}') >= 0)"
         )
 
+    def test_targeting_min_version_check_supports_semver_comparison(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.FENIX,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[],
+            countries=[],
+        )
+
+        self.assertEqual(
+            experiment.targeting, "(app_version|versionCompare('100.!') >= 0)"
+        )
+
+    def test_targeting_max_version_check_supports_semver_comparison(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.FENIX,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_100,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[],
+            countries=[],
+        )
+
+        self.assertEqual(
+            experiment.targeting, "(app_version|versionCompare('100.*') < 0)"
+        )
+
     @parameterized.expand(
         [
             (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_98),
