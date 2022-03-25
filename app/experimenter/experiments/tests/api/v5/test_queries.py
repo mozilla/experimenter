@@ -605,32 +605,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(experiment_data["jexlTargetingExpression"], experiment.targeting)
 
-    def test_experiment_no_jexl_targeting_expression(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug="",
-            application=NimbusExperiment.Application.FENIX,
-        )
-        response = self.query(
-            """
-            query experimentBySlug($slug: String!) {
-                experimentBySlug(slug: $slug) {
-                    jexlTargetingExpression
-                }
-            }
-            """,
-            variables={"slug": experiment.slug},
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-        experiment_data = content["data"]["experimentBySlug"]
-        self.assertEqual(
-            experiment_data["jexlTargetingExpression"],
-            "true",
-        )
-
     def test_experiment_computed_end_date_proposed(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(

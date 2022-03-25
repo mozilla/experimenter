@@ -278,7 +278,68 @@ class TestNimbusExperiment(TestCase):
             (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
         ]
     )
-    def test_targeting_includes_version_for_supported_clients(self, application, version):
+    def test_targeting_includes_min_version_for_supported_clients(
+        self, application, version
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+            firefox_min_version=version,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[],
+            countries=[],
+        )
+
+        self.assertEqual(
+            experiment.targeting, f"(app_version|versionCompare('{version}') >= 0)"
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_98),
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_98,
+            ),
+            (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_97),
+            (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
+        ]
+    )
+    def test_targeting_includes_max_version_for_supported_clients(
+        self, application, version
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=version,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            locales=[],
+            countries=[],
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            f"(app_version|versionCompare('{version.replace('!', '*')}') < 0)",
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Application.FENIX, NimbusExperiment.Version.FIREFOX_98),
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_98,
+            ),
+            (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_97),
+            (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
+        ]
+    )
+    def test_targeting_includes_min_and_max_version_for_supported_clients(
+        self, application, version
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=application,
