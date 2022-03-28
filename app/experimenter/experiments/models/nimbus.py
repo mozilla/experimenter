@@ -18,7 +18,6 @@ from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
-from packaging import version
 
 from experimenter.base import UploadsStorage
 from experimenter.base.models import Country, Locale
@@ -252,12 +251,12 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             supported_version = self.TARGETING_APPLICATION_SUPPORTED_VERSION[
                 self.application
             ]
-            min_version_supported = version.parse(
+            min_version_supported = NimbusExperiment.Version.parse(
                 self.firefox_min_version
-            ) >= version.parse(supported_version)
-            max_version_supported = version.parse(
+            ) >= NimbusExperiment.Version.parse(supported_version)
+            max_version_supported = NimbusExperiment.Version.parse(
                 self.firefox_max_version
-            ) >= version.parse(supported_version)
+            ) >= NimbusExperiment.Version.parse(supported_version)
 
         if min_version_supported and self.firefox_min_version:
             expressions.append(
