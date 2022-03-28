@@ -4,7 +4,6 @@ from collections import defaultdict
 import jsonschema
 from django.db import transaction
 from django.utils.text import slugify
-from packaging import version
 from rest_framework import serializers
 
 from experimenter.base.models import Country, Locale, SiteFlag, SiteFlagNameChoices
@@ -1033,7 +1032,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if (
             min_version != ""
             and max_version != ""
-            and version.parse(min_version) > version.parse(max_version)
+            and (
+                NimbusExperiment.Version.parse(min_version)
+                > NimbusExperiment.Version.parse(max_version)
+            )
         ):
             raise serializers.ValidationError(
                 {

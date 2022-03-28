@@ -1,7 +1,6 @@
 import json
 
 from django.conf import settings
-from packaging import version
 from rest_framework import serializers
 
 from experimenter.experiments.models import (
@@ -161,9 +160,11 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         return obj.application_config.channel_app_id.get(obj.channel, "")
 
     def get_branches(self, obj):
-        if obj.application == NimbusExperiment.Application.DESKTOP and version.parse(
-            obj.firefox_min_version
-        ) >= version.parse(NimbusExperiment.Version.FIREFOX_95):
+        if (
+            obj.application == NimbusExperiment.Application.DESKTOP
+            and NimbusExperiment.Version.parse(obj.firefox_min_version)
+            >= NimbusExperiment.Version.parse(NimbusExperiment.Version.FIREFOX_95)
+        ):
             return NimbusBranchSerializerMultiFeatureDesktop(
                 obj.branches.all(), many=True
             ).data

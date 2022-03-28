@@ -3,6 +3,7 @@ from typing import Dict
 
 from django.conf import settings
 from django.db import models
+from packaging import version
 
 
 class Channel(models.TextChoices):
@@ -572,6 +573,10 @@ class NimbusConstants(object):
         ENG_TICKET = "ENG_TICKET", "Engineering Ticket (Bugzilla/Jira/GitHub)"
 
     class Version(models.TextChoices):
+        @staticmethod
+        def parse(version_str):
+            return version.parse(version_str.replace("!", "0"))
+
         NO_VERSION = ""
         FIREFOX_11 = "11.!"
         FIREFOX_12 = "12.!"
