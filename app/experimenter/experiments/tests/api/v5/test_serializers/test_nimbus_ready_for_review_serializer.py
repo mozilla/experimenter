@@ -179,6 +179,24 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             },
         )
 
+    def test_valid_experiment_min_dot_version_less_than_max_version(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_9830,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_99,
+        )
+        experiment.save()
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
     def test_alid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
