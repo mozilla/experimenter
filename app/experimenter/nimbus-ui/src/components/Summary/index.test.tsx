@@ -89,6 +89,30 @@ describe("Summary", () => {
     await screen.findByTestId("pill-enrolling-complete");
   });
 
+  it("renders the end experiment button if the experiment is live and idle", async () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+        }}
+      />,
+    );
+    await screen.findByText("End Experiment");
+  });
+
+  it("does not renders the end experiment button if the experiment is live and not idle", async () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
+        }}
+      />,
+    );
+    expect(screen.queryByText("End Experiment")).not.toBeInTheDocument();
+  });
+
   describe("ending an experiment request", () => {
     const origWindowOpen = global.window.open;
     let mockWindowOpen: any;

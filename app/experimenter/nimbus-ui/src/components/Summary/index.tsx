@@ -36,7 +36,6 @@ const Summary = ({
   withFullDetails = true,
 }: SummaryProps) => {
   const status = getStatus(experiment);
-
   const {
     isLoading,
     submitError,
@@ -83,10 +82,9 @@ const Summary = ({
           />
         )}
 
-      {status.live && !status.review && !status.endRequested && (
+      {status.live && !status.review && !status.endRequested && status.idle && (
         <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
       )}
-
       {(status.live || status.preview) && (
         <PreviewURL {...experiment} status={status} />
       )}
