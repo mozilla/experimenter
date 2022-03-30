@@ -3587,10 +3587,10 @@
     "@svgr/plugin-svgo" "^4.3.1"
     loader-utils "^1.2.3"
 
-"@testing-library/dom@8.11.0", "@testing-library/dom@>=7", "@testing-library/dom@^8.11.0":
-  version "8.11.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.11.0.tgz#3679dfb4db58e0d2b95e4b0929eaf45237b60d94"
-  integrity sha512-8Ay4UDiMlB5YWy+ZvCeRyFFofs53ebxrWnOFvCoM1HpMAX4cHyuSrCuIM9l2lVuUWUt+Gr3loz/nCwdrnG6ShQ==
+"@testing-library/dom@8.12.0", "@testing-library/dom@>=7", "@testing-library/dom@^8.12.0":
+  version "8.12.0"
+  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.12.0.tgz#fef5e545533fb084175dda6509ee71d7d2f72e23"
+  integrity sha512-rBrJk5WjI02X1edtiUcZhgyhgBhiut96r5Jp8J5qktKdcvLcZpKDW8i2hkGMMItxrghjXuQ5AM6aE0imnFawaw==
   dependencies:
     "@babel/code-frame" "^7.10.4"
     "@babel/runtime" "^7.12.5"
