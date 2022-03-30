@@ -249,7 +249,7 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Application.FOCUS_ANDROID,
                 NimbusExperiment.Version.FIREFOX_97,
             ),
-            (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_96),
+            (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_97),
             (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_96),
         ]
     )
@@ -274,7 +274,7 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Application.FOCUS_ANDROID,
                 NimbusExperiment.Version.FIREFOX_98,
             ),
-            (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_97),
+            (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
             (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
         ]
     )
@@ -335,7 +335,7 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Application.FOCUS_ANDROID,
                 NimbusExperiment.Version.FIREFOX_98,
             ),
-            (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_97),
+            (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
             (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
         ]
     )
@@ -365,7 +365,7 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Application.FOCUS_ANDROID,
                 NimbusExperiment.Version.FIREFOX_98,
             ),
-            (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_97),
+            (NimbusExperiment.Application.IOS, NimbusExperiment.Version.FIREFOX_98),
             (NimbusExperiment.Application.FOCUS_IOS, NimbusExperiment.Version.FIREFOX_97),
         ]
     )

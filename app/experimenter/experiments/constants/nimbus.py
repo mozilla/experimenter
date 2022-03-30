@@ -840,7 +840,7 @@ class NimbusConstants(object):
     TARGETING_APPLICATION_SUPPORTED_VERSION = {
         Application.FENIX: Version.FIREFOX_98,
         Application.FOCUS_ANDROID: Version.FIREFOX_98,
-        Application.IOS: Version.FIREFOX_97,
+        Application.IOS: Version.FIREFOX_98,
         Application.FOCUS_IOS: Version.FIREFOX_97,
     }
 
