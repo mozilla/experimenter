@@ -960,7 +960,7 @@ test = ["pytest (<5.4)", "pytest-cov"]
 
 [[package]]
 name = "mozilla-nimbus-shared"
-version = "1.6.2"
+version = "1.7.0"
 description = "Shared data and schemas for Project Nimbus"
 category = "main"
 optional = false
@@ -1611,7 +1611,7 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "42a49e280232c8ac44321a56ff5895ad100d1b58a79210365f747e5966c982d7"
+content-hash = "49771018519a232295c2b47592fea137ba734bc247166c481618a77e097e804c"
 
 [metadata.files]
 amqp = [
@@ -2013,8 +2013,8 @@ mock = [
     {file = "mock-4.0.3.tar.gz", hash = "sha256:7d3fbbde18228f4ff2f1f119a45cdffa458b4c0dee32eb4d2bb2f82554bac7bc"},
 ]
 mozilla-nimbus-shared = [
-    {file = "mozilla_nimbus_shared-1.6.2-py3-none-any.whl", hash = "sha256:3e630bec4747204492e4db88c7dc561afd2fcaeba6078ac1fcab2a663373ccdc"},
-    {file = "mozilla_nimbus_shared-1.6.2.tar.gz", hash = "sha256:c63b5c5918c2461c2cc33dd0121a5881e3740a81f6e6145163c409d1390bbc11"},
+    {file = "mozilla_nimbus_shared-1.7.0-py3-none-any.whl", hash = "sha256:69e6ba9cd8bb6ca6a2549352a48d51262e7f0be1ceb835fd8ca1fbd4c3ed5e40"},
+    {file = "mozilla_nimbus_shared-1.7.0.tar.gz", hash = "sha256:ee468db008410a0d08dc6ba793955edc04ff4718b8158dc08dcb598420cf1da2"},
 ]
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
