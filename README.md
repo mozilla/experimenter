@@ -36,19 +36,22 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 
 ### General Setup
 
-1.
+1. Prerequisites
 
-On all platforms:
-- Install [Docker](https://www.docker.com/)
-- Install [Node](https://nodejs.org/en/) ^14.0.0
-- On Linux [setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
-- On MacOS
-  - [Install Docker Desktop](https://www.docker.com/products/docker-desktop)
-  - Adjust resource settings
-    - CPU: Max number of cores
-    - Memory: 50% of system memory
-    - Swap: Max 4gb
-    - Disk: 100gb+
+    On all platforms:
+    - Install [Docker](https://www.docker.com/)
+    - Install [Node](https://nodejs.org/en/) ^14.0.0  
+
+    On Linux:
+    - [Setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)  
+    
+    On MacOS:
+      - [Install Docker Desktop](https://www.docker.com/products/docker-desktop)
+      - Adjust resource settings
+        - CPU: Max number of cores
+        - Memory: 50% of system memory
+        - Swap: Max 4gb
+        - Disk: 100gb+
 
 1.  Clone the repo
 
@@ -89,28 +92,43 @@ On all platforms:
 One might choose the semi dockerized approach for:
 
 1. faster startup/teardown time (not having to rebuild/start/stop containers)
-1. better ide integration
+1. better IDE integration
 
 Notes:
 
 - [osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
 
-- [poetry](https://python-poetry.org/docs/#installation)
+- Install [poetry](https://python-poetry.org/docs/#installation)
 
-### Semi Dockerized Setup
+##### Semi Dockerized Setup Steps
 
-1.  Pre reqs (macOs instructions)
+1.  Pre reqs  
+    macOS instructions:
 
         brew install postgresql llvm openssl yarn
 
         echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile
         export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
 
+    Ubuntu 20.04 instructions:
+        
+        # general deps (also see `poetry` link above)
+        sudo apt install postgresql llvm openssl yarn
+
+        # add'l deps* for poetry / python setup
+        sudo apt install python3.9 python3.9-dev libpq5=12.9-0ubuntu0.20.04.1
+        sudo apt install libpq-dev
+
+    _*Notes_
+    - _the specific libpq5 version shown here is required for libpq-dev at time of writing_
+    - _python3.9 and python3.9-dev are required per poetry config, but **should not** be made the system default on Ubuntu 20.04 (i.e., leave python3 and python3.8 as-is)_
+
 2.  Install dependencies
 
         source .env
 
-        poetry install (cd into app)
+        cd app
+        poetry install
 
         yarn install
 
@@ -123,7 +141,7 @@ Notes:
 
 4.  Start postgresql, redis, autograph, kinto
 
-        make up_db
+        make up_db (from project root)
 
 5.  Django app
 
@@ -133,9 +151,12 @@ Notes:
 
         yarn workspace @experimenter/nimbus-ui build
         yarn workspace @experimenter/core build
+
+        # run in separate shells (`poetry shell` in each)
+        yarn workspace @experimenter/nimbus-ui start
         ./manage.py runserver 0.0.0.0:7001
 
-Pro-tip: we have had at least one large code refactor. You can ignore specific large commits when blaming by setting the Git config's `ignoreRevsFile` to `.git-blame-ignore-revs`:
+*Pro-tip*: we have had at least one large code refactor. You can ignore specific large commits when blaming by setting the Git config's `ignoreRevsFile` to `.git-blame-ignore-revs`:
 
 ```
 git config blame.ignoreRevsFile .git-blame-ignore-revs
@@ -147,7 +168,7 @@ On certain pages an API endpoint is called to receive experiment analysis data f
 
 1. Generate a GCP private key file.
 
-- Ask in #experimenter for the GCP link to create a new key file.
+- Ask in #nimbus-dev for the GCP link to create a new key file.
 - Add Key > Create New Key > JSON > save this file.
 - Do not lose or share this file. It's unique to you and you'll only get it once.
 
