@@ -89,7 +89,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "7.29.3",
     "eslint-plugin-react-hooks": "4.x",
-    "eslint-plugin-testing-library": "^5.1.0",
+    "eslint-plugin-testing-library": "^5.2.1",
     "fetch-mock": "^9.11.0",
     "jest-canvas-mock": "^2.3.1",
     "jest-fetch-mock": "^3.0.3",
@@ -98,7 +98,7 @@
     "mutationobserver-shim": "^0.3.7",
     "prettier": "^2.6.0",
     "prettier-plugin-organize-imports": "^2.3.2",
-    "react-select-event": "^5.3.0",
+    "react-select-event": "^5.4.0",
     "sass": "^1.49.10",
     "stylelint": "^13.13.1",
     "stylelint-config-prettier": "^8.0.2"
