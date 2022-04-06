@@ -13,15 +13,14 @@ Please note we have a [Code of Conduct](https://www.mozilla.org/en-US/about/gove
 
 1. If none exists, create a new issue and provide as much description and context as possible.
 
-1. Apply any relevant labels to the issue and set the milestone to Backlog.
+1. Apply any relevant labels to the issue.
 
 ## Pull Request Process
 
 1. Find the issue you want to work on.  If no relevant issue exists, see above and file an
 issue, then continue to the next step.
 
-1. Assign the issue to yourself, and change the milestone from Backlog to the currently active
-milestone.
+1. Assign the issue to yourself.
 
 1. Create a branch in your local fork with the issue number in the name.
 
@@ -43,7 +42,7 @@ do not require tests.
 information you'd like to the pull request body, including descriptions of changes, screenshots
 of any UI changes, special instructions for testing, etc.
 
-1. Find a reviewer.  If you're not sure who should review, please contact us on #experimenter on
+1. Find a reviewer.  If you're not sure who should review, please contact us on #nimbus-dev on
 the Mozilla Slack if you have access to it.
 
 1. Any PRs that require changes to deployment infrastructure ie environment variable changes,
