@@ -116,19 +116,19 @@ Notes:
         sudo apt install postgresql llvm openssl yarn
 
         # add'l deps* for poetry / python setup
-        sudo apt install python3.9 python3.9-dev libpq5=12.9-0ubuntu0.20.04.1
+        sudo apt install libpq5=12.9-0ubuntu0.20.04.1
         sudo apt install libpq-dev
 
     _*Notes_
     - _the specific libpq5 version shown here is required for libpq-dev at time of writing_
-    - _python3.9 and python3.9-dev are required per poetry config, but **should not** be made the system default on Ubuntu 20.04 (i.e., leave python3 and python3.8 as-is)_
+    - _`poetry install` (next step) requires python 3.9, but there are multiple options for resolving this, see [here](https://python-poetry.org/docs/managing-environments/#switching-between-environments)_
 
 2.  Install dependencies
 
         source .env
 
         cd app
-        poetry install
+        poetry install # see note above
 
         yarn install
 
