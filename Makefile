@@ -64,8 +64,12 @@ secretkey:
 	openssl rand -hex 24
 
 jetstream_config:
-	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip $(JETSTREAM_CONFIG_URL)
-	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/jetstream-config.zip
+	curl -LJ -o /tmp/jetstream-config.zip $(JETSTREAM_CONFIG_URL)
+	unzip -o -d /tmp/ /tmp/jetstream-config.zip
+	mkdir -p app/experimenter/outcomes/jetstream-config-main/
+	cp -R /tmp/jetstream-config-main/outcomes/ app/experimenter/outcomes/jetstream-config-main/
+	echo "copied outcomes"
+	ls -R app/experimenter/outcomes/jetstream-config-main/outcomes/
 
 feature_manifests:
 	curl -LJ --create-dirs -o app/experimenter/features/manifests/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
