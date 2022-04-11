@@ -133,7 +133,10 @@ export const FormAudience = ({
 
   const targetingConfigSlugOptions = useMemo(
     () =>
-      filterAndSortTargetingConfigs(config.targetingConfigs, experiment.application),
+      filterAndSortTargetingConfigs(
+        config.targetingConfigs,
+        experiment.application,
+      ),
     [config, experiment],
   );
 
@@ -390,17 +393,21 @@ export const filterAndSortTargetingConfigs = (
 ) =>
   targetingConfigs == null
     ? []
-    : targetingConfigs.filter(
-        (
-          targetingConfig,
-        ): targetingConfig is getConfig_nimbusConfig_targetingConfigs =>
-          targetingConfig !== null &&
-          Array.isArray(targetingConfig.applicationValues) &&
-          targetingConfig.applicationValues.includes(application),
-      ).sort(
-        // sort with default value '' first, then alphabetical
-        (a, b): number =>
-          (Number(b?.value === '') - Number(a?.value === '')) ||
-          a?.label?.localeCompare(b?.label || '') || 0);
+    : targetingConfigs
+        .filter(
+          (
+            targetingConfig,
+          ): targetingConfig is getConfig_nimbusConfig_targetingConfigs =>
+            targetingConfig !== null &&
+            Array.isArray(targetingConfig.applicationValues) &&
+            targetingConfig.applicationValues.includes(application),
+        )
+        .sort(
+          // sort with default value '' first, then alphabetical
+          (a, b): number =>
+            Number(b?.value === "") - Number(a?.value === "") ||
+            a?.label?.localeCompare(b?.label || "") ||
+            0,
+        );
 
 export default FormAudience;

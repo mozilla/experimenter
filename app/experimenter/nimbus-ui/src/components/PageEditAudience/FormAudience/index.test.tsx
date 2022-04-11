@@ -367,7 +367,10 @@ describe("filterAndSortTargetingConfigSlug", () => {
         applicationValues: [NimbusExperimentApplicationEnum.IOS],
       },
     ];
-    const result = filterAndSortTargetingConfigs(targetingConfigSlug, application);
+    const result = filterAndSortTargetingConfigs(
+      targetingConfigSlug,
+      application,
+    );
     expect(result).toHaveLength(3);
     expect(
       result.find((item) => item.label === expectedNoTargetingLabel),
