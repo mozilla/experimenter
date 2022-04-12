@@ -10,7 +10,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
-import { filterTargetingConfigs } from ".";
+import { filterAndSortTargetingConfigs } from ".";
 import { snakeToCamelCase } from "../../../lib/caseConversions";
 import {
   EXTERNAL_URLS,
@@ -50,7 +50,7 @@ describe("FormAudience", () => {
           targetingConfigs: [
             {
               label: "No Targeting",
-              value: "NO_TARGETING",
+              value: "",
               applicationValues: [
                 NimbusExperimentApplicationEnum.DESKTOP,
                 "TOASTER",
@@ -85,7 +85,7 @@ describe("FormAudience", () => {
     // Assert that the targeting choices are filtered for application
     expect(
       Array.from(targetingConfigSlug.options).map((node) => node.value),
-    ).toEqual(["NO_TARGETING", "MAC_ONLY"]);
+    ).toEqual(["", "MAC_ONLY"]);
 
     // Assert that we have only the application channels available
     expect(screen.getByText("Nightly")).toBeInTheDocument();
@@ -142,7 +142,7 @@ describe("FormAudience", () => {
       ["populationPercent", "0.0"],
       ["proposedDuration", "0"],
       ["proposedEnrollment", "0"],
-      ["targetingConfigSlug", "NO_TARGETING"],
+      ["targetingConfigSlug", ""],
     ] as const) {
       const field = screen.queryByTestId(fieldName);
       expect(field).toBeInTheDocument();
@@ -338,17 +338,23 @@ describe("FormAudience", () => {
   });
 });
 
-describe("filterTargetingConfigSlug", () => {
-  it("filters for experiment application as expected", () => {
+describe("filterAndSortTargetingConfigSlug", () => {
+  it("filters for experiment application and sorts them as expected", () => {
     const expectedNoTargetingLabel = "No Targeting";
     const expectedLabel = "Foo Bar";
     const expectedMissingLabel = "Baz Quux";
+    const expectedLastLabel = "Zebra";
     const application = NimbusExperimentApplicationEnum.DESKTOP;
     const targetingConfigSlug = [
       {
         label: expectedNoTargetingLabel,
-        value: "NO_TARGETING",
+        value: "",
         applicationValues: [application, NimbusExperimentApplicationEnum.IOS],
+      },
+      {
+        label: expectedLastLabel,
+        value: "ZEBRA",
+        applicationValues: [application],
       },
       {
         label: expectedLabel,
@@ -361,8 +367,11 @@ describe("filterTargetingConfigSlug", () => {
         applicationValues: [NimbusExperimentApplicationEnum.IOS],
       },
     ];
-    const result = filterTargetingConfigs(targetingConfigSlug, application);
-    expect(result).toHaveLength(2);
+    const result = filterAndSortTargetingConfigs(
+      targetingConfigSlug,
+      application,
+    );
+    expect(result).toHaveLength(3);
     expect(
       result.find((item) => item.label === expectedNoTargetingLabel),
     ).toBeDefined();
@@ -370,6 +379,9 @@ describe("filterTargetingConfigSlug", () => {
     expect(
       result.find((item) => item.label === expectedMissingLabel),
     ).toBeUndefined();
+    // check sorting (default value first, then alphabetical)
+    expect(result[0].label).toEqual(expectedNoTargetingLabel);
+    expect(result[result.length - 1].label).toEqual(expectedLastLabel);
   });
 });
 
@@ -382,7 +394,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         targetingConfigs: [
           {
             label: "No Targeting",
-            value: "NO_TARGETING",
+            value: "",
             applicationValues: [
               NimbusExperimentApplicationEnum.DESKTOP,
               "TOASTER",
@@ -421,7 +433,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         populationPercent: "0.0",
         proposedDuration: 0,
         proposedEnrollment: 0,
-        targetingConfigSlug: "NO_TARGETING",
+        targetingConfigSlug: "",
         countries: [],
         locales: [],
       }}
