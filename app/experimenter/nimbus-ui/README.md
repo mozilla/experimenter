@@ -167,8 +167,6 @@ console.log("Retrieved record", record);
 
 ## Forms and Validation
 
-**See the form validation section of [Storybook](https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html) for examples and a visual guide to the UX interaction.**
-
 There are three kinds of validation that need to be applied to forms: client-side, server-side, and "required for launch".
 
 ### `useCommonForm` and `useCommonNestedForm`
@@ -292,8 +290,7 @@ yarn test --watchAll=false
 yarn test:cov
 
 # Or, if you want to test and get coverage for a specific test
-# This excludes Storybook stories while running coverage on a specific component
-yarn test:cov --collectCoverageFrom='./src/components/LinkExternal/*[!.stories].tsx' LinkExternal
+yarn test:cov --collectCoverageFrom='./src/components/LinkExternal/*.tsx' LinkExternal
 ```
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
@@ -358,7 +355,7 @@ renderWithRouter(
 
 ### Simulating GQL query responses in stories & tests
 
-The `MockedCache` component is good for asserting expected GQL requests in tests. But, it doesn't accommodate arbitrary user input - e.g. filling out a form in a Storybook story with random values to try out the UI.
+The `MockedCache` component is good for asserting expected GQL requests in tests. But, it doesn't accommodate arbitrary user input.
 
 So, we also have [`SimulatedMockLink`](./src/services/mocks.tsx) for use with `MockedProvider` which allows the definition of a function that receives a GQL Operation and can implement a mocked implementation of what happens server-side.
 
@@ -402,129 +399,6 @@ const Subject = ({ simulatedQueries = mkSimulatedQueries() }) => {
   );
 };
 ```
-
-## Storybook
-
-This project uses [Storybook](https://storybook.js.org/) to visually show each component and page of this project in various application states without requiring the full stack to run.
-
-In local development, `yarn storybook` will start a Storybook server at <http://localhost:3001> with hot module replacement to reflect live changes.
-
-For Pull Requests to the mozilla/experimenter repository on GitHub, Storybook builds [are published to a static website][storybook-builds] via CircleCI test runs. You can view these to see the result of changes without needing to install and run code locally.
-
-The specific build for any given PR or commit should be available as a [status check][status-check] associated with the commit - the check labelled "storybooks: pull request" should have a "details" link for the build.
-
-[storybook-builds]: https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html
-[status-check]: https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/about-status-checks
-
-### Linking to Stories
-
-Storybook uses the [withLinks decorator](https://www.npmjs.com/package/@storybook/addon-links#withlinks-decorator) to override default element behavior (using `event.preventDefault()`) and link to a story within Storybook instead.
-
-Add the decorator in the stories for the component that needs to link to another story within Storybook (`.addDecorator(withLinks)`) and simply add `data-sb-kind="StoryName"` to any element in the component to tell Storybook to link to that specific story. The `data-sb-story` attribute is optional as without it Storybook will navigate to the first state in the stories list for that component (usually "basic" or "default"), but can be used to link to a specific state of a story if needed.
-
-### Storybook-first Development
-
-It can be useful at times to develop UI components on the front-end ahead of the availability of supporting APIs and other functionality in the deeper back-end parts of the stack. These early front-end components can be exercised in Storybook stories with mocked data and API calls that anticipate integration into the rest of the stack.
-
-This can enable us to better work in parallel and prove out UX designs while still producing usable components (i.e. as opposed to throwaway prototypes in React).
-
-For a quick example of how this worked out for an existing feature, take a look a these commits:
-
-- [Initial implementation of Launch to Preview UI](https://github.com/mozilla/experimenter/commit/c0520f0ab214121eba18e255f45cd0c32cd5d1cf)
-- [Polish and integration for Launch to Preview UI](https://github.com/mozilla/experimenter/commit/4f3a35ce53a0bf30ce5ae6941c1cb47d91b99c6c)
-
-The first commit shows how new components were added and controlled by a feature flag. The second commit shows the work involved in polishing up and integrating those early components with the back-end APIs implemented in the interim.
-
-#### Deferring test coverage and strict type enforcement
-
-When developing from Storybook first, it can be worth deferring test coverage and strict type enforcement until iteration on the components is complete. If there's still feedback to be gathered on basic design or functionality concerns, tests and types are likely to require significant rewrite.
-
-You can annotate code to be ignored in test coverage using [special comments supported by Istanbul](https://github.com/gotwarlost/istanbul/blob/master/ignoring-code-for-coverage.md). For example, to ignore an entire function in coverage:
-
-```javascript
-/* istanbul ignore next EXP-1234 mock function until API ready */
-function ignoreme() {
-  /* ... */
-}
-```
-
-And, you can annotate code to be ignored in enforcing strict types with [special comments supported by TypeScript](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-6.html#suppress-errors-in-ts-files-using--ts-ignore-comments). For example:
-
-```javascript
-type ExampleType = 1 | 2 | 3;
-// @ts-ignore EXP-1234 this value will be introduced in the future by the API
-const thing: ExampleType = 4;
-```
-
-While not required by either Istanbul or TypeScript, these examples also show a Jira issue ID included in the comment. This can be handy during later integration for finding all the temporary work that will need clean-up during final polish for release.
-
-#### Using Feature Flags in Stories
-
-While iteration on components in Storybook is underway, there's value in being able to commit changes to the `main` branch in pull requests. That is, as opposed to working in a separate feature branch with the intent to merge near the end of a major effort.
-
-Merging earlier and more often can help keep the in-progress feature code from "bit-rotting" or getting too far out of sync with other development efforts. This can lead to significant work and changes to land a long-running effort in `main`.
-
-The trade-off is that the incremental code must be inert when deployed to production until it's ready for release. One tool for achieving this is a "[feature flag](https://martinfowler.com/articles/feature-toggles.html)" defined in application configuration. In this case, the feature flag is set to _disable_ the code in production by default, while _enabling_ it in Storybook.
-
-Feature flags are defined in `app/experimenter/nimbus-ui/src/services/config.ts` like so:
-
-```javascript
-export function getDefault() {
-  return {
-    // ...
-    featureFlags: {
-      // Ensure all feature flags are defined here in their production-ready state
-      exp1234Preview: false,
-    },
-  };
-}
-```
-
-The values used here should represent the state of the application intended for production - i.e. all new components disabled.
-
-Also, the example flag used here is just a boolean. While you could use other types for more complex control over in-progress components, it's probably best to keep things simple.
-
-Finally, you might not see any feature flags defined in this file at present. That's because they're intended to be temporary and should be removed by the time the feature is polished and fully enabled in production. So, you may need to add the `featureFlags: {}` parent object before adding your new flag.
-
-Once defined, you can access this flag and use it to conditionally switch between new and old rendering patterns. Control when your new component will be used and maybe even hide old components that will be replaced by the end of the development cycle:
-
-```javascript
-import { useConfig } from "../../hooks/useConfig";
-// ...
-const { featureFlags } = useConfig();
-// ...
-return (
-  <>
-    {
-      /* istanbul ignore next */ featureFlags.exp1234Preview && (
-        /* ... */
-      )
-    }
-  </>
-);
-```
-
-Note the use of `/* istanbul ignore */` here: We don't want this conditional to be included in test coverage, because it shouldn't end up being useful to exercise this in tests if the switch is temporary.
-
-Then, in your Stories, you can control the value of feature flags in the application configuration with our `MockConfigContext` provider:
-
-```javascript
-import { MockConfigContext } from "../../hooks";
-// ...
-export const SubjectEXP1234 = ({
-  ...props
-}: Partial<React.ComponentProps<typeof ExampleComponent>>) => (
-  <MockConfigContext.Provider value={{
-    featureFlags: {
-      exp1234Preview: true
-    }
-  }}>
-    <ExampleComponent ...{props} />
-  </MockConfigContext.Provider>
-);
-```
-
-This `MockConfigContext` provider should be able to nest along with whatever other mock providers are necessary - e.g. [`MockCache` for GQL queries and suchlike](https://github.com/mozilla/experimenter/commit/c0520f0ab214121eba18e255f45cd0c32cd5d1cf#diff-6adf5020ecd8e404629792bf256d38f73770031f6afbf024a508a91b16bf18f4R40-R44).
 
 ## Writing styles
 
