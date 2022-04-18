@@ -20,27 +20,6 @@ jobs:
             cp .env.sample .env
             make check
 
-  # Disabling due to failure and impending deprecation
-  # publish_storybooks:
-  #   machine:
-  #     image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
-  #     docker_layer_caching: true
-  #   resource_class: medium
-  #   working_directory: ~/experimenter
-  #   steps:
-  #     - run:
-  #         name: Docker info
-  #         command: docker -v
-  #     - run:
-  #         name: Docker compose info
-  #         command: docker-compose -v
-  #     - checkout
-  #     - run:
-  #         name: Publish Storybooks
-  #         command: |
-  #           ./scripts/store_git_info.sh
-  #           make publish_storybooks
-
   integration_nimbus:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
@@ -90,8 +69,6 @@ workflows:
     jobs:
       - check:
           name: check
-      # - publish_storybooks:
-      #     name: publish_storybooks
       - integration_nimbus:
           name: integration_nimbus
           filters:

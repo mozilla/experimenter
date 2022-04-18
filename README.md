@@ -14,7 +14,6 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 | Nimbus Home     | [/nimbus][nimbus_home_prod]                           | [/nimbus][nimbus_home_stage]                                       | [/nimbus][nimbus_home_local]                  |
 | Nimbus REST API | [/api/v6/experiments/][nimbus_rest_api_prod]          | [/api/v6/experiments/][nimbus_rest_api_stage]                      | [/api/v6/experiments/][nimbus_rest_api_local] |
 | GQL Playground  | [/api/v5/nimbus-api-graphql][gql_prod]                | [/api/v5/nimbus-api-graphql][gql_stage]                            | [/api/v5/nimbus-api-graphql][gql_local]       |
-| Storybook       | [Storybook Directory][storybook_prod]                 |                                                                    | https://localhost:3001                        |
 | Remote Settings | [settings-writer.prod.mozaws.net/v1/admin][rs_prod]   | [settings-writer.stage.mozaws.net/v1/admin][rs_stage]              | http://localhost:8888/v1/admin                |
 
 [legacy_home_prod]: https://experimenter.services.mozilla.com/
@@ -28,7 +27,6 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 [gql_prod]: https://experimenter.services.mozilla.com/api/v5/nimbus-api-graphql/
 [gql_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/api/v5/nimbus-api-graphql/
 [gql_local]: https://localhost/api/v5/nimbus-api-graphql/
-[storybook_prod]: https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html
 [rs_prod]: https://settings-writer.prod.mozaws.net/v1/admin/
 [rs_stage]: https://settings-writer.stage.mozaws.net/v1/admin/
 
@@ -40,11 +38,11 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 
     On all platforms:
     - Install [Docker](https://www.docker.com/)
-    - Install [Node](https://nodejs.org/en/) ^14.0.0  
+    - Install [Node](https://nodejs.org/en/) ^14.0.0
 
     On Linux:
-    - [Setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)  
-    
+    - [Setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
+
     On MacOS:
       - [Install Docker Desktop](https://www.docker.com/products/docker-desktop)
       - Adjust resource settings
@@ -102,7 +100,7 @@ Notes:
 
 ##### Semi Dockerized Setup Steps
 
-1.  Pre reqs  
+1.  Pre reqs
     macOS instructions:
 
         brew install postgresql llvm openssl yarn
@@ -111,7 +109,7 @@ Notes:
         export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
 
     Ubuntu 20.04 instructions:
-        
+
         # general deps (also see `poetry` link above)
         sudo apt install postgresql llvm openssl yarn
 
@@ -407,37 +405,6 @@ Any of the accounts above can be used for any of those two roles, but your local
 
 For more detailed information on the Remote Settings integration please see the [Kinto module documentation](app/experimenter/kinto/README.md).
 
-### Storybook in CircleCI
-
-This project uses [Storybook][] as a tool for building and demoing user interface components in React.
-
-For most test runs [in CircleCI][storybook-circleci], a static build of Storybook for the relevant commit is published to [a website on the Google Cloud Platform][storybooks-site] using [mozilla-fxa/storybook-gcp-publisher][storybook-gcp-publisher]. Refer to that tool's github repository for more details.
-
-You can find the Storybook build associated with a given commit on Github via the "storybooks: pull request" details link accessible via clicking the green checkmark next to the commit title.
-
-![Capture](https://user-images.githubusercontent.com/21687/115094484-8ebcf100-9ed2-11eb-812e-b37ca049b144.PNG)
-
-The Google Cloud Platform project dashboard for the website can be found here, if you've been given access:
-
-* https://console.cloud.google.com/home/dashboard?project=storybook-static-sites
-
-For quick reference, here are [a few CircleCI environment variables][storybook-gcp-publisher-config] used by storybook-gcp-publisher that are relevant to FxA operations in CircleCI. Occasionally they may need maintenance or replacement - e.g. in case of a security incident involving another tool that exposes variables.
-
-* `STORYBOOKS_GITHUB_TOKEN` - personal access token on GitHub for use in posting status check updates
-
-* `STORYBOOKS_GCP_BUCKET` - name of the GCP bucket to which Storybook builds will be uploaded
-
-* `STORYBOOKS_GCP_PROJECT_ID` - the ID of the GCP project to which the bucket belongs
-
-* `STORYBOOKS_GCP_CLIENT_EMAIL` - client email address from GCP credentials with access to the bucket
-
-* `STORYBOOKS_GCP_PRIVATE_KEY_BASE64` - the private key from GCP credentials, encoded with base64 to accomodate linebreaks
-
-[storybooks-site]: https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html
-[storybook-gcp-publisher-config]: https://github.com/mozilla-fxa/storybook-gcp-publisher#basic-1
-[storybook-gcp-publisher]: https://github.com/mozilla-fxa/storybook-gcp-publisher
-[storybook]: https://storybook.js.org/
-[storybook-circleci]: https://github.com/mozilla/experimenter/blob/main/.circleci/config.yml#L56-L60
 
 ## Frontend
 

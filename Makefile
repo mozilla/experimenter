@@ -44,7 +44,6 @@ LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countrie
 LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
 LOAD_FEATURES = python manage.py load_feature_configs
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || echo "skipping dummy experiments"
-PUBLISH_STORYBOOKS = npx github:mozilla-fxa/storybook-gcp-publisher --commit-summary commit-summary.txt --commit-description commit-description.txt --version-json experimenter/version.json
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/jetstream-config/archive/main.zip
@@ -150,9 +149,6 @@ generate_docs: build_dev
 
 generate_types: build_dev
 	$(COMPOSE) run app sh -c "$(NIMBUS_TYPES_GENERATE)"
-
-publish_storybooks: build_test
-	$(COMPOSE_TEST) run app sh -c "$(PUBLISH_STORYBOOKS)"
 
 code_format: build_dev
 	$(COMPOSE) run app sh -c '${PARALLEL} "${PY_IMPORT_SORT};$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)" "$(ESLINT_FIX_REPORTING)"'

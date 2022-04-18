@@ -13,8 +13,6 @@
     "lint:eslint": "eslint --color --max-warnings 0 --ext=.ts,.tsx .",
     "lint:tsc": "tsc --noEmit --project tsconfig.json",
     "lint:styles": "stylelint --config .stylelintrc **/*.scss",
-    "storybook": "start-storybook -p 3001 --no-version-updates",
-    "build-storybook": "build-storybook",
     "eject": "react-scripts eject",
     "generate-types": "apollo codegen:generate --target typescript --outputFlat src/types --passthroughCustomScalars --no-addTypename"
   },
@@ -60,11 +58,6 @@
   },
   "devDependencies": {
     "@rescripts/cli": "^0.0.16",
-    "@storybook/addon-actions": "^6.4.0",
-    "@storybook/addon-links": "^6.4.0",
-    "@storybook/addon-queryparams": "^6.2.9",
-    "@storybook/preset-create-react-app": "^3.2.0",
-    "@storybook/react": "^6.4.0",
     "@testing-library/dom": "^8.13.0",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^11.2.7",
