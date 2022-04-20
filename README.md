@@ -37,51 +37,61 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 1. Prerequisites
 
     On all platforms:
-    - Install [Docker](https://www.docker.com/)
-    - Install [Node](https://nodejs.org/en/) ^14.0.0
-
+    - Install [Node](https://nodejs.org/en/download/releases/) to match [current version](https://github.com/mozilla/experimenter/blob/main/app/Dockerfile#L29)
+     
     On Linux:
+    - Install [Docker](https://www.docker.com/)
+    - Install [yarn](https://classic.yarnpkg.com/lang/en/docs/install)
     - [Setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
 
     On MacOS:
-      - [Install Docker Desktop](https://www.docker.com/products/docker-desktop)
+    - Install [Docker](https://docs.docker.com/desktop/mac/install/)
       - Adjust resource settings
         - CPU: Max number of cores
         - Memory: 50% of system memory
         - Swap: Max 4gb
         - Disk: 100gb+
-
-1.  Clone the repo
+    - Install [yarn](https://github.com/yarnpkg)
+            
+1. Clone the repo
 
         git clone <your fork>
 
-1.  Copy the sample env file
+1. Copy the sample env file
 
         cp .env.sample .env
 
-1.  Set DEBUG=True for local development
+1. Set DEBUG=True for local development
 
         vi .env
 
-1.  Create a new secret key and put it in .env
+1. Create a new secret key and put it in .env
 
         make secretkey
 
-1.  Run tests
+	vi .env
+
+	```
+	...
+	SECRETKEY=mynewsecretkey
+	...
+	```
+
+1. Run tests
 
         make check
 
-1.  Setup the database
+1. Setup the database
 
         make refresh
 
 #### Fully Dockerized Setup (continuation from General Setup 1-7)
 
-1.  Run a dev instance
+1. Run a dev instance
 
         make up
 
-1.  Navigate to it and add an SSL exception to your browser
+1. Navigate to it and add an SSL exception to your browser
 
         https://localhost/
 
@@ -159,6 +169,20 @@ Notes:
 ```
 git config blame.ignoreRevsFile .git-blame-ignore-revs
 ```
+
+### VSCode setup
+
+1. If using VSCode, configure workspace folders
+
+   - Add `/experimenter/` and `/experimenter/app` folders to your workspace (File -> Add Folder to Workspace -> `path/to/experimenter/app`)
+   - From the `/experimenter/app` folder, run `yarn install`
+       - Make sure you are using the correct version of node
+          
+           node -v
+
+       - Troubleshooting: 
+           - [Changing node version](https://stackoverflow.com/a/50817276/12178648)
+           - Clear npm cache: `npm cache clean --force`
 
 ### Google Credentials for Jetstream
 
