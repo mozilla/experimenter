@@ -63,9 +63,11 @@ secretkey:
 	openssl rand -hex 24
 
 jetstream_config:
+	rm -Rf tmp/app/experimenter/outcomes/jetstream-config-main/
 	curl -LJ -o /tmp/jetstream-config.zip $(JETSTREAM_CONFIG_URL)
 	unzip -o -d /tmp/ /tmp/jetstream-config.zip
 	mkdir -p app/experimenter/outcomes/jetstream-config-main/
+	cp -R /tmp/jetstream-config-main/outcomes/ app/experimenter/outcomes/jetstream-config-main/outcomes/
 	cp -R /tmp/jetstream-config-main/outcomes/ app/experimenter/outcomes/jetstream-config-main/
 	echo "copied outcomes"
 	ls -R app/experimenter/outcomes/jetstream-config-main/outcomes/
