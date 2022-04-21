@@ -37,7 +37,7 @@ const FormLaunchPreviewToReview = ({
           <p className="my-1">
             This experiment is currently <strong>live for testing</strong>, but
             you will need to let QA know in your PI request. When you have
-            recieved a sign-off, click “Request launch” to launch the
+            received a sign-off, click “Request launch” to launch the
             experiment.
           </p>
 
