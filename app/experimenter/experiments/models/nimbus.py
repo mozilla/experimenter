@@ -834,7 +834,7 @@ class NimbusBucketRange(models.Model):
 
 
 class NimbusFeatureConfig(models.Model):
-    name = models.CharField(max_length=255, unique=True, null=False)
+    name = models.CharField(max_length=255, null=False)
     slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, null=False)
     description = models.TextField(blank=True, null=True)
     application = models.CharField(
