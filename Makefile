@@ -49,6 +49,7 @@ LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_ex
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/jetstream-config/archive/main.zip
 FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/nimbus/FeatureManifest.yaml
 FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/fenix/main/.experimenter.yaml
+FEATURE_MANIFEST_FXIOS_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/.experimenter.yaml
 
 ssl: nginx/key.pem nginx/cert.pem
 
@@ -71,7 +72,7 @@ jetstream_config:
 feature_manifests:
 	curl -LJ --create-dirs -o app/experimenter/features/manifests/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
 	curl -LJ --create-dirs -o app/experimenter/features/manifests/fenix.yaml $(FEATURE_MANIFEST_FENIX_URL)
-
+	curl -LJ --create-dirs -o app/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
 
 fetch_external_resources: jetstream_config feature_manifests
 	echo "External Resources Fetched"
