@@ -196,6 +196,7 @@ On certain pages an API endpoint is called to receive experiment analysis data f
     - `gcloud auth login`
     - `gcloud auth application-default login`
       - this will save your credentials locally to a well-known location for use by any library that requests ADC
+      - **Note**: if this returns `Error saving Application Default Credentials: Unable to write file [...]: [Errno 21] Is a directory: ...`, delete the directory and try again (`rm -rf ~/.config/gcloud`)
 
 2. The next time you rebuild the docker-compose environment, your credentials will be loaded as a volume
     - Note that this will require the existing volume to be removed (hint: run `make refresh`)
