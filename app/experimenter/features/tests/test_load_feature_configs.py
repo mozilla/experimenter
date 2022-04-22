@@ -86,3 +86,19 @@ class TestLoadFeatureConfigs(TestCase):
                 "type": "object",
             },
         )
+
+    def test_handles_existing_features_with_same_slug_different_name(self):
+        NimbusFeatureConfigFactory.create(
+            name="readerMode different name",
+            slug="readerMode",
+            application=NimbusExperiment.Application.DESKTOP,
+            schema="{}",
+        )
+        call_command("load_feature_configs")
+
+        feature_config = NimbusFeatureConfig.objects.get(slug="readerMode")
+        self.assertEqual(feature_config.name, "readerMode")
+        self.assertEqual(
+            feature_config.description,
+            "Firefox Reader Mode",
+        )

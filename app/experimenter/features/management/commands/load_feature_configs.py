@@ -16,10 +16,10 @@ class Command(BaseCommand):
 
         for feature in Features.all():
             feature_config, _ = NimbusFeatureConfig.objects.get_or_create(
-                name=feature.slug,
                 slug=feature.slug,
                 application=feature.applicationSlug,
             )
+            feature_config.name = feature.slug
             feature_config.description = feature.description
             feature_config.schema = feature.schema
             feature_config.read_only = True
