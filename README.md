@@ -188,17 +188,28 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 
 On certain pages an API endpoint is called to receive experiment analysis data from Jetstream to display visualization tables. To see experiment visualization data, you must provide GCP credentials.
 
-1. Generate a GCP private key file.
+0. *prerequisite* Install GCP CLI
+    - Follow the instructions [here](https://cloud.google.com/sdk/docs/install)
+    - Project: `moz-fx-data-experiments`
 
-- Ask in #nimbus-dev for the GCP link to create a new key file.
-- Add Key > Create New Key > JSON > save this file.
-- Do not lose or share this file. It's unique to you and you'll only get it once.
+1. Authorize CLI with your account
+    - `gcloud auth login`
+    - `gcloud auth application-default login`
+      - this will save your credentials locally to a well-known location for use by any library that requests ADC
 
-2. Rename the file to `google-credentials.json` and place it anywhere inside the `/app` directory.
-3. Update your `.env` so that `GOOGLE_APPLICATION_CREDENTIALS` points to this file. If your file is inside the `/app` directory it would look like this:
-   ```
-   GOOGLE_APPLICATION_CREDENTIALS=/app/google-credentials.json
-   ```
+2. The next time you rebuild the docker-compose environment, your credentials will be loaded as a volume
+    - Note that this will require the existing volume to be removed (hint: run `make refresh`)
+
+3. (optional) Verify access
+    - `make refresh`
+    - `make bash`
+    - `./manage.py shell`
+        - ```
+          from django.core.files.storage import default_storage
+          default_storage.listdir('/')
+          ```
+        - Confirm this second command prints a list instead of an error
+
 
 ### Google Cloud Bucket for Media Storage
 
@@ -214,7 +225,7 @@ The bucket name is configured with the `UPLOADS_GS_BUCKET_NAME` setting. For exa
 UPLOADS_GS_BUCKET_NAME=nimbus-experimenter-media-dev-uploads
 ```
 
-For local testing of a production-like environment, The credentials should be configured using the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in the previous section on Google Credentials for Jetstream.
+For local testing of a production-like environment, The credentials should be configured as described in the previous section on Google Credentials for Jetstream.
 
 In the real production deployment, credentials are configured via [workload identity in Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity).
 
