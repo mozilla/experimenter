@@ -1005,6 +1005,99 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value,
         )
 
+    def test_targeting_configs(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN,
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    targetingConfigs {
+                        label
+                        value
+                        description
+                        applicationValues
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        print(experiment_data)
+        self.assertEqual(
+            experiment_data["targetingConfigs"],
+            [
+                {
+                    "label": NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.label,
+                    "value": NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value,
+                    "description": NimbusExperiment.TARGETING_CONFIGS[
+                        NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value
+                    ].description,
+                    "applicationValues": list(
+                        NimbusExperiment.TARGETING_CONFIGS[
+                            NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value
+                        ].application_choice_names
+                    ),
+                }
+            ],
+        )
+
+    def test_targeting_configs_with_empty_targeting_config_slug(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug="",
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    targetingConfigs {
+                        label
+                        value
+                        description
+                        applicationValues
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        print(experiment_data)
+        self.assertEqual(
+            experiment_data["targetingConfigs"],
+            [
+                {
+                    "label": choice.label,
+                    "value": choice.value,
+                    "description": NimbusExperiment.TARGETING_CONFIGS[
+                        choice.value
+                    ].description,
+                    "applicationValues": list(
+                        NimbusExperiment.TARGETING_CONFIGS[
+                            choice.value
+                        ].application_choice_names
+                    ),
+                }
+                for choice in NimbusExperiment.TargetingConfig
+            ],
+        )
+
     def test_targeting_config_slug_for_deprecated_targeting_config_returns_slug(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1242,6 +1335,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                     targetingConfigs {
                         label
                         value
+                        description
                         applicationValues
                     }
                     documentationLink {
@@ -1325,6 +1419,9 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                 {
                     "label": choice.label,
                     "value": choice.value,
+                    "description": NimbusExperiment.TARGETING_CONFIGS[
+                        choice.value
+                    ].description,
                     "applicationValues": list(
                         NimbusExperiment.TARGETING_CONFIGS[
                             choice.value
