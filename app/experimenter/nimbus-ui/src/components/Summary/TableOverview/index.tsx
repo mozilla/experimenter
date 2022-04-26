@@ -105,7 +105,10 @@ const TableOverview = ({
                 {experiment.featureConfigs?.length ? (
                   experiment.featureConfigs.map((f) => (
                     <>
-                      <p>{f?.name}</p>
+                      <p>
+                        {f?.name}
+                        {f?.description?.length ? `- ${f.description}` : ""}
+                      </p>
                     </>
                   ))
                 ) : (
