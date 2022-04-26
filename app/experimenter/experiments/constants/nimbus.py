@@ -335,7 +335,7 @@ TARGETING_INFREQUENT_USER_NEED_PIN = NimbusTargetingConfig(
     name="Infrequent user (need pin)",
     slug="infrequent_user_need_pin",
     description="Between 1 and 6 days of activity in the past 28 days needing pin",
-    targeting="({infrequent_user} && doesAppNeedPin || {sticky})".format(
+    targeting="{infrequent_user} && doesAppNeedPin || {sticky}".format(
         infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting,
         sticky=TARGETING_STICKY,
     ),
@@ -347,7 +347,7 @@ TARGETING_INFREQUENT_WIN_USER_NEED_PIN = NimbusTargetingConfig(
     name="Infrequent Windows user (need pin)",
     slug="infrequent_windows_user_need_pin",
     description="Between 1 and 6 days of activity in the past 28 days needing pin on Win",
-    targeting="({infrequent_user} && os.isWindows && doesAppNeedPin || {sticky})".format(
+    targeting="{infrequent_user} && os.isWindows && doesAppNeedPin || {sticky}".format(
         infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting,
         sticky=TARGETING_STICKY,
     ),
@@ -380,7 +380,7 @@ TARGETING_CASUAL_USER_NEED_PIN = NimbusTargetingConfig(
     name="Casual user (need pin)",
     slug="casual_user_need_pin",
     description="Between 7 and 13 days of activity in the past 28 days needing pin",
-    targeting="({casual_user} && doesAppNeedPin || {sticky})".format(
+    targeting="{casual_user} && doesAppNeedPin || {sticky}".format(
         casual_user=TARGETING_CASUAL_USER_URIS.targeting,
         sticky=TARGETING_STICKY,
     ),
@@ -408,8 +408,8 @@ TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN = NimbusTargetingConfig(
     slug="infrequent_or_casual_win_user_can_pin",
     description="Infrequent/casual users of past 28 days, on Windows 1903+",
     targeting=(
-        "((({infrequent_user} || {casual_user}) && os.windowsBuildNumber >= 18362) || "
-        "{sticky})"
+        "({infrequent_user} || {casual_user}) && os.windowsBuildNumber >= 18362 || "
+        "{sticky}"
     ).format(
         infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting,
         casual_user=TARGETING_CASUAL_USER_URIS.targeting,
@@ -432,13 +432,24 @@ TARGETING_REGULAR_USER_URIS = NimbusTargetingConfig(
 TARGETING_CORE_USER_URIS = NimbusTargetingConfig(
     name="Core user (uris)",
     slug="core_user_uris",
-    description="More than 20 days of activity in the past 28 days",
+    description="At least 21 days of activity in the past 28 days",
     targeting="userMonthlyActivity|length >= 21 && "
     "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_CORE_USER_NEED_PIN = NimbusTargetingConfig(
+    name="Core user (need pin)",
+    slug="core_user_need_pin",
+    description="At least 21 days of activity in the past 28 days needing pin",
+    targeting="{core_user} && doesAppNeedPin || {sticky}".format(
+        core_user=TARGETING_CORE_USER_URIS.targeting,
+        sticky=TARGETING_STICKY,
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
 
 TARGETING_POCKET_COMMON = NimbusTargetingConfig(
     name="Pocket Common Filters",
@@ -734,6 +745,7 @@ class NimbusConstants(object):
         ),
         TARGETING_REGULAR_USER_URIS.slug: TARGETING_REGULAR_USER_URIS,
         TARGETING_CORE_USER_URIS.slug: TARGETING_CORE_USER_URIS,
+        TARGETING_CORE_USER_NEED_PIN.slug: TARGETING_CORE_USER_NEED_PIN,
         TARGETING_POCKET_COMMON.slug: TARGETING_POCKET_COMMON,
         TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN.slug: (
             TARGETING_INFREQUENT_OR_CASUAL_WIN_USER_CAN_PIN
@@ -811,6 +823,10 @@ class NimbusConstants(object):
         TARGETING_CORE_USER_URIS = (
             TARGETING_CORE_USER_URIS.slug,
             TARGETING_CORE_USER_URIS.name,
+        )
+        TARGETING_CORE_USER_NEED_PIN = (
+            TARGETING_CORE_USER_NEED_PIN.slug,
+            TARGETING_CORE_USER_NEED_PIN.name,
         )
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN = (
             TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug,
