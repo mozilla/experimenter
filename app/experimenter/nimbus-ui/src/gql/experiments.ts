@@ -104,6 +104,12 @@ export const GET_EXPERIMENT_QUERY = gql`
       firefoxMinVersion
       firefoxMaxVersion
       targetingConfigSlug
+      targetingConfigs {
+        label
+        value
+        applicationValues
+        description
+      }
       jexlTargetingExpression
 
       populationPercent
