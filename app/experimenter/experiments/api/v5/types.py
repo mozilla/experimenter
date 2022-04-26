@@ -408,18 +408,38 @@ class NimbusExperimentType(DjangoObjectType):
             return self.TargetingConfig(self.targeting_config_slug).value
         return self.targeting_config_slug
 
-    def resolve_targeting_configs(root, info):
-        return [
-            NimbusExperimentTargetingConfigType(
-                label=choice.label,
-                value=choice.value,
-                application_values=NimbusExperiment.TARGETING_CONFIGS[
-                    choice.value
-                ].application_choice_names,
-                description=NimbusExperiment.TARGETING_CONFIGS[choice.value].description,
-            )
-            for choice in NimbusExperiment.TargetingConfig
-        ]
+    def resolve_targeting_configs(self, info):
+        if self.targeting_config_slug != "":
+
+            return [
+                NimbusExperimentTargetingConfigType(
+                    label=choice.label,
+                    value=choice.value,
+                    application_values=NimbusExperiment.TARGETING_CONFIGS[
+                        choice.value
+                    ].application_choice_names,
+                    description=NimbusExperiment.TARGETING_CONFIGS[
+                        choice.value
+                    ].description,
+                )
+                for choice in NimbusExperiment.TargetingConfig
+                if self.targeting_config_slug == choice.value
+            ]
+        else:
+
+            return [
+                NimbusExperimentTargetingConfigType(
+                    label=choice.label,
+                    value=choice.value,
+                    application_values=NimbusExperiment.TARGETING_CONFIGS[
+                        choice.value
+                    ].application_choice_names,
+                    description=NimbusExperiment.TARGETING_CONFIGS[
+                        choice.value
+                    ].description,
+                )
+                for choice in NimbusExperiment.TargetingConfig
+            ]
 
     def resolve_jexl_targeting_expression(self, info):
         return self.targeting
