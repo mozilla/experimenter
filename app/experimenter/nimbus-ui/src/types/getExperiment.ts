@@ -62,7 +62,7 @@ export interface getExperiment_experimentBySlug_featureConfigs {
   schema: string | null;
 }
 
-export interface getExperiment_experimentBySlug_targetingConfigs {
+export interface getExperiment_experimentBySlug_targetingConfig {
   label: string | null;
   value: string | null;
   applicationValues: (string | null)[] | null;
@@ -156,7 +156,7 @@ export interface getExperiment_experimentBySlug {
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum | null;
   targetingConfigSlug: string | null;
-  targetingConfigs: (getExperiment_experimentBySlug_targetingConfigs | null)[] | null;
+  targetingConfig: (getExperiment_experimentBySlug_targetingConfig | null)[] | null;
   jexlTargetingExpression: string | null;
   populationPercent: string | null;
   totalEnrolledClients: number;

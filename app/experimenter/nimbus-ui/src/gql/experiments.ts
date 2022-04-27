@@ -104,7 +104,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       firefoxMinVersion
       firefoxMaxVersion
       targetingConfigSlug
-      targetingConfigs {
+      targetingConfig {
         label
         value
         applicationValues

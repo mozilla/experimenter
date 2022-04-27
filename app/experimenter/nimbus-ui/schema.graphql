@@ -429,7 +429,7 @@ type NimbusExperimentType {
   bucketRange: NimbusBucketRangeType
   changes: [NimbusChangeLogType!]!
   treatmentBranches: [NimbusBranchType]
-  targetingConfigs: [NimbusExperimentTargetingConfigType]
+  targetingConfig: [NimbusExperimentTargetingConfigType]
   jexlTargetingExpression: String
   featureConfig: NimbusFeatureConfigType
   featureConfigs: [NimbusFeatureConfigType]

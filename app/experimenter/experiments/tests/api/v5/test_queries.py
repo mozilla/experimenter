@@ -1005,7 +1005,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value,
         )
 
-    def test_targeting_configs(self):
+    def test_targeting_config(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1017,7 +1017,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             """
             query experimentBySlug($slug: String!) {
                 experimentBySlug(slug: $slug) {
-                    targetingConfigs {
+                    targetingConfig {
                         label
                         value
                         description
@@ -1034,19 +1034,19 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         print(experiment_data)
         self.assertEqual(
-            experiment_data["targetingConfigs"],
+            experiment_data["targetingConfig"],
             [
                 {
                     "label": NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.label,
                     "value": NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value,
-                    "description": NimbusExperiment.TARGETING_CONFIGS[
-                        NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value
-                    ].description,
                     "applicationValues": list(
                         NimbusExperiment.TARGETING_CONFIGS[
                             NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value
                         ].application_choice_names
                     ),
+                    "description": NimbusExperiment.TARGETING_CONFIGS[
+                        NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value
+                    ].description,
                 }
             ],
         )
@@ -1063,7 +1063,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             """
             query experimentBySlug($slug: String!) {
                 experimentBySlug(slug: $slug) {
-                    targetingConfigs {
+                    targetingConfig {
                         label
                         value
                         description
@@ -1080,21 +1080,20 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         print(experiment_data)
         self.assertEqual(
-            experiment_data["targetingConfigs"],
+            experiment_data["targetingConfig"],
             [
                 {
-                    "label": choice.label,
-                    "value": choice.value,
-                    "description": NimbusExperiment.TARGETING_CONFIGS[
-                        choice.value
-                    ].description,
+                    "label": NimbusExperiment.TargetingConfig.NO_TARGETING.label,
+                    "value": NimbusExperiment.TargetingConfig.NO_TARGETING.value,
                     "applicationValues": list(
                         NimbusExperiment.TARGETING_CONFIGS[
-                            choice.value
+                            NimbusExperiment.TargetingConfig.NO_TARGETING.value
                         ].application_choice_names
                     ),
+                    "description": NimbusExperiment.TARGETING_CONFIGS[
+                        NimbusExperiment.TargetingConfig.NO_TARGETING.value
+                    ].description,
                 }
-                for choice in NimbusExperiment.TargetingConfig
             ],
         )
 
