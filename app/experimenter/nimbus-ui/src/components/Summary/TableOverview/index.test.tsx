@@ -187,6 +187,26 @@ describe("TableOverview", () => {
       );
     });
   });
+  describe("renders 'Targeting config' row as expected", () => {
+    it("when set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.getByTestId("experiment-targeting-config"),
+      ).toHaveTextContent("Mac Only- Mac only configuration");
+    });
+    it("when not set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        targetingConfig: [],
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.getByTestId("experiment-targeting-config"),
+      ).toHaveTextContent("Not set");
+    });
+  });
 });
 
 const Subject = ({
