@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.postgres.forms import SimpleArrayField
+from import_export import resources
+from import_export.admin import ExportActionMixin, ImportMixin
 
 from experimenter.experiments.models import (
     NimbusBranch,
@@ -20,6 +22,13 @@ from experimenter.jetstream import tasks
 def force_fetch_jetstream_data(modeladmin, request, queryset):
     for experiment in queryset:
         tasks.fetch_experiment_data.delay(experiment.id)
+
+
+class NimbusExperimentResource(resources.ModelResource):
+    class Meta:
+        model = NimbusExperiment
+        exclude = ("id",)
+        import_id_fields = ("slug",)
 
 
 class NoDeleteAdminMixin:
@@ -131,7 +140,9 @@ class NimbusExperimentAdminForm(forms.ModelForm):
         exclude = ("id",)
 
 
-class NimbusExperimentAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
+class NimbusExperimentAdmin(
+    NoDeleteAdminMixin, ImportMixin, ExportActionMixin, admin.ModelAdmin
+):
     inlines = (
         NimbusDocumentationLinkInlineAdmin,
         NimbusBranchInlineAdmin,
@@ -152,6 +163,8 @@ class NimbusExperimentAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     form = NimbusExperimentAdminForm
     actions = [force_fetch_jetstream_data]
+
+    resource_class = NimbusExperimentResource
 
 
 class NimbusFeatureConfigAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
