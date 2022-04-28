@@ -153,36 +153,6 @@ describe("FormAudience", () => {
     expect(screen.getByTestId("countries")).toHaveTextContent("All Countries");
   });
 
-  it("enables country field for desktop", async () => {
-    render(
-      <Subject
-        experiment={{
-          ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplicationEnum.DESKTOP,
-        }}
-      />,
-    );
-
-    expect(
-      screen.getByTestId("countries").querySelector("input"),
-    ).not.toHaveAttribute("disabled");
-  });
-
-  it("disables country field for mobile", async () => {
-    render(
-      <Subject
-        experiment={{
-          ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplicationEnum.FENIX,
-        }}
-      />,
-    );
-
-    expect(
-      screen.getByTestId("countries").querySelector("input"),
-    ).toHaveAttribute("disabled");
-  });
-
   it("calls onSubmit when save and next buttons are clicked", async () => {
     const onSubmit = jest.fn();
     const expected = {

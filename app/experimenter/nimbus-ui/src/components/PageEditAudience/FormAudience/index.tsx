@@ -22,7 +22,6 @@ import {
   getConfig_nimbusConfig_targetingConfigs,
 } from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "../../../types/globalTypes";
 import LinkExternal from "../../LinkExternal";
 
 type FormAudienceProps = {
@@ -140,9 +139,6 @@ export const FormAudience = ({
     [config, experiment],
   );
 
-  const isDesktop =
-    experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
-
   return (
     <Form
       noValidate
@@ -208,15 +204,9 @@ export const FormAudience = ({
             <Select
               placeholder="All Countries"
               isMulti
-              isDisabled={!isDesktop}
               {...formSelectAttrs("countries", setCountries)}
               options={selectOptions(config.countries as SelectIdItems)}
             />
-            {!isDesktop ? (
-              <p className="text-secondary">
-                *Country filtering is not yet supported for mobile clients.
-              </p>
-            ) : null}
             <FormErrors name="countries" />
           </Form.Group>
         </Form.Row>
