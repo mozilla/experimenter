@@ -16,7 +16,7 @@ class CountryFactory(factory.django.DjangoModelFactory):
 
 
 class LocaleFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: faker.country())
+    name = factory.LazyAttribute(lambda o: faker.locale())
     code = factory.LazyAttribute(lambda o: o.name[:2])
 
     class Meta:
