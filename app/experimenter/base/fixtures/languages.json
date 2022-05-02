@@ -1,6 +1,6 @@
 [
   {
-    "id": 1,
+    "pk": 1,
     "model": "base.language",
     "fields": {
       "name": "Afar",
@@ -8,7 +8,7 @@
     }
   },
   {
-    "id": 2,
+    "pk": 2,
     "model": "base.language",
     "fields": {
       "name": "Abkhaz",
@@ -16,7 +16,7 @@
     }
   },
   {
-    "id": 3,
+    "pk": 3,
     "model": "base.language",
     "fields": {
       "name": "Avestan",
@@ -24,7 +24,7 @@
     }
   },
   {
-    "id": 4,
+    "pk": 4,
     "model": "base.language",
     "fields": {
       "name": "Afrikaans",
@@ -32,7 +32,7 @@
     }
   },
   {
-    "id": 5,
+    "pk": 5,
     "model": "base.language",
     "fields": {
       "name": "Akan",
@@ -40,7 +40,7 @@
     }
   },
   {
-    "id": 6,
+    "pk": 6,
     "model": "base.language",
     "fields": {
       "name": "Amharic",
@@ -48,7 +48,7 @@
     }
   },
   {
-    "id": 7,
+    "pk": 7,
     "model": "base.language",
     "fields": {
       "name": "Aragonese",
@@ -56,7 +56,7 @@
     }
   },
   {
-    "id": 8,
+    "pk": 8,
     "model": "base.language",
     "fields": {
       "name": "Arabic",
@@ -64,7 +64,7 @@
     }
   },
   {
-    "id": 9,
+    "pk": 9,
     "model": "base.language",
     "fields": {
       "name": "Assamese",
@@ -72,7 +72,7 @@
     }
   },
   {
-    "id": 10,
+    "pk": 10,
     "model": "base.language",
     "fields": {
       "name": "Avaric",
@@ -80,7 +80,7 @@
     }
   },
   {
-    "id": 11,
+    "pk": 11,
     "model": "base.language",
     "fields": {
       "name": "Aymara",
@@ -88,7 +88,7 @@
     }
   },
   {
-    "id": 12,
+    "pk": 12,
     "model": "base.language",
     "fields": {
       "name": "South Azerbaijani",
@@ -96,7 +96,7 @@
     }
   },
   {
-    "id": 13,
+    "pk": 13,
     "model": "base.language",
     "fields": {
       "name": "Bashkir",
@@ -104,7 +104,7 @@
     }
   },
   {
-    "id": 14,
+    "pk": 14,
     "model": "base.language",
     "fields": {
       "name": "Belarusian",
@@ -112,7 +112,7 @@
     }
   },
   {
-    "id": 15,
+    "pk": 15,
     "model": "base.language",
     "fields": {
       "name": "Bulgarian",
@@ -120,7 +120,7 @@
     }
   },
   {
-    "id": 16,
+    "pk": 16,
     "model": "base.language",
     "fields": {
       "name": "Bihari",
@@ -128,7 +128,7 @@
     }
   },
   {
-    "id": 17,
+    "pk": 17,
     "model": "base.language",
     "fields": {
       "name": "Bislama",
@@ -136,7 +136,7 @@
     }
   },
   {
-    "id": 18,
+    "pk": 18,
     "model": "base.language",
     "fields": {
       "name": "Bambara",
@@ -144,7 +144,7 @@
     }
   },
   {
-    "id": 19,
+    "pk": 19,
     "model": "base.language",
     "fields": {
       "name": "Bengali; Bangla",
@@ -152,7 +152,7 @@
     }
   },
   {
-    "id": 20,
+    "pk": 20,
     "model": "base.language",
     "fields": {
       "name": "Tibetan Standard, Tibetan, Central",
@@ -160,7 +160,7 @@
     }
   },
   {
-    "id": 21,
+    "pk": 21,
     "model": "base.language",
     "fields": {
       "name": "Breton",
@@ -168,7 +168,7 @@
     }
   },
   {
-    "id": 22,
+    "pk": 22,
     "model": "base.language",
     "fields": {
       "name": "Bosnian",
@@ -176,7 +176,7 @@
     }
   },
   {
-    "id": 23,
+    "pk": 23,
     "model": "base.language",
     "fields": {
       "name": "Catalan; Valencian",
@@ -184,7 +184,7 @@
     }
   },
   {
-    "id": 24,
+    "pk": 24,
     "model": "base.language",
     "fields": {
       "name": "Chechen",
@@ -192,7 +192,7 @@
     }
   },
   {
-    "id": 25,
+    "pk": 25,
     "model": "base.language",
     "fields": {
       "name": "Chamorro",
@@ -200,7 +200,7 @@
     }
   },
   {
-    "id": 26,
+    "pk": 26,
     "model": "base.language",
     "fields": {
       "name": "Corsican",
@@ -208,7 +208,7 @@
     }
   },
   {
-    "id": 27,
+    "pk": 27,
     "model": "base.language",
     "fields": {
       "name": "Cree",
@@ -216,7 +216,7 @@
     }
   },
   {
-    "id": 28,
+    "pk": 28,
     "model": "base.language",
     "fields": {
       "name": "Czech",
@@ -224,7 +224,7 @@
     }
   },
   {
-    "id": 29,
+    "pk": 29,
     "model": "base.language",
     "fields": {
       "name": "Old Church Slavonic, Church Slavonic, Old Bulgarian",
@@ -232,7 +232,7 @@
     }
   },
   {
-    "id": 30,
+    "pk": 30,
     "model": "base.language",
     "fields": {
       "name": "Chuvash",
@@ -240,7 +240,7 @@
     }
   },
   {
-    "id": 31,
+    "pk": 31,
     "model": "base.language",
     "fields": {
       "name": "Welsh",
@@ -248,7 +248,7 @@
     }
   },
   {
-    "id": 32,
+    "pk": 32,
     "model": "base.language",
     "fields": {
       "name": "Danish",
@@ -256,7 +256,7 @@
     }
   },
   {
-    "id": 33,
+    "pk": 33,
     "model": "base.language",
     "fields": {
       "name": "German",
@@ -264,7 +264,7 @@
     }
   },
   {
-    "id": 34,
+    "pk": 34,
     "model": "base.language",
     "fields": {
       "name": "Divehi; Dhivehi; Maldivian;",
@@ -272,7 +272,7 @@
     }
   },
   {
-    "id": 35,
+    "pk": 35,
     "model": "base.language",
     "fields": {
       "name": "Dzongkha",
@@ -280,7 +280,7 @@
     }
   },
   {
-    "id": 36,
+    "pk": 36,
     "model": "base.language",
     "fields": {
       "name": "Ewe",
@@ -288,7 +288,7 @@
     }
   },
   {
-    "id": 37,
+    "pk": 37,
     "model": "base.language",
     "fields": {
       "name": "Greek, Modern",
@@ -296,7 +296,7 @@
     }
   },
   {
-    "id": 38,
+    "pk": 38,
     "model": "base.language",
     "fields": {
       "name": "English",
@@ -304,7 +304,7 @@
     }
   },
   {
-    "id": 39,
+    "pk": 39,
     "model": "base.language",
     "fields": {
       "name": "Esperanto",
@@ -312,7 +312,7 @@
     }
   },
   {
-    "id": 40,
+    "pk": 40,
     "model": "base.language",
     "fields": {
       "name": "Spanish; Castilian",
@@ -320,7 +320,7 @@
     }
   },
   {
-    "id": 41,
+    "pk": 41,
     "model": "base.language",
     "fields": {
       "name": "Estonian",
@@ -328,7 +328,7 @@
     }
   },
   {
-    "id": 42,
+    "pk": 42,
     "model": "base.language",
     "fields": {
       "name": "Basque",
@@ -336,7 +336,7 @@
     }
   },
   {
-    "id": 43,
+    "pk": 43,
     "model": "base.language",
     "fields": {
       "name": "Persian (Farsi)",
@@ -344,7 +344,7 @@
     }
   },
   {
-    "id": 44,
+    "pk": 44,
     "model": "base.language",
     "fields": {
       "name": "Fula; Fulah; Pulaar; Pular",
@@ -352,7 +352,7 @@
     }
   },
   {
-    "id": 45,
+    "pk": 45,
     "model": "base.language",
     "fields": {
       "name": "Finnish",
@@ -360,7 +360,7 @@
     }
   },
   {
-    "id": 46,
+    "pk": 46,
     "model": "base.language",
     "fields": {
       "name": "Fijian",
@@ -368,7 +368,7 @@
     }
   },
   {
-    "id": 47,
+    "pk": 47,
     "model": "base.language",
     "fields": {
       "name": "Faroese",
@@ -376,7 +376,7 @@
     }
   },
   {
-    "id": 48,
+    "pk": 48,
     "model": "base.language",
     "fields": {
       "name": "French",
@@ -384,7 +384,7 @@
     }
   },
   {
-    "id": 49,
+    "pk": 49,
     "model": "base.language",
     "fields": {
       "name": "Western Frisian",
@@ -392,7 +392,7 @@
     }
   },
   {
-    "id": 50,
+    "pk": 50,
     "model": "base.language",
     "fields": {
       "name": "Irish",
@@ -400,7 +400,7 @@
     }
   },
   {
-    "id": 51,
+    "pk": 51,
     "model": "base.language",
     "fields": {
       "name": "Scottish Gaelic; Gaelic",
@@ -408,7 +408,7 @@
     }
   },
   {
-    "id": 52,
+    "pk": 52,
     "model": "base.language",
     "fields": {
       "name": "Galician",
@@ -416,7 +416,7 @@
     }
   },
   {
-    "id": 53,
+    "pk": 53,
     "model": "base.language",
     "fields": {
       "name": "Guaran\u00ed",
@@ -424,7 +424,7 @@
     }
   },
   {
-    "id": 54,
+    "pk": 54,
     "model": "base.language",
     "fields": {
       "name": "Gujarati",
@@ -432,7 +432,7 @@
     }
   },
   {
-    "id": 55,
+    "pk": 55,
     "model": "base.language",
     "fields": {
       "name": "Manx",
@@ -440,7 +440,7 @@
     }
   },
   {
-    "id": 56,
+    "pk": 56,
     "model": "base.language",
     "fields": {
       "name": "Hausa",
@@ -448,7 +448,7 @@
     }
   },
   {
-    "id": 57,
+    "pk": 57,
     "model": "base.language",
     "fields": {
       "name": "Hebrew (modern)",
@@ -456,7 +456,7 @@
     }
   },
   {
-    "id": 58,
+    "pk": 58,
     "model": "base.language",
     "fields": {
       "name": "Hindi",
@@ -464,7 +464,7 @@
     }
   },
   {
-    "id": 59,
+    "pk": 59,
     "model": "base.language",
     "fields": {
       "name": "Hiri Motu",
@@ -472,7 +472,7 @@
     }
   },
   {
-    "id": 60,
+    "pk": 60,
     "model": "base.language",
     "fields": {
       "name": "Croatian",
@@ -480,7 +480,7 @@
     }
   },
   {
-    "id": 61,
+    "pk": 61,
     "model": "base.language",
     "fields": {
       "name": "Haitian; Haitian Creole",
@@ -488,7 +488,7 @@
     }
   },
   {
-    "id": 62,
+    "pk": 62,
     "model": "base.language",
     "fields": {
       "name": "Hungarian",
@@ -496,7 +496,7 @@
     }
   },
   {
-    "id": 63,
+    "pk": 63,
     "model": "base.language",
     "fields": {
       "name": "Armenian",
@@ -504,7 +504,7 @@
     }
   },
   {
-    "id": 64,
+    "pk": 64,
     "model": "base.language",
     "fields": {
       "name": "Herero",
@@ -512,7 +512,7 @@
     }
   },
   {
-    "id": 65,
+    "pk": 65,
     "model": "base.language",
     "fields": {
       "name": "Interlingua",
@@ -520,15 +520,15 @@
     }
   },
   {
-    "id": 66,
+    "pk": 66,
     "model": "base.language",
     "fields": {
       "name": "Indonesian",
-      "code": "id"
+      "code": "pk"
     }
   },
   {
-    "id": 67,
+    "pk": 67,
     "model": "base.language",
     "fields": {
       "name": "Interlingue",
@@ -536,7 +536,7 @@
     }
   },
   {
-    "id": 68,
+    "pk": 68,
     "model": "base.language",
     "fields": {
       "name": "Igbo",
@@ -544,7 +544,7 @@
     }
   },
   {
-    "id": 69,
+    "pk": 69,
     "model": "base.language",
     "fields": {
       "name": "Nuosu",
@@ -552,7 +552,7 @@
     }
   },
   {
-    "id": 70,
+    "pk": 70,
     "model": "base.language",
     "fields": {
       "name": "Inupiaq",
@@ -560,7 +560,7 @@
     }
   },
   {
-    "id": 71,
+    "pk": 71,
     "model": "base.language",
     "fields": {
       "name": "Ido",
@@ -568,7 +568,7 @@
     }
   },
   {
-    "id": 72,
+    "pk": 72,
     "model": "base.language",
     "fields": {
       "name": "Icelandic",
@@ -576,7 +576,7 @@
     }
   },
   {
-    "id": 73,
+    "pk": 73,
     "model": "base.language",
     "fields": {
       "name": "Italian",
@@ -584,7 +584,7 @@
     }
   },
   {
-    "id": 74,
+    "pk": 74,
     "model": "base.language",
     "fields": {
       "name": "Inuktitut",
@@ -592,7 +592,7 @@
     }
   },
   {
-    "id": 75,
+    "pk": 75,
     "model": "base.language",
     "fields": {
       "name": "Japanese",
@@ -600,7 +600,7 @@
     }
   },
   {
-    "id": 76,
+    "pk": 76,
     "model": "base.language",
     "fields": {
       "name": "Javanese",
@@ -608,7 +608,7 @@
     }
   },
   {
-    "id": 77,
+    "pk": 77,
     "model": "base.language",
     "fields": {
       "name": "Georgian",
@@ -616,7 +616,7 @@
     }
   },
   {
-    "id": 78,
+    "pk": 78,
     "model": "base.language",
     "fields": {
       "name": "Kongo",
@@ -624,7 +624,7 @@
     }
   },
   {
-    "id": 79,
+    "pk": 79,
     "model": "base.language",
     "fields": {
       "name": "Kikuyu, Gikuyu",
@@ -632,7 +632,7 @@
     }
   },
   {
-    "id": 80,
+    "pk": 80,
     "model": "base.language",
     "fields": {
       "name": "Kwanyama, Kuanyama",
@@ -640,7 +640,7 @@
     }
   },
   {
-    "id": 81,
+    "pk": 81,
     "model": "base.language",
     "fields": {
       "name": "Kazakh",
@@ -648,7 +648,7 @@
     }
   },
   {
-    "id": 82,
+    "pk": 82,
     "model": "base.language",
     "fields": {
       "name": "Kalaallisut, Greenlandic",
@@ -656,7 +656,7 @@
     }
   },
   {
-    "id": 83,
+    "pk": 83,
     "model": "base.language",
     "fields": {
       "name": "Khmer",
@@ -664,7 +664,7 @@
     }
   },
   {
-    "id": 84,
+    "pk": 84,
     "model": "base.language",
     "fields": {
       "name": "Kannada",
@@ -672,7 +672,7 @@
     }
   },
   {
-    "id": 85,
+    "pk": 85,
     "model": "base.language",
     "fields": {
       "name": "Korean",
@@ -680,7 +680,7 @@
     }
   },
   {
-    "id": 86,
+    "pk": 86,
     "model": "base.language",
     "fields": {
       "name": "Kanuri",
@@ -688,7 +688,7 @@
     }
   },
   {
-    "id": 87,
+    "pk": 87,
     "model": "base.language",
     "fields": {
       "name": "Kashmiri",
@@ -696,7 +696,7 @@
     }
   },
   {
-    "id": 88,
+    "pk": 88,
     "model": "base.language",
     "fields": {
       "name": "Kurdish",
@@ -704,7 +704,7 @@
     }
   },
   {
-    "id": 89,
+    "pk": 89,
     "model": "base.language",
     "fields": {
       "name": "Komi",
@@ -712,7 +712,7 @@
     }
   },
   {
-    "id": 90,
+    "pk": 90,
     "model": "base.language",
     "fields": {
       "name": "Cornish",
@@ -720,7 +720,7 @@
     }
   },
   {
-    "id": 91,
+    "pk": 91,
     "model": "base.language",
     "fields": {
       "name": "Kyrgyz",
@@ -728,7 +728,7 @@
     }
   },
   {
-    "id": 92,
+    "pk": 92,
     "model": "base.language",
     "fields": {
       "name": "Latin",
@@ -736,7 +736,7 @@
     }
   },
   {
-    "id": 93,
+    "pk": 93,
     "model": "base.language",
     "fields": {
       "name": "Luxembourgish, Letzeburgesch",
@@ -744,7 +744,7 @@
     }
   },
   {
-    "id": 94,
+    "pk": 94,
     "model": "base.language",
     "fields": {
       "name": "Ganda",
@@ -752,7 +752,7 @@
     }
   },
   {
-    "id": 95,
+    "pk": 95,
     "model": "base.language",
     "fields": {
       "name": "Limburgish, Limburgan, Limburger",
@@ -760,7 +760,7 @@
     }
   },
   {
-    "id": 96,
+    "pk": 96,
     "model": "base.language",
     "fields": {
       "name": "Lingala",
@@ -768,7 +768,7 @@
     }
   },
   {
-    "id": 97,
+    "pk": 97,
     "model": "base.language",
     "fields": {
       "name": "Lao",
@@ -776,7 +776,7 @@
     }
   },
   {
-    "id": 98,
+    "pk": 98,
     "model": "base.language",
     "fields": {
       "name": "Lithuanian",
@@ -784,7 +784,7 @@
     }
   },
   {
-    "id": 99,
+    "pk": 99,
     "model": "base.language",
     "fields": {
       "name": "Luba-Katanga",
@@ -792,7 +792,7 @@
     }
   },
   {
-    "id": 100,
+    "pk": 100,
     "model": "base.language",
     "fields": {
       "name": "Latvian",
@@ -800,7 +800,7 @@
     }
   },
   {
-    "id": 101,
+    "pk": 101,
     "model": "base.language",
     "fields": {
       "name": "Malagasy",
@@ -808,7 +808,7 @@
     }
   },
   {
-    "id": 102,
+    "pk": 102,
     "model": "base.language",
     "fields": {
       "name": "Marshallese",
@@ -816,7 +816,7 @@
     }
   },
   {
-    "id": 103,
+    "pk": 103,
     "model": "base.language",
     "fields": {
       "name": "M\u0101ori",
@@ -824,7 +824,7 @@
     }
   },
   {
-    "id": 104,
+    "pk": 104,
     "model": "base.language",
     "fields": {
       "name": "Macedonian",
@@ -832,7 +832,7 @@
     }
   },
   {
-    "id": 105,
+    "pk": 105,
     "model": "base.language",
     "fields": {
       "name": "Malayalam",
@@ -840,7 +840,7 @@
     }
   },
   {
-    "id": 106,
+    "pk": 106,
     "model": "base.language",
     "fields": {
       "name": "Mongolian",
@@ -848,7 +848,7 @@
     }
   },
   {
-    "id": 107,
+    "pk": 107,
     "model": "base.language",
     "fields": {
       "name": "Marathi",
@@ -856,7 +856,7 @@
     }
   },
   {
-    "id": 108,
+    "pk": 108,
     "model": "base.language",
     "fields": {
       "name": "Malay",
@@ -864,7 +864,7 @@
     }
   },
   {
-    "id": 109,
+    "pk": 109,
     "model": "base.language",
     "fields": {
       "name": "Maltese",
@@ -872,7 +872,7 @@
     }
   },
   {
-    "id": 110,
+    "pk": 110,
     "model": "base.language",
     "fields": {
       "name": "Burmese",
@@ -880,7 +880,7 @@
     }
   },
   {
-    "id": 111,
+    "pk": 111,
     "model": "base.language",
     "fields": {
       "name": "Nauru",
@@ -888,7 +888,7 @@
     }
   },
   {
-    "id": 112,
+    "pk": 112,
     "model": "base.language",
     "fields": {
       "name": "Norwegian Bokm\u00e5l",
@@ -896,7 +896,7 @@
     }
   },
   {
-    "id": 113,
+    "pk": 113,
     "model": "base.language",
     "fields": {
       "name": "North Ndebele",
@@ -904,7 +904,7 @@
     }
   },
   {
-    "id": 114,
+    "pk": 114,
     "model": "base.language",
     "fields": {
       "name": "Nepali",
@@ -912,7 +912,7 @@
     }
   },
   {
-    "id": 115,
+    "pk": 115,
     "model": "base.language",
     "fields": {
       "name": "Ndonga",
@@ -920,7 +920,7 @@
     }
   },
   {
-    "id": 116,
+    "pk": 116,
     "model": "base.language",
     "fields": {
       "name": "Dutch",
@@ -928,7 +928,7 @@
     }
   },
   {
-    "id": 117,
+    "pk": 117,
     "model": "base.language",
     "fields": {
       "name": "Norwegian Nynorsk",
@@ -936,7 +936,7 @@
     }
   },
   {
-    "id": 118,
+    "pk": 118,
     "model": "base.language",
     "fields": {
       "name": "Norwegian",
@@ -944,7 +944,7 @@
     }
   },
   {
-    "id": 119,
+    "pk": 119,
     "model": "base.language",
     "fields": {
       "name": "South Ndebele",
@@ -952,7 +952,7 @@
     }
   },
   {
-    "id": 120,
+    "pk": 120,
     "model": "base.language",
     "fields": {
       "name": "Navajo, Navaho",
@@ -960,7 +960,7 @@
     }
   },
   {
-    "id": 121,
+    "pk": 121,
     "model": "base.language",
     "fields": {
       "name": "Chichewa; Chewa; Nyanja",
@@ -968,7 +968,7 @@
     }
   },
   {
-    "id": 122,
+    "pk": 122,
     "model": "base.language",
     "fields": {
       "name": "Occitan",
@@ -976,7 +976,7 @@
     }
   },
   {
-    "id": 123,
+    "pk": 123,
     "model": "base.language",
     "fields": {
       "name": "Ojibwe, Ojibwa",
@@ -984,7 +984,7 @@
     }
   },
   {
-    "id": 124,
+    "pk": 124,
     "model": "base.language",
     "fields": {
       "name": "Oromo",
@@ -992,7 +992,7 @@
     }
   },
   {
-    "id": 125,
+    "pk": 125,
     "model": "base.language",
     "fields": {
       "name": "Oriya",
@@ -1000,7 +1000,7 @@
     }
   },
   {
-    "id": 126,
+    "pk": 126,
     "model": "base.language",
     "fields": {
       "name": "Ossetian, Ossetic",
@@ -1008,7 +1008,7 @@
     }
   },
   {
-    "id": 127,
+    "pk": 127,
     "model": "base.language",
     "fields": {
       "name": "Panjabi, Punjabi",
@@ -1016,7 +1016,7 @@
     }
   },
   {
-    "id": 128,
+    "pk": 128,
     "model": "base.language",
     "fields": {
       "name": "P\u0101li",
@@ -1024,7 +1024,7 @@
     }
   },
   {
-    "id": 129,
+    "pk": 129,
     "model": "base.language",
     "fields": {
       "name": "Polish",
@@ -1032,7 +1032,7 @@
     }
   },
   {
-    "id": 130,
+    "pk": 130,
     "model": "base.language",
     "fields": {
       "name": "Pashto, Pushto",
@@ -1040,7 +1040,7 @@
     }
   },
   {
-    "id": 131,
+    "pk": 131,
     "model": "base.language",
     "fields": {
       "name": "Portuguese",
@@ -1048,7 +1048,7 @@
     }
   },
   {
-    "id": 132,
+    "pk": 132,
     "model": "base.language",
     "fields": {
       "name": "Quechua",
@@ -1056,7 +1056,7 @@
     }
   },
   {
-    "id": 133,
+    "pk": 133,
     "model": "base.language",
     "fields": {
       "name": "Romansh",
@@ -1064,7 +1064,7 @@
     }
   },
   {
-    "id": 134,
+    "pk": 134,
     "model": "base.language",
     "fields": {
       "name": "Kirundi",
@@ -1072,7 +1072,7 @@
     }
   },
   {
-    "id": 135,
+    "pk": 135,
     "model": "base.language",
     "fields": {
       "name": "Romanian",
@@ -1080,7 +1080,7 @@
     }
   },
   {
-    "id": 136,
+    "pk": 136,
     "model": "base.language",
     "fields": {
       "name": "Russian",
@@ -1088,7 +1088,7 @@
     }
   },
   {
-    "id": 137,
+    "pk": 137,
     "model": "base.language",
     "fields": {
       "name": "Kinyarwanda",
@@ -1096,7 +1096,7 @@
     }
   },
   {
-    "id": 138,
+    "pk": 138,
     "model": "base.language",
     "fields": {
       "name": "Sanskrit (Sa\u1e41sk\u1e5bta)",
@@ -1104,7 +1104,7 @@
     }
   },
   {
-    "id": 139,
+    "pk": 139,
     "model": "base.language",
     "fields": {
       "name": "Sardinian",
@@ -1112,7 +1112,7 @@
     }
   },
   {
-    "id": 140,
+    "pk": 140,
     "model": "base.language",
     "fields": {
       "name": "Sindhi",
@@ -1120,7 +1120,7 @@
     }
   },
   {
-    "id": 141,
+    "pk": 141,
     "model": "base.language",
     "fields": {
       "name": "Northern Sami",
@@ -1128,7 +1128,7 @@
     }
   },
   {
-    "id": 142,
+    "pk": 142,
     "model": "base.language",
     "fields": {
       "name": "Sango",
@@ -1136,7 +1136,7 @@
     }
   },
   {
-    "id": 143,
+    "pk": 143,
     "model": "base.language",
     "fields": {
       "name": "Sinhala, Sinhalese",
@@ -1144,7 +1144,7 @@
     }
   },
   {
-    "id": 144,
+    "pk": 144,
     "model": "base.language",
     "fields": {
       "name": "Slovak",
@@ -1152,7 +1152,7 @@
     }
   },
   {
-    "id": 145,
+    "pk": 145,
     "model": "base.language",
     "fields": {
       "name": "Slovene",
@@ -1160,7 +1160,7 @@
     }
   },
   {
-    "id": 146,
+    "pk": 146,
     "model": "base.language",
     "fields": {
       "name": "Samoan",
@@ -1168,7 +1168,7 @@
     }
   },
   {
-    "id": 147,
+    "pk": 147,
     "model": "base.language",
     "fields": {
       "name": "Shona",
@@ -1176,7 +1176,7 @@
     }
   },
   {
-    "id": 148,
+    "pk": 148,
     "model": "base.language",
     "fields": {
       "name": "Somali",
@@ -1184,7 +1184,7 @@
     }
   },
   {
-    "id": 149,
+    "pk": 149,
     "model": "base.language",
     "fields": {
       "name": "Albanian",
@@ -1192,7 +1192,7 @@
     }
   },
   {
-    "id": 150,
+    "pk": 150,
     "model": "base.language",
     "fields": {
       "name": "Serbian",
@@ -1200,7 +1200,7 @@
     }
   },
   {
-    "id": 151,
+    "pk": 151,
     "model": "base.language",
     "fields": {
       "name": "Swati",
@@ -1208,7 +1208,7 @@
     }
   },
   {
-    "id": 152,
+    "pk": 152,
     "model": "base.language",
     "fields": {
       "name": "Southern Sotho",
@@ -1216,7 +1216,7 @@
     }
   },
   {
-    "id": 153,
+    "pk": 153,
     "model": "base.language",
     "fields": {
       "name": "Sundanese",
@@ -1224,7 +1224,7 @@
     }
   },
   {
-    "id": 154,
+    "pk": 154,
     "model": "base.language",
     "fields": {
       "name": "Swedish",
@@ -1232,7 +1232,7 @@
     }
   },
   {
-    "id": 155,
+    "pk": 155,
     "model": "base.language",
     "fields": {
       "name": "Swahili",
@@ -1240,7 +1240,7 @@
     }
   },
   {
-    "id": 156,
+    "pk": 156,
     "model": "base.language",
     "fields": {
       "name": "Tamil",
@@ -1248,7 +1248,7 @@
     }
   },
   {
-    "id": 157,
+    "pk": 157,
     "model": "base.language",
     "fields": {
       "name": "Telugu",
@@ -1256,7 +1256,7 @@
     }
   },
   {
-    "id": 158,
+    "pk": 158,
     "model": "base.language",
     "fields": {
       "name": "Tajik",
@@ -1264,7 +1264,7 @@
     }
   },
   {
-    "id": 159,
+    "pk": 159,
     "model": "base.language",
     "fields": {
       "name": "Thai",
@@ -1272,7 +1272,7 @@
     }
   },
   {
-    "id": 160,
+    "pk": 160,
     "model": "base.language",
     "fields": {
       "name": "Tigrinya",
@@ -1280,7 +1280,7 @@
     }
   },
   {
-    "id": 161,
+    "pk": 161,
     "model": "base.language",
     "fields": {
       "name": "Turkmen",
@@ -1288,7 +1288,7 @@
     }
   },
   {
-    "id": 162,
+    "pk": 162,
     "model": "base.language",
     "fields": {
       "name": "Tagalog",
@@ -1296,7 +1296,7 @@
     }
   },
   {
-    "id": 163,
+    "pk": 163,
     "model": "base.language",
     "fields": {
       "name": "Tswana",
@@ -1304,7 +1304,7 @@
     }
   },
   {
-    "id": 164,
+    "pk": 164,
     "model": "base.language",
     "fields": {
       "name": "Tonga (Tonga Islands)",
@@ -1312,7 +1312,7 @@
     }
   },
   {
-    "id": 165,
+    "pk": 165,
     "model": "base.language",
     "fields": {
       "name": "Turkish",
@@ -1320,7 +1320,7 @@
     }
   },
   {
-    "id": 166,
+    "pk": 166,
     "model": "base.language",
     "fields": {
       "name": "Tsonga",
@@ -1328,7 +1328,7 @@
     }
   },
   {
-    "id": 167,
+    "pk": 167,
     "model": "base.language",
     "fields": {
       "name": "Tatar",
@@ -1336,7 +1336,7 @@
     }
   },
   {
-    "id": 168,
+    "pk": 168,
     "model": "base.language",
     "fields": {
       "name": "Twi",
@@ -1344,7 +1344,7 @@
     }
   },
   {
-    "id": 169,
+    "pk": 169,
     "model": "base.language",
     "fields": {
       "name": "Tahitian",
@@ -1352,7 +1352,7 @@
     }
   },
   {
-    "id": 170,
+    "pk": 170,
     "model": "base.language",
     "fields": {
       "name": "Uyghur, Uighur",
@@ -1360,7 +1360,7 @@
     }
   },
   {
-    "id": 171,
+    "pk": 171,
     "model": "base.language",
     "fields": {
       "name": "Ukrainian",
@@ -1368,7 +1368,7 @@
     }
   },
   {
-    "id": 172,
+    "pk": 172,
     "model": "base.language",
     "fields": {
       "name": "Urdu",
@@ -1376,7 +1376,7 @@
     }
   },
   {
-    "id": 173,
+    "pk": 173,
     "model": "base.language",
     "fields": {
       "name": "Uzbek",
@@ -1384,7 +1384,7 @@
     }
   },
   {
-    "id": 174,
+    "pk": 174,
     "model": "base.language",
     "fields": {
       "name": "Venda",
@@ -1392,7 +1392,7 @@
     }
   },
   {
-    "id": 175,
+    "pk": 175,
     "model": "base.language",
     "fields": {
       "name": "Vietnamese",
@@ -1400,7 +1400,7 @@
     }
   },
   {
-    "id": 176,
+    "pk": 176,
     "model": "base.language",
     "fields": {
       "name": "Volap\u00fck",
@@ -1408,7 +1408,7 @@
     }
   },
   {
-    "id": 177,
+    "pk": 177,
     "model": "base.language",
     "fields": {
       "name": "Walloon",
@@ -1416,7 +1416,7 @@
     }
   },
   {
-    "id": 178,
+    "pk": 178,
     "model": "base.language",
     "fields": {
       "name": "Wolof",
@@ -1424,7 +1424,7 @@
     }
   },
   {
-    "id": 179,
+    "pk": 179,
     "model": "base.language",
     "fields": {
       "name": "Xhosa",
@@ -1432,15 +1432,15 @@
     }
   },
   {
-    "id": 180,
+    "pk": 180,
     "model": "base.language",
     "fields": {
-      "name": "Yiddish",
+      "name": "Ypkdish",
       "code": "yi"
     }
   },
   {
-    "id": 181,
+    "pk": 181,
     "model": "base.language",
     "fields": {
       "name": "Yoruba",
@@ -1448,7 +1448,7 @@
     }
   },
   {
-    "id": 182,
+    "pk": 182,
     "model": "base.language",
     "fields": {
       "name": "Zhuang, Chuang",
@@ -1456,7 +1456,7 @@
     }
   },
   {
-    "id": 183,
+    "pk": 183,
     "model": "base.language",
     "fields": {
       "name": "Chinese",
@@ -1464,7 +1464,7 @@
     }
   },
   {
-    "id": 184,
+    "pk": 184,
     "model": "base.language",
     "fields": {
       "name": "Zulu",
