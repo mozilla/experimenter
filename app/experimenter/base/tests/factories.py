@@ -4,6 +4,7 @@ from faker import Factory as FakerFactory
 from experimenter.base.models import Country, Language, Locale
 
 faker = FakerFactory.create()
+faker.seed(0)
 
 
 class CountryFactory(factory.django.DjangoModelFactory):
