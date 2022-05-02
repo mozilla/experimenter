@@ -1,7 +1,7 @@
 import factory
 from faker import Factory as FakerFactory
 
-from experimenter.base.models import Country, Locale
+from experimenter.base.models import Country, Locale, Language
 
 faker = FakerFactory.create()
 
@@ -21,4 +21,13 @@ class LocaleFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Locale
+        django_get_or_create = ("code",)
+
+
+class LanguageFactory(factory.django.DjangoModelFactory):
+    name = factory.LazyAttribute(lambda o: faker.language())
+    code = factory.LazyAttribute(lambda o: o.name[:2])
+
+    class Meta:
+        model = Language
         django_get_or_create = ("code",)
