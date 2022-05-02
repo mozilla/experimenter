@@ -206,6 +206,32 @@ TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_WINDOWS_WITH_USERCHOICE = NimbusTargetingConfig(
+    name="Users on Windows with UserChoice support (Windows build 15063 or newer)",
+    slug="windows_userchoice",
+    description="Users on Windows with UserChoice support (i.e., Windows build 15063+)",
+    targeting="os.windowsBuildNumber >= 15063",
+    desktop_telemetry="environment.system.os.windows_build_number >= 15063",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN = NimbusTargetingConfig(
+    name="First start-up users on Windows with UserChoice support "
+    "(Windows build 15063 or newer)",
+    slug="windows_userchoice_first_run",
+    description="First start-up users (e.g. for about:welcome) on Windows with "
+    "UserChoice support (i.e., Windows build 15063+)",
+    targeting="{first_run} && {user_choice}".format(
+        first_run=TARGETING_FIRST_RUN.targeting,
+        user_choice=TARGETING_WINDOWS_WITH_USERCHOICE.targeting,
+    ),
+    desktop_telemetry=("{first_run} AND {user_choice}").format(
+        first_run=TARGETING_FIRST_RUN.desktop_telemetry,
+        user_choice=TARGETING_WINDOWS_WITH_USERCHOICE.desktop_telemetry,
+    ),
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TARGETING_FX95_DESKTOP_USERS = NimbusTargetingConfig(
     name="Desktop Users on Fx95",
     slug="fx95_desktop_users",
@@ -728,6 +754,10 @@ class NimbusConstants(object):
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
         TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
         TARGETING_FX95_DESKTOP_USERS.slug: TARGETING_FX95_DESKTOP_USERS,
+        TARGETING_WINDOWS_WITH_USERCHOICE.slug: TARGETING_WINDOWS_WITH_USERCHOICE,
+        TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN.slug: (
+            TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN
+        ),
         TARGETING_MOBILE_NEW_USER.slug: TARGETING_MOBILE_NEW_USER,
         TARGETING_MOBILE_RECENTLY_UPDATED.slug: TARGETING_MOBILE_RECENTLY_UPDATED,
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug: TARGETING_NO_ENTERPRISE_OR_PAST_VPN,
@@ -779,6 +809,14 @@ class NimbusConstants(object):
         TARGETING_FX95_DESKTOP_USERS = (
             TARGETING_FX95_DESKTOP_USERS.slug,
             TARGETING_FX95_DESKTOP_USERS.name,
+        )
+        TARGETING_WINDOWS_WITH_USERCHOICE = (
+            TARGETING_WINDOWS_WITH_USERCHOICE.slug,
+            TARGETING_WINDOWS_WITH_USERCHOICE.name,
+        )
+        TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN = (
+            TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN.slug,
+            TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN.name,
         )
         TARGETING_MOBILE_NEW_USER = (
             TARGETING_MOBILE_NEW_USER.slug,
