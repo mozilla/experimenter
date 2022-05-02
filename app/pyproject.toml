@@ -6,7 +6,7 @@ authors = [""]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-Django = "3.2.12"
+Django = "3.2.13"
 black = "21.12b0"
 celery = "5.2.2"
 coverage = "5.5"
