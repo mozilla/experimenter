@@ -7,8 +7,8 @@ from parameterized import parameterized
 
 from experimenter.base.tests.factories import (
     CountryFactory,
-    LocaleFactory,
     LanguageFactory,
+    LocaleFactory,
 )
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog

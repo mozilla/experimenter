@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
-from experimenter.base.models import Country, Locale, Language
+from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import (
     NimbusExperimentChangeLogSerializer,
