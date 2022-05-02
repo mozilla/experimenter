@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from experimenter.base.models import Country, Locale
+from experimenter.base.models import Country, Locale, Language
 
 
 class LocaleSerializer(serializers.ModelSerializer):
@@ -12,4 +12,10 @@ class LocaleSerializer(serializers.ModelSerializer):
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
+        fields = ("code", "name")
+
+
+class LanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Language
         fields = ("code", "name")
