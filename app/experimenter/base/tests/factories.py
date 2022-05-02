@@ -1,7 +1,7 @@
 import factory
 from faker import Factory as FakerFactory
 
-from experimenter.base.models import Country, Locale, Language
+from experimenter.base.models import Country, Language, Locale
 
 faker = FakerFactory.create()
 

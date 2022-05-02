@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
-from experimenter.base.models import Country, Locale
+from experimenter.base.models import Country, Locale, Language
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import (
     NimbusExperimentChangeLogSerializer,
@@ -325,6 +325,18 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
         if extracted:
             self.countries.add(*extracted)
+
+    @factory.post_generation
+    def languages(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted is None and Language.objects.exists():
+            extracted = Language.objects.all()[:3]
+
+        if extracted:
+            self.languages.add(*extracted)
 
     @classmethod
     def create(cls, branches=None, feature_configs=None, *args, **kwargs):

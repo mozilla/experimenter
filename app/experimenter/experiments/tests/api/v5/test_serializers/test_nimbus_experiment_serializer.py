@@ -5,7 +5,11 @@ from django.test import TestCase
 from django.utils.text import slugify
 from parameterized import parameterized
 
-from experimenter.base.tests.factories import CountryFactory, LocaleFactory
+from experimenter.base.tests.factories import (
+    CountryFactory,
+    LocaleFactory,
+    LanguageFactory,
+)
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.constants.nimbus import NimbusConstants
@@ -151,6 +155,7 @@ class TestNimbusExperimentSerializer(TestCase):
             "changelog_message": "test changelog message",
             "countries": [],
             "locales": [],
+            "languages": [],
         }
 
         serializer = NimbusExperimentSerializer(
@@ -184,6 +189,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.total_enrolled_clients, 0)
         self.assertEqual(list(experiment.countries.all()), [])
         self.assertEqual(list(experiment.locales.all()), [])
+        self.assertEqual(list(experiment.languages.all()), [])
 
     def test_serializer_rejects_bad_name(self):
         data = {
@@ -439,6 +445,8 @@ class TestNimbusExperimentSerializer(TestCase):
     def test_serializer_updates_audience_on_experiment(self):
         country = CountryFactory.create()
         locale = LocaleFactory.create()
+        language = LanguageFactory.create()
+
         experiment = NimbusExperimentFactory(
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             application=NimbusExperiment.Application.DESKTOP,
@@ -464,6 +472,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "changelog_message": "test changelog message",
                 "countries": [country.id],
                 "locales": [locale.id],
+                "languages": [language.id],
             },
             context={"user": self.user},
         )
@@ -485,6 +494,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.total_enrolled_clients, 100)
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])
+        self.assertEqual(list(experiment.languages.all()), [language])
 
     @parameterized.expand(
         [

@@ -2,13 +2,13 @@ from django.test import TestCase
 
 from experimenter.base.serializers import (
     CountrySerializer,
-    LocaleSerializer,
     LanguageSerializer,
+    LocaleSerializer,
 )
 from experimenter.base.tests.factories import (
     CountryFactory,
-    LocaleFactory,
     LanguageFactory,
+    LocaleFactory,
 )
 
 
