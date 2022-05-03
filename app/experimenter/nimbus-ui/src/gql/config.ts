@@ -57,6 +57,7 @@ export const GET_CONFIG_QUERY = gql`
       targetingConfigs {
         label
         value
+        description
         applicationValues
       }
       hypothesisDefault
