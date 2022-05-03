@@ -217,16 +217,15 @@ TARGETING_WINDOWS_WITH_USERCHOICE = NimbusTargetingConfig(
 
 TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users on Windows with UserChoice support "
-         "(Windows build 15063 or newer)",
+    "(Windows build 15063 or newer)",
     slug="windows_userchoice_first_run",
     description="First start-up users (e.g. for about:welcome) on Windows with "
-                "UserChoice support (i.e., Windows build 15063+)",
-    targeting=("{first_run}"
-               " && os.windowsBuildNumber >= 15063"
-               ).format(first_run=TARGETING_FIRST_RUN.targeting),
+    "UserChoice support (i.e., Windows build 15063+)",
+    targeting=("{first_run}" " && os.windowsBuildNumber >= 15063").format(
+        first_run=TARGETING_FIRST_RUN.targeting
+    ),
     desktop_telemetry=(
-        "{first_run} "
-        "AND environment.system.os.windows_build_number >= 15063"
+        "{first_run} " "AND environment.system.os.windows_build_number >= 15063"
     ).format(first_run=TARGETING_FIRST_RUN.desktop_telemetry),
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -753,9 +752,7 @@ class NimbusConstants(object):
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
         TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
         TARGETING_FX95_DESKTOP_USERS.slug: TARGETING_FX95_DESKTOP_USERS,
-        TARGETING_WINDOWS_WITH_USERCHOICE.slug: (
-            TARGETING_WINDOWS_WITH_USERCHOICE
-        ),
+        TARGETING_WINDOWS_WITH_USERCHOICE.slug: (TARGETING_WINDOWS_WITH_USERCHOICE),
         TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN.slug: (
             TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN
         ),
