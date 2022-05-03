@@ -221,8 +221,9 @@ TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN = NimbusTargetingConfig(
     slug="windows_userchoice_first_run",
     description="First start-up users (e.g. for about:welcome) on Windows with "
     "UserChoice support (i.e., Windows build 15063+)",
-    targeting=("{first_run}" " && os.windowsBuildNumber >= 15063").format(
-        first_run=TARGETING_FIRST_RUN.targeting
+    targeting="{first_run} && {user_choice}".format(
+        first_run=TARGETING_FIRST_RUN.targeting,
+        user_choice=TARGETING_WINDOWS_WITH_USERCHOICE.targeting,
     ),
     desktop_telemetry=(
         "{first_run} " "AND environment.system.os.windows_build_number >= 15063"
