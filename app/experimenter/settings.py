@@ -13,8 +13,10 @@ import os
 from urllib.parse import urljoin
 
 import pkg_resources
+import sentry_sdk
 from celery.schedules import crontab
 from decouple import config
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -67,7 +69,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_markdown2",
     "rangefilter",
-    "raven.contrib.django.raven_compat",
     "rest_framework",
     "widget_tweaks",
     # Experimenter
@@ -235,14 +236,19 @@ LOGGING = {
 
 # Sentry configuration
 SENTRY_DSN = config("SENTRY_DSN", default=None)
-SENTRY_DSN_NIMBUS_UI = config("SENTRY_DSN_NIMBUS_UI", default=None)
+SENTRY_DSN_NIMBUS_UI = SENTRY_DSN
 if SENTRY_DSN:  # pragma: no cover
-    RAVEN_CONFIG = {
-        "dsn": SENTRY_DSN,
-        # If you are using git, you can also automatically configure the
-        # release based on the git info.
-        # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
-    }
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=False,
+    )
 
 
 # Django Rest Framework Configuration
