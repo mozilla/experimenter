@@ -249,6 +249,7 @@ export interface ExperimentInput {
   riskBrand?: boolean | null;
   countries?: (number | null)[] | null;
   locales?: (number | null)[] | null;
+  languages?: (number | null)[] | null;
   conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   takeawaysSummary?: string | null;
 }
