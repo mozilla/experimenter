@@ -503,6 +503,7 @@ class TestNimbusExperiment(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[],
             countries=[country_ca, country_us],
+            languages=[],
         )
         self.assertEqual(
             experiment.targeting,
@@ -528,6 +529,7 @@ class TestNimbusExperiment(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             locales=[locale_ca, locale_us],
             countries=[country_ca, country_us],
+            languages=[],
         )
         self.assertEqual(
             experiment.targeting,

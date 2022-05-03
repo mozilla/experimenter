@@ -30,4 +30,7 @@ class TestLanguageSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         language = LanguageFactory.create()
         serializer = LanguageSerializer(language)
-        self.assertEqual(serializer.data, {"code": language.code, "name": language.name})
+        self.assertEqual(
+            str(language), f"{serializer.data['name']} ({serializer.data['code']})"
+        )
+        self.assertEquals(serializer.data, {"code": language.code, "name": language.name})
