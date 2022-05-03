@@ -351,6 +351,20 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       id: 3,
     },
   ],
+  languages: [
+    {
+      name: "German",
+      id: 1,
+    },
+    {
+      name: "English",
+      id: 2,
+    },
+    {
+      name: "Fijian",
+      id: 3,
+    },
+  ],
 };
 
 // Disabling this rule for now because we'll eventually
