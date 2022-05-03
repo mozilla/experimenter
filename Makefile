@@ -42,6 +42,7 @@ CHECK_DOCS = python manage.py generate_docs --check=true
 GENERATE_DOCS = python manage.py generate_docs
 LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
 LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
+LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || echo "skipping dummy experiments"
 
@@ -164,7 +165,7 @@ bash: build_dev
 	$(COMPOSE) run app bash
 
 refresh: kill build_dev
-	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY app bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
+	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY app bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 dependabot_approve:
 	echo "Install and configure the Github CLI https://github.com/cli/cli"
