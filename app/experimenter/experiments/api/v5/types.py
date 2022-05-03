@@ -107,6 +107,7 @@ class NimbusExperimentTargetingConfigType(graphene.ObjectType):
     label = graphene.String()
     value = graphene.String()
     application_values = graphene.List(graphene.String)
+    description = graphene.String()
 
 
 class NimbusFeatureConfigType(DjangoObjectType):
@@ -302,6 +303,7 @@ class NimbusConfigurationType(graphene.ObjectType):
                 application_values=NimbusExperiment.TARGETING_CONFIGS[
                     choice.value
                 ].application_choice_names,
+                description=NimbusExperiment.TARGETING_CONFIGS[choice.value].description,
             )
             for choice in NimbusExperiment.TargetingConfig
         ]
@@ -338,6 +340,7 @@ class NimbusExperimentType(DjangoObjectType):
     documentation_links = DjangoListField(NimbusDocumentationLinkType)
     treatment_branches = graphene.List(NimbusBranchType)
     targeting_config_slug = graphene.String()
+    targeting_config = graphene.List(NimbusExperimentTargetingConfigType)
     jexl_targeting_expression = graphene.String()
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)
@@ -404,6 +407,21 @@ class NimbusExperimentType(DjangoObjectType):
         if self.targeting_config_slug in self.TargetingConfig:
             return self.TargetingConfig(self.targeting_config_slug).value
         return self.targeting_config_slug
+
+    def resolve_targeting_config(self, info):
+
+        return [
+            NimbusExperimentTargetingConfigType(
+                label=NimbusExperiment.TARGETING_CONFIGS[self.targeting_config_slug].name,
+                value=self.targeting_config_slug,
+                description=NimbusExperiment.TARGETING_CONFIGS[
+                    self.targeting_config_slug
+                ].description,
+                application_values=NimbusExperiment.TARGETING_CONFIGS[
+                    self.targeting_config_slug
+                ].application_choice_names,
+            )
+        ]
 
     def resolve_jexl_targeting_expression(self, info):
         return self.targeting
