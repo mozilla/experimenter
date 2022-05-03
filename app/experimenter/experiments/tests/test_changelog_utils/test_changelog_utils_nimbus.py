@@ -46,6 +46,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "is_archived": experiment.is_archived,
                 "is_paused": False,
                 "locales": [],
+                "languages": [],
                 "name": "",
                 "owner": owner.email,
                 "parent": None,
@@ -96,6 +97,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         control_branch_data = dict(data.pop("reference_branch"))
         locales_data = data.pop("locales")
         countries_data = data.pop("countries")
+        languages_data = data.pop("languages")
         feature_configs_data = data.pop("feature_configs")
         published_dto_data = data.pop("published_dto")
 
@@ -164,6 +166,11 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         self.assertEqual(
             set(countries_data),
             set(experiment.countries.all().values_list("code", flat=True)),
+        )
+
+        self.assertEqual(
+            set(languages_data),
+            set(experiment.languages.all().values_list("code", flat=True)),
         )
 
         self.assertEqual(
