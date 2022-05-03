@@ -71,6 +71,7 @@ export interface getConfig_nimbusConfig_owners {
 export interface getConfig_nimbusConfig_targetingConfigs {
   label: string | null;
   value: string | null;
+  description: string | null;
   applicationValues: (string | null)[] | null;
 }
 

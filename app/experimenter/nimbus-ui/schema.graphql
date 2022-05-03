@@ -383,6 +383,7 @@ type NimbusExperimentTargetingConfigType {
   label: String
   value: String
   applicationValues: [String]
+  description: String
 }
 
 type NimbusExperimentType {
@@ -428,6 +429,7 @@ type NimbusExperimentType {
   bucketRange: NimbusBucketRangeType
   changes: [NimbusChangeLogType!]!
   treatmentBranches: [NimbusBranchType]
+  targetingConfig: [NimbusExperimentTargetingConfigType]
   jexlTargetingExpression: String
   featureConfig: NimbusFeatureConfigType
   featureConfigs: [NimbusFeatureConfigType]
