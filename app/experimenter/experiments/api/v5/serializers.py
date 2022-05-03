@@ -6,7 +6,13 @@ from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
 
-from experimenter.base.models import Country, Locale, SiteFlag, SiteFlagNameChoices
+from experimenter.base.models import (
+    Country,
+    Language,
+    Locale,
+    SiteFlag,
+    SiteFlagNameChoices,
+)
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
@@ -515,6 +521,12 @@ class NimbusExperimentSerializer(
         required=False,
         many=True,
     )
+    languages = serializers.PrimaryKeyRelatedField(
+        queryset=Language.objects.all(),
+        allow_null=True,
+        required=False,
+        many=True,
+    )
     conclusion_recommendation = serializers.ChoiceField(
         choices=NimbusExperiment.ConclusionRecommendation.choices,
         allow_null=True,
@@ -540,6 +552,7 @@ class NimbusExperimentSerializer(
             "is_archived",
             "is_enrollment_paused",
             "locales",
+            "languages",
             "name",
             "population_percent",
             "primary_outcomes",
