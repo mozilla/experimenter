@@ -188,9 +188,13 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 
 On certain pages an API endpoint is called to receive experiment analysis data from Jetstream to display visualization tables. To see experiment visualization data, you must provide GCP credentials.
 
-0. *prerequisite* Install GCP CLI
-    - Follow the instructions [here](https://cloud.google.com/sdk/docs/install)
-    - Project: `moz-fx-data-experiments`
+0. Prequisites
+    - Install GCP CLI
+      - Follow the instructions [here](https://cloud.google.com/sdk/docs/install)
+      - Project: `moz-fx-data-experiments`
+   - Verify/request project permissions
+      - Check if you already have access to the storage bucket [here](https://console.cloud.google.com/storage/browser/mozanalysis)
+      - If needed, ask in `#nimbus-dev` for a project admin to grant `storage.objects.list` permissions on the `moz-fx-data-experiments` project
 
 1. Authorize CLI with your account
     - `gcloud auth login`
