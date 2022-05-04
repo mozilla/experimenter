@@ -14,3 +14,9 @@ mock_invalid_features = override_settings(
         pathlib.Path(__file__).parent.absolute(), "fixtures", "invalid_features"
     )
 )
+
+mock_remote_schema_features = override_settings(
+    FEATURE_MANIFESTS_PATH=os.path.join(
+        pathlib.Path(__file__).parent.absolute(), "fixtures", "remote_schema_features"
+    )
+)
