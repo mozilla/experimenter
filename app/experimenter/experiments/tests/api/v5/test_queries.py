@@ -1051,52 +1051,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             ],
         )
 
-    def test_targeting_configs_with_empty_targeting_config_slug(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            targeting_config_slug="",
-        )
-
-        response = self.query(
-            """
-            query experimentBySlug($slug: String!) {
-                experimentBySlug(slug: $slug) {
-                    targetingConfig {
-                        label
-                        value
-                        description
-                        applicationValues
-                    }
-                }
-            }
-            """,
-            variables={"slug": experiment.slug},
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-        experiment_data = content["data"]["experimentBySlug"]
-        print(experiment_data)
-        self.assertEqual(
-            experiment_data["targetingConfig"],
-            [
-                {
-                    "label": NimbusExperiment.TargetingConfig.NO_TARGETING.label,
-                    "value": NimbusExperiment.TargetingConfig.NO_TARGETING.value,
-                    "applicationValues": list(
-                        NimbusExperiment.TARGETING_CONFIGS[
-                            NimbusExperiment.TargetingConfig.NO_TARGETING.value
-                        ].application_choice_names
-                    ),
-                    "description": NimbusExperiment.TARGETING_CONFIGS[
-                        NimbusExperiment.TargetingConfig.NO_TARGETING.value
-                    ].description,
-                }
-            ],
-        )
-
     def test_targeting_config_slug_for_deprecated_targeting_config_returns_slug(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
