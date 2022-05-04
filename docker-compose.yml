@@ -18,7 +18,6 @@ services:
       - /app/experimenter/legacy-ui/core/.cache/
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
-      - /app/experimenter/reporting/reporting-ui/node_modules/
       - /app/experimenter/served/
       - /app/node_modules/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
@@ -36,7 +35,6 @@ services:
       - /app/experimenter/legacy-ui/core/.cache/
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
-      - /app/experimenter/reporting/reporting-ui/node_modules/
       - /app/experimenter/served/
       - /app/node_modules/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
