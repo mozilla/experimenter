@@ -476,6 +476,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
     screenshots: [],
   },
   featureConfigs: [],
+  targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
   treatmentBranches: [
     {
       id: 456,
