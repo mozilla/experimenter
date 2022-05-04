@@ -6,7 +6,7 @@ from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
 from parameterized import parameterized
 
-from experimenter.base.models import Country, Locale
+from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
@@ -384,7 +384,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             experiment.publish_status.name,
         )
 
-    def test_experiment_returns_country_and_locale(self):
+    def test_experiment_returns_country_and_locale_and_language(self):
         user_email = "user@example.com"
         NimbusExperimentFactory.create(publish_status=NimbusExperiment.PublishStatus.IDLE)
 
@@ -397,6 +397,10 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         name
                     }
                     locales {
+                        code
+                        name
+                    }
+                    languages {
                         code
                         name
                     }
@@ -417,6 +421,12 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         for country in Country.objects.all():
             self.assertIn(
                 {"code": country.code, "name": country.name}, experiment_data["countries"]
+            )
+
+        for language in Language.objects.all():
+            self.assertIn(
+                {"code": language.code, "name": language.name},
+                experiment_data["languages"],
             )
 
 
@@ -1051,52 +1061,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             ],
         )
 
-    def test_targeting_configs_with_empty_targeting_config_slug(self):
-        user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            targeting_config_slug="",
-        )
-
-        response = self.query(
-            """
-            query experimentBySlug($slug: String!) {
-                experimentBySlug(slug: $slug) {
-                    targetingConfig {
-                        label
-                        value
-                        description
-                        applicationValues
-                    }
-                }
-            }
-            """,
-            variables={"slug": experiment.slug},
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200, response.content)
-        content = json.loads(response.content)
-        experiment_data = content["data"]["experimentBySlug"]
-        print(experiment_data)
-        self.assertEqual(
-            experiment_data["targetingConfig"],
-            [
-                {
-                    "label": NimbusExperiment.TargetingConfig.NO_TARGETING.label,
-                    "value": NimbusExperiment.TargetingConfig.NO_TARGETING.value,
-                    "applicationValues": list(
-                        NimbusExperiment.TARGETING_CONFIGS[
-                            NimbusExperiment.TargetingConfig.NO_TARGETING.value
-                        ].application_choice_names
-                    ),
-                    "description": NimbusExperiment.TARGETING_CONFIGS[
-                        NimbusExperiment.TargetingConfig.NO_TARGETING.value
-                    ].description,
-                }
-            ],
-        )
-
     def test_targeting_config_slug_for_deprecated_targeting_config_returns_slug(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1351,6 +1315,10 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         code
                         name
                     }
+                    languages {
+                        code
+                        name
+                    }
                 }
             }
             """,
@@ -1441,4 +1409,9 @@ class TestNimbusConfigQuery(GraphQLTestCase):
         for country in Country.objects.all():
             self.assertIn(
                 {"code": country.code, "name": country.name}, config["countries"]
+            )
+
+        for language in Language.objects.all():
+            self.assertIn(
+                {"code": language.code, "name": language.name}, config["languages"]
             )

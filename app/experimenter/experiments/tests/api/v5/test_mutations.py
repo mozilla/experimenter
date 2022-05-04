@@ -7,7 +7,11 @@ from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
 from graphene_file_upload.django.testing import GraphQLFileUploadTestCase
 
-from experimenter.base.tests.factories import CountryFactory, LocaleFactory
+from experimenter.base.tests.factories import (
+    CountryFactory,
+    LanguageFactory,
+    LocaleFactory,
+)
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import NimbusExperiment, NimbusFeatureConfig
 from experimenter.experiments.tests.factories.nimbus import (
@@ -627,6 +631,7 @@ class TestUpdateExperimentMutationSingleFeature(
         user_email = "user@example.com"
         country = CountryFactory.create()
         locale = LocaleFactory.create()
+        language = LanguageFactory.create()
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -657,6 +662,7 @@ class TestUpdateExperimentMutationSingleFeature(
                     "changelogMessage": "test changelog message",
                     "countries": [country.id],
                     "locales": [locale.id],
+                    "languages": [language.id],
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -683,6 +689,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.total_enrolled_clients, 100)
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])
+        self.assertEqual(list(experiment.languages.all()), [language])
 
     def test_update_experiment_audience_error(self):
         user_email = "user@example.com"
