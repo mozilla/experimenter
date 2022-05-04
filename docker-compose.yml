@@ -20,6 +20,7 @@ services:
       - /app/experimenter/nimbus-ui/node_modules/
       - /app/experimenter/served/
       - /app/node_modules/
+      - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py runserver 0:7001"
 
   yarn-nimbus-ui:
@@ -36,6 +37,7 @@ services:
       - /app/experimenter/nimbus-ui/node_modules/
       - /app/experimenter/served/
       - /app/node_modules/
+      - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus-ui start | cat"
 
   worker:
@@ -46,6 +48,7 @@ services:
       - redis
     volumes:
       - ./app:/app
+      - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l DEBUG"
 
   beat:
@@ -56,6 +59,7 @@ services:
       - redis
     volumes:
       - ./app:/app
+      - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat --pidfile /celerybeat.pid -s /celerybeat-schedule -l DEBUG"
 
   nginx:
