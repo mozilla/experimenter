@@ -74,6 +74,10 @@ export const GET_CONFIG_QUERY = gql`
         id
         name
       }
+      languages {
+        id
+        name
+      }
     }
   }
 `;

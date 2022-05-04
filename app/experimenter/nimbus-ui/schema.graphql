@@ -72,6 +72,7 @@ input ExperimentInput {
   riskBrand: Boolean
   countries: [Int]
   locales: [Int]
+  languages: [Int]
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
 }
@@ -184,6 +185,7 @@ type NimbusConfigurationType {
   firefoxVersions: [NimbusLabelValueType]
   hypothesisDefault: String
   locales: [NimbusLocaleType]
+  languages: [NimbusLanguageType]
   maxPrimaryOutcomes: Int
   outcomes: [NimbusOutcomeType]
   owners: [NimbusUserType]
@@ -411,6 +413,7 @@ type NimbusExperimentType {
   channel: NimbusExperimentChannelEnum
   locales: [NimbusLocaleType!]!
   countries: [NimbusCountryType!]!
+  languages: [NimbusLanguageType!]!
   projects: [ProjectType!]!
   hypothesis: String!
   primaryOutcomes: [String]
@@ -489,6 +492,13 @@ type NimbusIsolationGroupType {
 type NimbusLabelValueType {
   label: String
   value: String
+}
+
+type NimbusLanguageType {
+  id: Int
+  code: String
+  name: String
+  nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
 type NimbusLocaleType {
