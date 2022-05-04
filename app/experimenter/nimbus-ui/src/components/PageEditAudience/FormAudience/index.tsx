@@ -229,7 +229,7 @@ export const FormAudience = ({
               {...formControlAttrs("targetingConfigSlug")}
               as="select"
             >
-              <SelectOptions options={targetingConfigSlugOptions} />
+              <TargetConfigSelectOptions options={targetingConfigSlugOptions} />
             </Form.Control>
             <FormErrors name="targetingConfigSlug" />
           </Form.Group>
@@ -373,7 +373,12 @@ export const FormAudience = ({
 const SelectOptions = ({
   options,
 }: {
-  options: null | (null | { label: null | string; value: null | string })[];
+  options:
+    | null
+    | (null | {
+        label: null | string;
+        value: null | string;
+      })[];
 }) => (
   <>
     {options?.map(
@@ -381,6 +386,29 @@ const SelectOptions = ({
         item && (
           <option key={idx} value={item.value || ""}>
             {item.label}
+          </option>
+        ),
+    )}
+  </>
+);
+const TargetConfigSelectOptions = ({
+  options,
+}: {
+  options:
+    | null
+    | (null | {
+        label: null | string;
+        value: null | string;
+        description: null | string;
+      })[];
+}) => (
+  <>
+    {options?.map(
+      (item, idx) =>
+        item && (
+          <option key={idx} value={item.value || ""}>
+            {item.label}
+            {item.description?.length ? ` - ${item.description}` : ""}
           </option>
         ),
     )}
