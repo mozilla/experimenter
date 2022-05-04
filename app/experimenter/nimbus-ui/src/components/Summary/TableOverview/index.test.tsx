@@ -195,7 +195,7 @@ describe("TableOverview", () => {
       render(<Subject {...{ experiment }} />);
       expect(
         screen.getByTestId("experiment-targeting-config"),
-      ).toHaveTextContent("Mac Only- Mac only configuration");
+      ).toHaveTextContent("Mac Only - Mac only configuration");
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
