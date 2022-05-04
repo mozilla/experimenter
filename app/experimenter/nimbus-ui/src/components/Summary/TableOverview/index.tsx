@@ -121,7 +121,7 @@ const TableOverview = ({
               <td data-testid="experiment-targeting-config">
                 {experiment.targetingConfig?.length ? (
                   experiment.targetingConfig.map((t) => (
-                    <p key={t?.label}>{t?.label + "- " + t?.description}</p>
+                    <p key={t?.label}>{`${t?.label} - ${t?.description}`}</p>
                   ))
                 ) : (
                   <NotSet />
