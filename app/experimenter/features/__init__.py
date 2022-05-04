@@ -2,13 +2,17 @@ import json
 import os
 from enum import Enum
 from typing import Literal, Optional, Union
+from urllib.parse import urljoin
 
+import requests
 import yaml
 from django.conf import settings
 from django.core.checks import Error, register
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from experimenter.experiments.constants import NimbusConstants
+
+MC_ROOT = "https://hg.mozilla.org/mozilla-central/raw-file/tip/"
 
 
 class FeatureVariableType(Enum):
@@ -32,6 +36,11 @@ class FeatureVariable(BaseModel):
     type: Optional[FeatureVariableType]
 
 
+class FeatureSchema(BaseModel):
+    uri: Optional[str]
+    path: Optional[str]
+
+
 class Feature(BaseModel):
     applicationSlug: str
     description: Optional[str]
@@ -39,9 +48,14 @@ class Feature(BaseModel):
     isEarlyStartup: Optional[bool]
     slug: str
     variables: Optional[dict[str, FeatureVariable]]
+    schema_paths: Optional[FeatureSchema] = Field(alias="schema")
 
-    @property
-    def schema(self):
+    def load_remote_jsonschema(self):
+        schema_url = urljoin(MC_ROOT, self.schema_paths.path)
+        schema_data = requests.get(schema_url).content
+        return json.dumps(json.loads(schema_data), indent=2)
+
+    def generate_jsonschema(self):
         schema = {
             "type": "object",
             "properties": {},
@@ -62,6 +76,11 @@ class Feature(BaseModel):
             schema["properties"][variable_slug] = variable_schema
 
         return json.dumps(schema, indent=2)
+
+    def get_jsonschema(self):
+        if self.schema_paths is not None:
+            return self.load_remote_jsonschema()
+        return self.generate_jsonschema()
 
 
 class Features:
