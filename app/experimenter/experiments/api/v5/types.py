@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
-from experimenter.base.models import Country, Locale
+from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.constants.nimbus import NimbusConstants
@@ -88,6 +88,15 @@ class NimbusLocaleType(DjangoObjectType):
 
     class Meta:
         model = Locale
+
+
+class NimbusLanguageType(DjangoObjectType):
+    id = graphene.Int()
+    code = graphene.String()
+    name = graphene.String()
+
+    class Meta:
+        model = Language
 
 
 class NimbusUserType(DjangoObjectType):
@@ -236,6 +245,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     firefox_versions = graphene.List(NimbusLabelValueType)
     hypothesis_default = graphene.String()
     locales = graphene.List(NimbusLocaleType)
+    languages = graphene.List(NimbusLanguageType)
     max_primary_outcomes = graphene.Int()
     outcomes = graphene.List(NimbusOutcomeType)
     owners = graphene.List(NimbusUserType)
@@ -322,6 +332,9 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_countries(root, info):
         return Country.objects.all().order_by("name")
+
+    def resolve_languages(root, info):
+        return Language.objects.all().order_by("name")
 
 
 class NimbusExperimentType(DjangoObjectType):

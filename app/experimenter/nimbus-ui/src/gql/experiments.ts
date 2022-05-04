@@ -181,6 +181,10 @@ export const GET_EXPERIMENT_QUERY = gql`
         id
         name
       }
+      languages {
+        id
+        name
+      }
     }
   }
 `;
