@@ -1051,7 +1051,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             ],
         )
 
-    def test_targeting_configs_with_empty_targeting_config_slug(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
