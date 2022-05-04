@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import mock
 from django.conf import settings
 from django.test import TestCase
@@ -5,6 +7,7 @@ from django.urls import reverse
 from parameterized import parameterized
 
 from experimenter.experiments.admin.nimbus import (
+    DecimalWidget,
     NimbusExperimentAdminForm,
     NimbusFeatureConfigAdmin,
 )
@@ -145,3 +148,11 @@ class TestNimbusExperimentAdmin(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         mock_fetch_experiment_data.delay.assert_called_with(experiment.id)
+
+
+class TestNimbusExperimentExport(TestCase):
+    def test_decimal_render(self):
+        dec_value = DecimalWidget.render(None, Decimal("90.00"))
+        self.assertEqual(dec_value, "90.00")
+        self.assertNotEqual(dec_value, 90)
+        self.assertNotEqual(dec_value, "90.0")
