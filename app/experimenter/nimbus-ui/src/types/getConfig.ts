@@ -90,6 +90,11 @@ export interface getConfig_nimbusConfig_countries {
   name: string | null;
 }
 
+export interface getConfig_nimbusConfig_languages {
+  id: number | null;
+  name: string | null;
+}
+
 export interface getConfig_nimbusConfig {
   applications: (getConfig_nimbusConfig_applications | null)[] | null;
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
@@ -105,6 +110,7 @@ export interface getConfig_nimbusConfig {
   maxPrimaryOutcomes: number | null;
   locales: (getConfig_nimbusConfig_locales | null)[] | null;
   countries: (getConfig_nimbusConfig_countries | null)[] | null;
+  languages: (getConfig_nimbusConfig_languages | null)[] | null;
 }
 
 export interface getConfig {

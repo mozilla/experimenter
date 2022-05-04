@@ -6,7 +6,7 @@ from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
 from parameterized import parameterized
 
-from experimenter.base.models import Country, Locale
+from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
@@ -384,7 +384,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             experiment.publish_status.name,
         )
 
-    def test_experiment_returns_country_and_locale(self):
+    def test_experiment_returns_country_and_locale_and_language(self):
         user_email = "user@example.com"
         NimbusExperimentFactory.create(publish_status=NimbusExperiment.PublishStatus.IDLE)
 
@@ -397,6 +397,10 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         name
                     }
                     locales {
+                        code
+                        name
+                    }
+                    languages {
                         code
                         name
                     }
@@ -417,6 +421,12 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         for country in Country.objects.all():
             self.assertIn(
                 {"code": country.code, "name": country.name}, experiment_data["countries"]
+            )
+
+        for language in Language.objects.all():
+            self.assertIn(
+                {"code": language.code, "name": language.name},
+                experiment_data["languages"],
             )
 
 
@@ -1305,6 +1315,10 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         code
                         name
                     }
+                    languages {
+                        code
+                        name
+                    }
                 }
             }
             """,
@@ -1395,4 +1409,9 @@ class TestNimbusConfigQuery(GraphQLTestCase):
         for country in Country.objects.all():
             self.assertIn(
                 {"code": country.code, "name": country.name}, config["countries"]
+            )
+
+        for language in Language.objects.all():
+            self.assertIn(
+                {"code": language.code, "name": language.name}, config["languages"]
             )
