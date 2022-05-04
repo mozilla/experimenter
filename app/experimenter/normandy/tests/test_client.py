@@ -1,4 +1,5 @@
 import mock
+from django.conf import settings
 from django.test import TestCase
 from requests.exceptions import HTTPError, RequestException
 
@@ -9,6 +10,7 @@ from experimenter.normandy import (
     get_recipe,
     make_normandy_call,
 )
+from experimenter.normandy.client import get_history_list
 from experimenter.normandy.tests.mixins import MockNormandyMixin
 
 
@@ -50,3 +52,16 @@ class TestMakeNormandyCall(MockNormandyMixin, TestCase):
     def test_successful_get_recipe_returns_recipe_data(self):
         response_data = get_recipe(1234)
         self.assertTrue(response_data["enabled"])
+
+    def test_successful_get_history_list_returns_response(self):
+        mock_response_data = {"detail": "Not found."}
+        mock_response = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        self.mock_normandy_requests_get.return_value = mock_response
+
+        with self.settings(APP_VERSION=None):
+            test_id = 1234
+            url = settings.NORMANDY_API_HISTORY_URL.format(id=test_id)
+
+        response_data = get_history_list(url)
+        self.assertEqual(response_data, mock_response_data)

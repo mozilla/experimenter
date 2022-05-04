@@ -13,8 +13,10 @@ import os
 from urllib.parse import urljoin
 
 import pkg_resources
+import sentry_sdk
 from celery.schedules import crontab
 from decouple import config
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -67,7 +69,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_markdown2",
     "rangefilter",
-    "raven.contrib.django.raven_compat",
     "rest_framework",
     "widget_tweaks",
     # Experimenter
@@ -105,7 +106,6 @@ TEMPLATES = [
         "DIRS": [
             os.path.join(BASE_DIR, "legacy-ui", "templates"),
             os.path.join(BASE_DIR, "nimbus-ui", "templates"),
-            os.path.join(BASE_DIR, "reporting", "reporting-ui", "templates"),
             os.path.join(BASE_DIR, "docs"),
         ],
         "APP_DIRS": True,
@@ -191,7 +191,6 @@ STATICFILES_DIRS = [
     ("scripts", os.path.join(BASE_DIR, "legacy-ui", "scripts")),
     ("imgs", os.path.join(BASE_DIR, "legacy-ui", "imgs")),
     ("nimbus", os.path.join(BASE_DIR, "nimbus-ui", "build")),
-    ("reporting", os.path.join(BASE_DIR, "reporting", "reporting-ui", "assets")),
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -235,14 +234,19 @@ LOGGING = {
 
 # Sentry configuration
 SENTRY_DSN = config("SENTRY_DSN", default=None)
-SENTRY_DSN_NIMBUS_UI = config("SENTRY_DSN_NIMBUS_UI", default=None)
+SENTRY_DSN_NIMBUS_UI = SENTRY_DSN
 if SENTRY_DSN:  # pragma: no cover
-    RAVEN_CONFIG = {
-        "dsn": SENTRY_DSN,
-        # If you are using git, you can also automatically configure the
-        # release based on the git info.
-        # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
-    }
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=False,
+    )
 
 
 # Django Rest Framework Configuration
@@ -345,10 +349,6 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
         "schedule": 28800,
     },
-    # "reporting_generate_report_logs": {
-    #     "task": "experimenter.reporting.tasks.generate_reportlogs",
-    #     "schedule": config("CELERY_REPORTING_INTERVAL", default=86400, cast=int),
-    # },
 }
 
 # Recipe Configuration
