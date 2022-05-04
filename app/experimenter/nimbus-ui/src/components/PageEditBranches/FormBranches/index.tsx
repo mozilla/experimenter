@@ -221,6 +221,9 @@ export const FormBranches = ({
                     value={feature.id!}
                   >
                     {feature.name}
+                    {feature.description?.length
+                      ? `- ${feature.description}`
+                      : ""}
                   </option>
                 ),
             )}

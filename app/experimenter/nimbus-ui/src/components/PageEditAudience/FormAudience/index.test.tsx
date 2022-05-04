@@ -55,16 +55,19 @@ describe("FormAudience", () => {
                 NimbusExperimentApplicationEnum.DESKTOP,
                 "TOASTER",
               ],
+              description: "No Targeting configuration",
             },
             {
               label: "Mac Only",
               value: "MAC_ONLY",
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Mac Only configuration",
             },
             {
               label: "Toaster thing",
               value: "TOASTER_THING",
               applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
             },
           ],
         }}
@@ -350,21 +353,25 @@ describe("filterAndSortTargetingConfigSlug", () => {
         label: expectedNoTargetingLabel,
         value: "",
         applicationValues: [application, NimbusExperimentApplicationEnum.IOS],
+        description: "",
       },
       {
         label: expectedLastLabel,
         value: "ZEBRA",
         applicationValues: [application],
+        description: "",
       },
       {
         label: expectedLabel,
         value: "FOO_BAR",
         applicationValues: [application],
+        description: "",
       },
       {
         label: expectedMissingLabel,
         value: "BAZ_QUUX",
         applicationValues: [NimbusExperimentApplicationEnum.IOS],
+        description: "",
       },
     ];
     const result = filterAndSortTargetingConfigs(
@@ -399,16 +406,19 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
               NimbusExperimentApplicationEnum.DESKTOP,
               "TOASTER",
             ],
+            description: "No targeting configuration",
           },
           {
             label: "Mac Only",
             value: "MAC_ONLY",
             applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+            description: "Mac only configuration",
           },
           {
             label: "Some toaster thing",
             value: "SOME_TOASTER_THING",
             applicationValues: ["TOASTER"],
+            description: "Some toaster thing configuration",
           },
         ],
         firefoxVersions: [
