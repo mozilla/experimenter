@@ -175,6 +175,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_98 = "FIREFOX_98",
   FIREFOX_9830 = "FIREFOX_9830",
   FIREFOX_99 = "FIREFOX_99",
+  FIREFOX_9910 = "FIREFOX_9910",
   NO_VERSION = "NO_VERSION",
 }
 

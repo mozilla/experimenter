@@ -304,6 +304,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       label: "Mac Only",
       value: "MAC_ONLY",
       applicationValues: ["DESKTOP"],
+      description: "Mac only configuration",
     },
   ],
   hypothesisDefault: "Enter a hypothesis",
