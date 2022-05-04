@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.postgres.forms import SimpleArrayField
 from import_export import resources
 from import_export.admin import ExportActionMixin, ImportMixin
+from import_export.widgets import DecimalWidget
 
 from experimenter.experiments.models import (
     NimbusBranch,
@@ -22,6 +23,15 @@ from experimenter.jetstream import tasks
 def force_fetch_jetstream_data(modeladmin, request, queryset):
     for experiment in queryset:
         tasks.fetch_experiment_data.delay(experiment.id)
+
+
+# Monkeypatch DecimalWidget render fn to work around a bug exporting Decimal to YAML
+# - https://github.com/django-import-export/django-import-export/issues/1324
+def DecWdgtRender(self, value, obj=None):
+    return str(value)
+
+
+DecimalWidget.render = DecWdgtRender
 
 
 class NimbusExperimentResource(resources.ModelResource):
