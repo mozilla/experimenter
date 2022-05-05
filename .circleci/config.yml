@@ -59,6 +59,7 @@ jobs:
             docker push ${DOCKERHUB_REPO}:build_ui
             docker push ${DOCKERHUB_REPO}:latest
 
+
 workflows:
   version: 2
   build:
