@@ -1,4 +1,4 @@
-# Mozilla Experimenter
+# Mozilla Experimenter 🔬
 
 [![CircleCI](https://circleci.com/gh/mozilla/experimenter.svg?style=svg)](https://circleci.com/gh/mozilla/experimenter)
 
