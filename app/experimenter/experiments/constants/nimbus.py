@@ -12,6 +12,7 @@ class Channel(models.TextChoices):
     NIGHTLY = "nightly"
     BETA = "beta"
     RELEASE = "release"
+    ESR = "esr"
     TESTFLIGHT = "testflight"
 
 
@@ -40,6 +41,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
         Channel.NIGHTLY: "firefox-desktop",
         Channel.BETA: "firefox-desktop",
         Channel.RELEASE: "firefox-desktop",
+        Channel.ESR: "firefox-desktop",
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
