@@ -209,20 +209,23 @@ TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
 )
 
 TARGETING_WINDOWS_WITH_USERCHOICE = NimbusTargetingConfig(
-    name="Users on Windows with UserChoice support (Windows build 15063 or newer)",
+    name="Users on Windows with UserChoice support",
     slug="windows_userchoice",
-    description="Users on Windows with UserChoice support (i.e., Windows build 15063+)",
-    targeting="os.windowsBuildNumber >= 15063",
-    desktop_telemetry="environment.system.os.windows_build_number >= 15063",
+    description=(
+        "Users on Windows with UserChoice support (version 1809+/build ID 17763+)"
+    ),
+    targeting="os.windowsBuildNumber >= 17763",
+    desktop_telemetry="environment.system.os.windows_build_number >= 17763",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
 TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN = NimbusTargetingConfig(
-    name="First start-up users on Windows with UserChoice support "
-    "(Windows build 15063 or newer)",
+    name="First start-up users on Windows with UserChoice support",
     slug="windows_userchoice_first_run",
-    description="First start-up users (e.g. for about:welcome) on Windows with "
-    "UserChoice support (i.e., Windows build 15063+)",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Windows with "
+        "UserChoice support (version 1809+/build ID 17763+)"
+    ),
     targeting="{first_run} && {user_choice}".format(
         first_run=TARGETING_FIRST_RUN.targeting,
         user_choice=TARGETING_WINDOWS_WITH_USERCHOICE.targeting,
