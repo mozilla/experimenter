@@ -232,6 +232,7 @@ enum NimbusExperimentChannelEnum {
   NIGHTLY
   BETA
   RELEASE
+  ESR
   TESTFLIGHT
 }
 
