@@ -208,6 +208,29 @@ TARGETING_FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_NOT_TCP_STUDY = NimbusTargetingConfig(
+    name="Exclude users in the TCP revenue study",
+    slug="not_tcp_study",
+    description="Exclude users with certain search codes set",
+    targeting="!'browser.search.param.google_channel_us'|preferenceValue('')|regExpMatch"
+    "('^[ntc]us5$') && !'browser.search.param.google_channel_row'|preferenceValue('')|"
+    "regExpMatch('^[ntc]row5$')",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TARGETING_NOT_TCP_STUDY_FIRST_RUN = NimbusTargetingConfig(
+    name="First start-up users excluding TCP revenue study",
+    slug="not_tcp_study_first_run",
+    description="First start-up users excluding certain search codes",
+    targeting="{first_run} && {not_tcp_study}".format(
+        first_run=TARGETING_FIRST_RUN.targeting,
+        not_tcp_study=TARGETING_NOT_TCP_STUDY.targeting,
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TARGETING_WINDOWS_WITH_USERCHOICE = NimbusTargetingConfig(
     name="Users on Windows with UserChoice support",
     slug="windows_userchoice",
@@ -760,6 +783,8 @@ class NimbusConstants(object):
         TARGETING_MAC_ONLY.slug: TARGETING_MAC_ONLY,
         TARGETING_NO_ENTERPRISE.slug: TARGETING_NO_ENTERPRISE,
         TARGETING_FX95_DESKTOP_USERS.slug: TARGETING_FX95_DESKTOP_USERS,
+        TARGETING_NOT_TCP_STUDY.slug: TARGETING_NOT_TCP_STUDY,
+        TARGETING_NOT_TCP_STUDY_FIRST_RUN.slug: TARGETING_NOT_TCP_STUDY_FIRST_RUN,
         TARGETING_WINDOWS_WITH_USERCHOICE.slug: TARGETING_WINDOWS_WITH_USERCHOICE,
         TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN.slug: (
             TARGETING_WINDOWS_WITH_USERCHOICE_FIRST_RUN
@@ -815,6 +840,14 @@ class NimbusConstants(object):
         TARGETING_FX95_DESKTOP_USERS = (
             TARGETING_FX95_DESKTOP_USERS.slug,
             TARGETING_FX95_DESKTOP_USERS.name,
+        )
+        TARGETING_NOT_TCP_STUDY = (
+            TARGETING_NOT_TCP_STUDY.slug,
+            TARGETING_NOT_TCP_STUDY.name,
+        )
+        TARGETING_NOT_TCP_STUDY_FIRST_RUN = (
+            TARGETING_NOT_TCP_STUDY_FIRST_RUN.slug,
+            TARGETING_NOT_TCP_STUDY_FIRST_RUN.name,
         )
         TARGETING_WINDOWS_WITH_USERCHOICE = (
             TARGETING_WINDOWS_WITH_USERCHOICE.slug,
