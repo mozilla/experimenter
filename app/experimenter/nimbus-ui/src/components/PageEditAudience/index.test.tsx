@@ -108,6 +108,7 @@ const MOCK_FORM_DATA = {
   proposedDuration: 28,
   countries: [1],
   locales: [1],
+  languages: [1],
 };
 
 const Subject = ({
