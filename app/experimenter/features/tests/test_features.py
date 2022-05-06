@@ -22,6 +22,8 @@ from experimenter.features.tests import (
 
 @mock_valid_features
 class TestFeatures(TestCase):
+    maxDiff = None
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -33,22 +35,27 @@ class TestFeatures(TestCase):
         self.assertIn(
             Feature(
                 applicationSlug="firefox-desktop",
-                description="Firefox Reader Mode",
+                description="Some Firefox Feature",
                 exposureDescription="An exposure event",
                 isEarlyStartup=True,
-                slug="readerMode",
+                slug="someFeature",
                 variables={
-                    "pocketCTAVersion": FeatureVariable(
-                        description=(
-                            "What version of Pocket CTA to show in Reader Mode "
-                            "(Empty string is no CTA)"
-                        ),
+                    "stringEnumProperty": FeatureVariable(
+                        description="String Property",
                         enum=["v1", "v2"],
-                        fallbackPref="reader.pocket.ctaVersion",
+                        fallbackPref="browser.somePref",
                         type=FeatureVariableType.STRING,
                     ),
-                    "config": FeatureVariable(
-                        description="Arbitrary JSON config",
+                    "boolProperty": FeatureVariable(
+                        description="Boolean Property",
+                        type="boolean",
+                    ),
+                    "intProperty": FeatureVariable(
+                        description="Integer Property",
+                        type="int",
+                    ),
+                    "jsonProperty": FeatureVariable(
+                        description="Arbitrary JSON Property",
                         type="json",
                     ),
                 },
@@ -80,22 +87,27 @@ class TestFeatures(TestCase):
         self.assertIn(
             Feature(
                 applicationSlug="firefox-desktop",
-                description="Firefox Reader Mode",
+                description="Some Firefox Feature",
                 exposureDescription="An exposure event",
                 isEarlyStartup=True,
-                slug="readerMode",
+                slug="someFeature",
                 variables={
-                    "pocketCTAVersion": FeatureVariable(
-                        description=(
-                            "What version of Pocket CTA to show in Reader Mode "
-                            "(Empty string is no CTA)"
-                        ),
+                    "stringEnumProperty": FeatureVariable(
+                        description="String Property",
                         enum=["v1", "v2"],
-                        fallbackPref="reader.pocket.ctaVersion",
+                        fallbackPref="browser.somePref",
                         type=FeatureVariableType.STRING,
                     ),
-                    "config": FeatureVariable(
-                        description="Arbitrary JSON config",
+                    "boolProperty": FeatureVariable(
+                        description="Boolean Property",
+                        type="boolean",
+                    ),
+                    "intProperty": FeatureVariable(
+                        description="Integer Property",
+                        type="int",
+                    ),
+                    "jsonProperty": FeatureVariable(
+                        description="Arbitrary JSON Property",
                         type="json",
                     ),
                 },
@@ -108,23 +120,27 @@ class TestFeatures(TestCase):
         self.assertEqual(
             json.loads(desktop_feature.get_jsonschema()),
             {
-                "additionalProperties": True,
+                "type": "object",
                 "properties": {
-                    "pocketCTAVersion": {
-                        "description": (
-                            "What version of Pocket "
-                            "CTA to show in Reader "
-                            "Mode (Empty string is no "
-                            "CTA)"
-                        ),
+                    "stringEnumProperty": {
+                        "description": "String Property",
                         "type": "string",
                         "enum": ["v1", "v2"],
                     },
-                    "config": {
-                        "description": "Arbitrary JSON config",
+                    "boolProperty": {
+                        "description": "Boolean Property",
+                        "type": "boolean",
                     },
+                    "intProperty": {"description": "Integer Property", "type": "integer"},
+                    "jsonProperty": {"description": "Arbitrary JSON Property"},
                 },
-                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "stringEnumProperty",
+                    "boolProperty",
+                    "intProperty",
+                    "jsonProperty",
+                ],
             },
         )
 

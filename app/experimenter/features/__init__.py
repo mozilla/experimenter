@@ -23,7 +23,7 @@ class FeatureVariableType(Enum):
 
 
 FEATURE_SCHEMA_TYPES = {
-    FeatureVariableType.INT: "number",
+    FeatureVariableType.INT: "integer",
     FeatureVariableType.STRING: "string",
     FeatureVariableType.BOOLEAN: "boolean",
 }
@@ -59,7 +59,8 @@ class Feature(BaseModel):
         schema = {
             "type": "object",
             "properties": {},
-            "additionalProperties": True,
+            "additionalProperties": False,
+            "required": [],
         }
 
         for variable_slug, variable in self.variables.items():
@@ -74,6 +75,7 @@ class Feature(BaseModel):
                 variable_schema["enum"] = variable.enum
 
             schema["properties"][variable_slug] = variable_schema
+            schema["required"].append(variable_slug)
 
         return json.dumps(schema, indent=2)
 
