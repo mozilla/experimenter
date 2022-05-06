@@ -51,6 +51,7 @@ export const audienceFieldNames = [
   "proposedDuration",
   "countries",
   "locales",
+  "languages",
 ] as const;
 
 const selectOptions = (items: SelectIdItems) =>
@@ -216,6 +217,7 @@ export const FormAudience = ({
               <Select
                 placeholder="All Languages"
                 isMulti
+                {...formSelectAttrs("languages", setLanguages)}
                 options={selectOptions(config.languages as SelectIdItems)}
               />
             </Form.Group>
