@@ -7,6 +7,7 @@ import { Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig } from "../../../hooks";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import { NimbusExperimentApplicationEnum } from "../../../types/globalTypes";
 import { Code } from "../../Code";
 import NotSet from "../../NotSet";
 
@@ -22,6 +23,8 @@ const TableAudience = ({
   withFullDetails = true,
 }: TableAudienceProps) => {
   const { firefoxVersions, channels, targetingConfigs } = useConfig();
+  const isDesktop =
+    experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
 
   return (
     <Table
@@ -82,20 +85,38 @@ const TableAudience = ({
             </td>
           </tr>
         )}
-        <tr>
-          <th>Locales</th>
-          <td data-testid="experiment-locales">
-            {experiment.locales.length > 0 ? (
-              <ul className="list-unstyled mb-0">
-                {experiment.locales.map((l) => (
-                  <li key={l.id}>{l.name}</li>
-                ))}
-              </ul>
-            ) : (
-              "All locales"
-            )}
-          </td>
-        </tr>
+        {isDesktop && (
+          <tr>
+            <th>Locales</th>
+            <td data-testid="experiment-locales">
+              {experiment.locales.length > 0 ? (
+                <ul className="list-unstyled mb-0">
+                  {experiment.locales.map((l) => (
+                    <li key={l.id}>{l.name}</li>
+                  ))}
+                </ul>
+              ) : (
+                "All locales"
+              )}
+            </td>
+          </tr>
+        )}
+        {!isDesktop && (
+          <tr>
+            <th>Languages</th>
+            <td data-testid="experiment-languages">
+              {experiment.languages.length > 0 ? (
+                <ul className="list-unstyled mb-0">
+                  {experiment.languages.map((l) => (
+                    <li key={l.id}>{l.name}</li>
+                  ))}
+                </ul>
+              ) : (
+                "All Languages"
+              )}
+            </td>
+          </tr>
+        )}
         <tr>
           <th>Countries</th>
           <td data-testid="experiment-countries">
