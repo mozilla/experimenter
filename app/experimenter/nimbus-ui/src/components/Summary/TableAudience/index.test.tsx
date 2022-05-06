@@ -7,7 +7,10 @@ import React from "react";
 import TableAudience from ".";
 import { MockedCache, mockExperimentQuery } from "../../../lib/mocks";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { NimbusExperimentChannelEnum } from "../../../types/globalTypes";
+import {
+  NimbusExperimentApplicationEnum,
+  NimbusExperimentChannelEnum,
+} from "../../../types/globalTypes";
 
 describe("TableAudience", () => {
   describe("renders 'Channel' row as expected", () => {
@@ -189,7 +192,46 @@ describe("TableAudience", () => {
       );
     });
   });
-
+  describe("renders 'Languages' row as expected", () => {
+    it("when languages exist, displays them", () => {
+      const data = {
+        languages: [
+          { name: "English", id: 1 },
+          { name: "French", id: 2 },
+        ],
+        application: NimbusExperimentApplicationEnum.FENIX,
+      };
+      const { experiment } = mockExperimentQuery("demo-slug", data);
+      render(
+        <Subject
+          {...{
+            experiment,
+          }}
+        />,
+      );
+      data.languages.forEach((language) =>
+        within(screen.getByTestId("experiment-languages")).findByText(
+          language.name,
+        ),
+      );
+    });
+    it("when languages don't exist, displays all", async () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        languages: [],
+        application: NimbusExperimentApplicationEnum.FENIX,
+      });
+      render(
+        <Subject
+          {...{
+            experiment,
+          }}
+        />,
+      );
+      await within(screen.getByTestId("experiment-languages")).findByText(
+        "All Languages",
+      );
+    });
+  });
   describe("renders 'Countries' row as expected", () => {
     it("when countries exist, displays them", async () => {
       const data = {
