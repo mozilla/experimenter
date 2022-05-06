@@ -1,17 +1,21 @@
-readerMode:
-  description: Firefox Reader Mode
+someFeature:
+  description: Some Firefox Feature
   exposureDescription: An exposure event
   isEarlyStartup: true
   variables:
-    pocketCTAVersion:
+    stringEnumProperty:
       type: string
-      fallbackPref: reader.pocket.ctaVersion
-      description: >-
-        What version of Pocket CTA to show in Reader Mode
-        (Empty string is no CTA)
+      fallbackPref: browser.somePref
+      description: String Property
       enum:
         - v1
         - v2
-    config:
+    boolProperty:
+      type: boolean
+      description: Boolean Property
+    intProperty:
+      type: int
+      description: Integer Property
+    jsonProperty:
       type: json
-      description: Arbitrary JSON config
+      description: Arbitrary JSON Property
