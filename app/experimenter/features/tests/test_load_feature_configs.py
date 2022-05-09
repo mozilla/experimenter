@@ -17,88 +17,96 @@ class TestLoadFeatureConfigs(TestCase):
         Features.clear_cache()
 
     def test_loads_new_feature_configs(self):
-        self.assertFalse(NimbusFeatureConfig.objects.filter(slug="readerMode").exists())
+        self.assertFalse(NimbusFeatureConfig.objects.filter(slug="someFeature").exists())
         call_command("load_feature_configs")
 
-        feature_config = NimbusFeatureConfig.objects.get(slug="readerMode")
-        self.assertEqual(feature_config.name, "readerMode")
+        feature_config = NimbusFeatureConfig.objects.get(slug="someFeature")
+        self.assertEqual(feature_config.name, "someFeature")
         self.assertEqual(
             feature_config.description,
-            "Firefox Reader Mode",
+            "Some Firefox Feature",
         )
         self.assertEqual(
             json.loads(feature_config.schema),
             {
-                "additionalProperties": True,
+                "type": "object",
                 "properties": {
-                    "pocketCTAVersion": {
-                        "description": (
-                            "What version of Pocket "
-                            "CTA to show in Reader "
-                            "Mode (Empty string is no "
-                            "CTA)"
-                        ),
+                    "stringEnumProperty": {
+                        "description": "String Property",
                         "type": "string",
                         "enum": ["v1", "v2"],
                     },
-                    "config": {
-                        "description": "Arbitrary JSON config",
+                    "boolProperty": {
+                        "description": "Boolean Property",
+                        "type": "boolean",
                     },
+                    "intProperty": {"description": "Integer Property", "type": "integer"},
+                    "jsonProperty": {"description": "Arbitrary JSON Property"},
                 },
-                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "stringEnumProperty",
+                    "boolProperty",
+                    "intProperty",
+                    "jsonProperty",
+                ],
             },
         )
 
     def test_updates_existing_feature_configs(self):
         NimbusFeatureConfigFactory.create(
-            name="readerMode",
-            slug="readerMode",
+            name="someFeature",
+            slug="someFeature",
             application=NimbusExperiment.Application.DESKTOP,
             schema="{}",
         )
         call_command("load_feature_configs")
 
-        feature_config = NimbusFeatureConfig.objects.get(slug="readerMode")
-        self.assertEqual(feature_config.name, "readerMode")
+        feature_config = NimbusFeatureConfig.objects.get(slug="someFeature")
+        self.assertEqual(feature_config.name, "someFeature")
         self.assertEqual(
             feature_config.description,
-            "Firefox Reader Mode",
+            "Some Firefox Feature",
         )
         self.assertEqual(
             json.loads(feature_config.schema),
             {
-                "additionalProperties": True,
+                "type": "object",
                 "properties": {
-                    "pocketCTAVersion": {
-                        "description": (
-                            "What version of Pocket "
-                            "CTA to show in Reader "
-                            "Mode (Empty string is no "
-                            "CTA)"
-                        ),
+                    "stringEnumProperty": {
+                        "description": "String Property",
                         "type": "string",
                         "enum": ["v1", "v2"],
                     },
-                    "config": {
-                        "description": "Arbitrary JSON config",
+                    "boolProperty": {
+                        "description": "Boolean Property",
+                        "type": "boolean",
                     },
+                    "intProperty": {"description": "Integer Property", "type": "integer"},
+                    "jsonProperty": {"description": "Arbitrary JSON Property"},
                 },
-                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "stringEnumProperty",
+                    "boolProperty",
+                    "intProperty",
+                    "jsonProperty",
+                ],
             },
         )
 
     def test_handles_existing_features_with_same_slug_different_name(self):
         NimbusFeatureConfigFactory.create(
-            name="readerMode different name",
-            slug="readerMode",
+            name="Some Firefox Feature different name",
+            slug="someFeature",
             application=NimbusExperiment.Application.DESKTOP,
             schema="{}",
         )
         call_command("load_feature_configs")
 
-        feature_config = NimbusFeatureConfig.objects.get(slug="readerMode")
-        self.assertEqual(feature_config.name, "readerMode")
+        feature_config = NimbusFeatureConfig.objects.get(slug="someFeature")
+        self.assertEqual(feature_config.name, "someFeature")
         self.assertEqual(
             feature_config.description,
-            "Firefox Reader Mode",
+            "Some Firefox Feature",
         )
