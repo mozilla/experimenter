@@ -197,6 +197,7 @@ describe("FormAudience", () => {
     );
 
     expect(screen.queryByTestId("languages")).toBeInTheDocument();
+    expect(screen.queryByTestId("locales")).not.toBeInTheDocument();
   });
 
   it("disables language field for desktop", async () => {
@@ -210,6 +211,7 @@ describe("FormAudience", () => {
     );
 
     expect(screen.queryByTestId("languages")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("locales")).toBeInTheDocument();
   });
 
   it("calls onSubmit when save and next buttons are clicked", async () => {
