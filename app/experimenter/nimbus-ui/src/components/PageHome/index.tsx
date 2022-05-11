@@ -12,6 +12,7 @@ import {
   useRefetchOnError,
   useSearchParamsState,
 } from "../../hooks";
+import { ReactComponent as DownloadIcon } from "../../images/download.svg";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 import AppLayout from "../AppLayout";
 import Head from "../Head";
@@ -115,6 +116,17 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
       <div className="d-flex mb-4 justify-content-between">
         <h2 className="mb-0 mr-1">Nimbus Experiments </h2>
         <div>
+          <a href={`/api/v5/csv`} className="btn btn-secondary btn-small ml-2">
+            <DownloadIcon
+              width="20"
+              height="20"
+              fill="white"
+              dominantBaseline="start"
+              role="img"
+              aria-label="download icon"
+            />
+            <span> Reporting</span>
+          </a>
           <Link
             to="new"
             data-sb-kind="pages/New"

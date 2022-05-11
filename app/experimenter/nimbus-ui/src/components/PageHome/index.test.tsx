@@ -123,6 +123,20 @@ describe("PageHome", () => {
       ).toBeTruthy();
     });
   });
+
+  it("renders the report button", async () => {
+    await renderAndWaitForLoaded();
+    expect(screen.queryByText("Reporting")).toBeInTheDocument();
+  });
+
+  it("report button click renders and downloads csv", async () => {
+    const path = "/api/v5/csv"
+    const link = screen.queryByText("Reporting");
+    expect(link).toHaveAttribute(
+      "href",
+      `${path}`,
+    );
+  });
 });
 
 const Subject = ({
