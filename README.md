@@ -77,6 +77,13 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 	...
 	```
 
+1. Add Google credentials to your .env
+
+	```
+        GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/application_default_credentials.json
+        GOOGLE_ADC_FILE=~/.config/gcloud/application_default_credentials.json
+	```
+
 1. Run tests
 
         make check
