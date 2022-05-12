@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
+    "experimenter.legacy.legacy_experiments",
 ]
 
 MIDDLEWARE = [

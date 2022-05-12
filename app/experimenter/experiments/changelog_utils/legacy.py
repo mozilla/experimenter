@@ -7,7 +7,10 @@ from experimenter.experiments.api.v1.serializers import (
     ExperimentVariantSerializer,
 )
 from experimenter.experiments.email import send_experiment_change_email
-from experimenter.experiments.models import Experiment, ExperimentChangeLog
+from experimenter.legacy.legacy_experiments.models import (
+    Experiment,
+    ExperimentChangeLog,
+)
 from experimenter.projects.serializers import ProjectSerializer
 
 

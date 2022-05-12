@@ -5,12 +5,12 @@ from experimenter.experiments.changelog_utils import (
     ChangeLogSerializer,
     generate_change_log,
 )
-from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
     VariantPreferencesFactory,
 )
+from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 

@@ -8,8 +8,8 @@ from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla import client as bugzilla
 from experimenter.bugzilla import tasks
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.normandy.tests.mixins import MockNormandyMixin
 from experimenter.notifications.models import Notification
 
