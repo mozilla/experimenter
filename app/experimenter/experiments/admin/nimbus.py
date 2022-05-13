@@ -1,10 +1,15 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.postgres.forms import SimpleArrayField
-from import_export import resources
+from django.utils.encoding import force_text
+from import_export import fields, resources
 from import_export.admin import ExportActionMixin, ImportMixin
-from import_export.widgets import DecimalWidget
+from import_export.widgets import DecimalWidget, ForeignKeyWidget
 
+from experimenter.experiments.changelog_utils import (
+    NimbusChangeLogSerializer,
+    NimbusBranchChangeLogSerializer
+)
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchScreenshot,
@@ -27,18 +32,117 @@ def force_fetch_jetstream_data(modeladmin, request, queryset):
 
 # Monkeypatch DecimalWidget render fn to work around a bug exporting Decimal to YAML
 # - https://github.com/django-import-export/django-import-export/issues/1324
-def DecWdgtRender(self, value, obj=None):
+def DecimalWidgetRender(self, value, obj=None):
     return str(value)
 
 
-DecimalWidget.render = DecWdgtRender
+DecimalWidget.render = DecimalWidgetRender
+
+
+class NimbusBranchForeignKeyWidget(ForeignKeyWidget):
+    """
+    override ForeignKeyWidget to filter NimbusBranch
+    by experiment in addition to the passed field
+    """
+    def __init__(self, model, field="slug", *args, **kwargs):
+        self.model = model
+        self.field = field
+
+    def get_queryset(self, value, row, *args, **kwargs):
+        return self.model.objects.filter(experiment=row.get("slug"))
 
 
 class NimbusExperimentResource(resources.ModelResource):
+    changes = fields.Field()
+    branches = fields.Field()
+    reference_branch_slug = fields.Field(
+        column_name="reference_branch_slug",
+        widget=NimbusBranchForeignKeyWidget(NimbusBranch, "slug")
+    )
+
+    def get_diff_headers(self):
+        skip_list = ["reference_branch_slug"]
+        headers = []
+        for field in self.get_export_fields():
+            if force_text(field.column_name) in skip_list:
+                continue
+            headers.append(force_text(field.column_name))
+        return headers
+
     class Meta:
         model = NimbusExperiment
-        exclude = ("id",)
+        exclude = ("id", "reference_branch")
         import_id_fields = ("slug",)
+
+    def dehydrate_changes(self, experiment):
+        all_changes = experiment.changes.all()
+
+        changelogs = []
+        for c in all_changes:
+            changelogs.append(dict(NimbusChangeLogSerializer(c).data))
+
+        return changelogs
+
+    def dehydrate_branches(self, experiment):
+        all_branches = experiment.branches.all()
+
+        branches = []
+        for c in all_branches:
+            branches.append(dict(NimbusBranchChangeLogSerializer(c).data))
+
+        return branches
+
+    def dehydrate_reference_branch_slug(self, experiment: NimbusExperiment):
+        if experiment.reference_branch is not None:
+            return experiment.reference_branch.slug
+        return None
+
+    def after_import_row(self, row, row_result, row_number=None, **kwargs):
+        experiment = NimbusExperiment.objects.get(slug=row.get("slug"))
+
+        # create branches
+        branch_slug = row.get("reference_branch_slug")
+        branches = row.get("branches")
+
+        for branch in branches:
+            if branch.get("slug") == branch_slug:
+                (ref_branch, _) = NimbusBranch.objects.get_or_create(
+                    slug=branch_slug,
+                    name=branch.get("name"),
+                    description=branch.get("description"),
+                    ratio=branch.get("ratio"),
+                    experiment=experiment
+                )
+
+                experiment.reference_branch = ref_branch
+                # experiment.reference_branch_id = ref_branch.id
+            else:
+                NimbusBranch.objects.get_or_create(
+                    slug=branch.get("slug"),
+                    name=branch.get("name"),
+                    description=branch.get("description"),
+                    ratio=branch.get("ratio"),
+                    experiment=experiment
+                )
+
+        # create change logs
+        import_changes = row.get("changes")
+
+        for change in import_changes:
+            NimbusChangeLog.objects.get_or_create(
+                changed_on=change.get("changed_on"),
+                old_status=change.get("old_status"),
+                old_status_next=change.get("old_status_next"),
+                old_publish_status=change.get("old_publish_status"),
+                new_status=change.get("new_status"),
+                new_status_next=change.get("new_status_next"),
+                new_publish_status=change.get("new_publish_status"),
+                message=change.get("message"),
+                experiment_data=change.get("experiment_data"),
+                published_dto_changed=change.get("published_dto_changed"),
+                changed_by=experiment.owner,
+                experiment=experiment
+            )
 
 
 class NoDeleteAdminMixin:
