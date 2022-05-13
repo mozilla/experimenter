@@ -4,20 +4,31 @@ import mock
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from import_export import fields
 from parameterized import parameterized
 
 from experimenter.experiments.admin.nimbus import (
     DecimalWidget,
+    NimbusBranchForeignKeyWidget,
     NimbusExperimentAdminForm,
+    NimbusExperimentResource,
     NimbusFeatureConfigAdmin,
 )
+from experimenter.experiments.changelog_utils import NimbusBranchChangeLogSerializer
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.models.nimbus import NimbusFeatureConfig
+from experimenter.experiments.models.nimbus import (
+    NimbusBranch,
+    NimbusChangeLog,
+    NimbusFeatureConfig,
+)
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
 )
-from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
+from experimenter.experiments.tests.factories.nimbus import (
+    NimbusChangeLogFactory,
+    NimbusFeatureConfigFactory,
+)
 from experimenter.openidc.tests.factories import UserFactory
 
 
@@ -156,3 +167,90 @@ class TestNimbusExperimentExport(TestCase):
         self.assertEqual(dec_value, "90.00")
         self.assertNotEqual(dec_value, 90)
         self.assertNotEqual(dec_value, "90.0")
+
+    def test_nimbus_branch_get_queryset(self):
+        reference_branch_slug = fields.Field(
+            column_name="reference_branch_slug",
+            widget=NimbusBranchForeignKeyWidget(NimbusBranch, "slug"),
+        )
+        experiment = NimbusExperimentFactory.create()
+        experiment.id = None
+        experiment.reference_branch = None
+        test_row = {"slug": experiment.slug, "reference_branch_slug": "control"}
+        try:
+            reference_branch_slug.widget.get_queryset(value=None, row=test_row)
+        except ValueError:
+            self.fail("get_queryset raised an Exception!")
+
+    def test_resource_get_diff_headers(self):
+        ner = NimbusExperimentResource()
+        headers = ner.get_diff_headers()
+        self.assertNotIn("reference_branch_slug", headers)
+
+    def test_resource_dehydrate(self):
+        ner = NimbusExperimentResource()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+
+        num_changes = len(ner.dehydrate_changes(experiment))
+        num_branches = len(ner.dehydrate_branches(experiment))
+        reference_branch_slug = ner.dehydrate_reference_branch_slug(experiment)
+
+        self.assertGreaterEqual(num_changes, 1)
+        self.assertEqual(num_branches, 2)
+        self.assertEqual(reference_branch_slug, "control")
+
+        experiment.reference_branch = None
+        none_slug = ner.dehydrate_reference_branch_slug(experiment)
+        self.assertIsNone(none_slug)
+
+    def test_after_import_row(self):
+        ner = NimbusExperimentResource()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        branches = []
+        for b in experiment.branches.all():
+            branches.append(dict(NimbusBranchChangeLogSerializer(b).data))
+
+        changes = []
+        num_changes = 3
+        for _ in range(num_changes):
+            cl = NimbusChangeLogFactory.create(
+                experiment=experiment, experiment_data={"some_old": "data"}
+            )
+            changes.append(
+                {
+                    "changed_on": cl.changed_on,
+                    "old_status": cl.old_status,
+                    "old_status_next": cl.old_status_next,
+                    "old_publish_status": cl.old_publish_status,
+                    "new_status": cl.new_status,
+                    "new_status_next": cl.new_status_next,
+                    "new_publish_status": cl.new_publish_status,
+                    "message": cl.message,
+                    "experiment_data": cl.experiment_data,
+                    "published_dto_changed": cl.published_dto_changed,
+                    "experiment": experiment,
+                }
+            )
+        test_row = {
+            "slug": experiment.slug,
+            "reference_branch_slug": "control",
+            "branches": branches,
+            "changes": changes,
+        }
+
+        pre_changes = NimbusChangeLog.objects.filter(experiment=experiment)
+        ner.after_import_row(row=test_row, row_result=None)
+        post_branches = NimbusBranch.objects.filter(experiment=experiment)
+        post_changes = NimbusChangeLog.objects.filter(experiment=experiment)
+
+        self.assertEqual(len(branches), len(post_branches))
+        self.assertEqual(len(post_branches), 2)
+
+        self.assertGreaterEqual(len(post_changes), len(pre_changes))
+        self.assertGreaterEqual(len(post_changes), num_changes)
+
+        self.assertIsNotNone(experiment.reference_branch)

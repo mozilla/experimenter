@@ -7,8 +7,8 @@ from import_export.admin import ExportActionMixin, ImportMixin
 from import_export.widgets import DecimalWidget, ForeignKeyWidget
 
 from experimenter.experiments.changelog_utils import (
+    NimbusBranchChangeLogSerializer,
     NimbusChangeLogSerializer,
-    NimbusBranchChangeLogSerializer
 )
 from experimenter.experiments.models import (
     NimbusBranch,
@@ -44,12 +44,14 @@ class NimbusBranchForeignKeyWidget(ForeignKeyWidget):
     override ForeignKeyWidget to filter NimbusBranch
     by experiment in addition to the passed field
     """
+
     def __init__(self, model, field="slug", *args, **kwargs):
         self.model = model
         self.field = field
 
     def get_queryset(self, value, row, *args, **kwargs):
-        return self.model.objects.filter(experiment=row.get("slug"))
+        experiment = NimbusExperiment.objects.get(slug=row.get("slug"))
+        return self.model.objects.filter(experiment=experiment)
 
 
 class NimbusExperimentResource(resources.ModelResource):
@@ -57,7 +59,7 @@ class NimbusExperimentResource(resources.ModelResource):
     branches = fields.Field()
     reference_branch_slug = fields.Field(
         column_name="reference_branch_slug",
-        widget=NimbusBranchForeignKeyWidget(NimbusBranch, "slug")
+        widget=NimbusBranchForeignKeyWidget(NimbusBranch, "slug"),
     )
 
     def get_diff_headers(self):
@@ -111,18 +113,17 @@ class NimbusExperimentResource(resources.ModelResource):
                     name=branch.get("name"),
                     description=branch.get("description"),
                     ratio=branch.get("ratio"),
-                    experiment=experiment
+                    experiment=experiment,
                 )
 
                 experiment.reference_branch = ref_branch
-                # experiment.reference_branch_id = ref_branch.id
             else:
                 NimbusBranch.objects.get_or_create(
                     slug=branch.get("slug"),
                     name=branch.get("name"),
                     description=branch.get("description"),
                     ratio=branch.get("ratio"),
-                    experiment=experiment
+                    experiment=experiment,
                 )
 
         # create change logs
@@ -141,7 +142,7 @@ class NimbusExperimentResource(resources.ModelResource):
                 experiment_data=change.get("experiment_data"),
                 published_dto_changed=change.get("published_dto_changed"),
                 changed_by=experiment.owner,
-                experiment=experiment
+                experiment=experiment,
             )
 
 
