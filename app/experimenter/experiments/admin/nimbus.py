@@ -23,6 +23,7 @@ from experimenter.experiments.models import (
 )
 from experimenter.experiments.models.nimbus import NimbusBranchFeatureValue
 from experimenter.jetstream import tasks
+from experimenter.settings import DEV_USER_EMAIL
 
 
 @admin.action(description="Force jetstream data fetch.")
@@ -99,7 +100,7 @@ class NimbusExperimentResource(resources.ModelResource):
             user_model.objects.get(id=owner_id)
         except user_model.DoesNotExist:
             # use dev testing user as default
-            dev_user = user_model.objects.get(email="dev@example.com")
+            (dev_user, _) = user_model.objects.get_or_create(email=DEV_USER_EMAIL)
             row["owner"] = dev_user.id
 
     def after_import_row(self, row, row_result, row_number=None, **kwargs):

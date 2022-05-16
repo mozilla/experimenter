@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import mock
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from import_export import fields
@@ -30,6 +31,7 @@ from experimenter.experiments.tests.factories.nimbus import (
     NimbusFeatureConfigFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.settings import DEV_USER_EMAIL
 
 
 class TestNimbusFeatureConfigAdmin(TestCase):
@@ -202,6 +204,20 @@ class TestNimbusExperimentExport(TestCase):
         experiment.reference_branch = None
         none_slug = resource.dehydrate_reference_branch_slug(experiment)
         self.assertIsNone(none_slug)
+
+    def test_before_import_row(self):
+        user_model = get_user_model()
+        resource = NimbusExperimentResource()
+
+        test_row = {"owner": 9999}
+        resource.before_import_row(row=test_row)
+        owner_id = test_row.get("owner")
+        dev_user = user_model.objects.get(email=DEV_USER_EMAIL)
+
+        # user id=9999 should not exist in test DB
+        self.assertNotEqual(owner_id, 9999)
+        # should use the default dev user instead
+        self.assertEqual(dev_user.id, owner_id)
 
     def test_after_import_row(self):
         resource = NimbusExperimentResource()
