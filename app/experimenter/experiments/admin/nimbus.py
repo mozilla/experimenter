@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.encoding import force_text
 from import_export import fields, resources
@@ -89,6 +90,17 @@ class NimbusExperimentResource(resources.ModelResource):
         if experiment.reference_branch is not None:
             return experiment.reference_branch.slug
         return None
+
+    def before_import_row(self, row: dict, row_number=None, **kwargs):
+        owner_id = row.get("owner")
+        user_model = get_user_model()
+
+        try:
+            user_model.objects.get(id=owner_id)
+        except user_model.DoesNotExist:
+            # use dev testing user as default
+            dev_user = user_model.objects.get(email="dev@example.com")
+            row["owner"] = dev_user.id
 
     def after_import_row(self, row, row_result, row_number=None, **kwargs):
         experiment = NimbusExperiment.objects.get(slug=row.get("slug"))
