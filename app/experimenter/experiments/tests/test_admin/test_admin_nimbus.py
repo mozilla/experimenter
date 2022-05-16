@@ -177,36 +177,34 @@ class TestNimbusExperimentExport(TestCase):
         experiment.id = None
         experiment.reference_branch = None
         test_row = {"slug": experiment.slug, "reference_branch_slug": "control"}
-        try:
-            reference_branch_slug.widget.get_queryset(value=None, row=test_row)
-        except ValueError:
-            self.fail("get_queryset raised an Exception!")
+
+        reference_branch_slug.widget.get_queryset(value=None, row=test_row)
 
     def test_resource_get_diff_headers(self):
-        ner = NimbusExperimentResource()
-        headers = ner.get_diff_headers()
+        resource = NimbusExperimentResource()
+        headers = resource.get_diff_headers()
         self.assertNotIn("reference_branch_slug", headers)
 
     def test_resource_dehydrate(self):
-        ner = NimbusExperimentResource()
+        resource = NimbusExperimentResource()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
 
-        num_changes = len(ner.dehydrate_changes(experiment))
-        num_branches = len(ner.dehydrate_branches(experiment))
-        reference_branch_slug = ner.dehydrate_reference_branch_slug(experiment)
+        num_changes = len(resource.dehydrate_changes(experiment))
+        num_branches = len(resource.dehydrate_branches(experiment))
+        reference_branch_slug = resource.dehydrate_reference_branch_slug(experiment)
 
         self.assertGreaterEqual(num_changes, 1)
         self.assertEqual(num_branches, 2)
         self.assertEqual(reference_branch_slug, "control")
 
         experiment.reference_branch = None
-        none_slug = ner.dehydrate_reference_branch_slug(experiment)
+        none_slug = resource.dehydrate_reference_branch_slug(experiment)
         self.assertIsNone(none_slug)
 
     def test_after_import_row(self):
-        ner = NimbusExperimentResource()
+        resource = NimbusExperimentResource()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
@@ -243,7 +241,7 @@ class TestNimbusExperimentExport(TestCase):
         }
 
         pre_changes = NimbusChangeLog.objects.filter(experiment=experiment)
-        ner.after_import_row(row=test_row, row_result=None)
+        resource.after_import_row(row=test_row, row_result=None)
         post_branches = NimbusBranch.objects.filter(experiment=experiment)
         post_changes = NimbusChangeLog.objects.filter(experiment=experiment)
 

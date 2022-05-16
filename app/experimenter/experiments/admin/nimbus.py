@@ -77,22 +77,13 @@ class NimbusExperimentResource(resources.ModelResource):
         import_id_fields = ("slug",)
 
     def dehydrate_changes(self, experiment):
-        all_changes = experiment.changes.all()
-
-        changelogs = []
-        for c in all_changes:
-            changelogs.append(dict(NimbusChangeLogSerializer(c).data))
-
-        return changelogs
+        return [dict(NimbusChangeLogSerializer(c).data) for c in experiment.changes.all()]
 
     def dehydrate_branches(self, experiment):
-        all_branches = experiment.branches.all()
-
-        branches = []
-        for c in all_branches:
-            branches.append(dict(NimbusBranchChangeLogSerializer(c).data))
-
-        return branches
+        return [
+            dict(NimbusBranchChangeLogSerializer(b).data)
+            for b in experiment.branches.all()
+        ]
 
     def dehydrate_reference_branch_slug(self, experiment: NimbusExperiment):
         if experiment.reference_branch is not None:
