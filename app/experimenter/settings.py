@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django.forms",
+    "import_export",
     # Graphene
     "graphene_django",
     # Libraries

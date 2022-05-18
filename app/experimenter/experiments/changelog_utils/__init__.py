@@ -5,6 +5,8 @@ from experimenter.experiments.changelog_utils.legacy import (  # noqa: F401
     update_experiment_with_change_log,
 )
 from experimenter.experiments.changelog_utils.nimbus import (  # noqa: F401
+    NimbusBranchChangeLogSerializer,
+    NimbusChangeLogSerializer,
     NimbusExperimentChangeLogSerializer,
     generate_nimbus_changelog,
 )
