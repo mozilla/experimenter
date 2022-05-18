@@ -29,6 +29,12 @@ class NimbusBranchChangeLogSerializer(serializers.ModelSerializer):
         exclude = ("id", "experiment")
 
 
+class NimbusChangeLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NimbusChangeLog
+        exclude = ("id", "experiment")
+
+
 class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
     parent = serializers.SlugRelatedField(read_only=True, slug_field="slug")
     reference_branch = NimbusBranchChangeLogSerializer()
