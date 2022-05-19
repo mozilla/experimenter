@@ -16,7 +16,6 @@ class TestNimbusExperiment_Csv_Serializer(TestCase):
             application=application, feature_configs=[feature_config]
         )
         serializer = NimbusExperimentCSVSerializer(experiment)
-        print(serializer)
         self.assertDictEqual(
             serializer.data,
             {
