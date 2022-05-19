@@ -579,15 +579,15 @@ class NimbusExperimentSerializer(
         self.should_call_preview_task = instance and (
             (
                 instance.status == NimbusExperiment.Status.DRAFT
-                and (data and data.get("status") == NimbusExperiment.Status.PREVIEW)
+                and (data.get("status") == NimbusExperiment.Status.PREVIEW)
             )
             or (
                 instance.status == NimbusExperiment.Status.PREVIEW
-                and (data and data.get("status") == NimbusExperiment.Status.DRAFT)
+                and (data.get("status") == NimbusExperiment.Status.DRAFT)
             )
         )
         self.should_call_push_task = (
-            data and data.get("publish_status") == NimbusExperiment.PublishStatus.APPROVED
+            data.get("publish_status") == NimbusExperiment.PublishStatus.APPROVED
         )
         super().__init__(instance=instance, data=data, **kwargs)
 
