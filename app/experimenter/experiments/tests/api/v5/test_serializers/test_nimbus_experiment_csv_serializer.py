@@ -12,9 +12,9 @@ class TestNimbusExperiment_Csv_Serializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         application = NimbusConstants.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
-        feature_config2 = NimbusFeatureConfigFactory.create(application=application)
+
         experiment = NimbusExperimentFactory.create(
-            application=application, feature_configs=[feature_config, feature_config2]
+            application=application, feature_configs=[feature_config]
         )
         serializer = NimbusExperimentCSVSerializer(experiment)
         self.assertDictEqual(
@@ -23,9 +23,7 @@ class TestNimbusExperiment_Csv_Serializer(TestCase):
                 "launch_month": experiment.launch_month,
                 "product_area": experiment.application.value,
                 "experiment_name": experiment.name,
-                "feature_configs": ", ".join(
-                    [getattr(feature_config2, "name"), getattr(feature_config, "name")]
-                ),
+                "feature_configs": getattr(feature_config, "name"),
                 "owner": experiment.owner.email,
                 "start_date": experiment.start_date,
                 "enrollment_duration": experiment.enrollment_duration,
