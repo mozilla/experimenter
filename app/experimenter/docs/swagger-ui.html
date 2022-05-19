@@ -2952,6 +2952,12 @@
           "experiment_name": {
             "type": "string"
           },
+          "feature_configs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "owner": {
             "type": "string",
             "readOnly": true
@@ -2977,19 +2983,13 @@
           },
           "hypothesis": {
             "type": "string"
-          },
-          "feature_configs": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         },
         "required": [
           "product_area",
           "experiment_name",
-          "rollout",
-          "feature_configs"
+          "feature_configs",
+          "rollout"
         ]
       },
       "NimbusExperiment": {
