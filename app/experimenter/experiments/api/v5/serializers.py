@@ -579,15 +579,15 @@ class NimbusExperimentSerializer(
         self.should_call_preview_task = instance and (
             (
                 instance.status == NimbusExperiment.Status.DRAFT
-                and data.get("status") == NimbusExperiment.Status.PREVIEW
+                and (data and data.get("status") == NimbusExperiment.Status.PREVIEW)
             )
             or (
                 instance.status == NimbusExperiment.Status.PREVIEW
-                and data.get("status") == NimbusExperiment.Status.DRAFT
+                and (data and data.get("status") == NimbusExperiment.Status.DRAFT)
             )
         )
         self.should_call_push_task = (
-            data.get("publish_status") == NimbusExperiment.PublishStatus.APPROVED
+            data and data.get("publish_status") == NimbusExperiment.PublishStatus.APPROVED
         )
         super().__init__(instance=instance, data=data, **kwargs)
 
@@ -790,6 +790,36 @@ class NimbusExperimentSerializer(
             )
 
             return experiment
+
+
+class NimbusExperimentCSVSerializer(
+    NimbusExperimentBranchMixin,
+    NimbusStatusValidationMixin,
+    NimbusExperimentDocumentationLinkMixin,
+    ExperimentNameValidatorMixin,
+    serializers.ModelSerializer,
+):
+    experiment_name = serializers.CharField(source="name")
+
+    product_area = serializers.CharField(source="application")
+
+    rollout = serializers.BooleanField(source="is_rollout")
+    owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "launch_month",
+            "product_area",
+            "experiment_name",
+            "owner",
+            "start_date",
+            "enrollment_duration",
+            "end_date",
+            "monitoring_dashboard_url",
+            "rollout",
+            "hypothesis",
+        ]
 
 
 class NimbusBranchScreenshotReviewSerializer(NimbusBranchScreenshotSerializer):
