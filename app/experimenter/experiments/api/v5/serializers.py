@@ -805,7 +805,7 @@ class NimbusExperimentCSVSerializer(
 
     rollout = serializers.BooleanField(source="is_rollout")
     owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
-    feature_configs = serializers.StringRelatedField(many=True)
+    feature_configs = serializers.SerializerMethodField()
 
     class Meta:
         model = NimbusExperiment
@@ -822,6 +822,11 @@ class NimbusExperimentCSVSerializer(
             "rollout",
             "hypothesis",
         ]
+
+    def get_feature_configs(self, obj):
+        return ", ".join(
+            [feature.name for feature in obj.feature_configs.order_by("name")]
+        )
 
 
 class NimbusBranchScreenshotReviewSerializer(NimbusBranchScreenshotSerializer):

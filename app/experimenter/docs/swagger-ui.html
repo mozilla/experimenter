@@ -2953,10 +2953,8 @@
             "type": "string"
           },
           "feature_configs": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string",
+            "readOnly": true
           },
           "owner": {
             "type": "string",
@@ -2988,7 +2986,6 @@
         "required": [
           "product_area",
           "experiment_name",
-          "feature_configs",
           "rollout"
         ]
       },
