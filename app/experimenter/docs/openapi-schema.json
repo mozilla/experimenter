@@ -1338,6 +1338,31 @@
         ]
       }
     },
+    "/api/v5/csv/": {
+      "get": {
+        "operationId": "listNimbusExperiments",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NimbusExperimentCSV"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
     "/api/v6/experiments/": {
       "get": {
         "operationId": "listNimbusExperiments",
@@ -2901,6 +2926,52 @@
             "nullable": true
           }
         }
+      },
+      "NimbusExperimentCSV": {
+        "type": "object",
+        "properties": {
+          "launch_month": {
+            "type": "string",
+            "readOnly": true
+          },
+          "product_area": {
+            "type": "string"
+          },
+          "experiment_name": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string",
+            "readOnly": true
+          },
+          "start_date": {
+            "type": "string",
+            "readOnly": true
+          },
+          "enrollment_duration": {
+            "type": "string",
+            "readOnly": true
+          },
+          "end_date": {
+            "type": "string",
+            "readOnly": true
+          },
+          "monitoring_dashboard_url": {
+            "type": "string",
+            "readOnly": true
+          },
+          "rollout": {
+            "type": "boolean"
+          },
+          "hypothesis": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_area",
+          "experiment_name",
+          "rollout"
+        ]
       },
       "NimbusExperiment": {
         "type": "object",
