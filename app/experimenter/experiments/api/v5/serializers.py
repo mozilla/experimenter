@@ -805,6 +805,7 @@ class NimbusExperimentCSVSerializer(
 
     rollout = serializers.BooleanField(source="is_rollout")
     owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
+    feature_configs = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = NimbusExperiment
@@ -812,6 +813,7 @@ class NimbusExperimentCSVSerializer(
             "launch_month",
             "product_area",
             "experiment_name",
+            "feature_configs",
             "owner",
             "start_date",
             "enrollment_duration",

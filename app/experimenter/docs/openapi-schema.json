@@ -2965,12 +2965,19 @@
           },
           "hypothesis": {
             "type": "string"
+          },
+          "feature_configs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
           "product_area",
           "experiment_name",
-          "rollout"
+          "rollout",
+          "feature_configs"
         ]
       },
       "NimbusExperiment": {

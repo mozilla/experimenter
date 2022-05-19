@@ -22,6 +22,7 @@ class TestNimbusExperiment_Csv_Serializer(TestCase):
                 "launch_month": experiment.launch_month,
                 "product_area": experiment.application.value,
                 "experiment_name": experiment.name,
+                "feature_configs": [getattr(feature_config, "name")],
                 "owner": experiment.owner.email,
                 "start_date": experiment.start_date,
                 "enrollment_duration": experiment.enrollment_duration,
