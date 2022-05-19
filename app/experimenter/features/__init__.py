@@ -60,7 +60,6 @@ class Feature(BaseModel):
             "type": "object",
             "properties": {},
             "additionalProperties": False,
-            "required": [],
         }
 
         for variable_slug, variable in self.variables.items():
@@ -75,7 +74,6 @@ class Feature(BaseModel):
                 variable_schema["enum"] = variable.enum
 
             schema["properties"][variable_slug] = variable_schema
-            schema["required"].append(variable_slug)
 
         return json.dumps(schema, indent=2)
 

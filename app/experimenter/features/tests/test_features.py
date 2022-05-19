@@ -135,12 +135,6 @@ class TestFeatures(TestCase):
                     "jsonProperty": {"description": "Arbitrary JSON Property"},
                 },
                 "additionalProperties": False,
-                "required": [
-                    "stringEnumProperty",
-                    "boolProperty",
-                    "intProperty",
-                    "jsonProperty",
-                ],
             },
         )
 
