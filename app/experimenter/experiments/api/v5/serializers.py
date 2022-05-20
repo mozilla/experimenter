@@ -792,13 +792,7 @@ class NimbusExperimentSerializer(
             return experiment
 
 
-class NimbusExperimentCsvSerializer(
-    NimbusExperimentBranchMixin,
-    NimbusStatusValidationMixin,
-    NimbusExperimentDocumentationLinkMixin,
-    ExperimentNameValidatorMixin,
-    serializers.ModelSerializer,
-):
+class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
     experiment_name = serializers.CharField(source="name")
 
     product_area = serializers.CharField(source="application")
