@@ -421,6 +421,20 @@ TARGETING_INFREQUENT_WIN_USER_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS = NimbusTargetingConfig(
+    name="Infrequent Mac or Windows users with 5 bookmarks",
+    slug="infrequent_mac_or_win_users_with_5_bookmarks",
+    # 5 is the new profile bookmark count in Fx 100, a proxy for nothing imported
+    description="Between 1 and 6 days activity in the past 28 days, w/5 bookmarks",
+    targeting="({infrequent_user} && {win_or_mac}) || {sticky}".format(
+        win_or_mac="(os.isWindows || os.isMac)",
+        infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting,
+        sticky=TARGETING_STICKY,
+    ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TARGETING_INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
     name="Infrequent non-default Windows user",
     slug="infrequent_win_user_uris",
@@ -861,6 +875,9 @@ class NimbusConstants(object):
         TARGETING_INFREQUENT_WIN_USER_NEED_PIN.slug: (
             TARGETING_INFREQUENT_WIN_USER_NEED_PIN
         ),
+        TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS.slug: (
+            TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS
+        ),
         TARGETING_INFREQUENT_WIN_USER_URIS.slug: TARGETING_INFREQUENT_WIN_USER_URIS,
         TARGETING_CASUAL_USER_URIS.slug: TARGETING_CASUAL_USER_URIS,
         TARGETING_CASUAL_USER_NEED_PIN.slug: TARGETING_CASUAL_USER_NEED_PIN,
@@ -948,6 +965,12 @@ class NimbusConstants(object):
             TARGETING_INFREQUENT_WIN_USER_NEED_PIN.slug,
             TARGETING_INFREQUENT_WIN_USER_NEED_PIN.name,
         )
+
+        TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS = (
+            TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS.slug,
+            TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS.name,
+        )
+
         TARGETING_INFREQUENT_WIN_USER_URIS = (
             TARGETING_INFREQUENT_WIN_USER_URIS.slug,
             TARGETING_INFREQUENT_WIN_USER_URIS.name,
