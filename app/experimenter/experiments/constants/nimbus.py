@@ -426,9 +426,10 @@ TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS = NimbusTargetingConfig(
     slug="infrequent_mac_or_win_users_with_5_bookmarks",
     # 5 is the new profile bookmark count in Fx 100, a proxy for nothing imported
     description="Between 1 and 6 days activity in the past 28 days, w/5 bookmarks",
-    targeting="({infrequent_user} && {win_or_mac}) || {sticky}".format(
-        win_or_mac="(os.isWindows || os.isMac)",
+    targeting="({infrequent_user} && {win_or_mac} && {fiveBookmarks}) || {sticky}".format(
         infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting,
+        win_or_mac="(os.isWindows || os.isMac)",
+        fiveBookmarks="totalBookmarksCount == 5",
         sticky=TARGETING_STICKY,
     ),
     desktop_telemetry="",
