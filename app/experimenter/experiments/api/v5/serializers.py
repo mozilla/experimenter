@@ -792,7 +792,7 @@ class NimbusExperimentSerializer(
             return experiment
 
 
-class NimbusExperimentCSVSerializer(
+class NimbusExperimentCsvSerializer(
     NimbusExperimentBranchMixin,
     NimbusStatusValidationMixin,
     NimbusExperimentDocumentationLinkMixin,
@@ -813,8 +813,8 @@ class NimbusExperimentCSVSerializer(
             "launch_month",
             "product_area",
             "experiment_name",
-            "feature_configs",
             "owner",
+            "feature_configs",
             "start_date",
             "enrollment_duration",
             "end_date",

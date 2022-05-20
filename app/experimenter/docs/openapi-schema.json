@@ -1350,7 +1350,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/NimbusExperimentCSV"
+                    "$ref": "#/components/schemas/NimbusExperimentCsv"
                   }
                 }
               }
@@ -2927,7 +2927,7 @@
           }
         }
       },
-      "NimbusExperimentCSV": {
+      "NimbusExperimentCsv": {
         "type": "object",
         "properties": {
           "launch_month": {
@@ -2940,11 +2940,11 @@
           "experiment_name": {
             "type": "string"
           },
-          "feature_configs": {
+          "owner": {
             "type": "string",
             "readOnly": true
           },
-          "owner": {
+          "feature_configs": {
             "type": "string",
             "readOnly": true
           },

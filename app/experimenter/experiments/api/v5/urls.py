@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.views.decorators.csrf import csrf_exempt
 from graphene_file_upload.django import FileUploadGraphQLView
 
-from experimenter.experiments.api.v5.views import NimbusExperimentCSVListView
+from experimenter.experiments.api.v5.views import NimbusExperimentCsvListView
 
 urlpatterns = [
     url(
@@ -12,7 +12,7 @@ urlpatterns = [
     ),
     url(
         r"^csv/$",
-        NimbusExperimentCSVListView.as_view(),
-        name="nimbus-experiments-api-csv",
+        NimbusExperimentCsvListView.as_view(),
+        name="nimbus-experiments-csv",
     ),
 ]
