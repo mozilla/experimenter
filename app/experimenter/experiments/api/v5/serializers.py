@@ -579,11 +579,11 @@ class NimbusExperimentSerializer(
         self.should_call_preview_task = instance and (
             (
                 instance.status == NimbusExperiment.Status.DRAFT
-                and data.get("status") == NimbusExperiment.Status.PREVIEW
+                and (data.get("status") == NimbusExperiment.Status.PREVIEW)
             )
             or (
                 instance.status == NimbusExperiment.Status.PREVIEW
-                and data.get("status") == NimbusExperiment.Status.DRAFT
+                and (data.get("status") == NimbusExperiment.Status.DRAFT)
             )
         )
         self.should_call_push_task = (
@@ -790,6 +790,37 @@ class NimbusExperimentSerializer(
             )
 
             return experiment
+
+
+class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
+    experiment_name = serializers.CharField(source="name")
+
+    product_area = serializers.CharField(source="application")
+
+    rollout = serializers.BooleanField(source="is_rollout")
+    owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
+    feature_configs = serializers.SerializerMethodField()
+
+    class Meta:
+        model = NimbusExperiment
+        fields = [
+            "launch_month",
+            "product_area",
+            "experiment_name",
+            "owner",
+            "feature_configs",
+            "start_date",
+            "enrollment_duration",
+            "end_date",
+            "monitoring_dashboard_url",
+            "rollout",
+            "hypothesis",
+        ]
+
+    def get_feature_configs(self, obj):
+        return ", ".join(
+            [feature.name for feature in obj.feature_configs.order_by("name")]
+        )
 
 
 class NimbusBranchScreenshotReviewSerializer(NimbusBranchScreenshotSerializer):
