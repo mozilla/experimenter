@@ -621,6 +621,16 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
+    def test_launch_month_returns_month_for_started_experiment(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusChangeLogFactory(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=timezone.now() + datetime.timedelta(days=1),
+        )
+        self.assertEqual(experiment.launch_month, experiment.start_date.strftime("%B"))
+
     def test_start_date_uses_most_recent_start_change(self):
         experiment = NimbusExperimentFactory.create()
         NimbusChangeLogFactory(
@@ -645,6 +655,28 @@ class TestNimbusExperiment(TestCase):
             new_status=NimbusExperiment.Status.COMPLETE,
         )
         self.assertEqual(experiment.end_date, end_change.changed_on.date())
+
+    def test_enrollment_duration_for_ended_experiment(self):
+        experiment = NimbusExperimentFactory.create()
+        NimbusChangeLogFactory(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=timezone.now() + datetime.timedelta(days=1),
+        )
+        expected_enrollment_duration = (
+            experiment.start_date.strftime("%Y-%m-%d")
+            + " to "
+            + experiment.computed_end_date.strftime("%Y-%m-%d")
+        )
+        self.assertEqual(experiment.enrollment_duration, expected_enrollment_duration)
+
+    def test_enrollment_duration_for_not_started_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        self.assertEqual(experiment.enrollment_duration, experiment.proposed_duration)
 
     def test_end_date_uses_most_recent_end_change(self):
         experiment = NimbusExperimentFactory.create()
