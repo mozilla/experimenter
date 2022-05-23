@@ -1,4 +1,5 @@
 import json
+import time
 
 import requests
 
@@ -76,6 +77,10 @@ def create_mobile_experiment(name, app, locales):
                 "changelogMessage": "test changelog message",
             }
         },
-        "query": "mutation createExperiment($input: ExperimentInput!) {\n  createExperiment(input: $input) {\n    message\n    nimbusExperiment {\n      slug\n      __typename\n    }\n    __typename\n  }\n}",
+        "query": "mutation createExperiment($input: ExperimentInput!) \
+            {\n  createExperiment(input: $input) \
+            {\n    message\n    nimbusExperiment \
+            {\n      slug\n      __typename\n    }\n    __typename\n  }\
+            \n}",
     }
     requests.post("https://nginx/api/v5/graphql", json=query, verify=False)

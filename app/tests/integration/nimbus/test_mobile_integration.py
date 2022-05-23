@@ -1,6 +1,5 @@
 import json
 import os
-import sys  # REMOVE THIS
 import time
 import uuid
 from pathlib import Path
@@ -9,8 +8,6 @@ import nimbus_rust as nimbus
 import pytest
 import requests
 from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
-from nimbus.models.base_dataclass import BaseExperimentApplications
-from nimbus.pages.browser import Browser
 from nimbus.utils import helpers
 
 
@@ -103,7 +100,7 @@ def fixture_jexl_evaluator():
         targetting_helper = sdk_client.create_targeting_helper()
         try:
             value = targetting_helper.eval_jexl(expression)
-        except nimbus.NimbusError.EvaluationError as e:
+        except nimbus.NimbusError.EvaluationError:
             return None
         else:
             return value
@@ -126,7 +123,7 @@ def test_check_mobile_targeting(
     )
     data = helpers.load_experiment_data(slugify(experiment_name))
     expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
-    assert jexl_evaluator(sdk_client(load_app_context(context)), expression) == True
+    assert jexl_evaluator(sdk_client(load_app_context(context)), expression)
 
 
 @pytest.mark.parametrize("context", client_info_list())
@@ -142,7 +139,7 @@ def test_check_mobile_targeting_falsey(
         locale_number_loader([context["locale"][:2]]),
     )
     expression = "'zz' in locale"  # represents a malformed jexl expression
-    assert jexl_evaluator(sdk_client(load_app_context(context)), expression) == False
+    assert jexl_evaluator(sdk_client(load_app_context(context)), expression) is False
 
 
 @pytest.mark.run_targeting
@@ -157,4 +154,4 @@ def test_check_mobile_targeting_undefined(
         locale_number_loader([client["locale"]]),
     )
     expression = ""  # represents a malformed jexl expression
-    assert jexl_evaluator(sdk_client(load_app_context(client)), "") == None
+    assert jexl_evaluator(sdk_client(load_app_context(client)), expression) is None
