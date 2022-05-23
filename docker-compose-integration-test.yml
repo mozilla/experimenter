@@ -18,7 +18,7 @@ services:
       - "5900:5900"
     shm_size: 2g
   rust-sdk:
-    image: python:3.10.4
+    image: b4handjr/nimbus-rust-image:latest
     env_file: .env
     volumes:
       - .:/code
