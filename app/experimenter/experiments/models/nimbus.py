@@ -349,6 +349,11 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             ].changed_on.date()
 
     @property
+    def launch_month(self):
+        if self.start_date:
+            return self.start_date.strftime("%B")
+
+    @property
     def end_date(self):
         changes = self.changes.all()
         end_changelogs = [
@@ -391,6 +396,17 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
             return self.end_date
         else:
             return self.proposed_end_date
+
+    @property
+    def enrollment_duration(self):
+        if self.start_date:
+            return (
+                self.start_date.strftime("%Y-%m-%d")
+                + " to "
+                + self.computed_end_date.strftime("%Y-%m-%d")
+            )
+        else:
+            return self.proposed_duration
 
     @property
     def computed_duration_days(self):
