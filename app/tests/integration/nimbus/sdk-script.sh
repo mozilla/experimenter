@@ -2,9 +2,9 @@
 
 set -ex
 apt-get -qqy update && apt-get -qqy install sudo
-export SQLCIPHER_LIB_DIR=/code/app/tests/integration/application-services/libs/desktop/linux-x86-64/sqlcipher/lib
-export SQLCIPHER_INCLUDE_DIR=/code/app/tests/integration/application-services/libs/desktop/linux-x86-64/sqlcipher/include
-export NSS_DIR=/code/app/tests/integration/application-services/libs/desktop/linux-x86-64/nss
+export SQLCIPHER_LIB_DIR=/code/application-services/libs/desktop/linux-x86-64/sqlcipher/lib
+export SQLCIPHER_INCLUDE_DIR=/code/application-services/libs/desktop/linux-x86-64/sqlcipher/include
+export NSS_DIR=/code/application-services/libs/desktop/linux-x86-64/nss
 export NSS_STATIC=1
 apt-get -qqy update && apt-get -qqy --no-install-recommends install tox git curl
 apt-get update -qqy && apt-get -qqy install gyp ninja-build zlib1g-dev tclsh

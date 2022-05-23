@@ -60,9 +60,6 @@ def client_info_list():
 
 @pytest.fixture
 def load_app_context():
-    app_list = []
-    # with open("nimbus/client_info.json") as file:
-    #     data = json.loads(file.read())
     def _load_app_context_helper(context):
         base_app_context = BaseAppContextDataClass.from_dict(context)
         return nimbus.AppContext(
