@@ -17,3 +17,14 @@ services:
     ports:
       - "5900:5900"
     shm_size: 2g
+  rust-sdk:
+    image: python:3.10.4
+    env_file: .env
+    volumes:
+      - .:/code
+      - /code/app/tests/integration/.tox
+    working_dir: /code
+    links:
+      - nginx
+      - kinto
+
