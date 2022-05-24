@@ -12,7 +12,11 @@ from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
 from experimenter.base import UploadsStorage
-from experimenter.base.tests.factories import CountryFactory, LocaleFactory
+from experimenter.base.tests.factories import (
+    CountryFactory,
+    LanguageFactory,
+    LocaleFactory,
+)
 from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
 from experimenter.experiments.models import (
     NimbusBranch,
@@ -515,7 +519,7 @@ class TestNimbusExperiment(TestCase):
         )
         JEXLParser().parse(experiment.targeting)
 
-    def test_targeting_with_locales_and_countries(self):
+    def test_targeting_with_locales_and_countries_desktop(self):
         locale_ca = LocaleFactory.create(code="en-CA")
         locale_us = LocaleFactory.create(code="en-US")
         country_ca = CountryFactory.create(code="CA")
@@ -542,12 +546,10 @@ class TestNimbusExperiment(TestCase):
         )
         JEXLParser().parse(experiment.targeting)
 
-    def test_targeting_with_locales_and_countries_mobile(self):
-        locale_ca = LocaleFactory.create(code="en-CA")
-        locale_us = LocaleFactory.create(code="en-US")
-        locale_ro = LocaleFactory.create(code="ro")
-        locale_de = LocaleFactory.create(code="de")
-        locale_es = LocaleFactory.create(code="es-ES")
+    def test_targeting_with_languages_and_countries_mobile(self):
+        language_en = LanguageFactory.create(code="en")
+        language_fr = LanguageFactory.create(code="fr")
+        language_es = LanguageFactory.create(code="es")
         targeting_config = NimbusExperiment.TargetingConfig
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
@@ -556,14 +558,13 @@ class TestNimbusExperiment(TestCase):
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=targeting_config.TARGETING_MOBILE_NEW_USER,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            locales=[locale_ca, locale_ro, locale_de, locale_es, locale_us],
+            languages=[language_en, language_es, language_fr],
         )
         self.assertEqual(
             experiment.targeting,
             (
                 "(is_already_enrolled || days_since_install < 7) "
-                "&& ('de' in locale || 'en' in locale || 'es' in locale "
-                "|| 'ro' in locale)"
+                "&& (language in ['en', 'es', 'fr'])"
             ),
         )
         JEXLParser().parse(experiment.targeting)
