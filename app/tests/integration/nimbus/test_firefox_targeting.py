@@ -6,6 +6,7 @@ import requests
 from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.pages.browser import Browser
 
+
 LOAD_DATA_RETRIES = 10
 LOAD_DATA_RETRY_DELAY = 1.0
 

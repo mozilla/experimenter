@@ -4,12 +4,13 @@ import time
 import uuid
 from pathlib import Path
 
-import nimbus_rust as nimbus
 import pytest
 import requests
 from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
 from nimbus.utils import helpers
 
+
+nimbus = pytest.importorskip('nimbus_rust')
 
 def locale_number_loader(locales=None):
     locale_list = []
