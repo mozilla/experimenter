@@ -421,14 +421,15 @@ TARGETING_INFREQUENT_WIN_USER_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS = NimbusTargetingConfig(
-    name="Infrequent Mac or Windows users with 5 bookmarks",
-    slug="infrequent_mac_or_win_users_with_5_bookmarks",
+TARGETING_INFREQUENT_MAC_WIN_OR_LINUX_USER_WITH_5_BOOKMARKS = NimbusTargetingConfig(
+    name="Infrequent Mac, Win, or Linux user with 5 bookmarks",
+    slug="infrequent_mac_win_or_linux_user_with_5_bookmarks",
     # 5 is the new profile bookmark count in Fx 100, a proxy for nothing imported
     description="Between 1 and 6 days activity in the past 28 days, w/5 bookmarks",
-    targeting="({infrequent_user} && {win_or_mac} && {fiveBookmarks}) || {sticky}".format(
+    targeting="({infrequent_user} && {mac_win_or_linux} && {fiveBookmarks})"
+    " || {sticky}".format(
         infrequent_user=TARGETING_INFREQUENT_USER_URIS.targeting,
-        win_or_mac="(os.isWindows || os.isMac)",
+        mac_win_or_linux="(os.isMac || os.isWindows || os.isLinux)",
         fiveBookmarks="totalBookmarksCount == 5",
         sticky=TARGETING_STICKY,
     ),
@@ -876,8 +877,8 @@ class NimbusConstants(object):
         TARGETING_INFREQUENT_WIN_USER_NEED_PIN.slug: (
             TARGETING_INFREQUENT_WIN_USER_NEED_PIN
         ),
-        TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS.slug: (
-            TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS
+        TARGETING_INFREQUENT_MAC_WIN_OR_LINUX_USER_WITH_5_BOOKMARKS.slug: (
+            TARGETING_INFREQUENT_MAC_WIN_OR_LINUX_USER_WITH_5_BOOKMARKS
         ),
         TARGETING_INFREQUENT_WIN_USER_URIS.slug: TARGETING_INFREQUENT_WIN_USER_URIS,
         TARGETING_CASUAL_USER_URIS.slug: TARGETING_CASUAL_USER_URIS,
@@ -967,9 +968,9 @@ class NimbusConstants(object):
             TARGETING_INFREQUENT_WIN_USER_NEED_PIN.name,
         )
 
-        TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS = (
-            TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS.slug,
-            TARGETING_INFREQUENT_MAC_OR_WIN_USER_WITH_5_BOOKMARKS.name,
+        TARGETING_INFREQUENT_MAC_WIN_OR_LINUX_USER_WITH_5_BOOKMARKS = (
+            TARGETING_INFREQUENT_MAC_WIN_OR_LINUX_USER_WITH_5_BOOKMARKS.slug,
+            TARGETING_INFREQUENT_MAC_WIN_OR_LINUX_USER_WITH_5_BOOKMARKS.name,
         )
 
         TARGETING_INFREQUENT_WIN_USER_URIS = (
