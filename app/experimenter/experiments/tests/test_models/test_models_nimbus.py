@@ -546,7 +546,7 @@ class TestNimbusExperiment(TestCase):
         )
         JEXLParser().parse(experiment.targeting)
 
-    def test_targeting_with_languages_and_countries_mobile(self):
+    def test_targeting_with_languages_mobile(self):
         language_en = LanguageFactory.create(code="en")
         language_fr = LanguageFactory.create(code="fr")
         language_es = LanguageFactory.create(code="es")

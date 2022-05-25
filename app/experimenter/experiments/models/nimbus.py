@@ -294,16 +294,14 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
         if self.locales.count():
             locales = [locale.code for locale in self.locales.all().order_by("code")]
 
-            if self.application == self.Application.DESKTOP:
-                expressions.append(f"locale in {locales}")
+            expressions.append(f"locale in {locales}")
 
         if self.languages.count():
             languages = [
                 language.code for language in self.languages.all().order_by("code")
             ]
 
-            if self.application != self.Application.DESKTOP:
-                expressions.append(f"language in {languages}")
+            expressions.append(f"language in {languages}")
 
         if self.countries.count():
             countries = [
