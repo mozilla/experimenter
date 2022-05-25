@@ -8628,15 +8628,10 @@ immer@8.0.1, immer@^9.0.6:
   resolved "https://registry.yarnpkg.com/immer/-/immer-9.0.14.tgz#e05b83b63999d26382bb71676c9d827831248a48"
   integrity sha512-ubBeqQutOSLIFCUBN03jGeOS6a3DoYlSYwYJTa+gSKEZKU5redJIqkIdZ3JVv/4RZpfcXdAWH5zCNLWPRv2WDw==
 
-immutable@4.0.0-rc.12:
-  version "4.0.0-rc.12"
-  resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.0.0-rc.12.tgz#ca59a7e4c19ae8d9bf74a97bdf0f6e2f2a5d0217"
-  integrity sha512-0M2XxkZLx/mi3t8NVwIm1g8nHoEmM9p9UBl/G9k4+hm0kBgOVdMV/B3CY5dQ8qG8qc80NN4gDV4HQv6FTJ5q7A==
-
-immutable@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.0.0.tgz#b86f78de6adef3608395efb269a91462797e2c23"
-  integrity sha512-zIE9hX70qew5qTUjSS7wi1iwj/l7+m54KWU247nhM3v806UdGj1yDndXj+IOYxxtW9zyLI+xqFNZjTuDaLUqFw==
+immutable@4.1.0, immutable@^4.0.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.1.0.tgz#f795787f0db780183307b9eb2091fcac1f6fafef"
+  integrity sha512-oNkuqVTA8jqG1Q6c+UglTOD1xhC1BtjKI7XkCXRkZHrN5m18/XsnUp8Q89GkQO/z+0WjonSvl0FLhDYftp46nQ==
 
 import-cwd@^2.0.0:
   version "2.1.0"
