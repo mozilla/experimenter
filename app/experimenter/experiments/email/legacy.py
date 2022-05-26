@@ -5,7 +5,7 @@ from django.core.mail.message import EmailMessage
 from django.template.loader import render_to_string
 
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import Experiment, ExperimentEmail
+from experimenter.legacy.legacy_experiments.models import Experiment, ExperimentEmail
 
 
 def send_intent_to_ship_email(experiment_id):

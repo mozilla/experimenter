@@ -68,10 +68,10 @@ class Experiment(ExperimentConstants, models.Model):
         get_user_model(), blank=True, related_name="subscribed_experiments"
     )
     related_to = models.ManyToManyField(
-        "experiments.Experiment", blank=True, related_name="related_by"
+        "legacy_experiments.Experiment", blank=True, related_name="related_by"
     )
     parent = models.ForeignKey(
-        "experiments.Experiment", models.SET_NULL, blank=True, null=True
+        "legacy_experiments.Experiment", models.SET_NULL, blank=True, null=True
     )
     status = models.CharField(
         max_length=255,
@@ -283,6 +283,7 @@ class Experiment(ExperimentConstants, models.Model):
     objects = ExperimentManager()
 
     class Meta:
+        db_table = "experiments_experiment"
         verbose_name = "Experiment"
         verbose_name_plural = "Experiments"
 
@@ -1062,6 +1063,7 @@ class ExperimentVariant(models.Model):
     message_triggers = models.TextField(blank=True, null=True)
 
     class Meta:
+        db_table = "experiments_experimentvariant"
         verbose_name = "Experiment Variant"
         verbose_name_plural = "Experiment Variants"
         unique_together = (("slug", "experiment"),)
@@ -1112,6 +1114,7 @@ class VariantPreferences(Preference):
     )
 
     class Meta:
+        db_table = "experiments_variantpreferences"
         unique_together = (("variant", "pref_name"),)
 
 
@@ -1125,6 +1128,7 @@ class RolloutPreference(Preference):
     )
 
     class Meta:
+        db_table = "experiments_rolloutpreference"
         unique_together = (("experiment", "pref_name"),)
 
 
@@ -1197,6 +1201,7 @@ class ExperimentChangeLog(models.Model):
     objects = ExperimentChangeLogManager()
 
     class Meta:
+        db_table = "experiments_experimentchangelog"
         verbose_name = "Experiment Change Log"
         verbose_name_plural = "Experiment Change Logs"
         ordering = ("changed_on",)
@@ -1232,6 +1237,9 @@ class ExperimentEmail(ExperimentConstants, models.Model):
     )
     sent_on = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        db_table = "experiments_experimentemail"
+
 
 class ExperimentComment(ExperimentConstants, models.Model):
     experiment = models.ForeignKey(
@@ -1250,6 +1258,7 @@ class ExperimentComment(ExperimentConstants, models.Model):
         return f"{self.experiment.experiment_url}#comment{self.id}"
 
     class Meta:
+        db_table = "experiments_experimentcomment"
         verbose_name = "Experiment Comment"
         verbose_name_plural = "Experiment Comments"
         ordering = ("created_on",)
@@ -1258,69 +1267,3 @@ class ExperimentComment(ExperimentConstants, models.Model):
         return "{author} ({date}): {text}".format(
             author=self.created_by, date=self.created_on, text=self.text
         )
-
-
-class ExperimentBucketNamespace(models.Model):
-    name = models.CharField(max_length=255)
-    instance = models.PositiveIntegerField(default=1)
-    total = models.PositiveIntegerField(default=ExperimentConstants.BUCKET_TOTAL)
-    randomization_unit = models.CharField(
-        max_length=255, default=ExperimentConstants.BUCKET_RANDOMIZATION_UNIT
-    )
-
-    class Meta:
-        verbose_name = "Experiment Bucket Namespace"
-        verbose_name_plural = "Experiment Bucket Namespaces"
-        unique_together = ("name", "instance")
-        ordering = ("name", "instance")
-
-    def __str__(self):  # pragma: no cover
-        return f"{self.name}-{self.instance}"
-
-    @classmethod
-    def request_namespace_buckets(cls, name, experiment, count):
-        if cls.objects.filter(name=name).exists():
-            namespace = cls.objects.filter(name=name).order_by("-instance").first()
-        else:
-            namespace = cls.objects.create(name=name)
-
-        return namespace.request_buckets(experiment, count)
-
-    def request_buckets(self, experiment, count):
-        namespace = self
-        start = 0
-
-        if self.buckets.exists():
-            highest_bucket = self.buckets.all().order_by("-start").first()
-            if highest_bucket.end + count > self.total:
-                namespace = ExperimentBucketNamespace.objects.create(
-                    name=self.name, instance=self.instance + 1
-                )
-            else:
-                start = highest_bucket.end + 1
-
-        return ExperimentBucketRange.objects.create(
-            experiment=experiment, namespace=namespace, start=start, count=count
-        )
-
-
-class ExperimentBucketRange(models.Model):
-    experiment = models.OneToOneField(
-        Experiment, related_name="bucket", on_delete=models.CASCADE
-    )
-    namespace = models.ForeignKey(
-        ExperimentBucketNamespace, related_name="buckets", on_delete=models.CASCADE
-    )
-    start = models.PositiveIntegerField()
-    count = models.PositiveIntegerField()
-
-    class Meta:
-        verbose_name = "Experiment Bucket"
-        verbose_name_plural = "Experiment Buckets"
-
-    def __str__(self):  # pragma: no cover
-        return f"{self.namespace}: {self.start}-{self.end}/{self.namespace.total}"
-
-    @property
-    def end(self):
-        return self.start + self.count - 1

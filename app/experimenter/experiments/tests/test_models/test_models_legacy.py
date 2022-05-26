@@ -7,22 +7,19 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from parameterized import parameterized
 
-from experimenter.experiments.models import (
-    Experiment,
-    ExperimentBucketNamespace,
-    ExperimentChangeLog,
-    ExperimentVariant,
-    RolloutPreference,
-    VariantPreferences,
-)
 from experimenter.experiments.tests.factories import (
-    ExperimentBucketNamespaceFactory,
-    ExperimentBucketRangeFactory,
     ExperimentChangeLogFactory,
     ExperimentCommentFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
     VariantPreferencesFactory,
+)
+from experimenter.legacy.legacy_experiments.models import (
+    Experiment,
+    ExperimentChangeLog,
+    ExperimentVariant,
+    RolloutPreference,
+    VariantPreferences,
 )
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
 from experimenter.openidc.tests.factories import UserFactory
@@ -1748,60 +1745,3 @@ class TestExperimentComments(TestCase):
                 comment.get_absolute_url(),
                 "https://localhost/experiments/experiment1_/#comment5",
             )
-
-
-class TestExperimentBucketNamespace(TestCase):
-    def test_empty_namespace_creates_namespace_and_bucket_range(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
-        name = "cfr"
-        bucket = ExperimentBucketNamespace.request_namespace_buckets(
-            name, experiment, 100
-        )
-        self.assertEqual(bucket.start, 0)
-        self.assertEqual(bucket.end, 99)
-        self.assertEqual(bucket.count, 100)
-        self.assertEqual(bucket.namespace.name, name)
-        self.assertEqual(bucket.namespace.instance, 1)
-        self.assertEqual(bucket.namespace.total, Experiment.BUCKET_TOTAL)
-        self.assertEqual(
-            bucket.namespace.randomization_unit, Experiment.BUCKET_RANDOMIZATION_UNIT
-        )
-
-    def test_existing_namespace_adds_bucket_range(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
-        name = "cfr"
-        namespace = ExperimentBucketNamespaceFactory.create(name=name)
-        bucket = ExperimentBucketNamespace.request_namespace_buckets(
-            name, experiment, 100
-        )
-        self.assertEqual(bucket.start, 0)
-        self.assertEqual(bucket.end, 99)
-        self.assertEqual(bucket.count, 100)
-        self.assertEqual(bucket.namespace, namespace)
-
-    def test_existing_namespace_with_buckets_adds_next_bucket_range(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
-        name = "cfr"
-        namespace = ExperimentBucketNamespaceFactory.create(name=name)
-        ExperimentBucketRangeFactory.create(namespace=namespace, start=0, count=100)
-        bucket = ExperimentBucketNamespace.request_namespace_buckets(
-            name, experiment, 100
-        )
-        self.assertEqual(bucket.start, 100)
-        self.assertEqual(bucket.end, 199)
-        self.assertEqual(bucket.count, 100)
-        self.assertEqual(bucket.namespace, namespace)
-
-    def test_full_namespace_creates_next_namespace_instance_and_adds_bucket_range(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
-        name = "cfr"
-        namespace = ExperimentBucketNamespaceFactory.create(name=name, total=100)
-        ExperimentBucketRangeFactory(namespace=namespace, count=100)
-        bucket = ExperimentBucketNamespace.request_namespace_buckets(
-            name, experiment, 100
-        )
-        self.assertEqual(bucket.start, 0)
-        self.assertEqual(bucket.end, 99)
-        self.assertEqual(bucket.count, 100)
-        self.assertEqual(bucket.namespace.name, namespace.name)
-        self.assertEqual(bucket.namespace.instance, namespace.instance + 1)

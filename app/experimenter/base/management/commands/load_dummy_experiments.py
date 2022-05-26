@@ -3,11 +3,11 @@ import random
 
 from django.core.management.base import BaseCommand
 
-from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     NimbusExperimentFactory,
 )
+from experimenter.legacy.legacy_experiments.models import Experiment
 
 logger = logging.getLogger()
 

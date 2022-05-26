@@ -20,7 +20,7 @@ from experimenter.experiments.api.v2.serializers import (
 )
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.filtersets import ExperimentFilterset
-from experimenter.experiments.models import Experiment
+from experimenter.legacy.legacy_experiments.models import Experiment
 
 
 class ExperimentSendIntentToShipEmailView(UpdateAPIView):

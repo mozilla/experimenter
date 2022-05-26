@@ -8,7 +8,7 @@ from django.db.models.expressions import Func, Value
 from django.db.models.functions import Cast
 
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import Experiment
+from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.projects.models import Project
 
 # the default widget has a dash character between the two date fields,
