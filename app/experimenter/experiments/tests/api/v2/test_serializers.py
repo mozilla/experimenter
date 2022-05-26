@@ -27,15 +27,15 @@ from experimenter.experiments.api.v2.serializers import (
     PrefValidationMixin,
 )
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import (
-    Experiment,
-    ExperimentVariant,
-    RolloutPreference,
-)
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
     VariantPreferencesFactory,
+)
+from experimenter.legacy.legacy_experiments.models import (
+    Experiment,
+    ExperimentVariant,
+    RolloutPreference,
 )
 from experimenter.projects.tests.factories import ProjectFactory
 

@@ -16,7 +16,7 @@ from experimenter.experiments.email import (
     send_experiment_launch_email,
     send_period_ending_emails_task,
 )
-from experimenter.experiments.models import Experiment
+from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.normandy import client as normandy
 
 STATUS_UPDATE_MAPPING = {

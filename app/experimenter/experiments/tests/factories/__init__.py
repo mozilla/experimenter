@@ -1,6 +1,4 @@
 from experimenter.experiments.tests.factories.legacy import (  # noqa: F401
-    ExperimentBucketNamespaceFactory,
-    ExperimentBucketRangeFactory,
     ExperimentChangeLogFactory,
     ExperimentCommentFactory,
     ExperimentControlFactory,

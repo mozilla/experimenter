@@ -26,7 +26,8 @@ class ExperimentAdminTest(TestCase):
         experiment = ExperimentFactory.create_with_status(ExperimentFactory.STATUS_DRAFT)
         response = self.client.get(
             reverse(
-                "admin:experiments_experiment_change", kwargs={"object_id": experiment.id}
+                "admin:legacy_experiments_experiment_change",
+                kwargs={"object_id": experiment.id},
             ),
             **{settings.OPENIDC_EMAIL_HEADER: user.email},
         )

@@ -31,8 +31,8 @@ from experimenter.experiments.forms import (
     JSONField,
     NormandyIdForm,
 )
-from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.notifications.models import Notification
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
@@ -823,8 +823,8 @@ class TestExperimentReviewForm(
             content_type=content_type, codename="can_check_QA_signoff"
         )
         user_1.user_permissions.add(permission)
-        self.assertTrue(user_1.has_perm("experiments.can_check_QA_signoff"))
-        self.assertFalse(user_2.has_perm("experiments.can_check_QA_signoff"))
+        self.assertTrue(user_1.has_perm("legacy_experiments.can_check_QA_signoff"))
+        self.assertFalse(user_2.has_perm("legacy_experiments.can_check_QA_signoff"))
 
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
 
