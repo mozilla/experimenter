@@ -10,12 +10,12 @@ from experimenter.experiments.api.v1.serializers import (
     JSTimestampField,
     PrefTypeField,
 )
-from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentChangeLogFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
 )
+from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.normandy.serializers import ExperimentRecipeVariantSerializer
 from experimenter.projects.tests.factories import ProjectFactory
 

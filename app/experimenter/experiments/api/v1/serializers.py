@@ -3,7 +3,7 @@ import time
 from rest_framework import serializers
 
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
-from experimenter.experiments.models import (
+from experimenter.legacy.legacy_experiments.models import (
     Experiment,
     ExperimentChangeLog,
     ExperimentVariant,

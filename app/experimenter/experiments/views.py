@@ -23,7 +23,7 @@ from experimenter.experiments.forms import (
     ExperimentSubscribedForm,
     NormandyIdForm,
 )
-from experimenter.experiments.models import Experiment
+from experimenter.legacy.legacy_experiments.models import Experiment
 
 
 class ExperimentListView(FilterView):

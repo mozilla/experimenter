@@ -1,8 +1,9 @@
 from django.core.management import call_command
 from django.test import TestCase
 
-from experimenter.experiments.models import Experiment, NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.legacy.legacy_experiments.models import Experiment
 
 
 class TestInitialData(TestCase):

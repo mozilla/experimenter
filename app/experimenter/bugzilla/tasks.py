@@ -3,7 +3,7 @@ from celery.utils.log import get_task_logger
 
 from experimenter.bugzilla import client as bugzilla
 from experimenter.celery import app
-from experimenter.experiments.models import Experiment
+from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.notifications.models import Notification
 
 logger = get_task_logger(__name__)

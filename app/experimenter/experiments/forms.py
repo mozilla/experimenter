@@ -16,7 +16,7 @@ from experimenter.experiments.changelog_utils import (
     generate_change_log,
 )
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import Experiment, ExperimentComment
+from experimenter.legacy.legacy_experiments.models import Experiment, ExperimentComment
 from experimenter.notifications.models import Notification
 from experimenter.projects.models import Project
 
@@ -730,12 +730,12 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         permissions = [
             (
                 "review_qa",
-                "experiments.can_check_QA_signoff",
+                "legacy_experiments.can_check_QA_signoff",
                 "You don't have permission to edit QA signoff fields",
             ),
             (
                 "review_relman",
-                "experiments.can_check_relman_signoff",
+                "legacy_experiments.can_check_relman_signoff",
                 "You don't have permission to edit Release " "Management signoff fields",
             ),
         ]

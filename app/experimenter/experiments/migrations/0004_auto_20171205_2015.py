@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-import experimenter.experiments.models
+import experimenter.legacy.legacy_experiments.models
 
 
 class Migration(migrations.Migration):
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
             model_name="experimentchangelog",
             name="changed_on",
             field=models.DateTimeField(
-                default=experimenter.experiments.models.ExperimentChangeLog.current_datetime
+                default=experimenter.legacy.legacy_experiments.models.ExperimentChangeLog.current_datetime
             ),
         ),
     ]

@@ -4,15 +4,15 @@ from django.test import TestCase
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.api.v1.serializers import PrefTypeField
-from experimenter.experiments.models import (
-    Experiment,
-    ExperimentVariant,
-    RolloutPreference,
-)
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
     VariantPreferencesFactory,
+)
+from experimenter.legacy.legacy_experiments.models import (
+    Experiment,
+    ExperimentVariant,
+    RolloutPreference,
 )
 from experimenter.normandy.serializers import (
     ExperimentRecipeAddonArgumentsSerializer,
