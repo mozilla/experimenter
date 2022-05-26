@@ -11,10 +11,8 @@ from faker import Factory as FakerFactory
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import (
+from experimenter.legacy.legacy_experiments.models import (
     Experiment,
-    ExperimentBucketNamespace,
-    ExperimentBucketRange,
     ExperimentChangeLog,
     ExperimentComment,
     ExperimentVariant,
@@ -291,21 +289,3 @@ class ExperimentCommentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = ExperimentComment
-
-
-class ExperimentBucketNamespaceFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))
-    instance = factory.Sequence(lambda n: n)
-
-    class Meta:
-        model = ExperimentBucketNamespace
-
-
-class ExperimentBucketRangeFactory(factory.django.DjangoModelFactory):
-    experiment = factory.SubFactory(ExperimentFactory)
-    namespace = factory.SubFactory(ExperimentBucketNamespaceFactory)
-    start = factory.Sequence(lambda n: n * 100)
-    count = 100
-
-    class Meta:
-        model = ExperimentBucketRange

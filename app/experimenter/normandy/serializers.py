@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from experimenter.experiments.api.v1.serializers import PrefTypeField
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import (
+from experimenter.legacy.legacy_experiments.models import (
     Experiment,
     ExperimentVariant,
     RolloutPreference,

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from experimenter.experiments.models import (
+from experimenter.legacy.legacy_experiments.models import (
     Experiment,
     ExperimentChangeLog,
     ExperimentVariant,

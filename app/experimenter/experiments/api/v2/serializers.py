@@ -10,7 +10,7 @@ from rest_framework import serializers
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import (
+from experimenter.legacy.legacy_experiments.models import (
     Experiment,
     ExperimentVariant,
     RolloutPreference,
