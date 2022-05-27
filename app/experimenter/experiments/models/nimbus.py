@@ -293,7 +293,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
 
         if self.locales.count():
             locales = [locale.code for locale in self.locales.all().order_by("code")]
-
+            # TODO: Remove once UI for mobile get relased to support languages
             if self.application == self.Application.DESKTOP:
                 expressions.append(f"locale in {locales}")
             else:
@@ -302,6 +302,13 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
                     [f"'{language}' in locale" for language in sorted(iso_locales)]
                 )
                 expressions.append(iso_locales_expression)
+
+        if self.languages.count():
+            languages = [
+                language.code for language in self.languages.all().order_by("code")
+            ]
+
+            expressions.append(f"language in {languages}")
 
         if self.countries.count():
             countries = [
