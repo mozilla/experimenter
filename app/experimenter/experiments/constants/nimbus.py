@@ -615,6 +615,16 @@ TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TARGETING_REGULAR_USER_USES_FXA = NimbusTargetingConfig(
+    name="Regular user (uses Firefox Accounts)",
+    slug="regular_user_uses_fxa",
+    description="Between 14 and 20 days of activity in the past 28 days signed in to FxA",
+    targeting=f"{TARGETING_STICKY} || {TARGETING_REGULAR_USER_URIS.targeting} && "
+    "isFxAEnabled && usesFirefoxSync",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TARGETING_CORE_USER_URIS = NimbusTargetingConfig(
     name="Core user (uris)",
     slug="core_user_uris",
@@ -999,6 +1009,7 @@ class NimbusConstants(object):
         TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN.slug: (
             TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN
         ),
+        TARGETING_REGULAR_USER_USES_FXA.slug: TARGETING_REGULAR_USER_USES_FXA,
         TARGETING_CORE_USER_URIS.slug: TARGETING_CORE_USER_URIS,
         TARGETING_CORE_USER_NEED_PIN.slug: TARGETING_CORE_USER_NEED_PIN,
         TARGETING_CORE_USER_NEED_DEFAULT.slug: TARGETING_CORE_USER_NEED_DEFAULT,
@@ -1137,6 +1148,10 @@ class NimbusConstants(object):
         TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN = (
             TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN.slug,
             TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN.name,
+        )
+        TARGETING_REGULAR_USER_USES_FXA = (
+            TARGETING_REGULAR_USER_USES_FXA.slug,
+            TARGETING_REGULAR_USER_USES_FXA.name,
         )
         TARGETING_CORE_USER_URIS = (
             TARGETING_CORE_USER_URIS.slug,
