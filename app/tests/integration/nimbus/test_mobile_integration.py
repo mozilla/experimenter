@@ -28,32 +28,8 @@ def locale_number_loader(locales=None):
 
 
 def client_info_list():
-    def poll_job(s, redash_url, job):
-        while job["status"] not in (3, 4):
-            response = s.get("{}/api/jobs/{}".format(redash_url, job["id"]))
-            job = response.json()["job"]
-            time.sleep(1)
-
-        if job["status"] == 3:
-            return job["query_result_id"]
-
-        return None
-
-    redash_url = "https://sql.telemetry.mozilla.org"
-    query_id = 86023
-    s = requests.Session()
-    s.headers.update(
-        {"Authorization": "Key {}".format("TItInJieogEryYnzAFOeA5RMBBzYDN3nc59mqren")}
-    )
-    payload = dict(max_age=0, parameters={"something_cool": 1})
-    response = s.post(
-        "{}/api/queries/{}/results".format(redash_url, query_id), data=json.dumps(payload)
-    )
-    result_id = poll_job(s, redash_url, response.json()["job"])
-    response = s.get(
-        "{}/api/queries/{}/results/{}.json".format(redash_url, query_id, result_id)
-    )
-    return response.json()["query_result"]["data"]["rows"]
+    with open("nimbus/app_contexts.json") as file:
+        return json.load(file)["query_result"]["data"]["rows"]
 
 
 @pytest.fixture
