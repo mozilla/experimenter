@@ -21,7 +21,7 @@ services:
       - /app/experimenter/served/
       - /app/node_modules/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
-    command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py runserver 0:7001"
+    command: bash -c "python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py runserver 0:7001"
 
   yarn-nimbus-ui:
     image: app:dev
@@ -86,7 +86,7 @@ services:
       - "6379:6379"
 
   kinto:
-    image: mozilla/kinto-dist:23.3.1
+    image: mozilla/remote-settings:latest
     environment:
       KINTO_INI: /etc/kinto.ini
     ports:
