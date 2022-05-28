@@ -156,12 +156,10 @@ class NimbusTargetingConfig:
 
 
 TARGETING_STICKY = "experiment.slug in activeExperiments"
-
 TARGETING_HAS_PIN = "!doesAppNeedPin"
-
 TARGETING_NEED_DEFAULT = "!isDefaultBrowser"
-
 TARGETING_PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
+TARGETING_WIN1903 = "os.windowsBuildNumber >= 18362"
 
 TARGETING_NO_TARGETING = NimbusTargetingConfig(
     name="No Targeting",
@@ -381,7 +379,7 @@ TARGETING_NO_ENTERPRISE_OR_RECENT_VPN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_INFREQUENT_USER_URIS = NimbusTargetingConfig(
+INFREQUENT_USER_URIS = NimbusTargetingConfig(
     name="Infrequent user (uris)",
     slug="infrequent_user_uris",
     description="Between 1 and 6 days of activity in the past 28 days",
@@ -391,65 +389,61 @@ TARGETING_INFREQUENT_USER_URIS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_INFREQUENT_USER_NEED_PIN = NimbusTargetingConfig(
+INFREQUENT_USER_NEED_PIN = NimbusTargetingConfig(
     name="Infrequent user (need pin)",
     slug="infrequent_user_need_pin",
     description="Between 1 and 6 days of activity in the past 28 days needing pin",
-    targeting=f"{TARGETING_INFREQUENT_USER_URIS.targeting} && doesAppNeedPin",
+    targeting=f"{INFREQUENT_USER_URIS.targeting} && doesAppNeedPin",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_INFREQUENT_USER_NEED_DEFAULT = NimbusTargetingConfig(
+INFREQUENT_USER_NEED_DEFAULT = NimbusTargetingConfig(
     name="Infrequent user (need default)",
     slug="infrequent_user_need_default",
     description="Between 1 and 6 days of activity in the past 28 days needing default",
-    targeting=f"{TARGETING_INFREQUENT_USER_URIS.targeting} && {TARGETING_NEED_DEFAULT}",
+    targeting=f"{INFREQUENT_USER_URIS.targeting} && {TARGETING_NEED_DEFAULT}",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_INFREQUENT_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
+INFREQUENT_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
     name="Infrequent user (need default, has pin)",
     slug="infrequent_user_need_default_has_pin",
     description="Between 1 & 6 days activity in past 28 days need default w/ pin",
-    targeting=f"{TARGETING_INFREQUENT_USER_URIS.targeting} && "
-    f"{TARGETING_NEED_DEFAULT} && {TARGETING_HAS_PIN}",
+    targeting=f"{INFREQUENT_USER_NEED_DEFAULT.targeting} && {TARGETING_HAS_PIN}",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_INFREQUENT_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+INFREQUENT_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name="Infrequent user (has default, need pin)",
     slug="infrequent_user_has_default_need_pin",
     description="Between 1 & 6 days activity in past 28 days w/ default need pin",
-    targeting=f"{TARGETING_INFREQUENT_USER_URIS.targeting} && "
-    "isDefaultBrowser && doesAppNeedPin",
+    targeting=f"{INFREQUENT_USER_NEED_PIN.targeting} && isDefaultBrowser",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_INFREQUENT_WIN_USER_NEED_PIN = NimbusTargetingConfig(
+INFREQUENT_WIN_USER_NEED_PIN = NimbusTargetingConfig(
     name="Infrequent Windows user (need pin)",
     slug="infrequent_windows_user_need_pin",
     description="Between 1 and 6 days of activity in the past 28 days needing pin on Win",
-    targeting=f"{TARGETING_INFREQUENT_USER_URIS.targeting} && "
-    "os.isWindows && doesAppNeedPin",
+    targeting=f"{INFREQUENT_USER_NEED_PIN.targeting} && os.isWindows",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
+INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
     name="Infrequent Windows 1903+ user (need default)",
     slug="infrequent_win_user_uris",
     description="Infrequent non default users of past 28 days, on Windows 1903+",
-    targeting=f"{TARGETING_INFREQUENT_USER_URIS.targeting} && "
-    f"{TARGETING_NEED_DEFAULT} && os.windowsBuildNumber >= 18362",
+    targeting=f"{INFREQUENT_USER_NEED_DEFAULT.targeting} && {TARGETING_WIN1903}",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_CASUAL_USER_URIS = NimbusTargetingConfig(
+CASUAL_USER_URIS = NimbusTargetingConfig(
     name="Casual user (uris)",
     slug="casual_user_uris",
     description="Between 7 and 13 days of activity in the past 28 days",
@@ -459,45 +453,43 @@ TARGETING_CASUAL_USER_URIS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_CASUAL_USER_NEED_PIN = NimbusTargetingConfig(
+CASUAL_USER_NEED_PIN = NimbusTargetingConfig(
     name="Casual user (need pin)",
     slug="casual_user_need_pin",
     description="Between 7 and 13 days of activity in the past 28 days needing pin",
-    targeting=f"{TARGETING_CASUAL_USER_URIS.targeting} && doesAppNeedPin",
+    targeting=f"{CASUAL_USER_URIS.targeting} && doesAppNeedPin",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_CASUAL_USER_NEED_DEFAULT = NimbusTargetingConfig(
+CASUAL_USER_NEED_DEFAULT = NimbusTargetingConfig(
     name="Casual user (need default)",
     slug="casual_user_need_default",
     description="Between 7 and 14 days of activity in the past 28 days needing default",
-    targeting=f"{TARGETING_CASUAL_USER_URIS.targeting} && {TARGETING_NEED_DEFAULT}",
+    targeting=f"{CASUAL_USER_URIS.targeting} && {TARGETING_NEED_DEFAULT}",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_CASUAL_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
+CASUAL_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
     name="Casual user (need default, has pin)",
     slug="casual_user_need_default_has_pin",
     description="Between 7 and 14 days of activity in past 28 days need default w/ pin",
-    targeting=f"{TARGETING_CASUAL_USER_URIS.targeting} && "
-    f"{TARGETING_NEED_DEFAULT} && {TARGETING_HAS_PIN}",
+    targeting=f"{CASUAL_USER_NEED_DEFAULT.targeting} && {TARGETING_HAS_PIN}",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_CASUAL_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+CASUAL_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name="Casual user (has default, need pin)",
     slug="casual_user_has_default_need_pin",
     description="Between 7 and 14 days of activity in past 28 days w/ default need pin",
-    targeting=f"{TARGETING_CASUAL_USER_URIS.targeting} && "
-    "isDefaultBrowser && doesAppNeedPin",
+    targeting=f"{CASUAL_USER_NEED_PIN.targeting} && isDefaultBrowser",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_REGULAR_USER_URIS = NimbusTargetingConfig(
+REGULAR_USER_URIS = NimbusTargetingConfig(
     name="Regular user (uris)",
     slug="regular_user_uris",
     description="Between 14 and 20 days of activity in the past 28 days",
@@ -507,55 +499,52 @@ TARGETING_REGULAR_USER_URIS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_REGULAR_USER_NEED_PIN = NimbusTargetingConfig(
+REGULAR_USER_NEED_PIN = NimbusTargetingConfig(
     name="Regular user (need pin)",
     slug="regular_user_need_pin",
     description="Between 14 and 20 days of activity in the past 28 days needing pin",
-    targeting=f"{TARGETING_REGULAR_USER_URIS.targeting} && doesAppNeedPin",
+    targeting=f"{REGULAR_USER_URIS.targeting} && doesAppNeedPin",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_REGULAR_USER_NEED_DEFAULT = NimbusTargetingConfig(
+REGULAR_USER_NEED_DEFAULT = NimbusTargetingConfig(
     name="Regular user (need default)",
     slug="regular_user_need_default",
     description="Between 14 and 20 days of activity in the past 28 days needing default",
-    targeting=f"{TARGETING_REGULAR_USER_URIS.targeting} && {TARGETING_NEED_DEFAULT}",
+    targeting=f"{REGULAR_USER_URIS.targeting} && {TARGETING_NEED_DEFAULT}",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_REGULAR_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
+REGULAR_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
     name="Regular user (need default, has pin)",
     slug="regular_user_need_default_has_pin",
     description="Between 14 and 20 days of activity in past 28 days need default w/ pin",
-    targeting=f"{TARGETING_REGULAR_USER_URIS.targeting} && "
-    f"{TARGETING_NEED_DEFAULT} && {TARGETING_HAS_PIN}",
+    targeting=f"{REGULAR_USER_NEED_DEFAULT.targeting} && {TARGETING_HAS_PIN}",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+REGULAR_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name="Regular user (has default, need pin)",
     slug="regular_user_has_default_need_pin",
     description="Between 14 and 20 days of activity in past 28 days w/ default need pin",
-    targeting=f"{TARGETING_REGULAR_USER_URIS.targeting} && "
-    "isDefaultBrowser && doesAppNeedPin",
+    targeting=f"{REGULAR_USER_NEED_PIN.targeting} && isDefaultBrowser",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_REGULAR_USER_USES_FXA = NimbusTargetingConfig(
+REGULAR_USER_USES_FXA = NimbusTargetingConfig(
     name="Regular user (uses Firefox Accounts)",
     slug="regular_user_uses_fxa",
     description="Between 14 and 20 days of activity in the past 28 days signed in to FxA",
-    targeting=f"{TARGETING_REGULAR_USER_URIS.targeting} && "
-    "isFxAEnabled && usesFirefoxSync",
+    targeting=f"{REGULAR_USER_URIS.targeting} && isFxAEnabled && usesFirefoxSync",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_CORE_USER_URIS = NimbusTargetingConfig(
+CORE_USER_URIS = NimbusTargetingConfig(
     name="Core user (uris)",
     slug="core_user_uris",
     description="At least 21 days of activity in the past 28 days",
@@ -565,40 +554,38 @@ TARGETING_CORE_USER_URIS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_CORE_USER_NEED_PIN = NimbusTargetingConfig(
+CORE_USER_NEED_PIN = NimbusTargetingConfig(
     name="Core user (need pin)",
     slug="core_user_need_pin",
     description="At least 21 days of activity in the past 28 days needing pin",
-    targeting=f"{TARGETING_CORE_USER_URIS.targeting} && doesAppNeedPin",
+    targeting=f"{CORE_USER_URIS.targeting} && doesAppNeedPin",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_CORE_USER_NEED_DEFAULT = NimbusTargetingConfig(
+CORE_USER_NEED_DEFAULT = NimbusTargetingConfig(
     name="Core user (need default)",
     slug="core_user_need_default",
     description="At least 21 days of activity in the past 28 days needing default",
-    targeting=f"{TARGETING_CORE_USER_URIS.targeting} && {TARGETING_NEED_DEFAULT}",
+    targeting=f"{CORE_USER_URIS.targeting} && {TARGETING_NEED_DEFAULT}",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_CORE_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
+CORE_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
     name="Core user (need default, has pin)",
     slug="core_user_need_default_has_pin",
     description="At least 21 days of activity in past 28 days need default w/ pin",
-    targeting=f"{TARGETING_CORE_USER_URIS.targeting} && "
-    f"{TARGETING_NEED_DEFAULT} && {TARGETING_HAS_PIN}",
+    targeting=f"{CORE_USER_NEED_DEFAULT.targeting} && {TARGETING_HAS_PIN}",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TARGETING_CORE_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+CORE_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name="Core user (has default, need pin)",
     slug="core_user_has_default_need_pin",
     description="At least 21 days of activity in past 28 days w/ default need pin",
-    targeting=f"{TARGETING_CORE_USER_URIS.targeting} && "
-    "isDefaultBrowser && doesAppNeedPin",
+    targeting=f"{CORE_USER_NEED_PIN.targeting} && isDefaultBrowser",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -891,49 +878,29 @@ class NimbusConstants(object):
         TARGETING_MOBILE_RECENTLY_UPDATED.slug: TARGETING_MOBILE_RECENTLY_UPDATED,
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug: TARGETING_NO_ENTERPRISE_OR_PAST_VPN,
         TARGETING_NO_ENTERPRISE_OR_RECENT_VPN.slug: TARGETING_NO_ENTERPRISE_OR_RECENT_VPN,
-        TARGETING_INFREQUENT_USER_URIS.slug: TARGETING_INFREQUENT_USER_URIS,
-        TARGETING_INFREQUENT_USER_NEED_PIN.slug: TARGETING_INFREQUENT_USER_NEED_PIN,
-        TARGETING_INFREQUENT_USER_NEED_DEFAULT.slug: (
-            TARGETING_INFREQUENT_USER_NEED_DEFAULT
-        ),
-        TARGETING_INFREQUENT_USER_NEED_DEFAULT_HAS_PIN.slug: (
-            TARGETING_INFREQUENT_USER_NEED_DEFAULT_HAS_PIN
-        ),
-        TARGETING_INFREQUENT_USER_HAS_DEFAULT_NEED_PIN.slug: (
-            TARGETING_INFREQUENT_USER_HAS_DEFAULT_NEED_PIN
-        ),
-        TARGETING_INFREQUENT_WIN_USER_NEED_PIN.slug: (
-            TARGETING_INFREQUENT_WIN_USER_NEED_PIN
-        ),
-        TARGETING_INFREQUENT_WIN_USER_URIS.slug: TARGETING_INFREQUENT_WIN_USER_URIS,
-        TARGETING_CASUAL_USER_URIS.slug: TARGETING_CASUAL_USER_URIS,
-        TARGETING_CASUAL_USER_NEED_PIN.slug: TARGETING_CASUAL_USER_NEED_PIN,
-        TARGETING_CASUAL_USER_NEED_DEFAULT.slug: TARGETING_CASUAL_USER_NEED_DEFAULT,
-        TARGETING_CASUAL_USER_NEED_DEFAULT_HAS_PIN.slug: (
-            TARGETING_CASUAL_USER_NEED_DEFAULT_HAS_PIN
-        ),
-        TARGETING_CASUAL_USER_HAS_DEFAULT_NEED_PIN.slug: (
-            TARGETING_CASUAL_USER_HAS_DEFAULT_NEED_PIN
-        ),
-        TARGETING_REGULAR_USER_URIS.slug: TARGETING_REGULAR_USER_URIS,
-        TARGETING_REGULAR_USER_NEED_PIN.slug: TARGETING_REGULAR_USER_NEED_PIN,
-        TARGETING_REGULAR_USER_NEED_DEFAULT.slug: TARGETING_REGULAR_USER_NEED_DEFAULT,
-        TARGETING_REGULAR_USER_NEED_DEFAULT_HAS_PIN.slug: (
-            TARGETING_REGULAR_USER_NEED_DEFAULT_HAS_PIN
-        ),
-        TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN.slug: (
-            TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN
-        ),
-        TARGETING_REGULAR_USER_USES_FXA.slug: TARGETING_REGULAR_USER_USES_FXA,
-        TARGETING_CORE_USER_URIS.slug: TARGETING_CORE_USER_URIS,
-        TARGETING_CORE_USER_NEED_PIN.slug: TARGETING_CORE_USER_NEED_PIN,
-        TARGETING_CORE_USER_NEED_DEFAULT.slug: TARGETING_CORE_USER_NEED_DEFAULT,
-        TARGETING_CORE_USER_NEED_DEFAULT_HAS_PIN.slug: (
-            TARGETING_CORE_USER_NEED_DEFAULT_HAS_PIN
-        ),
-        TARGETING_CORE_USER_HAS_DEFAULT_NEED_PIN.slug: (
-            TARGETING_CORE_USER_HAS_DEFAULT_NEED_PIN
-        ),
+        INFREQUENT_USER_URIS.slug: INFREQUENT_USER_URIS,
+        INFREQUENT_USER_NEED_PIN.slug: INFREQUENT_USER_NEED_PIN,
+        INFREQUENT_USER_NEED_DEFAULT.slug: INFREQUENT_USER_NEED_DEFAULT,
+        INFREQUENT_USER_NEED_DEFAULT_HAS_PIN.slug: INFREQUENT_USER_NEED_DEFAULT_HAS_PIN,
+        INFREQUENT_USER_HAS_DEFAULT_NEED_PIN.slug: INFREQUENT_USER_HAS_DEFAULT_NEED_PIN,
+        INFREQUENT_WIN_USER_NEED_PIN.slug: INFREQUENT_WIN_USER_NEED_PIN,
+        INFREQUENT_WIN_USER_URIS.slug: INFREQUENT_WIN_USER_URIS,
+        CASUAL_USER_URIS.slug: CASUAL_USER_URIS,
+        CASUAL_USER_NEED_PIN.slug: CASUAL_USER_NEED_PIN,
+        CASUAL_USER_NEED_DEFAULT.slug: CASUAL_USER_NEED_DEFAULT,
+        CASUAL_USER_NEED_DEFAULT_HAS_PIN.slug: CASUAL_USER_NEED_DEFAULT_HAS_PIN,
+        CASUAL_USER_HAS_DEFAULT_NEED_PIN.slug: CASUAL_USER_HAS_DEFAULT_NEED_PIN,
+        REGULAR_USER_URIS.slug: REGULAR_USER_URIS,
+        REGULAR_USER_NEED_PIN.slug: REGULAR_USER_NEED_PIN,
+        REGULAR_USER_NEED_DEFAULT.slug: REGULAR_USER_NEED_DEFAULT,
+        REGULAR_USER_NEED_DEFAULT_HAS_PIN.slug: REGULAR_USER_NEED_DEFAULT_HAS_PIN,
+        REGULAR_USER_HAS_DEFAULT_NEED_PIN.slug: REGULAR_USER_HAS_DEFAULT_NEED_PIN,
+        REGULAR_USER_USES_FXA.slug: REGULAR_USER_USES_FXA,
+        CORE_USER_URIS.slug: CORE_USER_URIS,
+        CORE_USER_NEED_PIN.slug: CORE_USER_NEED_PIN,
+        CORE_USER_NEED_DEFAULT.slug: CORE_USER_NEED_DEFAULT,
+        CORE_USER_NEED_DEFAULT_HAS_PIN.slug: CORE_USER_NEED_DEFAULT_HAS_PIN,
+        CORE_USER_HAS_DEFAULT_NEED_PIN.slug: CORE_USER_HAS_DEFAULT_NEED_PIN,
         TARGETING_POCKET_COMMON.slug: TARGETING_POCKET_COMMON,
         TARGETING_PIP_NEVER_USED.slug: TARGETING_PIP_NEVER_USED,
         TARGETING_PIP_NEVER_USED_STICKY.slug: TARGETING_PIP_NEVER_USED_STICKY,
@@ -989,97 +956,97 @@ class NimbusConstants(object):
             TARGETING_MOBILE_RECENTLY_UPDATED.slug,
             TARGETING_MOBILE_RECENTLY_UPDATED.name,
         )
-        TARGETING_INFREQUENT_USER_URIS = (
-            TARGETING_INFREQUENT_USER_URIS.slug,
-            TARGETING_INFREQUENT_USER_URIS.name,
+        INFREQUENT_USER_URIS = (
+            INFREQUENT_USER_URIS.slug,
+            INFREQUENT_USER_URIS.name,
         )
-        TARGETING_INFREQUENT_USER_NEED_PIN = (
-            TARGETING_INFREQUENT_USER_NEED_PIN.slug,
-            TARGETING_INFREQUENT_USER_NEED_PIN.name,
+        INFREQUENT_USER_NEED_PIN = (
+            INFREQUENT_USER_NEED_PIN.slug,
+            INFREQUENT_USER_NEED_PIN.name,
         )
-        TARGETING_INFREQUENT_USER_NEED_DEFAULT = (
-            TARGETING_INFREQUENT_USER_NEED_DEFAULT.slug,
-            TARGETING_INFREQUENT_USER_NEED_DEFAULT.name,
+        INFREQUENT_USER_NEED_DEFAULT = (
+            INFREQUENT_USER_NEED_DEFAULT.slug,
+            INFREQUENT_USER_NEED_DEFAULT.name,
         )
-        TARGETING_INFREQUENT_WIN_USER_NEED_PIN = (
-            TARGETING_INFREQUENT_WIN_USER_NEED_PIN.slug,
-            TARGETING_INFREQUENT_WIN_USER_NEED_PIN.name,
+        INFREQUENT_WIN_USER_NEED_PIN = (
+            INFREQUENT_WIN_USER_NEED_PIN.slug,
+            INFREQUENT_WIN_USER_NEED_PIN.name,
         )
-        TARGETING_INFREQUENT_USER_NEED_DEFAULT_HAS_PIN = (
-            TARGETING_INFREQUENT_USER_NEED_DEFAULT_HAS_PIN.slug,
-            TARGETING_INFREQUENT_USER_NEED_DEFAULT_HAS_PIN.name,
+        INFREQUENT_USER_NEED_DEFAULT_HAS_PIN = (
+            INFREQUENT_USER_NEED_DEFAULT_HAS_PIN.slug,
+            INFREQUENT_USER_NEED_DEFAULT_HAS_PIN.name,
         )
-        TARGETING_INFREQUENT_USER_HAS_DEFAULT_NEED_PIN = (
-            TARGETING_INFREQUENT_USER_HAS_DEFAULT_NEED_PIN.slug,
-            TARGETING_INFREQUENT_USER_HAS_DEFAULT_NEED_PIN.name,
+        INFREQUENT_USER_HAS_DEFAULT_NEED_PIN = (
+            INFREQUENT_USER_HAS_DEFAULT_NEED_PIN.slug,
+            INFREQUENT_USER_HAS_DEFAULT_NEED_PIN.name,
         )
-        TARGETING_INFREQUENT_WIN_USER_URIS = (
-            TARGETING_INFREQUENT_WIN_USER_URIS.slug,
-            TARGETING_INFREQUENT_WIN_USER_URIS.name,
+        INFREQUENT_WIN_USER_URIS = (
+            INFREQUENT_WIN_USER_URIS.slug,
+            INFREQUENT_WIN_USER_URIS.name,
         )
-        TARGETING_CASUAL_USER_URIS = (
-            TARGETING_CASUAL_USER_URIS.slug,
-            TARGETING_CASUAL_USER_URIS.name,
+        CASUAL_USER_URIS = (
+            CASUAL_USER_URIS.slug,
+            CASUAL_USER_URIS.name,
         )
-        TARGETING_CASUAL_USER_NEED_PIN = (
-            TARGETING_CASUAL_USER_NEED_PIN.slug,
-            TARGETING_CASUAL_USER_NEED_PIN.name,
+        CASUAL_USER_NEED_PIN = (
+            CASUAL_USER_NEED_PIN.slug,
+            CASUAL_USER_NEED_PIN.name,
         )
-        TARGETING_CASUAL_USER_NEED_DEFAULT = (
-            TARGETING_CASUAL_USER_NEED_DEFAULT.slug,
-            TARGETING_CASUAL_USER_NEED_DEFAULT.name,
+        CASUAL_USER_NEED_DEFAULT = (
+            CASUAL_USER_NEED_DEFAULT.slug,
+            CASUAL_USER_NEED_DEFAULT.name,
         )
-        TARGETING_CASUAL_USER_NEED_DEFAULT_HAS_PIN = (
-            TARGETING_CASUAL_USER_NEED_DEFAULT_HAS_PIN.slug,
-            TARGETING_CASUAL_USER_NEED_DEFAULT_HAS_PIN.name,
+        CASUAL_USER_NEED_DEFAULT_HAS_PIN = (
+            CASUAL_USER_NEED_DEFAULT_HAS_PIN.slug,
+            CASUAL_USER_NEED_DEFAULT_HAS_PIN.name,
         )
-        TARGETING_CASUAL_USER_HAS_DEFAULT_NEED_PIN = (
-            TARGETING_CASUAL_USER_HAS_DEFAULT_NEED_PIN.slug,
-            TARGETING_CASUAL_USER_HAS_DEFAULT_NEED_PIN.name,
+        CASUAL_USER_HAS_DEFAULT_NEED_PIN = (
+            CASUAL_USER_HAS_DEFAULT_NEED_PIN.slug,
+            CASUAL_USER_HAS_DEFAULT_NEED_PIN.name,
         )
-        TARGETING_REGULAR_USER_URIS = (
-            TARGETING_REGULAR_USER_URIS.slug,
-            TARGETING_REGULAR_USER_URIS.name,
+        REGULAR_USER_URIS = (
+            REGULAR_USER_URIS.slug,
+            REGULAR_USER_URIS.name,
         )
-        TARGETING_REGULAR_USER_NEED_PIN = (
-            TARGETING_REGULAR_USER_NEED_PIN.slug,
-            TARGETING_REGULAR_USER_NEED_PIN.name,
+        REGULAR_USER_NEED_PIN = (
+            REGULAR_USER_NEED_PIN.slug,
+            REGULAR_USER_NEED_PIN.name,
         )
-        TARGETING_REGULAR_USER_NEED_DEFAULT = (
-            TARGETING_REGULAR_USER_NEED_DEFAULT.slug,
-            TARGETING_REGULAR_USER_NEED_DEFAULT.name,
+        REGULAR_USER_NEED_DEFAULT = (
+            REGULAR_USER_NEED_DEFAULT.slug,
+            REGULAR_USER_NEED_DEFAULT.name,
         )
-        TARGETING_REGULAR_USER_NEED_DEFAULT_HAS_PIN = (
-            TARGETING_REGULAR_USER_NEED_DEFAULT_HAS_PIN.slug,
-            TARGETING_REGULAR_USER_NEED_DEFAULT_HAS_PIN.name,
+        REGULAR_USER_NEED_DEFAULT_HAS_PIN = (
+            REGULAR_USER_NEED_DEFAULT_HAS_PIN.slug,
+            REGULAR_USER_NEED_DEFAULT_HAS_PIN.name,
         )
-        TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN = (
-            TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN.slug,
-            TARGETING_REGULAR_USER_HAS_DEFAULT_NEED_PIN.name,
+        REGULAR_USER_HAS_DEFAULT_NEED_PIN = (
+            REGULAR_USER_HAS_DEFAULT_NEED_PIN.slug,
+            REGULAR_USER_HAS_DEFAULT_NEED_PIN.name,
         )
-        TARGETING_REGULAR_USER_USES_FXA = (
-            TARGETING_REGULAR_USER_USES_FXA.slug,
-            TARGETING_REGULAR_USER_USES_FXA.name,
+        REGULAR_USER_USES_FXA = (
+            REGULAR_USER_USES_FXA.slug,
+            REGULAR_USER_USES_FXA.name,
         )
-        TARGETING_CORE_USER_URIS = (
-            TARGETING_CORE_USER_URIS.slug,
-            TARGETING_CORE_USER_URIS.name,
+        CORE_USER_URIS = (
+            CORE_USER_URIS.slug,
+            CORE_USER_URIS.name,
         )
-        TARGETING_CORE_USER_NEED_PIN = (
-            TARGETING_CORE_USER_NEED_PIN.slug,
-            TARGETING_CORE_USER_NEED_PIN.name,
+        CORE_USER_NEED_PIN = (
+            CORE_USER_NEED_PIN.slug,
+            CORE_USER_NEED_PIN.name,
         )
-        TARGETING_CORE_USER_NEED_DEFAULT = (
-            TARGETING_CORE_USER_NEED_DEFAULT.slug,
-            TARGETING_CORE_USER_NEED_DEFAULT.name,
+        CORE_USER_NEED_DEFAULT = (
+            CORE_USER_NEED_DEFAULT.slug,
+            CORE_USER_NEED_DEFAULT.name,
         )
-        TARGETING_CORE_USER_NEED_DEFAULT_HAS_PIN = (
-            TARGETING_CORE_USER_NEED_DEFAULT_HAS_PIN.slug,
-            TARGETING_CORE_USER_NEED_DEFAULT_HAS_PIN.name,
+        CORE_USER_NEED_DEFAULT_HAS_PIN = (
+            CORE_USER_NEED_DEFAULT_HAS_PIN.slug,
+            CORE_USER_NEED_DEFAULT_HAS_PIN.name,
         )
-        TARGETING_CORE_USER_HAS_DEFAULT_NEED_PIN = (
-            TARGETING_CORE_USER_HAS_DEFAULT_NEED_PIN.slug,
-            TARGETING_CORE_USER_HAS_DEFAULT_NEED_PIN.name,
+        CORE_USER_HAS_DEFAULT_NEED_PIN = (
+            CORE_USER_HAS_DEFAULT_NEED_PIN.slug,
+            CORE_USER_HAS_DEFAULT_NEED_PIN.name,
         )
         TARGETING_NO_ENTERPRISE_OR_PAST_VPN = (
             TARGETING_NO_ENTERPRISE_OR_PAST_VPN.slug,
