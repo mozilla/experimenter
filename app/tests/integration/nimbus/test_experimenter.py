@@ -3,8 +3,6 @@ import os
 import pytest
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
-from nimbus.pages.remote_settings.dashboard import Dashboard
-from nimbus.pages.remote_settings.login import Login
 
 
 @pytest.mark.run_once
@@ -61,21 +59,19 @@ def test_promote_to_rollout(
 @pytest.mark.run_once
 def test_takeaways(
     selenium,
-    kinto_url,
-    kinto_review_url,
     experiment_url,
     create_experiment,
+    kinto_client,
 ):
     create_experiment(selenium).launch_and_approve()
 
-    Login(selenium, kinto_url).open().login()
-    Dashboard(selenium, kinto_review_url).open().approve()
+    kinto_client.approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_live_status()
     summary.end_and_approve()
 
-    Dashboard(selenium, kinto_review_url).open().approve()
+    kinto_client.approve()
 
     summary = SummaryPage(selenium, experiment_url).open()
     summary.wait_for_complete_status()

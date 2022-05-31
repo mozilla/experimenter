@@ -7,8 +7,8 @@ class BaseExperimentApplications(Enum):
     DESKTOP = "DESKTOP"
     FENIX = "FENIX"
     IOS = "IOS"
-    KLAR = "KLAR_ANDROID"
-    FOCUS = "FOCUS_ANDROID"
+    FOCUS_ANDROID = "FOCUS_ANDROID"
+    FOCUS_IOS = "FOCUS_IOS"
 
 
 class BaseExperimentAudienceChannels(Enum):
