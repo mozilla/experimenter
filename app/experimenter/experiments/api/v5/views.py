@@ -11,7 +11,8 @@ class NimbusExperimentCsvRenderer(CSVRenderer):
 
 
 class NimbusExperimentCsvListView(ListAPIView):
-    queryset = NimbusExperiment.objects.all()
+
+    queryset = NimbusExperiment.objects.all().prefetch_related("feature_configs", "owner")
     serializer_class = NimbusExperimentCsvSerializer
 
     renderer_classes = (NimbusExperimentCsvRenderer,)
