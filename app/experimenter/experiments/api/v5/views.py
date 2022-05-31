@@ -12,6 +12,13 @@ class NimbusExperimentCsvRenderer(CSVRenderer):
 
 class NimbusExperimentCsvListView(ListAPIView):
     queryset = NimbusExperiment.objects.all()
+
+    def get_queryset(self):
+        return sorted(
+            super().get_queryset(),
+            key=lambda experiment: str(experiment.start_date) or "",
+        )
+
     serializer_class = NimbusExperimentCsvSerializer
 
     renderer_classes = (NimbusExperimentCsvRenderer,)
