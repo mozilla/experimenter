@@ -1340,7 +1340,7 @@
     },
     "/api/v5/csv/": {
       "get": {
-        "operationId": "listNimbusExperimentCsvs",
+        "operationId": "listNimbusExperiments",
         "description": "",
         "parameters": [],
         "responses": {
