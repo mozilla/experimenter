@@ -1,6 +1,2 @@
-app/tests @jrbenny35 @pdehaan
-app/experimenter/base/migrations @jaredlockhart @lmorchard
-app/experimenter/experiments/migrations @jaredlockhart @lmorchard
-app/experimenter/notifications/migrations @jaredlockhart @lmorchard
-app/experimenter/projects/migrations @jaredlockhart @lmorchard
-app/experimenter/reporting/migrations @jaredlockhart @lmorchard
+app/tests @jrbenny35
+app/experimenter/ @jaredlockhart
