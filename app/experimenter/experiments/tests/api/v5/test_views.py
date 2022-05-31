@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
@@ -5,7 +7,9 @@ from django.urls import reverse
 from experimenter.experiments.api.v5.serializers import NimbusExperimentCsvSerializer
 from experimenter.experiments.api.v5.views import NimbusExperimentCsvRenderer
 from experimenter.experiments.constants.nimbus import NimbusConstants
+from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories.nimbus import (
+    NimbusChangeLogFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
@@ -18,6 +22,12 @@ class TestNimbusExperimentCsvListView(TestCase):
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         experiment_1 = NimbusExperimentFactory.create(
             application=application, feature_configs=[feature_config]
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment_1,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=datetime.date(2019, 5, 1),
         )
         experiment_2 = NimbusExperimentFactory.create(
             application=application, feature_configs=[feature_config]
