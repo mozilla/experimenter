@@ -1075,6 +1075,12 @@ class NimbusConstants(object):
         Application.IOS: Version.FIREFOX_98,
         Application.FOCUS_IOS: Version.FIREFOX_97,
     }
+    LANGUAGES_APPLICATION_SUPPORTED_VERSION = {
+        Application.FENIX: Version.FIREFOX_102,
+        Application.FOCUS_ANDROID: Version.FIREFOX_98,
+        Application.IOS: Version.FIREFOX_98,
+        Application.FOCUS_IOS: Version.FIREFOX_97,
+    }
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
