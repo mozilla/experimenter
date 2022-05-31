@@ -20,6 +20,7 @@ class TestNimbusExperimentCsvSerializer(TestCase):
         experiment = NimbusExperimentFactory.create(
             application=application, feature_configs=[feature_config]
         )
+
         serializer = NimbusExperimentCsvSerializer(experiment)
         self.assertDictEqual(
             serializer.data,
