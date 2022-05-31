@@ -64,7 +64,7 @@ class TestNimbusExperimentCsvSerializer(TestCase):
                 "start_date": experiment.start_date,
                 "enrollment_duration": experiment.enrollment_duration,
                 "end_date": experiment.end_date,
-                "results_url": experiment.experiment_url + "/results",
+                "results_url": experiment.experiment_url + "results",
                 "experiment_summary": experiment.experiment_url,
                 "rollout": experiment.is_rollout,
                 "hypothesis": experiment.hypothesis,

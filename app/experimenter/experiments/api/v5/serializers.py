@@ -827,7 +827,7 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
 
     def get_results_url(self, obj):
         if obj.results_ready:
-            return obj.experiment_url + "/results"
+            return obj.experiment_url + "results"
         else:
             return ""
 
