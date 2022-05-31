@@ -1,11 +1,9 @@
 import json
 import os
-import time
 import uuid
 from pathlib import Path
 
 import pytest
-import requests
 from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
 from nimbus.utils import helpers
 
@@ -88,11 +86,10 @@ def fixture_jexl_evaluator():
 @pytest.mark.parametrize("context", client_info_list())
 @pytest.mark.run_targeting
 def test_check_mobile_targeting(
-    jexl_evaluator, sdk_client, request, load_app_context, context, slugify
+    jexl_evaluator, sdk_client, load_app_context, context, slugify, experiment_name
 ):
     context = json.loads(context["app_context"])
     context["locale"] = context["locale"][:2]  # strip region
-    experiment_name = f"{request.node.name}-{str(uuid.uuid4())[:4]}"
     helpers.create_mobile_experiment(
         slugify(experiment_name),
         context["app_name"],
@@ -106,10 +103,9 @@ def test_check_mobile_targeting(
 @pytest.mark.parametrize("context", client_info_list())
 @pytest.mark.run_targeting
 def test_check_mobile_targeting_falsey(
-    jexl_evaluator, sdk_client, request, load_app_context, context, slugify
+    jexl_evaluator, sdk_client, load_app_context, context, slugify, experiment_name
 ):
     context = json.loads(context["app_context"])
-    experiment_name = f"{request.node.name}-{str(uuid.uuid4())[:4]}"
     helpers.create_mobile_experiment(
         slugify(experiment_name),
         context["app_name"],
@@ -121,10 +117,9 @@ def test_check_mobile_targeting_falsey(
 
 @pytest.mark.run_targeting
 def test_check_mobile_targeting_undefined(
-    jexl_evaluator, sdk_client, request, load_app_context, slugify
+    jexl_evaluator, sdk_client, load_app_context, slugify, experiment_name
 ):
     client = json.loads(client_info_list()[0]["app_context"])
-    experiment_name = f"{request.node.name}-{str(uuid.uuid4())[:4]}"
     helpers.create_mobile_experiment(
         slugify(experiment_name),
         client["app_name"],

@@ -121,17 +121,22 @@ def experiment_url(base_url, default_data, slugify):
     return urljoin(base_url, slugify(default_data.public_name))
 
 
+@pytest.fixture
+def experiment_name(request):
+    return f"{request.node.name}-{str(uuid.uuid4())[:4]}"
+
+
 @pytest.fixture(
     # Use all applications as available parameters in parallel_pytest_args.txt
     params=list(BaseExperimentApplications),
     ids=[application.name for application in BaseExperimentApplications],
 )
-def default_data(request):
+def default_data(request, experiment_name):
     application = request.param
     feature_config = APPLICATION_FEATURES[application]
 
     return BaseExperimentDataClass(
-        public_name=f"{request.node.name[:76]}-{str(uuid.uuid4())[:4]}",
+        public_name=experiment_name,
         hypothesis="smart stuff here",
         application=application,
         public_description="description stuff",
