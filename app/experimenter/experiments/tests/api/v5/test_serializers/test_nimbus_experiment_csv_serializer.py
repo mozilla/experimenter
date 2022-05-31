@@ -1,8 +1,12 @@
+import datetime
+
 from django.test import TestCase
 
 from experimenter.experiments.api.v5.serializers import NimbusExperimentCsvSerializer
 from experimenter.experiments.constants.nimbus import NimbusConstants
+from experimenter.experiments.models.nimbus import NimbusExperiment
 from experimenter.experiments.tests.factories.nimbus import (
+    NimbusChangeLogFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
@@ -15,6 +19,12 @@ class TestNimbusExperimentCsvSerializer(TestCase):
 
         experiment = NimbusExperimentFactory.create(
             application=application, feature_configs=[feature_config]
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=datetime.date(2019, 5, 1),
         )
         serializer = NimbusExperimentCsvSerializer(experiment)
         self.assertDictEqual(
