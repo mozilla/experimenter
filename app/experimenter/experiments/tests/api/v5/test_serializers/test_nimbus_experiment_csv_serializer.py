@@ -20,12 +20,7 @@ class TestNimbusExperimentCsvSerializer(TestCase):
         experiment = NimbusExperimentFactory.create(
             application=application, feature_configs=[feature_config]
         )
-        NimbusChangeLogFactory.create(
-            experiment=experiment,
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-            changed_on=datetime.date(2019, 5, 1),
-        )
+
         serializer = NimbusExperimentCsvSerializer(experiment)
         self.assertDictEqual(
             serializer.data,
