@@ -75,7 +75,7 @@ class NimbusExperimentResource(resources.ModelResource):
 
     class Meta:
         model = NimbusExperiment
-        exclude = ("id", "reference_branch")
+        exclude = ("id", "reference_branch", "parent")
         import_id_fields = ("slug",)
 
     def dehydrate_changes(self, experiment):
