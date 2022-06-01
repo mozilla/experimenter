@@ -11,7 +11,7 @@ from experimenter.experiments.changelog_utils import (
     NimbusBranchChangeLogSerializer,
     NimbusChangeLogSerializer,
 )
-from experimenter.experiments.constants.nimbus import NimbusConstants
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
