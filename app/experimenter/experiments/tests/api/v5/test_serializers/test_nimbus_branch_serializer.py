@@ -2,14 +2,12 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from experimenter.experiments.api.v5.serializers import NimbusBranchSerializer
-from experimenter.experiments.constants.nimbus import NimbusConstants
-from experimenter.experiments.models.nimbus import NimbusBranch
+from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusBranch
 from experimenter.experiments.tests.factories import (
     TINY_PNG,
     NimbusBranchFactory,
     NimbusBranchScreenshotFactory,
-)
-from experimenter.experiments.tests.factories.nimbus import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )

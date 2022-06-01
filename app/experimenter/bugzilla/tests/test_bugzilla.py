@@ -17,8 +17,8 @@ from experimenter.bugzilla import (
     update_experiment_bug,
 )
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.legacy.legacy_experiments.models import Experiment
+from experimenter.legacy.legacy_experiments.tests.factories import ExperimentFactory
 
 
 class TestCreateExperimentBug(MockBugzillaMixin, TestCase):

@@ -12,9 +12,9 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experiments.constants.nimbus import NimbusConstants
-from experimenter.experiments.models.nimbus import NimbusExperiment, NimbusFeatureConfig
-from experimenter.experiments.tests.factories.nimbus import (
+from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
+from experimenter.experiments.tests.factories import (
     TINY_PNG,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,

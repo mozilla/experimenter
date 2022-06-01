@@ -3,7 +3,7 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
-import experimenter.experiments.models.nimbus
+import experimenter.experiments.models
 
 
 class Migration(migrations.Migration):
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                     "image",
                     models.ImageField(
                         storage=experimenter.base.UploadsStorage,
-                        upload_to=experimenter.experiments.models.nimbus.nimbus_branch_screenshot_upload_to,
+                        upload_to=experimenter.experiments.models.nimbus_branch_screenshot_upload_to,
                     ),
                 ),
                 ("description", models.TextField(blank=True, default="")),
