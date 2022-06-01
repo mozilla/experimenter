@@ -14,13 +14,13 @@ from experimenter.base.models import (
     SiteFlagNameChoices,
 )
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.constants.nimbus import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.models.nimbus import (
+from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
     NimbusBranchScreenshot,
     NimbusDocumentationLink,
+    NimbusExperiment,
     NimbusFeatureConfig,
 )
 from experimenter.kinto.tasks import (
