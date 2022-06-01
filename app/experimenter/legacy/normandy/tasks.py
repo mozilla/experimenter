@@ -19,7 +19,7 @@ from experimenter.legacy.legacy_experiments.email import (
     send_period_ending_emails_task,
 )
 from experimenter.legacy.legacy_experiments.models import Experiment
-from experimenter.normandy import client as normandy
+from experimenter.legacy.normandy import client as normandy
 
 STATUS_UPDATE_MAPPING = {
     Experiment.STATUS_ACCEPTED: Experiment.STATUS_LIVE,
