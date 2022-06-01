@@ -1077,9 +1077,9 @@ class NimbusConstants(object):
     }
     LANGUAGES_APPLICATION_SUPPORTED_VERSION = {
         Application.FENIX: Version.FIREFOX_102,
-        Application.FOCUS_ANDROID: Version.FIREFOX_98,
-        Application.IOS: Version.FIREFOX_98,
-        Application.FOCUS_IOS: Version.FIREFOX_97,
+        Application.FOCUS_ANDROID: Version.FIREFOX_102,
+        Application.IOS: Version.FIREFOX_101,
+        Application.FOCUS_IOS: Version.FIREFOX_101,
     }
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
