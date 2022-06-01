@@ -197,6 +197,96 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertTrue(serializer.is_valid())
 
+    @parameterized.expand(
+        [
+            (True, NimbusExperiment.Application.FOCUS_ANDROID),
+            (True, NimbusExperiment.Application.FENIX),
+            (True, NimbusExperiment.Application.IOS),
+            (True, NimbusExperiment.Application.FOCUS_IOS),
+        ]
+    )
+    def test_valid_experiments_supporting_languages_versions(
+        self, expected_valid, application
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_103,
+        )
+        experiment.save()
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertEqual(serializer.is_valid(), expected_valid, serializer.errors)
+        if not expected_valid:
+            self.assertIn("languages", serializer.errors)
+
+    @parameterized.expand(
+        [
+            (False, NimbusExperiment.Application.FOCUS_ANDROID),
+            (False, NimbusExperiment.Application.FENIX),
+            (False, NimbusExperiment.Application.IOS),
+            (False, NimbusExperiment.Application.FOCUS_IOS),
+        ]
+    )
+    def test_invalid_experiments_supporting_languages_versions(
+        self, expected_valid, application
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+        )
+        experiment.save()
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertEqual(serializer.is_valid(), expected_valid, serializer.errors)
+        if not expected_valid:
+            self.assertIn("languages", serializer.errors)
+
+    @parameterized.expand(
+        [
+            (False, NimbusExperiment.Application.FOCUS_ANDROID),
+            (False, NimbusExperiment.Application.FENIX),
+            (True, NimbusExperiment.Application.IOS),
+            (True, NimbusExperiment.Application.FOCUS_IOS),
+        ]
+    )
+    def test_invalid_experiments_supporting_languages_versions_for_android(
+        self, expected_valid, application
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_101,
+        )
+        experiment.save()
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertEqual(serializer.is_valid(), expected_valid, serializer.errors)
+        if not expected_valid:
+            self.assertIn("languages", serializer.errors)
+
     def test_alid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
