@@ -3,6 +3,11 @@ from urllib.parse import urljoin, urlparse
 
 import pytest
 import requests
+from nimbus.kinto.client import (
+    KINTO_COLLECTION_DESKTOP,
+    KINTO_COLLECTION_MOBILE,
+    KintoClient,
+)
 from nimbus.models.base_dataclass import (
     BaseExperimentApplications,
     BaseExperimentAudienceChannels,
@@ -19,8 +24,8 @@ APPLICATION_FEATURES = {
     BaseExperimentApplications.DESKTOP: "No Feature Firefox Desktop",
     BaseExperimentApplications.FENIX: "No Feature Fenix",
     BaseExperimentApplications.IOS: "No Feature iOS",
-    BaseExperimentApplications.KLAR: "No Feature Klar for Android",
-    BaseExperimentApplications.FOCUS: "No Feature Focus for Android",
+    BaseExperimentApplications.FOCUS_ANDROID: "No Feature Focus for Android",
+    BaseExperimentApplications.FOCUS_IOS: "No Feature Focus for iOS",
 }
 
 APPLICATION_KINTO_REVIEW_PATH = {
@@ -33,12 +38,20 @@ APPLICATION_KINTO_REVIEW_PATH = {
     BaseExperimentApplications.IOS: (
         "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
     ),
-    BaseExperimentApplications.KLAR: (
+    BaseExperimentApplications.FOCUS_ANDROID: (
         "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
     ),
-    BaseExperimentApplications.FOCUS: (
+    BaseExperimentApplications.FOCUS_IOS: (
         "#/buckets/main-workspace/collections/nimbus-mobile-experiments/simple-review"
     ),
+}
+
+APPLICATION_KINTO_COLLECTION = {
+    "DESKTOP": KINTO_COLLECTION_DESKTOP,
+    "FENIX": KINTO_COLLECTION_MOBILE,
+    "IOS": KINTO_COLLECTION_MOBILE,
+    "FOCUS_ANDROID": KINTO_COLLECTION_MOBILE,
+    "FOCUS_IOS": KINTO_COLLECTION_MOBILE,
 }
 
 
@@ -89,13 +102,8 @@ def _verify_url(request, base_url):
 
 
 @pytest.fixture
-def kinto_url():
-    return "http://kinto:8888/v1/admin/"
-
-
-@pytest.fixture
-def kinto_review_url(kinto_url, default_data):
-    return urljoin(kinto_url, APPLICATION_KINTO_REVIEW_PATH[default_data.application])
+def kinto_client(default_data):
+    return KintoClient(APPLICATION_KINTO_COLLECTION[default_data.application.value])
 
 
 @pytest.fixture

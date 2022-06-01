@@ -2960,9 +2960,12 @@
             "type": "string",
             "readOnly": true
           },
-          "monitoring_dashboard_url": {
+          "results_url": {
             "type": "string",
             "readOnly": true
+          },
+          "experiment_summary": {
+            "type": "string"
           },
           "rollout": {
             "type": "boolean"
@@ -2974,6 +2977,7 @@
         "required": [
           "product_area",
           "experiment_name",
+          "experiment_summary",
           "rollout"
         ]
       },

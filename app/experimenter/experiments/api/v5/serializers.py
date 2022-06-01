@@ -800,6 +800,8 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
     rollout = serializers.BooleanField(source="is_rollout")
     owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
     feature_configs = serializers.SerializerMethodField()
+    experiment_summary = serializers.CharField(source="experiment_url")
+    results_url = serializers.SerializerMethodField()
 
     class Meta:
         model = NimbusExperiment
@@ -812,7 +814,8 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
             "start_date",
             "enrollment_duration",
             "end_date",
-            "monitoring_dashboard_url",
+            "results_url",
+            "experiment_summary",
             "rollout",
             "hypothesis",
         ]
@@ -821,6 +824,12 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
         return ", ".join(
             [feature.name for feature in obj.feature_configs.order_by("name")]
         )
+
+    def get_results_url(self, obj):
+        if obj.results_ready:
+            return obj.experiment_url + "results"
+        else:
+            return ""
 
 
 class NimbusBranchScreenshotReviewSerializer(NimbusBranchScreenshotSerializer):
