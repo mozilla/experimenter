@@ -6,11 +6,10 @@ from mozilla_nimbus_shared import check_schema
 from parameterized import parameterized
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.models.nimbus import NimbusBranchFeatureValue
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.experiments.tests.factories.nimbus import (
+from experimenter.experiments.models import NimbusBranchFeatureValue, NimbusExperiment
+from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
+    NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
 
