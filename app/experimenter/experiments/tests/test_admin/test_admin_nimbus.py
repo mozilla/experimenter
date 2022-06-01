@@ -193,6 +193,14 @@ class TestNimbusExperimentExport(TestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
 
+        # test normal dehydrate conditions
+        experiment.status_next = "Complete"
+        experiment.conclusion_recommendation = "STOP"
+        status_next = resource.dehydrate_status_next(experiment)
+        conclusion_recommendation = resource.dehydrate_conclusion_recommendation(
+            experiment
+        )
+
         num_changes = len(resource.dehydrate_changes(experiment))
         num_branches = len(resource.dehydrate_branches(experiment))
         reference_branch_slug = resource.dehydrate_reference_branch_slug(experiment)
@@ -200,10 +208,29 @@ class TestNimbusExperimentExport(TestCase):
         self.assertGreaterEqual(num_changes, 1)
         self.assertEqual(num_branches, 2)
         self.assertEqual(reference_branch_slug, "control")
+        self.assertEqual(status_next, "Complete")
+        self.assertEqual(conclusion_recommendation, "STOP")
 
+    def test_resource_dehydrate_none(self):
+        resource = NimbusExperimentResource()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+
+        # test None dehydrate conditions
         experiment.reference_branch = None
+        experiment.status_next = None
+        experiment.conclusion_recommendation = None
+
         none_slug = resource.dehydrate_reference_branch_slug(experiment)
+        status_next = resource.dehydrate_status_next(experiment)
+        conclusion_recommendation = resource.dehydrate_conclusion_recommendation(
+            experiment
+        )
+
         self.assertIsNone(none_slug)
+        self.assertIsNone(status_next)
+        self.assertIsNone(conclusion_recommendation)
 
     def test_before_import_row(self):
         user_model = get_user_model()

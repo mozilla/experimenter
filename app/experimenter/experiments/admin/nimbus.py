@@ -11,6 +11,7 @@ from experimenter.experiments.changelog_utils import (
     NimbusBranchChangeLogSerializer,
     NimbusChangeLogSerializer,
 )
+from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchScreenshot,
@@ -63,6 +64,11 @@ class NimbusExperimentResource(resources.ModelResource):
         column_name="reference_branch_slug",
         widget=NimbusBranchForeignKeyWidget(NimbusBranch, "slug"),
     )
+    # special cases for enums that can be null
+    # - the default handling for these turns nulls into empty strings,
+    #   which breaks the Nimbus UI type validation
+    status_next = fields.Field()
+    conclusion_recommendation = fields.Field()
 
     def get_diff_headers(self):
         skip_list = ["reference_branch_slug"]
@@ -91,6 +97,20 @@ class NimbusExperimentResource(resources.ModelResource):
         if experiment.reference_branch is not None:
             return experiment.reference_branch.slug
         return None
+
+    def dehydrate_status_next(self, experiment):
+        """Return None instead of empty string for nullable enums"""
+        if experiment.status_next not in dict(NimbusConstants.Status.choices):
+            return None
+        return experiment.status_next
+
+    def dehydrate_conclusion_recommendation(self, experiment):
+        """Return None instead of empty string for nullable enums"""
+        if experiment.conclusion_recommendation not in dict(
+            NimbusConstants.ConclusionRecommendation.choices
+        ):
+            return None
+        return experiment.conclusion_recommendation
 
     def before_import_row(self, row: dict, row_number=None, **kwargs):
         owner_id = row.get("owner")
