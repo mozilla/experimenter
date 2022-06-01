@@ -17,7 +17,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 from experimenter.base.models import Country, Locale
-from experimenter.experiments.constants import ExperimentConstants
+from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 from experimenter.projects.models import Project
 
 

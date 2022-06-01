@@ -8,9 +8,11 @@ from parameterized import parameterized
 
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.models.nimbus import NimbusExperiment
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
+from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.tests.factories import (
+    NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
+)
 from experimenter.outcomes import Outcomes
 
 

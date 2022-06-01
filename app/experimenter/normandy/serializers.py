@@ -2,8 +2,8 @@ import json
 
 from rest_framework import serializers
 
-from experimenter.experiments.api.v1.serializers import PrefTypeField
-from experimenter.experiments.constants import ExperimentConstants
+from experimenter.legacy.legacy_experiments.api.v1.serializers import PrefTypeField
+from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 from experimenter.legacy.legacy_experiments.models import (
     Experiment,
     ExperimentVariant,
