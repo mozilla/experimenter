@@ -2,13 +2,13 @@ from django.test import TestCase
 from parameterized import parameterized
 
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
-from experimenter.experiments.constants.nimbus import NimbusConstants
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
 )
-from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
 
 BASIC_JSON_SCHEMA = """\

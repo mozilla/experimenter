@@ -14,6 +14,8 @@ class Channel(models.TextChoices):
     RELEASE = "release"
     ESR = "esr"
     TESTFLIGHT = "testflight"
+    AURORA = "aurora"
+
 
 
 class BucketRandomizationUnit(models.TextChoices):
@@ -42,6 +44,8 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
         Channel.BETA: "firefox-desktop",
         Channel.RELEASE: "firefox-desktop",
         Channel.ESR: "firefox-desktop",
+        Channel.AURORA: "firefox-desktop",
+
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
@@ -1075,12 +1079,14 @@ class NimbusConstants(object):
         Application.IOS: Version.FIREFOX_98,
         Application.FOCUS_IOS: Version.FIREFOX_97,
     }
+
     LANGUAGES_APPLICATION_SUPPORTED_VERSION = {
         Application.FENIX: Version.FIREFOX_102,
         Application.FOCUS_ANDROID: Version.FIREFOX_102,
         Application.IOS: Version.FIREFOX_101,
         Application.FOCUS_IOS: Version.FIREFOX_101,
     }
+
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
