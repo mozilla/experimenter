@@ -14,6 +14,7 @@ class Channel(models.TextChoices):
     RELEASE = "release"
     ESR = "esr"
     TESTFLIGHT = "testflight"
+    AURORA = "aurora"
 
 
 class BucketRandomizationUnit(models.TextChoices):
@@ -42,6 +43,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
         Channel.BETA: "firefox-desktop",
         Channel.RELEASE: "firefox-desktop",
         Channel.ESR: "firefox-desktop",
+        Channel.AURORA: "firefox-desktop",
     },
     kinto_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,

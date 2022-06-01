@@ -38,6 +38,7 @@ export enum NimbusExperimentApplicationEnum {
 }
 
 export enum NimbusExperimentChannelEnum {
+  AURORA = "AURORA",
   BETA = "BETA",
   ESR = "ESR",
   NIGHTLY = "NIGHTLY",

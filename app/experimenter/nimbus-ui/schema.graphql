@@ -234,6 +234,7 @@ enum NimbusExperimentChannelEnum {
   RELEASE
   ESR
   TESTFLIGHT
+  AURORA
 }
 
 enum NimbusExperimentConclusionRecommendationEnum {
