@@ -5,7 +5,7 @@ import django.core.serializers.json
 from django.db import migrations
 from django.db.models import F
 
-from experimenter.experiments.constants import ExperimentConstants
+from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 
 
 class Migration(migrations.Migration):
