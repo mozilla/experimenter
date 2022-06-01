@@ -8,8 +8,8 @@ from graphene_django.types import DjangoObjectType
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.constants.nimbus import NimbusConstants
-from experimenter.experiments.models.nimbus import (
+from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
     NimbusBranchScreenshot,

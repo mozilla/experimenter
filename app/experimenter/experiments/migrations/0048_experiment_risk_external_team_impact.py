@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 
-from experimenter.experiments.constants import ExperimentConstants
+from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 
 
 def populate_risk_external_team_impact(apps, schema_editor):

@@ -7,7 +7,7 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
-import experimenter.experiments.constants.legacy
+import experimenter.legacy.legacy_experiments.constants
 import experimenter.legacy.legacy_experiments.models
 
 
@@ -726,7 +726,7 @@ class Migration(migrations.Migration):
                         "db_table": "experiments_experiment",
                     },
                     bases=(
-                        experimenter.experiments.constants.legacy.ExperimentConstants,
+                        experimenter.legacy.legacy_experiments.constants.ExperimentConstants,
                         models.Model,
                     ),
                 ),
@@ -810,7 +810,7 @@ class Migration(migrations.Migration):
                         "db_table": "experiments_experimentemail",
                     },
                     bases=(
-                        experimenter.experiments.constants.legacy.ExperimentConstants,
+                        experimenter.legacy.legacy_experiments.constants.ExperimentConstants,
                         models.Model,
                     ),
                 ),
@@ -872,7 +872,7 @@ class Migration(migrations.Migration):
                         "ordering": ("created_on",),
                     },
                     bases=(
-                        experimenter.experiments.constants.legacy.ExperimentConstants,
+                        experimenter.legacy.legacy_experiments.constants.ExperimentConstants,
                         models.Model,
                     ),
                 ),

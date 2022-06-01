@@ -2,7 +2,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework_csv.renderers import CSVRenderer
 
 from experimenter.experiments.api.v5.serializers import NimbusExperimentCsvSerializer
-from experimenter.experiments.models.nimbus import NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment
 
 
 class NimbusExperimentCsvRenderer(CSVRenderer):

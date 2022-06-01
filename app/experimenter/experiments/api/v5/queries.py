@@ -4,7 +4,7 @@ from experimenter.experiments.api.v5.types import (
     NimbusConfigurationType,
     NimbusExperimentType,
 )
-from experimenter.experiments.models.nimbus import NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment
 
 
 class Query(graphene.ObjectType):

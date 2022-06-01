@@ -1,8 +1,6 @@
-import django.contrib.postgres.fields
-from django.db import migrations, models
+from django.db import migrations
 
-import experimenter.experiments.models
-from experimenter.experiments.constants import ExperimentConstants
+from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 
 
 def forward_platform_string_to_array(apps, schema_editor):

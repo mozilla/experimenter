@@ -3,9 +3,9 @@ import datetime
 from django.test import TestCase
 
 from experimenter.experiments.api.v5.serializers import NimbusExperimentCsvSerializer
-from experimenter.experiments.constants.nimbus import NimbusConstants
-from experimenter.experiments.models.nimbus import NimbusExperiment
-from experimenter.experiments.tests.factories.nimbus import (
+from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.tests.factories import (
     NimbusChangeLogFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,

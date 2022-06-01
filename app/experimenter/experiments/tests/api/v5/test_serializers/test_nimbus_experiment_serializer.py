@@ -11,12 +11,13 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
-from experimenter.experiments.changelog_utils.nimbus import generate_nimbus_changelog
-from experimenter.experiments.constants.nimbus import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.models.nimbus import NimbusBucketRange
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
+from experimenter.experiments.changelog_utils import generate_nimbus_changelog
+from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusBucketRange, NimbusExperiment
+from experimenter.experiments.tests.factories import (
+    NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
+)
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
