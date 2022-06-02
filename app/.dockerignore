@@ -11,7 +11,7 @@
 **/node_modules
 **/yarn-error.log
 docs
-experimenter/legacy-ui/assets
+experimenter/legacy/legacy-ui/assets
 experimenter/nimbus-ui/build
 experimenter/reporting/reporting-ui/assets/
 experimenter/served/

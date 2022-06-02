@@ -8,8 +8,8 @@ services:
     volumes:
       - ./app:/app
       - media_volume:/app/experimenter/media
-      - /app/experimenter/legacy-ui/core/.cache/
-      - /app/experimenter/legacy-ui/core/node_modules/
+      - /app/experimenter/legacy/legacy-ui/core/.cache/
+      - /app/experimenter/legacy/legacy-ui/core/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
       - /app/experimenter/served/
       - /app/node_modules/
