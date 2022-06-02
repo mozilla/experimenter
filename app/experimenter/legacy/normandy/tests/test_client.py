@@ -3,15 +3,15 @@ from django.conf import settings
 from django.test import TestCase
 from requests.exceptions import HTTPError, RequestException
 
-from experimenter.normandy import (
+from experimenter.legacy.normandy import (
     APINormandyError,
     NonsuccessfulNormandyCall,
     NormandyDecodeError,
     get_recipe,
     make_normandy_call,
 )
-from experimenter.normandy.client import get_history_list
-from experimenter.normandy.tests.mixins import MockNormandyMixin
+from experimenter.legacy.normandy.client import get_history_list
+from experimenter.legacy.normandy.tests.mixins import MockNormandyMixin
 
 
 class TestMakeNormandyCall(MockNormandyMixin, TestCase):
