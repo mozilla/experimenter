@@ -10,7 +10,7 @@ from django.urls import reverse
 
 from experimenter.base.models import Country, Locale
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
+from experimenter.legacy.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.legacy.legacy_experiments.forms import (
     RADIO_NO,
     RADIO_YES,

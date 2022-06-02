@@ -10,14 +10,14 @@ from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 from experimenter.base.models import Country, Locale
-from experimenter.bugzilla import get_bugzilla_id, tasks
+from experimenter.legacy.bugzilla import get_bugzilla_id, tasks
 from experimenter.legacy.legacy_experiments.changelog_utils import (
     ChangeLogSerializer,
     generate_change_log,
 )
 from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 from experimenter.legacy.legacy_experiments.models import Experiment, ExperimentComment
-from experimenter.notifications.models import Notification
+from experimenter.legacy.notifications.models import Notification
 from experimenter.projects.models import Project
 
 RADIO_NO = False

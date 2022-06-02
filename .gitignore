@@ -81,7 +81,7 @@ target/
 
 # Hosted assets
 app/experimenter/served/
-app/experimenter/legacy-ui/assets/
+app/experimenter/legacy/legacy-ui/assets/
 app/experimenter/reporting/reporting-ui/assets/
 
 # Key files

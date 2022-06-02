@@ -21,7 +21,7 @@ from experimenter.legacy.legacy_experiments.tests.factories import (
     ExperimentVariantFactory,
     VariantPreferencesFactory,
 )
-from experimenter.normandy.serializers import ExperimentRecipeSerializer
+from experimenter.legacy.normandy.serializers import ExperimentRecipeSerializer
 from experimenter.openidc.tests.factories import UserFactory
 
 
