@@ -62,6 +62,10 @@ nginx/cert.pem: nginx/key.pem
 secretkey:
 	openssl rand -hex 24
 
+auth:
+	gcloud auth login
+	gcloud auth application-default login
+
 jetstream_config:
 	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip $(JETSTREAM_CONFIG_URL)
 	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/jetstream-config.zip
