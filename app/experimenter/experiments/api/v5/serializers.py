@@ -1,6 +1,5 @@
 import json
 from collections import defaultdict
-from turtle import st
 
 import jsonschema
 from django.db import transaction
