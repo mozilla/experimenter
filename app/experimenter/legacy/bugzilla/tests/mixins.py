@@ -1,6 +1,6 @@
 import mock
 
-from experimenter import bugzilla
+from experimenter.legacy import bugzilla
 
 
 class MockBugzillaMixin(object):
@@ -8,14 +8,14 @@ class MockBugzillaMixin(object):
         super().setUp()
 
         mock_bugzilla_requests_post_patcher = mock.patch(
-            "experimenter.bugzilla.client.requests.post"
+            "experimenter.legacy.bugzilla.client.requests.post"
         )
         self.mock_bugzilla_requests_post = mock_bugzilla_requests_post_patcher.start()
         self.addCleanup(mock_bugzilla_requests_post_patcher.stop)
         self.bugzilla_id = "12345"
         self.mock_bugzilla_requests_post.return_value = self.buildMockSuccessResponse()
         mock_bugzilla_requests_put_patcher = mock.patch(
-            "experimenter.bugzilla.client.requests.put"
+            "experimenter.legacy.bugzilla.client.requests.put"
         )
 
         self.mock_bugzilla_requests_put = mock_bugzilla_requests_put_patcher.start()
@@ -23,7 +23,7 @@ class MockBugzillaMixin(object):
         self.mock_bugzilla_requests_put.return_value = self.buildMockSuccessResponse()
 
         mock_bugzilla_requests_get_patcher = mock.patch(
-            "experimenter.bugzilla.client.requests.get"
+            "experimenter.legacy.bugzilla.client.requests.get"
         )
 
         self.mock_bugzilla_requests_get = mock_bugzilla_requests_get_patcher.start()
@@ -81,13 +81,13 @@ class MockBugzillaTasksMixin(object):
         super().setUp()
 
         mock_tasks_create_bug_patcher = mock.patch(
-            "experimenter.bugzilla.tasks.create_experiment_bug_task"
+            "experimenter.legacy.bugzilla.tasks.create_experiment_bug_task"
         )
         self.mock_tasks_create_bug = mock_tasks_create_bug_patcher.start()
         self.addCleanup(mock_tasks_create_bug_patcher.stop)
 
         mock_tasks_update_experiment_bug_patcher = mock.patch(
-            "experimenter.bugzilla.tasks.update_experiment_bug_task"
+            "experimenter.legacy.bugzilla.tasks.update_experiment_bug_task"
         )
         self.mock_tasks_update_experiment_bug = (
             mock_tasks_update_experiment_bug_patcher.start()
@@ -95,7 +95,7 @@ class MockBugzillaTasksMixin(object):
         self.addCleanup(mock_tasks_update_experiment_bug_patcher.stop)
 
         mock_tasks_update_bug_resolution_patcher = mock.patch(
-            "experimenter.bugzilla.tasks.update_bug_resolution_task"
+            "experimenter.legacy.bugzilla.tasks.update_bug_resolution_task"
         )
         self.mock_tasks_update_bug_resolution = (
             mock_tasks_update_bug_resolution_patcher.start()
@@ -103,7 +103,7 @@ class MockBugzillaTasksMixin(object):
         self.addCleanup(mock_tasks_update_bug_resolution_patcher.stop)
 
         mock_tasks_add_start_date_comment_patcher = mock.patch(
-            "experimenter.bugzilla.tasks.add_start_date_comment_task"
+            "experimenter.legacy.bugzilla.tasks.add_start_date_comment_task"
         )
         self.mock_tasks_add_start_date_comment = (
             mock_tasks_add_start_date_comment_patcher.start()
@@ -112,7 +112,7 @@ class MockBugzillaTasksMixin(object):
         self.addCleanup(mock_tasks_add_start_date_comment_patcher.stop)
 
         mock_tasks_comp_experiment_update_res_patcher = mock.patch(
-            "experimenter.bugzilla.tasks.comp_experiment_update_res_task"
+            "experimenter.legacy.bugzilla.tasks.comp_experiment_update_res_task"
         )
         self.mock_tasks_comp_experiment_update_res = (
             mock_tasks_comp_experiment_update_res_patcher.start()
