@@ -62,7 +62,7 @@ nginx/cert.pem: nginx/key.pem
 secretkey:
 	openssl rand -hex 24
 
-auth:
+auth_gcloud:
 	gcloud auth login
 	gcloud auth application-default login
 
