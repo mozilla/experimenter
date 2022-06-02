@@ -78,13 +78,13 @@ INSTALLED_APPS = [
     "experimenter.features",
     "experimenter.jetstream",
     "experimenter.kinto",
+    "experimenter.legacy.legacy_experiments",
     "experimenter.legacy.normandy",
-    "experimenter.notifications",
+    "experimenter.legacy.notifications",
     "experimenter.openidc",
     "experimenter.outcomes",
     "experimenter.projects",
     "experimenter.reporting",
-    "experimenter.legacy.legacy_experiments",
 ]
 
 MIDDLEWARE = [
