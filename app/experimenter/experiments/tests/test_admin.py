@@ -222,6 +222,7 @@ class TestNimbusExperimentExport(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
+        experiment.reference_branch = None
         branches = []
         for b in experiment.branches.all():
             branches.append(dict(NimbusBranchChangeLogSerializer(b).data))
@@ -258,11 +259,13 @@ class TestNimbusExperimentExport(TestCase):
         resource.after_import_row(row=test_row, row_result=None)
         post_branches = NimbusBranch.objects.filter(experiment=experiment)
         post_changes = NimbusChangeLog.objects.filter(experiment=experiment)
+        post_experiment = NimbusExperiment.objects.get(slug=experiment.slug)
 
+        self.assertEqual(post_experiment.reference_branch.slug, "control")
         self.assertEqual(len(branches), len(post_branches))
         self.assertEqual(len(post_branches), 2)
 
         self.assertGreaterEqual(len(post_changes), len(pre_changes))
         self.assertGreaterEqual(len(post_changes), num_changes)
 
-        self.assertIsNotNone(experiment.reference_branch)
+        self.assertIsNotNone(post_experiment.reference_branch)
