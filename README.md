@@ -197,7 +197,7 @@ On certain pages an API endpoint is called to receive experiment analysis data f
       - If needed, ask in `#nimbus-dev` for a project admin to grant `storage.objects.list` permissions on the `moz-fx-data-experiments` project
 
 1. Authorize CLI with your account
-    - `make auth`
+    - `make auth_gcloud`
       - this will save your credentials locally to a well-known location for use by any library that requests ADC
       - **Note**: if this returns `Error saving Application Default Credentials: Unable to write file [...]: [Errno 21] Is a directory: ...`, delete the directory and try again (`rm -rf ~/.config/gcloud`)
 
