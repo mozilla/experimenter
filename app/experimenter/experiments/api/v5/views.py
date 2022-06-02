@@ -12,7 +12,9 @@ class NimbusExperimentCsvRenderer(CSVRenderer):
 
 class NimbusExperimentCsvListView(ListAPIView):
 
-    queryset = NimbusExperiment.objects.all().prefetch_related("feature_configs", "owner")
+    queryset = NimbusExperiment.objects.select_related("owner").prefetch_related(
+        "feature_configs", "changes"
+    )
 
     def get_queryset(self):
         return sorted(
