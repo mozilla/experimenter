@@ -78,7 +78,7 @@ INSTALLED_APPS = [
     "experimenter.features",
     "experimenter.jetstream",
     "experimenter.kinto",
-    "experimenter.normandy",
+    "experimenter.legacy.normandy",
     "experimenter.notifications",
     "experimenter.openidc",
     "experimenter.outcomes",
@@ -328,11 +328,11 @@ CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
 )
 CELERY_BEAT_SCHEDULE = {
     "experiment_status_ready_to_ship_task": {
-        "task": "experimenter.normandy.tasks.update_recipe_ids_to_experiments",
+        "task": "experimenter.legacy.normandy.tasks.update_recipe_ids_to_experiments",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "experiment_status_launched_task": {
-        "task": "experimenter.normandy.tasks.update_launched_experiments",
+        "task": "experimenter.legacy.normandy.tasks.update_launched_experiments",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "nimbus_check_kinto_push_queue_task": {
