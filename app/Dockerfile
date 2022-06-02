@@ -58,7 +58,7 @@ RUN poetry check
 # Node packages
 COPY --from=file-loader /app/package.json /app/package.json
 COPY --from=file-loader /app/yarn.lock /app/yarn.lock
-COPY --from=file-loader /app/experimenter/legacy-ui/core/package.json /app/experimenter/legacy-ui/core/package.json
+COPY --from=file-loader /app/experimenter/legacy/legacy-ui/core/package.json /app/experimenter/legacy/legacy-ui/core/package.json
 RUN yarn install --frozen-lockfile
 
 COPY --from=file-loader /app/experimenter/nimbus-ui/package.json /app/experimenter/nimbus-ui/package.json
@@ -76,7 +76,7 @@ FROM dev AS ui
 
 
 # Build assets
-COPY --from=file-loader /app/experimenter/legacy-ui/ /app/experimenter/legacy-ui/
+COPY --from=file-loader /app/experimenter/legacy/legacy-ui/ /app/experimenter/legacy/legacy-ui/
 RUN yarn workspace @experimenter/core build
 COPY --from=file-loader /app/experimenter/nimbus-ui/ /app/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/nimbus-ui build
@@ -106,5 +106,5 @@ COPY --from=dev /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9
 COPY --from=dev /app/bin/ /app/bin/
 COPY --from=file-loader /app/manage.py /app/manage.py
 COPY --from=file-loader /app/experimenter/ /app/experimenter/
-COPY --from=ui /app/experimenter/legacy-ui/assets/ /app/experimenter/legacy-ui/assets/
+COPY --from=ui /app/experimenter/legacy/legacy-ui/assets/ /app/experimenter/legacy/legacy-ui/assets/
 COPY --from=ui /app/experimenter/nimbus-ui/build/ /app/experimenter/nimbus-ui/build/
