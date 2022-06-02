@@ -1,5 +1,6 @@
 import json
 from collections import defaultdict
+from turtle import st
 
 import jsonschema
 from django.db import transaction
@@ -821,7 +822,10 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
         ]
 
     def get_feature_configs(self, obj):
-        return ", ".join([feature.name for feature in obj.feature_configs.all()])
+        sorted_features = sorted(
+            obj.feature_configs.all(), key=lambda feature: feature.name
+        )
+        return ",".join([feature.name for feature in sorted_features])
 
     def get_results_url(self, obj):
         if obj.results_ready:
