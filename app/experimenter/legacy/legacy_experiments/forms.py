@@ -17,7 +17,7 @@ from experimenter.legacy.legacy_experiments.changelog_utils import (
 )
 from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 from experimenter.legacy.legacy_experiments.models import Experiment, ExperimentComment
-from experimenter.notifications.models import Notification
+from experimenter.legacy.notifications.models import Notification
 from experimenter.projects.models import Project
 
 RADIO_NO = False
