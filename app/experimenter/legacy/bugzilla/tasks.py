@@ -1,10 +1,10 @@
 import markus
 from celery.utils.log import get_task_logger
 
-from experimenter.bugzilla import client as bugzilla
 from experimenter.celery import app
+from experimenter.legacy.bugzilla import client as bugzilla
 from experimenter.legacy.legacy_experiments.models import Experiment
-from experimenter.notifications.models import Notification
+from experimenter.legacy.notifications.models import Notification
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("experiments.tasks")

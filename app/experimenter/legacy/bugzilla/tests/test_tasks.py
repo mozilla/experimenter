@@ -5,13 +5,13 @@ from markus.testing import MetricsMock
 from requests import RequestException
 
 from experimenter.base.tests.mixins import MockRequestMixin
-from experimenter.bugzilla import client as bugzilla
-from experimenter.bugzilla import tasks
-from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
+from experimenter.legacy.bugzilla import client as bugzilla
+from experimenter.legacy.bugzilla import tasks
+from experimenter.legacy.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.legacy.legacy_experiments.tests.factories import ExperimentFactory
-from experimenter.normandy.tests.mixins import MockNormandyMixin
-from experimenter.notifications.models import Notification
+from experimenter.legacy.normandy.tests.mixins import MockNormandyMixin
+from experimenter.legacy.notifications.models import Notification
 
 
 class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
