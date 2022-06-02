@@ -217,8 +217,8 @@ class TestNimbusExperimentExport(TestCase):
 
         # test None dehydrate conditions
         experiment.reference_branch = None
-        experiment.status_next = None
-        experiment.conclusion_recommendation = None
+        experiment.status_next = ""
+        experiment.conclusion_recommendation = ""
 
         none_slug = resource.dehydrate_reference_branch_slug(experiment)
         status_next = resource.dehydrate_status_next(experiment)
