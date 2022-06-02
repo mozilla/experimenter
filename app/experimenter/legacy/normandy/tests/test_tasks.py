@@ -6,13 +6,16 @@ from django.conf import settings
 from django.core import mail
 from django.test import TestCase, override_settings
 
-from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
+from experimenter.legacy.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 from experimenter.legacy.legacy_experiments.models import Experiment, ExperimentEmail
 from experimenter.legacy.legacy_experiments.tests.factories import ExperimentFactory
-from experimenter.normandy import client as normandy
-from experimenter.normandy import tasks
-from experimenter.normandy.tests.mixins import MockNormandyMixin, MockNormandyTasksMixin
+from experimenter.legacy.normandy import client as normandy
+from experimenter.legacy.normandy import tasks
+from experimenter.legacy.normandy.tests.mixins import (
+    MockNormandyMixin,
+    MockNormandyTasksMixin,
+)
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)

@@ -11,7 +11,10 @@ from faker import Factory as FakerFactory
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.base.tests.mixins import MockRequestMixin
-from experimenter.bugzilla.tests.mixins import MockBugzillaMixin, MockBugzillaTasksMixin
+from experimenter.legacy.bugzilla.tests.mixins import (
+    MockBugzillaMixin,
+    MockBugzillaTasksMixin,
+)
 from experimenter.legacy.legacy_experiments.forms import (
     RADIO_NO,
     RADIO_YES,
@@ -33,7 +36,7 @@ from experimenter.legacy.legacy_experiments.forms import (
 )
 from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.legacy.legacy_experiments.tests.factories import ExperimentFactory
-from experimenter.notifications.models import Notification
+from experimenter.legacy.notifications.models import Notification
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 

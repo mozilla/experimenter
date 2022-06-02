@@ -6,11 +6,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 
-from experimenter.bugzilla.tasks import (
+from experimenter.celery import app
+from experimenter.legacy.bugzilla.tasks import (
     add_start_date_comment_task,
     comp_experiment_update_res_task,
 )
-from experimenter.celery import app
 from experimenter.legacy.legacy_experiments.changelog_utils import (
     update_experiment_with_change_log,
 )
@@ -19,7 +19,7 @@ from experimenter.legacy.legacy_experiments.email import (
     send_period_ending_emails_task,
 )
 from experimenter.legacy.legacy_experiments.models import Experiment
-from experimenter.normandy import client as normandy
+from experimenter.legacy.normandy import client as normandy
 
 STATUS_UPDATE_MAPPING = {
     Experiment.STATUS_ACCEPTED: Experiment.STATUS_LIVE,

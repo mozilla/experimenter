@@ -191,6 +191,14 @@ class TestNimbusExperimentExport(TestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
 
+        # test normal dehydrate conditions
+        experiment.status_next = "Complete"
+        experiment.conclusion_recommendation = "STOP"
+        status_next = resource.dehydrate_status_next(experiment)
+        conclusion_recommendation = resource.dehydrate_conclusion_recommendation(
+            experiment
+        )
+
         num_changes = len(resource.dehydrate_changes(experiment))
         num_branches = len(resource.dehydrate_branches(experiment))
         reference_branch_slug = resource.dehydrate_reference_branch_slug(experiment)
@@ -198,10 +206,29 @@ class TestNimbusExperimentExport(TestCase):
         self.assertGreaterEqual(num_changes, 1)
         self.assertEqual(num_branches, 2)
         self.assertEqual(reference_branch_slug, "control")
+        self.assertEqual(status_next, "Complete")
+        self.assertEqual(conclusion_recommendation, "STOP")
 
+    def test_resource_dehydrate_none(self):
+        resource = NimbusExperimentResource()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+
+        # test None dehydrate conditions
         experiment.reference_branch = None
+        experiment.status_next = ""
+        experiment.conclusion_recommendation = ""
+
         none_slug = resource.dehydrate_reference_branch_slug(experiment)
+        status_next = resource.dehydrate_status_next(experiment)
+        conclusion_recommendation = resource.dehydrate_conclusion_recommendation(
+            experiment
+        )
+
         self.assertIsNone(none_slug)
+        self.assertIsNone(status_next)
+        self.assertIsNone(conclusion_recommendation)
 
     def test_before_import_row(self):
         user_model = get_user_model()
@@ -222,6 +249,7 @@ class TestNimbusExperimentExport(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
+        experiment.reference_branch = None
         branches = []
         for b in experiment.branches.all():
             branches.append(dict(NimbusBranchChangeLogSerializer(b).data))
@@ -258,11 +286,11 @@ class TestNimbusExperimentExport(TestCase):
         resource.after_import_row(row=test_row, row_result=None)
         post_branches = NimbusBranch.objects.filter(experiment=experiment)
         post_changes = NimbusChangeLog.objects.filter(experiment=experiment)
+        post_experiment = NimbusExperiment.objects.get(slug=experiment.slug)
 
+        self.assertEqual(post_experiment.reference_branch.slug, "control")
         self.assertEqual(len(branches), len(post_branches))
         self.assertEqual(len(post_branches), 2)
 
         self.assertGreaterEqual(len(post_changes), len(pre_changes))
         self.assertGreaterEqual(len(post_changes), num_changes)
-
-        self.assertIsNotNone(experiment.reference_branch)
