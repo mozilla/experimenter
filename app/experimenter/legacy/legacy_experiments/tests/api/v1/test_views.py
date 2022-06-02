@@ -11,7 +11,7 @@ from experimenter.legacy.legacy_experiments.api.v1.serializers import (
 from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.legacy.legacy_experiments.tests.factories import ExperimentFactory
-from experimenter.normandy.serializers import ExperimentRecipeSerializer
+from experimenter.legacy.normandy.serializers import ExperimentRecipeSerializer
 
 
 class TestExperimentListView(TestCase):

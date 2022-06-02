@@ -14,7 +14,7 @@ from experimenter.legacy.legacy_experiments.tests.factories import (
     ExperimentVariantFactory,
     VariantPreferencesFactory,
 )
-from experimenter.normandy.serializers import (
+from experimenter.legacy.normandy.serializers import (
     ExperimentRecipeAddonArgumentsSerializer,
     ExperimentRecipeAddonRolloutArgumentsSerializer,
     ExperimentRecipeAddonVariantSerializer,

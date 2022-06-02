@@ -16,7 +16,7 @@ from experimenter.legacy.legacy_experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
 )
-from experimenter.normandy.serializers import ExperimentRecipeVariantSerializer
+from experimenter.legacy.normandy.serializers import ExperimentRecipeVariantSerializer
 from experimenter.projects.tests.factories import ProjectFactory
 
 
