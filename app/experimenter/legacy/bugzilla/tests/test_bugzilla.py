@@ -4,7 +4,7 @@ from django.conf import settings
 from django.test import TestCase
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.bugzilla import (
+from experimenter.legacy.bugzilla import (
     BugzillaError,
     add_experiment_comment,
     create_experiment_bug,
@@ -16,7 +16,7 @@ from experimenter.bugzilla import (
     update_bug_resolution,
     update_experiment_bug,
 )
-from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
+from experimenter.legacy.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.legacy.legacy_experiments.models import Experiment
 from experimenter.legacy.legacy_experiments.tests.factories import ExperimentFactory
 

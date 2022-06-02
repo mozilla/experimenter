@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core import mail
 from django.test import TestCase, override_settings
 
-from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
+from experimenter.legacy.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.legacy.legacy_experiments.constants import ExperimentConstants
 from experimenter.legacy.legacy_experiments.models import Experiment, ExperimentEmail
 from experimenter.legacy.legacy_experiments.tests.factories import ExperimentFactory
