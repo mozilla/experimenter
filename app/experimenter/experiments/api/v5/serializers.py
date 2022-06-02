@@ -821,9 +821,10 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
         ]
 
     def get_feature_configs(self, obj):
-        return ", ".join(
-            [feature.name for feature in obj.feature_configs.order_by("name")]
+        sorted_features = sorted(
+            obj.feature_configs.all(), key=lambda feature: feature.name
         )
+        return ",".join([feature.name for feature in sorted_features])
 
     def get_results_url(self, obj):
         if obj.results_ready:
