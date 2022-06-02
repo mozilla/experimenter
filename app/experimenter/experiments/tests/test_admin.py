@@ -267,5 +267,3 @@ class TestNimbusExperimentExport(TestCase):
 
         self.assertGreaterEqual(len(post_changes), len(pre_changes))
         self.assertGreaterEqual(len(post_changes), num_changes)
-
-        self.assertIsNotNone(post_experiment.reference_branch)
