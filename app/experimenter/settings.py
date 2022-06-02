@@ -106,7 +106,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            os.path.join(BASE_DIR, "legacy-ui", "templates"),
+            os.path.join(BASE_DIR, "legacy", "legacy-ui", "templates"),
             os.path.join(BASE_DIR, "nimbus-ui", "templates"),
             os.path.join(BASE_DIR, "docs"),
         ],
@@ -189,9 +189,9 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(os.path.join(BASE_DIR, "served"), "static")
 
 STATICFILES_DIRS = [
-    ("assets", os.path.join(BASE_DIR, "legacy-ui", "assets")),
-    ("scripts", os.path.join(BASE_DIR, "legacy-ui", "scripts")),
-    ("imgs", os.path.join(BASE_DIR, "legacy-ui", "imgs")),
+    ("assets", os.path.join(BASE_DIR, "legacy", "legacy-ui", "assets")),
+    ("scripts", os.path.join(BASE_DIR, "legacy", "legacy-ui", "scripts")),
+    ("imgs", os.path.join(BASE_DIR, "legacy", "legacy-ui", "imgs")),
     ("nimbus", os.path.join(BASE_DIR, "nimbus-ui", "build")),
 ]
 

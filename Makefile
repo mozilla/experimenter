@@ -106,9 +106,9 @@ volumes_rm:
 
 static_rm:
 	rm -Rf app/node_modules
-	rm -Rf app/experimenter/legacy-ui/core/node_modules/
+	rm -Rf app/experimenter/legacy/legacy-ui/core/node_modules/
 	rm -Rf app/experimenter/nimbus-ui/node_modules/
-	rm -Rf app/experimenter/legacy-ui/assets/
+	rm -Rf app/experimenter/legacy/legacy-ui/assets/
 	rm -Rf app/experimenter/nimbus-ui/build/
 
 kill: compose_stop compose_rm volumes_rm
