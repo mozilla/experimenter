@@ -121,6 +121,7 @@ class NimbusExperimentResource(resources.ModelResource):
                 )
 
                 experiment.reference_branch = ref_branch
+                experiment.save()
             else:
                 NimbusBranch.objects.get_or_create(
                     slug=branch.get("slug"),
