@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from experimenter.notifications.tests.factories import NotificationFactory
+from experimenter.legacy.notifications.tests.factories import NotificationFactory
 from experimenter.openidc.tests.factories import UserFactory
 
 
