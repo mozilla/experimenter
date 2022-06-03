@@ -6,7 +6,7 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
-import experimenter.experiments.models.nimbus
+import experimenter.experiments.models
 
 
 class Migration(migrations.Migration):
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 (
                     "changed_on",
                     models.DateTimeField(
-                        default=experimenter.experiments.models.nimbus.NimbusChangeLog.current_datetime
+                        default=experimenter.experiments.models.NimbusChangeLog.current_datetime
                     ),
                 ),
                 (

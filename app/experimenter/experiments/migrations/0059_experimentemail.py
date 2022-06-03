@@ -3,7 +3,7 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
-import experimenter.experiments.constants
+import experimenter.legacy.legacy_experiments.constants
 
 
 class Migration(migrations.Migration):
@@ -45,6 +45,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            bases=(experimenter.experiments.constants.ExperimentConstants, models.Model),
+            bases=(
+                experimenter.legacy.legacy_experiments.constants.ExperimentConstants,
+                models.Model,
+            ),
         )
     ]

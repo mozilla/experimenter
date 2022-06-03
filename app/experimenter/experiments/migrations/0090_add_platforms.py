@@ -3,7 +3,7 @@
 import django.contrib.postgres.fields
 from django.db import migrations, models
 
-import experimenter.experiments.models
+import experimenter.legacy.legacy_experiments.models
 
 
 class Migration(migrations.Migration):
@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             field=django.contrib.postgres.fields.ArrayField(
                 base_field=models.CharField(max_length=200),
                 blank=True,
-                default=experimenter.experiments.models.default_all_platforms,
+                default=experimenter.legacy.legacy_experiments.models.default_all_platforms,
                 null=True,
                 size=None,
             ),

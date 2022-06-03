@@ -38,7 +38,7 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 
     On all platforms:
     - Install [Node](https://nodejs.org/en/download/releases/) to match [current version](https://github.com/mozilla/experimenter/blob/main/app/Dockerfile#L29)
-     
+
     On Linux:
     - Install [Docker](https://www.docker.com/)
     - Install [yarn](https://classic.yarnpkg.com/lang/en/docs/install)
@@ -52,7 +52,7 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
         - Swap: Max 4gb
         - Disk: 100gb+
     - Install [yarn](https://github.com/yarnpkg)
-            
+
 1. Clone the repo
 
         git clone <your fork>
@@ -177,10 +177,10 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
    - Add `/experimenter/` and `/experimenter/app` folders to your workspace (File -> Add Folder to Workspace -> `path/to/experimenter/app`)
    - From the `/experimenter/app` folder, run `yarn install`
        - Make sure you are using the correct version of node
-          
+
            node -v
 
-       - Troubleshooting: 
+       - Troubleshooting:
            - [Changing node version](https://stackoverflow.com/a/50817276/12178648)
            - Clear npm cache: `npm cache clean --force`
 
@@ -450,10 +450,10 @@ For more detailed information on the Remote Settings integration please see the 
 
 Experimenter has two front-end UIs:
 
-- [`core`](./app/experimenter/legacy-ui/core) is the legacy UI used for Experimenter intake which will remain until `nimbus-ui` supersedes it
+- [`core`](./app/experimenter/legacy/legacy-ui/core) is the legacy UI used for Experimenter intake which will remain until `nimbus-ui` supersedes it
 - [`nimbus-ui`](./app/experimenter/nimbus-ui) is the Nimbus Console UI for Experimenter that is actively being developed
 
-Learn more about the organization of these UIs [here](./app/experimenter/legacy-ui/README.md).
+Learn more about the organization of these UIs [here](./app/experimenter/legacy/legacy-ui/README.md).
 
 **Also see the [nimbus-ui README](https://github.com/mozilla/experimenter/tree/main/app/experimenter/nimbus-ui) for relevent Nimbus documentation.**
 

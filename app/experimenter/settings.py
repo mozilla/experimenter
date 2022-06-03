@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django.forms",
+    "import_export",
     # Graphene
     "graphene_django",
     # Libraries
@@ -77,8 +78,9 @@ INSTALLED_APPS = [
     "experimenter.features",
     "experimenter.jetstream",
     "experimenter.kinto",
-    "experimenter.normandy",
-    "experimenter.notifications",
+    "experimenter.legacy.legacy_experiments",
+    "experimenter.legacy.normandy",
+    "experimenter.legacy.notifications",
     "experimenter.openidc",
     "experimenter.outcomes",
     "experimenter.projects",
@@ -104,7 +106,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            os.path.join(BASE_DIR, "legacy-ui", "templates"),
+            os.path.join(BASE_DIR, "legacy", "legacy-ui", "templates"),
             os.path.join(BASE_DIR, "nimbus-ui", "templates"),
             os.path.join(BASE_DIR, "docs"),
         ],
@@ -187,9 +189,9 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(os.path.join(BASE_DIR, "served"), "static")
 
 STATICFILES_DIRS = [
-    ("assets", os.path.join(BASE_DIR, "legacy-ui", "assets")),
-    ("scripts", os.path.join(BASE_DIR, "legacy-ui", "scripts")),
-    ("imgs", os.path.join(BASE_DIR, "legacy-ui", "imgs")),
+    ("assets", os.path.join(BASE_DIR, "legacy", "legacy-ui", "assets")),
+    ("scripts", os.path.join(BASE_DIR, "legacy", "legacy-ui", "scripts")),
+    ("imgs", os.path.join(BASE_DIR, "legacy", "legacy-ui", "imgs")),
     ("nimbus", os.path.join(BASE_DIR, "nimbus-ui", "build")),
 ]
 
@@ -326,11 +328,11 @@ CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
 )
 CELERY_BEAT_SCHEDULE = {
     "experiment_status_ready_to_ship_task": {
-        "task": "experimenter.normandy.tasks.update_recipe_ids_to_experiments",
+        "task": "experimenter.legacy.normandy.tasks.update_recipe_ids_to_experiments",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "experiment_status_launched_task": {
-        "task": "experimenter.normandy.tasks.update_launched_experiments",
+        "task": "experimenter.legacy.normandy.tasks.update_launched_experiments",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "nimbus_check_kinto_push_queue_task": {
