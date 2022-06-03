@@ -47,7 +47,7 @@ def load_targeting_configs(app="DESKTOP"):
                 targeting_configs.append(item["value"])
         else:
             if "DESKTOP" not in item["applicationValues"]:
-                    targeting_configs.append(item["value"])
+                targeting_configs.append(item["value"])
     return targeting_configs
 
 

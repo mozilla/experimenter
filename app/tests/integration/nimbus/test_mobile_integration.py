@@ -9,12 +9,12 @@ from nimbus.utils import helpers
 nimbus = pytest.importorskip("nimbus_rust")
 
 
-def locale_number_loader(locales=None):
+def locale_databse_id_loader(locales=None):
     locale_list = []
     path = Path().resolve()
     path = str(path)
     path = path.strip("/tests/integration/nimbus")
-    path = f"/{path}/experimenter/base/fixtures/locales.json"
+    path = os.path.join("/", path, "experimenter/base/fixtures/locales.json")
     with open(path) as file:
         data = json.loads(file.read())
         for locale in locales:
@@ -57,6 +57,7 @@ def load_app_context():
 
 @pytest.fixture(name="ar_units")
 def fixture_ar_units():
+    """Available Randomization Units"""
     return nimbus.AvailableRandomizationUnits(None, 0)
 
 
@@ -92,26 +93,11 @@ def test_check_mobile_targeting(
     helpers.create_mobile_experiment(
         slugify(experiment_name),
         context["app_name"],
-        locale_number_loader([context["locale"]]),
+        locale_databse_id_loader([context["locale"]]),
     )
     data = helpers.load_experiment_data(slugify(experiment_name))
     expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
     assert jexl_evaluator(sdk_client(load_app_context(context)), expression)
-
-
-@pytest.mark.parametrize("context", client_info_list())
-@pytest.mark.run_targeting
-def test_check_mobile_targeting_falsey(
-    jexl_evaluator, sdk_client, load_app_context, context, slugify, experiment_name
-):
-    context = json.loads(context["app_context"])
-    helpers.create_mobile_experiment(
-        slugify(experiment_name),
-        context["app_name"],
-        locale_number_loader([context["locale"][:2]]),
-    )
-    expression = "'zzz' in locale"  # represents a malformed jexl expression
-    assert jexl_evaluator(sdk_client(load_app_context(context)), expression) is False
 
 
 @pytest.mark.run_targeting
@@ -122,7 +108,7 @@ def test_check_mobile_targeting_undefined(
     helpers.create_mobile_experiment(
         slugify(experiment_name),
         client["app_name"],
-        locale_number_loader([client["locale"]]),
+        locale_databse_id_loader([client["locale"]]),
     )
     data = helpers.load_experiment_data(slugify(experiment_name))
     expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
