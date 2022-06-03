@@ -258,7 +258,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         ]
     )
     def test_invalid_experiments_supporting_languages_versions(
-        self, expected_valid, application, firefox_version
+        self, application, firefox_version
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -276,8 +276,8 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
-        if not expected_valid:
-            self.assertIn("languages", serializer.errors)
+
+        self.assertIn("languages", serializer.errors)
 
     def test_alid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
