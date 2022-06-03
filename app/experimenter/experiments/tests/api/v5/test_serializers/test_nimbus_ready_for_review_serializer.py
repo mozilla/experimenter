@@ -240,22 +240,18 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     @parameterized.expand(
         [
             (
-                False,
                 NimbusExperiment.Application.FOCUS_ANDROID,
                 NimbusExperiment.Version.FIREFOX_101,
             ),
             (
-                False,
                 NimbusExperiment.Application.FENIX,
                 NimbusExperiment.Version.FIREFOX_101,
             ),
             (
-                False,
                 NimbusExperiment.Application.IOS,
                 NimbusExperiment.Version.FIREFOX_100,
             ),
             (
-                False,
                 NimbusExperiment.Application.FOCUS_IOS,
                 NimbusExperiment.Version.FIREFOX_100,
             ),
