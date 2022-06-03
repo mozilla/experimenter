@@ -598,7 +598,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
             application=NimbusExperiment.Application.DESKTOP,
         )
         response = self.query(
@@ -995,7 +995,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
         )
 
         response = self.query(
@@ -1014,7 +1014,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
             experiment_data["targetingConfigSlug"],
-            NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value,
+            NimbusExperiment.TargetingConfig.FIRST_RUN.value,
         )
 
     def test_targeting_config(self):
@@ -1022,7 +1022,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
         )
 
         response = self.query(
@@ -1044,20 +1044,21 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
-        print(experiment_data)
         self.assertEqual(
             experiment_data["targetingConfig"],
             [
                 {
-                    "label": NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.label,
-                    "value": NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value,
+                    "label": NimbusExperiment.TARGETING_CONFIGS[
+                        NimbusExperiment.TargetingConfig.FIRST_RUN.value
+                    ].name,
+                    "value": NimbusExperiment.TargetingConfig.FIRST_RUN.value,
                     "applicationValues": list(
                         NimbusExperiment.TARGETING_CONFIGS[
-                            NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value
+                            NimbusExperiment.TargetingConfig.FIRST_RUN.value
                         ].application_choice_names
                     ),
                     "description": NimbusExperiment.TARGETING_CONFIGS[
-                        NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN.value
+                        NimbusExperiment.TargetingConfig.FIRST_RUN.value
                     ].description,
                 }
             ],

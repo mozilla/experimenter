@@ -21,6 +21,7 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
+from experimenter.targeting.constants import TargetingConstants
 
 CREATE_EXPERIMENT_MUTATION = """\
 mutation($input: ExperimentInput!) {
@@ -655,9 +656,7 @@ class TestUpdateExperimentMutationSingleFeature(
                     "populationPercent": "10",
                     "proposedDuration": 120,
                     "proposedEnrollment": 42,
-                    "targetingConfigSlug": (
-                        NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN
-                    ),
+                    "targetingConfigSlug": (TargetingConstants.TargetingConfig.FIRST_RUN),
                     "totalEnrolledClients": 100,
                     "changelogMessage": "test changelog message",
                     "countries": [country.id],
@@ -684,7 +683,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.proposed_enrollment, 42)
         self.assertEqual(
             experiment.targeting_config_slug,
-            NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN,
+            TargetingConstants.TargetingConfig.FIRST_RUN,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
         self.assertEqual(list(experiment.countries.all()), [country])

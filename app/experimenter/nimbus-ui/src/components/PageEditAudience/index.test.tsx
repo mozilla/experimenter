@@ -101,7 +101,7 @@ const MOCK_FORM_DATA = {
   channel: NimbusExperimentChannelEnum.NIGHTLY,
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_83,
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_95,
-  targetingConfigSlug: "TARGETING_FIRST_RUN",
+  targetingConfigSlug: "FIRST_RUN",
   populationPercent: "40",
   totalEnrolledClients: 68000,
   proposedEnrollment: "1.0",
