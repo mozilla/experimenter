@@ -368,7 +368,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
         )
         serializer = NimbusExperimentSerializer(experiment)

@@ -23,6 +23,7 @@ from experimenter.base import UploadsStorage
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.projects.models import Project
+from experimenter.targeting.constants import TargetingConstants
 
 
 class FilterMixin:
@@ -86,7 +87,7 @@ class NimbusExperimentManager(models.Manager):
         )
 
 
-class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
+class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.Model):
     parent = models.ForeignKey(
         "experiments.NimbusExperiment", models.SET_NULL, blank=True, null=True
     )
@@ -160,8 +161,7 @@ class NimbusExperiment(NimbusConstants, FilterMixin, models.Model):
     warn_feature_schema = models.BooleanField(default=False)
     targeting_config_slug = models.CharField(
         max_length=255,
-        blank=True,
-        default=NimbusConstants.TargetingConfig.NO_TARGETING,
+        default=TargetingConstants.TargetingConfig.NO_TARGETING,
     )
     reference_branch = models.OneToOneField(
         "NimbusBranch", blank=True, null=True, on_delete=models.SET_NULL
