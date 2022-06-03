@@ -21,6 +21,7 @@ from experimenter.experiments.tests.factories import (
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
+from experimenter.targeting.constants import TargetingConstants
 
 
 @mock_valid_outcomes
@@ -466,9 +467,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "population_percent": 10,
                 "proposed_duration": 120,
                 "proposed_enrollment": 42,
-                "targeting_config_slug": (
-                    NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN
-                ),
+                "targeting_config_slug": (TargetingConstants.TargetingConfig.FIRST_RUN),
                 "total_enrolled_clients": 100,
                 "changelog_message": "test changelog message",
                 "countries": [country.id],
@@ -490,7 +489,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.proposed_enrollment, 42)
         self.assertEqual(
             experiment.targeting_config_slug,
-            NimbusConstants.TargetingConfig.TARGETING_FIRST_RUN,
+            TargetingConstants.TargetingConfig.FIRST_RUN,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
         self.assertEqual(list(experiment.countries.all()), [country])
@@ -1011,9 +1010,7 @@ class TestNimbusExperimentSerializer(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
         data = {
-            "targeting_config_slug": (
-                NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
-            ),
+            "targeting_config_slug": (NimbusExperiment.TargetingConfig.FIRST_RUN_WIN1903),
             "changelog_message": "updating targeting config",
         }
         serializer = NimbusExperimentSerializer(
@@ -1029,9 +1026,7 @@ class TestNimbusExperimentSerializer(TestCase):
             application=NimbusExperiment.Application.IOS,
         )
         data = {
-            "targeting_config_slug": (
-                NimbusExperiment.TargetingConfig.TARGETING_FIRST_RUN_WINDOWS_1903_NEWER
-            ),
+            "targeting_config_slug": (NimbusExperiment.TargetingConfig.FIRST_RUN_WIN1903),
             "changelog_message": "updating targeting config",
         }
         serializer = NimbusExperimentSerializer(
