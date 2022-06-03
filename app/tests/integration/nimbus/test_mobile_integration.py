@@ -29,7 +29,7 @@ def client_info_list():
         return json.load(file)["query_result"]["data"]["rows"]
 
 
-@pytest.fixture
+@pytest.fixture(params=helpers.load_targeting_configs(app="MOBILE"))
 def load_app_context():
     def _load_app_context_helper(context):
         base_app_context = BaseAppContextDataClass.from_dict(context)
@@ -110,7 +110,7 @@ def test_check_mobile_targeting_falsey(
         context["app_name"],
         locale_number_loader([context["locale"][:2]]),
     )
-    expression = "'zz' in locale"  # represents a malformed jexl expression
+    expression = "'zzz' in locale"  # represents a malformed jexl expression
     assert jexl_evaluator(sdk_client(load_app_context(context)), expression) is False
 
 
@@ -124,5 +124,6 @@ def test_check_mobile_targeting_undefined(
         client["app_name"],
         locale_number_loader([client["locale"]]),
     )
-    expression = ""  # represents a malformed jexl expression
-    assert jexl_evaluator(sdk_client(load_app_context(client)), expression) is None
+    data = helpers.load_experiment_data(slugify(experiment_name))
+    expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
+    assert jexl_evaluator(sdk_client(load_app_context(client)), expression[::-1]) is None

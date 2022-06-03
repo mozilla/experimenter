@@ -22,7 +22,7 @@ def load_graphql_data(query):
                 time.sleep(LOAD_DATA_RETRY_DELAY)
 
 
-def load_targeting_configs():
+def load_targeting_configs(app="DESKTOP"):
     data = load_graphql_data(
         {
             "operationName": "getConfig",
@@ -42,8 +42,12 @@ def load_targeting_configs():
     )
     targeting_configs = []
     for item in data["data"]["nimbusConfig"]["targetingConfigs"]:
-        if "DESKTOP" in item["applicationValues"]:
-            targeting_configs.append(item["value"])
+        if "DESKTOP" in app:
+            if "DESKTOP" in item["applicationValues"]:
+                targeting_configs.append(item["value"])
+        else:
+            if "DESKTOP" not in item["applicationValues"]:
+                    targeting_configs.append(item["value"])
     return targeting_configs
 
 
