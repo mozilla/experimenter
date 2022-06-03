@@ -1099,6 +1099,21 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             )
         return data
 
+    def _validate_languages_versions(self, data):
+        application = data.get("application")
+        min_version = data.get("firefox_min_version", "")
+
+        min_supported_version = NimbusConstants.LANGUAGES_APPLICATION_SUPPORTED_VERSION[
+            application
+        ]
+        if NimbusExperiment.Version.parse(min_version) < NimbusExperiment.Version.parse(
+            min_supported_version
+        ):
+            raise serializers.ValidationError(
+                {"languages": "Languages are not supported for this version."}
+            )
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1110,6 +1125,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_config(data)
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
+        if application != NimbusExperiment.Application.DESKTOP:
+            data = self._validate_languages_versions(data)
         return data
 
 
