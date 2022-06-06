@@ -52,7 +52,7 @@
     "react-scripts": "3.4.0",
     "react-select": "^4.3.1",
     "react-tooltip": "^4.2.21",
-    "typescript": "4.3.4",
+    "typescript": "4.7.3",
     "vega": "^5.22.0",
     "vega-embed": "^6.20.0",
     "vega-lite": "^4.17.0"
