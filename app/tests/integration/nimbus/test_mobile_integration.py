@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+import uuid
 
 import pytest
 from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
@@ -83,33 +84,21 @@ def fixture_jexl_evaluator():
     return _eval_jexl
 
 
-@pytest.mark.parametrize("context", client_info_list())
 @pytest.mark.run_targeting
+@pytest.mark.parametrize("targeting", helpers.load_targeting_configs("MOBILE"))
+@pytest.mark.parametrize("context", client_info_list())
 def test_check_mobile_targeting(
-    jexl_evaluator, sdk_client, load_app_context, context, slugify, experiment_name
+    jexl_evaluator, sdk_client, load_app_context, context, slugify, experiment_name, create_mobile_experiment, targeting
 ):
+    experiment_name = f"{slugify(experiment_name[:76])}-{str(uuid.uuid4())[:4]}"
     context = json.loads(context["app_context"])
     context["locale"] = context["locale"][:2]  # strip region
-    helpers.create_mobile_experiment(
-        slugify(experiment_name),
+    create_mobile_experiment(
+        experiment_name,
         context["app_name"],
         locale_databse_id_loader([context["locale"]]),
+        targeting
     )
-    data = helpers.load_experiment_data(slugify(experiment_name))
+    data = helpers.load_experiment_data(experiment_name)
     expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
     assert jexl_evaluator(sdk_client(load_app_context(context)), expression)
-
-
-@pytest.mark.run_targeting
-def test_check_mobile_targeting_undefined(
-    jexl_evaluator, sdk_client, load_app_context, slugify, experiment_name
-):
-    client = json.loads(client_info_list()[0]["app_context"])
-    helpers.create_mobile_experiment(
-        slugify(experiment_name),
-        client["app_name"],
-        locale_databse_id_loader([client["locale"]]),
-    )
-    data = helpers.load_experiment_data(slugify(experiment_name))
-    expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
-    assert jexl_evaluator(sdk_client(load_app_context(client)), expression[::-1]) is None
