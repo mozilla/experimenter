@@ -193,6 +193,7 @@ def create_experiment(base_url, default_data):
         audience = metrics.save_and_continue()
         audience.channel = default_data.audience.channel.value
         audience.min_version = default_data.audience.min_version
+        audience.languages = default_data.audience.languages
         audience.targeting = default_data.audience.targeting
         audience.percentage = default_data.audience.percentage
         audience.expected_clients = default_data.audience.expected_clients
