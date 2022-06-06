@@ -157,7 +157,7 @@ def default_data(request):
             expected_clients=50,
             locale=None,
             countries=None,
-            languages=None,
+            languages=[1],
         ),
     )
 
