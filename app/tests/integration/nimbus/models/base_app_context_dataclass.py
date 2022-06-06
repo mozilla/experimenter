@@ -20,6 +20,6 @@ class BaseAppContextDataClass:
     os_version: str
     android_sdk_version: Optional[str]
     debug_tag: Optional[str]
-    installation_date: Optional[str]
-    home_directory: Optional[str]
-    custom_targeting_attributes: Optional[str]
+    installation_date: Optional[int]
+    home_directory: Optional[bool]
+    custom_targeting_attributes: Optional[dict]

@@ -1,5 +1,3 @@
-import time
-import json
 import uuid
 from urllib.parse import urljoin, urlparse
 
@@ -219,7 +217,7 @@ def create_mobile_experiment():
                     "application": app.upper(),
                     "locales": locales,
                     "changelogMessage": "test changelog message",
-                    "targetingConfigSlug": targeting
+                    "targetingConfigSlug": targeting,
                 }
             },
             "query": "mutation createExperiment($input: ExperimentInput!) \
@@ -229,4 +227,5 @@ def create_mobile_experiment():
                 \n}",
         }
         requests.post("https://nginx/api/v5/graphql", json=query, verify=False)
+
     return _create_mobile_experiment

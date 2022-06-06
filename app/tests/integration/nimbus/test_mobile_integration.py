@@ -1,7 +1,7 @@
 import json
 import os
-from pathlib import Path
 import uuid
+from pathlib import Path
 
 import pytest
 from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
@@ -72,8 +72,8 @@ def fixture_sdk_client(ar_units):
 
 @pytest.fixture(name="jexl_evaluator")
 def fixture_jexl_evaluator():
-    def _eval_jexl(sdk_client, expression):
-        targetting_helper = sdk_client.create_targeting_helper()
+    def _eval_jexl(sdk_client, expression, context):
+        targetting_helper = sdk_client.create_targeting_helper(additional_context=context)
         try:
             value = targetting_helper.eval_jexl(expression)
         except nimbus.NimbusError.EvaluationError:
@@ -88,17 +88,28 @@ def fixture_jexl_evaluator():
 @pytest.mark.parametrize("targeting", helpers.load_targeting_configs("MOBILE"))
 @pytest.mark.parametrize("context", client_info_list())
 def test_check_mobile_targeting(
-    jexl_evaluator, sdk_client, load_app_context, context, slugify, experiment_name, create_mobile_experiment, targeting
+    jexl_evaluator,
+    sdk_client,
+    load_app_context,
+    context,
+    slugify,
+    experiment_name,
+    create_mobile_experiment,
+    targeting,
 ):
     experiment_name = f"{slugify(experiment_name[:76])}-{str(uuid.uuid4())[:4]}"
-    context = json.loads(context["app_context"])
+    context = context["app_context"]
     context["locale"] = context["locale"][:2]  # strip region
     create_mobile_experiment(
         experiment_name,
         context["app_name"],
         locale_databse_id_loader([context["locale"]]),
-        targeting
+        targeting,
     )
     data = helpers.load_experiment_data(experiment_name)
     expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
-    assert jexl_evaluator(sdk_client(load_app_context(context)), expression)
+    assert jexl_evaluator(
+        sdk_client(load_app_context(context)),
+        expression,
+        json.dumps(context["custom_targeting_attributes"]),
+    )

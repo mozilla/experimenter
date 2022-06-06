@@ -13,19 +13,129 @@
         ],
         "rows": [
           {
-            "app_context": "{\"app_name\":\"fenix\",\"app_id\":\"org.mozilla.firefox\",\"channel\":\"release\",\"app_version\":\"95.2.0\",\"app_build\":\"2015851759\",\"architecture\":\"armeabi-v7a\",\"device_manufacturer\":\"HUAWEI\",\"device_model\":\"MED-LX9\",\"locale\":\"es-MX\",\"os\":\"Android\",\"os_version\":\"10\",\"android_sdk_version\":\"29\",\"debug_tag\":null,\"installation_date\":1641967200,\"home_directory\":null,\"custom_targeting_attributes\":{\"is_already_enrolled\":true,\"days_since_update\":1,\"days_since_install\":1}}"
+            "app_context": {
+              "app_name": "fenix",
+              "app_id": "org.mozilla.firefox",
+              "channel": "release",
+              "app_version": "95.2.0",
+              "app_build": "2015851759",
+              "architecture": "armeabi-v7a",
+              "device_manufacturer": "HUAWEI",
+              "device_model": "MED-LX9",
+              "locale": "es-MX",
+              "os": "Android",
+              "os_version": "10",
+              "android_sdk_version": "29",
+              "debug_tag": null,
+              "installation_date": 1641967200,
+              "home_directory": null,
+              "custom_targeting_attributes":
+                {
+                  "is_already_enrolled": "true",
+                  "days_since_update": "1",
+                  "days_since_install": "1"
+                }
+            }
           },
           {
-            "app_context": "{\"app_name\":\"fenix\",\"app_id\":\"org.mozilla.firefox\",\"channel\":\"release\",\"app_version\":\"100.1.2\",\"app_build\":\"2015879543\",\"architecture\":\"arm64-v8a\",\"device_manufacturer\":\"asus\",\"device_model\":\"ASUS_Z012DA\",\"locale\":\"zh-TW\",\"os\":\"Android\",\"os_version\":\"8.0.0\",\"android_sdk_version\":\"26\",\"debug_tag\":null,\"installation_date\":1597939200,\"home_directory\":null,\"custom_targeting_attributes\":{\"is_already_enrolled\":true,\"days_since_update\":1,\"days_since_install\":1}}"
+            "app_context": {
+              "app_name": "fenix",
+              "app_id": "org.mozilla.firefox",
+              "channel": "release",
+              "app_version": "100.1.2",
+              "app_build": "2015879543",
+              "architecture": "arm64-v8a",
+              "device_manufacturer": "asus",
+              "device_model": "ASUS_Z012DA",
+              "locale": "zh-TW",
+              "os": "Android",
+              "os_version": "8.0.0",
+              "android_sdk_version": "26",
+              "debug_tag": null,
+              "installation_date": 1597939200,
+              "home_directory": null,
+              "custom_targeting_attributes": 
+                {
+                  "is_already_enrolled": "true",
+                  "days_since_update": "1",
+                  "days_since_install": "1"
+                }
+            }
           },
           {
-            "app_context": "{\"app_name\":\"fenix\",\"app_id\":\"org.mozilla.firefox\",\"channel\":\"release\",\"app_version\":\"100.1.2\",\"app_build\":\"2015879543\",\"architecture\":\"armeabi-v7a\",\"device_manufacturer\":\"HUAWEI\",\"device_model\":\"AMN-LX1\",\"locale\":\"fr-FR\",\"os\":\"Android\",\"os_version\":\"9\",\"android_sdk_version\":\"28\",\"debug_tag\":null,\"installation_date\":1650405600,\"home_directory\":null,\"custom_targeting_attributes\":{\"is_already_enrolled\":true,\"days_since_update\":1,\"days_since_install\":1}}"
+            "app_context": {
+              "app_name": "fenix",
+              "app_id": "org.mozilla.firefox",
+              "channel": "release",
+              "app_version": "100.1.2",
+              "app_build": "2015879543",
+              "architecture": "armeabi-v7a",
+              "device_manufacturer": "HUAWEI",
+              "device_model": "AMN-LX1",
+              "locale": "fr-FR",
+              "os": "Android",
+              "os_version": "9",
+              "android_sdk_version": "28",
+              "debug_tag": null,
+              "installation_date": 1650405600,
+              "home_directory": null,
+              "custom_targeting_attributes":
+              {
+                "is_already_enrolled": "true",
+                "days_since_update": "1",
+                "days_since_install": "1"
+              }
+            }
           },
           {
-            "app_context": "{\"app_name\":\"fenix\",\"app_id\":\"org.mozilla.firefox\",\"channel\":\"release\",\"app_version\":\"100.2.0\",\"app_build\":\"2015880367\",\"architecture\":\"arm64-v8a\",\"device_manufacturer\":\"samsung\",\"device_model\":\"SM-A326B\",\"locale\":\"en-GB\",\"os\":\"Android\",\"os_version\":\"12\",\"android_sdk_version\":\"31\",\"debug_tag\":null,\"installation_date\":1651602600,\"home_directory\":null,\"custom_targeting_attributes\":{\"is_already_enrolled\":true,\"days_since_update\":1,\"days_since_install\":1}}"
+            "app_context": {
+              "app_name": "fenix",
+              "app_id": "org.mozilla.firefox",
+              "channel": "release",
+              "app_version": "100.2.0",
+              "app_build": "2015880367",
+              "architecture": "arm64-v8a",
+              "device_manufacturer": "samsung",
+              "device_model": "SM-A326B",
+              "locale": "en-GB",
+              "os": "Android",
+              "os_version": "12",
+              "android_sdk_version": "31",
+              "debug_tag": null,
+              "installation_date": 1651602600,
+              "home_directory": null,
+              "custom_targeting_attributes":
+              {
+                "is_already_enrolled": "true",
+                "days_since_update": "1",
+                "days_since_install": "1"
+              }
+            }
           },
           {
-            "app_context": "{\"app_name\":\"fenix\",\"app_id\":\"org.mozilla.firefox\",\"channel\":\"release\",\"app_version\":\"100.1.2\",\"app_build\":\"2015879543\",\"architecture\":\"arm64-v8a\",\"device_manufacturer\":\"samsung\",\"device_model\":\"SM-G998U\",\"locale\":\"en-US\",\"os\":\"Android\",\"os_version\":\"12\",\"android_sdk_version\":\"31\",\"debug_tag\":null,\"installation_date\":1612674000,\"home_directory\":null,\"custom_targeting_attributes\":{\"is_already_enrolled\":true,\"days_since_update\":1,\"days_since_install\":1}}"
+            "app_context": {
+              "app_name": "fenix",
+              "app_id": "org.mozilla.firefox",
+              "channel": "release",
+              "app_version": "100.1.2",
+              "app_build": "2015879543",
+              "architecture": "arm64-v8a",
+              "device_manufacturer": "samsung",
+              "device_model": "SM-G998U",
+              "locale": "en-US ",
+              "os": "Android",
+              "os_version": "12",
+              "android_sdk_version": "31",
+              "debug_tag": null,
+              "installation_date": 1612674000,
+              "home_directory": null,
+              "custom_targeting_attributes": 
+              {
+                "is_already_enrolled": "true",
+                "days_since_update": "1",
+                "days_since_install": "1"
+              }
+            }
           }
         ],
         "metadata": {
