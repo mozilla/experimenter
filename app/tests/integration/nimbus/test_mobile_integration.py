@@ -97,7 +97,7 @@ def test_check_mobile_targeting(
     create_mobile_experiment,
     targeting,
 ):
-    experiment_name = f"{slugify(experiment_name[:76])}-{str(uuid.uuid4())[:4]}"
+    experiment_name = f"{slugify(experiment_name)}"
     context = context["app_context"]
     context["locale"] = context["locale"][:2]  # strip region
     create_mobile_experiment(

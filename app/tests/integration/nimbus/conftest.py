@@ -123,7 +123,7 @@ def experiment_url(base_url, default_data, slugify):
 
 @pytest.fixture
 def experiment_name(request):
-    return f"{request.node.name}-{str(uuid.uuid4())[:4]}"
+    return f"{request.node.name[:76]}-{str(uuid.uuid4())[:4]}"
 
 
 @pytest.fixture(
