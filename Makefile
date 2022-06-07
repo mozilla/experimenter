@@ -177,6 +177,9 @@ dependabot_approve:
 integration_shell:
 	$(COMPOSE_INTEGRATION) run firefox bash
 
+integration_sdk_shell:
+	$(COMPOSE_INTEGRATION) run rust-sdk bash
+
 integration_vnc_up:
 	$(COMPOSE_INTEGRATION) up
 
@@ -188,3 +191,6 @@ integration_test_legacy:
 
 integration_test_nimbus:
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
+
+integration_test_nimbus_rust:
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
