@@ -308,6 +308,19 @@ INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+INFREQUENT_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
+    name="Infrequent user (under 9 bookmarks)",
+    slug="infrequent_user_under_9_bookmarks",
+    description="Between 1-6 days of activity in past 28, has < 9 bookmarks",
+    # A proxy for "nothing has been imported". For profiles created in 101 and 102,
+    # (and likely before) five default bookmarks are created. In 103 nightly (as of this
+    # writing), a new profile gets seven. After talking with product, going slightly
+    # higher in case another one should get added.
+    targeting=f"{INFREQUENT_USER_URIS.targeting} && totalBookmarksCount < 9",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 CASUAL_USER_URIS = NimbusTargetingConfig(
     name="Casual user (uris)",
     slug="casual_user_uris",
