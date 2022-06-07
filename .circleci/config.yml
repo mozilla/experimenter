@@ -36,6 +36,20 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
 
+  integration_nimbus_rust:
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    resource_class: medium
+    working_directory: ~/experimenter
+    steps:
+      - checkout
+      - run:
+          name: Run rust integration tests
+          command: |
+            cp .env.integration-tests .env
+            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus_rust PYTEST_ARGS="$PYTEST_ARGS"
+
   deploy:
     working_directory: ~/experimenter
     machine:
@@ -67,6 +81,12 @@ workflows:
           name: check
       - integration_nimbus:
           name: integration_nimbus
+          filters:
+            branches:
+              ignore:
+                - main
+      - integration_nimbus_rust:
+          name: integration_nimbus_rust
           filters:
             branches:
               ignore:
