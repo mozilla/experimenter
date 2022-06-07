@@ -12,14 +12,20 @@ class NimbusExperimentCsvRenderer(CSVRenderer):
 
 class NimbusExperimentCsvListView(ListAPIView):
 
-    queryset = NimbusExperiment.objects.select_related("owner").prefetch_related(
-        "feature_configs", "changes"
+    queryset = (
+        NimbusExperiment.objects.select_related("owner")
+        .prefetch_related("feature_configs", "changes")
+        .filter(is_archived=False)
     )
 
     def get_queryset(self):
         return sorted(
             super().get_queryset(),
-            key=lambda experiment: str(experiment.start_date) or "",
+            key=lambda experiment: (
+                experiment.start_date and experiment.start_date.strftime("%Y-%m-%d")
+            )
+            or "",
+            reverse=True,
         )
 
     serializer_class = NimbusExperimentCsvSerializer
