@@ -121,17 +121,22 @@ def experiment_url(base_url, default_data, slugify):
     return urljoin(base_url, slugify(default_data.public_name))
 
 
+@pytest.fixture
+def experiment_name(request):
+    return f"{request.node.name[:76]}-{str(uuid.uuid4())[:4]}"
+
+
 @pytest.fixture(
     # Use all applications as available parameters in parallel_pytest_args.txt
     params=list(BaseExperimentApplications),
     ids=[application.name for application in BaseExperimentApplications],
 )
-def default_data(request):
+def default_data(request, experiment_name):
     application = request.param
     feature_config = APPLICATION_FEATURES[application]
 
     return BaseExperimentDataClass(
-        public_name=f"{request.node.name[:76]}-{str(uuid.uuid4())[:4]}",
+        public_name=experiment_name,
         hypothesis="smart stuff here",
         application=application,
         public_description="description stuff",
@@ -198,3 +203,29 @@ def create_experiment(base_url, default_data):
         return audience.save_and_continue()
 
     return _create_experiment
+
+
+@pytest.fixture
+def create_mobile_experiment():
+    def _create_mobile_experiment(name, app, locales, targeting):
+        query = {
+            "operationName": "createExperiment",
+            "variables": {
+                "input": {
+                    "name": name,
+                    "hypothesis": "Test hypothesis",
+                    "application": app.upper(),
+                    "locales": locales,
+                    "changelogMessage": "test changelog message",
+                    "targetingConfigSlug": targeting,
+                }
+            },
+            "query": "mutation createExperiment($input: ExperimentInput!) \
+                {\n  createExperiment(input: $input) \
+                {\n    message\n    nimbusExperiment \
+                {\n      slug\n      __typename\n    }\n    __typename\n  }\
+                \n}",
+        }
+        requests.post("https://nginx/api/v5/graphql", json=query, verify=False)
+
+    return _create_mobile_experiment
