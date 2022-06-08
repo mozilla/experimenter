@@ -222,7 +222,7 @@ export const FormBranches = ({
                   >
                     {feature.name}
                     {feature.description?.length
-                      ? `- ${feature.description}`
+                      ? ` - ${feature.description}`
                       : ""}
                   </option>
                 ),
