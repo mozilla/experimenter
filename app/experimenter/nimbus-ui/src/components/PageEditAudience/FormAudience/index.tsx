@@ -51,6 +51,7 @@ export const audienceFieldNames = [
   "proposedDuration",
   "countries",
   "locales",
+  "languages",
 ] as const;
 
 const selectOptions = (items: SelectIdItems) =>
@@ -76,6 +77,9 @@ export const FormAudience = ({
   const [countries, setCountries] = useState<string[]>(
     experiment!.countries.map((v) => "" + v.id!),
   );
+  const [languages, setLanguages] = useState<string[]>(
+    experiment!.languages.map((v) => "" + v.id!),
+  );
 
   const applicationConfig = config.applicationConfigs?.find(
     (applicationConfig) =>
@@ -93,6 +97,7 @@ export const FormAudience = ({
     proposedDuration: experiment.proposedDuration,
     countries: selectOptions(experiment.countries as SelectIdItems),
     locales: selectOptions(experiment.locales as SelectIdItems),
+    languages: selectOptions(experiment.languages as SelectIdItems),
   };
 
   const {
@@ -123,12 +128,13 @@ export const FormAudience = ({
                 ...dataIn,
                 locales,
                 countries,
+                languages,
               },
               next,
             ),
         ),
       ),
-    [isLoading, onSubmit, handleSubmit, locales, countries],
+    [isLoading, onSubmit, handleSubmit, locales, countries, languages],
   );
 
   const targetingConfigSlugOptions = useMemo(
@@ -193,16 +199,30 @@ export const FormAudience = ({
           </Form.Group>
         </Form.Row>
         <Form.Row>
-          <Form.Group as={Col} controlId="locales" data-testid="locales">
-            <Form.Label>Locales</Form.Label>
-            <Select
-              placeholder="All Locales"
-              isMulti
-              {...formSelectAttrs("locales", setLocales)}
-              options={selectOptions(config.locales as SelectIdItems)}
-            />
-            <FormErrors name="locales" />
-          </Form.Group>
+          {isDesktop && (
+            <Form.Group as={Col} controlId="locales" data-testid="locales">
+              <Form.Label>Locales</Form.Label>
+              <Select
+                placeholder="All Locales"
+                isMulti
+                {...formSelectAttrs("locales", setLocales)}
+                options={selectOptions(config.locales as SelectIdItems)}
+              />
+              <FormErrors name="locales" />
+            </Form.Group>
+          )}
+          {!isDesktop && (
+            <Form.Group as={Col} controlId="languages" data-testid="languages">
+              <Form.Label>Languages</Form.Label>
+              <Select
+                placeholder="All Languages"
+                isMulti
+                {...formSelectAttrs("languages", setLanguages)}
+                options={selectOptions(config.languages as SelectIdItems)}
+              />
+              <FormErrors name="languages" />
+            </Form.Group>
+          )}
           <Form.Group as={Col} controlId="countries" data-testid="countries">
             <Form.Label>Countries</Form.Label>
             <Select

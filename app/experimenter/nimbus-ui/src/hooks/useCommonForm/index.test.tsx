@@ -153,8 +153,10 @@ describe("hooks/useCommonForm", () => {
 
     it("FormAudience", () => {
       render(<AudienceSubject />);
-
-      audienceFieldNames.forEach((name) => {
+      const filteredAudienceFieldNames = audienceFieldNames.filter(
+        (e) => e !== "languages",
+      );
+      filteredAudienceFieldNames.forEach((name) => {
         expect(screen.queryByTestId(`${name}-form-errors`)).toBeInTheDocument();
         expect(screen.queryByTestId(name)).toBeInTheDocument();
       });
