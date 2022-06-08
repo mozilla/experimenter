@@ -220,6 +220,7 @@ export const FormAudience = ({
                 {...formSelectAttrs("languages", setLanguages)}
                 options={selectOptions(config.languages as SelectIdItems)}
               />
+              <FormErrors name="languages" />
             </Form.Group>
           )}
           <Form.Group as={Col} controlId="countries" data-testid="countries">
