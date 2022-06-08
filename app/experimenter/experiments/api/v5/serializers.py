@@ -1103,15 +1103,19 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         application = data.get("application")
         min_version = data.get("firefox_min_version", "")
 
-        min_supported_version = NimbusConstants.LANGUAGES_APPLICATION_SUPPORTED_VERSION[
-            application
-        ]
-        if NimbusExperiment.Version.parse(min_version) < NimbusExperiment.Version.parse(
-            min_supported_version
-        ):
-            raise serializers.ValidationError(
-                {"languages": "Languages are not supported for this version."}
+        languages = data.get("languages", [])
+
+        if languages:
+
+            min_supported_version = (
+                NimbusConstants.LANGUAGES_APPLICATION_SUPPORTED_VERSION[application]
             )
+            if NimbusExperiment.Version.parse(
+                min_version
+            ) < NimbusExperiment.Version.parse(min_supported_version):
+                raise serializers.ValidationError(
+                    {"languages": "Languages are not supported for this version."}
+                )
         return data
 
     def validate(self, data):

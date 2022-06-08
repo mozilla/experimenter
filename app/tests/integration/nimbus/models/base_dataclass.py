@@ -33,6 +33,7 @@ class BaseExperimentAudienceDataClass:
     expected_clients: int
     locale: Optional[str]
     countries: Optional[str]
+    languages: Optional[str]
 
 
 @dataclass

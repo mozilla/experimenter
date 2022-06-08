@@ -1,6 +1,7 @@
 from django.test import TestCase
 from parameterized import parameterized
 
+from experimenter.base.tests.factories import LanguageFactory
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
@@ -220,6 +221,64 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_valid_experiments_supporting_languages_versions(
         self, application, firefox_version
     ):
+
+        experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=firefox_version,
+        )
+        experiment_1.save()
+        serializer_1 = NimbusReviewSerializer(
+            experiment_1,
+            data=NimbusReviewSerializer(
+                experiment_1,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer_1.is_valid())
+        # selected languages
+        language = LanguageFactory.create()
+        experiment_2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=firefox_version,
+            languages=[language.id],
+        )
+        experiment_2.save()
+        serializer_2 = NimbusReviewSerializer(
+            experiment_2,
+            data=NimbusReviewSerializer(
+                experiment_2,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer_2.is_valid())
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_100,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_100,
+            ),
+        ]
+    )
+    def test_valid_experiments_with_all_languages(self, application, firefox_version):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
@@ -257,14 +316,16 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
         ]
     )
-    def test_invalid_experiments_supporting_languages_versions(
+    def test_invalid_experiments_with_specific_languages(
         self, application, firefox_version
     ):
+        language = LanguageFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
+            languages=[language.id],
         )
         experiment.save()
         serializer = NimbusReviewSerializer(
