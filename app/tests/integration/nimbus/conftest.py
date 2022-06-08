@@ -20,12 +20,12 @@ from nimbus.pages.experimenter.home import HomePage
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-APPLICATION_FEATURES = {
-    BaseExperimentApplications.DESKTOP: "No Feature Firefox Desktop",
-    BaseExperimentApplications.FENIX: "No Feature Fenix",
-    BaseExperimentApplications.IOS: "No Feature iOS",
-    BaseExperimentApplications.FOCUS_ANDROID: "No Feature Focus for Android",
-    BaseExperimentApplications.FOCUS_IOS: "No Feature Focus for iOS",
+APPLICATION_FEATURE_IDS = {
+    BaseExperimentApplications.DESKTOP: "1",
+    BaseExperimentApplications.FENIX: "2",
+    BaseExperimentApplications.IOS: "3",
+    BaseExperimentApplications.FOCUS_ANDROID: "4",
+    BaseExperimentApplications.FOCUS_IOS: "6",
 }
 
 APPLICATION_KINTO_REVIEW_PATH = {
@@ -133,14 +133,14 @@ def experiment_name(request):
 )
 def default_data(request, experiment_name):
     application = request.param
-    feature_config = APPLICATION_FEATURES[application]
+    feature_config_id = APPLICATION_FEATURE_IDS[application]
 
     return BaseExperimentDataClass(
         public_name=experiment_name,
         hypothesis="smart stuff here",
         application=application,
         public_description="description stuff",
-        feature_config=feature_config,
+        feature_config_id=feature_config_id,
         branches=[
             BaseExperimentBranchDataClass(
                 name="control",
@@ -185,11 +185,11 @@ def create_experiment(base_url, default_data):
 
         # Fill Branches page
         branches = overview.save_and_continue()
-        branches.feature_config = default_data.feature_config
+        branches.feature_config = default_data.feature_config_id
         branches.reference_branch_description = default_data.branches[0].description
-        branches.treatment_branch_description = default_data.branches[0].description
+        branches.treatment_branch_description = default_data.branches[1].description
         branches.treatment_branch_enabled.click()
-        branches.treatment_branch_value = '{"value": true}'
+        branches.treatment_branch_value = "{}"
 
         # Fill Metrics page
         metrics = branches.save_and_continue()

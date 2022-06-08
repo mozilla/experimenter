@@ -51,4 +51,4 @@ class BaseExperimentDataClass:
     branches: Optional[List[BaseExperimentBranchDataClass]]
     metrics: BaseExperimentMetricsDataClass
     audience: BaseExperimentAudienceDataClass
-    feature_config: str
+    feature_config_id: str
