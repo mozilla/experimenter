@@ -42,6 +42,16 @@ class TestNimbusExperimentCsvListView(TestCase):
         experiment_3 = NimbusExperimentFactory.create(
             application=application, feature_configs=[feature_config]
         )
+
+        experiment_4 = NimbusExperimentFactory.create(
+            application=application, feature_configs=[feature_config]
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment_4,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=datetime.date(2021, 5, 1),
+        )
         response = self.client.get(
             reverse("nimbus-experiments-csv"),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -52,7 +62,7 @@ class TestNimbusExperimentCsvListView(TestCase):
         csv_data = response.content
         expected_csv_data = NimbusExperimentCsvRenderer().render(
             NimbusExperimentCsvSerializer(
-                [experiment_1, experiment_2, experiment_3], many=True
+                [experiment_1, experiment_4, experiment_2, experiment_3], many=True
             ).data,
             renderer_context={"header": NimbusExperimentCsvSerializer.Meta.fields},
         )
