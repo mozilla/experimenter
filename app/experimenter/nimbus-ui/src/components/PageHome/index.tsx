@@ -153,6 +153,14 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
         .
       </Alert>
 
+      <Alert variant="warning" className="mb-4">
+        <span role="img" aria-label="magnifying emoji">
+          🔍
+        </span>{" "}
+        Looking for the old Experimenter?{" "}
+        <LinkExternal href="/legacy">It&lsquo;s still here!</LinkExternal>
+      </Alert>
+
       <Body />
     </AppLayout>
   );
