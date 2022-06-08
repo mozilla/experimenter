@@ -16,7 +16,7 @@ from experimenter.experiments.tests.factories import (
 
 
 class TestNimbusExperimentCsvListView(TestCase):
-    def test_get_returns_csv_info(self):
+    def test_get_returns_csv_info_sorted_by_start_date(self):
         user_email = "user@example.com"
         application = NimbusConstants.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
