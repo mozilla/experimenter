@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, re_path
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.views.generic.base import RedirectView
 
 from experimenter.legacy.legacy_experiments.views import (
     ExperimentListView,
@@ -25,7 +26,12 @@ urlpatterns = [
     re_path(r"^experiments/", include("experimenter.legacy.legacy_experiments.urls")),
     re_path(r"^nimbus/", NimbusUIView.as_view(), name="nimbus-list"),
     re_path(r"^nimbus/(?P<slug>[\w-]+)/", NimbusUIView.as_view(), name="nimbus-detail"),
-    re_path(r"^$", ExperimentListView.as_view(), name="home"),
+    re_path(r"^legacy/$", ExperimentListView.as_view(), name="home"),
+    re_path(
+        r"^$",
+        RedirectView.as_view(pattern_name="nimbus-list"),
+        name="redirect-to-nimbus",
+    ),
 ]
 
 handler404 = PageNotFoundView.as_404_view()
