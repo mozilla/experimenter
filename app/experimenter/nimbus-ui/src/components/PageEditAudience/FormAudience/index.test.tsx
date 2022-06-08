@@ -186,6 +186,34 @@ describe("FormAudience", () => {
     ).toHaveAttribute("disabled");
   });
 
+  it("enables language field for mobile", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+        }}
+      />,
+    );
+
+    expect(screen.queryByTestId("languages")).toBeInTheDocument();
+    expect(screen.queryByTestId("locales")).not.toBeInTheDocument();
+  });
+
+  it("disables language field for desktop", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+        }}
+      />,
+    );
+
+    expect(screen.queryByTestId("languages")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("locales")).toBeInTheDocument();
+  });
+
   it("calls onSubmit when save and next buttons are clicked", async () => {
     const onSubmit = jest.fn();
     const expected = {
@@ -199,6 +227,7 @@ describe("FormAudience", () => {
       proposedDuration: "" + MOCK_EXPERIMENT.proposedDuration,
       countries: MOCK_EXPERIMENT.countries.map((v) => "" + v.id),
       locales: MOCK_EXPERIMENT.locales.map((v) => "" + v.id),
+      languages: MOCK_EXPERIMENT.languages.map((v) => "" + v.id),
     };
     render(<Subject {...{ onSubmit }} />);
     await screen.findByTestId("FormAudience");
@@ -446,6 +475,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         targetingConfigSlug: "",
         countries: [],
         locales: [],
+        languages: [],
       }}
     />,
   );

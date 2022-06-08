@@ -546,6 +546,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
     "https://kinto.example.com/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review",
   locales: [{ name: "Quebecois", id: 1 }],
   countries: [{ name: "Canada", id: 1 }],
+  languages: [{ name: "English", id: 1 }],
 };
 
 export function mockExperiment<

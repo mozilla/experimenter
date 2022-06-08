@@ -40,6 +40,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
         proposedDuration,
         countries,
         locales,
+        languages,
       }: Record<string, any>,
       next: boolean,
     ) => {
@@ -61,6 +62,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
               proposedDuration,
               countries,
               locales,
+              languages,
             },
           },
         });
