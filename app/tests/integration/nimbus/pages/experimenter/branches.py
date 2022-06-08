@@ -110,12 +110,12 @@ class BranchesPage(ExperimenterBase):
         ).text
 
     @feature_config.setter
-    def feature_config(self, feature_config="No Feature Firefox Desktop"):
+    def feature_config(self, feature_config_id):
         el = self.wait_for_and_find_element(
             self._feature_select_locator, "feature_config"
         )
         select = Select(el)
-        select.select_by_visible_text(feature_config)
+        select.select_by_value(feature_config_id)
 
     @property
     def add_screenshot_buttons(self):
