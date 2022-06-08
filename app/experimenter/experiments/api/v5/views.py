@@ -12,8 +12,10 @@ class NimbusExperimentCsvRenderer(CSVRenderer):
 
 class NimbusExperimentCsvListView(ListAPIView):
 
-    queryset = NimbusExperiment.objects.select_related("owner").prefetch_related(
-        "feature_configs", "changes"
+    queryset = (
+        NimbusExperiment.objects.select_related("owner")
+        .prefetch_related("feature_configs", "changes")
+        .filter(is_archived=False)
     )
 
     def get_queryset(self):
