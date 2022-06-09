@@ -1392,6 +1392,8 @@ class TestNimbusExperiment(TestCase):
             name="Parent Experiment",
             slug="parent-experiment",
             application=NimbusExperiment.Application.DESKTOP,
+            conclusion_recommendation="RERUN",
+            takeaways_summary="takeaway",
         )
         child = self._clone_experiment_and_assert_common_expectations(parent)
 
@@ -1428,6 +1430,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.countries.all().count(), 0)
         self.assertEqual(child.branches.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
+        self.assertIsNone(child.conclusion_recommendation)
+        self.assertIsNone(child.takeaways_summary)
 
     def test_clone_completed_experiment(self):
         parent = NimbusExperimentFactory.create_with_lifecycle(
