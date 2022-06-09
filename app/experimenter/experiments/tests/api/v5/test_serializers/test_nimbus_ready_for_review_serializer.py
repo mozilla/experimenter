@@ -370,7 +370,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
         )
-        experiment_1.save()
+
         serializer_1 = NimbusReviewSerializer(
             experiment_1,
             data=NimbusReviewSerializer(
@@ -389,7 +389,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             firefox_min_version=firefox_version,
             countries=[country.id],
         )
-        experiment_2.save()
+
         serializer_2 = NimbusReviewSerializer(
             experiment_2,
             data=NimbusReviewSerializer(
@@ -427,7 +427,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
         )
-        experiment.save()
+
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(
@@ -469,7 +469,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             firefox_min_version=firefox_version,
             countries=[country.id],
         )
-        experiment.save()
+
         serializer = NimbusReviewSerializer(
             experiment,
             data=NimbusReviewSerializer(
