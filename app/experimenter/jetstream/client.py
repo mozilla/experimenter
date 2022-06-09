@@ -37,7 +37,9 @@ def get_metadata(slug):
     return load_data_from_gcs(path)
 
 
-def get_results_metrics_map(data, primary_outcome_slugs, secondary_outcome_slugs):
+def get_results_metrics_map(
+    data, primary_outcome_slugs, secondary_outcome_slugs, outcomes_metadata
+):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
     RESULTS_METRICS_MAP = {
@@ -57,9 +59,17 @@ def get_results_metrics_map(data, primary_outcome_slugs, secondary_outcome_slugs
         )
     )
 
+    metrics_set = set()
+    for slug in primary_outcome_slugs:
+        for metric in outcomes_metadata[slug]["metrics"]:
+            metrics_set.add(metric)
+        for metric in outcomes_metadata[slug]["default_metrics"]:
+            metrics_set.add(metric)
+
     for metric in primary_outcome_metrics:
-        RESULTS_METRICS_MAP[metric.slug] = set([Statistic.BINOMIAL])
-        primary_metrics_set.add(metric.slug)
+        if metric.slug in metrics_set:
+            RESULTS_METRICS_MAP[metric.slug] = set([Statistic.BINOMIAL])
+            primary_metrics_set.add(metric.slug)
 
     for outcome_slug in secondary_outcome_slugs:
         RESULTS_METRICS_MAP[outcome_slug] = set([Statistic.MEAN])
@@ -111,9 +121,11 @@ def get_experiment_data(experiment):
     windows = ["daily", "weekly", "overall"]
     raw_data = {}
 
+    experiment_metadata = get_metadata(recipe_slug)
+
     experiment_data = {
         "show_analysis": settings.FEATURE_ANALYSIS,
-        "metadata": get_metadata(recipe_slug),
+        "metadata": experiment_metadata,
     }
 
     for window in windows:
@@ -121,7 +133,10 @@ def get_experiment_data(experiment):
             __root__=(get_data(recipe_slug, window) or [])
         )
         result_metrics, primary_metrics_set, other_metrics = get_results_metrics_map(
-            data, experiment.primary_outcomes, experiment.secondary_outcomes
+            data,
+            experiment.primary_outcomes,
+            experiment.secondary_outcomes,
+            experiment_metadata["outcomes"],
         )
 
         if data and window == "overall":
