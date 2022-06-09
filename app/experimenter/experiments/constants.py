@@ -358,6 +358,13 @@ class NimbusConstants(object):
         Application.FOCUS_IOS: Version.FIREFOX_101,
     }
 
+    COUNTRIES_APPLICATION_SUPPORTED_VERSION = {
+        Application.FENIX: Version.FIREFOX_102,
+        Application.FOCUS_ANDROID: Version.FIREFOX_102,
+        Application.IOS: Version.FIREFOX_101,
+        Application.FOCUS_IOS: Version.FIREFOX_101,
+    }
+
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
     # limit the size of our slugs to the smallest limit, which is 80
