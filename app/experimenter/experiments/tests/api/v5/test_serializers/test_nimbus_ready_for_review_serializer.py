@@ -1,7 +1,7 @@
 from django.test import TestCase
 from parameterized import parameterized
 
-from experimenter.base.tests.factories import LanguageFactory
+from experimenter.base.tests.factories import CountryFactory, LanguageFactory
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
@@ -339,6 +339,148 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
 
         self.assertIn("languages", serializer.errors)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_102,
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_102,
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+        ]
+    )
+    def test_valid_experiments_supporting_countries_versions(
+        self, application, firefox_version
+    ):
+
+        experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=firefox_version,
+        )
+        experiment_1.save()
+        serializer_1 = NimbusReviewSerializer(
+            experiment_1,
+            data=NimbusReviewSerializer(
+                experiment_1,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer_1.is_valid())
+        # selected countries
+        country = CountryFactory.create()
+        experiment_2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=firefox_version,
+            countries=[country.id],
+        )
+        experiment_2.save()
+        serializer_2 = NimbusReviewSerializer(
+            experiment_2,
+            data=NimbusReviewSerializer(
+                experiment_2,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer_2.is_valid())
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_100,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_100,
+            ),
+        ]
+    )
+    def test_valid_experiments_with_all_countries(self, application, firefox_version):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=firefox_version,
+        )
+        experiment.save()
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_100,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_100,
+            ),
+        ]
+    )
+    def test_invalid_experiments_with_specific_countries(
+        self, application, firefox_version
+    ):
+        country = CountryFactory.create()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            channel=NimbusExperiment.Channel.RELEASE,
+            firefox_min_version=firefox_version,
+            countries=[country.id],
+        )
+        experiment.save()
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+
+        self.assertIn("countries", serializer.errors)
 
     def test_alid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
