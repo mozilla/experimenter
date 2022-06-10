@@ -360,7 +360,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
         ]
     )
-    def test_valid_experiments_supporting_countries_versions_selecting_all_countires_default(
+    def test_valid_experiments_supporting_countries_versions_default_as_all_countries(
         self, application, firefox_version
     ):
 
@@ -369,6 +369,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
+            countries=[],
         )
 
         serializer_1 = NimbusReviewSerializer(
