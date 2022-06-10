@@ -38,7 +38,7 @@ def get_metadata(slug):
 
 
 def get_results_metrics_map(
-    data, primary_outcome_slugs, secondary_outcome_slugs, outcomes_metadata
+    data, primary_outcome_slugs, secondary_outcome_slugs, experiment_metadata
 ):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
@@ -59,15 +59,23 @@ def get_results_metrics_map(
         )
     )
 
-    metrics_set = set()
-    for slug in primary_outcome_slugs:
-        for metric in outcomes_metadata[slug]["metrics"]:
-            metrics_set.add(metric)
-        for metric in outcomes_metadata[slug]["default_metrics"]:
-            metrics_set.add(metric)
+    try:
+        valid_metrics = set(
+            chain.from_iterable(
+                [
+                    experiment_metadata["outcomes"][slug]["metrics"]
+                    + experiment_metadata["outcomes"][slug]["default_metrics"]
+                    for slug in experiment_metadata["outcomes"]
+                ]
+            )
+        )
+    except (TypeError, KeyError):
+        # could not retrieve metadata from Jetstream
+        valid_metrics = None
 
     for metric in primary_outcome_metrics:
-        if metric.slug in metrics_set:
+        # validate against jetstream metadata unless we couldn't get it
+        if valid_metrics is None or metric.slug in valid_metrics:
             RESULTS_METRICS_MAP[metric.slug] = set([Statistic.BINOMIAL])
             primary_metrics_set.add(metric.slug)
 
@@ -136,7 +144,7 @@ def get_experiment_data(experiment):
             data,
             experiment.primary_outcomes,
             experiment.secondary_outcomes,
-            experiment_metadata["outcomes"],
+            experiment_metadata,
         )
 
         if data and window == "overall":
