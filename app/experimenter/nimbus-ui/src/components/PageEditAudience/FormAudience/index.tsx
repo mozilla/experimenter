@@ -228,15 +228,10 @@ export const FormAudience = ({
             <Select
               placeholder="All Countries"
               isMulti
-              isDisabled={!isDesktop}
               {...formSelectAttrs("countries", setCountries)}
               options={selectOptions(config.countries as SelectIdItems)}
             />
-            {!isDesktop ? (
-              <p className="text-secondary">
-                *Country filtering is not yet supported for mobile clients.
-              </p>
-            ) : null}
+
             <FormErrors name="countries" />
           </Form.Group>
         </Form.Row>
