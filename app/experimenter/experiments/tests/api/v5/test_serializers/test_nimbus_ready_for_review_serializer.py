@@ -445,7 +445,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
         ]
     )
-    def test_valid_experiments_with_all_countries(self, application, firefox_version):
+    def test_valid_experiments_with_country_unsupported_version(
+        self, application, firefox_version
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
