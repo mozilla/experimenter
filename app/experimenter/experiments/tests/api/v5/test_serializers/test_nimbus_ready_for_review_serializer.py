@@ -360,7 +360,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
         ]
     )
-    def test_valid_experiments_supporting_countries_versions(
+    def test_valid_experiments_supporting_countries_versions_selecting_all_countires_default(
         self, application, firefox_version
     ):
 
@@ -380,9 +380,33 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
         self.assertTrue(serializer_1.is_valid())
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_102,
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_102,
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+        ]
+    )
+    def test_valid_experiments_supporting_countries_versions_selecting_specific_country(
+        self, application, firefox_version
+    ):
         # selected countries
         country = CountryFactory.create()
-        experiment_2 = NimbusExperimentFactory.create_with_lifecycle(
+        experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
@@ -390,15 +414,15 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             countries=[country.id],
         )
 
-        serializer_2 = NimbusReviewSerializer(
-            experiment_2,
+        serializer_1 = NimbusReviewSerializer(
+            experiment_1,
             data=NimbusReviewSerializer(
-                experiment_2,
+                experiment_1,
                 context={"user": self.user},
             ).data,
             context={"user": self.user},
         )
-        self.assertTrue(serializer_2.is_valid())
+        self.assertTrue(serializer_1.is_valid())
 
     @parameterized.expand(
         [
