@@ -451,6 +451,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
+            countries=[],
         )
 
         serializer = NimbusReviewSerializer(
