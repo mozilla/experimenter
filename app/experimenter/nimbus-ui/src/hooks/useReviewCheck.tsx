@@ -22,6 +22,7 @@ const fieldPageMap: { [page: string]: string[] } = {
     "channel",
     "firefox_min_version",
     "languages",
+    "countries",
     "targeting_config_slug",
     "proposed_enrollment",
     "proposed_duration",
