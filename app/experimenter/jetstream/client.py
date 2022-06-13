@@ -59,23 +59,19 @@ def get_results_metrics_map(
         )
     )
 
-    try:
-        valid_metrics = set(
-            chain.from_iterable(
-                [
-                    experiment_metadata["outcomes"][slug]["metrics"]
-                    + experiment_metadata["outcomes"][slug]["default_metrics"]
-                    for slug in experiment_metadata["outcomes"]
-                ]
-            )
+    metrics_set_from_jetstream = set(
+        chain.from_iterable(
+            [
+                experiment_metadata["outcomes"][slug]["metrics"]
+                + experiment_metadata["outcomes"][slug]["default_metrics"]
+                for slug in experiment_metadata["outcomes"]
+            ]
         )
-    except (TypeError, KeyError):
-        # could not retrieve metadata from Jetstream
-        valid_metrics = None
+    )
 
     for metric in primary_outcome_metrics:
         # validate against jetstream metadata unless we couldn't get it
-        if valid_metrics is None or metric.slug in valid_metrics:
+        if metric.slug in metrics_set_from_jetstream:
             RESULTS_METRICS_MAP[metric.slug] = set([Statistic.BINOMIAL])
             primary_metrics_set.add(metric.slug)
 
