@@ -198,7 +198,7 @@ class ResultsObjectModelBase(BaseModel):
             # For "overall" data, set window_index to 1 for uniformity
             window_index = 1 if window == "overall" else jetstream_data_point.window_index
 
-            if metric in result_metrics:
+            if metric in result_metrics and statistic in result_metrics[metric]:
                 branch_obj = getattr(self, branch)
                 branch_obj.is_control = experiment.reference_branch.slug == branch
                 group_obj = getattr(

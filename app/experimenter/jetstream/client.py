@@ -38,7 +38,7 @@ def get_metadata(slug):
 
 
 def get_results_metrics_map(
-    data, primary_outcome_slugs, secondary_outcome_slugs, experiment_metadata
+    data, primary_outcome_slugs, secondary_outcome_slugs, outcomes_metadata
 ):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
@@ -59,24 +59,32 @@ def get_results_metrics_map(
         )
     )
 
-    metrics_set_from_jetstream = set(
-        chain.from_iterable(
-            [
-                experiment_metadata["outcomes"][slug]["metrics"]
-                + experiment_metadata["outcomes"][slug]["default_metrics"]
-                for slug in experiment_metadata["outcomes"]
-            ]
+    if outcomes_metadata is not None:
+        BYPASS_JETSTREAM_CHECK = False
+        metrics_set_from_jetstream = set(
+            chain.from_iterable(
+                [
+                    outcomes_metadata[slug]["metrics"]
+                    + outcomes_metadata[slug]["default_metrics"]
+                    for slug in outcomes_metadata
+                ]
+            )
         )
-    )
+    else:
+        BYPASS_JETSTREAM_CHECK = True
 
     for metric in primary_outcome_metrics:
         # validate against jetstream metadata unless we couldn't get it
-        if metric.slug in metrics_set_from_jetstream:
-            RESULTS_METRICS_MAP[metric.slug] = set([Statistic.BINOMIAL])
+        if BYPASS_JETSTREAM_CHECK or metric.slug in metrics_set_from_jetstream:
+            RESULTS_METRICS_MAP[metric.slug] = set(
+                [Statistic.BINOMIAL, Statistic.MEAN, Statistic.COUNT, Statistic.PERCENT]
+            )
             primary_metrics_set.add(metric.slug)
 
     for outcome_slug in secondary_outcome_slugs:
-        RESULTS_METRICS_MAP[outcome_slug] = set([Statistic.MEAN])
+        RESULTS_METRICS_MAP[outcome_slug] = set(
+            [Statistic.MEAN, Statistic.BINOMIAL, Statistic.COUNT, Statistic.PERCENT]
+        )
 
     other_metrics_map, other_metrics = get_other_metrics_names_and_map(
         data, RESULTS_METRICS_MAP
@@ -126,6 +134,9 @@ def get_experiment_data(experiment):
     raw_data = {}
 
     experiment_metadata = get_metadata(recipe_slug)
+    outcomes_metadata = (
+        experiment_metadata.get("outcomes") if experiment_metadata is not None else None
+    )
 
     experiment_data = {
         "show_analysis": settings.FEATURE_ANALYSIS,
@@ -140,7 +151,7 @@ def get_experiment_data(experiment):
             data,
             experiment.primary_outcomes,
             experiment.secondary_outcomes,
-            experiment_metadata,
+            outcomes_metadata,
         )
 
         if data and window == "overall":

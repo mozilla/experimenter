@@ -159,10 +159,11 @@ class TestFetchJetstreamDataTask(TestCase):
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
+    @patch("experimenter.jetstream.client.get_metadata")
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
     def test_results_data_with_null_conversion_percent(
-        self, lifecycle, mock_exists, mock_open
+        self, lifecycle, mock_exists, mock_open, mock_get_metadata
     ):
         primary_outcomes = ["default-browser"]
         secondary_outcomes = ["secondary_outcome"]
@@ -200,6 +201,10 @@ class TestFetchJetstreamDataTask(TestCase):
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertIsNone(experiment.results_data)
+
+        mock_get_metadata.return_value = {
+            "outcomes": {"default-browser": {"metrics": ["test"], "default_metrics": []}}
+        }
 
         tasks.fetch_experiment_data(experiment.id)
         experiment = NimbusExperiment.objects.get(id=experiment.id)
