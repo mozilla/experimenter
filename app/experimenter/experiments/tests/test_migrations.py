@@ -61,7 +61,7 @@ class TestMigration(MigratorTestCase):
             desktop_experiment.locales.all()[0].code, Locale.objects.get(code="en").code
         )
 
-        # get mobile experiment included locale filed
+        # get mobile experiment included locale field
         mobile_experiment_with_locales = NimbusExperiment.objects.get(
             application=Experiment.Application.FOCUS_ANDROID
         )
