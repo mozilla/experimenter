@@ -18,6 +18,9 @@ from experimenter.outcomes import Outcomes
 BRANCH_DATA = "branch_data"
 STATISTICS_FOLDER = "statistics"
 METADATA_FOLDER = "metadata"
+ALL_STATISTICS = set(
+    [Statistic.BINOMIAL, Statistic.MEAN, Statistic.COUNT, Statistic.PERCENT]
+)
 
 
 def load_data_from_gcs(path):
@@ -59,8 +62,9 @@ def get_results_metrics_map(
         )
     )
 
+    bypass_jetstream_check = True
     if outcomes_metadata is not None:
-        BYPASS_JETSTREAM_CHECK = False
+        bypass_jetstream_check = False
         metrics_set_from_jetstream = set(
             chain.from_iterable(
                 [
@@ -70,21 +74,16 @@ def get_results_metrics_map(
                 ]
             )
         )
-    else:
-        BYPASS_JETSTREAM_CHECK = True
 
     for metric in primary_outcome_metrics:
         # validate against jetstream metadata unless we couldn't get it
-        if BYPASS_JETSTREAM_CHECK or metric.slug in metrics_set_from_jetstream:
-            RESULTS_METRICS_MAP[metric.slug] = set(
-                [Statistic.BINOMIAL, Statistic.MEAN, Statistic.COUNT, Statistic.PERCENT]
-            )
+        if bypass_jetstream_check or metric.slug in metrics_set_from_jetstream:
+            RESULTS_METRICS_MAP[metric.slug] = ALL_STATISTICS
+
             primary_metrics_set.add(metric.slug)
 
     for outcome_slug in secondary_outcome_slugs:
-        RESULTS_METRICS_MAP[outcome_slug] = set(
-            [Statistic.MEAN, Statistic.BINOMIAL, Statistic.COUNT, Statistic.PERCENT]
-        )
+        RESULTS_METRICS_MAP[outcome_slug] = ALL_STATISTICS
 
     other_metrics_map, other_metrics = get_other_metrics_names_and_map(
         data, RESULTS_METRICS_MAP
