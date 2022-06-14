@@ -1118,6 +1118,25 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 )
         return data
 
+    def _validate_countries_versions(self, data):
+        application = data.get("application")
+        min_version = data.get("firefox_min_version", "")
+
+        countries = data.get("countries", [])
+
+        if countries:
+
+            min_supported_version = (
+                NimbusConstants.COUNTRIES_APPLICATION_SUPPORTED_VERSION[application]
+            )
+            if NimbusExperiment.Version.parse(
+                min_version
+            ) < NimbusExperiment.Version.parse(min_supported_version):
+                raise serializers.ValidationError(
+                    {"countries": "Countries are not supported for this version."}
+                )
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1131,6 +1150,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_versions(data)
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
+            data = self._validate_countries_versions(data)
         return data
 
 
