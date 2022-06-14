@@ -7,7 +7,7 @@ class Base(Page):
     """Base page."""
 
     def __init__(self, selenium, base_url, **kwargs):
-        super().__init__(selenium, base_url, timeout=60, **kwargs)
+        super().__init__(selenium, base_url, timeout=80, **kwargs)
 
     def wait_for_page_to_load(self):
         self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
