@@ -189,6 +189,40 @@ class JetstreamTestData:
                 )
 
     @classmethod
+    def add_outcome_data_mean(cls, data, overall_data, weekly_data, primary_outcome):
+        primary_metrics = ["mozilla_default_browser"]
+        range_data = DataPoint(lower=0, point=0, upper=0)
+
+        for primary_metric in primary_metrics:
+            for branch in ["control", "variant"]:
+                if Group.OTHER not in overall_data[branch]["branch_data"]:
+                    overall_data[branch]["branch_data"][Group.OTHER] = {}
+                if Group.OTHER not in weekly_data[branch]["branch_data"]:
+                    weekly_data[branch]["branch_data"][Group.OTHER] = {}
+
+                data_point_overall = range_data.copy()
+                data_point_overall.count = 0.0
+                overall_data[branch]["branch_data"][Group.OTHER][
+                    primary_metric
+                ] = cls.get_metric_data(data_point_overall)
+
+                data_point_weekly = range_data.copy()
+                data_point_weekly.window_index = "1"
+                weekly_data[branch]["branch_data"][Group.OTHER][
+                    primary_metric
+                ] = cls.get_metric_data(data_point_weekly)
+
+                data.append(
+                    JetstreamDataPoint(
+                        **range_data.dict(exclude_none=True),
+                        metric=primary_metric,
+                        branch=branch,
+                        statistic="mean",
+                        window_index="1",
+                    ).dict(exclude_none=True)
+                )
+
+    @classmethod
     def add_all_outcome_data(
         cls,
         data,
@@ -198,6 +232,7 @@ class JetstreamTestData:
     ):
         for primary_outcome in primary_outcomes:
             cls.add_outcome_data(data, overall_data, weekly_data, primary_outcome)
+            cls.add_outcome_data_mean(data, overall_data, weekly_data, primary_outcome)
 
     @classmethod
     def get_test_data(cls, primary_outcomes):

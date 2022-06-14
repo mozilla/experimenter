@@ -67,7 +67,18 @@ class TestFetchJetstreamDataTask(TestCase):
                     "another_count": "Another Count",
                 },
             },
-            "metadata": {},
+            "metadata": {
+                "outcomes": {
+                    "default-browser": {
+                        "metrics": [
+                            "default_browser_action",
+                            "mozilla_default_browser",
+                            "default_browser_null",
+                        ],
+                        "default_metrics": [],
+                    }
+                }
+            },
             "show_analysis": False,
         }
 
@@ -77,7 +88,18 @@ class TestFetchJetstreamDataTask(TestCase):
 
             def read(self):
                 if "metadata" in self.name:
-                    return "{}"
+                    return """{
+                        "outcomes": {
+                            "default-browser": {
+                                "metrics": [
+                                    "default_browser_action",
+                                    "mozilla_default_browser",
+                                    "default_browser_null"
+                                ],
+                                "default_metrics": []
+                            }
+                        }
+                    }"""
                 return json.dumps(DAILY_DATA)
 
         def open_file(filename):
