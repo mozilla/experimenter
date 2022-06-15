@@ -1116,8 +1116,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
                 raise serializers.ValidationError(
                     {
-                        "languages": "Languages min version required:"
-                        + min_supported_version
+                        "languages": f"Language targeting is not \
+                            supported for this application below \
+                                version {min_supported_version}"
                     }
                 )
         return data
@@ -1138,8 +1139,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             ) < NimbusExperiment.Version.parse(min_supported_version):
                 raise serializers.ValidationError(
                     {
-                        "countries": "Countries min version required:"
-                        + min_supported_version
+                        "countries": f"Country targeting is \
+                            not supported for this application \
+                                below version {min_supported_version}"
                     }
                 )
         return data
