@@ -1428,6 +1428,7 @@ class TestNimbusExperiment(TestCase):
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
         self.assertEqual(child.locales.all().count(), 0)
         self.assertEqual(child.countries.all().count(), 0)
+        self.assertEqual(child.languages.all().count(), 0)
         self.assertEqual(child.branches.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
@@ -1503,6 +1504,11 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             set(child.countries.all().values_list("code", flat=True)),
             set(parent.countries.all().values_list("code", flat=True)),
+        )
+
+        self.assertEqual(
+            set(child.languages.all().values_list("code", flat=True)),
+            set(parent.languages.all().values_list("code", flat=True)),
         )
 
         for parent_link in parent.documentation_links.all():
