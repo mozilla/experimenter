@@ -17,3 +17,5 @@ select_expression = "SUM(CASE WHEN engine like 'amazon%' then sap else 0 end)"
 data_source = "search_clients_daily"
 [metrics.default_browser_action.statistics.bootstrap_mean]
 [metrics.default_browser_action.statistics.deciles]
+
+[metrics.default_browser_null]
