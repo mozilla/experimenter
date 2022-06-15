@@ -18,6 +18,9 @@ from experimenter.outcomes import Outcomes
 BRANCH_DATA = "branch_data"
 STATISTICS_FOLDER = "statistics"
 METADATA_FOLDER = "metadata"
+ALL_STATISTICS = set(
+    [Statistic.BINOMIAL, Statistic.MEAN, Statistic.COUNT, Statistic.PERCENT]
+)
 
 
 def load_data_from_gcs(path):
@@ -37,7 +40,9 @@ def get_metadata(slug):
     return load_data_from_gcs(path)
 
 
-def get_results_metrics_map(data, primary_outcome_slugs, secondary_outcome_slugs):
+def get_results_metrics_map(
+    data, primary_outcome_slugs, secondary_outcome_slugs, outcomes_metadata
+):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
     RESULTS_METRICS_MAP = {
@@ -57,12 +62,28 @@ def get_results_metrics_map(data, primary_outcome_slugs, secondary_outcome_slugs
         )
     )
 
+    bypass_jetstream_check = True
+    if outcomes_metadata is not None:
+        bypass_jetstream_check = False
+        metrics_set_from_jetstream = set(
+            chain.from_iterable(
+                [
+                    outcomes_metadata[slug]["metrics"]
+                    + outcomes_metadata[slug]["default_metrics"]
+                    for slug in outcomes_metadata
+                ]
+            )
+        )
+
     for metric in primary_outcome_metrics:
-        RESULTS_METRICS_MAP[metric.slug] = set([Statistic.BINOMIAL])
-        primary_metrics_set.add(metric.slug)
+        # validate against jetstream metadata unless we couldn't get it
+        if bypass_jetstream_check or metric.slug in metrics_set_from_jetstream:
+            RESULTS_METRICS_MAP[metric.slug] = ALL_STATISTICS
+
+            primary_metrics_set.add(metric.slug)
 
     for outcome_slug in secondary_outcome_slugs:
-        RESULTS_METRICS_MAP[outcome_slug] = set([Statistic.MEAN])
+        RESULTS_METRICS_MAP[outcome_slug] = ALL_STATISTICS
 
     other_metrics_map, other_metrics = get_other_metrics_names_and_map(
         data, RESULTS_METRICS_MAP
@@ -111,9 +132,14 @@ def get_experiment_data(experiment):
     windows = ["daily", "weekly", "overall"]
     raw_data = {}
 
+    experiment_metadata = get_metadata(recipe_slug)
+    outcomes_metadata = (
+        experiment_metadata.get("outcomes") if experiment_metadata is not None else None
+    )
+
     experiment_data = {
         "show_analysis": settings.FEATURE_ANALYSIS,
-        "metadata": get_metadata(recipe_slug),
+        "metadata": experiment_metadata,
     }
 
     for window in windows:
@@ -121,7 +147,10 @@ def get_experiment_data(experiment):
             __root__=(get_data(recipe_slug, window) or [])
         )
         result_metrics, primary_metrics_set, other_metrics = get_results_metrics_map(
-            data, experiment.primary_outcomes, experiment.secondary_outcomes
+            data,
+            experiment.primary_outcomes,
+            experiment.secondary_outcomes,
+            outcomes_metadata,
         )
 
         if data and window == "overall":
