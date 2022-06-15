@@ -20,15 +20,49 @@ jobs:
             cp .env.sample .env
             make check
 
-  integration_nimbus_desktop:
+  integration_nimbus_desktop_release:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
       docker_layer_caching: true
     resource_class: xlarge
     working_directory: ~/experimenter
     parallelism: 7 # This should match the number of entries in parallel_pytest_args.txt
+    environment:
+      FIREFOX_VERSION: firefox-release
     steps:
       - checkout
+      - restore_cache:
+          key: firefox-cache-release
+      - run:
+          name: Load built Firefox and echo version
+          command: |
+            docker load -i /home/circleci/experimenter/images/firefox-release.tar
+            docker run -it selenium/standalone-firefox:${FIREFOX_VERSION} firefox --version
+      - run:
+          name: Run integration tests
+          command: |
+            PYTEST_ARGS=$(circleci tests split "app/tests/integration/nimbus/parallel_pytest_args.txt")
+            cp .env.integration-tests .env
+            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
+  
+  integration_nimbus_desktop_beta:
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    resource_class: xlarge
+    working_directory: ~/experimenter
+    parallelism: 7 # This should match the number of entries in parallel_pytest_args.txt
+    environment:
+      FIREFOX_VERSION: firefox-beta
+    steps:
+      - checkout
+      - restore_cache:
+          key: firefox-cache-beta
+      - run:
+          name: Load built Firefox and echo version
+          command: |
+            docker load -i /home/circleci/experimenter/images/firefox-beta.tar
+            docker run -it selenium/standalone-firefox:${FIREFOX_VERSION} firefox --version
       - run:
           name: Run integration tests
           command: |
@@ -72,6 +106,55 @@ jobs:
             docker push ${DOCKERHUB_REPO}:build_test
             docker push ${DOCKERHUB_REPO}:build_ui
             docker push ${DOCKERHUB_REPO}:latest
+  
+  build_firefox_versions:
+    working_directory: ~/experimenter
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - restore_cache:
+          key: version-cache
+      - run:
+          name: Check for Firefox Update
+          command: |
+            results=$(sudo ./.circleci/get_firefox_versions.sh)
+            if [ $? -eq 0 ]; then 
+                circleci-agent step halt
+            fi
+      - run:
+          name: Get Firefox Versions
+          command: |
+            git clone --depth=1 git@github.com:SeleniumHQ/docker-selenium.git
+            cd docker-selenium
+            if echo "$results" | grep -q "BETA"; then
+                BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
+            fi
+            if echo "$results" | grep -q "RELEASE"; then
+                BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
+            fi
+      - run:
+          name: Save Images
+          command: |
+            mkdir -p /home/circleci/experimenter/images
+            docker save -o /home/circleci/experimenter/images/firefox-beta.tar selenium/standalone-firefox:firefox-beta
+            docker save -o /home/circleci/experimenter/images/firefox-release.tar selenium/standalone-firefox:firefox-release
+            mv /home/circleci/experimenter/new_versions.txt /home/circleci/experimenter/old_versions.txt
+      - save_cache:
+          name: Cache Beta
+          key: firefox-cache-beta-{{ checksum "/home/circleci/experimenter/images/firefox-beta.tar" }}
+          paths: 
+            - /home/circleci/experimenter/images/firefox-beta.tar
+      - save_cache:
+          name: Cache Release
+          key: firefox-cache-release-{{ checksum "/home/circleci/experimenter/images/firefox-release.tar" }}
+          paths: 
+            - /home/circleci/experimenter/images/firefox-release.tar
+      - save_cache:
+          key: version-cache-{{ checksum "old_versions.txt" }}
+          paths: 
+            - /home/circleci/experimenter/old_versions.txt
 
 workflows:
   version: 2
@@ -79,12 +162,22 @@ workflows:
     jobs:
       - check:
           name: check
-      - integration_nimbus_desktop:
-          name: integration_nimbus_desktop
+      - integration_nimbus_desktop_release:
+          name: integration_nimbus_desktop_release
           filters:
             branches:
               ignore:
                 - main
+          requires:
+            - build_firefox_versions
+      - integration_nimbus_desktop_beta:
+          name: integration_nimbus_desktop_beta
+          filters:
+            branches:
+              ignore:
+                - main
+          requires:
+            - build_firefox_versions
       - integration_nimbus_sdk:
           name: integration_nimbus_sdk
           filters:
@@ -97,3 +190,8 @@ workflows:
               only: main
           requires:
            - check
+      - build_firefox_versions:
+           filters:
+            branches:
+              ignore:
+                - main
