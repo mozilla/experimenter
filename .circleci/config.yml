@@ -28,7 +28,7 @@ jobs:
     working_directory: ~/experimenter
     parallelism: 7 # This should match the number of entries in parallel_pytest_args.txt
     environment:
-      FIREFOX_VERSION: firefox-release
+      FIREFOX_VERSION: :firefox-release
     steps:
       - checkout
       - restore_cache:
@@ -53,7 +53,7 @@ jobs:
     working_directory: ~/experimenter
     parallelism: 7 # This should match the number of entries in parallel_pytest_args.txt
     environment:
-      FIREFOX_VERSION: firefox-beta
+      FIREFOX_VERSION: :firefox-beta
     steps:
       - checkout
       - restore_cache:
