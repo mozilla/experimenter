@@ -398,6 +398,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return self.proposed_enrollment
 
     @property
+    def computed_enrollment_end_date(self):
+        start_date = self.start_date
+        computed_enrollment_days = self.computed_enrollment_days
+        if None not in (start_date, computed_enrollment_days):
+            return start_date + datetime.timedelta(days=computed_enrollment_days)
+
+    @property
     def computed_end_date(self):
         if self.end_date:
             return self.end_date
