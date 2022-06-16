@@ -510,6 +510,15 @@ PIP_NEVER_USED_STICKY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+RALLY_CORE_ADDON_USER = NimbusTargetingConfig(
+    name="Mozilla Rally Core Add-on User",
+    slug="rally_core_addon_user",
+    description="Users who have installed the Mozilla Rally Core Add-on",
+    targeting="addonsInfo.addons['rally-core@mozilla.org'] != null",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
