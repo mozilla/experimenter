@@ -118,6 +118,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     probeSets = serializers.ReadOnlyField(default=[])
     outcomes = serializers.SerializerMethodField()
     startDate = serializers.DateField(source="start_date")
+    enrollmentEndDate = serializers.DateField(source="computed_enrollment_end_date")
     endDate = serializers.DateField(source="end_date")
     proposedDuration = serializers.ReadOnlyField(source="proposed_duration")
     proposedEnrollment = serializers.ReadOnlyField(source="proposed_enrollment")
@@ -144,6 +145,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "branches",
             "targeting",
             "startDate",
+            "enrollmentEndDate",
             "endDate",
             "proposedDuration",
             "proposedEnrollment",

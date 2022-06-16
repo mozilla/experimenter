@@ -42,6 +42,12 @@ class TestNimbusExperimentSerializer(TestCase):
                 "appId": "firefox-desktop",
                 "channel": "nightly",
                 # DRF manually replaces the isoformat suffix so we have to do the same
+                "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
+                "enrollmentEndDate": (
+                    experiment.computed_enrollment_end_date.isoformat().replace(
+                        "+00:00", "Z"
+                    )
+                ),
                 "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
                 "id": experiment.slug,
                 "isEnrollmentPaused": True,
@@ -50,8 +56,6 @@ class TestNimbusExperimentSerializer(TestCase):
                 "referenceBranch": experiment.reference_branch.slug,
                 "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
                 "slug": experiment.slug,
-                # DRF manually replaces the isoformat suffix so we have to do the same
-                "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
                 "targeting": (
                     '(browserSettings.update.channel == "nightly") '
                     "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
@@ -129,6 +133,12 @@ class TestNimbusExperimentSerializer(TestCase):
                 "appId": "firefox-desktop",
                 "channel": "nightly",
                 # DRF manually replaces the isoformat suffix so we have to do the same
+                "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
+                "enrollmentEndDate": (
+                    experiment.computed_enrollment_end_date.isoformat().replace(
+                        "+00:00", "Z"
+                    )
+                ),
                 "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
                 "id": experiment.slug,
                 "isEnrollmentPaused": True,
@@ -137,8 +147,6 @@ class TestNimbusExperimentSerializer(TestCase):
                 "referenceBranch": experiment.reference_branch.slug,
                 "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
                 "slug": experiment.slug,
-                # DRF manually replaces the isoformat suffix so we have to do the same
-                "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
                 "targeting": (
                     '(browserSettings.update.channel == "nightly") '
                     "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
