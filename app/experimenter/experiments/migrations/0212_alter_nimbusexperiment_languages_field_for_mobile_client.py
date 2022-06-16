@@ -8,11 +8,10 @@ from experimenter.experiments.models import NimbusExperiment as Experiment
 def update_languages_field_for_mobile_client(apps, schema_editor):
     NimbusExperiment = apps.get_model("experiments", "NimbusExperiment")
 
-    for experiment in NimbusExperiment.objects.all():
-        if (
-            experiment.application != Experiment.Application.DESKTOP
-            and experiment.status == NimbusConstants.Status.DRAFT
-        ):
+    for experiment in NimbusExperiment.objects.filter(
+        status=NimbusConstants.Status.DRAFT
+    ):
+        if experiment.application != Experiment.Application.DESKTOP:
             for locale in experiment.locales.all():
                 locale_code = locale.code[:2]
                 language = Language.objects.filter(code=locale_code).first()
