@@ -37,7 +37,7 @@ jobs:
           name: Load built Firefox and echo version
           command: |
             docker load -i /home/circleci/experimenter/images/firefox-release.tar
-            docker run -it selenium/standalone-firefox:${FIREFOX_VERSION} firefox --version
+            docker run -it selenium/standalone-firefox${FIREFOX_VERSION} firefox --version
       - run:
           name: Run integration tests
           command: |
@@ -62,7 +62,7 @@ jobs:
           name: Load built Firefox and echo version
           command: |
             docker load -i /home/circleci/experimenter/images/firefox-beta.tar
-            docker run -it selenium/standalone-firefox:${FIREFOX_VERSION} firefox --version
+            docker run -it selenium/standalone-firefox${FIREFOX_VERSION} firefox --version
       - run:
           name: Run integration tests
           command: |
