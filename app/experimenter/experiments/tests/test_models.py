@@ -865,6 +865,35 @@ class TestNimbusExperiment(TestCase):
             expected_days,
         )
 
+    def test_computed_enrollment_end_date_returns_start_date_plus_enrollment_days(self):
+        start_date = datetime.date(2022, 1, 1)
+        enrollment_end_date = start_date + datetime.timedelta(days=3)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE,
+            proposed_enrollment=7,
+        )
+
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=start_date)
+
+        experiment.changes.filter(experiment_data__is_paused=True).update(
+            changed_on=enrollment_end_date
+        )
+
+        self.assertEqual(
+            experiment.computed_enrollment_end_date,
+            enrollment_end_date,
+        )
+
+    def test_computed_enrollment_end_date_returns_fallback(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        self.assertIsNone(experiment.computed_enrollment_end_date)
+
     def test_computed_duration_days_returns_computed_end_date_minus_start_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
@@ -1428,6 +1457,7 @@ class TestNimbusExperiment(TestCase):
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
         self.assertEqual(child.locales.all().count(), 0)
         self.assertEqual(child.countries.all().count(), 0)
+        self.assertEqual(child.languages.all().count(), 0)
         self.assertEqual(child.branches.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
@@ -1503,6 +1533,11 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             set(child.countries.all().values_list("code", flat=True)),
             set(parent.countries.all().values_list("code", flat=True)),
+        )
+
+        self.assertEqual(
+            set(child.languages.all().values_list("code", flat=True)),
+            set(parent.languages.all().values_list("code", flat=True)),
         )
 
         for parent_link in parent.documentation_links.all():

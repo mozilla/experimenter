@@ -308,6 +308,18 @@ INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+INFREQUENT_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
+    name="Infrequent user (5 bookmarks)",
+    slug="infrequent_user_5_bookmarks",
+    description="Between 1-6 days of activity in past 28, has 5 bookmarks",
+    # A proxy for "nothing has been imported". 5 is the default number of bookmarks
+    # in a new profile created by (at least) 100 and newer, and probably
+    # substantially older than that too.
+    targeting=f"{INFREQUENT_USER_URIS.targeting} && totalBookmarksCount == 5",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 CASUAL_USER_URIS = NimbusTargetingConfig(
     name="Casual user (uris)",
     slug="casual_user_uris",
@@ -506,6 +518,15 @@ PIP_NEVER_USED_STICKY = NimbusTargetingConfig(
         pip=PIP_NEVER_USED.targeting,
         sticky=STICKY,
     ),
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+RALLY_CORE_ADDON_USER = NimbusTargetingConfig(
+    name="Mozilla Rally Core Add-on User",
+    slug="rally_core_addon_user",
+    description="Users who have installed the Mozilla Rally Core Add-on",
+    targeting="addonsInfo.addons['rally-core@mozilla.org'] != null",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
