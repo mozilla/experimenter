@@ -458,6 +458,7 @@ class TestNimbusExperimentSerializer(TestCase):
             proposed_enrollment=0,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
+            is_sticky=False,
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -473,6 +474,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "countries": [country.id],
                 "locales": [locale.id],
                 "languages": [language.id],
+                "is_sticky": True,
             },
             context={"user": self.user},
         )
@@ -495,6 +497,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])
         self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertTrue(experiment.is_sticky)
 
     @parameterized.expand(
         [
