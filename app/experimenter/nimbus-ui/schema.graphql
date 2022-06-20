@@ -416,6 +416,7 @@ type NimbusExperimentType {
   locales: [NimbusLocaleType!]!
   countries: [NimbusCountryType!]!
   languages: [NimbusLanguageType!]!
+  isSticky: Boolean!
   projects: [ProjectType!]!
   hypothesis: String!
   primaryOutcomes: [String]
