@@ -644,6 +644,7 @@ class TestUpdateExperimentMutationSingleFeature(
             proposed_enrollment=0,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
+            is_sticky=False,
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -662,6 +663,7 @@ class TestUpdateExperimentMutationSingleFeature(
                     "countries": [country.id],
                     "locales": [locale.id],
                     "languages": [language.id],
+                    "isSticky": True,
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -689,6 +691,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])
         self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertTrue(experiment.is_sticky)
 
     def test_update_experiment_audience_error(self):
         user_email = "user@example.com"

@@ -150,6 +150,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     locales = models.ManyToManyField(Locale, blank=True)
     countries = models.ManyToManyField(Country, blank=True)
     languages = models.ManyToManyField(Language, blank=True)
+    is_sticky = models.BooleanField(default=False)
     projects = models.ManyToManyField(Project, blank=True)
     hypothesis = models.TextField(default=NimbusConstants.HYPOTHESIS_DEFAULT)
     primary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
