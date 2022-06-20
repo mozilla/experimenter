@@ -52,6 +52,7 @@ export const audienceFieldNames = [
   "countries",
   "locales",
   "languages",
+  "isSticky",
 ] as const;
 
 const selectOptions = (items: SelectIdItems) =>
@@ -98,6 +99,7 @@ export const FormAudience = ({
     countries: selectOptions(experiment.countries as SelectIdItems),
     locales: selectOptions(experiment.locales as SelectIdItems),
     languages: selectOptions(experiment.languages as SelectIdItems),
+    isSticky: experiment.isSticky,
   };
 
   const {
@@ -247,6 +249,16 @@ export const FormAudience = ({
               <TargetConfigSelectOptions options={targetingConfigSlugOptions} />
             </Form.Control>
             <FormErrors name="targetingConfigSlug" />
+          </Form.Group>
+        </Form.Row>
+        <Form.Row>
+          <Form.Group as={Col} controlId="isSticky">
+            <Form.Check
+              {...formControlAttrs("isSticky")}
+              type="checkbox"
+              label="Sticky Enrollment (Clients remain enrolled until the experiment ends)"
+            />
+            <FormErrors name="isSticky" />
           </Form.Group>
         </Form.Row>
       </Form.Group>
