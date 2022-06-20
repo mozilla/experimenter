@@ -3096,6 +3096,10 @@
             "type": "string",
             "format": "date"
           },
+          "enrollmentEndDate": {
+            "type": "string",
+            "format": "date"
+          },
           "endDate": {
             "type": "string",
             "format": "date"
@@ -3118,6 +3122,7 @@
           "channel",
           "bucketConfig",
           "startDate",
+          "enrollmentEndDate",
           "endDate"
         ]
       },
