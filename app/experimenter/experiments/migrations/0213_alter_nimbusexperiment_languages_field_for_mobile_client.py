@@ -20,7 +20,7 @@ def update_languages_field_for_mobile_client(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("experiments", "0211_alter_nimbusexperiment_targeting_config_slug"),
+        ("experiments", "0212_nimbusexperiment_is_sticky"),
     ]
 
     operations = [
