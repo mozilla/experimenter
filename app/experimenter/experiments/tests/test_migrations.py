@@ -6,10 +6,10 @@ from experimenter.experiments.models import NimbusExperiment as Experiment
 
 
 class TestMigration(MigratorTestCase):
-    migrate_from = ("experiments", "0211_alter_nimbusexperiment_targeting_config_slug")
+    migrate_from = ("experiments", "0212_nimbusexperiment_is_sticky")
     migrate_to = (
         "experiments",
-        "0212_alter_nimbusexperiment_languages_field_for_mobile_client",
+        "0213_alter_nimbusexperiment_languages_field_for_mobile_client",
     )
 
     def prepare(self):
