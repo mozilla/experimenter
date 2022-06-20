@@ -288,9 +288,9 @@ mypy-extensions==0.4.3 \
     --hash=sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8
 pytest-lazy-fixture==0.6.0 \
     --hash=sha256:d5fcb93f73b34a9069d1da8d315715acecfabd369f25ca428a99c0af6e2caf97
-charset-normalizer==2.0.7 \
-    --hash=sha256:e019de665e2bcf9c2b64e2e5aa025fa991da8720daa3c1138cadd2fd1856aed0 \
-    --hash=sha256:f7af805c321bfa1ce6714c51f254e0d5bb5e5834039bc17db7ebe3a4cec9492b
+charset-normalizer==2.1.0 \
+    --hash=sha256:5189b6f22b01957427f35b6a08d9a0bc45b46d3788ef5a92e978433c7a35f8a5 \
+    --hash=sha256:575e708016ff3a5e3681541cb9d79312c416835686d054a23accb873b254f413
 kinto-http==10.9.0 \
     --hash=sha256:10c947f027f2ac2d3549e830abb623d027fd48c56754d906b7a378c10e1106b3 \
     --hash=sha256:27626575924378d6434b7bb77d4a19bb11a95d76e7a12aee8fd6b8c052292ecc
