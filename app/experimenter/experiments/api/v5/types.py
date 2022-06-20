@@ -354,6 +354,7 @@ class NimbusExperimentType(DjangoObjectType):
     treatment_branches = graphene.List(NimbusBranchType)
     targeting_config_slug = graphene.String()
     targeting_config = graphene.List(NimbusExperimentTargetingConfigType)
+    is_sticky = graphene.Boolean()
     jexl_targeting_expression = graphene.String()
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)

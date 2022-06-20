@@ -551,6 +551,7 @@ class NimbusExperimentSerializer(
             "is_rollout",
             "is_archived",
             "is_enrollment_paused",
+            "is_sticky",
             "locales",
             "languages",
             "name",
