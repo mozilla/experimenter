@@ -9,19 +9,19 @@ from nimbus.utils import helpers
 nimbus = pytest.importorskip("nimbus_rust")
 
 
-def locale_databse_id_loader(locales=None):
-    locale_list = []
+def language_databse_id_loader(languages=None):
+    language_list = []
     path = Path().resolve()
     path = str(path)
     path = path.strip("/tests/integration/nimbus")
-    path = os.path.join("/", path, "experimenter/base/fixtures/locales.json")
+    path = os.path.join("/", path, "experimenter/base/fixtures/languages.json")
     with open(path) as file:
         data = json.loads(file.read())
-        for locale in locales:
+        for language in languages:
             for item in data:
-                if locale in item["fields"]["code"][:2]:
-                    locale_list.append(item["pk"])
-    return locale_list
+                if language in item["fields"]["code"][:2]:
+                    language_list.append(item["pk"])
+    return language_list
 
 
 def client_info_list():
@@ -42,7 +42,7 @@ def load_app_context():
             architecture=base_app_context.architecture,
             device_manufacturer=base_app_context.device_manufacturer,
             device_model=base_app_context.device_model,
-            locale=base_app_context.locale,
+            language=base_app_context.language,
             os=base_app_context.os,
             os_version=base_app_context.os_version,
             android_sdk_version=base_app_context.android_sdk_version,
@@ -98,11 +98,11 @@ def test_check_mobile_targeting(
 ):
     experiment_name = f"{slugify(experiment_name)}"
     context = context["app_context"]
-    context["locale"] = context["locale"][:2]  # strip region
+    context["language"] = context["language"][:2]  # strip region
     create_mobile_experiment(
         experiment_name,
         context["app_name"],
-        locale_databse_id_loader([context["locale"]]),
+        language_databse_id_loader([context["language"]]),
         targeting,
     )
     data = helpers.load_experiment_data(experiment_name)
