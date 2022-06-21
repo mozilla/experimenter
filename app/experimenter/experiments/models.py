@@ -240,7 +240,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             "https://{host}".format(host=settings.HOSTNAME), self.get_absolute_url()
         )
 
-    def _get_targeting_versions(self):
+    def _get_targeting_min_version(self):
         expressions = []
 
         version_key = "version"
@@ -248,7 +248,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             version_key = "app_version"
 
         min_version_supported = True
-        max_version_supported = True
         if self.application in self.TARGETING_APPLICATION_SUPPORTED_VERSION:
             supported_version = self.TARGETING_APPLICATION_SUPPORTED_VERSION[
                 self.application
@@ -256,14 +255,29 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             min_version_supported = NimbusExperiment.Version.parse(
                 self.firefox_min_version
             ) >= NimbusExperiment.Version.parse(supported_version)
-            max_version_supported = NimbusExperiment.Version.parse(
-                self.firefox_max_version
-            ) >= NimbusExperiment.Version.parse(supported_version)
 
         if min_version_supported and self.firefox_min_version:
             expressions.append(
                 f"{version_key}|versionCompare('{self.firefox_min_version}') >= 0"
             )
+
+        return expressions
+
+    def _get_targeting_max_version(self):
+        expressions = []
+
+        version_key = "version"
+        if self.application != self.Application.DESKTOP:
+            version_key = "app_version"
+
+        max_version_supported = True
+        if self.application in self.TARGETING_APPLICATION_SUPPORTED_VERSION:
+            supported_version = self.TARGETING_APPLICATION_SUPPORTED_VERSION[
+                self.application
+            ]
+            max_version_supported = NimbusExperiment.Version.parse(
+                self.firefox_max_version
+            ) >= NimbusExperiment.Version.parse(supported_version)
 
         if max_version_supported and self.firefox_max_version:
             # HACK: tweak the min version to better match max version pattern
@@ -278,37 +292,54 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.published_dto:
             return self.published_dto.get("targeting", self.PUBLISHED_TARGETING_MISSING)
 
+        sticky_expressions = []
         expressions = []
 
         if self.targeting_config and self.targeting_config.targeting:
-            expressions.append(self.targeting_config.targeting)
+            sticky_expressions.append(self.targeting_config.targeting)
 
-        if self.application == self.Application.DESKTOP:
+        is_desktop = self.application == self.Application.DESKTOP
+        if is_desktop:
             if self.channel:
                 expressions.append(f'browserSettings.update.channel == "{self.channel}"')
 
             # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
             expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
 
-        expressions.extend(self._get_targeting_versions())
+        sticky_expressions.extend(self._get_targeting_min_version())
+        expressions.extend(self._get_targeting_max_version())
 
         if self.locales.count():
             locales = [locale.code for locale in self.locales.all().order_by("code")]
 
-            expressions.append(f"locale in {locales}")
+            sticky_expressions.append(f"locale in {locales}")
+ 
 
         if self.languages.count():
             languages = [
                 language.code for language in self.languages.all().order_by("code")
             ]
 
-            expressions.append(f"language in {languages}")
+            sticky_expressions.append(f"language in {languages}")
 
         if self.countries.count():
             countries = [
                 country.code for country in self.countries.all().order_by("code")
             ]
-            expressions.append(f"region in {countries}")
+            sticky_expressions.append(f"region in {countries}")
+
+        if self.is_sticky:
+            sticky_clause = "is_already_enrolled"
+            if is_desktop:
+                sticky_clause = "experiment.slug in activeExperiments"
+
+            sticky_expressions_joined = " && ".join(
+                [f"({expression})" for expression in sticky_expressions]
+            )
+            sticky_expression = f"({sticky_clause}) || ({sticky_expressions_joined})"
+            expressions.append(sticky_expression)
+        else:
+            expressions.extend(sticky_expressions)
 
         #  If there is no targeting defined all clients should match, so we return "true"
         if len(expressions) == 0:
