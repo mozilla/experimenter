@@ -644,7 +644,6 @@ class TestNimbusExperiment(TestCase):
             ("(app_version|versionCompare('101.*') <= 0) " f"&& {sticky_expression}"),
         )
 
-    
     def test_targeting_uses_published_targeting_string(self):
         published_targeting = "published targeting jexl"
         experiment = NimbusExperimentFactory.create_with_lifecycle(

@@ -313,7 +313,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             locales = [locale.code for locale in self.locales.all().order_by("code")]
 
             sticky_expressions.append(f"locale in {locales}")
- 
 
         if self.languages.count():
             languages = [
