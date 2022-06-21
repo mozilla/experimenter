@@ -2987,7 +2987,7 @@
           "schemaVersion": {
             "type": "string",
             "readOnly": true,
-            "default": "1.7.0"
+            "default": "1.8.0"
           },
           "slug": {
             "type": "string",
