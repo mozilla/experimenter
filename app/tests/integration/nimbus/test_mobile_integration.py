@@ -42,7 +42,8 @@ def load_app_context():
             architecture=base_app_context.architecture,
             device_manufacturer=base_app_context.device_manufacturer,
             device_model=base_app_context.device_model,
-            languages=base_app_context.languages,
+            # TODO change locale to languages once SDK enables languages field
+            locale=base_app_context.languages,
             os=base_app_context.os,
             os_version=base_app_context.os_version,
             android_sdk_version=base_app_context.android_sdk_version,
