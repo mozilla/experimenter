@@ -15,7 +15,7 @@ class BaseAppContextDataClass:
     architecture: str
     device_manufacturer: str
     device_model: str
-    languages: str
+    language: str
     os: str
     os_version: str
     android_sdk_version: Optional[str]
