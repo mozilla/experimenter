@@ -42,7 +42,7 @@ def load_app_context():
             architecture=base_app_context.architecture,
             device_manufacturer=base_app_context.device_manufacturer,
             device_model=base_app_context.device_model,
-            language=base_app_context.language,
+            languages=base_app_context.languages,
             os=base_app_context.os,
             os_version=base_app_context.os_version,
             android_sdk_version=base_app_context.android_sdk_version,
@@ -98,11 +98,11 @@ def test_check_mobile_targeting(
 ):
     experiment_name = f"{slugify(experiment_name)}"
     context = context["app_context"]
-    context["language"] = context["language"][:2]  # strip region
+    context["languages"] = context["languages"][:2]  # strip region
     create_mobile_experiment(
         experiment_name,
         context["app_name"],
-        language_databse_id_loader([context["language"]]),
+        language_databse_id_loader([context["languages"]]),
         targeting,
     )
     data = helpers.load_experiment_data(experiment_name)
