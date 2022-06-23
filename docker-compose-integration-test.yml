@@ -2,10 +2,11 @@ version: "3"
 
 services:
   firefox:
-    image: selenium/standalone-firefox${FIREFOX_VERSION}
+    image: selenium/standalone-firefox:latest
     env_file: .env
     environment:
       - MOZ_HEADLESS
+      - FIREFOX_VERSION
     volumes:
       - .:/code
       - /code/app/tests/integration/.tox
