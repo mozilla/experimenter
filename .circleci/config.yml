@@ -176,8 +176,12 @@ workflows:
     triggers:
       - schedule:
           cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - main
     jobs:
-      - build_firefox_versions:
+      - build_firefox_versions
               
   build:
     jobs:
