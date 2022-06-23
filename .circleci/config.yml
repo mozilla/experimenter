@@ -172,6 +172,13 @@ jobs:
 
 workflows:
   version: 2
+  weekly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+    jobs:
+      - build_firefox_versions:
+              
   build:
     jobs:
       - check:
@@ -206,8 +213,3 @@ workflows:
               only: main
           requires:
            - check
-      - build_firefox_versions:
-          triggers:
-            - schedule:
-                cron: "0 0 * * *"
-                
