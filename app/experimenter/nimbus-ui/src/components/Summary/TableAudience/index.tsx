@@ -85,7 +85,7 @@ const TableAudience = ({
             </td>
           </tr>
         )}
-        {isDesktop && (
+        {(isDesktop || experiment.locales.length > 0) && (
           <tr>
             <th>Locales</th>
             <td data-testid="experiment-locales">

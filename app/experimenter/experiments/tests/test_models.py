@@ -205,6 +205,8 @@ class TestNimbusExperimentManager(TestCase):
 
 
 class TestNimbusExperiment(TestCase):
+    maxDiff = None
+
     def test_str(self):
         experiment = NimbusExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(str(experiment), experiment.name)
@@ -224,10 +226,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "(os.isMac) "
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
-                "&& (version|versionCompare('83.!') >= 0) "
-                "&& (version|versionCompare('95.*') <= 0)"
+                "('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (version|versionCompare('95.*') <= 0) "
+                "&& (os.isMac) "
+                "&& (version|versionCompare('83.!') >= 0)"
             ),
         )
         JEXLParser().parse(experiment.targeting)
@@ -397,8 +399,10 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(
             experiment.targeting,
-            f"(app_version|versionCompare('{version}') >= 0) "
-            f"&& (app_version|versionCompare('{version.replace('!', '*')}') <= 0)",
+            (
+                f"(app_version|versionCompare('{version.replace('!', '*')}') <= 0) "
+                f"&& (app_version|versionCompare('{version}') >= 0)"
+            ),
         )
 
     def test_targeting_without_firefox_min_version(
@@ -419,10 +423,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "(os.isMac) "
-                '&& (browserSettings.update.channel == "nightly") '
+                '(browserSettings.update.channel == "nightly") '
                 "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
-                "&& (version|versionCompare('95.*') <= 0)"
+                "&& (version|versionCompare('95.*') <= 0) "
+                "&& (os.isMac)"
             ),
         )
         JEXLParser().parse(experiment.targeting)
@@ -445,9 +449,9 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "(os.isMac) "
-                '&& (browserSettings.update.channel == "nightly") '
+                '(browserSettings.update.channel == "nightly") '
                 "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (os.isMac) "
                 "&& (version|versionCompare('83.!') >= 0)"
             ),
         )
@@ -467,7 +471,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            "(os.isMac) && ('app.shield.optoutstudies.enabled'|preferenceValue)",
+            "('app.shield.optoutstudies.enabled'|preferenceValue) && (os.isMac)",
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -488,8 +492,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "(os.isMac) "
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (os.isMac) "
                 "&& (locale in ['en-CA', 'en-US'])"
             ),
         )
@@ -512,8 +516,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "(os.isMac) "
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (os.isMac) "
                 "&& (region in ['CA', 'US'])"
             ),
         )
@@ -538,8 +542,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "(os.isMac) "
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (os.isMac) "
                 "&& (locale in ['en-CA', 'en-US']) "
                 "&& (region in ['CA', 'US'])"
             ),
@@ -550,24 +554,92 @@ class TestNimbusExperiment(TestCase):
         language_en = LanguageFactory.create(code="en")
         language_fr = LanguageFactory.create(code="fr")
         language_es = LanguageFactory.create(code="es")
-        targeting_config = NimbusExperiment.TargetingConfig
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            targeting_config_slug=targeting_config.MOBILE_NEW_USERS,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             languages=[language_en, language_es, language_fr],
         )
         self.assertEqual(
             experiment.targeting,
-            (
-                "(is_already_enrolled || days_since_install < 7) "
-                "&& (language in ['en', 'es', 'fr'])"
-            ),
+            "(days_since_install < 7) && (language in ['en', 'es', 'fr'])",
         )
         JEXLParser().parse(experiment.targeting)
+
+    def test_targeting_with_sticky_desktop(self):
+        locale_en = LocaleFactory.create(code="en")
+        country_ca = CountryFactory.create(code="CA")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_ENTERPRISE_USERS,
+            channel=NimbusExperiment.Channel.RELEASE,
+            languages=[],
+            locales=[locale_en],
+            countries=[country_ca],
+            is_sticky=True,
+        )
+
+        sticky_expression = (
+            "("
+            "(experiment.slug in activeExperiments) "
+            "|| "
+            "("
+            "(!hasActiveEnterprisePolicies) "
+            "&& "
+            "(version|versionCompare('100.!') >= 0) "
+            "&& (locale in ['en']) "
+            "&& (region in ['CA'])"
+            ")"
+            ")"
+        )
+        self.assertEqual(
+            experiment.targeting,
+            (
+                '(browserSettings.update.channel == "release") '
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                "&& (version|versionCompare('101.*') <= 0) "
+                f"&& {sticky_expression}"
+            ),
+        )
+
+    def test_targeting_with_sticky_mobile(self):
+        language_en = LanguageFactory.create(code="en")
+        country_ca = CountryFactory.create(code="CA")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channel=NimbusExperiment.Channel.RELEASE,
+            languages=[language_en],
+            locales=[],
+            countries=[country_ca],
+            is_sticky=True,
+        )
+
+        sticky_expression = (
+            "("
+            "(is_already_enrolled) "
+            "|| "
+            "("
+            "(days_since_install < 7) "
+            "&& (app_version|versionCompare('100.!') >= 0) "
+            "&& (language in ['en']) "
+            "&& (region in ['CA'])"
+            ")"
+            ")"
+        )
+        self.assertEqual(
+            experiment.targeting,
+            ("(app_version|versionCompare('101.*') <= 0) " f"&& {sticky_expression}"),
+        )
 
     # TODO: Remove once UI for mobile get relased to support languages
     def test_targeting_with_locales_languages_mobile(self):
@@ -593,7 +665,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "(is_already_enrolled || days_since_install < 7) "
+                "(days_since_install < 7) "
                 "&& ('de' in locale || 'en' in locale || 'es' in locale "
                 "|| 'ro' in locale) "
                 "&& (language in ['en', 'es', 'fr'])"
