@@ -82,8 +82,7 @@ def test_check_mobile_targeting(
     targeting,
 ):
 
-    experiment_name = f"{slugify(experiment_name)}"
-    context = context["app_context"]
+    # The context fixtures can only contain strings or null
     context["language"] = context["language"][:2]  # strip region
     # This context dictionary supports non string values
     # and must be encoded as JSON before being passed to the evaluator
