@@ -565,10 +565,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            (
-                "(is_already_enrolled || days_since_install < 7) "
-                "&& (language in ['en', 'es', 'fr'])"
-            ),
+            "(days_since_install < 7) && (language in ['en', 'es', 'fr'])",
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -632,7 +629,7 @@ class TestNimbusExperiment(TestCase):
             "(is_already_enrolled) "
             "|| "
             "("
-            "(is_already_enrolled || days_since_install < 7) "
+            "(days_since_install < 7) "
             "&& (app_version|versionCompare('100.!') >= 0) "
             "&& (language in ['en']) "
             "&& (region in ['CA'])"

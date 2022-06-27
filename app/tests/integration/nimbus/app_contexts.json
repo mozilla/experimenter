@@ -142,13 +142,14 @@
               }
             }
           }
-        ],
-        "metadata": {
-          "data_scanned": 123246204411
         }
-      },
-      "data_source_id": 63,
-      "runtime": 7.98217,
-      "retrieved_at": "2022-05-24T22:03:07.953Z"
-    }
+      ],
+      "metadata": {
+        "data_scanned": 123246204411
+      }
+    },
+    "data_source_id": 63,
+    "runtime": 7.98217,
+    "retrieved_at": "2022-05-24T22:03:07.953Z"
   }
+}
