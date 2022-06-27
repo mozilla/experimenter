@@ -2,10 +2,11 @@ version: "3"
 
 services:
   firefox:
-    image: b4handjr/selenium-firefox:python3-release-latest
+    image: selenium/standalone-firefox:latest
     env_file: .env
     environment:
       - MOZ_HEADLESS
+      - FIREFOX_VERSION
     volumes:
       - .:/code
       - /code/app/tests/integration/.tox
@@ -17,6 +18,7 @@ services:
     ports:
       - "5900:5900"
     shm_size: 2g
+    working_dir: /code
   rust-sdk:
     image: b4handjr/nimbus-rust-image:latest
     env_file: .env
