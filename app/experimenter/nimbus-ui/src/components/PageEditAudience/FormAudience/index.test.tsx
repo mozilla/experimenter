@@ -34,6 +34,7 @@ describe("FormAudience", () => {
           ...MOCK_EXPERIMENT,
           application: NimbusExperimentApplicationEnum.DESKTOP,
           channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isSticky: true,
         }}
         config={{
           ...MOCK_CONFIG,
@@ -105,6 +106,8 @@ describe("FormAudience", () => {
     expect(screen.getByTestId("countries")).toHaveTextContent(
       MOCK_EXPERIMENT.countries[0]!.name!,
     );
+
+    expect(screen.getByTestId("isSticky")).toBeChecked();
   });
 
   it("renders server errors", async () => {
@@ -198,6 +201,7 @@ describe("FormAudience", () => {
       countries: MOCK_EXPERIMENT.countries.map((v) => "" + v.id),
       locales: MOCK_EXPERIMENT.locales.map((v) => "" + v.id),
       languages: MOCK_EXPERIMENT.languages.map((v) => "" + v.id),
+      isSticky: MOCK_EXPERIMENT.isSticky,
     };
     render(<Subject {...{ onSubmit }} />);
     await screen.findByTestId("FormAudience");

@@ -110,6 +110,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         applicationValues
         description
       }
+      isSticky
       jexlTargetingExpression
 
       populationPercent
