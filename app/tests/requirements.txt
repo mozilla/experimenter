@@ -291,9 +291,9 @@ pytest-lazy-fixture==0.6.0 \
 charset-normalizer==2.0.7 \
     --hash=sha256:e019de665e2bcf9c2b64e2e5aa025fa991da8720daa3c1138cadd2fd1856aed0 \
     --hash=sha256:f7af805c321bfa1ce6714c51f254e0d5bb5e5834039bc17db7ebe3a4cec9492b
-kinto-http==10.9.0 \
-    --hash=sha256:10c947f027f2ac2d3549e830abb623d027fd48c56754d906b7a378c10e1106b3 \
-    --hash=sha256:27626575924378d6434b7bb77d4a19bb11a95d76e7a12aee8fd6b8c052292ecc
+kinto-http==10.10.0 \
+    --hash=sha256:1b36dbe1c85fc3cf7eb1f8d04d8216c6ad189ce1d91b0c6f0bec67690539e2c8 \
+    --hash=sha256:71d50cf4c31f3fe38690cc5be7c4a1f7eff2287296c41cf7e4a3230ab24ae6f5
 backoff==1.11.1 \
     --hash=sha256:61928f8fa48d52e4faa81875eecf308eccfb1016b018bb6bd21e05b5d90a96c5 \
     --hash=sha256:ccb962a2378418c667b3c979b504fdeb7d9e0d29c0579e3b13b86467177728cb
