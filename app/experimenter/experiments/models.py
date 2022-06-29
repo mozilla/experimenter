@@ -37,15 +37,16 @@ class NimbusExperimentManager(models.Manager):
             super()
             .get_queryset()
             .annotate(latest_change=Max("changes__changed_on"))
+            .select_related("owner")
+            .prefetch_related(
+                "changes",
+                "feature_configs",
+            )
             .order_by("-latest_change")
         )
 
     def latest_with_related(self):
-        return self.latest_changed().prefetch_related(
-            "owner",
-            "changes",
-            "feature_configs",
-        )
+        return self.latest_changed()
 
     def launch_queue(self, applications):
         return self.filter(
