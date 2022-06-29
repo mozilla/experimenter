@@ -31,6 +31,16 @@ jobs:
       PYTEST_ARGS: -k DESKTOP -m run_targeting -n 2
     steps:
       - checkout
+      - run:
+          name: Check file paths
+          command: |
+            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments'
+              then
+                echo "Continuing"
+              else
+                echo "No targeting changes, skipping"
+                circleci-agent step halt
+            fi
       - restore_cache:
           key: firefox-cache-release
       - run:
@@ -55,6 +65,16 @@ jobs:
       PYTEST_ARGS: -k DESKTOP -m run_targeting -n 2
     steps:
       - checkout
+      - run:
+          name: Check file paths
+          command: |
+            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments'
+              then
+                echo "Continuing"
+              else
+                echo "No targeting changes, skipping"
+                circleci-agent step halt
+            fi
       - restore_cache:
           key: firefox-cache-beta
       - run:
@@ -79,6 +99,16 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Check file paths
+          command: |
+            if git diff --name-only main HEAD | grep -E 'app/experimenter/integration|app/experimenter/nimbus-ui'
+              then
+                echo "Continuing"
+              else
+                echo "No targeting changes, skipping"
+                circleci-agent step halt
+            fi
+      - run:
           name: Run integration tests
           command: |
             PYTEST_ARGS=$(circleci tests split "app/tests/integration/nimbus/parallel_pytest_args.txt")
@@ -92,6 +122,16 @@ jobs:
     working_directory: ~/experimenter
     steps:
       - checkout
+      - run:
+          name: Check file paths
+          command: |
+            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments'
+              then
+                echo "Continuing"
+              else
+                echo "No targeting changes, skipping"
+                circleci-agent step halt
+            fi
       - run:
           name: Run rust integration tests
           command: |
