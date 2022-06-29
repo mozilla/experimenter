@@ -101,7 +101,7 @@ jobs:
       - run:
           name: Check file paths
           command: |
-            if git diff --name-only main HEAD | grep -E 'app/experimenter/integration|app/experimenter/nimbus-ui'
+            if git diff --name-only main HEAD | grep -E 'app/experimenter/integration'
               then
                 echo "Continuing"
               else
