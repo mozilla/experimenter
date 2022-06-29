@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import pytest
+from nimbus.jexl import collect_exprs
 from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
 from nimbus.utils import helpers
 
@@ -103,6 +104,14 @@ def test_check_mobile_targeting(
     data = helpers.load_experiment_data(experiment_slug)
     expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
 
-    # The evaluator will throw if it detects a syntax error, a comparison type mismatch,
-    # or an undefined variable
-    targeting_helper.eval_jexl(expression)
+    for sub_expr in collect_exprs(expression):
+
+        # The evaluator will throw if it detects a syntax error, a comparison type
+        # mismatch, or an undefined variable
+        try:
+            # Wrap the sub expression in a boolean test because the evaluator will throw
+            # if the return type is not bool
+            sub_expr = f"{sub_expr} == true"
+            targeting_helper.eval_jexl(sub_expr)
+        except Exception as e:
+            raise Exception(f"Error evaluating: '{sub_expr}': {e}")
