@@ -63,8 +63,7 @@ secretkey:
 	openssl rand -hex 24
 
 auth_gcloud:
-	gcloud auth login
-	gcloud auth application-default login
+	gcloud auth login --update-adc
 
 jetstream_config:
 	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip $(JETSTREAM_CONFIG_URL)
