@@ -13,7 +13,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import F, Max, Q
+from django.db.models import F, Max, Prefetch, Q
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -34,11 +34,14 @@ class FilterMixin:
 class NimbusExperimentManager(models.Manager):
     def latest_changed(self):
         return (
-            super()
-            .get_queryset()
+            NimbusExperiment.objects.all()
             .annotate(latest_change=Max("changes__changed_on"))
             .select_related("owner")
             .prefetch_related(
+                "documentation_links",
+                "countries",
+                "locales",
+                "languages",
                 "changes",
                 "feature_configs",
             )
