@@ -34,7 +34,8 @@ class FilterMixin:
 class NimbusExperimentManager(models.Manager):
     def latest_changed(self):
         return (
-            NimbusExperiment.objects.all()
+            super()
+            .get_queryset()
             .annotate(latest_change=Max("changes__changed_on"))
             .order_by("-latest_change")
         )
