@@ -20,7 +20,6 @@ class NimbusTargetingConfig:
         self.targeting_configs.append(self)
 
 
-STICKY = "experiment.slug in activeExperiments"
 HAS_PIN = "!doesAppNeedPin"
 NEED_DEFAULT = "!isDefaultBrowser"
 PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
@@ -39,10 +38,9 @@ FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users",
     slug="first_run",
     description=("First start-up users (e.g. for about:welcome)"),
-    targeting=("(({is_first_startup} && {not_see_aw}) || {sticky})").format(
+    targeting="({is_first_startup} && {not_see_aw})".format(
         is_first_startup="isFirstStartup",
         not_see_aw="!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)",
-        sticky=STICKY,
     ),
     desktop_telemetry=("payload.info.profile_subsession_counter = 1"),
     application_choice_names=(Application.DESKTOP.name,),
@@ -55,7 +53,7 @@ FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
         "First start-up users (e.g. for about:welcome) who download Firefox "
         "from Chrome"
     ),
-    targeting=("{first_run} && attributionData.ua == 'chrome'").format(
+    targeting="{first_run} && attributionData.ua == 'chrome'".format(
         first_run=FIRST_RUN.targeting
     ),
     desktop_telemetry=(
@@ -68,7 +66,7 @@ FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     name="First start-up users on Windows 10 1903 (build 18362) or newer",
     slug="first_run_win1903",
     description="First start-up users (e.g. for about:welcome) on Windows 1903+",
-    targeting=("{first_run} && os.windowsBuildNumber >= 18362").format(
+    targeting="{first_run} && os.windowsBuildNumber >= 18362".format(
         first_run=FIRST_RUN.targeting
     ),
     desktop_telemetry=(
@@ -81,9 +79,11 @@ NOT_TCP_STUDY = NimbusTargetingConfig(
     name="Exclude users in the TCP revenue study",
     slug="not_tcp_study",
     description="Exclude users with certain search codes set",
-    targeting="!'browser.search.param.google_channel_us'|preferenceValue('')|regExpMatch"
-    "('^[ntc]us5$') && !'browser.search.param.google_channel_row'|preferenceValue('')|"
-    "regExpMatch('^[ntc]row5$')",
+    targeting=(
+        "!'browser.search.param.google_channel_us'|preferenceValue('')|regExpMatch"
+        "('^[ntc]us5$') && !'browser.search.param.google_channel_row'|preferenceValue('')"
+        "|regExpMatch('^[ntc]row5$')"
+    ),
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -144,7 +144,7 @@ MOBILE_NEW_USER = NimbusTargetingConfig(
     name="New Users on Mobile",
     slug="mobile_new_users",
     description=("New users on mobile who installed the app less than a week ago"),
-    targeting=("is_already_enrolled || days_since_install < 7"),
+    targeting="days_since_install < 7",
     desktop_telemetry="",
     application_choice_names=(
         Application.FENIX.name,
@@ -163,9 +163,7 @@ MOBILE_RECENTLY_UPDATED = NimbusTargetingConfig(
         "Users who updated their app within the last week. "
         "This excludes users who are new users"
     ),
-    targeting=(
-        "is_already_enrolled || (days_since_update < 7 && days_since_install >= 7)"
-    ),
+    targeting="days_since_update < 7 && days_since_install >= 7",
     desktop_telemetry="",
     application_choice_names=(
         Application.FENIX.name,
@@ -248,8 +246,11 @@ INFREQUENT_USER_URIS = NimbusTargetingConfig(
     name="Infrequent user (uris)",
     slug="infrequent_user_uris",
     description="Between 1 and 6 days of activity in the past 28 days",
-    targeting=f"{STICKY} || {PROFILE28DAYS} && "
-    "userMonthlyActivity|length >= 1 && userMonthlyActivity|length <= 6",
+    targeting=(
+        f"{PROFILE28DAYS} "
+        "&& userMonthlyActivity|length >= 1 "
+        "&& userMonthlyActivity|length <= 6"
+    ),
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -308,12 +309,27 @@ INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+INFREQUENT_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
+    name="Infrequent user (5 bookmarks)",
+    slug="infrequent_user_5_bookmarks",
+    description="Between 1-6 days of activity in past 28, has 5 bookmarks",
+    # A proxy for "nothing has been imported". 5 is the default number of bookmarks
+    # in a new profile created by (at least) 100 and newer, and probably
+    # substantially older than that too.
+    targeting=f"{INFREQUENT_USER_URIS.targeting} && totalBookmarksCount == 5",
+    desktop_telemetry="",
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 CASUAL_USER_URIS = NimbusTargetingConfig(
     name="Casual user (uris)",
     slug="casual_user_uris",
     description="Between 7 and 13 days of activity in the past 28 days",
-    targeting=f"{STICKY} || {PROFILE28DAYS} && "
-    "userMonthlyActivity|length >= 7 && userMonthlyActivity|length <= 13",
+    targeting=(
+        f"{PROFILE28DAYS} "
+        "&& userMonthlyActivity|length >= 7 "
+        "&& userMonthlyActivity|length <= 13"
+    ),
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -358,8 +374,11 @@ REGULAR_USER_URIS = NimbusTargetingConfig(
     name="Regular user (uris)",
     slug="regular_user_uris",
     description="Between 14 and 20 days of activity in the past 28 days",
-    targeting=f"{STICKY} || {PROFILE28DAYS} && "
-    "userMonthlyActivity|length >= 14 && userMonthlyActivity|length <= 20",
+    targeting=(
+        f"{PROFILE28DAYS} "
+        "&& userMonthlyActivity|length >= 14 "
+        "&& userMonthlyActivity|length <= 20"
+    ),
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -413,7 +432,7 @@ CORE_USER_URIS = NimbusTargetingConfig(
     name="Core user (uris)",
     slug="core_user_uris",
     description="At least 21 days of activity in the past 28 days",
-    targeting=f"{STICKY} || {PROFILE28DAYS} && " "userMonthlyActivity|length >= 21",
+    targeting=f"{PROFILE28DAYS} && userMonthlyActivity|length >= 21",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -498,14 +517,12 @@ PIP_NEVER_USED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-PIP_NEVER_USED_STICKY = NimbusTargetingConfig(
-    name="PiP Never Used (Sticky)",
-    slug="pip_never_used_sticky",
-    description="Users that have never used Picture in Picture, with sticky enrollment",
-    targeting="(({pip}) || ({sticky}))".format(
-        pip=PIP_NEVER_USED.targeting,
-        sticky=STICKY,
-    ),
+
+RALLY_CORE_ADDON_USER = NimbusTargetingConfig(
+    name="Mozilla Rally Core Add-on User",
+    slug="rally_core_addon_user",
+    description="Users who have installed the Mozilla Rally Core Add-on",
+    targeting="addonsInfo.addons['rally-core@mozilla.org'] != null",
     desktop_telemetry="",
     application_choice_names=(Application.DESKTOP.name,),
 )

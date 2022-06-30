@@ -64,6 +64,7 @@ input ExperimentInput {
   populationPercent: String
   proposedDuration: Int
   proposedEnrollment: String
+  isSticky: Boolean
   targetingConfigSlug: String
   totalEnrolledClients: Int
   changelogMessage: String
@@ -416,6 +417,7 @@ type NimbusExperimentType {
   locales: [NimbusLocaleType!]!
   countries: [NimbusCountryType!]!
   languages: [NimbusLanguageType!]!
+  isSticky: Boolean
   projects: [ProjectType!]!
   hypothesis: String!
   primaryOutcomes: [String]

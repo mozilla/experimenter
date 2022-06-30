@@ -3,13 +3,14 @@ import os
 from pathlib import Path
 
 import pytest
+from nimbus.jexl import collect_exprs
 from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
 from nimbus.utils import helpers
 
 nimbus = pytest.importorskip("nimbus_rust")
 
 
-def locale_databse_id_loader(locales=None):
+def locale_database_id_loader(locales=None):
     locale_list = []
     path = Path().resolve()
     path = str(path)
@@ -26,7 +27,7 @@ def locale_databse_id_loader(locales=None):
 
 def client_info_list():
     with open("nimbus/app_contexts.json") as file:
-        return json.load(file)["query_result"]["data"]["rows"]
+        return [r["app_context"] for r in json.load(file)["query_result"]["data"]["rows"]]
 
 
 @pytest.fixture(params=helpers.load_targeting_configs(app="MOBILE"))
@@ -69,25 +70,10 @@ def fixture_sdk_client(ar_units):
     return _client_helper
 
 
-@pytest.fixture(name="jexl_evaluator")
-def fixture_jexl_evaluator():
-    def _eval_jexl(sdk_client, expression, context):
-        targetting_helper = sdk_client.create_targeting_helper(additional_context=context)
-        try:
-            value = targetting_helper.eval_jexl(expression)
-        except nimbus.NimbusError.EvaluationError:
-            return None
-        else:
-            return value
-
-    return _eval_jexl
-
-
 @pytest.mark.run_targeting
 @pytest.mark.parametrize("targeting", helpers.load_targeting_configs("MOBILE"))
 @pytest.mark.parametrize("context", client_info_list())
 def test_check_mobile_targeting(
-    jexl_evaluator,
     sdk_client,
     load_app_context,
     context,
@@ -96,19 +82,36 @@ def test_check_mobile_targeting(
     create_mobile_experiment,
     targeting,
 ):
-    experiment_name = f"{slugify(experiment_name)}"
-    context = context["app_context"]
+    # The context fixtures can only contain strings or null
     context["locale"] = context["locale"][:2]  # strip region
+    # This context dictionary supports non string values
+    # and must be encoded as JSON before being passed to the evaluator
+    custom_targeting_attributes = json.dumps(
+        {"is_already_enrolled": True, "days_since_update": 1, "days_since_install": 1}
+    )
+    client = sdk_client(load_app_context(context))
+    targeting_helper = client.create_targeting_helper(
+        additional_context=custom_targeting_attributes
+    )
+
+    experiment_slug = str(slugify(experiment_name))
     create_mobile_experiment(
-        experiment_name,
+        experiment_slug,
         context["app_name"],
-        locale_databse_id_loader([context["locale"]]),
+        locale_database_id_loader([context["locale"]]),
         targeting,
     )
-    data = helpers.load_experiment_data(experiment_name)
+    data = helpers.load_experiment_data(experiment_slug)
     expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
-    assert jexl_evaluator(
-        sdk_client(load_app_context(context)),
-        expression,
-        json.dumps(context["custom_targeting_attributes"]),
-    )
+
+    for sub_expr in collect_exprs(expression):
+
+        # The evaluator will throw if it detects a syntax error, a comparison type
+        # mismatch, or an undefined variable
+        try:
+            # Wrap the sub expression in a boolean test because the evaluator will throw
+            # if the return type is not bool
+            sub_expr = f"{sub_expr} == true"
+            targeting_helper.eval_jexl(sub_expr)
+        except Exception as e:
+            raise Exception(f"Error evaluating: '{sub_expr}': {e}")

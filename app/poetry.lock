@@ -1005,7 +1005,7 @@ test = ["pytest (<5.4)", "pytest-cov"]
 
 [[package]]
 name = "mozilla-nimbus-shared"
-version = "1.7.0"
+version = "1.8.0"
 description = "Shared data and schemas for Project Nimbus"
 category = "main"
 optional = false
@@ -1509,7 +1509,7 @@ python-versions = "*"
 
 [[package]]
 name = "sentry-sdk"
-version = "1.5.11"
+version = "1.6.0"
 description = "Python client for Sentry (https://sentry.io)"
 category = "main"
 optional = false
@@ -1747,7 +1747,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "1a87cc3be9e2d13363787bb111faba5f4b089cd91da43120fb20167cddffd7c5"
+content-hash = "6883b69f80fb2c0a0d99dffe01f8a167fe023c7b0591a064af8264cc8a64f5bd"
 
 [metadata.files]
 amqp = [
@@ -2168,8 +2168,8 @@ mock = [
     {file = "mock-4.0.3.tar.gz", hash = "sha256:7d3fbbde18228f4ff2f1f119a45cdffa458b4c0dee32eb4d2bb2f82554bac7bc"},
 ]
 mozilla-nimbus-shared = [
-    {file = "mozilla_nimbus_shared-1.7.0-py3-none-any.whl", hash = "sha256:69e6ba9cd8bb6ca6a2549352a48d51262e7f0be1ceb835fd8ca1fbd4c3ed5e40"},
-    {file = "mozilla_nimbus_shared-1.7.0.tar.gz", hash = "sha256:ee468db008410a0d08dc6ba793955edc04ff4718b8158dc08dcb598420cf1da2"},
+    {file = "mozilla_nimbus_shared-1.8.0-py3-none-any.whl", hash = "sha256:f9cd1c858ae54ccccf56205c487cf12f6c8560d73fa500f1f5e17237122699f5"},
+    {file = "mozilla_nimbus_shared-1.8.0.tar.gz", hash = "sha256:b19049e2ac77bc98d4554658af3633b199033cd4a9f7725a175b01f9fe2aaf30"},
 ]
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
@@ -2523,8 +2523,8 @@ rx = [
     {file = "Rx-1.6.1.tar.gz", hash = "sha256:13a1d8d9e252625c173dc795471e614eadfe1cf40ffc684e08b8fff0d9748c23"},
 ]
 sentry-sdk = [
-    {file = "sentry-sdk-1.5.11.tar.gz", hash = "sha256:6c01d9d0b65935fd275adc120194737d1df317dce811e642cbf0394d0d37a007"},
-    {file = "sentry_sdk-1.5.11-py2.py3-none-any.whl", hash = "sha256:c17179183cac614e900cbd048dab03f49a48e2820182ec686c25e7ce46f8548f"},
+    {file = "sentry-sdk-1.6.0.tar.gz", hash = "sha256:b82ad57306d5546713f15d5d70daea0408cf7f998c7566db16e0e6257e51e561"},
+    {file = "sentry_sdk-1.6.0-py2.py3-none-any.whl", hash = "sha256:ddbd191b6f4e696b7845b4d87389898ae1207981faf114f968a57363aa6be03c"},
 ]
 singledispatch = [
     {file = "singledispatch-3.6.2-py2.py3-none-any.whl", hash = "sha256:0d428477703d8386eb6aeed6e522c9f22d49f4363cdf4ed6a2ba3dc276053e20"},
