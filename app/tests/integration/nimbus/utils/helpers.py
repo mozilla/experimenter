@@ -69,7 +69,7 @@ def load_experiment_data(slug):
     )
 
 
-def create_mobile_experiment(name, app, locales):
+def create_mobile_experiment(name, app, languages):
     query = {
         "operationName": "createExperiment",
         "variables": {
@@ -77,7 +77,7 @@ def create_mobile_experiment(name, app, locales):
                 "name": name,
                 "hypothesis": "Test hypothesis",
                 "application": app.upper(),
-                "locales": locales,
+                "languages": languages,
                 "changelogMessage": "test changelog message",
             }
         },

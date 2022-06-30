@@ -10,19 +10,19 @@ from nimbus.utils import helpers
 nimbus = pytest.importorskip("nimbus_rust")
 
 
-def locale_database_id_loader(locales=None):
-    locale_list = []
+def language_databse_id_loader(languages=None):
+    language_list = []
     path = Path().resolve()
     path = str(path)
     path = path.strip("/tests/integration/nimbus")
-    path = os.path.join("/", path, "experimenter/base/fixtures/locales.json")
+    path = os.path.join("/", path, "experimenter/base/fixtures/languages.json")
     with open(path) as file:
         data = json.loads(file.read())
-        for locale in locales:
+        for language in languages:
             for item in data:
-                if locale in item["fields"]["code"][:2]:
-                    locale_list.append(item["pk"])
-    return locale_list
+                if language in item["fields"]["code"][:2]:
+                    language_list.append(item["pk"])
+    return language_list
 
 
 def client_info_list():
@@ -82,8 +82,9 @@ def test_check_mobile_targeting(
     create_mobile_experiment,
     targeting,
 ):
+
     # The context fixtures can only contain strings or null
-    context["locale"] = context["locale"][:2]  # strip region
+    context["language"] = context["language"][:2]  # strip region
     # This context dictionary supports non string values
     # and must be encoded as JSON before being passed to the evaluator
     custom_targeting_attributes = json.dumps(
@@ -98,7 +99,7 @@ def test_check_mobile_targeting(
     create_mobile_experiment(
         experiment_slug,
         context["app_name"],
-        locale_database_id_loader([context["locale"]]),
+        language_databse_id_loader([context["language"]]),
         targeting,
     )
     data = helpers.load_experiment_data(experiment_slug)
