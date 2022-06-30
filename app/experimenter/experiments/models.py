@@ -13,7 +13,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import F, Max, Prefetch, Q
+from django.db.models import F, Max, Q
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -36,16 +36,15 @@ class NimbusExperimentManager(models.Manager):
         return (
             NimbusExperiment.objects.all()
             .annotate(latest_change=Max("changes__changed_on"))
-            .select_related("owner")
-            .prefetch_related(
-                "changes",
-                "feature_configs",
-            )
             .order_by("-latest_change")
         )
 
     def latest_with_related(self):
-        return self.latest_changed()
+        return self.latest_changed().prefetch_related(
+            "owner",
+            "changes",
+            "feature_configs",
+        )
 
     def launch_queue(self, applications):
         return self.filter(
