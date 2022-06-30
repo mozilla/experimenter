@@ -38,10 +38,6 @@ class NimbusExperimentManager(models.Manager):
             .annotate(latest_change=Max("changes__changed_on"))
             .select_related("owner")
             .prefetch_related(
-                "documentation_links",
-                "countries",
-                "locales",
-                "languages",
                 "changes",
                 "feature_configs",
             )
