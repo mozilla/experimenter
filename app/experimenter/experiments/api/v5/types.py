@@ -390,7 +390,10 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_feature_config(self, info):
         if self.feature_configs.exists():
-            return self.feature_configs.all().order_by("slug").first()
+            return sorted(
+                self.feature_configs.all(),
+                key=lambda feature_config: (feature_config.slug),
+            )[0]
 
     def resolve_feature_configs(self, info):
         return self.feature_configs.all()
