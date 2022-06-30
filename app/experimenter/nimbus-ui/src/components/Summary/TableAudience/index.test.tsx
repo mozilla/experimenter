@@ -192,6 +192,33 @@ describe("TableAudience", () => {
       );
     });
   });
+  describe("renders 'Locales' row as expected for old experiments", () => {
+    it("when locales exist, displays them", () => {
+      const data = {
+        locales: [
+          { name: "Quebecois", id: 1 },
+          { name: "Acholi", id: 2 },
+        ],
+        application: NimbusExperimentApplicationEnum.FENIX,
+      };
+      const { experiment } = mockExperimentQuery("demo-slug", data);
+      render(<Subject {...{ experiment }} />);
+      data.locales.forEach((locale) =>
+        within(screen.getByTestId("experiment-locales")).findByText(
+          locale.name,
+        ),
+      );
+    });
+    it("when locales don't exist for old experiments, displays all", async () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        locales: [],
+      });
+      render(<Subject {...{ experiment }} />);
+      await within(screen.getByTestId("experiment-locales")).findByText(
+        "All locales",
+      );
+    });
+  });
   describe("renders 'Languages' row as expected", () => {
     it("when languages exist, displays them", () => {
       const data = {

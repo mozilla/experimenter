@@ -63,8 +63,7 @@ secretkey:
 	openssl rand -hex 24
 
 auth_gcloud:
-	gcloud auth login
-	gcloud auth application-default login
+	gcloud auth login --update-adc
 
 jetstream_config:
 	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip $(JETSTREAM_CONFIG_URL)
@@ -190,7 +189,7 @@ integration_test_legacy:
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-legacy $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
 
 integration_test_nimbus:
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "if [ "$$FIREFOX_VERSION" = ":latest" ]; then sudo ./app/tests/integration/nimbus/utils/nightly-install.sh; fi; firefox -V; sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
 
 integration_test_nimbus_rust:
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
