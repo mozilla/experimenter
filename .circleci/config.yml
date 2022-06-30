@@ -164,6 +164,7 @@ jobs:
           name: Check for Firefox Update
           command: |
             results=$(sudo ./.circleci/get_firefox_versions.sh)
+            diff /home/circleci/experimenter/new_versions.txt /home/circleci/experimenter/old_versions.txt
             if [ $? -eq 0 ]; then 
                 circleci-agent step halt
             fi
