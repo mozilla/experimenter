@@ -28,18 +28,7 @@ class Query(graphene.ObjectType):
 
     def resolve_experiment_by_slug(root, info, slug):
         try:
-            return (
-                NimbusExperiment.objects.select_related("reference_branch", "owner")
-                .prefetch_related(
-                    "documentation_links",
-                    "feature_configs",
-                    "countries",
-                    "locales",
-                    "languages",
-                    "changes",
-                )
-                .get(slug=slug)
-            )
+            return NimbusExperiment.objects.get(slug=slug)
         except NimbusExperiment.DoesNotExist:
             return None
 
