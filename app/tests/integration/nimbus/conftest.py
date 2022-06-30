@@ -209,7 +209,7 @@ def create_experiment(base_url, default_data):
 
 @pytest.fixture
 def create_mobile_experiment():
-    def _create_mobile_experiment(name, app, locales, targeting):
+    def _create_mobile_experiment(name, app, languages, targeting):
         query = {
             "operationName": "createExperiment",
             "variables": {
@@ -217,7 +217,7 @@ def create_mobile_experiment():
                     "name": name,
                     "hypothesis": "Test hypothesis",
                     "application": app.upper(),
-                    "locales": locales,
+                    "languages": languages,
                     "changelogMessage": "test changelog message",
                     "targetingConfigSlug": targeting,
                 }
