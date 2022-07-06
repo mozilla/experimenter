@@ -1,5 +1,4 @@
 import logging
-from json import JSONDecodeError
 
 from django.core.management.base import BaseCommand
 
@@ -22,11 +21,11 @@ class Command(BaseCommand):
             )
             feature_config.name = feature.slug
             feature_config.description = feature.description
-            try:
-                feature_config.schema = feature.get_jsonschema()
-            except JSONDecodeError as error:
-                logger.info(f"Unable to load remote Feature: {error}")
             feature_config.read_only = True
+
+            if (schema := feature.get_jsonschema()) is not None:
+                feature_config.schema = schema
+
             feature_config.save()
             logger.info(f"Feature Loaded: {feature.applicationSlug}/{feature.slug}")
 

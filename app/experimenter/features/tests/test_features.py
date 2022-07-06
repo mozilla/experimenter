@@ -195,14 +195,11 @@ class TestRemoteSchemaFeatures(TestCase):
             )[0]
             desktop_feature.get_jsonschema()
 
-    def test_raises_json_error(self):
+    def test_returns_none_for_invalid_json(self):
         self.setup_json_error()
 
-        with self.assertRaises(json.JSONDecodeError):
-            desktop_feature = Features.by_application(
-                NimbusConstants.Application.DESKTOP
-            )[0]
-            desktop_feature.get_jsonschema()
+        desktop_feature = Features.by_application(NimbusConstants.Application.DESKTOP)[0]
+        self.assertIsNone(desktop_feature.get_jsonschema())
 
 
 class TestCheckFeatures(TestCase):
