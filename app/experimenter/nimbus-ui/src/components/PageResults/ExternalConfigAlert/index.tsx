@@ -19,7 +19,8 @@ export const ExternalConfigAlert = ({
       The results shown on this page are from an analysis ran with at least one
       experiment override that affects only the <em>analysis</em>. The original
       <strong>
-        experiment details and description on the Summary page will not reflect this.
+        experiment details and description on the Summary page will not reflect
+        this.
       </strong>
     </p>
     <ul className="pl-0">
