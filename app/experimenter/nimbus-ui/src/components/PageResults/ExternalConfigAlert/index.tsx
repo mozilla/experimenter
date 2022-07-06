@@ -17,9 +17,10 @@ export const ExternalConfigAlert = ({
     <Alert.Heading>Analysis has manual overrides in Jetstream</Alert.Heading>
     <p>
       The results shown on this page are from an analysis ran with at least one
-      experiment override that affects only the <em>analysis</em>, meaning{" "}
+      experiment override that affects only the <em>analysis</em>. The original
       <strong>
-        experiment data on the Summary page will not reflect this.
+        experiment details and description on the Summary page will not reflect
+        this.
       </strong>
     </p>
     <ul className="pl-0">
@@ -52,8 +53,8 @@ export const ExternalConfigAlert = ({
     </ul>
     <p>
       If you have questions about this, please ask data science in{" "}
-      <LinkExternal href="https://mozilla.slack.com/archives/C0149JH7C1M">
-        #cirrus
+      <LinkExternal href="https://mozilla.slack.com/archives/CF94YGE03">
+        #ask-experimenter
       </LinkExternal>
       .
     </p>
