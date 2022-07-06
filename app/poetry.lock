@@ -314,7 +314,7 @@ six = ">=1.10"
 
 [[package]]
 name = "django"
-version = "3.2.13"
+version = "3.2.14"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
@@ -1747,7 +1747,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "6883b69f80fb2c0a0d99dffe01f8a167fe023c7b0591a064af8264cc8a64f5bd"
+content-hash = "a85ae495f30f8f98c287d77b6dacbfab9fbd5d485f76e07f8b5699479beaf155"
 
 [metadata.files]
 amqp = [
@@ -1947,8 +1947,8 @@ dj-inmemorystorage = [
     {file = "dj_inmemorystorage-2.1.0-py2.py3-none-any.whl", hash = "sha256:81aa007a7cdb1899b3cd92404f656c82cd690a831b8698a43045f859d7276945"},
 ]
 django = [
-    {file = "Django-3.2.13-py3-none-any.whl", hash = "sha256:b896ca61edc079eb6bbaa15cf6071eb69d6aac08cce5211583cfb41515644fdf"},
-    {file = "Django-3.2.13.tar.gz", hash = "sha256:6d93497a0a9bf6ba0e0b1a29cccdc40efbfc76297255b1309b3a884a688ec4b6"},
+    {file = "Django-3.2.14-py3-none-any.whl", hash = "sha256:a8681e098fa60f7c33a4b628d6fcd3fe983a0939ff1301ecacac21d0b38bad56"},
+    {file = "Django-3.2.14.tar.gz", hash = "sha256:677182ba8b5b285a4e072f3ac17ceee6aff1b5ce77fd173cc5b6a2d3dc022fcf"},
 ]
 django-admin-rangefilter = [
     {file = "django-admin-rangefilter-0.8.0.tar.gz", hash = "sha256:9a302bb6f6b04d15789baa239ec2ee077613cd8503a3d6602ea2fedf289f5dac"},
