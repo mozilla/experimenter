@@ -6,7 +6,10 @@ from django.test import TestCase
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
 from experimenter.features import Features
-from experimenter.features.tests import mock_valid_features
+from experimenter.features.tests import (
+    mock_invalid_remote_schema_features,
+    mock_valid_features,
+)
 
 
 @mock_valid_features
@@ -98,3 +101,18 @@ class TestLoadFeatureConfigs(TestCase):
             feature_config.description,
             "Some Firefox Feature",
         )
+
+
+@mock_invalid_remote_schema_features
+class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Features.clear_cache()
+
+    def test_invalid_remote_schema_raises_json_error(self):
+        call_command("load_feature_configs")
+
+        for feature in Features.all():
+            with self.assertRaises(json.JSONDecodeError):
+                feature.get_jsonschema()
