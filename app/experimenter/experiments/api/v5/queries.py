@@ -1,4 +1,5 @@
 import graphene
+import time
 
 from experimenter.experiments.api.v5.types import (
     NimbusConfigurationType,
@@ -24,7 +25,11 @@ class Query(graphene.ObjectType):
     )
 
     def resolve_experiments(root, info):
-        return NimbusExperiment.objects.latest_with_related()
+        start = time.perf_counter()
+        experiments = list(NimbusExperiment.objects.latest_with_related())
+        stop = time.perf_counter()
+        print("\n\n\nQuery time", stop - start, "\n\n\n")
+        return experiments
 
     def resolve_experiment_by_slug(root, info, slug):
         try:
