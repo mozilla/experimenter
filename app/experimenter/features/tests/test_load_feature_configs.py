@@ -1,12 +1,17 @@
 import json
 
+import mock
 from django.core.management import call_command
 from django.test import TestCase
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
 from experimenter.features import Features
-from experimenter.features.tests import mock_valid_features
+from experimenter.features.tests import (
+    mock_invalid_remote_schema_features,
+    mock_valid_features,
+)
 
 
 @mock_valid_features
@@ -98,3 +103,32 @@ class TestLoadFeatureConfigs(TestCase):
             feature_config.description,
             "Some Firefox Feature",
         )
+
+
+@mock_invalid_remote_schema_features
+class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Features.clear_cache()
+
+    def setUp(self):
+        self.remote_schema = "{invalid json"
+
+        mock_requests_get_patcher = mock.patch("experimenter.features.requests.get")
+        self.mock_requests_get = mock_requests_get_patcher.start()
+        self.addCleanup(mock_requests_get_patcher.stop)
+        mock_response = mock.MagicMock()
+        mock_response.content = self.remote_schema
+        self.mock_requests_get.return_value = mock_response
+
+    def test_load_feature_config_ignores_invalid_remote_json(self):
+        schema = "{}"
+        NimbusFeatureConfigFactory.create(
+            slug="cfr", application=NimbusConstants.Application.DESKTOP, schema=schema
+        )
+
+        call_command("load_feature_configs")
+
+        feature_config = NimbusFeatureConfig.objects.get(slug="cfr")
+        self.assertEqual(feature_config.schema, schema)
