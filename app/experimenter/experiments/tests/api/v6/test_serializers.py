@@ -51,6 +51,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
                 "id": experiment.slug,
                 "isEnrollmentPaused": True,
+                "isRollout": False,
                 "proposedDuration": experiment.proposed_duration,
                 "proposedEnrollment": experiment.proposed_enrollment,
                 "referenceBranch": experiment.reference_branch.slug,
@@ -117,7 +118,6 @@ class TestNimbusExperimentSerializer(TestCase):
             primary_outcomes=["foo", "bar", "baz"],
             secondary_outcomes=["quux", "xyzzy"],
         )
-
         serializer = NimbusExperimentSerializer(experiment)
         experiment_data = serializer.data.copy()
         bucket_data = dict(experiment_data.pop("bucketConfig"))
@@ -142,6 +142,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
                 "id": experiment.slug,
                 "isEnrollmentPaused": True,
+                "isRollout": False,
                 "proposedDuration": experiment.proposed_duration,
                 "proposedEnrollment": experiment.proposed_enrollment,
                 "referenceBranch": experiment.reference_branch.slug,
