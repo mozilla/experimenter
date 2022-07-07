@@ -1522,12 +1522,14 @@ class TestNimbusExperiment(TestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
         rollout_branch = parent.branches.first()
+        parent.is_rollout = True
         self._clone_experiment_and_assert_common_expectations(parent, rollout_branch.slug)
 
     def test_clone_with_rollout_branch_slug_invalid(self):
         parent = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
+        parent.is_rollout = True
         with self.assertRaises(NimbusBranch.DoesNotExist):
             self._clone_experiment_and_assert_common_expectations(parent, "BAD SLUG")
 
@@ -1580,6 +1582,8 @@ class TestNimbusExperiment(TestCase):
             set(parent.languages.all().values_list("code", flat=True)),
         )
 
+        self.assertEqual(child.is_rollout, parent.is_rollout)
+
         for parent_link in parent.documentation_links.all():
             child_link = child.documentation_links.get(title=parent_link.title)
             self.assertEqual(child_link.link, parent_link.link)
@@ -1587,6 +1591,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.changes.all().count(), 1)
 
         if rollout_branch_slug:
+            self.assertTrue(child.is_rollout)
             self.assertEqual(
                 child.proposed_duration, NimbusExperiment.DEFAULT_PROPOSED_DURATION
             )
@@ -1611,6 +1616,7 @@ class TestNimbusExperiment(TestCase):
                 set(parent_branch.feature_values.values_list("value", flat=True)),
             )
         else:
+            self.assertFalse(child.is_rollout)
             self.assertEqual(child.proposed_duration, parent.proposed_duration)
             self.assertEqual(child.proposed_enrollment, parent.proposed_enrollment)
             self.assertEqual(child.population_percent, parent.population_percent)
