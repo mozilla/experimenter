@@ -21,8 +21,11 @@ class Command(BaseCommand):
             )
             feature_config.name = feature.slug
             feature_config.description = feature.description
-            feature_config.schema = feature.get_jsonschema()
             feature_config.read_only = True
+
+            if (schema := feature.get_jsonschema()) is not None:
+                feature_config.schema = schema
+
             feature_config.save()
             logger.info(f"Feature Loaded: {feature.applicationSlug}/{feature.slug}")
 

@@ -53,7 +53,11 @@ class Feature(BaseModel):
     def load_remote_jsonschema(self):
         schema_url = urljoin(MC_ROOT, self.schema_paths.path)
         schema_data = requests.get(schema_url).content
-        return json.dumps(json.loads(schema_data), indent=2)
+
+        try:
+            return json.dumps(json.loads(schema_data), indent=2)
+        except json.JSONDecodeError:
+            return None
 
     def generate_jsonschema(self):
         schema = {
