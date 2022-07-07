@@ -113,6 +113,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     userFacingName = serializers.ReadOnlyField(source="name")
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     isEnrollmentPaused = serializers.ReadOnlyField(source="is_paused")
+    isRollout = serializers.ReadOnlyField(source="is_rollout")
     bucketConfig = NimbusBucketRangeSerializer(source="bucket_range")
     featureIds = serializers.SerializerMethodField()
     probeSets = serializers.ReadOnlyField(default=[])
@@ -138,6 +139,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "userFacingName",
             "userFacingDescription",
             "isEnrollmentPaused",
+            "isRollout",
             "bucketConfig",
             "featureIds",
             "probeSets",
