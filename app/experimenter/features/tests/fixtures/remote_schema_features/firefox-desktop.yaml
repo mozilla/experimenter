@@ -2,7 +2,7 @@ cfr:
   description: "Doorhanger message template for Messaging System"
   hasExposure: true
   exposureDescription: "Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched."
-  isEarlyStartup: false
+  isEarlyStartup: true
   schema:
     uri: "resource://activity-stream/schemas/CFR/ExtensionDoorhanger.schema.json"
     path: "path/to/schema.json"
