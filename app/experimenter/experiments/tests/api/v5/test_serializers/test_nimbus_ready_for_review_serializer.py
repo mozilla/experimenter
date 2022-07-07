@@ -27,6 +27,37 @@ BASIC_JSON_SCHEMA = """\
 }
 """
 
+REF_JSON_SCHEMA = """\
+{
+  "$id": "resource://test.schema.json",
+  "$ref": "resource://test.schema.json#/$defs/Foo",
+  "$defs": {
+    "Foo": {
+      "$id": "file:///foo.schema.json",
+      "type": "object",
+      "properties": {
+        "bar": {
+          "$ref": "file:///foo.schema.json#/$defs/Bar"
+        }
+      },
+      "$defs": {
+        "Bar": {
+          "type": "object",
+          "properties": {
+            "baz": {
+              "type": "string"
+            },
+            "qux": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
 
 class TestNimbusReviewSerializerSingleFeature(TestCase):
     maxDiff = None
@@ -955,6 +986,42 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
             serializer.warnings,
         )
+
+    def test_serializer_feature_config_validation_supports_ref_json_schema(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            warn_feature_schema=False,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=REF_JSON_SCHEMA,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
+        )
+        reference_feature_value = experiment.reference_branch.feature_values.get()
+        reference_feature_value.value = """\
+            {
+            "bar": {
+                "baz": "baz",
+                "qux": 123
+            }
+            }
+        """.strip()
+        reference_feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid())
 
     def test_serializer_feature_config_validation_treatment_value_no_schema(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

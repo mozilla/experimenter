@@ -30,6 +30,21 @@ from experimenter.kinto.tasks import (
 from experimenter.outcomes import Outcomes
 
 
+class NestedRefResolver(jsonschema.RefResolver):
+    """A custom ref resolver that handles bundled schema."""
+
+    def __init__(self, schema):
+        super().__init__(base_uri=None, referrer=None)
+
+        if "$id" in schema:
+            self.store[schema["$id"]] = schema
+
+        if "$defs" in schema:
+            for dfn in schema["$defs"].values():
+                if "$id" in dfn:
+                    self.store[dfn["$id"]] = dfn
+
+
 class ExperimentNameValidatorMixin:
     def validate_name(self, name):
         if not (self.instance or name):
@@ -1003,7 +1018,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def _validate_feature_value_against_schema(self, schema, value):
         json_value = json.loads(value)
         try:
-            jsonschema.validate(json_value, schema)
+            jsonschema.validate(json_value, schema, resolver=NestedRefResolver(schema))
         except jsonschema.ValidationError as exc:
             return [exc.message]
 
