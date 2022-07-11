@@ -327,7 +327,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             ]
             sticky_expressions.append(f"region in {countries}")
 
-        if self.is_sticky:
+        if self.is_sticky and sticky_expressions:
             sticky_clause = "is_already_enrolled"
             if is_desktop:
                 sticky_clause = "experiment.slug in activeExperiments"
