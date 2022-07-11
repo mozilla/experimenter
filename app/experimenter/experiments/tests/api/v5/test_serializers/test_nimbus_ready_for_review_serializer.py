@@ -541,6 +541,52 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertIn("countries", serializer.errors)
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.TargetingConfig.MAC_ONLY,
+                True,
+                0,
+            ),
+            (
+                NimbusExperiment.TargetingConfig.MAC_ONLY,
+                False,
+                0,
+            ),
+            (
+                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+                False,
+                1,
+            ),
+            (
+                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+                True,
+                0,
+            ),
+        ]
+    )
+    def test_experiments_with_is_sticky_warning(
+        self, targeting_config, is_sticky, warnings
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            targeting_config_slug=targeting_config,
+            channel=NimbusExperiment.Channel.RELEASE,
+            is_sticky=is_sticky,
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        self.assertEqual(len(serializer.warnings), warnings)
+
     def test_alid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -863,6 +909,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             warn_feature_schema=True,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
                     schema=BASIC_JSON_SCHEMA,
@@ -950,6 +997,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             warn_feature_schema=True,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
                     schema=BASIC_JSON_SCHEMA,
