@@ -66,6 +66,17 @@
   <a href="{% url "experiments-api-csv" %}?{{ request.GET.urlencode }}"><i class="fas fa-file-csv"></i> Export as CSV</a>
 {% endblock %}
 
+{% block header_sidebar %}
+  <div class="row">
+    <div class="col">
+      <a class="col btn btn-primary" href="{% url "experiments-create" %}">
+        <span class="fas fa-edit"></span>
+        Create Delivery
+      </a>
+    </div>
+  </div>
+{% endblock %}
+
 {% block main_content %}
   {% for experiment in experiments %}
     <a class="noanchorstyle hovershadow" href="{% url "experiments-detail" slug=experiment.slug %}">
