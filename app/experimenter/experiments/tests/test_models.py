@@ -607,6 +607,7 @@ class TestNimbusExperiment(TestCase):
                 f"&& {sticky_expression}"
             ),
         )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_with_sticky_mobile(self):
         language_en = LanguageFactory.create(code="en")
@@ -640,6 +641,32 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             ("(app_version|versionCompare('101.*') <= 0) " f"&& {sticky_expression}"),
         )
+        JEXLParser().parse(experiment.targeting)
+
+    def test_targeting_with_sticky_and_no_advanced_targeting_omits_sticky_expression(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.RELEASE,
+            languages=[],
+            locales=[],
+            countries=[],
+            is_sticky=True,
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            (
+                '(browserSettings.update.channel == "release") '
+                "&& ('app.shield.optoutstudies.enabled'|preferenceValue)"
+            ),
+        )
+        JEXLParser().parse(experiment.targeting)
 
     def test_targeting_uses_published_targeting_string(self):
         published_targeting = "published targeting jexl"
