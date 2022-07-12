@@ -285,6 +285,24 @@ describe("TableAudience", () => {
       );
     });
   });
+  describe("renders 'Stick Enrollment' row as expected", () => {
+    it("with stick enrollment True", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        isSticky: true,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-is-sticky")).toHaveTextContent(
+        "True",
+      );
+    });
+    it("when not set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {});
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-is-sticky")).toHaveTextContent(
+        "False",
+      );
+    });
+  });
 });
 
 const Subject = ({

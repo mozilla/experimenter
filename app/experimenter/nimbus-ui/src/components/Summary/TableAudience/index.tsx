@@ -131,6 +131,12 @@ const TableAudience = ({
             )}
           </td>
         </tr>
+        <tr>
+          <th>Sticky Enrollment</th>
+          <td data-testid="experiment-is-sticky">
+            {experiment.isSticky ? "True" : "False"}
+          </td>
+        </tr>
         {withFullDetails &&
         experiment.jexlTargetingExpression &&
         experiment.jexlTargetingExpression !== "" ? (
