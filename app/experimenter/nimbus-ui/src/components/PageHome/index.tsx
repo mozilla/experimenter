@@ -162,7 +162,9 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
             💡
           </span>{" "}
           Have feedback?{" "}
-          <LinkExternal href="/legacy">Please file it here!</LinkExternal>
+          <LinkExternal href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&amp;issuetype=10097">
+            Please file it here!
+          </LinkExternal>
         </div>
       </Alert>
       <Body />
