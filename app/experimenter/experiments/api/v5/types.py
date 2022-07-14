@@ -214,7 +214,7 @@ class NimbusOutcomeType(graphene.ObjectType):
     slug = graphene.String()
     application = NimbusExperimentApplicationEnum()
     description = graphene.String()
-    isDefault = graphene.Boolean()
+    is_default = graphene.Boolean()
     metrics = graphene.List(NimbusOutcomeMetricType)
 
 
