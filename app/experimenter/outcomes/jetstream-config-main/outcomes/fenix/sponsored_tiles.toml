@@ -1,0 +1,41 @@
+friendly_name = "Sponsored Tiles"
+description = "Metrics that describe Sponsored Tiles usage"
+
+
+[metrics.spoc_tiles_impressions]
+friendly_name = "Sponsored Tiles Impressions"
+description = "Number of times Contile Sponsored Tiles are shown."
+select_expression = """
+      COALESCE(COUNTIF(
+          event.category = 'top_sites'
+          AND event.name = 'contile_impression'
+      ),0)
+"""
+data_source = "events"   
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+
+[metrics.spoc_tiles_clicks]
+friendly_name = "Sponsored Tiles Clicks"
+description = "Number of times user clicked a Contile Sponsored Tile."
+select_expression = """
+      COALESCE(COUNTIF(
+          event.category = 'top_sites'
+          AND event.name = 'contile_click'
+      ),0)
+"""
+data_source = "events" 
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+[metrics.spoc_tiles_disable_rate]
+select_expression = """   
+  COALESCE(MAX(
+    CAST(
+       metrics.boolean.customize_home_contile AS int )
+  ),0)
+"""
+data_source = "metrics" 
+bigger_is_better = false
+friendly_name = "Sponsored Tiles Disable Rate"
+description = "Fraction of users who disable Contile Sponsored Tiles"
+[metrics.spoc_tiles_disable_rate.statistics.binomial]
