@@ -143,24 +143,30 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
       </div>
 
       <Alert variant="primary" className="mb-4">
-        <span role="img" aria-label="book emoji">
-          📖
-        </span>{" "}
-        Not sure where to start? Check out the{" "}
-        <LinkExternal href="https://experimenter.info">
-          Experimenter documentation hub
-        </LinkExternal>
-        .
+        <div>
+          <span role="img" aria-label="book emoji">
+            📖
+          </span>{" "}
+          Not sure where to start? Check out the{" "}
+          <LinkExternal href="https://experimenter.info">
+            Experimenter documentation hub.
+          </LinkExternal>
+        </div>
+        <div>
+          <span role="img" aria-label="magnifying emoji">
+            🔍
+          </span>{" "}
+          Looking for the old Experimenter?{" "}
+          <LinkExternal href="/legacy">It&lsquo;s still here!</LinkExternal>
+          <span role="img" aria-label="magnifying emoji">
+            💡
+          </span>{" "}
+          Have feedback?{" "}
+          <LinkExternal href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&amp;issuetype=10097">
+            Please file it here!
+          </LinkExternal>
+        </div>
       </Alert>
-
-      <Alert variant="warning" className="mb-4">
-        <span role="img" aria-label="magnifying emoji">
-          🔍
-        </span>{" "}
-        Looking for the old Experimenter?{" "}
-        <LinkExternal href="/legacy">It&lsquo;s still here!</LinkExternal>
-      </Alert>
-
       <Body />
     </AppLayout>
   );
