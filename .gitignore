@@ -98,6 +98,9 @@ node_modules
 
 google-credentials.json
 
+# Jetstream config
+!app/experimenter/outcomes/jetstream-config/outcomes
+
 # Versioning assets generated on build
 **/commit-description.txt
 **/commit-summary.txt

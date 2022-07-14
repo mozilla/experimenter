@@ -1,3 +1,0 @@
-# temporary configuration to analyse experiment with continuos enrollment; todo: delete with [skip ci]
-[experiment]
-enrollment_period = 1
