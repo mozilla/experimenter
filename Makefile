@@ -69,6 +69,7 @@ jetstream_config:
 	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip $(JETSTREAM_CONFIG_URL)
 	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/jetstream-config.zip
 	rm -Rf app/experimenter/outcomes/jetstream-config-main/.scripts/
+	find app/experimenter/outcomes/jetstream-config-main/* | grep -v "jetstream-config-main/outcomes" | xargs rm -Rf
 
 feature_manifests:
 	curl -LJ --create-dirs -o app/experimenter/features/manifests/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
