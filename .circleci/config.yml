@@ -147,13 +147,14 @@ jobs:
       - run:
           name: Check for Firefox Update
           command: |
+            set +e
             docker pull ${DOCKERHUB_REPO}:nimbus-firefox-beta
             docker run -d --name firefox-beta ${DOCKERHUB_REPO}:nimbus-firefox-beta
             docker_id=$(docker ps -aqf "name=^firefox-beta")
             docker cp $docker_id:/old_versions.txt /home/circleci/experimenter/old_versions.txt
             results=$(sudo ./.circleci/get_firefox_versions.sh)
-            diff /home/circleci/experimenter/new_versions.txt /home/circleci/experimenter/old_versions.txt
-            if [ $? -eq 0 ]; then
+            DIFF=$(diff /home/circleci/experimenter/new_versions.txt /home/circleci/experimenter/old_versions.txt)
+            if [ ! "$DIFF" ]; then
                 echo "No Firefox Version Changes found!"
                 circleci-agent step halt
             fi
@@ -177,13 +178,13 @@ jobs:
             BUILD_ARGS="--build-arg FIREFOX_VERSION=latest" VERSION="firefox" BUILD_DATE="release" make standalone_firefox
             BUILD_ARGS="--build-arg FIREFOX_VERSION=devedition-latest" VERSION="firefox" BUILD_DATE="beta" make standalone_firefox
             # Save release
-            docker run -d --name firefox-release selenium/standalone-firefox:firefox-release
-            docker_id=$(docker ps -aqf "name=^firefox-release")
+            docker run -d --name firefox-release-build selenium/standalone-firefox:firefox-release
+            docker_id=$(docker ps -aqf "name=^firefox-release-build")
             docker cp /home/circleci/experimenter/old_versions.txt $docker_id:/old_versions.txt
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-firefox-release
             # Save Dev
-            docker run -d --name firefox-beta selenium/standalone-firefox:firefox-beta
-            docker_id=$(docker ps -aqf "name=^firefox-beta")
+            docker run -d --name firefox-beta-build selenium/standalone-firefox:firefox-beta
+            docker_id=$(docker ps -aqf "name=^firefox-beta-build")
             docker cp /home/circleci/experimenter/old_versions.txt $docker_id:/old_versions.txt
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-firefox-beta
             docker login -u $DOCKER_USER -p $DOCKER_PASS
