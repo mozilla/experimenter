@@ -164,17 +164,11 @@ export const FormAudience = ({
   );
 
   const TargetingOnChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(ev.target.value);
-    console.log(ev.target);
-    console.log(targetingConfigSlugOptions);
-    const localSticky = targetingConfigSlugOptions.find(
+    const checkStickyRequired = targetingConfigSlugOptions.find(
       (config) => config.value === ev.target.value,
     );
-    console.log(localSticky);
-    console.log(localSticky?.stickyRequired);
-    const r = localSticky?.stickyRequired;
-    setIsSticky(r || false);
-    if (r === true) {
+    setIsSticky(checkStickyRequired?.stickyRequired || false);
+    if (checkStickyRequired?.stickyRequired === true) {
       setStickyRequiredWarning(true);
     } else {
       setStickyRequiredWarning(false);
