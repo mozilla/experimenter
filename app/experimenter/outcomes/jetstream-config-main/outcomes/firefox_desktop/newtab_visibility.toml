@@ -1,0 +1,58 @@
+friendly_name = "New Tab visibility"
+description = """
+    Measures if New Tab is enabled for new tabs and new windows.
+    If these measures decline, users are taking some action that disables New Tab.
+"""
+
+[metrics.new_tab_enabled_on_new_tabs]
+friendly_name = "New Tab enabled on new tabs"
+description = "Whether New Tab is enabled for new tabs in existing windows."
+select_expression = """
+    ARRAY_AGG(
+        mozfun.map.get_key(environment.settings.user_prefs, "browser.newtabpage.enabled") IS NULL
+        ORDER BY submission_timestamp DESC
+        LIMIT 1
+    )[SAFE_OFFSET(0)]
+"""
+data_source = "main"
+statistics = { binomial = { pre_treatments = ["remove_nulls"] } }
+
+[metrics.new_tab_enabled_in_new_windows]
+friendly_name = "New Tab enabled in new windows"
+description = "Whether New Tab is displayed upon opening a new window"
+select_expression = """
+    ARRAY_AGG(
+        COALESCE(mozfun.map.get_key(environment.settings.user_prefs, "browser.startup.page") != "0", TRUE)
+            AND (mozfun.map.get_key(environment.settings.user_prefs, "browser.startup.homepage") IS NULL)
+        ORDER BY submission_timestamp DESC
+        LIMIT 1
+    )[SAFE_OFFSET(0)]
+"""
+data_source = "main"
+statistics = { binomial = { pre_treatments = ["remove_nulls"] } }
+
+[metrics.saw_newtab]
+friendly_name = "Ever saw New Tab"
+description = "The fraction of users that saw New Tab during an analysis window"
+select_expression = "COUNT(document_id) > 0"
+data_source = "as_sessions"
+statistics = { binomial = {} }
+
+[metrics.newtab_sessions]
+friendly_name = "Count of New Tab sessions"
+description = "How often users saw New Tab during an analysis window"
+select_expression = "COUNT(document_id)"
+data_source = "as_sessions"
+
+[metrics.newtab_sessions.statistics]
+bootstrap_mean = {}
+deciles = {}
+
+[data_sources.as_sessions]
+from_expression = """(
+    SELECT
+        *,
+        DATE(submission_timestamp) AS submission_date
+    FROM mozdata.activity_stream.sessions
+    )"""
+experiments_column_type = "native"

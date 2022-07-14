@@ -1,0 +1,27 @@
+friendly_name = "Pocket metrics"
+description = "Metrics that describe Pocket usage"
+
+[metrics.pocket_story_impressions]
+friendly_name = "Pocket Impressions"
+description = "Number of times Pocket recommended stories are shown on the home screen."
+select_expression = """
+      COALESCE(COUNTIF(
+          event.category = 'pocket'
+          AND event.name = 'home_recs_shown'
+      ),0)
+"""
+data_source = "events"  
+statistics = { bootstrap_mean = {}, deciles = {} } 
+
+
+[metrics.pocket_story_clicks]
+friendly_name = "Pocket Story Clicks"
+description = "Number of times user tapped a Pocket recommended story to be opened."
+select_expression = """
+      COALESCE(COUNTIF(
+          event.category = 'pocket'
+          AND event.name = 'home_recs_story_clicked'
+      ),0)
+"""
+data_source = "events" 
+statistics = { bootstrap_mean = {}, deciles = {} }

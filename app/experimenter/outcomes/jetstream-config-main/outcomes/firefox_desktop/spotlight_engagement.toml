@@ -1,0 +1,40 @@
+friendly_name = "Spotlight Engagement - not experiment specific"
+description = "Usage and engagement metrics for the Spotlight feature - for ALL engagement with Spotlight feature, not experiment specific "
+
+[metrics.spotlight_impressions]
+friendly_name = "Spotlight Impressions"
+description = "How often users saw Spotlight during an analysis window"
+select_expression = "COUNTIF(event = 'IMPRESSION')"
+data_source = "spotlight"
+statistics = { bootstrap_mean = {} }
+
+[metrics.spotlight_clicks]
+friendly_name = "Spotlight Clicks"
+description = "How often users clicked Spotlight during an analysis window"
+select_expression = "COUNTIF(event = 'CLICK')"
+data_source = "spotlight"
+statistics = { bootstrap_mean = {} }
+
+[metrics.spotlight_dismisses]
+friendly_name = "Spotlight Dismisses"
+description = "How often users dismissed Spotlight during an analysis window"
+select_expression = "COUNTIF(event = 'DISMISS')"
+data_source = "spotlight"
+statistics = { bootstrap_mean = {} }
+
+[data_sources.spotlight]
+from_expression = """
+(SELECT
+    client_id,
+    event,
+    experiments,
+    DATE(submission_timestamp) AS submission_date
+FROM
+    mozdata.messaging_system.spotlight
+CROSS JOIN
+    UNNEST(experiments) AS experiment
+WHERE
+    message_id = CONCAT(experiment.key, ':', experiment.value.branch)
+)
+"""
+experiments_column_type = "native"

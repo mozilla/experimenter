@@ -82,16 +82,16 @@ fetch_external_resources: jetstream_config feature_manifests
 update_kinto:
 	docker pull mozilla/kinto-dist:latest
 
-build_dev: fetch_external_resources ssl
+build_dev: ssl
 	DOCKER_BUILDKIT=1 docker build --target dev -f app/Dockerfile -t app:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
-build_test: fetch_external_resources ssl
+build_test: ssl
 	DOCKER_BUILDKIT=1 docker build --target test -f app/Dockerfile -t app:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
-build_ui: fetch_external_resources ssl
+build_ui: ssl
 	DOCKER_BUILDKIT=1 docker build --target ui -f app/Dockerfile -t app:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
-build_prod: build_ui fetch_external_resources ssl
+build_prod: build_ui ssl
 	DOCKER_BUILDKIT=1 docker build --target deploy -f app/Dockerfile -t app:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
 
 compose_stop:
