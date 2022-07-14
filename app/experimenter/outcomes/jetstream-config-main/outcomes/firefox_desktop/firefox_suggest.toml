@@ -1,0 +1,10 @@
+friendly_name = "Firefox Suggest"
+description = "Usage & engagement metrics and revenue proxies for Firefox Suggest."
+
+[metrics.urlbar_search_count]
+select_expression = "SUM(CASE WHEN source in ('urlbar', 'urlbar-searchmode', 'urlbar-handoff') THEN COALESCE(sap, 0) ELSE 0 END)"
+data_source = "search_clients_engines_sources_daily"
+description = "Number of searches performed in the urlbar, including search mode and handoff"
+friendly_name = "urlbar searches"
+exposure_basis = ["exposures", "enrollments"]
+statistics = { deciles = {}, bootstrap_mean = {} }

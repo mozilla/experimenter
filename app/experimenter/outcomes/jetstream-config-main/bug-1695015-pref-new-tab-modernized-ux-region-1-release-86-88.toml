@@ -1,0 +1,169 @@
+[experiment]
+
+segments = ["attributed", "non_attributed"]
+
+enrollment_period = 7
+end_date = "2021-05-07"
+
+reference_branch = "newtab-control"
+
+## data sources
+
+[data_sources]
+
+## data source: AS session pings data
+[data_sources.as_session_ping]
+from_expression = "(SELECT client_id, user_prefs, experiments, date(submission_timestamp) as submission_date FROM  `moz-fx-data-shared-prod.activity_stream.sessions`)"
+experiments_column_type = "native"
+
+## Segments
+
+[segments]
+
+[segments.attributed]
+select_expression = 'max(attr_source is not null)'
+data_source = "npp"
+
+[segments.non_attributed]
+select_expression = 'max(attr_source is null)'
+data_source = "npp"
+
+[segments.data_sources.npp]
+from_expression = """
+    (SELECT
+        DATE(submission_timestamp) AS submission_date,
+        client_id,
+        environment.settings.attribution.source AS attr_source
+    FROM `moz-fx-data-shared-prod.telemetry.new_profile`
+    WHERE environment.partner.distribution_id IS NULL
+    AND coalesce(environment.settings.attribution.ua, '') != 'firefox'
+    )
+    """
+window_start = -2
+window_end = 0
+
+
+## metrics
+
+[metrics]
+overall = ['days_of_use', 'search_count', 'organic_search_count', 'unenroll',
+           'pocket_rec_clicks', 'pocket_spoc_clicks', 'homepage_search_count',
+           'topsite_clicks', 'highlight_clicks', 'homepage_switch',
+           'turned_off_search', 'turned_off_topsites', 'turned_off_pocket',
+           'turned_off_highlights']
+
+weekly = ['days_of_use', 'search_count', 'organic_search_count', 'unenroll',
+           'pocket_rec_clicks', 'pocket_spoc_clicks', 'homepage_search_count',
+           'topsite_clicks', 'highlight_clicks', 'homepage_switch',
+           'turned_off_search', 'turned_off_topsites', 'turned_off_pocket',
+           'turned_off_highlights']
+
+
+[metrics.pocket_rec_clicks.statistics.bootstrap_mean]
+
+[metrics.pocket_spoc_clicks.statistics.bootstrap_mean]
+
+[metrics.unenroll.statistics.binomial]
+
+
+
+## homepage_search_count
+
+[metrics.homepage_search_count]
+select_expression = "SUM(CASE WHEN source IN ('newtab','abouthome') THEN sap ELSE 0 END)"
+data_source = 'search_clients_daily'
+
+[metrics.homepage_search_count.statistics.bootstrap_mean]
+
+
+## topsite_clicks
+
+[metrics.topsite_clicks]
+select_expression = """COUNTIF(
+                event = 'CLICK'
+                AND source = 'TOP_SITES')"""
+data_source = 'activity_stream_events'
+
+[metrics.topsite_clicks.statistics.bootstrap_mean]
+
+
+## highlight_clicks
+
+[metrics.highlight_clicks]
+select_expression = """COUNTIF(
+                event = 'CLICK'
+                AND source = 'HIGHLIGHTS')"""
+data_source = 'activity_stream_events'
+
+[metrics.highlight_clicks.statistics.bootstrap_mean]
+
+
+## homepage_switch
+    # NOTE: this metric doesn't take into account users setting their page to
+    # blank. Only when users have set the page to a 3rd party!
+
+[metrics.homepage_switch]
+select_expression = """COALESCE(MAX(
+                CASE WHEN event = 'PAGE_TAKEOVER_DATA'
+                THEN true ELSE false END), false)"""
+data_source = 'activity_stream_events'
+bigger_is_better = false
+
+[metrics.homepage_switch.statistics.binomial]
+
+## newtab_switch
+[metrics.newtab_switch]
+select_expression = """LOGICAL_OR(
+                        COALESCE(NOT CAST(`mozdata.udf.get_key`(environment.settings.user_prefs,
+                            'browser.newtabpage.enabled') AS BOOL), false))"""
+data_source = 'main'
+bigger_is_better = false
+
+[metrics.newtab_switch.statistics.binomial]
+
+## turned_off_search
+    # NOTE: true here means we know they turned it off
+    # any other value can mean they didn't, or we don't know
+[metrics.turned_off_search]
+select_expression = """COALESCE(MAX(
+                user_prefs & 1 = 0), false)"""
+data_source = 'as_session_ping'
+bigger_is_better = false
+
+[metrics.turned_off_search.statistics.binomial]
+
+
+## turned_off_topsites
+    # NOTE: true here means we know they turned it off
+    # any other value can mean they didn't, or we don't know
+[metrics.turned_off_topsites]
+select_expression = """COALESCE(MAX(
+                user_prefs & 2 = 0), false)"""
+data_source = 'as_session_ping'
+bigger_is_better = false
+
+[metrics.turned_off_topsites.statistics.binomial]
+
+
+## turned_off_pocket
+    # NOTE: true here means we know they turned it off
+    # any other value can mean they didn't, or we don't know
+[metrics.turned_off_pocket]
+select_expression = """COALESCE(MAX(
+                user_prefs & 4 = 0), false)"""
+data_source = 'as_session_ping'
+bigger_is_better = false
+
+[metrics.turned_off_pocket.statistics.binomial]
+
+
+## turned_off_highlights
+    # NOTE: true here means we know they turned it off
+    # any other value can mean they didn't, or we don't know
+[metrics.turned_off_highlights]
+select_expression = """COALESCE(MAX(
+                user_prefs & 8 = 0), false)"""
+data_source = 'as_session_ping'
+bigger_is_better = false
+
+[metrics.turned_off_highlights.statistics.binomial]

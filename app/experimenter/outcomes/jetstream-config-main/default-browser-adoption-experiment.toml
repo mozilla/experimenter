@@ -1,0 +1,95 @@
+ # Nightly preview experiment for default browser adoption
+
+[metrics]
+weekly = ["mozilla_default_browser", "default_browser_action", "exposure_browser_menu", "click_browser_menu", "exposure_settings_menu", "click_settings_menu", "exposure_new_tab", "click_new_tab", "dismiss_new_tab"]
+overall = ["mozilla_default_browser", "default_browser_action", "exposure_browser_menu", "click_browser_menu", "exposure_settings_menu", "click_settings_menu", "exposure_new_tab", "click_new_tab", "dismiss_new_tab"]
+
+[metrics.mozilla_default_browser]
+friendly_name = "Has a Mozilla default browser"
+description = """
+    Fraction of users we observed during this analysis window who have a Mozilla default browser.
+    The weekly view of this metric will tend to creep up over time and diverge from the overall view
+    because we exclude users that we didn't observe at all, and users that do not have a Mozilla
+    browser set as their default are more likely to churn.
+"""
+select_expression = """
+    ARRAY_AGG(
+        -- Limit the metric to clients who have actually been active during the analysis window.
+        -- Otherwise, it's not clear what our denominator is.
+        IF(metrics.counter.glean_validation_foreground_count > 0, metrics.string.metrics_default_moz_browser IS NOT NULL, NULL)
+        IGNORE NULLS
+        ORDER BY submission_timestamp DESC
+        LIMIT 1
+    )[SAFE_OFFSET(0)]
+"""
+data_source = "metrics"
+statistics = { binomial = { pre_treatments = ["remove_nulls"] } }
+
+[metrics.default_browser_action]
+friendly_name = "Clicked to set Firefox as default"
+description = """
+    Fraction of users who clicked on a UI element to set Firefox as default
+    during the analysis window.
+    This only opens a system UI that allows users to change their default browser,
+    so not all of these clients will actually change their default browser.
+"""
+select_expression = "COUNTIF(event.name = 'default_browser_changed') > 0"
+data_source = "events"
+statistics = { binomial = {} }
+
+[metrics.exposure_browser_menu]
+friendly_name = "Saw browser menu"
+description = """Fraction of users who opened the browser menu from the toolbar."""
+select_expression = "COUNTIF(event.name = 'toolbar_menu_visible') > 0"
+data_source = "events"
+statistics = { binomial = {} }
+
+[metrics.click_browser_menu]
+friendly_name = "Selected set-default from browser menu"
+description = """Fraction of users selecting "set as default" from the browser menu."""
+select_expression = "COUNTIF(event.category = 'experiments_default_browser' AND event.name = 'toolbar_menu_clicked') > 0"
+data_source = "events"
+statistics = { binomial = {} }
+
+[metrics.exposure_settings_menu]
+friendly_name = "Saw settings menu"
+description = """Fraction of users that viewed the settings menu."""
+select_expression = """
+    COUNTIF(
+        (event.name = "browser_menu_action" AND mozfun.map.get_key(event.extra, "item") = 'settings') OR
+        (event.category = "home_menu" AND event.name = "settings_item_clicked")
+    ) > 0"""
+data_source = "events"
+statistics = { binomial = {} }
+
+[metrics.click_settings_menu]
+friendly_name = "Selected set-default banner on settings menu"
+description = """Fraction of users selecting "set as default" from the settings menu banner (not the normal settings menu!)."""
+select_expression = "COUNTIF(event.category = 'set_default_setting_experiment' AND event.name = 'set_default_browser_clicked') > 0"
+data_source = "events"
+statistics = { binomial = {} }
+
+# We actually don't have a good signal for this one!
+[metrics.exposure_new_tab]
+friendly_name = "Opened new tab three times"
+description = """
+    Fraction of users opening the new tab page at least three times during this analysis window.
+    This metric is only interpretable for week 0 and the overall results.
+"""
+select_expression = "COUNTIF(event.category = 'home_screen' AND event.name = 'home_screen_displayed') >= 3"
+data_source = "events"
+statistics = { binomial = {} }
+
+[metrics.click_new_tab]
+friendly_name = "Selected set-default banner on new tab page"
+description = """Fraction of users selecting "set as default" from the new-tab banner."""
+select_expression = "COUNTIF(event.category = 'set_default_newtab_experiment' AND event.name = 'set_default_browser_clicked') > 0"
+data_source = "events"
+statistics = { binomial = {} }
+
+[metrics.dismiss_new_tab]
+friendly_name = "Dismissed set-default banner on new tab page"
+description = """Fraction of users dismissing "set as default" banner on the new-tab page."""
+select_expression = "COUNTIF(event.category = 'set_default_newtab_experiment' AND event.name = 'close_experiment_card_clicked') > 0"
+data_source = "events"
+statistics = { binomial = {} }

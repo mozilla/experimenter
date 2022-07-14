@@ -1,0 +1,17 @@
+[metrics]
+weekly = ["geolocation_accuracy_difference", "country"]
+overall = ["geolocation_accuracy_difference", "country"]
+
+
+[metrics.geolocation_accuracy_difference]
+select_expression = "{{agg_histogram_mean('payload.histograms.geolocation_accuracy_exponential')}}"
+data_source = "main"
+[metrics.geolocation_accuracy_difference.statistics.bootstrap_mean]
+pre_treatments = ["remove_nulls"]
+[metrics.geolocation_accuracy_difference.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.country]
+select_expression = "mozfun.stats.mode_last(ARRAY_AGG(country))"
+data_source = "clients_daily"
+[metrics.country.statistics.count]

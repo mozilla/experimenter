@@ -1,0 +1,670 @@
+[experiment]
+
+segments = [
+    'low_cpu', 'high_cpu',
+    'mem_lte_2GB', 'mem_gt_2GB_lte_4GB', 'mem_gt_6GB_lte_8GB', 'high_mem',
+]
+
+end_date = "2021-11-30"
+
+## Data Sources
+
+[data_sources]
+
+## main: removing session corresponding to enrollment
+[data_sources.main_cleaned]
+from_expression = """ (
+  SELECT
+    *,
+    DATE(submission_timestamp) AS submission_date,
+    environment.experiments
+  FROM
+    `moz-fx-data-shared-prod`.telemetry.main
+  WHERE
+    DATE(submission_timestamp) >= '2021-10-05'
+    AND normalized_channel in ('beta')
+    AND payload.info.session_id not in (
+        SELECT
+          session_id
+        FROM
+          `moz-fx-data-shared-prod.telemetry.events`
+        WHERE
+          event_category = 'normandy'
+          AND event_method = 'enroll'
+          AND submission_date >= '2021-10-05'
+          AND event_string_value = 'bug-1731908-pref-fission-beta-94-95-experiment-beta-94-95')
+          )
+"""
+experiments_column_type = "native"
+
+
+## crash: removing session corresponding to enrollment
+[data_sources.crash_cleaned]
+from_expression = """
+(
+  SELECT
+    cr.*,
+    experiments,
+    sum_active_s
+  FROM
+    (SELECT
+        DATE(submission_timestamp) AS submission_date,
+        client_id,
+        COALESCE(SUM(IF(payload.metadata.moz_crash_reason LIKE 'MOZ_CRASH%', 1, 0)), 0) AS sum_shutdown_hangs,
+        COALESCE(SUM(IF(payload.process_type = 'main' OR payload.process_type IS NULL, 1, 0)), 0) AS sum_main_crashes,
+        COALESCE(SUM(IF(payload.metadata.oom_allocation_size IS NOT NULL, 1, 0)), 0) AS sum_oom_allocation_size,
+        COALESCE(SUM(IF(REGEXP_CONTAINS(payload.process_type, 'content')
+            AND NOT REGEXP_CONTAINS(COALESCE(payload.metadata.ipc_channel_error, ''), 'ShutDownKill'), 1,0)), 0) AS sum_content_crashes,
+    FROM `moz-fx-data-shared-prod.telemetry_stable.crash_v4`
+    WHERE DATE(submission_timestamp) >= '2021-10-05'
+        AND normalized_channel in ('beta')
+        AND payload.session_id not in (
+            SELECT
+            session_id
+            FROM
+            `moz-fx-data-shared-prod.telemetry.events`
+            WHERE
+            event_category = 'normandy'
+            AND event_method = 'enroll'
+            AND submission_date >= '2021-10-05'
+            AND event_string_value = 'bug-1731908-pref-fission-beta-94-95-experiment-beta-94-95'
+        )
+    GROUP BY
+        1, 2,
+        client_id
+    ) cr
+    INNER JOIN  (
+        SELECT
+            DATE(submission_timestamp) AS submission_date,
+            client_id,
+            ANY_VALUE(environment.experiments) AS experiments,
+        SUM((COALESCE(payload.processes.parent.scalars.browser_engagement_active_ticks, 0)*5) / 3600) AS sum_active_s,
+        FROM `moz-fx-data-shared-prod`.telemetry.main
+        WHERE DATE(submission_timestamp) >= '2021-10-05'
+            AND normalized_channel in ('beta')
+            AND payload.info.session_id not in (
+                SELECT
+                    session_id
+                FROM
+                    `moz-fx-data-shared-prod.telemetry.events` AS events
+                WHERE
+                    event_category = 'normandy'
+                    AND event_method = 'enroll'
+                    AND events.submission_date >= '2021-10-05'
+                    AND event_string_value = 'bug-1731908-pref-fission-beta-94-95-experiment-beta-94-95'
+            )
+        GROUP BY 1, 2
+    ) m
+    ON m.client_id = cr.client_id
+    AND m.submission_date = cr.submission_date
+)
+"""
+experiments_column_type = "native"
+
+
+## Metrics
+[metrics]
+
+overall = [
+    'perf_page_load_time_ms', 'time_to_first_interaction_ms',
+    'input_event_response_ms', 'input_event_response_ms_parent',
+    'perf_first_contentful_paint_ms',
+    'gpu_keypress_present_latency',
+    'fx_new_window_ms', 'fx_tab_switch_composite_e10s_ms',
+    'content_frame_time_vsync', 'child_process_launch_ms',
+    'checkerboard_severity', 'checkerboard_severity_count_per_hour',
+    'memory_total', 'memory_unique_content_startup',
+    'cycle_collector_max_pause', 'cycle_collector_max_pause_content',
+    'gc_max_pause_ms_2', 'gc_max_pause_ms_2_content',
+    'gc_ms', 'gc_ms_content',
+    'gc_slice_during_idle', 'gc_slice_during_idle_content',
+    'subsession_length', 'uri_cnt',
+    'active_hrs', 'max_concurrent_tab_count',
+    'tab_open_event_count', 'content_process_count',
+    'content_process_max', 'loaded_tab_count',
+    'main_crashes_per_hour', 'content_crashes_per_hour',
+    'oom_crashes_per_hour', 'shutdown_hangs_per_hour',
+]
+
+weekly = [
+    'perf_page_load_time_ms', 'time_to_first_interaction_ms',
+    'input_event_response_ms', 'input_event_response_ms_parent',
+    'perf_first_contentful_paint_ms',
+    'gpu_keypress_present_latency',
+    'fx_new_window_ms', 'fx_tab_switch_composite_e10s_ms',
+    'content_frame_time_vsync', 'child_process_launch_ms',
+    'checkerboard_severity', 'checkerboard_severity_count_per_hour',
+    'memory_total', 'memory_unique_content_startup',
+    'cycle_collector_max_pause', 'cycle_collector_max_pause_content',
+    'gc_max_pause_ms_2', 'gc_max_pause_ms_2_content',
+    'gc_ms', 'gc_ms_content',
+    'gc_slice_during_idle', 'gc_slice_during_idle_content',
+    'subsession_length', 'uri_cnt',
+    'active_hrs', 'max_concurrent_tab_count',
+    'tab_open_event_count', 'content_process_count',
+    'content_process_max', 'loaded_tab_count',
+    'main_crashes_per_hour', 'content_crashes_per_hour',
+    'oom_crashes_per_hour', 'shutdown_hangs_per_hour',
+]
+
+daily = [
+]
+
+
+## Performance
+    [metrics.perf_page_load_time_ms]
+    select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.perf_page_load_time_ms")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.perf_page_load_time_ms.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.perf_page_load_time_ms.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.perf_page_load_time_ms.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.time_to_first_interaction_ms]
+    select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.time_to_first_interaction_ms")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.time_to_first_interaction_ms.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.time_to_first_interaction_ms.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.time_to_first_interaction_ms.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.input_event_response_ms]
+    select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.input_event_response_ms")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.input_event_response_ms.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.input_event_response_ms.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.input_event_response_ms.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.input_event_response_ms_parent]
+    select_expression = '{{agg_histogram_mean("payload.histograms.input_event_response_ms")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.input_event_response_ms_parent.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.input_event_response_ms_parent.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.input_event_response_ms_parent.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.perf_first_contentful_paint_ms]
+    select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.perf_first_contentful_paint_ms")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.perf_first_contentful_paint_ms.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.perf_first_contentful_paint_ms.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.perf_first_contentful_paint_ms.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+
+    [metrics.gpu_keypress_present_latency]
+    select_expression = '{{agg_histogram_mean("payload.processes.gpu.histograms.keypress_present_latency")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.gpu_keypress_present_latency.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.gpu_keypress_present_latency.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.gpu_keypress_present_latency.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+
+    [metrics.fx_new_window_ms]
+    select_expression = '{{agg_histogram_mean("payload.histograms.fx_new_window_ms")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.fx_new_window_ms.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.fx_new_window_ms.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.fx_new_window_ms.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.fx_tab_switch_composite_e10s_ms]
+    select_expression = '{{agg_histogram_mean("payload.histograms.fx_tab_switch_composite_e10s_ms")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.fx_tab_switch_composite_e10s_ms.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.fx_tab_switch_composite_e10s_ms.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.fx_tab_switch_composite_e10s_ms.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+   [metrics.content_frame_time_vsync]
+    select_expression = '{{agg_histogram_mean("payload.histograms.content_frame_time_vsync")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.content_frame_time_vsync.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.content_frame_time_vsync.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.content_frame_time_vsync.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+   [metrics.child_process_launch_ms]
+    select_expression = '{{agg_histogram_mean("payload.histograms.child_process_launch_ms")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.child_process_launch_ms.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.child_process_launch_ms.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.child_process_launch_ms.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+   [metrics.checkerboard_severity]
+    select_expression = '{{agg_histogram_mean("payload.processes.gpu.histograms.checkerboard_severity")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.checkerboard_severity.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.checkerboard_severity.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.checkerboard_severity.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+   [metrics.checkerboard_severity_count_per_hour]
+    select_expression = """COALESCE(SAFE_DIVIDE(
+                                SUM(COALESCE((SELECT SUM(value) FROM UNNEST(mozfun.hist.extract(payload.processes.gpu.histograms.checkerboard_severity).values)), 0)),
+                                SUM(COALESCE(payload.processes.parent.scalars.browser_engagement_active_ticks, 0))*5/3600
+                                ), 0)
+                                """
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.checkerboard_severity_count_per_hour.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.checkerboard_severity_count_per_hour.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.checkerboard_severity_count_per_hour.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+## Memory
+    [metrics.memory_total]
+    select_expression = '{{agg_histogram_mean("payload.histograms.memory_total")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.memory_total.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.memory_total.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.memory_total.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.memory_unique_content_startup]
+    select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.memory_unique_content_startup")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.memory_unique_content_startup.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.memory_unique_content_startup.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.memory_unique_content_startup.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.cycle_collector_max_pause]
+    select_expression = '{{agg_histogram_mean("payload.histograms.cycle_collector_max_pause")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.cycle_collector_max_pause.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.cycle_collector_max_pause.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.cycle_collector_max_pause.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.cycle_collector_max_pause_content]
+    select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.cycle_collector_max_pause")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.cycle_collector_max_pause_content.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.cycle_collector_max_pause_content.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.cycle_collector_max_pause_content.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+   [metrics.gc_max_pause_ms_2]
+    select_expression = '{{agg_histogram_mean("payload.histograms.gc_max_pause_ms_2")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.gc_max_pause_ms_2.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.gc_max_pause_ms_2.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.gc_max_pause_ms_2.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+   [metrics.gc_max_pause_ms_2_content]
+    select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.cycle_collector_max_pause")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.gc_max_pause_ms_2_content.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.gc_max_pause_ms_2_content.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.gc_max_pause_ms_2_content.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+   [metrics.gc_ms]
+    select_expression = '{{agg_histogram_mean("payload.histograms.gc_ms")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.gc_ms.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.gc_ms.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.gc_ms.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.gc_ms_content]
+    select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.gc_ms")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.gc_ms_content.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.gc_ms_content.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.gc_ms_content.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.gc_slice_during_idle]
+    select_expression = '{{agg_histogram_mean("payload.histograms.gc_slice_during_idle")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.gc_slice_during_idle.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.gc_slice_during_idle.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.gc_slice_during_idle.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+    [metrics.gc_slice_during_idle_content]
+    select_expression = '{{agg_histogram_mean("payload.processes.content.histograms.gc_slice_during_idle")}}'
+    data_source = 'main_cleaned'
+    bigger_is_better = false
+
+        [metrics.gc_slice_during_idle_content.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.gc_slice_during_idle_content.statistics.kernel_density_estimate]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+        [metrics.gc_slice_during_idle_content.statistics.empirical_cdf]
+        pre_treatments = ["remove_nulls"]
+        log_space = true
+
+## Engagement
+    [metrics.subsession_length]
+    select_expression = 'SUM(COALESCE(payload.info.subsession_length, 0)/3600)'
+    data_source = 'main_cleaned'
+        [metrics.subsession_length.statistics.bootstrap_mean]
+        [metrics.subsession_length.statistics.deciles]
+
+    [metrics.active_hrs]
+    select_expression = 'SUM(COALESCE(payload.processes.parent.scalars.browser_engagement_active_ticks, 0)*5/3600)'
+    data_source = 'main_cleaned'
+        [metrics.active_hrs.statistics.bootstrap_mean]
+        [metrics.active_hrs.statistics.deciles]
+
+    [metrics.uri_cnt]
+    select_expression = 'SUM(COALESCE(payload.processes.parent.scalars.browser_engagement_total_uri_count, 0))'
+    data_source = 'main_cleaned'
+        [metrics.uri_cnt.statistics.bootstrap_mean]
+        [metrics.uri_cnt.statistics.deciles]
+
+    [metrics.max_concurrent_tab_count]
+    select_expression = 'AVG(COALESCE(payload.processes.parent.scalars.browser_engagement_max_concurrent_tab_count, 0))'
+    data_source = 'main_cleaned'
+        [metrics.max_concurrent_tab_count.statistics.bootstrap_mean]
+        [metrics.max_concurrent_tab_count.statistics.deciles]
+
+    [metrics.tab_open_event_count]
+    select_expression = 'SUM(COALESCE(payload.processes.parent.scalars.browser_engagement_tab_open_event_count, 0))'
+    data_source = 'main_cleaned'
+        [metrics.tab_open_event_count.statistics.bootstrap_mean]
+        [metrics.tab_open_event_count.statistics.deciles]
+
+   [metrics.content_process_count]
+    select_expression = '{{agg_histogram_mean("payload.histograms.content_process_count")}}'
+    data_source = 'main_cleaned'
+        [metrics.content_process_count.statistics.bootstrap_mean]
+        [metrics.content_process_count.statistics.deciles]
+
+   [metrics.content_process_max]
+    select_expression = 'MAX(COALESCE(`moz-fx-data-shared-prod`.udf.histogram_max_key_with_nonzero_value(payload.histograms.content_process_max), 0))'
+    data_source = 'main_cleaned'
+        [metrics.content_process_max.statistics.bootstrap_mean]
+        [metrics.content_process_max.statistics.deciles]
+
+   [metrics.loaded_tab_count]
+    select_expression = '{{agg_histogram_mean("payload.histograms.loaded_tab_count")}}'
+    data_source = 'main_cleaned'
+        [metrics.loaded_tab_count.statistics.bootstrap_mean]
+        [metrics.loaded_tab_count.statistics.deciles]
+
+## Crashes
+    [metrics.main_crashes_per_hour]
+    select_expression = """
+        COALESCE(SAFE_DIVIDE(
+            SUM(sum_main_crashes),
+            SUM(sum_active_s)
+          ), 0)
+        """
+    data_source = 'crash_cleaned'
+    bigger_is_better = false
+
+        [metrics.main_crashes_per_hour.statistics.bootstrap_mean]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.main_crashes_per_hour.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+
+    [metrics.content_crashes_per_hour]
+    select_expression = """
+        COALESCE(SAFE_DIVIDE(
+            SUM(sum_content_crashes),
+            SUM(sum_active_s)
+          ), 0)
+        """
+    data_source = 'crash_cleaned'
+    bigger_is_better = false
+
+        [metrics.content_crashes_per_hour.statistics.bootstrap_mean]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.content_crashes_per_hour.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+
+    [metrics.oom_crashes_per_hour]
+    select_expression = """
+        COALESCE(SAFE_DIVIDE(
+            SUM(sum_oom_allocation_size),
+            SUM(sum_active_s)
+          ), 0)
+        """
+    data_source = 'crash_cleaned'
+    bigger_is_better = false
+
+        [metrics.oom_crashes_per_hour.statistics.bootstrap_mean]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.oom_crashes_per_hour.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+
+    [metrics.shutdown_hangs_per_hour]
+    select_expression = """
+        COALESCE(SAFE_DIVIDE(
+            SUM(sum_shutdown_hangs),
+            SUM(sum_active_s)
+         ), 0)
+        """
+    data_source = 'crash_cleaned'
+    bigger_is_better = false
+
+        [metrics.shutdown_hangs_per_hour.statistics.bootstrap_mean]
+        pre_treatments = ["remove_nulls"]
+
+        [metrics.shutdown_hangs_per_hour.statistics.deciles]
+        pre_treatments = ["remove_nulls"]
+
+
+
+## Segments
+[segments]
+
+[segments.low_cpu]
+select_expression = 'COALESCE(MAX(cpu_count) BETWEEN 1 AND 2, FALSE)'
+data_source = "clients_last_seen"
+
+#[segments.med_cpu]
+#select_expression = 'COALESCE(MAX(cpu_count) BETWEEN 3 AND 5, FALSE)'
+#data_source = "clients_last_seen"
+
+[segments.high_cpu]
+select_expression = 'COALESCE(MAX(cpu_count) >= 6, FALSE)'
+data_source = "clients_last_seen"
+
+[segments.mem_lte_2GB]
+select_expression = 'COALESCE(MAX(memory_mb) BETWEEN 1 AND 2047, FALSE)'
+data_source = "clients_last_seen"
+
+[segments.mem_gt_2GB_lte_4GB]
+select_expression = 'COALESCE(MAX(memory_mb) BETWEEN 2048 AND 4095, FALSE)'
+data_source = "clients_last_seen"
+
+[segments.mem_gt_6GB_lte_8GB]
+select_expression = 'COALESCE(MAX(memory_mb) BETWEEN 6144 AND 8191, FALSE)'
+data_source = "clients_last_seen"
+
+#[segments.low_mem]
+#select_expression = 'COALESCE(MAX(memory_mb) BETWEEN 1 AND 4095, FALSE)'
+#data_source = "clients_last_seen"
+
+#[segments.med_mem]
+#select_expression = 'COALESCE(MAX(memory_mb) BETWEEN 4096 AND 8191, FALSE)'
+#data_source = "clients_last_seen"
+
+[segments.high_mem]
+select_expression = 'COALESCE(MAX(memory_mb) >= 8192, FALSE)'
+data_source = "clients_last_seen"

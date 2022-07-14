@@ -1,0 +1,28 @@
+# This is an example config file for providing custom metric and statistic configurations
+# when analysing the experiment with the Experimenter slug 'example_config'.
+
+
+[metrics]
+daily = ["retained", "unenroll"]
+weekly = ["retained", "active_hours", "uri_count", "ad_clicks", "search_count"]
+overall = ["active_hours", "uri_count", "ad_clicks", "search_count"]
+
+[metrics.unenroll.statistics.binomial]
+
+[metrics.active_hours.statistics.bootstrap_mean]
+[metrics.active_hours.statistics.deciles]
+
+[metrics.uri_count.statistics.bootstrap_mean]
+[metrics.uri_count.statistics.deciles]
+
+[metrics.ad_clicks.statistics.bootstrap_mean]
+[metrics.ad_clicks.statistics.deciles]
+
+[metrics.search_count.statistics.bootstrap_mean]
+[metrics.search_count.statistics.deciles]
+
+[metrics.retained]
+select_expression = "COALESCE(SUM(pings_aggregated_by_this_row), 0) > 0"
+data_source = "clients_daily"
+
+[metrics.retained.statistics.binomial]

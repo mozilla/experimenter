@@ -1,0 +1,20 @@
+[experiment]
+reference_branch = "control"
+
+[metrics]
+weekly = ["days_of_use", "search_count", "organic_search_count", "active_hours", "unenroll", "set_to_default_rate", "taskbar_pin_rate"]
+overall = ["days_of_use", "search_count", "organic_search_count", "active_hours", "unenroll", "set_to_default_rate", "taskbar_pin_rate"]
+
+[metrics.set_to_default_rate]
+select_expression = "COALESCE(LOGICAL_OR(is_default_browser), FALSE)"
+data_source = 'clients_daily'
+
+[metrics.set_to_default_rate.statistics.binomial]
+
+## Taskbar Pinning rate
+
+[metrics.taskbar_pin_rate]
+select_expression = "COALESCE(LOGICAL_OR(scalar_parent_os_environment_is_taskbar_pinned), FALSE)"
+data_source = 'clients_daily'
+
+[metrics.taskbar_pin_rate.statistics.binomial]

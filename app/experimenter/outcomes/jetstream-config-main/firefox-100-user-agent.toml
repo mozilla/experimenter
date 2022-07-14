@@ -1,0 +1,60 @@
+
+[experiment]
+
+enrollment_period = 7
+
+reference_branch = "version-default"
+
+[metrics]
+weekly = ["days_of_use", "search_count", "organic_search_count", "active_hours", "unenroll", "http_channel_disposition_parent_net_ok", "http_channel_disposition_content_net_ok", "http_response_status_code_parent_200", "http_channel_onstart_success", "page_load_error_parent_top", "page_load_error_content_top", "page_load_error_content_frame"]
+overall = ["days_of_use", "search_count", "organic_search_count", "active_hours", "unenroll", "http_channel_disposition_parent_net_ok", "http_channel_disposition_content_net_ok", "http_response_status_code_parent_200", "http_channel_onstart_success", "page_load_error_parent_top", "page_load_error_content_top", "page_load_error_content_frame"]
+
+[metrics.http_channel_disposition_parent_net_ok]
+select_expression = "COALESCE(SUM(mozfun.map.get_key(mozfun.hist.extract(payload.histograms.http_channel_disposition).values, 2) ), 0) + COALESCE(SUM(mozfun.map.get_key(mozfun.hist.extract(payload.histograms.http_channel_disposition).values, 10) ), 0)"
+data_source = "main"
+
+[metrics.http_channel_disposition_content_net_ok]
+select_expression = "COALESCE(SUM(mozfun.map.get_key(mozfun.hist.extract(payload.processes.content.histograms.http_channel_disposition).values, 2) ), 0) + COALESCE(SUM(mozfun.map.get_key(mozfun.hist.extract(payload.processes.content.histograms.http_channel_disposition).values, 10) ), 0)"
+data_source = "main"
+
+[metrics.http_response_status_code_parent_200]
+select_expression = "COALESCE(SUM(mozfun.map.get_key(mozfun.hist.extract(payload.histograms.http_response_status_code).values, 0) ), 0)"
+data_source = "main"
+
+[metrics.http_channel_onstart_success]
+select_expression = "COALESCE(SUM(mozfun.hist.extract(payload.histograms.http_channel_onstart_success).sum), 0)"
+data_source = "main"
+
+[metrics.page_load_error_parent_top]
+select_expression = "COALESCE(SUM(mozfun.hist.extract(mozfun.map.get_key(payload.keyed_histograms.page_load_error, 'top')).sum), 0)"
+data_source = "main"
+
+[metrics.page_load_error_content_top]
+select_expression = "COALESCE(SUM(mozfun.hist.extract(mozfun.map.get_key(payload.processes.content.keyed_histograms.page_load_error, 'top')).sum), 0)"
+data_source = "main"
+
+[metrics.page_load_error_content_frame]
+select_expression = "COALESCE(SUM(mozfun.hist.extract(mozfun.map.get_key(payload.processes.content.keyed_histograms.page_load_error, 'frame')).sum), 0)"
+data_source = "main"
+
+
+[metrics.http_channel_disposition_parent_net_ok.statistics.bootstrap_mean]
+[metrics.http_channel_disposition_parent_net_ok.statistics.deciles]
+
+[metrics.http_channel_disposition_content_net_ok.statistics.bootstrap_mean]
+[metrics.http_channel_disposition_content_net_ok.statistics.deciles]
+
+[metrics.http_response_status_code_parent_200.statistics.bootstrap_mean]
+[metrics.http_response_status_code_parent_200.statistics.deciles]
+
+[metrics.http_channel_onstart_success.statistics.bootstrap_mean]
+[metrics.http_channel_onstart_success.statistics.deciles]
+
+[metrics.page_load_error_parent_top.statistics.bootstrap_mean]
+[metrics.page_load_error_parent_top.statistics.deciles]
+
+[metrics.page_load_error_content_top.statistics.bootstrap_mean]
+[metrics.page_load_error_content_top.statistics.deciles]
+
+[metrics.page_load_error_content_frame.statistics.bootstrap_mean]
+[metrics.page_load_error_content_frame.statistics.deciles]

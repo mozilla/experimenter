@@ -1,0 +1,34 @@
+[metrics]
+daily = ["retained"]
+weekly = ["retained", "active_hours", "days_of_use"]
+overall = ["active_hours", "days_of_use"]
+
+[metrics.retained]
+select_expression = "COALESCE(COUNT(document_id), 0) > 0"
+data_source = "baseline"
+
+[metrics.retained.statistics]
+binomial = {}
+
+##
+
+[metrics.active_hours]
+select_expression = "COALESCE(SUM(metrics.timespan.glean_baseline_duration.value), 0) / 3600.0"
+data_source = "baseline"
+
+[metrics.active_hours.statistics]
+deciles = {}
+bootstrap_mean = {}
+
+##
+
+[metrics.days_of_use]
+friendly_name = "Days of use"
+description = "The number of days in an observation window that clients used the browser."
+select_expression = "COUNT(DISTINCT DATE(submission_timestamp))"
+data_source = "baseline"
+
+[metrics.days_of_use.statistics]
+deciles = {}
+bootstrap_mean = { drop_highest = 0 }
+empirical_cdf = {}

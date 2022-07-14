@@ -1,0 +1,285 @@
+[experiment]
+
+end_date = "2021-09-28"
+
+## Data Sources
+
+[data_sources]
+
+## main: removing session corresponding to enrollment
+[data_sources.main_cleaned]
+from_expression = """ (
+  SELECT
+    *,
+    DATE(submission_timestamp) AS submission_date,
+    environment.experiments
+  FROM
+    `moz-fx-data-shared-prod`.telemetry.main
+  WHERE
+    DATE(submission_timestamp) >= '2021-08-31'
+    AND normalized_channel in ('nightly')
+    AND payload.info.session_id not in (
+        SELECT
+          session_id
+        FROM
+          `moz-fx-data-shared-prod.telemetry.events`
+        WHERE
+          event_category = 'normandy'
+          AND event_method = 'enroll'
+          AND submission_date >= '2021-08-31'
+          AND event_string_value = 'bug-1726656-pref-tab-unloading-nightly-93-94')
+          )
+"""
+experiments_column_type = "native"
+
+## crash: removing session corresponding to enrollment
+[data_sources.crash_cleaned]
+from_expression = """
+(
+  SELECT
+    cr.*,
+    experiments,
+    sum_active_s
+  FROM
+    (SELECT
+        DATE(submission_timestamp) AS submission_date,
+        client_id,
+        COALESCE(SUM(IF(payload.process_type = 'main' OR payload.process_type IS NULL, 1, 0)), 0) AS sum_main_crashes,
+        COALESCE(SUM(IF(payload.metadata.oom_allocation_size IS NOT NULL, 1, 0)), 0) AS sum_oom_allocation_size,
+        COALESCE(SUM(IF(REGEXP_CONTAINS(payload.process_type, 'content')
+            AND NOT REGEXP_CONTAINS(COALESCE(payload.metadata.ipc_channel_error, ''), 'ShutDownKill'), 1,0)), 0) AS sum_content_crashes,
+    FROM `moz-fx-data-shared-prod.telemetry_stable.crash_v4`
+    WHERE DATE(submission_timestamp) >= '2021-08-31'
+        AND normalized_channel in ('nightly')
+        AND payload.session_id not in (
+            SELECT
+            session_id
+            FROM
+            `moz-fx-data-shared-prod.telemetry.events`
+            WHERE
+            event_category = 'normandy'
+            AND event_method = 'enroll'
+            AND submission_date >= '2021-08-31'
+            AND event_string_value = 'bug-1726656-pref-tab-unloading-nightly-93-94'
+        )
+    GROUP BY
+        1, 2,
+        client_id
+    ) cr
+    INNER JOIN  (
+        SELECT
+            DATE(submission_timestamp) AS submission_date,
+            client_id,
+            ANY_VALUE(environment.experiments) AS experiments,
+        SUM((COALESCE(payload.processes.parent.scalars.browser_engagement_active_ticks, 0)*5) / 3600) AS sum_active_s,
+        FROM `moz-fx-data-shared-prod`.telemetry.main
+        WHERE DATE(submission_timestamp) >= '2021-08-31'
+            AND normalized_channel in ('nightly')
+            AND payload.info.session_id not in (
+                SELECT
+                    session_id
+                FROM
+                    `moz-fx-data-shared-prod.telemetry.events` AS events
+                WHERE
+                    event_category = 'normandy'
+                    AND event_method = 'enroll'
+                    AND events.submission_date >= '2021-08-31'
+                    AND event_string_value = 'bug-1726656-pref-tab-unloading-nightly-93-94'
+            )
+        GROUP BY 1, 2
+    ) m
+    ON m.client_id = cr.client_id
+    AND m.submission_date = cr.submission_date
+)
+"""
+experiments_column_type = "native"
+
+
+## Metrics
+[metrics]
+
+overall = [
+  'oom_crashes_per_hour', 'main_crashes_per_hour',
+  'content_crashes_per_hour', 'uri_cnt',
+  'subsession_length', 'active_hrs',
+  'memory_total', 'tab_open_event_count',
+  'max_concurrent_tab_count', 'tab_unload_cnt',
+  'tab_reload_cnt', 'tab_pinned_event_count',
+  'max_concurrent_tab_pinned_count',
+  'tab_unload_to_reload',
+  'memory_situation_switched'
+]
+
+weekly = [
+  'oom_crashes_per_hour', 'main_crashes_per_hour',
+  'content_crashes_per_hour', 'uri_cnt',
+  'subsession_length', 'active_hrs',
+  'memory_total', 'tab_open_event_count',
+  'max_concurrent_tab_count', 'tab_unload_cnt',
+  'tab_reload_cnt', 'tab_pinned_event_count',
+  'max_concurrent_tab_pinned_count',
+  'tab_unload_to_reload',
+  'memory_situation_switched'
+]
+
+daily = [
+]
+
+[metrics.oom_crashes_per_hour]
+select_expression = """
+    SAFE_DIVIDE(
+        SUM(sum_oom_allocation_size),
+        SUM(sum_active_s)
+      )
+    """
+data_source = 'crash_cleaned'
+bigger_is_better = false
+
+    [metrics.oom_crashes_per_hour.statistics.bootstrap_mean]
+    pre_treatments = ["remove_nulls"]
+
+    [metrics.oom_crashes_per_hour.statistics.deciles]
+    pre_treatments = ["remove_nulls"]
+
+
+[metrics.main_crashes_per_hour]
+select_expression = """
+    SAFE_DIVIDE(
+        SUM(sum_main_crashes),
+        SUM(sum_active_s)
+      )
+    """
+data_source = 'crash_cleaned'
+bigger_is_better = false
+
+    [metrics.main_crashes_per_hour.statistics.bootstrap_mean]
+    pre_treatments = ["remove_nulls"]
+
+    [metrics.main_crashes_per_hour.statistics.deciles]
+    pre_treatments = ["remove_nulls"]
+
+
+[metrics.content_crashes_per_hour]
+select_expression = """
+    SAFE_DIVIDE(
+        SUM(sum_content_crashes),
+        SUM(sum_active_s)
+      )
+    """
+data_source = 'crash_cleaned'
+bigger_is_better = false
+
+    [metrics.content_crashes_per_hour.statistics.bootstrap_mean]
+    pre_treatments = ["remove_nulls"]
+
+    [metrics.content_crashes_per_hour.statistics.deciles]
+    pre_treatments = ["remove_nulls"]
+
+
+[metrics.uri_cnt]
+select_expression = 'SUM(COALESCE(payload.processes.parent.scalars.browser_engagement_total_uri_count, 0))'
+data_source = 'main_cleaned'
+    [metrics.uri_cnt.statistics.bootstrap_mean]
+    [metrics.uri_cnt.statistics.deciles]
+
+
+[metrics.tab_open_event_count]
+select_expression = 'SUM(COALESCE(payload.processes.parent.scalars.browser_engagement_tab_open_event_count, 0))'
+data_source = 'main_cleaned'
+    [metrics.tab_open_event_count.statistics.bootstrap_mean]
+    [metrics.tab_open_event_count.statistics.deciles]
+
+
+[metrics.subsession_length]
+select_expression = 'SUM(COALESCE(payload.info.subsession_length, 0)/3600)'
+data_source = 'main_cleaned'
+    [metrics.subsession_length.statistics.bootstrap_mean]
+    [metrics.subsession_length.statistics.deciles]
+
+
+[metrics.active_hrs]
+select_expression = 'SUM(COALESCE(payload.processes.parent.scalars.browser_engagement_active_ticks, 0)*5/3600)'
+data_source = 'main_cleaned'
+    [metrics.active_hrs.statistics.bootstrap_mean]
+    [metrics.active_hrs.statistics.deciles]
+
+
+[metrics.max_concurrent_tab_count]
+select_expression = 'AVG(COALESCE(payload.processes.parent.scalars.browser_engagement_max_concurrent_tab_count, 0))'
+data_source = 'main_cleaned'
+    [metrics.max_concurrent_tab_count.statistics.bootstrap_mean]
+    [metrics.max_concurrent_tab_count.statistics.deciles]
+
+
+[metrics.max_concurrent_tab_pinned_count]
+select_expression = 'AVG(COALESCE(payload.processes.parent.scalars.browser_engagement_max_concurrent_tab_pinned_count, 0))'
+data_source = 'main_cleaned'
+    [metrics.max_concurrent_tab_pinned_count.statistics.bootstrap_mean]
+    [metrics.max_concurrent_tab_pinned_count.statistics.deciles]
+
+
+[metrics.tab_unload_cnt]
+select_expression = 'SUM(COALESCE(payload.processes.parent.scalars.browser_engagement_tab_unload_count, 0))'
+data_source = 'main_cleaned'
+    [metrics.tab_unload_cnt.statistics.bootstrap_mean]
+    [metrics.tab_unload_cnt.statistics.deciles]
+
+
+[metrics.tab_reload_cnt]
+select_expression = 'SUM(COALESCE(payload.processes.parent.scalars.browser_engagement_tab_reload_count, 0))'
+data_source = 'main_cleaned'
+    [metrics.tab_reload_cnt.statistics.bootstrap_mean]
+    [metrics.tab_reload_cnt.statistics.deciles]
+
+
+[metrics.tab_pinned_event_count]
+select_expression = 'SUM(COALESCE(payload.processes.parent.scalars.browser_engagement_tab_pinned_event_count, 0))'
+data_source = 'main_cleaned'
+    [metrics.tab_pinned_event_count.statistics.bootstrap_mean]
+    [metrics.tab_pinned_event_count.statistics.deciles]
+
+
+[metrics.tab_unload_to_reload]
+select_expression = '{{agg_histogram_mean("payload.histograms.tab_unload_to_reload")}}'
+data_source = 'main_cleaned'
+bigger_is_better = false
+    [metrics.tab_unload_to_reload.statistics.deciles]
+    pre_treatments = ["remove_nulls"]
+
+    [metrics.tab_unload_to_reload.statistics.kernel_density_estimate]
+    pre_treatments = ["remove_nulls"]
+    log_space = true
+
+    [metrics.tab_unload_to_reload.statistics.empirical_cdf]
+    pre_treatments = ["remove_nulls"]
+    log_space = true
+
+
+[metrics.memory_total]
+select_expression = '{{agg_histogram_mean("payload.histograms.memory_total")}}'
+data_source = 'main_cleaned'
+bigger_is_better = false
+    [metrics.memory_total.statistics.deciles]
+    pre_treatments = ["remove_nulls"]
+
+    [metrics.memory_total.statistics.kernel_density_estimate]
+    pre_treatments = ["remove_nulls"]
+    log_space = true
+
+    [metrics.memory_total.statistics.empirical_cdf]
+    pre_treatments = ["remove_nulls"]
+    log_space = true
+
+
+[metrics.memory_situation_switched]
+select_expression = "COUNTIF(event_category = 'memory_watcher' AND event_method = 'on_high_memory' AND event_object = 'stats')"
+data_source = "events"
+    [metrics.memory_situation_switched.statistics.bootstrap_mean]
+    [metrics.memory_situation_switched.statistics.deciles]
+
+
+[metrics.memory_situation_switched_rate]
+select_expression = "COALESCE(LOGICAL_OR(event_category = 'memory_watcher' AND event_method = 'on_high_memory' AND event_object = 'stats'), false)"
+data_source = "events"
+
+    [metrics.memory_situation_switched_rate.statistics.binomial]

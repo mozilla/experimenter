@@ -1,0 +1,55 @@
+[experiment]
+segments = ["made_a_modal_selection"]
+
+[segments.data_sources.clients_daily_window]
+from_expression = """(
+  SELECT
+    *
+  FROM
+    `moz-fx-data-shared-prod.telemetry.clients_daily`
+)"""
+window_start = 0
+window_end = 28 
+
+[segments.made_a_modal_selection]
+select_expression = """
+  CAST(MAX(
+    CASE WHEN user_pref_browser_urlbar_quicksuggest_onboarding_dialog_choice IS NOT NULL
+         THEN 1
+         ELSE 0
+    END
+  ) AS BOOL)
+"""
+data_source = "clients_daily_window"
+
+[metrics]
+daily = ["opt_in_rate", "bypass_rate"]
+weekly = ["opt_in_rate", "bypass_rate"]
+overall = ["opt_in_rate", "bypass_rate"]
+
+[metrics.opt_in_rate]
+select_expression = """
+  MAX(
+    CAST( 
+      ( user_pref_browser_urlbar_quicksuggest_onboarding_dialog_choice = "accept_2" )
+    AS int )
+  )
+"""
+data_source = "clients_daily"
+friendly_name = "Modal Opt-In Rate"
+description = "Fraction of users who opted in on the modal"
+[metrics.opt_in_rate.statistics.binomial]
+
+[metrics.bypass_rate]
+select_expression = """
+  MIN(
+    CAST( 
+      ( user_pref_browser_urlbar_quicksuggest_onboarding_dialog_choice NOT IN ("accept_2", "reject_2") )
+    AS int )
+  )
+"""
+data_source = "clients_daily"
+friendly_name = "Modal Bypass Rate"
+description = "Fraction of users who bypassed the modal (did not opt-in nor opt-out)"
+[metrics.bypass_rate.statistics.binomial]
+

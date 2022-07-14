@@ -1,0 +1,118 @@
+friendly_name = "Picture in Picture"
+description = "Usage and engagement metrics for the video Picture-in-Picture feature."
+
+[metrics.used_picture_in_picture]
+friendly_name = "Used Picture in Picture"
+description = "Fraction of clients that used PiP over the measurement window"
+select_expression = """
+    LOGICAL_OR(
+        event_category = "pictureinpicture"
+        AND event_method = "create"
+    )
+"""
+data_source = "events"
+statistics = { binomial = {} }
+
+[metrics.picture_in_picture_sessions]
+friendly_name = "Number of Picture in Picture sessions"
+description = "Number of PiP sessions that users opened over the measurement window"
+select_expression = """
+    COUNTIF(
+        event_category = "pictureinpicture"
+        AND event_method = "create"
+    )
+"""
+data_source = "events"
+statistics = { deciles = {}, bootstrap_mean = {} }
+
+[metrics.picture_in_picture_median_duration]
+friendly_name = "User-median length of Picture in Picture sessions"
+description = "The distribution of user-median PiP session lengths"
+select_expression = """
+    mozfun.hist.percentiles(
+        mozfun.hist.merge(
+            ARRAY_AGG(
+                mozfun.hist.extract(
+                    payload.histograms.fx_picture_in_picture_window_open_duration
+                )
+            )
+        ),
+        [0.5]
+    )[SAFE_OFFSET(0)]
+"""
+data_source = "main"
+
+[metrics.picture_in_picture_median_duration.statistics]
+deciles = {}
+bootstrap_mean = {}
+empirical_cdf = { log_space = true }
+kernel_density_estimate = { log_space = true }
+
+[metrics.picture_in_picture_total_duration]
+friendly_name = "Per-user total length of Picture in Picture sessions"
+description = "The distribution of total user PiP session duration"
+select_expression = """
+    SUM(
+        mozfun.hist.extract(
+            payload.histograms.fx_picture_in_picture_window_open_duration
+        ).sum
+    )
+"""
+data_source = "main"
+
+[metrics.picture_in_picture_total_duration.statistics]
+deciles = {}
+bootstrap_mean = {}
+empirical_cdf = { log_space = true }
+kernel_density_estimate = { log_space = true }
+
+[metrics.saw_pip_toggle]
+friendly_name = "Saw Picture in Picture Toggle"
+description = "Fraction of clients that saw the PiP toggle"
+select_expression = """
+    LOGICAL_OR(
+        event_category = "pictureinpicture"
+        AND event_method = "saw_toggle"
+    )
+"""
+data_source = "events"
+statistics = { binomial = {} }
+
+[metrics.saw_pip_toggle_first_time]
+friendly_name = "Saw Picture in Picture Toggle for First Time"
+description = "Fraction of clients that saw the PiP toggle for the First Time"
+select_expression = """
+    LOGICAL_OR(
+        event_category = "pictureinpicture"
+        AND event_method = "saw_toggle"
+        AND mozfun.map.get_key(event_map_values, 'firstTime') = 'true'
+    )
+"""
+data_source = "events"
+statistics = { binomial = {} }
+
+[metrics.opened_pip_on_first_time]
+friendly_name = "Opened Picture in Picture Toggle at First Time Exposure"
+description = "Fraction of clients that opened the PiP toggle at First Time Exposure"
+select_expression = """
+    LOGICAL_OR(
+        event_category = "pictureinpicture"
+        AND event_method = "opened_method"
+        AND mozfun.map.get_key(event_map_values, 'firstTimeToggle') = 'true'
+    )
+"""
+data_source = "events"
+statistics = { binomial = {} }
+
+[metrics.opened_pip_more_than_once]
+friendly_name = "Opened Picture in Picture Toggle at Least Twice"
+description = "Fraction of clients that opened the PiP toggle more than once"
+select_expression = """
+    LOGICAL_OR(
+        event_category = "pictureinpicture"
+        AND event_method = "opened_method"
+        AND mozfun.map.get_key(event_map_values, 'firstTimeToggle') = 'false'
+    )
+"""
+data_source = "events"
+statistics = { binomial = {} }

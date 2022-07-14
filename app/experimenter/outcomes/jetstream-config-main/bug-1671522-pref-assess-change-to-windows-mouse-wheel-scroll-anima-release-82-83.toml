@@ -1,0 +1,12 @@
+[experiment]
+segments = ['regular_users_v3', 'is_new_attributed', 'is_not_new_attributed']
+
+## Segments
+
+[segments.is_new_attributed]
+select_expression = '{{agg_any("days_since_created_profile = 0 AND attribution.medium IS NOT NULL")}}'
+data_source = "clients_last_seen"
+
+[segments.is_not_new_attributed]
+select_expression = '{{agg_any("days_since_created_profile > 0 OR attribution.medium IS NULL")}}'
+data_source = "clients_last_seen"

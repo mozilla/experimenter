@@ -1,0 +1,129 @@
+# experiment: firefox-android-sponsored-shortcuts-experiment
+# launched May 10, 2022
+[experiment]
+end_date = "2022-06-28"
+enrollment_period = 14
+
+# interested in users who are eligible for treatment in both branches: those that open homescreen
+# these users also need to be in the countries where advertisements are live
+segments = ["opened_homescreen_in_live_countries"] 
+
+[segments.data_sources.events_unnested]
+from_expression = """(
+  SELECT
+    client_info.client_id as client_id,
+    CAST(submission_timestamp as DATE) as submission_date,
+    *
+  FROM
+    `mozdata.fenix.events_unnested`
+)"""
+window_start = 0
+window_end = 28 
+
+[segments.opened_homescreen_in_live_countries]
+select_expression = """
+  COALESCE(CAST(MAX(
+    CASE WHEN event_category = 'home_screen'
+           AND event_name = 'home_screen_displayed' 
+
+	   AND metadata.geo.country IN ('US', 'GB', 'DE', 'FR', 'AU', 'CA', 'ES', 'IT', 'IN', 'JP', 'BR', 'MX')
+
+         THEN 1
+         ELSE 0
+    END
+  ) AS BOOL), FALSE)
+"""
+data_source = "events_unnested"
+
+[metrics]
+daily = ["new_profile_retention", 
+	"spoc_tiles_impressions", "spoc_tiles_clicks", "spoc_tiles_disable_rate",
+	"pocket_story_impressions", "pocket_story_clicks"]
+
+weekly = ["new_profile_retention", 
+	"spoc_tiles_impressions", "spoc_tiles_clicks", "spoc_tiles_disable_rate",
+	"pocket_story_impressions", "pocket_story_clicks"]
+
+overall = ["spoc_tiles_impressions", "spoc_tiles_clicks", "spoc_tiles_disable_rate",
+	"pocket_story_impressions", "pocket_story_clicks"]
+
+
+### New Profile Retention
+
+[metrics.new_profile_retention]
+friendly_name = "New Profile Retention"
+description = "New profiles defined as those first seen during the first week (enrollment period) of the experiment."
+select_expression = """COALESCE(COUNT(
+	CASE WHEN PARSE_DATETIME('%Y %m %d %H:%M', REPLACE(REPLACE(client_info.first_run_date, '+', ' '), '-', ' ')) between '2022-05-10' and '2022-05-16'
+	THEN document_id ELSE NULL END), 0) > 0
+"""
+data_source = "baseline"
+[metrics.new_profile_retention.statistics.binomial]
+
+#### Copied rest of metrics from files in jetstream-config/outcomes/fenix
+#### Metrics are not set to render for all experiments by default
+
+[metrics.spoc_tiles_impressions]
+friendly_name = "Sponsored Tiles Impressions"
+description = "Number of times Contile Sponsored Tiles are shown."
+select_expression = """
+      COALESCE(COUNTIF(
+          event.category = 'top_sites'
+          AND event.name = 'contile_impression'
+      ),0)
+"""
+data_source = "events"   
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+
+[metrics.spoc_tiles_clicks]
+friendly_name = "Sponsored Tiles Clicks"
+description = "Number of times user clicked a Contile Sponsored Tile."
+select_expression = """
+      COALESCE(COUNTIF(
+          event.category = 'top_sites'
+          AND event.name = 'contile_click'
+      ),0)
+"""
+data_source = "events" 
+statistics = { bootstrap_mean = {}, deciles = {} }
+
+
+[metrics.spoc_tiles_disable_rate]
+select_expression = """   
+  COALESCE(MAX(
+    CAST(
+       metrics.boolean.customize_home_contile AS int )
+  ),0)
+"""
+data_source = "metrics" 
+bigger_is_better = false
+friendly_name = "Sponsored Tiles Disable Rate"
+description = "Fraction of users who disable Contile Sponsored Tiles"
+[metrics.spoc_tiles_disable_rate.statistics.binomial]
+
+[metrics.pocket_story_impressions]
+friendly_name = "Pocket Impressions"
+description = "Number of times Pocket recommended stories are shown on the home screen."
+select_expression = """
+      COALESCE(COUNTIF(
+          event.category = 'pocket'
+          AND event.name = 'home_recs_shown'
+      ),0)
+"""
+data_source = "events"  
+statistics = { bootstrap_mean = {}, deciles = {} } 
+
+
+[metrics.pocket_story_clicks]
+friendly_name = "Pocket Story Clicks"
+description = "Number of times user tapped a Pocket recommended story to be opened."
+select_expression = """
+      COALESCE(COUNTIF(
+          event.category = 'pocket'
+          AND event.name = 'home_recs_story_clicked'
+      ),0)
+"""
+data_source = "events" 
+statistics = { bootstrap_mean = {}, deciles = {} }
+

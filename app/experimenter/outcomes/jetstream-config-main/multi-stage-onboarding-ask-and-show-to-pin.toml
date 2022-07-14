@@ -1,0 +1,134 @@
+
+[experiment]
+
+segments = ["attributed", "non_attributed"]
+
+
+enrollment_period = 7
+start_date = "2021-02-25"
+end_date = "2021-04-01"
+
+reference_branch = "msw_control"
+
+
+## data sources
+
+[data_sources]
+
+
+## data source: item imports from imports histogram
+[data_sources.imports]
+from_expression = """
+    (
+        SELECT
+            DATE(submission_timestamp) AS submission_date,
+            client_id,
+            environment.experiments,
+            stretch.entity,
+            kh.key AS browser,
+            mozfun.hist.extract(kh.value).sum AS items
+        FROM mozdata.telemetry.main
+            CROSS JOIN UNNEST([
+                STRUCT(payload.keyed_histograms.fx_migration_bookmarks_quantity AS histogram, "bookmarks" AS entity),
+                (payload.keyed_histograms.fx_migration_logins_quantity, "logins"),
+                (payload.keyed_histograms.fx_migration_history_quantity, "history")
+            ]) AS stretch
+            CROSS JOIN UNNEST(stretch.histogram) AS kh
+        )
+"""
+experiments_column_type = "native"
+
+
+
+## data source: themes
+[data_sources.themes]
+from_expression = """
+    (
+        SELECT
+            submission_date,
+            client_id,
+            experiments, 
+            true as switched_theme
+        FROM `moz-fx-data-shared-prod.telemetry.events`
+        WHERE event_category = 'addonsManager'
+        AND event_method = 'enable'
+        AND event_object = 'theme'
+        )
+"""
+experiments_column_type = "native"
+
+
+
+## Segments
+
+[segments]
+
+[segments.attributed]
+select_expression = 'max(attr_source is not null)'
+data_source = "npp"
+
+[segments.non_attributed]
+select_expression = 'max(attr_source is null)'
+data_source = "npp"
+
+[segments.data_sources.npp]
+from_expression = """
+    (SELECT
+        DATE(submission_timestamp) AS submission_date,
+        client_id,
+        environment.settings.attribution.source AS attr_source
+    FROM `moz-fx-data-shared-prod.telemetry.new_profile`
+    WHERE environment.partner.distribution_id IS NULL
+    AND coalesce(environment.settings.attribution.ua, '') != 'firefox'
+    )
+    """
+window_start = -2
+window_end = 0
+
+
+## metrics
+
+[metrics]
+overall = ['days_of_use', 'unenroll', 'is_default', 'imported_from_any_browser', 'set_theme']
+           
+weekly = ['days_of_use', 'unenroll', 'is_default', 'imported_from_any_browser', 'set_theme']
+
+
+[metrics.unenroll.statistics.binomial]
+[metrics.days_of_use.statistics.bootstrap_mean]
+
+
+## imports, global
+
+[metrics.imported_from_any_browser]
+select_expression = "COALESCE(SUM(IF(browser != 'firefox', items, 0)), 0) > 0"
+data_source = "imports"
+friendly_name = "Importers"
+description = "Fraction of clients that imported at least one item from a non-Firefox browser."
+bigger_is_better = true
+
+[metrics.imported_from_any_browser.statistics.binomial]
+
+
+## set to default
+
+[metrics.is_default]
+select_expression = "COALESCE(MAX(is_default_browser), false)"
+data_source = "clients_daily"
+friendly_name = "Set to Default"
+description = "Fraction of clients reported FF is set as default at least once in period."
+bigger_is_better = true
+
+[metrics.is_default.statistics.binomial]
+
+
+## set to default
+
+[metrics.set_theme]
+select_expression = "COALESCE(MAX(switched_theme), false)"
+data_source = "themes"
+friendly_name = "Set to Default"
+description = "Fraction of clients reported a theme switch event at least once in period."
+bigger_is_better = true
+
+[metrics.set_theme.statistics.binomial]

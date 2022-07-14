@@ -1,0 +1,83 @@
+[experiment]
+end_date = '2020-09-08'
+
+segments = ["comcast_users", "non_comcast_users", "regular_users_v3", "new_or_resurrected_v3"]
+
+[metrics]
+overall = ['mean_page_load_time', 'mean_first_paint_time', 'mean_trr_lookup_time']
+
+## Mean page load time
+
+[metrics.mean_page_load_time]
+select_expression = '{{agg_histogram_mean("payload.histograms.fx_page_load_ms_2")}}'
+data_source = 'main'
+
+[metrics.mean_page_load_time.statistics.bootstrap_mean]
+pre_treatments = ["remove_nulls"]
+
+[metrics.mean_page_load_time.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.mean_page_load_time.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+
+[metrics.mean_page_load_time.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+## First paint time
+
+[metrics.mean_first_paint_time]
+select_expression = '{{agg_histogram_mean("payload.histograms.time_to_first_contentful_paint_ms")}}'
+data_source = 'main'
+
+[metrics.mean_first_paint_time.statistics.bootstrap_mean]
+pre_treatments = ["remove_nulls"]
+
+[metrics.mean_first_paint_time.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+
+## TRR lookup time
+
+[metrics.mean_trr_lookup_time]
+select_expression = """\
+    SAFE_DIVIDE(
+        SUM((SELECT SUM(CAST(JSON_EXTRACT_SCALAR(value, "$.sum") AS int64)) FROM UNNEST(payload.keyed_histograms.dns_trr_lookup_time2))),
+        SUM((SELECT SUM(mozfun.hist.threshold_count(value, 0)) FROM UNNEST(payload.keyed_histograms.dns_trr_lookup_time2)))
+    )
+    """
+data_source = 'main'
+
+[metrics.mean_trr_lookup_time.statistics.bootstrap_mean]
+pre_treatments = ["remove_nulls"]
+
+[metrics.mean_trr_lookup_time.statistics.deciles]
+pre_treatments = ["remove_nulls"]
+
+[metrics.mean_trr_lookup_time.statistics.kernel_density_estimate]
+pre_treatments = ["remove_nulls"]
+
+[metrics.mean_trr_lookup_time.statistics.empirical_cdf]
+pre_treatments = ["remove_nulls"]
+log_space = true
+
+## Segments
+
+[segments.comcast_users]
+select_expression = '{{agg_any("comcast_user")}}'
+data_source = "annotated_enrollments"
+
+[segments.non_comcast_users]
+select_expression = '{{agg_any("comcast_user")}} = FALSE'
+data_source = "annotated_enrollments"
+
+[segments.data_sources.annotated_enrollments]
+from_expression = """
+    (SELECT
+        DATE(submission_timestamp) AS submission_date,
+        client_id,
+        metadata.isp.name = 'Comcast Cable' AS comcast_user
+    FROM `moz-fx-data-shared-prod`.telemetry.event
+    WHERE DATE(submission_timestamp) BETWEEN "{{experiment.start_date_str}}" AND "{{experiment.last_enrollment_date_str}}")
+    """

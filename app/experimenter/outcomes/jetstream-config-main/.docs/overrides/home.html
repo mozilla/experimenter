@@ -1,0 +1,51 @@
+{% extends "main.html" %}
+
+<!-- Render hero under tabs -->
+{% block tabs %}
+  {{ super() }}
+
+   <!-- Additional styles for landing page -->
+  <style>
+
+    @media screen and (min-width: 900px) {
+      .tx-hero {
+      margin-top: 30px;
+      padding: 20px;
+      display: flex;
+    }
+    .tx-hero__content {
+      margin-top: 50px;
+      width: 40%;
+    }
+    }
+
+ @media screen and (max-width: 900px) {
+.tx-hero__content {
+    margin: 10px;
+    padding: 10px;  
+    text-align: center;
+    }
+}
+  </style>
+
+  <!-- Hero for landing page -->
+  <section class="tx-container">
+    <div class="md-grid md-typeset">
+      <div class="tx-hero">
+        <div class="tx-hero__content">
+          <h2>Jetstream Config</h2>
+          <p>Information about existing outcomes, pre-defined metrics and data sources as well as default configurations for experiments analyzed in <a href="https://github.com/mozilla/jetstream">jetstream</a>.</p>
+          <p>Learn how to write a Jetstream configuration at <a href="https://experimenter.info/jetstream/configuration">Configuring Jetstream</a>.</p>
+          <p>Learn more about Outcomes at <a href="https://experimenter.info/jetstream/outcomes">Outcomes</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+<!-- Content -->
+{% block content %}{% endblock %}
+
+<!-- Application footer -->
+{% block footer %}
+{% endblock %}
