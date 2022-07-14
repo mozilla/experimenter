@@ -99,6 +99,8 @@ node_modules
 google-credentials.json
 
 # Jetstream config
+app/experimenter/outcomes/jetstream-config-main/*
+!app/experimenter/outcomes/jetstream-config-main/outcomes/
 app/experimenter/outcomes/jetstream-config.zip
 
 # Versioning assets generated on build
