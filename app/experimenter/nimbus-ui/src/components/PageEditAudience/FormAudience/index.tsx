@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useMemo, useState } from "react";
+import { FormLabel } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
@@ -82,6 +83,11 @@ export const FormAudience = ({
     experiment!.languages.map((v) => "" + v.id!),
   );
 
+  const [isSticky, setIsSticky] = useState<boolean>(false);
+  const [stickyRequiredWarning, setStickyRequiredWarning] = useState<boolean>(
+    experiment.targetingConfig![0]?.stickyRequired ?? false,
+  );
+
   const applicationConfig = config.applicationConfigs?.find(
     (applicationConfig) =>
       applicationConfig?.application === experiment.application,
@@ -128,6 +134,7 @@ export const FormAudience = ({
             onSubmit(
               {
                 ...dataIn,
+                isSticky,
                 locales,
                 countries,
                 languages,
@@ -136,7 +143,15 @@ export const FormAudience = ({
             ),
         ),
       ),
-    [isLoading, onSubmit, handleSubmit, locales, countries, languages],
+    [
+      isLoading,
+      onSubmit,
+      handleSubmit,
+      isSticky,
+      locales,
+      countries,
+      languages,
+    ],
   );
 
   const targetingConfigSlugOptions = useMemo(
@@ -147,6 +162,24 @@ export const FormAudience = ({
       ),
     [config, experiment],
   );
+
+  const TargetingOnChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(ev.target.value);
+    console.log(ev.target);
+    console.log(targetingConfigSlugOptions);
+    const localSticky = targetingConfigSlugOptions.find(
+      (config) => config.value === ev.target.value,
+    );
+    console.log(localSticky);
+    console.log(localSticky?.stickyRequired);
+    const r = localSticky?.stickyRequired;
+    setIsSticky(r || false);
+    if (r === true) {
+      setStickyRequiredWarning(true);
+    } else {
+      setStickyRequiredWarning(false);
+    }
+  };
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
@@ -245,6 +278,7 @@ export const FormAudience = ({
             <Form.Control
               {...formControlAttrs("targetingConfigSlug")}
               as="select"
+              onChange={TargetingOnChange.bind(this)}
             >
               <TargetConfigSelectOptions options={targetingConfigSlugOptions} />
             </Form.Control>
@@ -256,8 +290,16 @@ export const FormAudience = ({
             <Form.Check
               {...formControlAttrs("isSticky")}
               type="checkbox"
+              checked={isSticky}
+              onChange={(e) => setIsSticky(e.target.checked)}
+              disabled={stickyRequiredWarning}
               label="Sticky Enrollment (Clients remain enrolled until the experiment ends)"
             />
+            {stickyRequiredWarning && (
+              <FormLabel data-testid="stickyRequiredWarning">
+                Sticky enrollment is required for this targeting configuration.
+              </FormLabel>
+            )}
             <FormErrors name="isSticky" />
           </Form.Group>
         </Form.Row>

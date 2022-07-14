@@ -1035,6 +1035,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         value
                         description
                         applicationValues
+                        stickyRequired
                     }
                 }
             }
@@ -1061,6 +1062,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     "description": NimbusExperiment.TARGETING_CONFIGS[
                         NimbusExperiment.TargetingConfig.FIRST_RUN.value
                     ].description,
+                    "stickyRequired": NimbusExperiment.TARGETING_CONFIGS[
+                        NimbusExperiment.TargetingConfig.FIRST_RUN.value
+                    ].sticky_required,
                 }
             ],
         )
