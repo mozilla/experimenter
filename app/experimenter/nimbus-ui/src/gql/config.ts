@@ -59,6 +59,7 @@ export const GET_CONFIG_QUERY = gql`
         value
         description
         applicationValues
+        stickyRequired
       }
       hypothesisDefault
       documentationLink {

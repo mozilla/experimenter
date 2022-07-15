@@ -117,6 +117,7 @@ class NimbusExperimentTargetingConfigType(graphene.ObjectType):
     value = graphene.String()
     application_values = graphene.List(graphene.String)
     description = graphene.String()
+    sticky_required = graphene.Boolean()
 
 
 class NimbusFeatureConfigType(DjangoObjectType):
@@ -314,6 +315,9 @@ class NimbusConfigurationType(graphene.ObjectType):
                     choice.value
                 ].application_choice_names,
                 description=NimbusExperiment.TARGETING_CONFIGS[choice.value].description,
+                sticky_required=NimbusExperiment.TARGETING_CONFIGS[
+                    choice.value
+                ].sticky_required,
             )
             for choice in NimbusExperiment.TargetingConfig
         ]
@@ -437,6 +441,9 @@ class NimbusExperimentType(DjangoObjectType):
                 application_values=NimbusExperiment.TARGETING_CONFIGS[
                     self.targeting_config_slug
                 ].application_choice_names,
+                sticky_required=NimbusExperiment.TARGETING_CONFIGS[
+                    self.targeting_config_slug
+                ].sticky_required,
             )
         ]
 

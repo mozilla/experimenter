@@ -440,6 +440,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 NimbusFeatureConfigFactory(
                     application=NimbusExperiment.Application.DESKTOP
@@ -1034,6 +1035,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         value
                         description
                         applicationValues
+                        stickyRequired
                     }
                 }
             }
@@ -1060,6 +1062,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     "description": NimbusExperiment.TARGETING_CONFIGS[
                         NimbusExperiment.TargetingConfig.FIRST_RUN.value
                     ].description,
+                    "stickyRequired": NimbusExperiment.TARGETING_CONFIGS[
+                        NimbusExperiment.TargetingConfig.FIRST_RUN.value
+                    ].sticky_required,
                 }
             ],
         )

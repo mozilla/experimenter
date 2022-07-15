@@ -67,6 +67,7 @@ export interface getExperiment_experimentBySlug_targetingConfig {
   value: string | null;
   applicationValues: (string | null)[] | null;
   description: string | null;
+  stickyRequired: boolean | null;
 }
 
 export interface getExperiment_experimentBySlug_readyForReview {
