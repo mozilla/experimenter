@@ -274,13 +274,6 @@ export const FormBranches = ({
                 {(fieldMessages.is_rollout as SerializerMessage).join(", ")}
               </Form.Control.Feedback>
             )}
-            {fieldWarnings.is_rollout?.length > 0 && (
-              // @ts-ignore This component doesn't technically support type="warning", but
-              // all it's doing is using the string in a class, so we can safely override.
-              <Form.Control.Feedback type="warning" data-for="isRollout">
-                {(fieldWarnings.is_rollout as SerializerMessage).join(", ")}
-              </Form.Control.Feedback>
-            )}
           </Form.Group>
         </Form.Row>
 

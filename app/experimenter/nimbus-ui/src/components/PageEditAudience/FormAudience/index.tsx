@@ -208,6 +208,13 @@ export const FormAudience = ({
               <SelectOptions options={config.firefoxVersions} />
             </Form.Control>
             <FormErrors name="firefoxMinVersion" />
+            {fieldMessages.is_rollout?.length > 0 && (
+              // @ts-ignore This component doesn't technically support type="warning", but
+              // all it's doing is using the string in a class, so we can safely override.
+              <Form.Control.Feedback type="warning" data-for="minVersion">
+                {(fieldMessages.is_rollout as SerializerMessage).join(", ")}
+              </Form.Control.Feedback>
+            )}
           </Form.Group>
           <Form.Group as={Col} controlId="maxVersion">
             <Form.Label className="d-flex align-items-center">
@@ -220,6 +227,13 @@ export const FormAudience = ({
               <SelectOptions options={config.firefoxVersions} />
             </Form.Control>
             <FormErrors name="firefoxMaxVersion" />
+            {fieldMessages.is_rollout?.length > 0 && (
+              // @ts-ignore This component doesn't technically support type="warning", but
+              // all it's doing is using the string in a class, so we can safely override.
+              <Form.Control.Feedback type="warning" data-for="maxVersion">
+                {(fieldMessages.is_rollout as SerializerMessage).join(", ")}
+              </Form.Control.Feedback>
+            )}
           </Form.Group>
         </Form.Row>
         <Form.Row>
