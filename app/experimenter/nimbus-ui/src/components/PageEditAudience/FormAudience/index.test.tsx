@@ -289,7 +289,6 @@ describe("FormAudience", () => {
     fireEvent.change(screen.getByTestId("targetingConfigSlug"), {
       target: { value: MOCK_CONFIG!.targetingConfigs![0]!.value },
     });
-    // Selecting sticky enrollment for not sticky required targeting
     fireEvent.click(screen.getByTestId("isSticky"), {
       target: { checked: false },
     });
