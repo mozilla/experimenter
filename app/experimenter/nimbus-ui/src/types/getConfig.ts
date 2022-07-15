@@ -73,6 +73,7 @@ export interface getConfig_nimbusConfig_targetingConfigs {
   value: string | null;
   description: string | null;
   applicationValues: (string | null)[] | null;
+  stickyRequired: boolean | null;
 }
 
 export interface getConfig_nimbusConfig_documentationLink {

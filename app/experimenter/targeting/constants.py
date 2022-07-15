@@ -12,6 +12,7 @@ class NimbusTargetingConfig:
     description: str
     targeting: str
     desktop_telemetry: str
+    sticky_required: bool
     application_choice_names: list[str]
 
     targeting_configs = []
@@ -31,6 +32,7 @@ NO_TARGETING = NimbusTargetingConfig(
     description="All users",
     targeting="",
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=[a.name for a in Application],
 )
 
@@ -43,6 +45,7 @@ FIRST_RUN = NimbusTargetingConfig(
         not_see_aw="!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)",
     ),
     desktop_telemetry=("payload.info.profile_subsession_counter = 1"),
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -59,6 +62,7 @@ FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
     desktop_telemetry=(
         "{first_run} AND environment.settings.attribution.ua = 'chrome'"
     ).format(first_run=FIRST_RUN.desktop_telemetry),
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -72,6 +76,7 @@ FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
     desktop_telemetry=(
         "{first_run} AND environment.system.os.windows_build_number >= 18362"
     ).format(first_run=FIRST_RUN.desktop_telemetry),
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -85,6 +90,7 @@ NOT_TCP_STUDY = NimbusTargetingConfig(
         "|regExpMatch('^[ntc]row5$')"
     ),
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -97,6 +103,7 @@ NOT_TCP_STUDY_FIRST_RUN = NimbusTargetingConfig(
         not_tcp_study=NOT_TCP_STUDY.targeting,
     ),
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -108,6 +115,7 @@ WINDOWS_WITH_USERCHOICE = NimbusTargetingConfig(
     ),
     targeting="os.windowsBuildNumber >= 17763",
     desktop_telemetry="environment.system.os.windows_build_number >= 17763",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -126,6 +134,7 @@ WINDOWS_WITH_USERCHOICE_FIRST_RUN = NimbusTargetingConfig(
         first_run=FIRST_RUN.desktop_telemetry,
         user_choice=WINDOWS_WITH_USERCHOICE.desktop_telemetry,
     ),
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -137,6 +146,7 @@ FX95_DESKTOP_USERS = NimbusTargetingConfig(
         "(version|versionCompare('95.!') >= 0) && (version|versionCompare('96.!') < 0)"
     ),
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -146,6 +156,7 @@ MOBILE_NEW_USER = NimbusTargetingConfig(
     description=("New users on mobile who installed the app less than a week ago"),
     targeting="days_since_install < 7",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(
         Application.FENIX.name,
         Application.IOS.name,
@@ -165,6 +176,7 @@ MOBILE_RECENTLY_UPDATED = NimbusTargetingConfig(
     ),
     targeting="days_since_update < 7 && days_since_install >= 7",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(
         Application.FENIX.name,
         Application.IOS.name,
@@ -186,6 +198,7 @@ HOMEPAGE_GOOGLE = NimbusTargetingConfig(
         "homePageSettings.urls[.host == 'google.com']|length > 0"
     ),
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -195,6 +208,7 @@ URLBAR_FIREFOX_SUGGEST = NimbusTargetingConfig(
     description="Users with the default search suggestion showing order",
     targeting="'browser.urlbar.showSearchSuggestionsFirst'|preferenceValue",
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -204,6 +218,7 @@ MAC_ONLY = NimbusTargetingConfig(
     description="All users with Mac OS",
     targeting="os.isMac",
     desktop_telemetry="environment.system.os.name = 'Darwin'",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -213,6 +228,7 @@ NO_ENTERPRISE = NimbusTargetingConfig(
     description="Exclude users with active enterpries policies",
     targeting="!hasActiveEnterprisePolicies",
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -225,6 +241,7 @@ NO_ENTERPRISE_OR_PAST_VPN = NimbusTargetingConfig(
         '!("e6eb0d1e856335fc" in attachedFxAOAuthClients|mapToProperty("id"))'
     ),
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -239,6 +256,7 @@ NO_ENTERPRISE_OR_RECENT_VPN = NimbusTargetingConfig(
         "true)"
     ),
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -252,6 +270,7 @@ INFREQUENT_USER_URIS = NimbusTargetingConfig(
         "&& userMonthlyActivity|length <= 6"
     ),
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -261,6 +280,7 @@ INFREQUENT_USER_NEED_PIN = NimbusTargetingConfig(
     description="Between 1 and 6 days of activity in the past 28 days needing pin",
     targeting=f"{INFREQUENT_USER_URIS.targeting} && doesAppNeedPin",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -270,6 +290,7 @@ INFREQUENT_USER_NEED_DEFAULT = NimbusTargetingConfig(
     description="Between 1 and 6 days of activity in the past 28 days needing default",
     targeting=f"{INFREQUENT_USER_URIS.targeting} && {NEED_DEFAULT}",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -279,6 +300,7 @@ INFREQUENT_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
     description="Between 1 & 6 days activity in past 28 days need default w/ pin",
     targeting=f"{INFREQUENT_USER_NEED_DEFAULT.targeting} && {HAS_PIN}",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -288,6 +310,7 @@ INFREQUENT_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     description="Between 1 & 6 days activity in past 28 days w/ default need pin",
     targeting=f"{INFREQUENT_USER_NEED_PIN.targeting} && isDefaultBrowser",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -297,6 +320,7 @@ INFREQUENT_WIN_USER_NEED_PIN = NimbusTargetingConfig(
     description="Between 1 and 6 days of activity in the past 28 days needing pin on Win",
     targeting=f"{INFREQUENT_USER_NEED_PIN.targeting} && os.isWindows",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -306,6 +330,7 @@ INFREQUENT_WIN_USER_URIS = NimbusTargetingConfig(
     description="Infrequent non default users of past 28 days, on Windows 1903+",
     targeting=f"{INFREQUENT_USER_NEED_DEFAULT.targeting} && {WIN1903}",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -318,6 +343,7 @@ INFREQUENT_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     # substantially older than that too.
     targeting=f"{INFREQUENT_USER_URIS.targeting} && totalBookmarksCount == 5",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -331,6 +357,7 @@ CASUAL_USER_URIS = NimbusTargetingConfig(
         "&& userMonthlyActivity|length <= 13"
     ),
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -340,6 +367,7 @@ CASUAL_USER_NEED_PIN = NimbusTargetingConfig(
     description="Between 7 and 13 days of activity in the past 28 days needing pin",
     targeting=f"{CASUAL_USER_URIS.targeting} && doesAppNeedPin",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -349,6 +377,7 @@ CASUAL_USER_NEED_DEFAULT = NimbusTargetingConfig(
     description="Between 7 and 14 days of activity in the past 28 days needing default",
     targeting=f"{CASUAL_USER_URIS.targeting} && {NEED_DEFAULT}",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -358,6 +387,7 @@ CASUAL_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
     description="Between 7 and 14 days of activity in past 28 days need default w/ pin",
     targeting=f"{CASUAL_USER_NEED_DEFAULT.targeting} && {HAS_PIN}",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -367,6 +397,7 @@ CASUAL_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     description="Between 7 and 14 days of activity in past 28 days w/ default need pin",
     targeting=f"{CASUAL_USER_NEED_PIN.targeting} && isDefaultBrowser",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -380,6 +411,7 @@ REGULAR_USER_URIS = NimbusTargetingConfig(
         "&& userMonthlyActivity|length <= 20"
     ),
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -389,6 +421,7 @@ REGULAR_USER_NEED_PIN = NimbusTargetingConfig(
     description="Between 14 and 20 days of activity in the past 28 days needing pin",
     targeting=f"{REGULAR_USER_URIS.targeting} && doesAppNeedPin",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -398,6 +431,7 @@ REGULAR_USER_NEED_DEFAULT = NimbusTargetingConfig(
     description="Between 14 and 20 days of activity in the past 28 days needing default",
     targeting=f"{REGULAR_USER_URIS.targeting} && {NEED_DEFAULT}",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -407,6 +441,7 @@ REGULAR_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
     description="Between 14 and 20 days of activity in past 28 days need default w/ pin",
     targeting=f"{REGULAR_USER_NEED_DEFAULT.targeting} && {HAS_PIN}",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -416,6 +451,7 @@ REGULAR_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     description="Between 14 and 20 days of activity in past 28 days w/ default need pin",
     targeting=f"{REGULAR_USER_NEED_PIN.targeting} && isDefaultBrowser",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -425,6 +461,7 @@ REGULAR_USER_USES_FXA = NimbusTargetingConfig(
     description="Between 14 and 20 days of activity in the past 28 days signed in to FxA",
     targeting=f"{REGULAR_USER_URIS.targeting} && isFxAEnabled && usesFirefoxSync",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -434,6 +471,7 @@ CORE_USER_URIS = NimbusTargetingConfig(
     description="At least 21 days of activity in the past 28 days",
     targeting=f"{PROFILE28DAYS} && userMonthlyActivity|length >= 21",
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -443,6 +481,7 @@ CORE_USER_NEED_PIN = NimbusTargetingConfig(
     description="At least 21 days of activity in the past 28 days needing pin",
     targeting=f"{CORE_USER_URIS.targeting} && doesAppNeedPin",
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -452,6 +491,7 @@ CORE_USER_NEED_DEFAULT = NimbusTargetingConfig(
     description="At least 21 days of activity in the past 28 days needing default",
     targeting=f"{CORE_USER_URIS.targeting} && {NEED_DEFAULT}",
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -461,6 +501,7 @@ CORE_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
     description="At least 21 days of activity in past 28 days need default w/ pin",
     targeting=f"{CORE_USER_NEED_DEFAULT.targeting} && {HAS_PIN}",
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -470,6 +511,7 @@ CORE_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     description="At least 21 days of activity in past 28 days w/ default need pin",
     targeting=f"{CORE_USER_NEED_PIN.targeting} && isDefaultBrowser",
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -497,6 +539,7 @@ POCKET_COMMON = NimbusTargetingConfig(
     )
     """,
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -514,6 +557,7 @@ PIP_NEVER_USED = NimbusTargetingConfig(
     )
     """,
     desktop_telemetry="",
+    sticky_required=True,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
@@ -524,6 +568,7 @@ RALLY_CORE_ADDON_USER = NimbusTargetingConfig(
     description="Users who have installed the Mozilla Rally Core Add-on",
     targeting="addonsInfo.addons['rally-core@mozilla.org'] != null",
     desktop_telemetry="",
+    sticky_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 

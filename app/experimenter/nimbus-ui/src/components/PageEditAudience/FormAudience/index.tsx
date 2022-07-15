@@ -82,6 +82,11 @@ export const FormAudience = ({
     experiment!.languages.map((v) => "" + v.id!),
   );
 
+  const [isSticky, setIsSticky] = useState<boolean>(false);
+  const [stickyRequiredWarning, setStickyRequiredWarning] = useState<boolean>(
+    experiment.targetingConfig![0]?.stickyRequired ?? false,
+  );
+
   const applicationConfig = config.applicationConfigs?.find(
     (applicationConfig) =>
       applicationConfig?.application === experiment.application,
@@ -128,6 +133,7 @@ export const FormAudience = ({
             onSubmit(
               {
                 ...dataIn,
+                isSticky,
                 locales,
                 countries,
                 languages,
@@ -136,7 +142,15 @@ export const FormAudience = ({
             ),
         ),
       ),
-    [isLoading, onSubmit, handleSubmit, locales, countries, languages],
+    [
+      isLoading,
+      onSubmit,
+      handleSubmit,
+      isSticky,
+      locales,
+      countries,
+      languages,
+    ],
   );
 
   const targetingConfigSlugOptions = useMemo(
@@ -147,6 +161,14 @@ export const FormAudience = ({
       ),
     [config, experiment],
   );
+
+  const TargetingOnChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const checkStickyRequired = targetingConfigSlugOptions.find(
+      (config) => config.value === ev.target.value,
+    );
+    setIsSticky(checkStickyRequired?.stickyRequired || false);
+    setStickyRequiredWarning(!!checkStickyRequired?.stickyRequired);
+  };
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
@@ -245,6 +267,7 @@ export const FormAudience = ({
             <Form.Control
               {...formControlAttrs("targetingConfigSlug")}
               as="select"
+              onChange={TargetingOnChange.bind(this)}
             >
               <TargetConfigSelectOptions options={targetingConfigSlugOptions} />
             </Form.Control>
@@ -256,8 +279,16 @@ export const FormAudience = ({
             <Form.Check
               {...formControlAttrs("isSticky")}
               type="checkbox"
+              checked={isSticky}
+              onChange={(e) => setIsSticky(e.target.checked)}
+              disabled={stickyRequiredWarning}
               label="Sticky Enrollment (Clients remain enrolled until the experiment ends)"
             />
+            {stickyRequiredWarning && (
+              <Alert data-testid="sticky-required-warning" variant="warning">
+                Sticky enrollment is required for this targeting configuration.
+              </Alert>
+            )}
             <FormErrors name="isSticky" />
           </Form.Group>
         </Form.Row>

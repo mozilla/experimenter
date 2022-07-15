@@ -390,6 +390,7 @@ type NimbusExperimentTargetingConfigType {
   value: String
   applicationValues: [String]
   description: String
+  stickyRequired: Boolean
 }
 
 type NimbusExperimentType {

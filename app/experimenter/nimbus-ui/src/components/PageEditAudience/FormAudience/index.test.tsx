@@ -57,18 +57,21 @@ describe("FormAudience", () => {
                 "TOASTER",
               ],
               description: "No Targeting configuration",
+              stickyRequired: false,
             },
             {
               label: "Mac Only",
               value: "MAC_ONLY",
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
               description: "Mac Only configuration",
+              stickyRequired: true,
             },
             {
               label: "Toaster thing",
               value: "TOASTER_THING",
               applicationValues: ["TOASTER"],
               description: "Toaster thing description",
+              stickyRequired: false,
             },
           ],
         }}
@@ -108,6 +111,192 @@ describe("FormAudience", () => {
     );
 
     expect(screen.getByTestId("isSticky")).toBeChecked();
+  });
+
+  it("expect sticky enrollment to be not selected as sticky is not required for the selected targeting", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isSticky: false,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigs: [
+            {
+              label: "No Targeting",
+              value: "",
+              applicationValues: [
+                NimbusExperimentApplicationEnum.DESKTOP,
+                "TOASTER",
+              ],
+              description: "No Targeting configuration",
+              stickyRequired: false,
+            },
+            {
+              label: "Mac Only",
+              value: "MAC_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Mac Only configuration",
+              stickyRequired: true,
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
+              stickyRequired: false,
+            },
+          ],
+        }}
+      />,
+    );
+
+    const targetingConfigSlug = (await screen.findByTestId(
+      "targetingConfigSlug",
+    )) as HTMLSelectElement;
+    expect(targetingConfigSlug.value).toEqual(
+      MOCK_CONFIG!.targetingConfigs![0]!.value,
+    );
+
+    expect(screen.getByTestId("isSticky")).not.toBeChecked();
+  });
+  it("expect sticky enrollment to be selected as sticky is required for the selected targeting", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          targetingConfigSlug: "WIN_ONLY",
+          targetingConfig: [
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+            },
+          ],
+          isSticky: true,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigs: [
+            {
+              label: "No Targeting",
+              value: "",
+              applicationValues: [
+                NimbusExperimentApplicationEnum.DESKTOP,
+                "TOASTER",
+              ],
+              description: "No Targeting configuration",
+              stickyRequired: false,
+            },
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
+              stickyRequired: false,
+            },
+          ],
+        }}
+      />,
+    );
+
+    const targetingConfigSlug = (await screen.findByTestId(
+      "targetingConfigSlug",
+    )) as HTMLSelectElement;
+
+    expect(targetingConfigSlug.value).toEqual(
+      MOCK_CONFIG!.targetingConfigs![1]!.value,
+    );
+    expect(screen.getByTestId("isSticky")).toHaveProperty("checked", true);
+    expect(screen.getByTestId("isSticky")).toBeDisabled();
+    await expect(
+      screen.getByTestId("sticky-required-warning"),
+    ).toBeInTheDocument();
+  });
+
+  it("expect sticky enrollment to be optional as changing targeting from sticky required to sticky not required", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          targetingConfigSlug: "WIN_ONLY",
+          targetingConfig: [
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+            },
+          ],
+          isSticky: true,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigs: [
+            {
+              label: "No Targeting",
+              value: "",
+              applicationValues: [
+                NimbusExperimentApplicationEnum.DESKTOP,
+                "TOASTER",
+              ],
+              description: "No Targeting configuration",
+              stickyRequired: false,
+            },
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
+              stickyRequired: false,
+            },
+          ],
+        }}
+      />,
+    );
+
+    const targetingConfigSlug = (await screen.findByTestId(
+      "targetingConfigSlug",
+    )) as HTMLSelectElement;
+
+    expect(targetingConfigSlug.value).toEqual(
+      MOCK_CONFIG!.targetingConfigs![1]!.value,
+    );
+    fireEvent.change(screen.getByTestId("targetingConfigSlug"), {
+      target: { value: MOCK_CONFIG!.targetingConfigs![0]!.value },
+    });
+    fireEvent.click(screen.getByTestId("isSticky"), {
+      target: { checked: false },
+    });
+    expect(screen.getByTestId("isSticky")).toHaveProperty("checked", true);
+    expect(screen.getByTestId("isSticky")).not.toBeDisabled();
+    await expect(
+      screen.queryByTestId("sticky-required-warning"),
+    ).not.toBeInTheDocument();
   });
 
   it("renders server errors", async () => {
@@ -357,24 +546,28 @@ describe("filterAndSortTargetingConfigSlug", () => {
         value: "",
         applicationValues: [application, NimbusExperimentApplicationEnum.IOS],
         description: "",
+        stickyRequired: false,
       },
       {
         label: expectedLastLabel,
         value: "ZEBRA",
         applicationValues: [application],
         description: "",
+        stickyRequired: false,
       },
       {
         label: expectedLabel,
         value: "FOO_BAR",
         applicationValues: [application],
         description: "",
+        stickyRequired: false,
       },
       {
         label: expectedMissingLabel,
         value: "BAZ_QUUX",
         applicationValues: [NimbusExperimentApplicationEnum.IOS],
         description: "",
+        stickyRequired: false,
       },
     ];
     const result = filterAndSortTargetingConfigs(
@@ -410,18 +603,21 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
               "TOASTER",
             ],
             description: "No targeting configuration",
+            stickyRequired: false,
           },
           {
             label: "Mac Only",
             value: "MAC_ONLY",
             applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
             description: "Mac only configuration",
+            stickyRequired: true,
           },
           {
             label: "Some toaster thing",
             value: "SOME_TOASTER_THING",
             applicationValues: ["TOASTER"],
             description: "Some toaster thing configuration",
+            stickyRequired: false,
           },
         ],
         firefoxVersions: [
