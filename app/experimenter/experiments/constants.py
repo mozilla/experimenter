@@ -31,6 +31,10 @@ class ApplicationConfig:
     kinto_collection: str
     randomization_unit: str
 
+@dataclass
+class RolloutSupport:
+    application: object
+    firefox_min_version: object
 
 APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     name="Firefox Desktop",
@@ -344,6 +348,18 @@ class NimbusConstants(object):
         FIREFOX_119 = "119.!"
         FIREFOX_120 = "120.!"
 
+
+    ROLLOUT_SUPPORT = (
+        RolloutSupport(
+            application=Application.DESKTOP,
+            firefox_min_version=Version.FIREFOX_102,
+        ),
+        RolloutSupport(
+            application=Application.FENIX,
+            firefox_min_version=Version.FIREFOX_102,
+        ),
+    )
+    
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
         ENROLLMENT_END = "enrollment end"
@@ -408,6 +424,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
+    )
+
+    WARNING_ROLLOUT_SUPPORT = (
+        "Rollouts may not be fully supported for the selected "
+        "application and minimum version"
     )
 
     # Analysis can be computed starting the week after enrollment
