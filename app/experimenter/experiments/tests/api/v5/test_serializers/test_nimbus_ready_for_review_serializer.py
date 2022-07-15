@@ -605,6 +605,8 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertEqual(serializer_result, serializer.is_valid())
 
         self.assertEqual(len(serializer.errors), errors)
+        if not serializer_result:
+            self.assertIn("is_sticky", serializer.errors)
 
     def test_alid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
