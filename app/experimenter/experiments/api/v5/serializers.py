@@ -1379,9 +1379,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         self.warnings["is_rollout"] = [NimbusExperiment.WARNING_ROLLOUT_SUPPORT]
         return data
 
-    def validate(self, attrs):
-        application = attrs.get("application")
-        channel = attrs.get("channel")
+    def validate(self, data):
+        application = data.get("application")
+        channel = data.get("channel")
         if application != NimbusExperiment.Application.DESKTOP and not channel:
             raise serializers.ValidationError(
                 {"channel": "Channel is required for this application."}
@@ -1391,10 +1391,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
         data = self._validate_sticky_enrollment(data)
+        data = self._validate_rollout_support(data)
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
             data = self._validate_countries_versions(data)
-        data = self._validate_rollout_support(data)
         return data
 
 

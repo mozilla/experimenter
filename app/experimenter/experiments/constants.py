@@ -31,10 +31,12 @@ class ApplicationConfig:
     kinto_collection: str
     randomization_unit: str
 
+
 @dataclass
 class RolloutSupport:
     application: object
     firefox_min_version: object
+
 
 APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
     name="Firefox Desktop",
@@ -348,7 +350,6 @@ class NimbusConstants(object):
         FIREFOX_119 = "119.!"
         FIREFOX_120 = "120.!"
 
-
     ROLLOUT_SUPPORT = (
         RolloutSupport(
             application=Application.DESKTOP,
@@ -359,7 +360,7 @@ class NimbusConstants(object):
             firefox_min_version=Version.FIREFOX_102,
         ),
     )
-    
+
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
         ENROLLMENT_END = "enrollment end"

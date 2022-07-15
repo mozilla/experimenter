@@ -1135,9 +1135,10 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_102,
         )
         experiment.is_rollout = True
+        experiment.is_sticky = True
         for branch in experiment.treatment_branches:
             branch.delete()
         experiment.save()
@@ -1162,6 +1163,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_50,
         )
         experiment.is_rollout = True
+        experiment.is_sticky = True
         for branch in experiment.treatment_branches:
             branch.delete()
         experiment.save()
@@ -1175,7 +1177,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
 
-        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertTrue(serializer.is_valid())
         self.assertEqual(
             serializer.warnings["is_rollout"][0],
             NimbusConstants.WARNING_ROLLOUT_SUPPORT,
@@ -1573,4 +1575,3 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
     #         ),
     #         serializer.warnings,
     #     )
-    
