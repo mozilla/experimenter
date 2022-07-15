@@ -289,11 +289,6 @@ describe("FormAudience", () => {
     fireEvent.change(screen.getByTestId("targetingConfigSlug"), {
       target: { value: MOCK_CONFIG!.targetingConfigs![0]!.value },
     });
-    expect(screen.getByTestId("isSticky")).toHaveProperty("checked", false);
-    expect(screen.getByTestId("isSticky")).not.toBeDisabled();
-    await expect(
-      screen.queryByTestId("sticky-required-warning"),
-    ).not.toBeInTheDocument();
     // Selecting sticky enrollment for not sticky required targeting
     fireEvent.click(screen.getByTestId("isSticky"), {
       target: { checked: false },
