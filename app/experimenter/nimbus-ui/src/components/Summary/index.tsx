@@ -82,9 +82,13 @@ const Summary = ({
           />
         )}
 
-      {status.live && !status.review && !status.endRequested && status.idle && (
-        <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
-      )}
+      {status.live &&
+        !status.approved &&
+        !status.review &&
+        !status.endRequested &&
+        status.idle && (
+          <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
+        )}
       {(status.live || status.preview) && (
         <PreviewURL {...experiment} status={status} />
       )}
