@@ -1,4 +1,5 @@
 import os
+import typing
 from dataclasses import dataclass
 
 import toml
@@ -9,20 +10,20 @@ from experimenter.experiments.constants import NimbusConstants
 
 
 @dataclass
+class Metric:
+    slug: str
+    friendly_name: str
+    description: str
+
+
+@dataclass
 class Outcome:
     application: str
     description: str
     friendly_name: str
     slug: str
     is_default: bool
-    metrics: dict[str, str]
-
-
-@dataclass
-class Metric:
-    slug: str
-    friendly_name: str
-    description: str
+    metrics: typing.List[Metric]
 
 
 class Outcomes:
@@ -55,11 +56,11 @@ class Outcomes:
                                 is_default=False,
                                 metrics=[
                                     Metric(
-                                        metric,
-                                        outcome_data["metrics"][metric].get(
+                                        slug=metric,
+                                        friendly_name=outcome_data["metrics"][metric].get(
                                             "friendly_name"
                                         ),
-                                        outcome_data["metrics"][metric].get(
+                                        description=outcome_data["metrics"][metric].get(
                                             "description"
                                         ),
                                     )

@@ -1,10 +1,14 @@
 import json
+import typing
 from collections import defaultdict
+from dataclasses import dataclass
 
 import jsonschema
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
+from rest_framework_dataclasses.serializers import DataclassSerializer
 
 from experimenter.base.models import (
     Country,
@@ -43,6 +47,201 @@ class NestedRefResolver(jsonschema.RefResolver):
             for dfn in schema["$defs"].values():
                 if "$id" in dfn:
                     self.store[dfn["$id"]] = dfn
+
+
+@dataclass
+class LabelValueDataClass:
+    label: str
+    value: str
+
+
+@dataclass
+class ApplicationConfigDataClass:
+    application: str
+    channels: typing.List[LabelValueDataClass]
+
+
+@dataclass
+class GeoDataClass:
+    id: int
+    name: str
+    code: str
+
+
+@dataclass
+class FeatureConfigDataClass:
+    id: int
+    name: str
+    slug: str
+    description: str
+    application: str
+    ownerEmail: str
+    schema: str
+
+
+@dataclass
+class UserDataClass:
+    username: str
+
+
+@dataclass
+class TargetingConfigDataClass:
+    label: str
+    value: str
+    applicationValues: typing.List[str]
+    description: str
+    stickyRequired: bool
+
+
+@dataclass
+class MetricDataClass:
+    slug: str
+    friendlyName: str
+    description: str
+
+
+@dataclass
+class OutcomeDataClass:
+    application: str
+    description: str
+    friendlyName: str
+    slug: str
+    isDefault: bool
+    metrics: typing.List[MetricDataClass]
+
+
+@dataclass
+class NimbusConfigurationDataClass:
+    applications: typing.List[LabelValueDataClass]
+    channels: typing.List[LabelValueDataClass]
+    applicationConfigs: typing.List[ApplicationConfigDataClass]
+    countries: typing.List[GeoDataClass]
+    locales: typing.List[GeoDataClass]
+    languages: typing.List[GeoDataClass]
+    documentationLink: typing.List[LabelValueDataClass]
+    allFeatureConfigs: typing.List[FeatureConfigDataClass]
+    firefoxVersions: typing.List[LabelValueDataClass]
+    outcomes: typing.List[OutcomeDataClass]
+    owners: typing.List[UserDataClass]
+    targetingConfigs: typing.List[TargetingConfigDataClass]
+    conclusionRecommendations: typing.List[LabelValueDataClass]
+    hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
+    maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
+
+    def __init__(self):
+        self.applications = self._enum_to_label_value(NimbusExperiment.Application)
+        self.channels = self._enum_to_label_value(NimbusExperiment.Channel)
+        self.applicationConfigs = self._get_application_configs()
+        self.countries = self._geo_model_to_dataclass(
+            Country.objects.all().order_by("name")
+        )
+        self.locales = self._geo_model_to_dataclass(Locale.objects.all().order_by("name"))
+        self.languages = self._geo_model_to_dataclass(
+            Language.objects.all().order_by("name")
+        )
+        self.documentationLink = self._enum_to_label_value(
+            NimbusExperiment.DocumentationLink
+        )
+        self.allFeatureConfigs = self._get_feature_configs()
+        self.firefoxVersions = self._enum_to_label_value(NimbusExperiment.Version)
+        self.outcomes = self._get_outcomes()
+        self.owners = self._get_owners()
+        self.targetingConfigs = self._get_targeting_configs()
+        self.conclusionRecommendations = self._enum_to_label_value(
+            NimbusExperiment.ConclusionRecommendation
+        )
+
+    def _geo_model_to_dataclass(self, queryset):
+        return [GeoDataClass(id=i.id, name=i.name, code=i.code) for i in queryset]
+
+    def _enum_to_label_value(self, text_choices):
+        return [
+            LabelValueDataClass(
+                label=text_choices[name].label,
+                value=name,
+            )
+            for name in text_choices.names
+        ]
+
+    def _get_application_configs(self):
+        configs = []
+        for application in NimbusExperiment.Application:
+            application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
+            configs.append(
+                ApplicationConfigDataClass(
+                    application=application.name,
+                    channels=[
+                        LabelValueDataClass(label=channel.label, value=channel.name)
+                        for channel in NimbusExperiment.Channel
+                        if channel in application_config.channel_app_id
+                    ],
+                )
+            )
+        return configs
+
+    def _get_feature_configs(self):
+        return [
+            FeatureConfigDataClass(
+                id=f.id,
+                name=f.name,
+                slug=f.slug,
+                description=f.description,
+                application=NimbusExperiment.Application(f.application).name,
+                ownerEmail=f.owner_email,
+                schema=f.schema,
+            )
+            for f in NimbusFeatureConfig.objects.all().order_by("name")
+        ]
+
+    def _get_owners(self):
+        owners = (
+            get_user_model()
+            .objects.filter(owned_nimbusexperiments__isnull=False)
+            .distinct()
+            .order_by("email")
+        )
+        return [UserDataClass(username=owner.username) for owner in owners]
+
+    def _get_targeting_configs(self):
+        return [
+            TargetingConfigDataClass(
+                label=choice.label,
+                value=choice.value,
+                applicationValues=NimbusExperiment.TARGETING_CONFIGS[
+                    choice.value
+                ].application_choice_names,
+                description=NimbusExperiment.TARGETING_CONFIGS[choice.value].description,
+                stickyRequired=NimbusExperiment.TARGETING_CONFIGS[
+                    choice.value
+                ].sticky_required,
+            )
+            for choice in NimbusExperiment.TargetingConfig
+        ]
+
+    def _get_outcomes(self):
+        return [
+            OutcomeDataClass(
+                slug=outcome.slug,
+                friendlyName=outcome.friendly_name,
+                application=NimbusExperiment.Application(outcome.application).name,
+                description=outcome.description,
+                isDefault=outcome.is_default,
+                metrics=[
+                    MetricDataClass(
+                        slug=metric.slug,
+                        friendlyName=metric.friendly_name,
+                        description=metric.description,
+                    )
+                    for metric in outcome.metrics
+                ],
+            )
+            for outcome in Outcomes.all()
+        ]
+
+
+class NimbusConfigurationSerializer(DataclassSerializer):
+    class Meta:
+        dataclass = NimbusConfigurationDataClass
 
 
 class ExperimentNameValidatorMixin:
