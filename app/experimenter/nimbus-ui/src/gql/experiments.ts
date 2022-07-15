@@ -109,6 +109,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         value
         applicationValues
         description
+        stickyRequired
       }
       isSticky
       jexlTargetingExpression

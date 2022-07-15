@@ -1162,6 +1162,21 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 )
         return data
 
+    def _validate_sticky_enrollment(self, data):
+        targeting_config_slug = data.get("targeting_config_slug")
+        targeting_config = NimbusExperiment.TARGETING_CONFIGS[targeting_config_slug]
+        is_sticky = data.get("is_sticky")
+        sticky_required = targeting_config.sticky_required
+        if sticky_required and (not is_sticky):
+            raise serializers.ValidationError(
+                {
+                    "is_sticky": "Selected targeting expression requires sticky enrollment to function\
+                    correctly"
+                }
+            )
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1173,6 +1188,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_config(data)
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
+        data = self._validate_sticky_enrollment(data)
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
             data = self._validate_countries_versions(data)
