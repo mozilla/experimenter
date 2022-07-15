@@ -1263,8 +1263,8 @@ class TestNimbusConfigQuery(GraphQLTestCase):
 
         response = self.query(
             """
-            query{
-                nimbusConfig{
+            query {
+                nimbusConfig {
                     applications {
                         label
                         value
@@ -1280,25 +1280,34 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                     applicationConfigs {
                         application
                         channels {
-                            label
-                            value
+                        label
+                        value
                         }
+                    }
+                    allFeatureConfigs {
+                        id
+                        name
+                        slug
+                        description
+                        application
+                        ownerEmail
+                        schema
                     }
                     firefoxVersions {
                         label
                         value
-                    }
-                    allFeatureConfigs {
-                        name
-                        slug
-                        id
-                        description
                     }
                     outcomes {
                         friendlyName
                         slug
                         application
                         description
+                        isDefault
+                        metrics {
+                        slug
+                        friendlyName
+                        description
+                        }
                     }
                     owners {
                         username
@@ -1308,23 +1317,24 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         value
                         description
                         applicationValues
+                        stickyRequired
                     }
+                    hypothesisDefault
                     documentationLink {
                         label
                         value
                     }
-                    hypothesisDefault
                     maxPrimaryOutcomes
                     locales {
-                        code
+                        id
                         name
                     }
                     countries {
-                        code
+                        id
                         name
                     }
                     languages {
-                        code
+                        id
                         name
                     }
                 }
@@ -1374,6 +1384,15 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                     "friendlyName": outcome.friendly_name,
                     "application": NimbusExperiment.Application(outcome.application).name,
                     "description": outcome.description,
+                    "isDefault": outcome.is_default,
+                    "metrics": [
+                        {
+                            "slug": metric.slug,
+                            "friendlyName": metric.friendly_name,
+                            "description": metric.description,
+                        }
+                        for metric in outcome.metrics
+                    ],
                 },
                 config["outcomes"],
             )
@@ -1385,23 +1404,26 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                     "name": feature_config.name,
                     "slug": feature_config.slug,
                     "description": feature_config.description,
+                    "application": NimbusExperiment.Application(
+                        feature_config.application
+                    ).name,
+                    "ownerEmail": feature_config.owner_email,
+                    "schema": feature_config.schema,
                 },
                 config["allFeatureConfigs"],
             )
 
-        for choice in NimbusExperiment.TargetingConfig:
+        for targeting_config_choice in NimbusExperiment.TargetingConfig:
+            targeting_config = NimbusExperiment.TARGETING_CONFIGS[
+                targeting_config_choice.value
+            ]
             self.assertIn(
                 {
-                    "label": choice.label,
-                    "value": choice.value,
-                    "description": NimbusExperiment.TARGETING_CONFIGS[
-                        choice.value
-                    ].description,
-                    "applicationValues": list(
-                        NimbusExperiment.TARGETING_CONFIGS[
-                            choice.value
-                        ].application_choice_names
-                    ),
+                    "label": targeting_config_choice.label,
+                    "value": targeting_config_choice.value,
+                    "description": targeting_config.description,
+                    "stickyRequired": targeting_config.sticky_required,
+                    "applicationValues": list(targeting_config.application_choice_names),
                 },
                 config["targetingConfigs"],
             )
