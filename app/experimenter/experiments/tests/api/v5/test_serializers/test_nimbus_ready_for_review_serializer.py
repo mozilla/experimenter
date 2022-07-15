@@ -75,6 +75,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP
                 )
             ],
+            is_sticky=True,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -98,6 +99,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP
                 ),
             ],
+            is_sticky=True,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -118,6 +120,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP
                 )
             ],
+            is_sticky=True,
         )
         experiment.hypothesis = NimbusExperiment.HYPOTHESIS_DEFAULT
         experiment.save()
@@ -144,6 +147,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP
                 )
             ],
+            is_sticky=True,
         )
         experiment.reference_branch = None
         experiment.save()
@@ -170,6 +174,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP
                 )
             ],
+            is_sticky=True,
         )
         experiment.reference_branch.description = ""
         experiment.save()
@@ -192,6 +197,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_83,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+            is_sticky=True,
         )
         experiment.save()
         serializer = NimbusReviewSerializer(
@@ -217,6 +223,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_9830,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_99,
+            is_sticky=True,
         )
         experiment.save()
         serializer = NimbusReviewSerializer(
@@ -258,6 +265,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
+            is_sticky=True,
         )
         experiment_1.save()
         serializer_1 = NimbusReviewSerializer(
@@ -277,6 +285,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
             languages=[language.id],
+            is_sticky=True,
         )
         experiment_2.save()
         serializer_2 = NimbusReviewSerializer(
@@ -315,6 +324,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
+            is_sticky=True,
         )
         experiment.save()
         serializer = NimbusReviewSerializer(
@@ -357,6 +367,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
             languages=[language.id],
+            is_sticky=True,
         )
         experiment.save()
         serializer = NimbusReviewSerializer(
@@ -401,6 +412,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
             countries=[],
+            is_sticky=True,
         )
 
         serializer_1 = NimbusReviewSerializer(
@@ -444,6 +456,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
             countries=[country.id],
+            is_sticky=True,
         )
 
         serializer_1 = NimbusReviewSerializer(
@@ -485,6 +498,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
             countries=[],
+            is_sticky=True,
         )
 
         serializer = NimbusReviewSerializer(
@@ -527,6 +541,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
             countries=[country.id],
+            is_sticky=True,
         )
 
         serializer = NimbusReviewSerializer(
@@ -546,27 +561,31 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             (
                 NimbusExperiment.TargetingConfig.MAC_ONLY,
                 True,
+                True,
                 0,
             ),
             (
                 NimbusExperiment.TargetingConfig.MAC_ONLY,
                 False,
+                True,
                 0,
             ),
             (
                 NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+                False,
                 False,
                 1,
             ),
             (
                 NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
                 True,
+                True,
                 0,
             ),
         ]
     )
-    def test_experiments_with_is_sticky_warning(
-        self, targeting_config, is_sticky, warnings
+    def test_experiments_with_is_sticky_error(
+        self, targeting_config, is_sticky, serializer_result, errors
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -583,15 +602,16 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer_result, serializer.is_valid())
 
-        self.assertEqual(len(serializer.warnings), warnings)
+        self.assertEqual(len(serializer.errors), errors)
 
     def test_alid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_83,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
+            is_sticky=True,
         )
         experiment.save()
         serializer = NimbusReviewSerializer(
@@ -614,6 +634,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP
                 )
             ],
+            is_sticky=True,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -639,6 +660,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP
                 )
             ],
+            is_sticky=True,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -659,6 +681,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP
                 )
             ],
+            is_sticky=True,
         )
         treatment_branch = NimbusBranchFactory.create(
             experiment=experiment, description=""
@@ -684,6 +707,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
+            is_sticky=True,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -711,6 +735,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP
                 )
             ],
+            is_sticky=True,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -747,6 +772,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             application=application,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
+            is_sticky=True,
         )
 
         serializer = NimbusReviewSerializer(
@@ -774,6 +800,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.IOS,
                 )
             ],
+            is_sticky=True,
         )
 
         serializer = NimbusReviewSerializer(
@@ -800,6 +827,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             feature_configs=[],
+            is_sticky=True,
         )
 
         serializer = NimbusReviewSerializer(
@@ -829,6 +857,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP,
                 )
             ],
+            is_sticky=True,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get()
@@ -871,6 +900,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP,
                 )
             ],
+            is_sticky=True,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get()
@@ -959,6 +989,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP,
                 )
             ],
+            is_sticky=True,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
         reference_feature_value.value = """\
@@ -1004,6 +1035,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP,
                 )
             ],
+            is_sticky=True,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
         reference_feature_value.value = """\
@@ -1048,6 +1080,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP,
                 )
             ],
+            is_sticky=True,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get()
         reference_feature_value.value = """\
@@ -1083,6 +1116,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                     application=NimbusExperiment.Application.DESKTOP,
                 )
             ],
+            is_sticky=True,
         )
         serializer = NimbusReviewSerializer(
             experiment,
@@ -1124,6 +1158,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                     application=NimbusExperiment.Application.IOS,
                 ),
             ],
+            is_sticky=True,
         )
 
         serializer = NimbusReviewSerializer(
@@ -1150,6 +1185,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             feature_configs=[],
+            is_sticky=True,
         )
 
         serializer = NimbusReviewSerializer(
@@ -1179,6 +1215,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_without_schema,
                 self.feature_with_schema,
             ],
+            is_sticky=True,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get(
@@ -1229,6 +1266,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_without_schema,
                 self.feature_with_schema,
             ],
+            is_sticky=True,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get(
@@ -1281,6 +1319,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
                 self.feature_without_schema,
                 self.feature_with_schema,
             ],
+            is_sticky=True,
         )
         reference_feature_value = experiment.reference_branch.feature_values.get(
             feature_config=self.feature_with_schema
@@ -1337,6 +1376,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[feature1, feature2],
+            is_sticky=True,
         )
 
         reference_feature_value = experiment.reference_branch.feature_values.get(

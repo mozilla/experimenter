@@ -1168,9 +1168,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         is_sticky = data.get("is_sticky")
         sticky_required = targeting_config.sticky_required
         if sticky_required and (not is_sticky):
-            self.warnings["is_sticky"].append(
-                "Selected targeting expression requires sticky enrollment to function\
+            raise serializers.ValidationError(
+                {
+                    "is_sticky": "Selected targeting expression requires sticky enrollment to function\
                     correctly"
+                }
             )
 
         return data

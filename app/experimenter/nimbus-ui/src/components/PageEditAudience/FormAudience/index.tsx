@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useMemo, useState } from "react";
-import { FormLabel } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
@@ -168,11 +167,7 @@ export const FormAudience = ({
       (config) => config.value === ev.target.value,
     );
     setIsSticky(checkStickyRequired?.stickyRequired || false);
-    if (checkStickyRequired?.stickyRequired === true) {
-      setStickyRequiredWarning(true);
-    } else {
-      setStickyRequiredWarning(false);
-    }
+    setStickyRequiredWarning(!!checkStickyRequired?.stickyRequired);
   };
 
   const isDesktop =
@@ -290,9 +285,9 @@ export const FormAudience = ({
               label="Sticky Enrollment (Clients remain enrolled until the experiment ends)"
             />
             {stickyRequiredWarning && (
-              <FormLabel data-testid="stickyRequiredWarning">
+              <Alert data-testid="sticky-required-warning" variant="warning">
                 Sticky enrollment is required for this targeting configuration.
-              </FormLabel>
+              </Alert>
             )}
             <FormErrors name="isSticky" />
           </Form.Group>

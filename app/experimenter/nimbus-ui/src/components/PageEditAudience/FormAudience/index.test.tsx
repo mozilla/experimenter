@@ -163,8 +163,7 @@ describe("FormAudience", () => {
 
     expect(screen.getByTestId("isSticky")).not.toBeChecked();
   });
-
-  it("expect sticky enrollment to be changed according to the advance targeting selected option", async () => {
+  it("expect sticky enrollment to be selected as sticky is required for the selected targeting", async () => {
     render(
       <Subject
         experiment={{
@@ -222,41 +221,88 @@ describe("FormAudience", () => {
     expect(targetingConfigSlug.value).toEqual(
       MOCK_CONFIG!.targetingConfigs![1]!.value,
     );
-    // since sticky is required for the selected targeting
     expect(screen.getByTestId("isSticky")).toHaveProperty("checked", true);
     expect(screen.getByTestId("isSticky")).toBeDisabled();
     await expect(
-      screen.getByTestId("stickyRequiredWarning"),
+      screen.getByTestId("sticky-required-warning"),
     ).toBeInTheDocument();
-    // changing the selected targeting to sticky required false
+  });
+
+  it("expect sticky enrollment to be optional as changing targeting from sticky required to sticky not required", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          targetingConfigSlug: "WIN_ONLY",
+          targetingConfig: [
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+            },
+          ],
+          isSticky: true,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigs: [
+            {
+              label: "No Targeting",
+              value: "",
+              applicationValues: [
+                NimbusExperimentApplicationEnum.DESKTOP,
+                "TOASTER",
+              ],
+              description: "No Targeting configuration",
+              stickyRequired: false,
+            },
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
+              stickyRequired: false,
+            },
+          ],
+        }}
+      />,
+    );
+
+    const targetingConfigSlug = (await screen.findByTestId(
+      "targetingConfigSlug",
+    )) as HTMLSelectElement;
+
+    expect(targetingConfigSlug.value).toEqual(
+      MOCK_CONFIG!.targetingConfigs![1]!.value,
+    );
     fireEvent.change(screen.getByTestId("targetingConfigSlug"), {
       target: { value: MOCK_CONFIG!.targetingConfigs![0]!.value },
     });
-    // since sticky is not required for the selected targeting
     expect(screen.getByTestId("isSticky")).toHaveProperty("checked", false);
     expect(screen.getByTestId("isSticky")).not.toBeDisabled();
     await expect(
-      screen.queryByTestId("stickyRequiredWarning"),
+      screen.queryByTestId("sticky-required-warning"),
     ).not.toBeInTheDocument();
-    // Making sticky enrollment for not sticky required targeting
+    // Selecting sticky enrollment for not sticky required targeting
     fireEvent.click(screen.getByTestId("isSticky"), {
       target: { checked: false },
     });
-    // since sticky is not required, user clicked to have it sticky
     expect(screen.getByTestId("isSticky")).toHaveProperty("checked", true);
     expect(screen.getByTestId("isSticky")).not.toBeDisabled();
     await expect(
-      screen.queryByTestId("stickyRequiredWarning"),
+      screen.queryByTestId("sticky-required-warning"),
     ).not.toBeInTheDocument();
-    // selecting targeting which requires stick enrollment
-    fireEvent.change(screen.getByTestId("targetingConfigSlug"), {
-      target: { value: MOCK_CONFIG!.targetingConfigs![1]!.value },
-    });
-    expect(screen.getByTestId("isSticky")).toHaveProperty("checked", true);
-    expect(screen.getByTestId("isSticky")).toBeDisabled();
-    await expect(
-      screen.getByTestId("stickyRequiredWarning"),
-    ).toBeInTheDocument();
   });
 
   it("renders server errors", async () => {
