@@ -74,6 +74,7 @@ const Summary = ({
       )}
 
       {status.live &&
+        !status.approved &&
         !status.review &&
         !status.pauseRequested &&
         !experiment.isEnrollmentPaused && (
@@ -82,13 +83,9 @@ const Summary = ({
           />
         )}
 
-      {status.live &&
-        !status.approved &&
-        !status.review &&
-        !status.endRequested &&
-        status.idle && (
-          <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
-        )}
+      {status.live && !status.review && !status.endRequested && status.idle && (
+        <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
+      )}
       {(status.live || status.preview) && (
         <PreviewURL {...experiment} status={status} />
       )}
