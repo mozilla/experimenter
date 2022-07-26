@@ -46,7 +46,7 @@ jobs:
           command: |
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
-  
+
   integration_nimbus_desktop_beta:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
@@ -73,6 +73,7 @@ jobs:
           command: |
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
+
   integration_nimbus_desktop:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
@@ -90,6 +91,7 @@ jobs:
             PYTEST_ARGS=$(circleci tests split "app/tests/integration/nimbus/parallel_pytest_args.txt")
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 UPDATE_FIREFOX_VERSION="true" up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
+
   integration_nimbus_sdk:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
@@ -136,7 +138,32 @@ jobs:
             docker push ${DOCKERHUB_REPO}:build_test
             docker push ${DOCKERHUB_REPO}:build_ui
             docker push ${DOCKERHUB_REPO}:latest
-  
+
+  update_external_configs:
+    working_directory: ~/experimenter
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - run:
+          name: Check for Firefox Update
+          command: |
+            echo "hi"
+            # make fetch_external_resources
+            # if git diff --name-only main HEAD
+            #   then
+            #     git branch -D external-config;
+            #     git checkout -b external-config
+            #     git add .
+            #     git commit -m 'chore(nimbus): Update External Configs'
+            #     git push origin external-config -f
+            #     gh pr create -f
+            #   else
+            #     echo "No config changes, skipping"
+            #     circleci-agent step halt
+            # fi
+
   build_firefox_versions:
     working_directory: ~/experimenter
     machine:
@@ -192,7 +219,7 @@ jobs:
             docker push ${DOCKERHUB_REPO}:nimbus-firefox-release
       - save_cache:
           key: version-cache-{{ checksum "old_versions.txt" }}
-          paths: 
+          paths:
             - /home/circleci/experimenter/old_versions.txt
 
 workflows:
@@ -207,7 +234,7 @@ workflows:
                 - main
     jobs:
       - build_firefox_versions
-              
+
   build:
     jobs:
       - check:
@@ -242,3 +269,8 @@ workflows:
               only: main
           requires:
            - check
+      - update_external_configs:
+          filters:
+            branches:
+              ignore:
+                - main
