@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  gh: circleci/github-cli@2.0
 jobs:
   check:
     machine:
@@ -145,24 +147,36 @@ jobs:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
       docker_layer_caching: true
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "6f:26:1b:06:f2:32:62:65:bd:92:be:a9:2f:7b:65:59" # for git pushes from circleci, since relies on ssh
       - checkout
+      - gh/setup:
+          token: GH_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
       - run:
           name: Check for Firefox Update
           command: |
-            echo "hi"
-            # make fetch_external_resources
-            # if git diff --name-only main HEAD
-            #   then
-            #     git branch -D external-config;
-            #     git checkout -b external-config
-            #     git add .
-            #     git commit -m 'chore(nimbus): Update External Configs'
-            #     git push origin external-config -f
-            #     gh pr create -f
-            #   else
-            #     echo "No config changes, skipping"
-            #     circleci-agent step halt
-            # fi
+            make fetch_external_resources
+            if git diff --name-only main HEAD
+              then
+                git config --local user.name "dataops-ci-bot"
+                git config --local user.email "dataops+ci-bot@mozilla.com"
+                gh config set git_protocol https
+                echo "Create new branch"
+                git checkout -b external-config
+                echo "Add diff to branch"
+                echo "add-test-file" > test-file.txt
+                git add .
+                echo "Commit changes"
+                git commit -m 'chore(nimbus): Update External Configs'
+                echo "Push branch to origin"
+                git push origin external-config -f
+                echo "Create PR"
+                gh pr create --fill --base main --head external-config --repo mozilla/experimenter
+              else
+                echo "No config changes, skipping"
+                circleci-agent step halt
+            fi
 
   build_firefox_versions:
     working_directory: ~/experimenter
