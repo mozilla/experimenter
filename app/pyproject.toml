@@ -63,7 +63,8 @@ dj-inmemorystorage = "^2.1.0"
 PyYAML = "^6.0"
 mozilla-nimbus-shared = "^1.8.0"
 django-import-export = "^2.8.0"
-sentry-sdk = "^1.7.0"
+sentry-sdk = "^1.8.0"
+djangorestframework-dataclasses = "^1.1.1"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
