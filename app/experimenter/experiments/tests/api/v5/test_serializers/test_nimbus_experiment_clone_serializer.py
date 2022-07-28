@@ -1,6 +1,8 @@
 from django.test import TestCase
 
+from experimenter.base.tests.factories import LocaleFactory
 from experimenter.experiments.api.v5.serializers import NimbusExperimentCloneSerializer
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
 
@@ -77,3 +79,43 @@ class TestNimbusExperimentCloneSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertIn("rollout_branch_slug", serializer.errors)
+
+    def test_locales_only_clone_for_desktop_application(self):
+        desktop_application = NimbusExperiment.Application.DESKTOP
+        locale = LocaleFactory.create()
+
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=desktop_application,
+            locales=[locale.id],
+        )
+        serializer = NimbusExperimentCloneSerializer(
+            data={
+                "parent_slug": parent.slug,
+                "name": "New Name",
+            },
+            context={"user": parent.owner},
+        )
+        self.assertTrue(serializer.is_valid())
+        child = serializer.save()
+        self.assertEqual(list(child.locales.all()), [locale])
+
+    def test_locales_not_clone_for_mobile_application(self):
+        mobile_application = NimbusExperiment.Application.FENIX
+        locale = LocaleFactory.create()
+
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=mobile_application,
+            locales=[locale.id],
+        )
+        serializer = NimbusExperimentCloneSerializer(
+            data={
+                "parent_slug": parent.slug,
+                "name": "New Name",
+            },
+            context={"user": parent.owner},
+        )
+        self.assertTrue(serializer.is_valid())
+        child = serializer.save()
+        self.assertEqual(list(child.locales.all()), [])
