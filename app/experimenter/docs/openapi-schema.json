@@ -1389,7 +1389,17 @@
       "get": {
         "operationId": "listNimbusExperiments",
         "description": "",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1420,6 +1430,15 @@
             "in": "path",
             "required": true,
             "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
             "schema": {
               "type": "string"
             }
