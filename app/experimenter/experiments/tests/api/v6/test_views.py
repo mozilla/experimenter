@@ -51,3 +51,23 @@ class TestNimbusExperimentViewSet(TestCase):
         self.assertEqual(response.status_code, 200)
         json_data = json.loads(response.content)
         self.assertEqual(NimbusExperimentSerializer(experiment).data, json_data)
+
+    def test_filters_on_is_first_run(self):
+        first_run_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_first_run=True,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_first_run=False,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-list"),
+            {"is_first_run": "True"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = json.loads(response.content)
+        self.assertEqual(len(json_data), 1)
+        self.assertEqual(json_data[0]["slug"], first_run_experiment.slug)
