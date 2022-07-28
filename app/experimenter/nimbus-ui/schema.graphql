@@ -433,6 +433,7 @@ type NimbusExperimentType {
   riskBrand: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
+  isFirstRun: Boolean!
   nimbusexperimentSet: [NimbusExperimentType!]!
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType

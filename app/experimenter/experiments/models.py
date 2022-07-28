@@ -178,6 +178,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         null=True,
     )
     takeaways_summary = models.TextField(blank=True, null=True)
+    is_first_run = models.BooleanField(default=False)
 
     objects = NimbusExperimentManager()
 
