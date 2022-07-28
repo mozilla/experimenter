@@ -7,6 +7,7 @@ import jsonschema
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils.text import slugify
+from packaging import version
 from rest_framework import serializers
 from rest_framework_dataclasses.serializers import DataclassSerializer
 
@@ -471,6 +472,7 @@ class NimbusExperimentBranchMixin:
         data = super().validate(data)
         data = self._validate_duplicate_branch_names(data)
         data = self._validate_single_branch_for_rollout(data)
+        data = self._validate_rollout_version_support(data)
         return data
 
     def _validate_duplicate_branch_names(self, data):
@@ -510,6 +512,20 @@ class NimbusExperimentBranchMixin:
                     ],
                 }
             )
+        return data
+
+    def _validate_rollout_version_support(self, data):
+        if not self.instance or not self.instance.is_rollout:
+            return data
+
+        for support in NimbusExperiment.ROLLOUT_SUPPORT:
+            if version.parse(self.instance.firefox_min_version) < version.parse(
+                support.firefox_min_version
+            ):
+                raise serializers.ValidationError(
+                    {"is_rollout": NimbusConstants.ERROR_BRANCH_NO_VALUE}
+                )
+
         return data
 
     def update(self, experiment, data):
