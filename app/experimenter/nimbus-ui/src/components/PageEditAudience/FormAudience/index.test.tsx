@@ -299,6 +299,120 @@ describe("FormAudience", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("sticky enrollment doesn't change by modifying the other fields value", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isSticky: true,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigs: [
+            {
+              label: "No Targeting",
+              value: "",
+              applicationValues: [
+                NimbusExperimentApplicationEnum.DESKTOP,
+                "TOASTER",
+              ],
+              description: "No Targeting configuration",
+              stickyRequired: false,
+            },
+            {
+              label: "Mac Only",
+              value: "MAC_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Mac Only configuration",
+              stickyRequired: true,
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
+              stickyRequired: false,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("isSticky")).toBeChecked();
+    for (const fieldName of [
+      "populationPercent",
+      "totalEnrolledClients",
+      "proposedEnrollment",
+      "proposedDuration",
+    ]) {
+      await act(async () => {
+        const field = screen.getByTestId(fieldName);
+        fireEvent.click(field);
+        fireEvent.change(field, { target: { value: "123" } });
+        fireEvent.blur(field);
+      });
+      expect(screen.getByTestId("isSticky")).toBeChecked();
+    }
+  });
+
+  it("sticky enrollment doesn't change when clicking save or save and continue", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isSticky: true,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigs: [
+            {
+              label: "No Targeting",
+              value: "",
+              applicationValues: [
+                NimbusExperimentApplicationEnum.DESKTOP,
+                "TOASTER",
+              ],
+              description: "No Targeting configuration",
+              stickyRequired: false,
+            },
+            {
+              label: "Mac Only",
+              value: "MAC_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Mac Only configuration",
+              stickyRequired: true,
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
+              stickyRequired: false,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("isSticky")).toBeChecked();
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+    expect(screen.getByTestId("isSticky")).toBeChecked();
+
+    const submitandContinueButton = screen.getByTestId("next-button");
+    await act(async () => {
+      fireEvent.click(submitandContinueButton);
+    });
+    expect(screen.getByTestId("isSticky")).toBeChecked();
+  });
+
   it("renders server errors", async () => {
     const submitErrors = {
       "*": ["Big bad server thing happened"],
