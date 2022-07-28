@@ -76,7 +76,7 @@ const Summary = ({
       {status.live &&
         !status.approved &&
         !status.review &&
-        !status.idle &&
+        status.idle &&
         !status.pauseRequested &&
         !experiment.isEnrollmentPaused && (
           <EndEnrollment
