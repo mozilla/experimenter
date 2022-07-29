@@ -82,7 +82,9 @@ export const FormAudience = ({
     experiment!.languages.map((v) => "" + v.id!),
   );
 
-  const [isSticky, setIsSticky] = useState<boolean>(false);
+  const [isSticky, setIsSticky] = useState<boolean>(
+    experiment.isSticky ?? false,
+  );
   const [stickyRequiredWarning, setStickyRequiredWarning] = useState<boolean>(
     experiment.targetingConfig![0]?.stickyRequired ?? false,
   );
