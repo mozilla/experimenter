@@ -7,7 +7,6 @@ import jsonschema
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils.text import slugify
-from packaging import version
 from rest_framework import serializers
 from rest_framework_dataclasses.serializers import DataclassSerializer
 
@@ -472,7 +471,6 @@ class NimbusExperimentBranchMixin:
         data = super().validate(data)
         data = self._validate_duplicate_branch_names(data)
         data = self._validate_single_branch_for_rollout(data)
-        data = self._validate_rollout_version_support(data)
         return data
 
     def _validate_duplicate_branch_names(self, data):
@@ -512,20 +510,6 @@ class NimbusExperimentBranchMixin:
                     ],
                 }
             )
-        return data
-
-    def _validate_rollout_version_support(self, data):
-        if not self.instance or not self.instance.is_rollout:
-            return data
-
-        for support in NimbusExperiment.ROLLOUT_SUPPORT:
-            if version.parse(self.instance.firefox_min_version) < version.parse(
-                support.firefox_min_version
-            ):
-                raise serializers.ValidationError(
-                    {"is_rollout": NimbusConstants.ERROR_BRANCH_NO_VALUE}
-                )
-
         return data
 
     def update(self, experiment, data):
@@ -1392,6 +1376,20 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_rollout_version_support(self, data):
+        if not self.instance or not self.instance.is_rollout:
+            return data
+
+        for support in NimbusExperiment.ROLLOUT_SUPPORT:
+            if NimbusExperiment.Version.parse(
+                self.instance.firefox_min_version
+            ) < NimbusExperiment.Version.parse(support.firefox_min_version):
+                raise serializers.ValidationError(
+                    {"is_rollout": NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT}
+                )
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1404,6 +1402,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
         data = self._validate_sticky_enrollment(data)
+        data = self._validate_rollout_version_support(data)
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
             data = self._validate_countries_versions(data)
