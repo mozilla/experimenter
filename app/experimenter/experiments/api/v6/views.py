@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -14,3 +15,5 @@ class NimbusExperimentViewSet(
         status__in=[NimbusExperiment.Status.DRAFT]
     )
     serializer_class = NimbusExperimentSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["is_first_run"]
