@@ -11,7 +11,7 @@ RUN chmod -R 555 /app \
 
 
 # Dev image
-FROM python:3.9 AS dev
+FROM python:3.10 AS dev
 
 WORKDIR /app
 
@@ -82,7 +82,7 @@ COPY --from=file-loader /app/experimenter/nimbus-ui/ /app/experimenter/nimbus-ui
 RUN yarn workspace @experimenter/nimbus-ui build
 
 # Deploy image
-FROM python:3.9-slim AS deploy
+FROM python:3.10-slim AS deploy
 
 WORKDIR /app
 EXPOSE 7001
@@ -102,7 +102,7 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgre
 
 # Copy source from previously built containers
 COPY --from=dev /usr/local/bin/ /usr/local/bin/
-COPY --from=dev /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
+COPY --from=dev /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
 COPY --from=dev /app/bin/ /app/bin/
 COPY --from=file-loader /app/manage.py /app/manage.py
 COPY --from=file-loader /app/experimenter/ /app/experimenter/
