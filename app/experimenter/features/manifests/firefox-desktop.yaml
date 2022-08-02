@@ -24,7 +24,7 @@ testFeature:
       description: Int pref used by platform API tests
 search:
   description: The Search Services
-  owner: standard8@mozilla.com
+  owner: search-and-suggest-program@mozilla.com
   hasExposure: false
   variables:
     experiment:
@@ -402,7 +402,7 @@ password-autocomplete:
       description: Enable direct migration?
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
-  owner: bhearsum@mozilla.com
+  owner: desktop-integrations@mozilla.com
   hasExposure: false
   isEarlyStartup: true
   variables:
@@ -519,9 +519,19 @@ pbNewtab:
     uri: "resource://activity-stream/schemas/MessagingExperiment.schema.json"
     path: "browser/components/newtab/content-src/asrouter/schemas/MessagingExperiment.schema.json"
   variables: {}
+backgroundTaskMessage:
+  description: "A Firefox Messaging System message for the background task message channel"
+  hasExposure: true
+  exposureDescription: >-
+    Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched.
+  isEarlyStartup: false
+  schema:
+    uri: "resource://activity-stream/schemas/BackgroundTaskMessagingExperiment.schema.json"
+    path: "browser/components/newtab/content-src/asrouter/schemas/BackgroundTaskMessagingExperiment.schema.json"
+  variables: {}
 syncAfterTabChange:
   description: "Schedule a sync after any tab change"
-  owner: mhammond@mozilla.com
+  owner: sync-team@mozilla.com
   hasExposure: false
   isEarlyStartup: false
   variables:
@@ -547,7 +557,7 @@ pictureinpicture:
       description: Whether to show the first time PiP toggle or show the PiP icon only
 glean:
   description: "The Glean data collection SDK within Firefox Desktop"
-  owner: chutten@mozilla.com
+  owner: glean-team@mozilla.com
   hasExposure: false
   variables:
     newtabPingEnabled:

@@ -352,6 +352,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_101
   FIREFOX_102
   FIREFOX_103
+  FIREFOX_10301
   FIREFOX_104
   FIREFOX_105
   FIREFOX_106
@@ -433,6 +434,7 @@ type NimbusExperimentType {
   riskBrand: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
+  isFirstRun: Boolean!
   nimbusexperimentSet: [NimbusExperimentType!]!
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType

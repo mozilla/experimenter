@@ -123,6 +123,9 @@ describe("Summary", () => {
       />,
     );
     expect(screen.queryByText("End Experiment")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("End Enrollment for Experiment"),
+    ).not.toBeInTheDocument();
   });
 
   describe("ending an experiment request", () => {

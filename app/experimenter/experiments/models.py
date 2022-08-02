@@ -178,6 +178,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         null=True,
     )
     takeaways_summary = models.TextField(blank=True, null=True)
+    is_first_run = models.BooleanField(default=False)
 
     objects = NimbusExperimentManager()
 
@@ -642,7 +643,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         cloned.feature_configs.add(*self.feature_configs.all())
         cloned.countries.add(*self.countries.all())
-        cloned.locales.add(*self.locales.all())
+        if self.application == self.Application.DESKTOP:
+            cloned.locales.add(*self.locales.all())
         cloned.languages.add(*self.languages.all())
 
         if rollout_branch_slug:
