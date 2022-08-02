@@ -167,12 +167,11 @@ jobs:
             make fetch_external_resources
             if (($(git status --porcelain | wc -c) > 0))
               then
-                git checkout -B external-config &&\
-                git add . &&\
-                git commit -m 'chore(nimbus): Update External Configs' &&\
-                git push origin external-config -f &&\
-                gh pr create -t "chore(nimbus): Update External Configs" -b "" --base main --head external-config --repo mozilla/experimenter ||\
-                echo "PR already exists, skipping"
+                git checkout -B external-config
+                git add .
+                git commit -m 'chore(nimbus): Update External Configs'
+                git push origin external-config -f
+                gh pr create -t "chore(nimbus): Update External Configs" -b "" --base main --head external-config --repo mozilla/experimenter || echo "PR already exists, skipping"
               else
                 echo "No config changes, skipping"
             fi
