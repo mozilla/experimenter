@@ -110,7 +110,7 @@ describe("Summary", () => {
         }}
       />,
     );
-    await screen.findByText("Cancel Review");
+    await screen.findByText("Cancel Review Request");
   });
 
   it("does not renders the end experiment button if the experiment is live and not idle", async () => {

@@ -32,7 +32,7 @@ const CancelReview = ({
               disabled={isLoading}
               data-testid="cancel-review-confirm"
             >
-              Yes, Cancel Review
+              Yes, Cancel Review Request
             </Button>
 
             <Button
@@ -53,7 +53,7 @@ const CancelReview = ({
           disabled={isLoading}
           data-testid="cancel-review-start"
         >
-          Cancel Review
+          Cancel Review Request
         </Button>
       )}
     </div>

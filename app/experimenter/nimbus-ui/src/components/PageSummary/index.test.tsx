@@ -91,7 +91,7 @@ describe("PageSummary", () => {
       canReview: true,
     });
     render(<Subject mocks={[mock]} />);
-    await screen.findByText("Cancel Review");
+    await screen.findByText("Cancel Review Request");
   });
 
   it("can cancel review when the experiment is in the review state", async () => {
