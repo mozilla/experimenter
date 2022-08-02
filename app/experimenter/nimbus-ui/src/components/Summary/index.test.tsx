@@ -101,6 +101,18 @@ describe("Summary", () => {
     await screen.findByText("End Experiment");
   });
 
+  it("renders the cancel review button if the experiment is in review state", async () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+        }}
+      />,
+    );
+    await screen.findByText("Cancel Review");
+  });
+
   it("does not renders the end experiment button if the experiment is live and not idle", async () => {
     render(
       <Subject
@@ -146,6 +158,33 @@ describe("Summary", () => {
       fireEvent.click(screen.getByTestId("end-experiment-start"));
       await screen.findByTestId("end-experiment-alert");
       fireEvent.click(screen.getByTestId("end-experiment-confirm"));
+      await waitFor(() => {
+        expect(refetch).toHaveBeenCalled();
+        expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
+      });
+    });
+
+    it("can cancel review when the experiment is in review state", async () => {
+      const refetch = jest.fn();
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+      });
+      const mutationMock = createMutationMock(
+        experiment.id!,
+        NimbusExperimentPublishStatusEnum.IDLE,
+        {
+          changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
+        },
+      );
+      render(
+        <Subject props={experiment} mocks={[mutationMock]} {...{ refetch }} />,
+      );
+
+      await screen.findByTestId("cancel-review-start");
+      fireEvent.click(screen.getByTestId("cancel-review-start"));
+      await screen.findByTestId("cancel-review-alert");
+      fireEvent.click(screen.getByTestId("cancel-review-confirm"));
       await waitFor(() => {
         expect(refetch).toHaveBeenCalled();
         expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();

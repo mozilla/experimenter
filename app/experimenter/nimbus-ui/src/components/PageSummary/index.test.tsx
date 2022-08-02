@@ -85,6 +85,38 @@ describe("PageSummary", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("renders the cancel review button if the experiment is in review state", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      ...reviewRequestedBaseProps,
+      canReview: true,
+    });
+    render(<Subject mocks={[mock]} />);
+    await screen.findByText("Cancel Review");
+  });
+
+  it("can cancel review when the experiment is in the review state", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      ...reviewRequestedBaseProps,
+      canReview: true,
+    });
+    const mutationMock = createFullStatusMutationMock(
+      experiment.id!,
+      NimbusExperimentStatusEnum.DRAFT,
+      null,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      CHANGELOG_MESSAGES.CANCEL_REVIEW,
+    );
+    render(<Subject mocks={[mock, mutationMock]} />);
+
+    await screen.findByTestId("cancel-review-start");
+    fireEvent.click(screen.getByTestId("cancel-review-start"));
+    await screen.findByTestId("cancel-review-alert");
+    fireEvent.click(screen.getByTestId("cancel-review-confirm"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
+    });
+  });
+
   it("hides signoff section if experiment is launched", async () => {
     // this table is shown in the Summary component instead
     const { mock } = mockExperimentQuery("demo-slug", {
