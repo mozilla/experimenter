@@ -147,12 +147,6 @@ class Application(models.TextChoices):
     )
 
 
-@dataclass
-class RolloutSupport:
-    application: object
-    firefox_min_version: object
-
-
 class NimbusConstants(object):
     class Status(models.TextChoices):
         DRAFT = "Draft"
@@ -372,28 +366,13 @@ class NimbusConstants(object):
         Application.FOCUS_IOS: Version.FIREFOX_101,
     }
 
-    ROLLOUT_SUPPORT = (
-        RolloutSupport(
-            application=Application.DESKTOP,
-            firefox_min_version=Version.FIREFOX_105,
-        ),
-        RolloutSupport(
-            application=Application.FENIX,
-            firefox_min_version=Version.FIREFOX_105,
-        ),
-        RolloutSupport(
-            application=Application.IOS,
-            firefox_min_version=Version.FIREFOX_105,
-        ),
-        RolloutSupport(
-            application=Application.FOCUS_ANDROID,
-            firefox_min_version=Version.FIREFOX_105,
-        ),
-        RolloutSupport(
-            application=Application.FOCUS_IOS,
-            firefox_min_version=Version.FIREFOX_105,
-        ),
-    )
+    ROLLOUT_SUPPORT_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_105,
+        Application.FENIX: Version.FIREFOX_105,
+        Application.FOCUS_ANDROID: Version.FIREFOX_105,
+        Application.IOS: Version.FIREFOX_105,
+        Application.FOCUS_IOS: Version.FIREFOX_105,
+    }
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should

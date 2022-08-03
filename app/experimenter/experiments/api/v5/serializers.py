@@ -1380,13 +1380,14 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if not self.instance or not self.instance.is_rollout:
             return data
 
-        for support in NimbusExperiment.ROLLOUT_SUPPORT:
-            if NimbusExperiment.Version.parse(
-                self.instance.firefox_min_version
-            ) < NimbusExperiment.Version.parse(support.firefox_min_version):
-                raise serializers.ValidationError(
-                    {"is_rollout": NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT}
-                )
+        min_version = NimbusExperiment.Version.parse(self.instance.firefox_min_version)
+        rollout_version_supported = NimbusExperiment.ROLLOUT_SUPPORT_VERSION.get(
+            self.instance.application
+        )
+        if min_version < NimbusExperiment.Version.parse(rollout_version_supported):
+            raise serializers.ValidationError(
+                {"is_rollout": NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT}
+            )
 
         return data
 

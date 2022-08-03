@@ -1180,7 +1180,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         data = {
             "application": f"{desktop}",
-            "is_sticky": "false",
+            "is_sticky": "true",
             "is_rollout": "true",
             "targeting_config_slug": f"{NimbusExperiment.TargetingConfig.MAC_ONLY}",
             "changelog_message": "test changelog message",
