@@ -437,7 +437,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         paused_changelogs = [
             c
             for c in changes
-            if c.experiment_data["is_paused"]
+            if "is_paused" in c.experiment_data
+            and c.experiment_data["is_paused"]
             and c.new_status == NimbusExperiment.Status.LIVE
             and c.new_status_next is None
             and c.new_publish_status == NimbusExperiment.PublishStatus.IDLE
@@ -449,6 +450,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if self.end_date:
             return self.computed_duration_days
+
         return self.proposed_enrollment
 
     @property
