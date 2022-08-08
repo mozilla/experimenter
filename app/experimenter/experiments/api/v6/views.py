@@ -11,7 +11,7 @@ class NimbusExperimentViewSet(
     viewsets.GenericViewSet,
 ):
     lookup_field = "slug"
-    queryset = NimbusExperiment.objects.all().exclude(
+    queryset = NimbusExperiment.objects.with_related().exclude(
         status__in=[NimbusExperiment.Status.DRAFT]
     )
     serializer_class = NimbusExperimentSerializer
