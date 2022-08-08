@@ -32,6 +32,26 @@ class FilterMixin:
 
 
 class NimbusExperimentManager(models.Manager):
+    def with_related(self):
+        return (
+            super()
+            .get_queryset()
+            .select_related("owner")
+            .prefetch_related(
+                "locales",
+                "languages",
+                "countries",
+                "bucket_range",
+                "bucket_range__isolation_group",
+                "reference_branch",
+                "branches",
+                "branches__feature_values",
+                "branches__feature_values__feature_config",
+                "changes",
+                "feature_configs",
+            )
+        )
+
     def latest_changed(self):
         return (
             super()
@@ -310,21 +330,24 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())
 
-        if self.locales.count():
-            locales = [locale.code for locale in self.locales.all().order_by("code")]
+        locales = self.locales.all()
+        if locales:
+            locales = [locale.code for locale in sorted(locales, key=lambda l: l.code)]
 
             sticky_expressions.append(f"locale in {locales}")
 
-        if self.languages.count():
+        languages = self.languages.all()
+        if languages:
             languages = [
-                language.code for language in self.languages.all().order_by("code")
+                language.code for language in sorted(languages, key=lambda l: l.code)
             ]
 
             sticky_expressions.append(f"language in {languages}")
 
-        if self.countries.count():
+        countries = self.countries.all()
+        if countries:
             countries = [
-                country.code for country in self.countries.all().order_by("code")
+                country.code for country in sorted(countries, key=lambda c: c.code)
             ]
             sticky_expressions.append(f"region in {countries}")
 
@@ -410,14 +433,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_enrollment_days(self):
-        paused_change = (
-            self.changes.all()
-            .filter(NimbusChangeLog.Filters.IS_APPROVED_PAUSE)
-            .order_by("changed_on")
-            .first()
-        )
-        if paused_change:
+        changes = self.changes.all()
+        paused_changelogs = [
+            c
+            for c in changes
+            if c.experiment_data["is_paused"]
+            and c.new_status == NimbusExperiment.Status.LIVE
+            and c.new_status_next is None
+            and c.new_publish_status == NimbusExperiment.PublishStatus.IDLE
+        ]
+
+        if paused_changelogs:
+            paused_change = sorted(paused_changelogs, key=lambda c: c.changed_on)[-1]
             return (paused_change.changed_on.date() - self.start_date).days
+
         if self.end_date:
             return self.computed_duration_days
         return self.proposed_enrollment
