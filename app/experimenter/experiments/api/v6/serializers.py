@@ -41,13 +41,15 @@ class NimbusBranchSerializerSingleFeature(serializers.ModelSerializer):
         feature_value = {}
         feature_enabled = False
 
-        if obj.experiment.feature_configs.exists():
-            feature_config = obj.experiment.feature_configs.all().order_by("slug").first()
+        feature_configs = obj.experiment.feature_configs.all()
+        feature_values = obj.feature_values.all()
+        if feature_configs:
+            feature_config = sorted(feature_configs, key=lambda f: f.slug)[0]
             feature_config_slug = feature_config.slug
-            if obj.feature_values.filter(feature_config=feature_config).exists():
-                branch_feature_value = obj.feature_values.get(
-                    feature_config=feature_config
-                )
+            if feature_config in [fv.feature_config for fv in feature_values]:
+                branch_feature_value = [
+                    fv for fv in feature_values if fv.feature_config == feature_config
+                ][0]
                 feature_enabled = branch_feature_value.enabled
                 try:
                     feature_value = json.loads(branch_feature_value.value)
@@ -176,7 +178,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         return NimbusBranchSerializerSingleFeature(obj.branches.all(), many=True).data
 
     def get_featureIds(self, obj):
-        return list(obj.feature_configs.all().values_list("slug", flat=True))
+        return sorted(
+            [feature_config.slug for feature_config in obj.feature_configs.all()]
+        )
 
     def get_outcomes(self, obj):
         prioritized_outcomes = (
