@@ -946,6 +946,20 @@ class TestNimbusExperiment(TestCase):
             expected_days,
         )
 
+    def test_computed_enrollment_days_returns_duration_if_experiment_data_is_none(self):
+        expected_days = 99
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            proposed_enrollment=expected_days,
+        )
+        experiment.changes.filter(experiment_data__is_paused=True).update(
+            experiment_data=None
+        )
+        self.assertEqual(
+            experiment.computed_enrollment_days,
+            expected_days,
+        )
+
     def test_computed_enrollment_end_date_returns_start_date_plus_enrollment_days(self):
         start_date = datetime.date(2022, 1, 1)
         enrollment_end_date = start_date + datetime.timedelta(days=3)
