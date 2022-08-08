@@ -39,3 +39,18 @@ bigger_is_better = false
 friendly_name = "Sponsored Tiles Disable Rate"
 description = "Fraction of users who disable Contile Sponsored Tiles"
 [metrics.spoc_tiles_disable_rate.statistics.binomial]
+
+[metrics.spoc_tiles_preference_toggled]
+select_expression = """   
+  COALESCE(SUM(CASE WHEN
+          event.category = 'customize_home'
+          AND event.name = 'preference_toggled'
+          AND `mozfun.map.get_key`(event.extra, 'preference_key') = 'contile'
+	THEN 1 ELSE 0 END
+  ),0)
+"""
+data_source = "events" 
+bigger_is_better = false
+friendly_name = "Sponsored Tiles Preference Toggled"
+description = "Number of times Contile Sponsored Tiles setting is flipped."
+statistics = { bootstrap_mean = {}, deciles = {} } 
