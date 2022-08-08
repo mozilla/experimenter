@@ -437,7 +437,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         paused_changelogs = [
             c
             for c in changes
-            if "is_paused" in c.experiment_data
+            if c.experiment_data is not None
+            and "is_paused" in c.experiment_data
             and c.experiment_data["is_paused"]
             and c.new_status == NimbusExperiment.Status.LIVE
             and c.new_status_next is None
