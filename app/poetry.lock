@@ -414,14 +414,14 @@ requests = ">=2.0.0"
 
 [[package]]
 name = "django-storages"
-version = "1.12.1"
+version = "1.13.1"
 description = "Support for many storage backends in Django"
 category = "main"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.7"
 
 [package.dependencies]
-Django = ">=2.2"
+Django = ">=3.2"
 
 [package.extras]
 azure = ["azure-storage-blob (>=12.0.0)"]
@@ -1769,7 +1769,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "42d4f0d77e5d95033ecea43e1999284dfa135c93af0ec8b349e5bf77268757c6"
+content-hash = "69522636ed05764794a11fdfd1f9ee639682777432f17112110056003417e306"
 
 [metadata.files]
 amqp = [
@@ -2000,8 +2000,8 @@ django-mozilla-product-details = [
     {file = "django_mozilla_product_details-0.14.1-py2.py3-none-any.whl", hash = "sha256:5fa2a8c3f2b9489aeb39b42c3612a43b0be5e778ffab07a5a2cf23b1eced4d64"},
 ]
 django-storages = [
-    {file = "django-storages-1.12.1.tar.gz", hash = "sha256:cb079981e2e4fe16d7f41000913225140dc334a84f5b7c5e4fcc6b7e6a028222"},
-    {file = "django_storages-1.12.1-py3-none-any.whl", hash = "sha256:a88199d67e2fc032e92de02106315ed005ae22a2bf4df5269c0add4148fec739"},
+    {file = "django-storages-1.13.1.tar.gz", hash = "sha256:b3d98ecc09f1b1627c2b2cf430964322ce4e08617dbf9b4236c16a32875a1e0b"},
+    {file = "django_storages-1.13.1-py3-none-any.whl", hash = "sha256:3540b45618b04be2c867c0982e8d2bd8e34f84dae922267fcebe4691fb93daf0"},
 ]
 django-test-migrations = [
     {file = "django-test-migrations-1.2.0.tar.gz", hash = "sha256:874884ff4e980583cd9f1c986bb9fbfe72b436e759be23004e4f52c26a15f363"},
