@@ -384,6 +384,30 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertTrue(experiment.warn_feature_schema)
 
+    def test_update_experiment_is_rollout(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            is_rollout=False,
+        )
+        experiment_id = experiment.id
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "isRollout": True,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        self.assertTrue(experiment.is_rollout)
+
     def test_update_experiment_branches_without_feature_config(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(

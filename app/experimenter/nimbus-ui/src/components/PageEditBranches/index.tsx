@@ -42,6 +42,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
       {
         featureConfigIds,
         warnFeatureSchema,
+        isRollout,
         referenceBranch,
         treatmentBranches,
       }: FormBranchesSaveState,
@@ -59,6 +60,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
               changelogMessage: CHANGELOG_MESSAGES.UPDATED_BRANCHES,
               featureConfigIds,
               warnFeatureSchema,
+              isRollout,
               referenceBranch,
               treatmentBranches,
             },
