@@ -1147,13 +1147,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             branch.delete()
 
         data = {
-            "application": f"{desktop}",
+            "application": str(desktop),
             "is_sticky": "false",
             "is_rollout": "true",
-            "targeting_config_slug": f"{NimbusExperiment.TargetingConfig.MAC_ONLY}",
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY.value,
             "changelog_message": "test changelog message",
             "channel": "",
-            "firefox_min_version": f"{NimbusExperiment.Version.FIREFOX_108}",
+            "firefox_min_version": NimbusExperiment.Version.FIREFOX_108.value,
         }
         serializer = NimbusReviewSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -1179,13 +1179,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             branch.delete()
 
         data = {
-            "application": f"{desktop}",
+            "application": str(desktop),
             "is_sticky": "true",
             "is_rollout": "true",
-            "targeting_config_slug": f"{NimbusExperiment.TargetingConfig.MAC_ONLY}",
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY.value,
             "changelog_message": "test changelog message",
             "channel": "",
-            "firefox_min_version": f"{NimbusExperiment.Version.FIREFOX_50}",
+            "firefox_min_version": NimbusExperiment.Version.FIREFOX_50.value,
         }
         serializer = NimbusReviewSerializer(
             experiment, data=data, partial=True, context={"user": self.user}

@@ -282,9 +282,9 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             branch.delete()
 
         data = {
-            "application": f"{NimbusExperiment.Application.DESKTOP}",
+            "application": NimbusExperiment.Application.DESKTOP.value,
             "is_sticky": "false",
-            "targeting_config_slug": f"{NimbusExperiment.TargetingConfig.MAC_ONLY}",
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY.value,
             "treatment_branches": [
                 {"name": "treatment A", "description": "desc1", "ratio": 1},
                 {"name": "treatment B", "description": "desc2", "ratio": 1},
@@ -300,6 +300,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         self.assertEqual(len(serializer.errors), 1)
 
         error = serializer.errors["treatment_branches"][0].get("name")
+        self.assertIsNotNone(error)
         self.assertEqual(error, NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT)
 
     def test_valid_branches_for_rollout(self):
@@ -316,11 +317,11 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         for branch in experiment.treatment_branches:
             branch.delete()
         data = {
-            "application": f"{NimbusExperiment.Application.DESKTOP}",
+            "application": NimbusExperiment.Application.DESKTOP.value,
             "is_sticky": "true",
             "is_rollout": "true",
-            "targeting_config_slug": f"{NimbusExperiment.TargetingConfig.MAC_ONLY}",
-            "firefox_min_version": f"{NimbusExperiment.Version.FIREFOX_108}",
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY.value,
+            "firefox_min_version": NimbusExperiment.Version.FIREFOX_108.value,
             "changelog_message": "test changelog message",
             "channel": "",
         }
@@ -329,7 +330,6 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         )
 
         self.assertTrue(serializer.is_valid())
-        self.assertEqual(len(serializer.errors), 0)
 
 
 class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
