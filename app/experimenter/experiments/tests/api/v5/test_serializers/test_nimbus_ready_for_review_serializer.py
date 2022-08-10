@@ -608,7 +608,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         if not serializer_result:
             self.assertIn("is_sticky", serializer.errors)
 
-    def test_alid_experiment_allows_min_version_equal_to_max_version(self):
+    def test_valid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_83,
@@ -1129,6 +1129,74 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             context={"user": self.user},
         )
         self.assertTrue(serializer.is_valid())
+
+    def test_rollout_valid_version_support(self):
+        desktop = NimbusExperiment.Application.DESKTOP
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=desktop,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            feature_configs=[NimbusFeatureConfigFactory(application=desktop)],
+            is_sticky=False,
+            is_rollout=True,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+        )
+        experiment.save()
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        data = {
+            "application": str(desktop),
+            "is_sticky": "false",
+            "is_rollout": "true",
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY.value,
+            "changelog_message": "test changelog message",
+            "channel": "",
+            "firefox_min_version": NimbusExperiment.Version.FIREFOX_108.value,
+        }
+        serializer = NimbusReviewSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(len(serializer.errors), 0)
+
+    def test_rollout_invalid_version_support(self):
+        desktop = NimbusExperiment.Application.DESKTOP
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=desktop,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_50,
+            feature_configs=[NimbusFeatureConfigFactory(application=desktop)],
+            is_sticky=True,
+            is_rollout=True,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+        )
+        experiment.save()
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        data = {
+            "application": str(desktop),
+            "is_sticky": "true",
+            "is_rollout": "true",
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY.value,
+            "changelog_message": "test changelog message",
+            "channel": "",
+            "firefox_min_version": NimbusExperiment.Version.FIREFOX_50.value,
+        }
+        serializer = NimbusReviewSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(len(serializer.errors), 1)
+        self.assertEqual(
+            serializer.errors["is_rollout"][0],
+            NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT,
+        )
 
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
