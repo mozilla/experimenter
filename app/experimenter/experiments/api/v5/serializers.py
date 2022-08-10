@@ -1376,6 +1376,24 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_rollout_version_support(self, data):
+        if not self.instance or not self.instance.is_rollout:
+            return data
+
+        min_version = NimbusExperiment.Version.parse(self.instance.firefox_min_version)
+        rollout_version_supported = NimbusExperiment.ROLLOUT_SUPPORT_VERSION.get(
+            self.instance.application
+        )
+        if (
+            rollout_version_supported is not None
+            and min_version < NimbusExperiment.Version.parse(rollout_version_supported)
+        ):
+            raise serializers.ValidationError(
+                {"is_rollout": NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT}
+            )
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1388,6 +1406,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
         data = self._validate_sticky_enrollment(data)
+        data = self._validate_rollout_version_support(data)
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
             data = self._validate_countries_versions(data)
