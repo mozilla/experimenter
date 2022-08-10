@@ -157,7 +157,9 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
             🔍
           </span>{" "}
           Looking for the old Experimenter?{" "}
-          <LinkExternal href="/legacy">It&lsquo;s still here!</LinkExternal>
+          <LinkExternal href="/legacy" id="legacy_page_link">
+            It&lsquo;s still here!
+          </LinkExternal>
           <span role="img" aria-label="magnifying emoji">
             💡
           </span>{" "}
