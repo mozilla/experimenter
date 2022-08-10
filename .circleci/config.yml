@@ -20,7 +20,7 @@ jobs:
           name: Run tests and linting
           command: |
             cp .env.sample .env
-            make check
+            make check_legacy
 
   integration_nimbus_desktop_release:
     machine:
@@ -117,6 +117,28 @@ jobs:
           command: |
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus_rust PYTEST_ARGS="$PYTEST_ARGS"
+  
+  integration_legacy:
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    resource_class: large
+    working_directory: ~/experimenter
+    steps:
+      - run:
+          name: Docker info
+          command: docker -v
+      - run:
+          name: Docker compose info
+          command: docker-compose -v
+      - checkout
+      - run:
+          name: Run integration tests
+          command: |
+            cp .env.sample .env
+            make refresh
+            make up_prod_detached
+            make integration_test_legacy
 
   deploy:
     working_directory: ~/experimenter
@@ -282,6 +304,12 @@ workflows:
                 - main
       - integration_nimbus_sdk:
           name: integration_nimbus_sdk
+          filters:
+            branches:
+              ignore:
+                - main
+      - integration_legacy:
+          name: integration_legacy
           filters:
             branches:
               ignore:
