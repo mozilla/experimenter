@@ -264,8 +264,17 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         )
 
     def test_no_treatment_branches_for_rollout(self):
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            feature_configs=[
+                NimbusFeatureConfigFactory(
+                    application=NimbusExperiment.Application.DESKTOP
+                )
+            ],
+            is_sticky=True,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
         )
         experiment.is_rollout = True
         experiment.save()
@@ -273,25 +282,54 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             branch.delete()
 
         data = {
+            "application": NimbusExperiment.Application.DESKTOP.value,
+            "is_sticky": "false",
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY.value,
             "treatment_branches": [
                 {"name": "treatment A", "description": "desc1", "ratio": 1},
                 {"name": "treatment B", "description": "desc2", "ratio": 1},
             ],
             "changelog_message": "test changelog message",
+            "channel": "",
         }
         serializer = NimbusExperimentSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
         )
+
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors,
-            {
-                "treatment_branches": [
-                    {"name": NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT}
-                    for i in data["treatment_branches"]
-                ],
-            },
+        self.assertEqual(len(serializer.errors), 1)
+
+        error = serializer.errors["treatment_branches"][0].get("name")
+        self.assertIsNotNone(error)
+        self.assertEqual(error, NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT)
+
+    def test_valid_branches_for_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            is_sticky=True,
+            is_rollout=True,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
         )
+        experiment.save()
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        data = {
+            "application": NimbusExperiment.Application.DESKTOP.value,
+            "is_sticky": "true",
+            "is_rollout": "true",
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY.value,
+            "firefox_min_version": NimbusExperiment.Version.FIREFOX_108.value,
+            "changelog_message": "test changelog message",
+            "channel": "",
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+
+        self.assertTrue(serializer.is_valid())
 
 
 class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
