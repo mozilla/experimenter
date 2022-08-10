@@ -20,7 +20,7 @@ jobs:
           name: Run tests and linting
           command: |
             cp .env.sample .env
-            make check_legacy
+            make check
 
   integration_nimbus_desktop_release:
     machine:

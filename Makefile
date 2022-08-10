@@ -118,9 +118,6 @@ kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
 check: build_test
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)") ${COLOR_CHECK}'
-
-check_legacy: build_test
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)" "$(PYTHON_TEST)") ${COLOR_CHECK}'
 
 pytest: build_test
