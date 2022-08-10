@@ -124,6 +124,8 @@ jobs:
       docker_layer_caching: true
     resource_class: large
     working_directory: ~/experimenter
+    environment:
+      FIREFOX_VERSION: nimbus-firefox-release
     steps:
       - run:
           name: Docker info
