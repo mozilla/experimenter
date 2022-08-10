@@ -364,6 +364,7 @@ class NimbusConstants(object):
         Application.IOS: Version.FIREFOX_101,
         Application.FOCUS_IOS: Version.FIREFOX_101,
     }
+    FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = {Application.DESKTOP: Version.FIREFOX_103}
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should

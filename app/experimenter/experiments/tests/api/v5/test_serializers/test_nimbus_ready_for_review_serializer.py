@@ -1258,6 +1258,159 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             feature_values_errors[0]["value"][0],
         )
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_105,
+                False,
+                False,
+            ),
+            # (
+            #     NimbusExperiment.Application.DESKTOP,
+            #     NimbusExperiment.Version.FIREFOX_101,
+            #     True,
+            #     True,
+            # ),
+            # (
+            #     NimbusExperiment.Application.DESKTOP,
+            #     NimbusExperiment.Version.FIREFOX_101,
+            #     False,
+            #     True,
+            # ),
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_105,
+                True,
+                True,
+            ),
+        ]
+    )
+    def test_serializer_feature_enable_version_support(
+        self, application, firefox_version, feature_enabled, valid
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            status=NimbusExperiment.Status.DRAFT,
+            firefox_min_version=firefox_version,
+            application=application,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=None,
+                    application=application,
+                )
+            ],
+        )
+        for feature_value in experiment.reference_branch.feature_values.all():
+            feature_value.enabled = feature_enabled
+            feature_value.value = (
+                """\
+            {
+            "bar": {
+                "baz": "baz",
+                "qux": 123
+            }
+            }
+        """.strip()
+                if feature_enabled
+                else "{}"
+            )
+            feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertEqual(serializer.is_valid(), valid)
+        if not valid:
+            self.assertEqual(len(serializer.errors), 1)
+        self.assertEqual(serializer.errors, "")
+        # self.assertEqual(serializer.errors['reference_branch']['feature_enabled'].st)
+        # if not valid:
+        #     self.assertEqual(serializer.errors, {})
+
+    # @parameterized.expand(
+    #     [
+    #         (
+    #             NimbusExperiment.Application.DESKTOP,
+    #             NimbusExperiment.Version.FIREFOX_104,
+    #             False,
+    #         ),
+    #         (
+    #             NimbusExperiment.Application.FOCUS_ANDROID,
+    #             NimbusExperiment.Version.FIREFOX_104,
+    #             True,
+    #         ),
+    #         (
+    #             NimbusExperiment.Application.FENIX,
+    #             NimbusExperiment.Version.FIREFOX_104,
+    #             True,
+    #         ),
+    #         (
+    #             NimbusExperiment.Application.IOS,
+    #             NimbusExperiment.Version.FIREFOX_104,
+    #             True,
+    #         ),
+    #         (
+    #             NimbusExperiment.Application.FOCUS_IOS,
+    #             NimbusExperiment.Version.FIREFOX_104,
+    #             True,
+    #         ),
+    #     ]
+    # )
+    # def test_serializer_feature_enable_version_support_error(
+    #     self, application, firefox_version, serializer_result
+    # ):
+    #     feature1 = NimbusFeatureConfigFactory.create(
+    #         schema=None,
+    #         application=application,
+    #     )
+    #     feature2 = NimbusFeatureConfigFactory.create(
+    #         schema=None,
+    #         application=application,
+    #     )
+
+    #     experiment = NimbusExperimentFactory.create_with_lifecycle(
+    #         NimbusExperimentFactory.Lifecycles.CREATED,
+    #         status=NimbusExperiment.Status.DRAFT,
+    #         application=application,
+    #         firefox_min_version=firefox_version,
+    #         channel=NimbusExperiment.Channel.NO_CHANNEL,
+    #         warn_feature_schema=False,
+    #         feature_configs=[feature1, feature2],
+    #         is_sticky=True,
+    #     )
+
+    #     reference_feature_value = experiment.reference_branch.feature_values.get(
+    #         feature_config=feature1
+    #     )
+    #     experiment.reference_branch.feature_values.enabled = False
+    #     reference_feature_value.save()
+
+    #     treatment_feature_value = experiment.treatment_branches[0].feature_values.get(
+    #         feature_config=feature2
+    #     )
+    #     experiment.treatment_branches[0].feature_values.enabled = False
+    #     treatment_feature_value.save()
+
+    #     serializer = NimbusReviewSerializer(
+    #         experiment,
+    #         data=NimbusReviewSerializer(
+    #             experiment,
+    #             context={"user": self.user},
+    #         ).data,
+    #         context={"user": self.user},
+    #     )
+    #     serializer.is_valid()
+
+    #     self.assertEqual(serializer_result, serializer.is_valid())
+
     def test_serializer_feature_config_validation_reference_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
