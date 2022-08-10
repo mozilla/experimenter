@@ -9,6 +9,7 @@ type LinkExternalProps = {
   href: string;
   children: React.ReactNode;
   title?: string;
+  id?: string;
   "data-testid"?: string;
 };
 
@@ -17,6 +18,7 @@ export const LinkExternal = ({
   href,
   children,
   title,
+  id,
   "data-testid": testid = "link-external",
 }: LinkExternalProps) => (
   <a
@@ -27,6 +29,7 @@ export const LinkExternal = ({
       className,
       href,
       title,
+      id,
     }}
   >
     {children}
