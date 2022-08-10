@@ -10,7 +10,8 @@ class Home(Base):
 
     def wait_for_page_to_load(self):
         self.wait.until(
-            lambda _: self.find_element(*self._load_legacy_page).is_displayed())
+            lambda _: self.find_element(*self._load_legacy_page).is_displayed()
+        )
         self.find_element(*self._load_legacy_page).click()
         # wait for new tab
         original_window = self.selenium.current_window_handle
