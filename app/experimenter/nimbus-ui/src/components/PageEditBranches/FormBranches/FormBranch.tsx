@@ -174,7 +174,6 @@ export const FormBranch = ({
               type="switch"
               label={featureEnabled ? "On" : "Off"}
             />
-            <FormErrors name="featureEnabled" />
           </Form.Group>
         </Form.Row>
       </Form.Group>

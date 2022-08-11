@@ -1040,8 +1040,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         return data
 
     def _validate_feature_config(self, data):
-        application = data.get("application")
-        min_version = data.get("firefox_min_version", "")
         feature_config = data.get("feature_config", None)
         warn_feature_schema = data.get("warn_feature_schema", False)
 
@@ -1071,20 +1069,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     self.warnings["reference_branch"] = {"feature_value": errors}
                 else:
                     error_result["reference_branch"] = {"feature_value": errors}
-        else:
-            if application == NimbusExperiment.Application.DESKTOP:
-                min_supported_version = (
-                    NimbusConstants.FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION[application]
-                )
-                if NimbusExperiment.Version.parse(
-                    min_version
-                ) > NimbusExperiment.Version.parse(min_supported_version):
-
-                    error_result["reference_branch"] = {
-                        "feature_enabled": f"Feature enabled is \
-                                only supported for {min_supported_version} version and \
-                                    less"
-                    }
 
         treatment_branches_errors = []
         treatment_branches_warnings = []
@@ -1102,26 +1086,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     else:
                         branch_error = {"feature_value": errors}
 
-            else:
-                if application == NimbusExperiment.Application.DESKTOP:
-                    min_supported_version = (
-                        NimbusConstants.FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION[
-                            application
-                        ]
-                    )
-                    if NimbusExperiment.Version.parse(
-                        min_version
-                    ) > NimbusExperiment.Version.parse(min_supported_version):
-
-                        feature_enable_branch_error = {
-                            "feature_enabled": f"Feature enabled is \
-                                    only supported for {min_supported_version} version \
-                                        and\
-                                        less"
-                        }
-                        treatment_branches_errors.append(feature_enable_branch_error)
-
-            branch_error and treatment_branches_errors.append(branch_error)
+            treatment_branches_errors.append(branch_error)
             treatment_branches_warnings.append(branch_warning)
 
         if any(treatment_branches_warnings):
@@ -1216,6 +1181,50 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_feature_enabled_version(self, data):
+        application = data.get("application")
+        min_version = data.get("firefox_min_version", "")
+
+        min_supported_version = NimbusConstants.FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION[
+            application
+        ]
+        if NimbusExperiment.Version.parse(min_version) > NimbusExperiment.Version.parse(
+            min_supported_version
+        ):
+            return True
+        return False
+
+    def _validate_feature_enabled_for_treatment_branches(self, data):
+        if self._validate_feature_enabled_version(data):
+            treatment_branches_error = []
+            for i in data["treatment_branches"]:
+                if not i["feature_enabled"]:
+                    treatment_branches_error.append(
+                        {"feature_enabled": NimbusConstants.ERROR_FEATURE_ENABLED}
+                    )
+
+            if treatment_branches_error:
+                raise serializers.ValidationError(
+                    {"treatment_branches": treatment_branches_error}
+                )
+
+        return data
+
+    def _validate_feature_enabled_for_reference_branch(self, data):
+        if not data["reference_branch"][
+            "feature_enabled"
+        ] and self._validate_feature_enabled_version(data):
+
+            raise serializers.ValidationError(
+                {
+                    "reference_branch": {
+                        "feature_enabled": NimbusConstants.ERROR_FEATURE_ENABLED
+                    },
+                }
+            )
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1231,6 +1240,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
             data = self._validate_countries_versions(data)
+        else:
+            data = self._validate_feature_enabled_for_treatment_branches(data)
+            data = self._validate_feature_enabled_for_reference_branch(data)
         return data
 
 

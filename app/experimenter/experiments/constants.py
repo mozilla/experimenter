@@ -410,6 +410,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
+    ERROR_FEATURE_ENABLED = f"Feature enabled is only supported for\
+         {FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION[Application.DESKTOP]} version and less"
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
