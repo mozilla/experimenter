@@ -1420,8 +1420,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         "feature_enabled": NimbusConstants.ERROR_FEATURE_ENABLED
                     },
                 }
-                )
-            return data
+            )
+        return data
 
     def _validate_rollout_version_support(self, data):
         if not self.instance or not self.instance.is_rollout:
