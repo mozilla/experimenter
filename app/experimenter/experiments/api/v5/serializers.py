@@ -1394,7 +1394,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         return False
 
     def _validate_feature_enabled_for_treatment_branches(self, data):
-        if self._validate_feature_enabled_version(data):
+        if self._validate_feature_enabled_version(data) and "treatment_branches" in data:
             treatment_branches_error = []
             for i in data["treatment_branches"]:
                 if not i["feature_enabled"]:
@@ -1410,9 +1410,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         return data
 
     def _validate_feature_enabled_for_reference_branch(self, data):
-        if not data["reference_branch"][
-            "feature_enabled"
-        ] and self._validate_feature_enabled_version(data):
+        if (
+            "reference_branch" in data
+            and not data["reference_branch"]["feature_enabled"]
+            and self._validate_feature_enabled_version(data)
+        ):
 
             raise serializers.ValidationError(
                 {
