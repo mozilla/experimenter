@@ -262,6 +262,9 @@ export const FormBranches = ({
               type="checkbox"
               label="Handle this experiment as a rollout"
             />
+            <Form.Control.Feedback type="invalid">
+              {fieldMessages.is_rollout}
+            </Form.Control.Feedback>
           </Form.Group>
         </Form.Row>
 
