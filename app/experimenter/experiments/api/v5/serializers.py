@@ -1257,8 +1257,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         schema = json.loads(feature_config.schema)
         error_result = {}
-        feature_enabled = data["reference_branch"].get("feature_enabled")
-        if feature_enabled:
+        if data["reference_branch"].get("feature_enabled"):
 
             errors = self._validate_feature_value_against_schema(
                 schema, data["reference_branch"]["feature_value"]
@@ -1381,23 +1380,18 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         return data
 
     def _validate_feature_enabled_version(self, data):
-        application = data.get("application")
         min_version = data.get("firefox_min_version", "")
-
-        min_supported_version = NimbusConstants.FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION[
-            application
-        ]
-        if NimbusExperiment.Version.parse(min_version) > NimbusExperiment.Version.parse(
-            min_supported_version
-        ):
-            return True
-        return False
+        return NimbusExperiment.Version.parse(
+            min_version
+        ) >= NimbusExperiment.Version.parse(
+            NimbusConstants.FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION
+        )
 
     def _validate_feature_enabled_for_treatment_branches(self, data):
         if self._validate_feature_enabled_version(data) and "treatment_branches" in data:
             treatment_branches_error = []
-            for i in data["treatment_branches"]:
-                if not i["feature_enabled"]:
+            for branch in data["treatment_branches"]:
+                if not branch["feature_enabled"]:
                     treatment_branches_error.append(
                         {"feature_enabled": NimbusConstants.ERROR_FEATURE_ENABLED}
                     )
