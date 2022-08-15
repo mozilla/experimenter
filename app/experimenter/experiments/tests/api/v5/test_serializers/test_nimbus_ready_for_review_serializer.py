@@ -1198,6 +1198,82 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT,
         )
 
+    def test_invalid_experiment_with_branch_missing_feature_value(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=None,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
+        )
+        for feature_value in experiment.reference_branch.feature_values.all():
+            feature_value.enabled = True
+            feature_value.value = ""
+            feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_value": [NimbusConstants.ERROR_BRANCH_NO_VALUE]
+                }
+            },
+        )
+
+    def test_invalid_experiment_with_branch_branch_missing_feature_enabled(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=None,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
+        )
+        for feature_value in experiment.reference_branch.feature_values.all():
+            feature_value.enabled = False
+            feature_value.value = '{"a": 1}'
+            feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {
+                    "feature_enabled": [NimbusConstants.ERROR_BRANCH_NO_ENABLED]
+                }
+            },
+        )
+
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
     def setUp(self):
