@@ -13,6 +13,7 @@ import { useExitWarning, useForm, useReviewCheck } from "../../../hooks";
 import { IsDirtyUnsaved } from "../../../hooks/useCommonForm/useCommonFormMethods";
 import { getConfig_nimbusConfig } from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import { NimbusExperimentApplicationEnum } from "../../../types/globalTypes";
 import FormBranch from "./FormBranch";
 import {
   FormBranchesSaveState,
@@ -174,6 +175,9 @@ export const FormBranches = ({
 
   type FormBranchProps = React.ComponentProps<typeof FormBranch>;
 
+  const isDesktop =
+    experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
+
   return (
     <FormProvider {...formMethods}>
       <Form
@@ -288,6 +292,7 @@ export const FormBranches = ({
                 onRemoveScreenshot:
                   handleRemoveScreenshot(REFERENCE_BRANCH_IDX),
                 defaultValues: defaultValues.referenceBranch || {},
+                isDesktop,
               }}
             />
           )}
@@ -319,6 +324,7 @@ export const FormBranches = ({
                     onAddScreenshot: handleAddScreenshot(idx),
                     onRemoveScreenshot: handleRemoveScreenshot(idx),
                     defaultValues: defaultValues.treatmentBranches?.[idx] || {},
+                    isDesktop,
                   }}
                 />
               );

@@ -188,7 +188,12 @@ def create_experiment(base_url, default_data):
         branches.feature_config = default_data.feature_config_id
         branches.reference_branch_description = default_data.branches[0].description
         branches.treatment_branch_description = default_data.branches[1].description
-        branches.treatment_branch_enabled.click()
+
+        if default_data.application.value == "DESKTOP":
+            branches.reference_branch_enabled.click()
+            branches.treatment_branch_enabled.click()
+
+        branches.reference_branch_value = "{}"
         branches.treatment_branch_value = "{}"
 
         # Fill Metrics page

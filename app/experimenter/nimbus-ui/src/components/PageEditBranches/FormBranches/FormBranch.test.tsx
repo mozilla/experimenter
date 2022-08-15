@@ -126,6 +126,14 @@ describe("FormBranch", () => {
     await assertInvalidField(container, "referenceBranch.description");
   });
 
+  it("should force feature value visible and display a warning for mobile experiments", async () => {
+    const { container } = render(<SubjectBranch isDesktop={false} />);
+    expect(
+      screen.queryByTestId("mobile-feature-value-warning"),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("feature-value-edit")).toBeInTheDocument();
+  });
+
   const assertInvalidField = async (container: HTMLElement, testId: string) => {
     await waitFor(() => {
       expect(screen.getByTestId(testId)).toHaveClass("is-invalid");
