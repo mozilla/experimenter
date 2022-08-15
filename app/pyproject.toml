@@ -6,7 +6,7 @@ authors = [""]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-Django = "3.2.14"
+Django = "3.2.15"
 black = "21.12b0"
 celery = "5.2.2"
 coverage = "5.5"
@@ -50,7 +50,7 @@ kinto-http = "10.8.0"
 jsonschema = "3.2.0"
 isort = "5.10.0"
 google-cloud-storage = "1.44.0"
-django-storages = "1.12.1"
+django-storages = "1.13.1"
 graphene-django = "^2.15.0"
 toml = "^0.10.2"
 pydantic = "1.9.0"

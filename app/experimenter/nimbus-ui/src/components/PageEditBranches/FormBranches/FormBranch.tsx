@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -33,6 +34,7 @@ export const FormBranch = ({
   branch,
   equalRatio,
   isReference,
+  isDesktop,
   onAddScreenshot,
   onRemoveScreenshot,
   onRemove,
@@ -47,6 +49,7 @@ export const FormBranch = ({
   branch: AnnotatedBranch;
   equalRatio?: boolean;
   isReference?: boolean;
+  isDesktop: boolean;
   onAddScreenshot: () => void;
   onRemoveScreenshot: (screenshotIdx: number) => void;
   onRemove?: () => void;
@@ -160,28 +163,39 @@ export const FormBranch = ({
         </Form.Row>
       </Form.Group>
 
-      <Form.Group
-        className="p-1 mx-3 mt-2 mb-0"
-        data-testid="feature-config-edit"
-      >
-        <Form.Row>
-          <Col sm={1} md={1}>
-            Feature is
+      {isDesktop ? (
+        <Form.Group
+          className="p-1 mx-3 mt-2 mb-0"
+          data-testid="feature-config-edit"
+        >
+          <Form.Row>
+            <Col sm={1} md={1}>
+              Feature is
+            </Col>
+            <Form.Group as={Col} controlId={`${id}.featureEnabled`}>
+              <Form.Check
+                {...formControlAttrs("featureEnabled", {}, false)}
+                type="switch"
+                label={featureEnabled ? "On" : "Off"}
+              />
+            </Form.Group>
+          </Form.Row>
+        </Form.Group>
+      ) : (
+        <Form.Group>
+          <Col>
+            <Alert variant="warning" data-testid="mobile-feature-value-warning">
+              Mobile features require a value for every branch.
+            </Alert>
           </Col>
-          <Form.Group as={Col} controlId={`${id}.featureEnabled`}>
-            <Form.Check
-              {...formControlAttrs("featureEnabled", {}, false)}
-              type="switch"
-              label={featureEnabled ? "On" : "Off"}
-            />
-          </Form.Group>
-        </Form.Row>
-      </Form.Group>
+        </Form.Group>
+      )}
+
       <Form.Group
         className="p-1 mx-3 mt-2 mb-0"
         data-testid="feature-config-edit"
       >
-        {featureEnabled ? (
+        {featureEnabled || !isDesktop ? (
           <Form.Row data-testid="feature-value-edit">
             <Form.Group as={Col} controlId={`${id}-featureValue`}>
               <Form.Label>Value</Form.Label>

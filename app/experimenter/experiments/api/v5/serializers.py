@@ -359,20 +359,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
     def validate(self, data):
         data = super().validate(data)
 
-        if data.get("feature_enabled") and not data.get("feature_value"):
-            raise serializers.ValidationError(
-                {"feature_value": NimbusConstants.ERROR_BRANCH_NO_VALUE}
-            )
-
-        if data.get("feature_value") and not data.get("feature_enabled"):
-            raise serializers.ValidationError(
-                {
-                    "feature_value": (
-                        "feature_enabled must be specified to include a feature_value."
-                    )
-                }
-            )
-
         feature_values = data.get("feature_values")
 
         if feature_values is not None:
@@ -409,6 +395,9 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             )
 
         branch.feature_values.all().delete()
+
+        if branch.experiment.application != NimbusExperiment.Application.DESKTOP:
+            feature_enabled = True
 
         if feature_value is not None:
             NimbusBranchFeatureValue.objects.create(
@@ -1112,6 +1101,19 @@ class NimbusBranchReviewSerializer(NimbusBranchSerializer):
                 raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
         return value
 
+    def validate(self, data):
+        if data.get("feature_enabled") and not data.get("feature_value"):
+            raise serializers.ValidationError(
+                {"feature_value": NimbusConstants.ERROR_BRANCH_NO_VALUE}
+            )
+
+        if data.get("feature_value") and not data.get("feature_enabled"):
+            raise serializers.ValidationError(
+                {"feature_enabled": NimbusConstants.ERROR_BRANCH_NO_ENABLED}
+            )
+
+        return data
+
 
 class NimbusReviewSerializer(serializers.ModelSerializer):
     public_description = serializers.CharField(required=True)
@@ -1376,6 +1378,24 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_rollout_version_support(self, data):
+        if not self.instance or not self.instance.is_rollout:
+            return data
+
+        min_version = NimbusExperiment.Version.parse(self.instance.firefox_min_version)
+        rollout_version_supported = NimbusExperiment.ROLLOUT_SUPPORT_VERSION.get(
+            self.instance.application
+        )
+        if (
+            rollout_version_supported is not None
+            and min_version < NimbusExperiment.Version.parse(rollout_version_supported)
+        ):
+            raise serializers.ValidationError(
+                {"is_rollout": NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT}
+            )
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1388,6 +1408,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
         data = self._validate_sticky_enrollment(data)
+        data = self._validate_rollout_version_support(data)
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
             data = self._validate_countries_versions(data)

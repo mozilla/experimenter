@@ -7,12 +7,14 @@ import { FormProvider } from "react-hook-form";
 import FormBranches from ".";
 import { useForm } from "../../../hooks";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
+import { NimbusExperimentApplicationEnum } from "../../../types/globalTypes";
 import FormBranch from "./FormBranch";
 import { AnnotatedBranch } from "./reducer";
 import { formBranchesActionReducer } from "./reducer/actions";
 import { FormBranchesState } from "./reducer/state";
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
+  application: NimbusExperimentApplicationEnum.DESKTOP,
   featureConfigs: [], //MOCK_CONFIG!.featureConfigs![0],
   referenceBranch: {
     id: 123,
@@ -82,6 +84,7 @@ export const SubjectBranch = ({
   onAddScreenshot = () => {},
   onRemoveScreenshot = () => {},
   onRemove = () => {},
+  isDesktop = true,
 }: Partial<React.ComponentProps<typeof FormBranch>>) => {
   const defaultValues = {
     referenceBranch: branch,
@@ -121,6 +124,7 @@ export const SubjectBranch = ({
             onRemoveScreenshot,
             defaultValues: defaultValues.referenceBranch || {},
             setSubmitErrors,
+            isDesktop,
           }}
         />
       </form>

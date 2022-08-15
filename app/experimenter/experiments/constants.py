@@ -366,6 +366,14 @@ class NimbusConstants(object):
         Application.FOCUS_IOS: Version.FIREFOX_101,
     }
 
+    ROLLOUT_SUPPORT_VERSION = {
+        Application.DESKTOP: Version.FIREFOX_105,
+        Application.FENIX: Version.FIREFOX_105,
+        Application.FOCUS_ANDROID: Version.FIREFOX_105,
+        Application.IOS: Version.FIREFOX_105,
+        Application.FOCUS_IOS: Version.FIREFOX_105,
+    }
+
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
     # limit the size of our slugs to the smallest limit, which is 80
@@ -390,6 +398,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     # Serializer validation errors
     ERROR_DUPLICATE_BRANCH_NAME = "Branch names must be unique."
     ERROR_SINGLE_BRANCH_FOR_ROLLOUT = "A rollout may have only a single reference branch"
+    ERROR_ROLLOUT_VERSION_SUPPORT = (
+        "Rollouts are not supported for the given application and version number."
+    )
     ERROR_DUPLICATE_BRANCH_FEATURE_VALUE = (
         "A branch can not have multiple configurations for the same feature"
     )

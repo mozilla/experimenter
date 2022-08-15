@@ -7,11 +7,17 @@
 "no-feature-firefox-desktop":
   description: A dummy feature for experiments that target no feature.
   owner: barret@mozilla.com
+  applications:
+    - firefox-desktop
+    - firefox-desktop-background-task
   hasExposure: false
   variables: {}
 testFeature:
   description: Test only feature
   owner: barret@mozilla.com
+  applications:
+    - firefox-desktop
+    - firefox-desktop-background-task
   hasExposure: false
   isEarlyStartup: true
   variables:
@@ -521,6 +527,9 @@ pbNewtab:
   variables: {}
 backgroundTaskMessage:
   description: "A Firefox Messaging System message for the background task message channel"
+  owner: nalexander@mozilla.com
+  applications:
+    - firefox-desktop-background-task
   hasExposure: true
   exposureDescription: >-
     Exposure is sent if the message is about to be shown after trigger and targeting conditions on the message matched.
@@ -540,6 +549,9 @@ syncAfterTabChange:
       fallbackPref: "services.sync.syncedTabs.syncDelayAfterTabChange"
       description: >-
         "How long to wait (in milliseconds) to schedule a sync after tab change"
+    syncDelayAfterTabChangeOverride:
+      type: boolean
+      description: Whether to override the pref in case we need to lengthen or diable the increased sync
 pictureinpicture:
   description: Message for first time Picture-in-Picture users
   owner: nbaumgardner@mozilla.com
@@ -564,3 +576,8 @@ glean:
       type: "boolean"
       fallbackPref: "browser.newtabpage.ping.enabled"
       description: "Whether to submit the 'newtab' ping"
+majorRelease2022:
+  description: Major Release 2022
+  owner: firefoxview@mozilla.com
+  hasExposure: false
+  isEarlyStartup: true
