@@ -177,6 +177,7 @@ describe("Summary", () => {
         experiment.id!,
         NimbusExperimentPublishStatusEnum.IDLE,
         {
+          statusNext: null,
           changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
         },
       );
