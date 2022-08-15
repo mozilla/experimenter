@@ -13,6 +13,14 @@ class BranchesPage(ExperimenterBase):
         By.CSS_SELECTOR,
         "#referenceBranch-description",
     )
+    _reference_branch_enable_locator = (
+        By.CSS_SELECTOR,
+        'label[for="referenceBranch.featureEnabled"]',
+    )
+    _reference_branch_value_locator = (
+        By.CSS_SELECTOR,
+        "#referenceBranch-featureValue",
+    )
     _treatment_branch_name_locator = (By.CSS_SELECTOR, "#treatmentBranches\\[0\\]-name")
     _treatment_branch_description_locator = (
         By.CSS_SELECTOR,
@@ -54,6 +62,24 @@ class BranchesPage(ExperimenterBase):
     def reference_branch_description(self, text=None):
         self.wait_for_and_find_element(
             self._reference_branch_description_locator, "reference_branch description"
+        ).send_keys(f"{text}")
+
+    @property
+    def reference_branch_enabled(self):
+        return self.wait_for_and_find_element(
+            self._reference_branch_enable_locator, "reference branch enabled"
+        )
+
+    @property
+    def reference_branch_value(self):
+        return self.wait_for_and_find_element(
+            self._reference_branch_value_locator, "reference branch value"
+        ).text
+
+    @reference_branch_value.setter
+    def reference_branch_value(self, text=None):
+        self.wait_for_and_find_element(
+            self._reference_branch_value_locator, "reference branch value"
         ).send_keys(f"{text}")
 
     @property

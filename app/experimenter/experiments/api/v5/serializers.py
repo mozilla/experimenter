@@ -359,20 +359,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
     def validate(self, data):
         data = super().validate(data)
 
-        if data.get("feature_enabled") and not data.get("feature_value"):
-            raise serializers.ValidationError(
-                {"feature_value": NimbusConstants.ERROR_BRANCH_NO_VALUE}
-            )
-
-        if data.get("feature_value") and not data.get("feature_enabled"):
-            raise serializers.ValidationError(
-                {
-                    "feature_value": (
-                        "feature_enabled must be specified to include a feature_value."
-                    )
-                }
-            )
-
         feature_values = data.get("feature_values")
 
         if feature_values is not None:
@@ -409,6 +395,9 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             )
 
         branch.feature_values.all().delete()
+
+        if branch.experiment.application != NimbusExperiment.Application.DESKTOP:
+            feature_enabled = True
 
         if feature_value is not None:
             NimbusBranchFeatureValue.objects.create(
@@ -1111,6 +1100,19 @@ class NimbusBranchReviewSerializer(NimbusBranchSerializer):
             except Exception as e:
                 raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
         return value
+
+    def validate(self, data):
+        if data.get("feature_enabled") and not data.get("feature_value"):
+            raise serializers.ValidationError(
+                {"feature_value": NimbusConstants.ERROR_BRANCH_NO_VALUE}
+            )
+
+        if data.get("feature_value") and not data.get("feature_enabled"):
+            raise serializers.ValidationError(
+                {"feature_enabled": NimbusConstants.ERROR_BRANCH_NO_ENABLED}
+            )
+
+        return data
 
 
 class NimbusReviewSerializer(serializers.ModelSerializer):
