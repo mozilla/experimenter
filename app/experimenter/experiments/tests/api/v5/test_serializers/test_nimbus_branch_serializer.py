@@ -1,5 +1,6 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from parameterized import parameterized
 
 from experimenter.experiments.api.v5.serializers import NimbusBranchSerializer
 from experimenter.experiments.constants import NimbusConstants
@@ -24,38 +25,6 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
         }
         branch_serializer = NimbusBranchSerializer(data=branch_data)
         self.assertTrue(branch_serializer.is_valid())
-
-    def test_branch_missing_feature_value(self):
-        branch_data = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": True,
-        }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertFalse(branch_serializer.is_valid())
-        self.assertEqual(
-            branch_serializer.errors,
-            {"feature_value": [NimbusConstants.ERROR_BRANCH_NO_VALUE]},
-        )
-
-    def test_branch_missing_feature_enabled(self):
-        branch_data = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_value": "{}",
-        }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertFalse(branch_serializer.is_valid())
-        self.assertEqual(
-            branch_serializer.errors,
-            {
-                "feature_value": [
-                    "feature_enabled must be specified to include a feature_value."
-                ]
-            },
-        )
 
     def test_branch_name_cant_slugify(self):
         branch_data = {
@@ -179,6 +148,38 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
         self.assertTrue(bool(new_screenshot.image))
         with new_screenshot.image.open() as image_file:
             self.assertEqual(image_file.read(), image_content)
+
+    @parameterized.expand(
+        [
+            (NimbusConstants.Application.FOCUS_ANDROID,),
+            (NimbusConstants.Application.FENIX,),
+            (NimbusConstants.Application.IOS,),
+            (NimbusConstants.Application.FOCUS_IOS,),
+        ]
+    )
+    def test_serializer_sets_feature_enabled_true_for_mobile_experiments(
+        self, application
+    ):
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create(
+            application=application, feature_configs=[feature_config]
+        )
+        experiment.branches.all().delete()
+
+        branch_data = {
+            "name": "control",
+            "description": "a control",
+            "ratio": 1,
+            "feature_enabled": False,
+            "feature_value": "{}",
+        }
+
+        branch_serializer = NimbusBranchSerializer(data=branch_data)
+        self.assertTrue(branch_serializer.is_valid(), branch_serializer.errors)
+
+        branch = branch_serializer.save(experiment=experiment)
+        branch_feature_value = branch.feature_values.get()
+        self.assertTrue(branch_feature_value.enabled)
 
 
 class TestNimbusBranchSerializerMultiFeature(TestCase):

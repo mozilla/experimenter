@@ -304,7 +304,7 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperiment.objects.first()
         self.assertEqual(experiment.feature_configs.get(), expected_feature_config)
 
-    def test_update_experiment_branches_with_feature_config(self):
+    def test_update_mobile_experiment_branches_with_feature_config(self):
         user_email = "user@example.com"
         feature = NimbusFeatureConfigFactory(
             schema="{}", application=NimbusExperiment.Application.FENIX
@@ -350,7 +350,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.feature_configs.get(), feature)
         self.assertEqual(experiment.branches.count(), 2)
         self.assertEqual(experiment.reference_branch.name, reference_branch_data["name"])
-        self.assertEqual(experiment.reference_branch.feature_values.get().enabled, False)
+        self.assertEqual(experiment.reference_branch.feature_values.get().enabled, True)
         self.assertEqual(experiment.reference_branch.feature_values.get().value, "")
         treatment_branch = experiment.treatment_branches[0]
         self.assertEqual(treatment_branch.name, treatment_branches_data[0]["name"])
@@ -431,7 +431,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(
             experiment.reference_branch.feature_values.get().feature_config, None
         )
-        self.assertEqual(experiment.reference_branch.feature_values.get().enabled, False)
+        self.assertEqual(experiment.reference_branch.feature_values.get().enabled, True)
         self.assertEqual(experiment.reference_branch.feature_values.get().value, "")
 
         treatment_branch = experiment.treatment_branches[0]
