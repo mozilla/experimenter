@@ -117,7 +117,7 @@ jobs:
           command: |
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus_rust PYTEST_ARGS="$PYTEST_ARGS"
-  
+
   integration_legacy:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
@@ -194,8 +194,13 @@ jobs:
                 git checkout -B external-config
                 git add .
                 git commit -m 'chore(nimbus): Update External Configs'
-                git push origin external-config -f
-                gh pr create -t "chore(nimbus): Update External Configs" -b "" --base main --head external-config --repo mozilla/experimenter || echo "PR already exists, skipping"
+                if (($(git diff external-config origin/external-config | wc -c) > 0))
+                  then
+                    git push origin external-config -f
+                    gh pr create -t "chore(nimbus): Update External Configs" -b "" --base main --head external-config --repo mozilla/experimenter || echo "PR already exists, skipping"
+                  else
+                    echo "Changes already committed, skipping"
+                fi
               else
                 echo "No config changes, skipping"
             fi
