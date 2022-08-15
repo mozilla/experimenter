@@ -175,7 +175,7 @@ export const FormBranch = ({
               label={featureEnabled ? "On" : "Off"}
             />
 
-            {reviewErrors !== undefined && reviewErrors.feature_enabled && (
+            {reviewErrors?.feature_enabled && (
               // @ts-ignore This component doesn't technically support type="warning", but
               // all it's doing is using the string in a class, so we can safely override.
               <Form.Control.Feedback type="warning" data-for="featureEnabled">
