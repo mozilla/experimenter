@@ -365,6 +365,7 @@ class NimbusConstants(object):
         Application.IOS: Version.FIREFOX_101,
         Application.FOCUS_IOS: Version.FIREFOX_101,
     }
+    FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
 
     ROLLOUT_SUPPORT_VERSION = {
         Application.DESKTOP: Version.FIREFOX_105,
@@ -421,6 +422,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
+    ERROR_FEATURE_ENABLED = f"Experiments for Firefox Desktop\
+         {FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION} and above must have the feature\
+            enabled and specify a feature value."
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra

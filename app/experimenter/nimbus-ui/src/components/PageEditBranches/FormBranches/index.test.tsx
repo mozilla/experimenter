@@ -8,6 +8,10 @@ import { SERVER_ERRORS } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import { assertSerializerMessages } from "../../../lib/test-utils";
 import {
+  NimbusExperimentApplicationEnum,
+  NimbusExperimentFirefoxVersionEnum,
+} from "../../../types/globalTypes";
+import {
   MOCK_BRANCH,
   MOCK_EXPERIMENT,
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
@@ -238,6 +242,50 @@ describe("FormBranches", () => {
     await waitFor(() => {
       expect(screen.queryAllByTestId("FormScreenshot").length).toEqual(1);
     });
+  });
+
+  it("Feature enabled error for more than 104 version or more", async () => {
+    const onSave = jest.fn();
+    Object.defineProperty(window, "location", {
+      value: {
+        search: "?show-errors",
+      },
+    });
+    const FEATURE_ENABLE_WARNING =
+      "Feature enabled not supported for version 104 or more";
+    render(
+      <SubjectBranches
+        {...{
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            readyForReview: {
+              ready: false,
+              message: {
+                reference_branch: {
+                  feature_enabled: [FEATURE_ENABLE_WARNING],
+                },
+              },
+              warnings: {},
+            },
+            application: NimbusExperimentApplicationEnum.DESKTOP,
+            firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_104,
+            referenceBranch: {
+              id: null,
+              name: "test",
+              slug: "",
+              description: "test",
+              ratio: 1,
+              featureValue: null,
+              featureEnabled: false,
+              screenshots: [],
+            },
+            treatmentBranches: null,
+          },
+          onSave,
+        }}
+      />,
+    );
+    expect(screen.getAllByText(FEATURE_ENABLE_WARNING)).toHaveLength(1);
   });
 
   it("supports removing a screenshot from a branch", async () => {
