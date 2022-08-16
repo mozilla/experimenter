@@ -194,7 +194,7 @@ jobs:
                 git checkout -B external-config
                 git add .
                 git commit -m 'chore(nimbus): Update External Configs'
-                if (($(git diff external-config origin/external-config | wc -c) > 0))
+                if (($((git diff external-config origin/external-config || git diff HEAD~1) | wc -c) > 0))
                   then
                     git push origin external-config -f
                     gh pr create -t "chore(nimbus): Update External Configs" -b "" --base main --head external-config --repo mozilla/experimenter || echo "PR already exists, skipping"
