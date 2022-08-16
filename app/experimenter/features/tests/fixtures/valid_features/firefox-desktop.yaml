@@ -19,3 +19,7 @@ someFeature:
     jsonProperty:
       type: json
       description: Arbitrary JSON Property
+missingVariables:
+  description: Some Firefox Feature
+  exposureDescription: An exposure event
+  isEarlyStartup: true
