@@ -8,6 +8,10 @@ import { SERVER_ERRORS } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import { assertSerializerMessages } from "../../../lib/test-utils";
 import {
+  NimbusExperimentApplicationEnum,
+  NimbusExperimentFirefoxVersionEnum,
+} from "../../../types/globalTypes";
+import {
   MOCK_BRANCH,
   MOCK_EXPERIMENT,
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
@@ -307,6 +311,49 @@ describe("FormBranches", () => {
 
     const saveResultAfter = onSave.mock.calls[0][0];
     expect(saveResultAfter.treatmentBranches).not.toEqual(null);
+  });
+
+  it("Rollout support error", async () => {
+    const onSave = jest.fn();
+    Object.defineProperty(window, "location", {
+      value: {
+        search: "?show-errors",
+      },
+    });
+    const ROLLOUT_WARNING =
+      "Rollouts are not supported for the selected version";
+    render(
+      <SubjectBranches
+        {...{
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            readyForReview: {
+              ready: false,
+              message: {
+                is_rollout: [ROLLOUT_WARNING],
+              },
+              warnings: {},
+            },
+            application: NimbusExperimentApplicationEnum.DESKTOP,
+            firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_106,
+            referenceBranch: {
+              id: null,
+              name: "test",
+              slug: "",
+              description: "test",
+              ratio: 1,
+              featureValue: null,
+              featureEnabled: false,
+              screenshots: [],
+            },
+            treatmentBranches: null,
+            isRollout: true,
+          },
+          onSave,
+        }}
+      />,
+    );
+    expect(screen.getAllByText(ROLLOUT_WARNING)).toHaveLength(1);
   });
 
   it("supports removing a treatment branch", async () => {
