@@ -122,6 +122,7 @@ export const CHANGELOG_MESSAGES = {
   ARCHIVING_EXPERIMENT: "Archiving experiment",
   UNARCHIVING_EXPERIMENT: "Unarchiving experiment",
   UPDATED_TAKEAWAYS: "Updated Takeaways",
+  CANCEL_REVIEW: "Cancelled Review Request",
 } as const;
 
 export const FIELD_MESSAGES = {
