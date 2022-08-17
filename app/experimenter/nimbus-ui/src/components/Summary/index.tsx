@@ -17,6 +17,7 @@ import {
 import NotSet from "../NotSet";
 import TableSignoff from "../PageSummary/TableSignoff";
 import PreviewURL from "../PreviewURL";
+import CancelReview from "./CancelReview";
 import EndEnrollment from "./EndEnrollment";
 import EndExperiment from "./EndExperiment";
 import SummaryTimeline from "./SummaryTimeline";
@@ -39,7 +40,11 @@ const Summary = ({
   const {
     isLoading,
     submitError,
-    callbacks: [onConfirmEndClicked, onConfirmEndEnrollmentClicked],
+    callbacks: [
+      onConfirmEndClicked,
+      onConfirmEndEnrollmentClicked,
+      onConfirmCancelReviewClicked,
+    ],
   } = useChangeOperationMutation(
     experiment,
     refetch,
@@ -55,6 +60,11 @@ const Summary = ({
       statusNext: NimbusExperimentStatusEnum.LIVE,
       isEnrollmentPaused: true,
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
+    },
+    {
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
+      statusNext: null,
     },
   );
 
@@ -86,6 +96,11 @@ const Summary = ({
 
       {status.live && !status.review && !status.endRequested && status.idle && (
         <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
+      )}
+      {status.review && (
+        <CancelReview
+          {...{ isLoading, onSubmit: onConfirmCancelReviewClicked }}
+        />
       )}
       {(status.live || status.preview) && (
         <PreviewURL {...experiment} status={status} />
