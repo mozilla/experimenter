@@ -1380,22 +1380,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
-    def _validate_single_branch_for_rollout(self, data):
-        if (
-            self.instance
-            and self.instance.is_rollout
-            and len(data.get("treatment_branches", [])) > 0
-        ):
-            raise serializers.ValidationError(
-                {
-                    "treatment_branches": [
-                        {"name": NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT}
-                        for i in data["treatment_branches"]
-                    ],
-                }
-            )
-        return data
-
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1408,7 +1392,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
         data = self._validate_sticky_enrollment(data)
-        data = self._validate_single_branch_for_rollout(data)
         data = self._validate_rollout_version_support(data)
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
