@@ -260,7 +260,7 @@ export const FormBranches = ({
               onChange={handleIsRollout}
               checked={!!isRollout}
               type="checkbox"
-              label="Handle this experiment as a rollout"
+              label="This is a rollout (single branch)"
             />
             {fieldMessages?.is_rollout && (
               <Alert data-testid="sticky-required-warning" variant="danger">
