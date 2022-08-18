@@ -66,9 +66,10 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
           <p>
             Results last calculated:{" "}
             <b>
-              {new Date(
-                analysis?.metadata?.analysis_start_time,
-              ).toLocaleString(undefined, { timeZone: "UTC" })}
+              {new Date(analysis?.metadata?.analysis_start_time).toLocaleString(
+                undefined,
+                { timeZone: "UTC" },
+              )}
             </b>
           </p>
         )}
