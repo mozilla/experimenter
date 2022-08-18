@@ -318,6 +318,7 @@ export const FormBranches = ({
             />
           )}
           {treatmentBranches &&
+            !isRollout &&
             treatmentBranches.map((branch, idx) => {
               const reviewErrors = (
                 fieldMessages as SerializerMessages<SerializerSet[]>

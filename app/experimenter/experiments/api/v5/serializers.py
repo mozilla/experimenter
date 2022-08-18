@@ -1185,8 +1185,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         for branch in value:
             error = {}
-            if self.instance and self.instance.is_rollout:
-                error["name"] = [NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT]
             if branch["description"] == "":
                 error["description"] = [NimbusConstants.ERROR_REQUIRED_FIELD]
             errors.append(error)
