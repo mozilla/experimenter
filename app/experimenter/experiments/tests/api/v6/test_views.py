@@ -25,14 +25,16 @@ class TestNimbusExperimentViewSet(TestCase):
                     )
                 )
 
+        experiments = sorted(experiments, key=lambda e: e.slug)
+
         response = self.client.get(
             reverse("nimbus-experiment-rest-list"),
         )
         self.assertEqual(response.status_code, 200)
 
         json_data = json.loads(response.content)
-        json_slugs = set([d["id"] for d in json_data])
-        expected_slugs = set(e.slug for e in experiments)
+        json_slugs = [d["id"] for d in json_data]
+        expected_slugs = [e.slug for e in experiments]
         self.assertEqual(json_slugs, expected_slugs)
 
     def test_get_nimbus_experiment_returns_expected_data(self):
