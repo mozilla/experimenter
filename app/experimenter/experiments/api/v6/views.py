@@ -11,8 +11,10 @@ class NimbusExperimentViewSet(
     viewsets.GenericViewSet,
 ):
     lookup_field = "slug"
-    queryset = NimbusExperiment.objects.with_related().exclude(
-        status__in=[NimbusExperiment.Status.DRAFT]
+    queryset = (
+        NimbusExperiment.objects.with_related()
+        .exclude(status__in=[NimbusExperiment.Status.DRAFT])
+        .order_by("slug")
     )
     serializer_class = NimbusExperimentSerializer
     filter_backends = [DjangoFilterBackend]
