@@ -357,7 +357,7 @@ describe("FormBranches", () => {
     expect(saveResultAfter.treatmentBranches).not.toEqual(null);
   });
 
-  it("Rollout support error", async () => {
+  it("displays an error message when Rollouts are not supported", async () => {
     const onSave = jest.fn();
     Object.defineProperty(window, "location", {
       value: {
@@ -397,7 +397,7 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    expect(screen.getAllByText(ROLLOUT_WARNING)).toHaveLength(1);
+    expect(screen.getByText(ROLLOUT_WARNING));
   });
 
   it("supports removing a treatment branch", async () => {
