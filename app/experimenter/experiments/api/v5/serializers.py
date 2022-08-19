@@ -359,20 +359,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
     def validate(self, data):
         data = super().validate(data)
 
-        if data.get("feature_enabled") and not data.get("feature_value"):
-            raise serializers.ValidationError(
-                {"feature_value": NimbusConstants.ERROR_BRANCH_NO_VALUE}
-            )
-
-        if data.get("feature_value") and not data.get("feature_enabled"):
-            raise serializers.ValidationError(
-                {
-                    "feature_value": (
-                        "feature_enabled must be specified to include a feature_value."
-                    )
-                }
-            )
-
         feature_values = data.get("feature_values")
 
         if feature_values is not None:
@@ -409,6 +395,9 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             )
 
         branch.feature_values.all().delete()
+
+        if branch.experiment.application != NimbusExperiment.Application.DESKTOP:
+            feature_enabled = True
 
         if feature_value is not None:
             NimbusBranchFeatureValue.objects.create(
@@ -1095,6 +1084,19 @@ class NimbusBranchReviewSerializer(NimbusBranchSerializer):
                 raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
         return value
 
+    def validate(self, data):
+        if data.get("feature_enabled") and not data.get("feature_value"):
+            raise serializers.ValidationError(
+                {"feature_value": NimbusConstants.ERROR_BRANCH_NO_VALUE}
+            )
+
+        if data.get("feature_value") and not data.get("feature_enabled"):
+            raise serializers.ValidationError(
+                {"feature_enabled": NimbusConstants.ERROR_BRANCH_NO_ENABLED}
+            )
+
+        return data
+
 
 class NimbusReviewSerializer(serializers.ModelSerializer):
     public_description = serializers.CharField(required=True)
@@ -1242,6 +1244,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         schema = json.loads(feature_config.schema)
         error_result = {}
         if data["reference_branch"].get("feature_enabled"):
+
             errors = self._validate_feature_value_against_schema(
                 schema, data["reference_branch"]["feature_value"]
             )
@@ -1256,6 +1259,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         for branch_data in data["treatment_branches"]:
             branch_error = None
             branch_warning = None
+
             if branch_data.get("feature_enabled", False):
                 errors = self._validate_feature_value_against_schema(
                     schema, branch_data["feature_value"]
@@ -1265,6 +1269,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                         branch_warning = {"feature_value": errors}
                     else:
                         branch_error = {"feature_value": errors}
+
             treatment_branches_errors.append(branch_error)
             treatment_branches_warnings.append(branch_warning)
 
@@ -1360,6 +1365,46 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_feature_enabled_version(self, data):
+        min_version = data.get("firefox_min_version", "")
+        return NimbusExperiment.Version.parse(
+            min_version
+        ) >= NimbusExperiment.Version.parse(
+            NimbusConstants.FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION
+        )
+
+    def _validate_feature_enabled_for_treatment_branches(self, data):
+        if self._validate_feature_enabled_version(data) and "treatment_branches" in data:
+            treatment_branches_error = []
+            for branch in data["treatment_branches"]:
+                if not branch["feature_enabled"]:
+                    treatment_branches_error.append(
+                        {"feature_enabled": NimbusConstants.ERROR_FEATURE_ENABLED}
+                    )
+
+            if treatment_branches_error:
+                raise serializers.ValidationError(
+                    {"treatment_branches": treatment_branches_error}
+                )
+
+        return data
+
+    def _validate_feature_enabled_for_reference_branch(self, data):
+        if (
+            "reference_branch" in data
+            and not data["reference_branch"]["feature_enabled"]
+            and self._validate_feature_enabled_version(data)
+        ):
+
+            raise serializers.ValidationError(
+                {
+                    "reference_branch": {
+                        "feature_enabled": NimbusConstants.ERROR_FEATURE_ENABLED
+                    },
+                }
+            )
+        return data
+
     def _validate_rollout_version_support(self, data):
         if not self.instance or not self.instance.is_rollout:
             return data
@@ -1394,6 +1439,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
             data = self._validate_countries_versions(data)
+        else:
+            data = self._validate_feature_enabled_for_treatment_branches(data)
+            data = self._validate_feature_enabled_for_reference_branch(data)
         return data
 
 

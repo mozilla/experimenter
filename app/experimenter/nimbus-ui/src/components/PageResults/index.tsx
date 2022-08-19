@@ -62,6 +62,17 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   return (
     <AppLayoutWithExperiment title="Analysis" testId="PageResults">
       <ResultsContext.Provider value={resultsContextValue}>
+        {analysis?.metadata?.analysis_start_time && (
+          <p>
+            Results last calculated:{" "}
+            <b>
+              {new Date(analysis?.metadata?.analysis_start_time).toLocaleString(
+                undefined,
+                { timeZone: "UTC" },
+              )}
+            </b>
+          </p>
+        )}
         {externalConfig && <ExternalConfigAlert {...{ externalConfig }} />}
 
         <h3 className="h4 mb-3 mt-4" id="overview">

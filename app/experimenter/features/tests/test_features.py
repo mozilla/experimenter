@@ -31,7 +31,7 @@ class TestFeatures(TestCase):
 
     def test_load_all_features(self):
         features = Features.all()
-        self.assertEqual(len(features), 2)
+        self.assertEqual(len(features), 3)
         self.assertIn(
             Feature(
                 applicationSlug="firefox-desktop",
@@ -83,7 +83,7 @@ class TestFeatures(TestCase):
 
     def test_load_features_by_application(self):
         desktop_features = Features.by_application(NimbusConstants.Application.DESKTOP)
-        self.assertEqual(len(desktop_features), 1)
+        self.assertEqual(len(desktop_features), 2)
         self.assertIn(
             Feature(
                 applicationSlug="firefox-desktop",

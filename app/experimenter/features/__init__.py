@@ -66,18 +66,19 @@ class Feature(BaseModel):
             "additionalProperties": False,
         }
 
-        for variable_slug, variable in self.variables.items():
-            variable_schema = {
-                "description": variable.description,
-            }
+        if self.variables:
+            for variable_slug, variable in self.variables.items():
+                variable_schema = {
+                    "description": variable.description,
+                }
 
-            if variable.type in FEATURE_SCHEMA_TYPES:
-                variable_schema["type"] = FEATURE_SCHEMA_TYPES[variable.type]
+                if variable.type in FEATURE_SCHEMA_TYPES:
+                    variable_schema["type"] = FEATURE_SCHEMA_TYPES[variable.type]
 
-            if variable.enum:
-                variable_schema["enum"] = variable.enum
+                if variable.enum:
+                    variable_schema["enum"] = variable.enum
 
-            schema["properties"][variable_slug] = variable_schema
+                schema["properties"][variable_slug] = variable_schema
 
         return json.dumps(schema, indent=2)
 
