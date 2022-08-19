@@ -68,6 +68,19 @@ describe("PageResults", () => {
     await screen.findByTestId("external-config-alert");
   });
 
+  it("displays the analysis_start_time", async () => {
+    render(<Subject />);
+
+    expect(
+      screen.getByText(
+        new Date(MOCK_METADATA_WITH_CONFIG.analysis_start_time).toLocaleString(
+          undefined,
+          { timeZone: "UTC" },
+        ),
+      ),
+    );
+  });
+
   it("redirects to the edit overview page if the experiment status is draft", async () => {
     expect(
       redirectTestCommon({

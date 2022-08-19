@@ -20,6 +20,7 @@ export interface Metadata {
   metrics: { [metric: string]: MetadataPoint };
   outcomes: { [outcome: string]: MetadataPoint };
   external_config?: MetadataExternalConfig | null;
+  analysis_start_time?: string;
 }
 
 export interface MetadataExternalConfig {

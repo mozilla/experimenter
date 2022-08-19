@@ -14,6 +14,7 @@ export const MOCK_UNAVAILABLE_ANALYSIS = {
 };
 
 export const MOCK_METADATA = {
+  analysis_start_time: "2022-08-11 20:06:30.309647+00:00",
   metrics: {
     feature_b: {
       bigger_is_better: true,
