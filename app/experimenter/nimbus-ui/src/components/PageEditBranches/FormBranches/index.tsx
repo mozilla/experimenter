@@ -264,13 +264,10 @@ export const FormBranches = ({
               onChange={handleIsRollout}
               checked={!!isRollout}
               type="checkbox"
+              isInvalid={!!fieldMessages?.is_rollout}
+              feedback={fieldMessages?.is_rollout}
               label="This is a rollout (single branch)"
             />
-            {fieldMessages?.is_rollout && (
-              <Alert data-testid="sticky-required-warning" variant="danger">
-                {fieldMessages?.is_rollout}
-              </Alert>
-            )}
           </Form.Group>
         </Form.Row>
 
