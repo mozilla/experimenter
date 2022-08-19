@@ -18,6 +18,7 @@ from experimenter.outcomes import Outcomes
 BRANCH_DATA = "branch_data"
 STATISTICS_FOLDER = "statistics"
 METADATA_FOLDER = "metadata"
+ERRORS_FOLDER = "errors"
 ALL_STATISTICS = set(
     [Statistic.BINOMIAL, Statistic.MEAN, Statistic.COUNT, Statistic.PERCENT]
 )
@@ -37,6 +38,12 @@ def get_data(slug, window):
 def get_metadata(slug):
     filename = f"metadata_{slug}.json"
     path = os.path.join(METADATA_FOLDER, filename)
+    return load_data_from_gcs(path)
+
+
+def get_analysis_errors(slug):
+    filename = f"errors_{slug}.json"
+    path = os.path.join(ERRORS_FOLDER, filename)
     return load_data_from_gcs(path)
 
 
@@ -137,9 +144,12 @@ def get_experiment_data(experiment):
         experiment_metadata.get("outcomes") if experiment_metadata is not None else None
     )
 
+    experiment_errors = get_analysis_errors(recipe_slug)
+
     experiment_data = {
         "show_analysis": settings.FEATURE_ANALYSIS,
         "metadata": experiment_metadata,
+        "errors": experiment_errors,
     }
 
     for window in windows:
