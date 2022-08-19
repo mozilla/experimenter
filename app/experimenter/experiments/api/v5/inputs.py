@@ -79,6 +79,7 @@ class ExperimentInput(graphene.InputObjectType):
     proposed_duration = graphene.Int()
     proposed_enrollment = graphene.String()
     is_sticky = graphene.Boolean()
+    is_rollout = graphene.Boolean()
     targeting_config_slug = graphene.String()
     total_enrolled_clients = graphene.Int()
     changelog_message = graphene.String()

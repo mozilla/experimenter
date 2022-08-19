@@ -17,7 +17,12 @@ const fieldPageMap: { [page: string]: string[] } = {
     "risk_revenue",
     "risk_partner_related",
   ],
-  branches: ["reference_branch", "treatment_branches", "feature_config"],
+  branches: [
+    "reference_branch",
+    "treatment_branches",
+    "feature_config",
+    "is_rollout",
+  ],
   audience: [
     "channel",
     "firefox_min_version",

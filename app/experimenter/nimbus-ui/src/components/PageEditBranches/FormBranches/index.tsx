@@ -47,6 +47,7 @@ export const FormBranches = ({
     {
       featureConfigIds: experimentFeatureConfigIds,
       warnFeatureSchema,
+      isRollout,
       referenceBranch,
       treatmentBranches,
       equalRatio,
@@ -127,6 +128,14 @@ export const FormBranches = ({
   ) => {
     commitFormData();
     dispatch({ type: "setFeatureConfigs", value });
+  };
+
+  const handleIsRollout = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    commitFormData();
+    dispatch({
+      type: "setIsRollout",
+      value: ev.target.checked,
+    });
   };
 
   const onFeatureConfigChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -249,6 +258,20 @@ export const FormBranches = ({
         </Form.Group>
 
         <Form.Row>
+          <Form.Group as={Col} controlId="isRollout">
+            <Form.Check
+              data-testid="is-rollout-checkbox"
+              onChange={handleIsRollout}
+              checked={!!isRollout}
+              type="checkbox"
+              isInvalid={!!fieldMessages?.is_rollout}
+              feedback={fieldMessages?.is_rollout}
+              label="This is a rollout (single branch)"
+            />
+          </Form.Group>
+        </Form.Row>
+
+        <Form.Row>
           <Form.Group as={Col} controlId="warnFeatureSchema">
             <Form.Check
               data-testid="equal-warn-on-feature-value-schema-invalid-checkbox"
@@ -297,6 +320,7 @@ export const FormBranches = ({
             />
           )}
           {treatmentBranches &&
+            !isRollout &&
             treatmentBranches.map((branch, idx) => {
               const reviewErrors = (
                 fieldMessages as SerializerMessages<SerializerSet[]>

@@ -385,10 +385,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def treatment_branches(self):
-        branches = self.branches.order_by("id")
-        if self.reference_branch:
-            branches = branches.exclude(id=self.reference_branch.id)
-        return list(branches)
+        if self.is_rollout:
+            return []
+        else:
+            branches = self.branches.order_by("id")
+            if self.reference_branch:
+                branches = branches.exclude(id=self.reference_branch.id)
+            return list(branches)
 
     @property
     def start_date(self):
