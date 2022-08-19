@@ -65,6 +65,7 @@ input ExperimentInput {
   proposedDuration: Int
   proposedEnrollment: String
   isSticky: Boolean
+  isRollout: Boolean
   targetingConfigSlug: String
   totalEnrolledClients: Int
   changelogMessage: String

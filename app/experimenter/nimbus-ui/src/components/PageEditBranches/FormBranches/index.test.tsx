@@ -149,6 +149,15 @@ describe("FormBranches", () => {
     expect(saveResult.warnFeatureSchema).toBeTruthy();
   });
 
+  it("sets isRollout when checkbox enabled", async () => {
+    const onSave = jest.fn();
+    render(<SubjectBranches {...{ onSave }} />);
+    fireEvent.click(screen.getByTestId("is-rollout-checkbox"));
+    await clickAndWaitForSave(onSave);
+    const saveResult = onSave.mock.calls[0][0];
+    expect(saveResult.isRollout).toBeTruthy();
+  });
+
   it("gracefully handles selecting an invalid feature config", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
@@ -346,6 +355,49 @@ describe("FormBranches", () => {
 
     const saveResultAfter = onSave.mock.calls[0][0];
     expect(saveResultAfter.treatmentBranches).not.toEqual(null);
+  });
+
+  it("displays an error message when Rollouts are not supported", async () => {
+    const onSave = jest.fn();
+    Object.defineProperty(window, "location", {
+      value: {
+        search: "?show-errors",
+      },
+    });
+    const ROLLOUT_WARNING =
+      "Rollouts are not supported for the selected version";
+    render(
+      <SubjectBranches
+        {...{
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            readyForReview: {
+              ready: false,
+              message: {
+                is_rollout: [ROLLOUT_WARNING],
+              },
+              warnings: {},
+            },
+            application: NimbusExperimentApplicationEnum.DESKTOP,
+            firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_106,
+            referenceBranch: {
+              id: null,
+              name: "test",
+              slug: "",
+              description: "test",
+              ratio: 1,
+              featureValue: null,
+              featureEnabled: false,
+              screenshots: [],
+            },
+            treatmentBranches: null,
+            isRollout: true,
+          },
+          onSave,
+        }}
+      />,
+    );
+    expect(screen.getByText(ROLLOUT_WARNING));
   });
 
   it("supports removing a treatment branch", async () => {

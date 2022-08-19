@@ -246,6 +246,7 @@ export interface ExperimentInput {
   proposedDuration?: number | null;
   proposedEnrollment?: string | null;
   isSticky?: boolean | null;
+  isRollout?: boolean | null;
   targetingConfigSlug?: string | null;
   totalEnrolledClients?: number | null;
   changelogMessage?: string | null;
