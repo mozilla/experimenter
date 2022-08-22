@@ -129,7 +129,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
               role="img"
               aria-label="download icon"
             />
-            <span> Reporting</span>
+            <span> Reports</span>
           </a>
           <Link
             to="new"
