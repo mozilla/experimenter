@@ -64,7 +64,9 @@ const Summary = ({
     {
       publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
       changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
-      statusNext: null,
+      statusNext: NimbusExperimentStatusEnum.LIVE
+        ? null
+        : NimbusExperimentStatusEnum.DRAFT,
     },
   );
 
