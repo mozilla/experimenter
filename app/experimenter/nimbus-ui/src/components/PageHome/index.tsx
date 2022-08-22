@@ -119,7 +119,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
           <a
             href={`/api/v5/csv`}
             className="btn btn-secondary btn-small ml-2"
-            data-testid="reporting-anchor"
+            data-testid="reports-anchor"
           >
             <DownloadIcon
               width="20"
