@@ -1,4 +1,7 @@
+import json
+import os
 import uuid
+from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
 import pytest
@@ -19,6 +22,9 @@ from nimbus.models.base_dataclass import (
 from nimbus.pages.experimenter.home import HomePage
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from selenium import webdriver
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+from selenium.webdriver.firefox.options import Options
 
 APPLICATION_FEATURE_IDS = {
     BaseExperimentApplications.DESKTOP: "1",
@@ -83,10 +89,81 @@ def sensitive_url():
     pass
 
 
+@pytest.fixture()
+def __selenium(selenium):
+    import shutil
+
+    # duplicate profile
+    shutil.copyfile(
+        os.path.abspath("nimbus/utils/automation-test-profile"),
+        os.path.abspath("nimbus/utils/tmp-automation-test-profile"),
+    )
+    profile = FirefoxProfile(
+        f'{os.path.abspath("nimbus/utils/tmp-automation-test-profile")}'
+    )
+    options = Options()
+    options.add_argument("-profile")
+    options.add_argument(f'{os.path.abspath("nimbus/utils/tmp-automation-test-profile")}')
+    options.headless = True
+    binary = "/usr/bin/firefox"
+    options.binary = binary
+    selenium = webdriver.Firefox(
+        firefox_profile=profile, firefox_options=options, firefox_binary=binary
+    )
+    yield selenium
+    os.remove(os.path.abspath("nimbus/utils/tmp-automation-test-profile"))
+
+
 @pytest.fixture
 def firefox_options(firefox_options):
     """Set Firefox Options."""
+    # firefox_options.profile = os.path.abspath("nimbus/utils/automation-test-profile")
     firefox_options.log.level = "trace"
+    firefox_options.set_preference("marionette.prefs.recommended", False)
+    # firefox_options.set_preference("browser.region.network.url", "")
+    firefox_options.set_preference("browser.cache.disk.smart_size.enabled", False)
+    firefox_options.set_preference("toolkit.telemetry.server", "http://ping-server:5000")
+    firefox_options.set_preference("telemetry.fog.test.localhost_port", -1)
+    firefox_options.set_preference("toolkit.telemetry.initDelay", 1)
+    firefox_options.set_preference("toolkit.telemetry.minSubsessionLength", 0)
+    firefox_options.set_preference("datareporting.healthreport.uploadEnabled", True)
+    firefox_options.set_preference("datareporting.policy.dataSubmissionEnabled", True)
+    firefox_options.set_preference(
+        "datareporting.policy.dataSubmissionPolicyBypassNotification", False
+    )
+    firefox_options.set_preference("toolkit.telemetry.log.level", "Trace")
+    firefox_options.set_preference("toolkit.telemetry.log.dump", True)
+    firefox_options.set_preference("toolkit.telemetry.send.overrideOfficialCheck", True)
+    firefox_options.set_preference("toolkit.telemetry.testing.disableFuzzingDelay", True)
+    firefox_options.set_preference("nimbus.debug", True)
+    firefox_options.set_preference("app.normandy.run_interval_seconds", 30)
+    firefox_options.set_preference(
+        "security.content.signature.root_hash",
+        "5E:36:F2:14:DE:82:3F:8B:29:96:89:23:5F:03:41:AC:AF:A0:75:AF:82:CB:4C:D4:30:7C:3D:B3:43:39:2A:FE",  # noqa: E501
+    )
+    firefox_options.set_preference("services.settings.server", "http://kinto:8888/v1")
+    firefox_options.set_preference("remote.prefs.recommended", False)
+    firefox_options.set_preference("datareporting.healthreport.service.enabled", True)
+    firefox_options.set_preference(
+        "datareporting.healthreport.logging.consoleEnabled", True
+    )
+    firefox_options.set_preference("datareporting.healthreport.service.firstRun", True)
+    firefox_options.set_preference(
+        "datareporting.healthreport.documentServerURI",
+        "https://www.mozilla.org/legal/privacy/firefox.html#health-report",
+    )
+    firefox_options.set_preference(
+        "app.normandy.api_url", "https://normandy.cdn.mozilla.net/api/v1"
+    )
+    firefox_options.set_preference(
+        "app.normandy.user_id", "7ef5ab6d-42d6-4c4e-877d-c3174438050a"
+    )
+    firefox_options.set_preference("messaging-system.log", "debug")
+    firefox_options.set_preference("app.shield.optoutstudies.enabled", True)
+    firefox_options.set_preference("toolkit.telemetry.scheduler.tickInterval", 30)
+    firefox_options.set_preference("toolkit.telemetry.collectInterval", 1)
+    firefox_options.set_preference("toolkit.telemetry.eventping.minimumFrequency", 30000)
+    firefox_options.set_preference("toolkit.telemetry.unified", True)
     return firefox_options
 
 
@@ -213,8 +290,8 @@ def create_experiment(base_url, default_data):
 
 
 @pytest.fixture
-def create_mobile_experiment():
-    def _create_mobile_experiment(name, app, languages, targeting):
+def create_basic_experiment():
+    def _create_basic_experiment(name, app, targeting):
         query = {
             "operationName": "createExperiment",
             "variables": {
@@ -222,7 +299,6 @@ def create_mobile_experiment():
                     "name": name,
                     "hypothesis": "Test hypothesis",
                     "application": app.upper(),
-                    "languages": languages,
                     "changelogMessage": "test changelog message",
                     "targetingConfigSlug": targeting,
                 }
@@ -235,4 +311,100 @@ def create_mobile_experiment():
         }
         requests.post("https://nginx/api/v5/graphql", json=query, verify=False)
 
-    return _create_mobile_experiment
+    return _create_basic_experiment
+
+
+@pytest.fixture
+def create_desktop_experiment(create_basic_experiment):
+    def _create_desktop_experiment(slug, app, targeting, **data):
+        # create a basic experiment via graphql so we can get an ID
+        create_basic_experiment(
+            slug,
+            app,
+            targeting,
+        )
+
+        # Get experiment ID
+        get_id_query = {
+            "operationName": "getExperiment",
+            "variables": {"slug": f"{slug}"},
+            "query": """
+                    query getExperiment($slug: String!) {
+                        experimentBySlug(slug: $slug) {
+                            id
+                        }
+                    }
+                    """,
+        }
+
+        response = requests.post(
+            "https://nginx/api/v5/graphql", json=get_id_query, verify=False
+        )
+        print(response.text)
+        experiment_id = response.json()["data"]["experimentBySlug"]["id"]
+
+        query = {
+            "operationName": "updateExperiment",
+            "variables": {
+                "input": {
+                    "id": experiment_id,
+                    "name": f"test_check_telemetry_enrollment-{experiment_id}",
+                    "hypothesis": "Test hypothesis",
+                    "application": app.upper(),
+                    "changelogMessage": "test updated",
+                    "targetingConfigSlug": targeting,
+                    "publicDescription": data.get("public_description", "Fancy Words"),
+                    "riskRevenue": data.get("risk_revenue"),
+                    "riskPartnerRelated": data.get("risk_partner_related"),
+                    "riskBrand": data.get("risk_brand"),
+                    "featureConfigId": data.get("feature_config"),
+                    "referenceBranch": data.get("reference_branch"),
+                    "treatmentBranches": data.get("treatement_branch"),
+                    "populationPercent": data.get("population_percent"),
+                    "totalEnrolledClients": data.get("total_enrolled_clients"),
+                }
+            },
+            "query": "mutation updateExperiment($input: ExperimentInput!) \
+                {\n updateExperiment(input: $input) \
+                    {\n message\n __typename\n }\n}\n",
+        }
+        response = requests.post("https://nginx/api/v5/graphql", json=query, verify=False)
+        print(response.text)
+
+    return _create_desktop_experiment
+
+
+@pytest.fixture(name="language_database_id_loader")
+def fixture_language_database_id_loader():
+    """Return database id's for languages"""
+
+    def _language_database_id_loader(languages=None):
+        language_list = []
+        path = Path().resolve()
+        path = str(path)
+        path = path.strip("/tests/integration/nimbus")
+        path = os.path.join("/", path, "experimenter/base/fixtures/languages.json")
+        with open(path) as file:
+            data = json.loads(file.read())
+            for language in languages:
+                for item in data:
+                    if language in item["fields"]["code"][:2]:
+                        language_list.append(item["pk"])
+        return language_list
+
+    return _language_database_id_loader
+
+
+@pytest.fixture
+def trigger_experiment_loader(selenium):
+    def _trigger_experiment_loader():
+        with selenium.context(selenium.CONTEXT_CHROME):
+            selenium.execute_script(
+                """
+                    ChromeUtils.import(
+                        "resource://nimbus/lib/RemoteSettingsExperimentLoader.jsm"
+                    ).RemoteSettingsExperimentLoader.updateRecipes();
+                """
+            )
+
+    return _trigger_experiment_loader

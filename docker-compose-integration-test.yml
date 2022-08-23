@@ -13,10 +13,12 @@ services:
     links:
       - nginx
       - kinto
+      - ping-server
     expose:
       - "4444"
     ports:
       - "5900:5900"
+      - "7902:7900"
     shm_size: 2g
     working_dir: /code
   rust-sdk:
@@ -29,4 +31,8 @@ services:
     links:
       - nginx
       - kinto
+  ping-server:
+    build: app/tests/integration/nimbus/utils/ping_server
+    ports:
+      - "5000:5000"
 
