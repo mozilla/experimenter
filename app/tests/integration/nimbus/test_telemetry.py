@@ -56,6 +56,7 @@ def firefox_options(firefox_options):
     firefox_options.set_preference("toolkit.telemetry.unified", True)
     return firefox_options
 
+
 @pytest.mark.run_once
 @pytest.mark.nightly_only
 @pytest.mark.xdist_group(name="group1")
