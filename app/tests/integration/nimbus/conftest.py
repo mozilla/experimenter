@@ -22,9 +22,6 @@ from nimbus.models.base_dataclass import (
 from nimbus.pages.experimenter.home import HomePage
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from selenium import webdriver
-from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
-from selenium.webdriver.firefox.options import Options
 
 APPLICATION_FEATURE_IDS = {
     BaseExperimentApplications.DESKTOP: "1",
@@ -89,81 +86,10 @@ def sensitive_url():
     pass
 
 
-@pytest.fixture()
-def __selenium(selenium):
-    import shutil
-
-    # duplicate profile
-    shutil.copyfile(
-        os.path.abspath("nimbus/utils/automation-test-profile"),
-        os.path.abspath("nimbus/utils/tmp-automation-test-profile"),
-    )
-    profile = FirefoxProfile(
-        f'{os.path.abspath("nimbus/utils/tmp-automation-test-profile")}'
-    )
-    options = Options()
-    options.add_argument("-profile")
-    options.add_argument(f'{os.path.abspath("nimbus/utils/tmp-automation-test-profile")}')
-    options.headless = True
-    binary = "/usr/bin/firefox"
-    options.binary = binary
-    selenium = webdriver.Firefox(
-        firefox_profile=profile, firefox_options=options, firefox_binary=binary
-    )
-    yield selenium
-    os.remove(os.path.abspath("nimbus/utils/tmp-automation-test-profile"))
-
-
 @pytest.fixture
 def firefox_options(firefox_options):
     """Set Firefox Options."""
-    # firefox_options.profile = os.path.abspath("nimbus/utils/automation-test-profile")
     firefox_options.log.level = "trace"
-    firefox_options.set_preference("marionette.prefs.recommended", False)
-    # firefox_options.set_preference("browser.region.network.url", "")
-    firefox_options.set_preference("browser.cache.disk.smart_size.enabled", False)
-    firefox_options.set_preference("toolkit.telemetry.server", "http://ping-server:5000")
-    firefox_options.set_preference("telemetry.fog.test.localhost_port", -1)
-    firefox_options.set_preference("toolkit.telemetry.initDelay", 1)
-    firefox_options.set_preference("toolkit.telemetry.minSubsessionLength", 0)
-    firefox_options.set_preference("datareporting.healthreport.uploadEnabled", True)
-    firefox_options.set_preference("datareporting.policy.dataSubmissionEnabled", True)
-    firefox_options.set_preference(
-        "datareporting.policy.dataSubmissionPolicyBypassNotification", False
-    )
-    firefox_options.set_preference("toolkit.telemetry.log.level", "Trace")
-    firefox_options.set_preference("toolkit.telemetry.log.dump", True)
-    firefox_options.set_preference("toolkit.telemetry.send.overrideOfficialCheck", True)
-    firefox_options.set_preference("toolkit.telemetry.testing.disableFuzzingDelay", True)
-    firefox_options.set_preference("nimbus.debug", True)
-    firefox_options.set_preference("app.normandy.run_interval_seconds", 30)
-    firefox_options.set_preference(
-        "security.content.signature.root_hash",
-        "5E:36:F2:14:DE:82:3F:8B:29:96:89:23:5F:03:41:AC:AF:A0:75:AF:82:CB:4C:D4:30:7C:3D:B3:43:39:2A:FE",  # noqa: E501
-    )
-    firefox_options.set_preference("services.settings.server", "http://kinto:8888/v1")
-    firefox_options.set_preference("remote.prefs.recommended", False)
-    firefox_options.set_preference("datareporting.healthreport.service.enabled", True)
-    firefox_options.set_preference(
-        "datareporting.healthreport.logging.consoleEnabled", True
-    )
-    firefox_options.set_preference("datareporting.healthreport.service.firstRun", True)
-    firefox_options.set_preference(
-        "datareporting.healthreport.documentServerURI",
-        "https://www.mozilla.org/legal/privacy/firefox.html#health-report",
-    )
-    firefox_options.set_preference(
-        "app.normandy.api_url", "https://normandy.cdn.mozilla.net/api/v1"
-    )
-    firefox_options.set_preference(
-        "app.normandy.user_id", "7ef5ab6d-42d6-4c4e-877d-c3174438050a"
-    )
-    firefox_options.set_preference("messaging-system.log", "debug")
-    firefox_options.set_preference("app.shield.optoutstudies.enabled", True)
-    firefox_options.set_preference("toolkit.telemetry.scheduler.tickInterval", 30)
-    firefox_options.set_preference("toolkit.telemetry.collectInterval", 1)
-    firefox_options.set_preference("toolkit.telemetry.eventping.minimumFrequency", 30000)
-    firefox_options.set_preference("toolkit.telemetry.unified", True)
     return firefox_options
 
 
