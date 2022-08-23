@@ -177,8 +177,9 @@ describe("Summary", () => {
         experiment.id!,
         NimbusExperimentPublishStatusEnum.IDLE,
         {
-          statusNext: null,
+          statusNext: NimbusExperimentStatusEnum.LIVE,
           changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
+          isEnrollmentPaused: false,
         },
       );
       render(
@@ -193,6 +194,38 @@ describe("Summary", () => {
         expect(refetch).toHaveBeenCalled();
         expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
       });
+    });
+
+    it("verify cancel review doesn't change enrollment days", async () => {
+      const refetch = jest.fn();
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+      });
+      const mutationMock = createMutationMock(
+        experiment.id!,
+        NimbusExperimentPublishStatusEnum.IDLE,
+        {
+          statusNext: NimbusExperimentStatusEnum.LIVE,
+          changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
+          isEnrollmentPaused: false,
+        },
+      );
+      render(
+        <Subject props={experiment} mocks={[mutationMock]} {...{ refetch }} />,
+      );
+
+      await screen.findByTestId("cancel-review-start");
+      fireEvent.click(screen.getByTestId("cancel-review-start"));
+      await screen.findByTestId("cancel-review-alert");
+      fireEvent.click(screen.getByTestId("cancel-review-confirm"));
+      await waitFor(() => {
+        expect(refetch).toHaveBeenCalled();
+        expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
+      });
+      expect(screen.queryByTestId("label-enrollment-days")).toHaveTextContent(
+        "1 day",
+      );
     });
 
     it("handles submission with server API error", async () => {
