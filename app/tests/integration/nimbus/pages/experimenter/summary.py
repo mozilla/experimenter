@@ -36,7 +36,6 @@ class SummaryPage(ExperimenterBase):
     )
     _clone_save_locator = (By.CSS_SELECTOR, ".modal .btn-primary")
     _clone_parent_locator = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-parent"]')
-    _preview_url_locator = (By.CSS_SELECTOR, ".cursor-copy")
     _takeaways_edit_button = (By.CSS_SELECTOR, 'button[data-testid="edit-takeaways"]')
     _takeaways_save_button = (
         By.CSS_SELECTOR,
@@ -224,10 +223,6 @@ class SummaryPage(ExperimenterBase):
     def clone(self):
         self.clone_action.click()
         self.clone_save.click()
-
-    @property
-    def preview_url(self):
-        return self.find_element(*self._preview_url_locator).text
 
     @property
     def takeaways_edit_button(self):

@@ -54,11 +54,11 @@ def firefox_options(firefox_options):
     firefox_options.set_preference("toolkit.telemetry.collectInterval", 1)
     firefox_options.set_preference("toolkit.telemetry.eventping.minimumFrequency", 30000)
     firefox_options.set_preference("toolkit.telemetry.unified", True)
+    firefox_options.set_preference("allowServerURLOverride", True)
     return firefox_options
 
 
 @pytest.mark.run_once
-@pytest.mark.nightly_only
 @pytest.mark.xdist_group(name="group1")
 def test_check_telemetry_enrollment_unenrollment(
     base_url,
