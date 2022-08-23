@@ -110,8 +110,6 @@ describe("PageSummary", () => {
 
     await screen.findByTestId("cancel-review-start");
     fireEvent.click(screen.getByTestId("cancel-review-start"));
-    await screen.findByTestId("cancel-review-alert");
-    fireEvent.click(screen.getByTestId("cancel-review-confirm"));
     await waitFor(() => {
       expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
     });
