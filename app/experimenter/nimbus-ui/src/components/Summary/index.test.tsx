@@ -177,8 +177,9 @@ describe("Summary", () => {
         experiment.id!,
         NimbusExperimentPublishStatusEnum.IDLE,
         {
-          statusNext: null,
+          statusNext: NimbusExperimentStatusEnum.LIVE,
           changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
+          isEnrollmentPaused: false,
         },
       );
       render(
@@ -205,8 +206,9 @@ describe("Summary", () => {
         experiment.id!,
         NimbusExperimentPublishStatusEnum.IDLE,
         {
-          statusNext: null,
+          statusNext: NimbusExperimentStatusEnum.LIVE,
           changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
+          isEnrollmentPaused: false,
         },
       );
       render(
