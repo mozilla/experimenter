@@ -266,7 +266,6 @@ def create_desktop_experiment(create_basic_experiment):
         response = requests.post(
             "https://nginx/api/v5/graphql", json=get_id_query, verify=False
         )
-        print(response.text)
         experiment_id = response.json()["data"]["experimentBySlug"]["id"]
 
         query = {
@@ -294,8 +293,7 @@ def create_desktop_experiment(create_basic_experiment):
                 {\n updateExperiment(input: $input) \
                     {\n message\n __typename\n }\n}\n",
         }
-        response = requests.post("https://nginx/api/v5/graphql", json=query, verify=False)
-        print(response.text)
+        requests.post("https://nginx/api/v5/graphql", json=query, verify=False)
 
     return _create_desktop_experiment
 
