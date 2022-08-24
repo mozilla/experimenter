@@ -522,6 +522,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     @property
+    def rollout_monitoring_dashboard_url(self):
+        if self.start_date and ((datetime.date.today() - self.start_date).days >= 1):
+            return settings.ROLLOUT_MONITORING_URL.format(
+                slug=self.slug.replace("-", "_")
+            )
+
+    @property
     def review_url(self):
         return "{base_url}{collection_path}/{collection}/{review_path}".format(
             base_url=settings.KINTO_ADMIN_URL,

@@ -1115,6 +1115,76 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
+    def test_rollouts_monitoring_dashboard_url_is_none_when_rollout_not_begun(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="rollout-1-slug",
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        self.assertIsNone(experiment.rollouts_monitoring_dashboard_url)
+
+    def test_rollouts_monitoring_dashboard_url_is_none_on_first_day(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="rollout-1-slug",
+            status=NimbusExperiment.Status.LIVE,
+        )
+
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=datetime.date.today(),
+        )
+
+        self.assertIsNone(experiment.rollouts_monitoring_dashboard_url)
+
+    def test_rollouts_monitoring_dashboard_returns_url_one_day_after_start(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="rollout-1-slug",
+            status=NimbusExperiment.Status.LIVE,
+        )
+        yesterday = datetime.date.today() - datetime.timedelta(days=1)
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=yesterday,
+        )
+
+        expected_slug = experiment.slug.replace("-", "_")
+        self.assertEqual(
+            experiment.rollouts_monitoring_dashboard_url,
+            settings.ROLLOUTS_MONITORING_URL.format(
+                slug=expected_slug,
+            ),
+        )
+
+    def test_rollouts_monitoring_dashboard_returns_url_when_rollout_is_complete(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="rollout-1-slug",
+            status=NimbusExperiment.Status.COMPLETE,
+        )
+        yesterday = datetime.date.today() - datetime.timedelta(days=1)
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=yesterday,
+        )
+
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.COMPLETE,
+            changed_on=datetime.date.today(),
+        )
+        expected_slug = experiment.slug.replace("-", "_")
+        self.assertEqual(
+            experiment.rollouts_monitoring_dashboard_url,
+            settings.ROLLOUTS_MONITORING_URL.format(
+                slug=expected_slug,
+            ),
+        )
+
     def test_review_url_should_return_simple_review_url(self):
         with override_settings(
             KINTO_ADMIN_URL="https://settings-writer.stage.mozaws.net/v1/admin/",
