@@ -20,7 +20,7 @@ const CancelReview = ({
         disabled={isLoading}
         data-testid="cancel-review-start"
       >
-        Cancel Review Request
+        Cancel Review
       </Button>
     </div>
   );

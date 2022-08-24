@@ -20,7 +20,7 @@ const EndEnrollment = ({
         disabled={isLoading}
         data-testid="end-enrollment-start"
       >
-        End Enrollment for Experiment
+        End Enrollment
       </Button>
     </div>
   );
