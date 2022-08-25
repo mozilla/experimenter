@@ -30,7 +30,7 @@ class KintoClient:
         return self._fetch_collection_data()["status"] == KINTO_REVIEW_STATUS
 
     def approve(self):
-        for i in range(20):
+        for i in range(60):
             if self._has_pending_review():
                 self.kinto_http_client.patch_collection(
                     id=self.collection,
