@@ -3,5 +3,5 @@
 -k IOS -m run_per_app
 -k FOCUS_ANDROID -m run_per_app
 -k FOCUS_IOS -m run_per_app
--k DESKTOP -m run_once
+-k DESKTOP -m run_once --dist=loadgroup -n=2
 -k DESKTOP -m run_targeting -n 2

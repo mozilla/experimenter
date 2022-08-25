@@ -17,6 +17,7 @@ def test_create_new_experiment_approve_remote_settings(
 
 
 @pytest.mark.run_once
+@pytest.mark.xdist_group(name="group2")
 def test_create_new_experiment_reject_remote_settings(
     selenium,
     experiment_url,
@@ -31,6 +32,7 @@ def test_create_new_experiment_reject_remote_settings(
 
 
 @pytest.mark.run_once
+@pytest.mark.xdist_group(name="group2")
 def test_create_new_experiment_timeout_remote_settings(
     selenium,
     create_experiment,
@@ -41,6 +43,7 @@ def test_create_new_experiment_timeout_remote_settings(
 
 
 @pytest.mark.run_once
+@pytest.mark.xdist_group(name="group2")
 def test_end_experiment_and_approve_end(
     selenium,
     experiment_url,
@@ -61,6 +64,7 @@ def test_end_experiment_and_approve_end(
 
 
 @pytest.mark.run_once
+@pytest.mark.xdist_group(name="group2")
 def test_end_experiment_and_reject_end(
     selenium,
     experiment_url,
