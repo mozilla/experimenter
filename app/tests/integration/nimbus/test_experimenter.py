@@ -6,6 +6,7 @@ from nimbus.pages.experimenter.summary import SummaryPage
 
 
 @pytest.mark.run_once
+@pytest.mark.xdist_group(name="group2")
 def test_archive_experiment(
     selenium,
     default_data,
@@ -36,6 +37,7 @@ def test_archive_experiment(
 
 
 @pytest.mark.run_once
+@pytest.mark.xdist_group(name="group2")
 def test_clone_experiment(
     selenium,
     create_experiment,
@@ -46,6 +48,7 @@ def test_clone_experiment(
 
 
 @pytest.mark.run_once
+@pytest.mark.xdist_group(name="group2")
 def test_promote_to_rollout(
     selenium,
     create_experiment,
@@ -57,6 +60,7 @@ def test_promote_to_rollout(
 
 
 @pytest.mark.run_once
+@pytest.mark.xdist_group(name="group2")
 def test_takeaways(
     selenium,
     experiment_url,
@@ -87,6 +91,7 @@ def test_takeaways(
 
 
 @pytest.mark.run_once
+@pytest.mark.xdist_group(name="group2")
 def test_branch_screenshot(
     selenium,
     create_experiment,

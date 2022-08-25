@@ -1,6 +1,5 @@
 import json
 import os
-from pathlib import Path
 
 import pytest
 from nimbus.jexl import collect_exprs
@@ -8,21 +7,6 @@ from nimbus.models.base_app_context_dataclass import BaseAppContextDataClass
 from nimbus.utils import helpers
 
 nimbus = pytest.importorskip("nimbus_rust")
-
-
-def language_databse_id_loader(languages=None):
-    language_list = []
-    path = Path().resolve()
-    path = str(path)
-    path = path.strip("/tests/integration/nimbus")
-    path = os.path.join("/", path, "experimenter/base/fixtures/languages.json")
-    with open(path) as file:
-        data = json.loads(file.read())
-        for language in languages:
-            for item in data:
-                if language in item["fields"]["code"][:2]:
-                    language_list.append(item["pk"])
-    return language_list
 
 
 def client_info_list():
@@ -79,8 +63,9 @@ def test_check_mobile_targeting(
     context,
     slugify,
     experiment_name,
-    create_mobile_experiment,
+    create_basic_experiment,
     targeting,
+    language_database_id_loader,
 ):
 
     # The context fixtures can only contain strings or null
@@ -96,11 +81,11 @@ def test_check_mobile_targeting(
     )
 
     experiment_slug = str(slugify(experiment_name))
-    create_mobile_experiment(
+    create_basic_experiment(
         experiment_slug,
         context["app_name"],
-        language_databse_id_loader([context["language"]]),
         targeting,
+        languages=language_database_id_loader([context["language"]]),
     )
     data = helpers.load_experiment_data(experiment_slug)
     expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
