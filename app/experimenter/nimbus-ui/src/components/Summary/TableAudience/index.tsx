@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { Table } from "react-bootstrap";
+import React, { useState } from "react";
+import { Accordion, Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig } from "../../../hooks";
+import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
+import { ReactComponent as ExpandPlus } from "../../../images/plus.svg";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import { NimbusExperimentApplicationEnum } from "../../../types/globalTypes";
 import { Code } from "../../Code";
@@ -25,6 +27,8 @@ const TableAudience = ({
   const { firefoxVersions, channels, targetingConfigs } = useConfig();
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
+
+  const [open, setOpen] = useState(false);
 
   return (
     <Table
@@ -159,7 +163,29 @@ const TableAudience = ({
               Recipe JSON <a href={`#recipe-json`}>#</a>
             </th>
             <td data-testid="experiment-recipe-json">
-              <Code codeString={experiment.recipeJson} />
+              <Accordion>
+                <Accordion.Toggle
+                  as={Accordion}
+                  eventKey="0"
+                  onClick={() => setOpen(!open)}
+                >
+                  {open ? (
+                    <>
+                      <CollapseMinus />
+                      <span style={{ textTransform: "capitalize" }}>Hide</span>
+                    </>
+                  ) : (
+                    <>
+                      <ExpandPlus />
+                      <span style={{ textTransform: "capitalize" }}>Show</span>
+                    </>
+                  )}
+                </Accordion.Toggle>
+
+                <Accordion.Collapse eventKey="0">
+                  <Code codeString={experiment.recipeJson} />
+                </Accordion.Collapse>
+              </Accordion>
             </td>
           </tr>
         )}

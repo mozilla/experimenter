@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import React from "react";
 import TableAudience from ".";
 import { MockedCache, mockExperimentQuery } from "../../../lib/mocks";
@@ -164,6 +164,15 @@ describe("TableAudience", () => {
     expect(
       screen.queryByTestId("experiment-target-expression"),
     ).not.toBeInTheDocument();
+  });
+
+  it("Renders show button for recipe json", () => {
+    const { experiment } = mockExperimentQuery("demo-slug");
+    render(<Subject {...{ experiment, withFullDetails: true }} />);
+    expect(screen.queryByTestId("experiment-recipe-json")).toBeInTheDocument();
+    expect(screen.queryByText("Show")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Show"));
+    expect(screen.queryByText("Hide")).toBeInTheDocument();
   });
 
   describe("renders 'Locales' row as expected", () => {
