@@ -362,7 +362,7 @@ MONITORING_URL = (
     "https://mozilla.cloud.looker.com/dashboards-next/216?"
     "Experiment={slug}&Time+Range={from_date}+to+{to_date}"
 )
-ROLLOUTS_MONITORING_URL = (
+ROLLOUT_MONITORING_URL = (
     "https://mozilla.cloud.looker.com/dashboards/operational_monitoring::{slug}"
 )
 
