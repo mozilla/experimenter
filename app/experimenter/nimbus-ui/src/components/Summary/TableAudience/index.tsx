@@ -28,7 +28,7 @@ const TableAudience = ({
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
 
-  const [open, setOpen] = useState(false);
+  const [expand, setExpand] = useState(false);
 
   return (
     <Table
