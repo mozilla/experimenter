@@ -137,6 +137,12 @@ const TableAudience = ({
             {experiment.isSticky ? "True" : "False"}
           </td>
         </tr>
+        <tr>
+          <th>First Run Experiment</th>
+          <td data-testid="experiment-is-first-run">
+            {experiment.isFirstRun ? "True" : "False"}
+          </td>
+        </tr>
         {withFullDetails &&
         experiment.jexlTargetingExpression &&
         experiment.jexlTargetingExpression !== "" ? (

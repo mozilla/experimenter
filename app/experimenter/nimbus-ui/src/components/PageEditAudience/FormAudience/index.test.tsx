@@ -415,6 +415,21 @@ describe("FormAudience", () => {
     expect(screen.getByTestId("isSticky")).toBeChecked();
   });
 
+  it("expect First Run to be not checked", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isFirstRun: false,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("isFirstRun")).not.toBeChecked();
+  });
+
   it("renders server errors", async () => {
     const submitErrors = {
       "*": ["Big bad server thing happened"],
