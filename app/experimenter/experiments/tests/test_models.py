@@ -1116,16 +1116,18 @@ class TestNimbusExperiment(TestCase):
         )
 
     def test_rollouts_monitoring_dashboard_url_is_none_when_rollout_not_begun(self):
-        experiment = NimbusExperimentFactory.create(
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
             slug="rollout-1-slug",
             status=NimbusExperiment.Status.DRAFT,
         )
-        self.assertIsNone(experiment.rollouts_monitoring_dashboard_url)
+        self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
 
     def test_rollouts_monitoring_dashboard_url_is_none_on_first_day(self):
-        experiment = NimbusExperimentFactory.create(
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
             slug="rollout-1-slug",
-            status=NimbusExperiment.Status.LIVE,
+            status=NimbusExperiment.Status.DRAFT,
         )
 
         NimbusChangeLogFactory.create(
@@ -1135,14 +1137,15 @@ class TestNimbusExperiment(TestCase):
             changed_on=datetime.date.today(),
         )
 
-        self.assertIsNone(experiment.rollouts_monitoring_dashboard_url)
+        self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
 
     def test_rollouts_monitoring_dashboard_returns_url_one_day_after_start(self):
-        experiment = NimbusExperimentFactory.create(
-            slug="rollout-1-slug",
-            status=NimbusExperiment.Status.LIVE,
-        )
         yesterday = datetime.date.today() - datetime.timedelta(days=1)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="rollout-1-slug",
+            status=NimbusExperiment.Status.DRAFT,
+        )
         NimbusChangeLogFactory.create(
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
@@ -1152,18 +1155,45 @@ class TestNimbusExperiment(TestCase):
 
         expected_slug = experiment.slug.replace("-", "_")
         self.assertEqual(
-            experiment.rollouts_monitoring_dashboard_url,
-            settings.ROLLOUTS_MONITORING_URL.format(
+            experiment.rollout_monitoring_dashboard_url,
+            settings.ROLLOUT_MONITORING_URL.format(
+                slug=expected_slug,
+            ),
+        )
+
+    def test_rollouts_monitoring_dashboard_returns_correct_formatted_url(self):
+        yesterday = datetime.date.today() - datetime.timedelta(days=1)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="rollout-1-slug",
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=yesterday,
+        )
+
+        expected_slug = experiment.slug.replace("-", "_")
+        url = experiment.rollout_monitoring_dashboard_url
+        actual_slug = url[(url.index("::") + 2) :]  # take a slice of the url after '::'
+        self.assertEqual(expected_slug, actual_slug)
+
+        self.assertEqual(
+            experiment.rollout_monitoring_dashboard_url,
+            settings.ROLLOUT_MONITORING_URL.format(
                 slug=expected_slug,
             ),
         )
 
     def test_rollouts_monitoring_dashboard_returns_url_when_rollout_is_complete(self):
-        experiment = NimbusExperimentFactory.create(
+        yesterday = datetime.date.today() - datetime.timedelta(days=1)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             slug="rollout-1-slug",
             status=NimbusExperiment.Status.COMPLETE,
         )
-        yesterday = datetime.date.today() - datetime.timedelta(days=1)
         NimbusChangeLogFactory.create(
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
@@ -1179,8 +1209,8 @@ class TestNimbusExperiment(TestCase):
         )
         expected_slug = experiment.slug.replace("-", "_")
         self.assertEqual(
-            experiment.rollouts_monitoring_dashboard_url,
-            settings.ROLLOUTS_MONITORING_URL.format(
+            experiment.rollout_monitoring_dashboard_url,
+            settings.ROLLOUT_MONITORING_URL.format(
                 slug=expected_slug,
             ),
         )

@@ -30,6 +30,7 @@ export interface getAllExperiments_experiments_featureConfig {
 
 export interface getAllExperiments_experiments {
   isArchived: boolean | null;
+  isRollout: boolean | null;
   name: string;
   owner: getAllExperiments_experiments_owner;
   featureConfigs: (getAllExperiments_experiments_featureConfigs | null)[] | null;

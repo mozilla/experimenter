@@ -197,6 +197,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
   query getAllExperiments {
     experiments {
       isArchived
+      isRollout
       name
       owner {
         username
