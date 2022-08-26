@@ -23,7 +23,6 @@ class SummaryPage(ExperimenterBase):
         ".header-experiment-status .border-primary",
     )
     _end_experiment_button_locator = (By.CSS_SELECTOR, ".end-experiment-start-button")
-    _confirm_end_button_locator = (By.CSS_SELECTOR, ".end-experiment-confirm-button")
     _archive_button_locator = (By.CSS_SELECTOR, 'button[data-testid="action-archive"]')
     _archive_label_locator = (
         By.CSS_SELECTOR,
@@ -146,14 +145,7 @@ class SummaryPage(ExperimenterBase):
     def end_and_approve(self, action="End"):
         el = self.find_element(*self._end_experiment_button_locator)
         el.click()
-        if action == "End":
-            self.wait.until(
-                EC.presence_of_element_located(self._confirm_end_button_locator)
-            )
-            el = self.find_element(*self._confirm_end_button_locator)
-            el.click()
-        else:
-            pass
+
         self.approve()
 
     @property

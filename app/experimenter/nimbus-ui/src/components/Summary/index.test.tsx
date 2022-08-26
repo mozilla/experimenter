@@ -110,7 +110,7 @@ describe("Summary", () => {
         }}
       />,
     );
-    await screen.findByText("Cancel Review Request");
+    await screen.findByText("Cancel Review");
   });
 
   it("does not renders the end experiment button if the experiment is live and not idle", async () => {
@@ -159,8 +159,6 @@ describe("Summary", () => {
         <Subject props={experiment} mocks={[mutationMock]} {...{ refetch }} />,
       );
       fireEvent.click(screen.getByTestId("end-experiment-start"));
-      await screen.findByTestId("end-experiment-alert");
-      fireEvent.click(screen.getByTestId("end-experiment-confirm"));
       await waitFor(() => {
         expect(refetch).toHaveBeenCalled();
         expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
@@ -188,8 +186,6 @@ describe("Summary", () => {
 
       await screen.findByTestId("cancel-review-start");
       fireEvent.click(screen.getByTestId("cancel-review-start"));
-      await screen.findByTestId("cancel-review-alert");
-      fireEvent.click(screen.getByTestId("cancel-review-confirm"));
       await waitFor(() => {
         expect(refetch).toHaveBeenCalled();
         expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
@@ -217,8 +213,6 @@ describe("Summary", () => {
 
       await screen.findByTestId("cancel-review-start");
       fireEvent.click(screen.getByTestId("cancel-review-start"));
-      await screen.findByTestId("cancel-review-alert");
-      fireEvent.click(screen.getByTestId("cancel-review-confirm"));
       await waitFor(() => {
         expect(refetch).toHaveBeenCalled();
         expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
@@ -240,8 +234,6 @@ describe("Summary", () => {
       mutationMock.result.errors = [new Error("Boo")];
       render(<Subject props={experiment} mocks={[mutationMock]} />);
       fireEvent.click(screen.getByTestId("end-experiment-start"));
-      await screen.findByTestId("end-experiment-alert");
-      fireEvent.click(screen.getByTestId("end-experiment-confirm"));
       const errorContainer = await screen.findByTestId("submit-error");
       expect(errorContainer).toHaveTextContent(SUBMIT_ERROR);
     });
@@ -265,8 +257,6 @@ describe("Summary", () => {
       };
       render(<Subject props={experiment} mocks={[mutationMock]} />);
       fireEvent.click(screen.getByTestId("end-experiment-start"));
-      await screen.findByTestId("end-experiment-alert");
-      fireEvent.click(screen.getByTestId("end-experiment-confirm"));
       const errorContainer = await screen.findByTestId("submit-error");
       expect(errorContainer).toHaveTextContent(errorMessage);
     });
@@ -306,8 +296,6 @@ describe("Summary", () => {
         <Subject props={experiment} mocks={[mutationMock]} {...{ refetch }} />,
       );
       fireEvent.click(screen.getByTestId("end-enrollment-start"));
-      await screen.findByTestId("end-enrollment-alert");
-      fireEvent.click(screen.getByTestId("end-enrollment-confirm"));
       await waitFor(() => {
         expect(refetch).toHaveBeenCalled();
         expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
@@ -330,8 +318,6 @@ describe("Summary", () => {
       mutationMock.result.errors = [new Error("Boo")];
       render(<Subject props={experiment} mocks={[mutationMock]} />);
       fireEvent.click(screen.getByTestId("end-enrollment-start"));
-      await screen.findByTestId("end-enrollment-alert");
-      fireEvent.click(screen.getByTestId("end-enrollment-confirm"));
       const errorContainer = await screen.findByTestId("submit-error");
       expect(errorContainer).toHaveTextContent(SUBMIT_ERROR);
     });
@@ -358,8 +344,6 @@ describe("Summary", () => {
       };
       render(<Subject props={experiment} mocks={[mutationMock]} />);
       fireEvent.click(screen.getByTestId("end-enrollment-start"));
-      await screen.findByTestId("end-enrollment-alert");
-      fireEvent.click(screen.getByTestId("end-enrollment-confirm"));
       const errorContainer = await screen.findByTestId("submit-error");
       expect(errorContainer).toHaveTextContent(errorMessage);
     });

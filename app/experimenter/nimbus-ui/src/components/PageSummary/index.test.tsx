@@ -91,7 +91,7 @@ describe("PageSummary", () => {
       canReview: true,
     });
     render(<Subject mocks={[mock]} />);
-    await screen.findByText("Cancel Review Request");
+    await screen.findByText("Cancel Review");
   });
 
   it("can cancel review when the experiment is in the review state", async () => {
@@ -110,8 +110,6 @@ describe("PageSummary", () => {
 
     await screen.findByTestId("cancel-review-start");
     fireEvent.click(screen.getByTestId("cancel-review-start"));
-    await screen.findByTestId("cancel-review-alert");
-    fireEvent.click(screen.getByTestId("cancel-review-confirm"));
     await waitFor(() => {
       expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
     });
