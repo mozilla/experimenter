@@ -37,6 +37,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       statusNext
       publishStatus
       monitoringDashboardUrl
+      rolloutMonitoringDashboardUrl
       resultsReady
 
       hypothesis
@@ -223,6 +224,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       statusNext
       publishStatus
       monitoringDashboardUrl
+      rolloutMonitoringDashboardUrl
       resultsReady
       featureConfig {
         slug
