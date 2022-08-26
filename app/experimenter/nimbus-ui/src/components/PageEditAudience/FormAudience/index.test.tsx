@@ -35,6 +35,7 @@ describe("FormAudience", () => {
           application: NimbusExperimentApplicationEnum.DESKTOP,
           channel: NimbusExperimentChannelEnum.NIGHTLY,
           isSticky: true,
+          isFirstRun: true,
         }}
         config={{
           ...MOCK_CONFIG,
@@ -111,6 +112,7 @@ describe("FormAudience", () => {
     );
 
     expect(screen.getByTestId("isSticky")).toBeChecked();
+    expect(screen.getByTestId("isFirstRun")).toBeChecked();
   });
 
   it("expect sticky enrollment to be not selected as sticky is not required for the selected targeting", async () => {
@@ -505,6 +507,7 @@ describe("FormAudience", () => {
       locales: MOCK_EXPERIMENT.locales.map((v) => "" + v.id),
       languages: MOCK_EXPERIMENT.languages.map((v) => "" + v.id),
       isSticky: MOCK_EXPERIMENT.isSticky,
+      isFirstRun: MOCK_EXPERIMENT.isFirstRun,
     };
     render(<Subject {...{ onSubmit }} />);
     await screen.findByTestId("FormAudience");

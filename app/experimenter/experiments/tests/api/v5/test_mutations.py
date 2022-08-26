@@ -688,6 +688,7 @@ class TestUpdateExperimentMutationSingleFeature(
                     "locales": [locale.id],
                     "languages": [language.id],
                     "isSticky": True,
+                    "isFirstRun": True,
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},

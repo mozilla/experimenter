@@ -738,6 +738,7 @@ class NimbusExperimentSerializer(
             "is_archived",
             "is_enrollment_paused",
             "is_sticky",
+            "is_first_run",
             "locales",
             "languages",
             "name",
