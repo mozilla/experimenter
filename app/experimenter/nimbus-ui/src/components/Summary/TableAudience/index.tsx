@@ -167,9 +167,9 @@ const TableAudience = ({
                 <Accordion.Toggle
                   as={Accordion}
                   eventKey="0"
-                  onClick={() => setOpen(!open)}
+                  onClick={() => setExpand(!expand)}
                 >
-                  {open ? (
+                  {expand ? (
                     <>
                       <CollapseMinus />
                       <span style={{ textTransform: "capitalize" }}>Hide</span>
