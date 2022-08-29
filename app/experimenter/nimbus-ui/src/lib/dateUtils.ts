@@ -6,11 +6,7 @@ import { getAllExperiments_experiments } from "../types/getAllExperiments";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
 import { pluralize } from "./utils";
 
-export function humanDate(
-  date: string,
-  year: boolean | "past" = "past",
-): string {
-  const today = new Date();
+export function humanDate(date: string): string {
   const parsedDate = new Date(date);
   // Dates currently arrive both with and without time and
   // timezone, so reset time to start of day and force GMT
@@ -22,16 +18,8 @@ export function humanDate(
     month: "short",
     day: "numeric",
     timeZone: "GMT",
+    year: "numeric",
   };
-
-  // Only show the year if the date's year is not the current
-  // year, or if the option is explicitly enabled
-  if (
-    (year === "past" && today.getFullYear() !== parsedDate.getFullYear()) ||
-    year === true
-  ) {
-    options.year = "numeric";
-  }
 
   return parsedDate.toLocaleString("en-US", options);
 }

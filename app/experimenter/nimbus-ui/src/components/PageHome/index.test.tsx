@@ -126,13 +126,13 @@ describe("PageHome", () => {
 
   it("renders the report button", async () => {
     await renderAndWaitForLoaded();
-    expect(screen.queryByText("Reporting")).toBeInTheDocument();
+    expect(screen.queryByText("Reports")).toBeInTheDocument();
   });
 
   it("report button renders and fetches api", async () => {
     await renderAndWaitForLoaded();
     const path = "/api/v5/csv";
-    const anchor = screen.queryByTestId("reporting-anchor");
+    const anchor = screen.queryByTestId("reports-anchor");
     expect(anchor).toHaveAttribute("href", `${path}`);
   });
 });
