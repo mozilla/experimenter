@@ -176,8 +176,15 @@ const TableAudience = ({
                     </>
                   ) : (
                     <>
+                      <Code
+                        codeString={
+                          experiment.recipeJson.substring(0, 30) + "\n    ..."
+                        }
+                      />
                       <ExpandPlus />
-                      <span style={{ textTransform: "capitalize" }}>Show</span>
+                      <span style={{ textTransform: "capitalize" }}>
+                        Show More
+                      </span>
                     </>
                   )}
                 </Accordion.Toggle>
