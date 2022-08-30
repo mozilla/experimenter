@@ -170,6 +170,9 @@ describe("TableAudience", () => {
     const { experiment } = mockExperimentQuery("demo-slug");
     render(<Subject {...{ experiment, withFullDetails: true }} />);
     expect(screen.queryByTestId("experiment-recipe-json")).toBeInTheDocument();
+    expect(screen.queryByTestId("experiment-recipe-json")).toHaveTextContent(
+      "{",
+    );
     expect(screen.queryByText("Show More")).toBeInTheDocument();
     fireEvent.click(screen.getByText("Show More"));
     expect(screen.queryByText("Hide")).toBeInTheDocument();
