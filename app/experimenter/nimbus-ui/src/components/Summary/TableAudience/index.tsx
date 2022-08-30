@@ -171,20 +171,26 @@ const TableAudience = ({
                 >
                   {expand ? (
                     <>
-                      <CollapseMinus />
-                      <span style={{ textTransform: "capitalize" }}>Hide</span>
+                      <div className="float-right">
+                        <CollapseMinus />
+                        <span style={{ textTransform: "capitalize" }}>
+                          Hide
+                        </span>
+                      </div>
                     </>
                   ) : (
                     <>
+                      <div className="float-right">
+                        <ExpandPlus />
+                        <span style={{ textTransform: "capitalize" }}>
+                          Show More
+                        </span>
+                      </div>
                       <Code
                         codeString={
                           experiment.recipeJson.substring(0, 30) + "\n    ..."
                         }
                       />
-                      <ExpandPlus />
-                      <span style={{ textTransform: "capitalize" }}>
-                        Show More
-                      </span>
                     </>
                   )}
                 </Accordion.Toggle>
