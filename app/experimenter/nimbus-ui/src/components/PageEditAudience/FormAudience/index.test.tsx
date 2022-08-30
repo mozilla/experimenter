@@ -415,7 +415,7 @@ describe("FormAudience", () => {
     expect(screen.getByTestId("isSticky")).toBeChecked();
   });
 
-  it("expect First Run to be not checked", async () => {
+  it("expect First Run to be  unchecked", async () => {
     render(
       <Subject
         experiment={{
@@ -426,6 +426,63 @@ describe("FormAudience", () => {
         }}
       />,
     );
+
+    expect(screen.getByTestId("isFirstRun")).not.toBeChecked();
+  });
+
+  it("expect First Run to be checked", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isFirstRun: true,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("isFirstRun")).toBeChecked();
+  });
+
+  it("change First Run to be checked", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("isFirstRun"), {
+      target: { checked: true },
+    });
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(screen.getByTestId("isFirstRun")).toBeChecked();
+  });
+
+  it("change First Run to be unchecked", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("isFirstRun"), {
+      target: { checked: false },
+    });
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
 
     expect(screen.getByTestId("isFirstRun")).not.toBeChecked();
   });
