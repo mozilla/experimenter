@@ -523,7 +523,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def rollout_monitoring_dashboard_url(self):
-        if self.start_date and ((datetime.date.today() - self.start_date).days >= 1):
+        if self.status == (NimbusExperiment.Status.LIVE or NimbusExperiment.Status.COMPLETE):
             return settings.ROLLOUT_MONITORING_URL.format(
                 slug=self.slug.replace("-", "_")
             )
