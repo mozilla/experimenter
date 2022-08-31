@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from "react";
-import { Accordion, Table } from "react-bootstrap";
+import { Accordion, Button, Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig } from "../../../hooks";
 import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
@@ -172,19 +172,19 @@ const TableAudience = ({
                   {expand ? (
                     <>
                       <div className="float-right">
-                        <CollapseMinus />
-                        <span style={{ textTransform: "capitalize" }}>
+                        <Button size="sm" variant="outline-primary">
+                          <CollapseMinus />
                           Hide
-                        </span>
+                        </Button>
                       </div>
                     </>
                   ) : (
                     <>
                       <div className="float-right">
-                        <ExpandPlus />
-                        <span style={{ textTransform: "capitalize" }}>
+                        <Button size="sm" variant="outline-primary">
+                          <ExpandPlus />
                           Show More
-                        </span>
+                        </Button>
                       </div>
                       <Code
                         codeString={
