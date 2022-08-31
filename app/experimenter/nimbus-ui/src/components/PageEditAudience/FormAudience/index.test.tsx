@@ -452,12 +452,11 @@ describe("FormAudience", () => {
           ...MOCK_EXPERIMENT,
           application: NimbusExperimentApplicationEnum.DESKTOP,
           channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isFirstRun: false,
         }}
       />,
     );
-    fireEvent.click(screen.getByTestId("isFirstRun"), {
-      target: { checked: true },
-    });
+    fireEvent.click(screen.getByTestId("isFirstRun"));
     const submitButton = screen.getByTestId("submit-button");
     await act(async () => {
       fireEvent.click(submitButton);
@@ -473,12 +472,11 @@ describe("FormAudience", () => {
           ...MOCK_EXPERIMENT,
           application: NimbusExperimentApplicationEnum.DESKTOP,
           channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isFirstRun: true,
         }}
       />,
     );
-    fireEvent.click(screen.getByTestId("isFirstRun"), {
-      target: { checked: false },
-    });
+    fireEvent.click(screen.getByTestId("isFirstRun"));
     const submitButton = screen.getByTestId("submit-button");
     await act(async () => {
       fireEvent.click(submitButton);
