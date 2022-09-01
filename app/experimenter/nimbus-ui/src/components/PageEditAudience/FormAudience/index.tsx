@@ -53,6 +53,7 @@ export const audienceFieldNames = [
   "locales",
   "languages",
   "isSticky",
+  "isFirstRun",
 ] as const;
 
 const selectOptions = (items: SelectIdItems) =>
@@ -85,6 +86,8 @@ export const FormAudience = ({
   const [isSticky, setIsSticky] = useState<boolean>(
     experiment.isSticky ?? false,
   );
+
+  const [isFirstRun, setIsFirstRun] = useState<boolean>(experiment.isFirstRun);
   const [stickyRequiredWarning, setStickyRequiredWarning] = useState<boolean>(
     experiment.targetingConfig![0]?.stickyRequired ?? false,
   );
@@ -107,6 +110,7 @@ export const FormAudience = ({
     locales: selectOptions(experiment.locales as SelectIdItems),
     languages: selectOptions(experiment.languages as SelectIdItems),
     isSticky: experiment.isSticky,
+    isFirstRun: experiment.isFirstRun,
   };
 
   const {
@@ -136,6 +140,7 @@ export const FormAudience = ({
               {
                 ...dataIn,
                 isSticky,
+                isFirstRun,
                 locales,
                 countries,
                 languages,
@@ -149,6 +154,7 @@ export const FormAudience = ({
       onSubmit,
       handleSubmit,
       isSticky,
+      isFirstRun,
       locales,
       countries,
       languages,
@@ -292,6 +298,18 @@ export const FormAudience = ({
               </Alert>
             )}
             <FormErrors name="isSticky" />
+          </Form.Group>
+        </Form.Row>
+        <Form.Row>
+          <Form.Group as={Col} controlId="isFirstRun">
+            <Form.Check
+              {...formControlAttrs("isFirstRun")}
+              type="checkbox"
+              onChange={(e) => setIsFirstRun(e.target.checked)}
+              checked={isFirstRun}
+              label="First Run Experiment"
+            />
+            <FormErrors name="isFirstRun" />
           </Form.Group>
         </Form.Row>
       </Form.Group>

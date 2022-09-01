@@ -164,6 +164,7 @@ export interface getExperiment_experimentBySlug {
   targetingConfigSlug: string | null;
   targetingConfig: (getExperiment_experimentBySlug_targetingConfig | null)[] | null;
   isSticky: boolean | null;
+  isFirstRun: boolean;
   jexlTargetingExpression: string | null;
   populationPercent: string | null;
   totalEnrolledClients: number;

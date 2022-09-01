@@ -35,6 +35,7 @@ describe("FormAudience", () => {
           application: NimbusExperimentApplicationEnum.DESKTOP,
           channel: NimbusExperimentChannelEnum.NIGHTLY,
           isSticky: true,
+          isFirstRun: true,
         }}
         config={{
           ...MOCK_CONFIG,
@@ -111,6 +112,7 @@ describe("FormAudience", () => {
     );
 
     expect(screen.getByTestId("isSticky")).toBeChecked();
+    expect(screen.getByTestId("isFirstRun")).toBeChecked();
   });
 
   it("expect sticky enrollment to be not selected as sticky is not required for the selected targeting", async () => {
@@ -413,6 +415,76 @@ describe("FormAudience", () => {
     expect(screen.getByTestId("isSticky")).toBeChecked();
   });
 
+  it("expect First Run to be  unchecked", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isFirstRun: false,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("isFirstRun")).not.toBeChecked();
+  });
+
+  it("expect First Run to be checked", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isFirstRun: true,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("isFirstRun")).toBeChecked();
+  });
+
+  it("change First Run to be checked", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isFirstRun: false,
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("isFirstRun"));
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(screen.getByTestId("isFirstRun")).toBeChecked();
+  });
+
+  it("change First Run to be unchecked", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          isFirstRun: true,
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("isFirstRun"));
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(screen.getByTestId("isFirstRun")).not.toBeChecked();
+  });
+
   it("renders server errors", async () => {
     const submitErrors = {
       "*": ["Big bad server thing happened"],
@@ -505,6 +577,7 @@ describe("FormAudience", () => {
       locales: MOCK_EXPERIMENT.locales.map((v) => "" + v.id),
       languages: MOCK_EXPERIMENT.languages.map((v) => "" + v.id),
       isSticky: MOCK_EXPERIMENT.isSticky,
+      isFirstRun: MOCK_EXPERIMENT.isFirstRun,
     };
     render(<Subject {...{ onSubmit }} />);
     await screen.findByTestId("FormAudience");

@@ -110,6 +110,7 @@ const MOCK_FORM_DATA = {
   locales: [1],
   languages: [1],
   isSticky: true,
+  isFirstRun: true,
 };
 
 const Subject = ({
