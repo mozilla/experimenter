@@ -176,10 +176,10 @@ integration_shell:
 integration_sdk_shell: build_prod
 	$(COMPOSE_INTEGRATION) run rust-sdk bash
 
-integration_vnc_up:
+integration_vnc_up: build_prod
 	$(COMPOSE_INTEGRATION) up
 
-integration_vnc_up_detached:
+integration_vnc_up_detached: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox
 
 integration_test_legacy: build_prod
