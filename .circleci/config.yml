@@ -65,7 +65,7 @@ jobs:
       - run:
           name: Check file paths
           command: |
-            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments'
+            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments|app/tests'
               then
                 echo "Continuing"
               else
