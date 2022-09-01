@@ -173,7 +173,7 @@ dependabot_approve:
 integration_shell:
 	$(COMPOSE_INTEGRATION) run firefox bash
 
-integration_sdk_shell:
+integration_sdk_shell: build_prod
 	$(COMPOSE_INTEGRATION) run rust-sdk bash
 
 integration_vnc_up:

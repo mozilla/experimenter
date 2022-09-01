@@ -140,9 +140,7 @@ jobs:
           name: Run integration tests
           command: |
             cp .env.sample .env
-            make refresh
-            make up_prod_detached
-            make integration_test_legacy
+            make refresh up_prod_detached integration_test_legacy
 
   deploy:
     working_directory: ~/experimenter
@@ -328,4 +326,4 @@ workflows:
             branches:
               only: main
           requires:
-           - check
+            - check
