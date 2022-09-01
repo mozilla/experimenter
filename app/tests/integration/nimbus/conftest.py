@@ -217,7 +217,7 @@ def create_experiment(base_url, default_data):
 
 @pytest.fixture
 def create_basic_experiment():
-    def _create_basic_experiment(name, app, targeting):
+    def _create_basic_experiment(name, app, targeting, languages=[]):
         query = {
             "operationName": "createExperiment",
             "variables": {
@@ -225,6 +225,7 @@ def create_basic_experiment():
                     "name": name,
                     "hypothesis": "Test hypothesis",
                     "application": app.upper(),
+                    "languages": languages,
                     "changelogMessage": "test changelog message",
                     "targetingConfigSlug": targeting,
                 }
