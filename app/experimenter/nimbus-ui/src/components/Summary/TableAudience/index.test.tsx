@@ -315,6 +315,26 @@ describe("TableAudience", () => {
       );
     });
   });
+  describe("renders 'First Run Experiment' row as expected", () => {
+    it("with stick enrollment True", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        isFirstRun: true,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-is-first-run")).toHaveTextContent(
+        "True",
+      );
+    });
+    it("when not set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        isFirstRun: false,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-is-first-run")).toHaveTextContent(
+        "False",
+      );
+    });
+  });
 });
 
 const Subject = ({

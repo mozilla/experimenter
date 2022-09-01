@@ -42,6 +42,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
         locales,
         languages,
         isSticky,
+        isFirstRun,
       }: Record<string, any>,
       next: boolean,
     ) => {
@@ -65,6 +66,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
               locales,
               languages,
               isSticky,
+              isFirstRun,
             },
           },
         });
