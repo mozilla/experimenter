@@ -12,29 +12,12 @@ describe("EndExperiment", () => {
     await screen.findByTestId("end-experiment-start");
   });
 
-  it("can start to but then cancel ending an experiment", async () => {
-    render(<Subject />);
-
-    const startEnd = await screen.findByTestId("end-experiment-start");
-    fireEvent.click(startEnd);
-    await screen.findByTestId("end-experiment-alert");
-
-    const cancelEnd = await screen.findByTestId("end-experiment-cancel");
-    fireEvent.click(cancelEnd);
-
-    await screen.findByTestId("end-experiment-start");
-  });
-
   it("calls onSubmit when ending an experiment", async () => {
     const onSubmit = jest.fn();
     render(<Subject {...{ onSubmit }} />);
 
     const startEnd = await screen.findByTestId("end-experiment-start");
     fireEvent.click(startEnd);
-    await screen.findByTestId("end-experiment-alert");
-
-    const confirmEnd = await screen.findByTestId("end-experiment-confirm");
-    fireEvent.click(confirmEnd);
     expect(onSubmit).toHaveBeenCalled();
   });
 

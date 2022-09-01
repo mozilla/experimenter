@@ -101,8 +101,10 @@ export const FormBranches = ({
   const clearSubmitErrors = () => dispatch({ type: "clearSubmitErrors" });
 
   const handleAddBranch = () => {
-    commitFormData();
-    dispatch({ type: "addBranch" });
+    if (!isRollout) {
+      commitFormData();
+      dispatch({ type: "addBranch" });
+    }
   };
 
   const handleRemoveBranch = (idx: number) => () => {
@@ -354,7 +356,7 @@ export const FormBranches = ({
               );
             })}
         </section>
-        {!experiment.isRollout && (
+        {!isRollout && (
           <Button
             data-testid="add-branch"
             variant="outline-primary"
