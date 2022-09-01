@@ -290,13 +290,12 @@ pocketNewtab:
       fallbackPref: >-
         browser.newtabpage.activity-stream.discoverystream.newFooterSection.enabled
       description: Enable an updated Pocket section topics footer
-    saveToPocketCard:
-      type: boolean
+    saveToPocketCardRegions:
+      type: string
       fallbackPref: >-
-        browser.newtabpage.activity-stream.discoverystream.saveToPocketCard.enabled
+        browser.newtabpage.activity-stream.discoverystream.saveToPocketCardRegions
       description: >-
-        A save to Pocket button inside the card, shown on the card thumbnail, on
-        hover.
+        CSV string of regions that support the save to Pocket button inside the card.
     hideDescriptions:
       type: boolean
       fallbackPref: >-
@@ -585,4 +584,24 @@ majorRelease2022:
   owner: firefoxview@mozilla.com
   hasExposure: false
   isEarlyStartup: true
-  variables: {}
+  variables:
+    feltPrivacyPBMDarkTheme:
+      type: boolean
+      fallbackPref: "browser.theme.dark-private-windows"
+      description: "Use dark theme variant for PBM windows. This is only supported if the theme sets darkTheme data."
+    feltPrivacyPBMNewIndicator:
+      type: boolean
+      fallbackPref: "browser.privatebrowsing.enable-new-indicator"
+      description: "Enables the new private browsing indicator."
+    feltPrivacyPBMNewLogo:
+      type: boolean
+      fallbackPref: "browser.privatebrowsing.enable-new-logo"
+      description: "Enables the new about:privatebrowsing logo."
+    feltPrivacyShowPreferencesSection:
+      type: boolean
+      fallbackPref: "browser.privacySegmentation.preferences.show"
+      description: "Controls visibility of the privacy segmentation preferences section."
+    colorwayCloset:
+      type: boolean
+      fallbackPref: "browser.theme.colorway-closet"
+      description: "Whether or not to show the colorway closet modal"
