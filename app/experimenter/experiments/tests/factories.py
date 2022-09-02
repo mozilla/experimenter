@@ -233,7 +233,11 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     )
     application = NimbusExperiment.Application.DESKTOP
     channel = factory.LazyAttribute(
-        lambda o: random.choice(list(NimbusExperiment.Channel)).value
+        lambda o: random.choice(
+            list(
+                NimbusExperiment.APPLICATION_CONFIGS[o.application].channel_app_id.keys()
+            )
+        ).value
     )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
     targeting_config_slug = factory.LazyAttribute(
