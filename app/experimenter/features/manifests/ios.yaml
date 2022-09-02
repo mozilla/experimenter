@@ -1,12 +1,15 @@
 ---
 contextual-hint-feature:
-  description: "This set holds all features pertaining to the usage of contextual hints, whether it's to introduce new features or remind users of existing ones."
+  description: This set holds all features pertaining to contextual hints.
   hasExposure: true
   exposureDescription: ""
   variables:
     features-enabled:
       type: json
       description: This property provides a lookup table of whether specific contextual hints are enabled.
+    hint-copy:
+      type: json
+      description: This set allows us to experiment with changing hint descriptions.
 general-app-features:
   description: The feature that contains feature flags for the entire application
   hasExposure: true
@@ -64,6 +67,25 @@ messaging:
     triggers:
       type: json
       description: "A collection of out the box trigger expressions. Each entry maps to a valid JEXL expression.\n"
+mr2022:
+  description: Features for MR 2022.
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    sections-enabled:
+      type: json
+      description: This property provides a lookup table of whether or not the given section should be enabled.
+onboarding-feature:
+  description: The feature that controls whether to show or not Upgrade onboarding
+  hasExposure: true
+  exposureDescription: ""
+  variables:
+    first-run-flow:
+      type: boolean
+      description: "If true, we show the new Onboarding screen when the user for v106 version.\n"
+    upgrade-flow:
+      type: boolean
+      description: "If true, we show the Upgrade onboarding screen when the user upgrades the version.\n"
 search:
   description: "Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.\n"
   hasExposure: true
@@ -117,14 +139,6 @@ tabTrayFeature:
     sections-enabled:
       type: json
       description: "This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default."
-upgrade-onboarding-feature:
-  description: The feature that controls whether to show or not Upgrade onboarding
-  hasExposure: true
-  exposureDescription: ""
-  variables:
-    enabled:
-      type: boolean
-      description: "If this is true, we show the Upgrade onboarding screen when the user upgrade the version."
 wallpaper-feature:
   description: This property defines the configuration for the wallpaper feature
   hasExposure: true
@@ -133,3 +147,6 @@ wallpaper-feature:
     configuration:
       type: json
       description: This property defines the configuration for the wallpaper feature
+    onboarding-sheet:
+      type: boolean
+      description: This property defines whether the wallpaper onboarding is shown or not

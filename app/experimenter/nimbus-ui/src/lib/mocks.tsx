@@ -500,6 +500,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   featureConfigs: [],
   targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
   isSticky: false,
+  isFirstRun: false,
   treatmentBranches: [
     {
       id: 456,

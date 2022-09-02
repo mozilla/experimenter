@@ -100,7 +100,7 @@ export const ChangeApprovalOperations: React.FC<
   switch (uiState) {
     case ChangeApprovalOperationsState.InvalidPages:
       return (
-        <Alert variant="warning" data-testid="invalid-pages">
+        <Alert variant="danger" data-testid="invalid-pages">
           Before this experiment can be reviewed or launched, all required
           fields must be completed. Fields on the <InvalidPagesList />{" "}
           {invalidPages.length === 1 ? "page" : "pages"} are missing details.

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import React from "react";
 import TableAudience from ".";
 import { MockedCache, mockExperimentQuery } from "../../../lib/mocks";
@@ -166,6 +166,18 @@ describe("TableAudience", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("Renders show button for recipe json", () => {
+    const { experiment } = mockExperimentQuery("demo-slug");
+    render(<Subject {...{ experiment, withFullDetails: true }} />);
+    expect(screen.queryByTestId("experiment-recipe-json")).toBeInTheDocument();
+    expect(screen.queryByTestId("experiment-recipe-json")).toHaveTextContent(
+      "{",
+    );
+    expect(screen.queryByText("Show More")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Show More"));
+    expect(screen.queryByText("Hide")).toBeInTheDocument();
+  });
+
   describe("renders 'Locales' row as expected", () => {
     it("when locales exist, displays them", () => {
       const data = {
@@ -299,6 +311,26 @@ describe("TableAudience", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {});
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-is-sticky")).toHaveTextContent(
+        "False",
+      );
+    });
+  });
+  describe("renders 'First Run Experiment' row as expected", () => {
+    it("with stick enrollment True", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        isFirstRun: true,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-is-first-run")).toHaveTextContent(
+        "True",
+      );
+    });
+    it("when not set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        isFirstRun: false,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-is-first-run")).toHaveTextContent(
         "False",
       );
     });

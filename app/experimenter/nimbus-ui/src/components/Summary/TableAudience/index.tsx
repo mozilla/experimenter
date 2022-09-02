@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { Table } from "react-bootstrap";
+import React, { useState } from "react";
+import { Accordion, Button, Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig } from "../../../hooks";
+import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
+import { ReactComponent as ExpandPlus } from "../../../images/plus.svg";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import { NimbusExperimentApplicationEnum } from "../../../types/globalTypes";
 import { Code } from "../../Code";
@@ -25,6 +27,8 @@ const TableAudience = ({
   const { firefoxVersions, channels, targetingConfigs } = useConfig();
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
+
+  const [expand, setExpand] = useState(false);
 
   return (
     <Table
@@ -137,6 +141,12 @@ const TableAudience = ({
             {experiment.isSticky ? "True" : "False"}
           </td>
         </tr>
+        <tr>
+          <th>First Run Experiment</th>
+          <td data-testid="experiment-is-first-run">
+            {experiment.isFirstRun ? "True" : "False"}
+          </td>
+        </tr>
         {withFullDetails &&
         experiment.jexlTargetingExpression &&
         experiment.jexlTargetingExpression !== "" ? (
@@ -159,7 +169,42 @@ const TableAudience = ({
               Recipe JSON <a href={`#recipe-json`}>#</a>
             </th>
             <td data-testid="experiment-recipe-json">
-              <Code codeString={experiment.recipeJson} />
+              <Accordion>
+                <Accordion.Toggle
+                  as={Accordion}
+                  eventKey="0"
+                  onClick={() => setExpand(!expand)}
+                >
+                  {expand ? (
+                    <>
+                      <div className="float-right">
+                        <Button size="sm" variant="outline-primary">
+                          <CollapseMinus />
+                          Hide
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="float-right">
+                        <Button size="sm" variant="outline-primary">
+                          <ExpandPlus />
+                          Show More
+                        </Button>
+                      </div>
+                      <Code
+                        codeString={
+                          experiment.recipeJson.substring(0, 30) + "\n    ..."
+                        }
+                      />
+                    </>
+                  )}
+                </Accordion.Toggle>
+
+                <Accordion.Collapse eventKey="0">
+                  <Code codeString={experiment.recipeJson} />
+                </Accordion.Collapse>
+              </Accordion>
             </td>
           </tr>
         )}

@@ -1,4 +1,7 @@
+import json
+import os
 import uuid
+from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
 import pytest
@@ -213,8 +216,8 @@ def create_experiment(base_url, default_data):
 
 
 @pytest.fixture
-def create_mobile_experiment():
-    def _create_mobile_experiment(name, app, languages, targeting):
+def create_basic_experiment():
+    def _create_basic_experiment(name, app, targeting, languages=[]):
         query = {
             "operationName": "createExperiment",
             "variables": {
@@ -235,4 +238,98 @@ def create_mobile_experiment():
         }
         requests.post("https://nginx/api/v5/graphql", json=query, verify=False)
 
-    return _create_mobile_experiment
+    return _create_basic_experiment
+
+
+@pytest.fixture
+def create_desktop_experiment(create_basic_experiment):
+    def _create_desktop_experiment(slug, app, targeting, **data):
+        # create a basic experiment via graphql so we can get an ID
+        create_basic_experiment(
+            slug,
+            app,
+            targeting,
+        )
+
+        # Get experiment ID
+        get_id_query = {
+            "operationName": "getExperiment",
+            "variables": {"slug": f"{slug}"},
+            "query": """
+                    query getExperiment($slug: String!) {
+                        experimentBySlug(slug: $slug) {
+                            id
+                        }
+                    }
+                    """,
+        }
+
+        response = requests.post(
+            "https://nginx/api/v5/graphql", json=get_id_query, verify=False
+        )
+        experiment_id = response.json()["data"]["experimentBySlug"]["id"]
+
+        query = {
+            "operationName": "updateExperiment",
+            "variables": {
+                "input": {
+                    "id": experiment_id,
+                    "name": f"test_check_telemetry_enrollment-{experiment_id}",
+                    "hypothesis": "Test hypothesis",
+                    "application": app.upper(),
+                    "changelogMessage": "test updated",
+                    "targetingConfigSlug": targeting,
+                    "publicDescription": data.get("public_description", "Fancy Words"),
+                    "riskRevenue": data.get("risk_revenue"),
+                    "riskPartnerRelated": data.get("risk_partner_related"),
+                    "riskBrand": data.get("risk_brand"),
+                    "featureConfigId": data.get("feature_config"),
+                    "referenceBranch": data.get("reference_branch"),
+                    "treatmentBranches": data.get("treatement_branch"),
+                    "populationPercent": data.get("population_percent"),
+                    "totalEnrolledClients": data.get("total_enrolled_clients"),
+                }
+            },
+            "query": "mutation updateExperiment($input: ExperimentInput!) \
+                {\n updateExperiment(input: $input) \
+                    {\n message\n __typename\n }\n}\n",
+        }
+        requests.post("https://nginx/api/v5/graphql", json=query, verify=False)
+
+    return _create_desktop_experiment
+
+
+@pytest.fixture(name="language_database_id_loader")
+def fixture_language_database_id_loader():
+    """Return database id's for languages"""
+
+    def _language_database_id_loader(languages=None):
+        language_list = []
+        path = Path().resolve()
+        path = str(path)
+        path = path.strip("/tests/integration/nimbus")
+        path = os.path.join("/", path, "experimenter/base/fixtures/languages.json")
+        with open(path) as file:
+            data = json.loads(file.read())
+            for language in languages:
+                for item in data:
+                    if language in item["fields"]["code"][:2]:
+                        language_list.append(item["pk"])
+        return language_list
+
+    return _language_database_id_loader
+
+
+@pytest.fixture
+def trigger_experiment_loader(selenium):
+    def _trigger_experiment_loader():
+        with selenium.context(selenium.CONTEXT_CHROME):
+            selenium.execute_script(
+                """
+                    ChromeUtils.import(
+                        "resource://nimbus/lib/RemoteSettingsExperimentLoader.jsm"
+                    ).RemoteSettingsExperimentLoader.updateRecipes();
+                """
+            )
+
+    return _trigger_experiment_loader
