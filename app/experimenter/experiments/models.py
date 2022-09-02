@@ -523,7 +523,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def rollout_monitoring_dashboard_url(self):
-        if self.status == (NimbusExperiment.Status.LIVE or NimbusExperiment.Status.COMPLETE):
+        if self.is_rollout and (
+            self.status
+            == (NimbusExperiment.Status.LIVE or NimbusExperiment.Status.COMPLETE)
+        ):
             return settings.ROLLOUT_MONITORING_URL.format(
                 slug=self.slug.replace("-", "_")
             )

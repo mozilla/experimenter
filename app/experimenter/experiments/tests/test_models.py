@@ -1119,6 +1119,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             slug="rollout-1-slug",
+            is_rollout=True,
             status=NimbusExperiment.Status.DRAFT,
         )
         self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
@@ -1127,6 +1128,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             slug="rollout-1-slug",
+            is_rollout=True,
             status=NimbusExperiment.Status.LIVE,
         )
 
@@ -1146,6 +1148,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
             slug="rollout-1-slug",
+            is_rollout=True,
             status=NimbusExperiment.Status.COMPLETE,
         )
         expected_slug = "rollout_1_slug"
@@ -1155,6 +1158,15 @@ class TestNimbusExperiment(TestCase):
                 slug=expected_slug,
             ),
         )
+
+    def test_rollouts_monitoring_dashboard_returns_none_when_not_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            slug="rollout-1-slug",
+            is_rollout=False,
+            status=NimbusExperiment.Status.COMPLETE,
+        )
+        self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
 
     def test_review_url_should_return_simple_review_url(self):
         with override_settings(
