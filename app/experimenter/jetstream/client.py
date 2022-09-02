@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 from itertools import chain
@@ -149,7 +150,6 @@ def get_experiment_data(experiment):
     experiment_data = {
         "show_analysis": settings.FEATURE_ANALYSIS,
         "metadata": experiment_metadata,
-        "errors": experiment_errors,
     }
 
     for window in windows:
@@ -180,5 +180,19 @@ def get_experiment_data(experiment):
         transformed_data = data.dict(exclude_none=True) or None
 
         experiment_data[window] = transformed_data
+
+    errors_by_metric = {}
+    errors_experiment_overall = []
+    for err in experiment_errors:
+        if "metric" in err and err.get("metric") is not None:
+            if err.get("metric") not in errors_by_metric:
+                errors_by_metric[err.get("metric")] = []
+            errors_by_metric[err.get("metric")].append(err)
+        else:
+            errors_experiment_overall.append(err)
+
+    errors_by_metric["experiment"] = errors_experiment_overall
+
+    experiment_data["errors"] = errors_by_metric
 
     return experiment_data
