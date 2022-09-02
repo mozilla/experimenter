@@ -12,13 +12,14 @@ import { useOutcomes } from "../../hooks";
 import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { StatusCheck } from "../../lib/experiment";
 import { OutcomesList } from "../../lib/types";
-import { AnalysisData, MetadataPoint } from "../../lib/visualization/types";
+import { AnalysisData, AnalysisError, MetadataPoint } from "../../lib/visualization/types";
 import { analysisAvailable } from "../../lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { DisabledItem } from "../DisabledItem";
 import LinkExternal from "../LinkExternal";
 import { LinkNav } from "../LinkNav";
 import LinkNavSummary from "../LinkNavSummary";
+import AnalysisErrorAlert from "../PageResults/AnalysisErrorAlert";
 import SidebarActions from "../SidebarActions";
 import { ReactComponent as BarChart } from "./bar-chart.svg";
 
@@ -79,7 +80,7 @@ export const AppLayoutSidebarLaunched = ({
   analysisRequired,
   analysisError,
   experiment,
-  refetch = async () => {},
+  refetch = async () => { },
 }: AppLayoutSidebarLaunchedProps) => {
   const { slug } = useParams();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
@@ -212,10 +213,13 @@ export const AppLayoutSidebarLaunched = ({
                     <>
                       Could not get visualization data. Please contact data
                       science in{" "}
-                      <LinkExternal href="https://mozilla.slack.com/archives/C0149JH7C1M">
-                        #cirrus
+                      <LinkExternal href="https://mozilla.slack.com/archives/CF94YGE03">
+                        #ask-experimenter
                       </LinkExternal>
                       .
+                      {analysis?.errors?.experiment && (
+                        <AnalysisErrorAlert errors={analysis.errors.experiment} />
+                      )}
                     </>
                   ) : analysis?.metadata?.external_config?.skip ? (
                     "Experiment analysis was skipped"

@@ -19,10 +19,12 @@ import {
   getSortedBranchNames,
 } from "../../lib/visualization/utils";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
+import AnalysisErrorAlert from "./AnalysisErrorAlert";
 import ExternalConfigAlert from "./ExternalConfigAlert";
 import TableHighlights from "./TableHighlights";
 import TableHighlightsOverview from "./TableHighlightsOverview";
 import TableMetricCount from "./TableMetricCount";
+import MetricHeader from "./TableMetricCount/MetricHeader";
 import TableResults from "./TableResults";
 import TableResultsWeekly from "./TableResultsWeekly";
 import TableWithTabComparison from "./TableWithTabComparison";
@@ -59,6 +61,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
   const { external_config: externalConfig } = analysis.metadata || {};
 
+  const primaryOutcomeMetricsWithErrors: string[] = [];
+
   return (
     <AppLayoutWithExperiment title="Analysis" testId="PageResults">
       <ResultsContext.Provider value={resultsContextValue}>
@@ -73,6 +77,10 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             </b>
           </p>
         )}
+        {analysis?.errors?.experiment && analysis?.errors?.experiment.length > 0 && (
+          <AnalysisErrorAlert errors={analysis.errors.experiment} />
+        )}
+
         {externalConfig && <ExternalConfigAlert {...{ externalConfig }} />}
 
         <h3 className="h4 mb-3 mt-4" id="overview">
@@ -108,7 +116,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
         <div>
           <h2 className="h4 mb-3">Outcome Metrics</h2>
-          {analysis.overall &&
+          {analysis.overall ? (
             experiment.primaryOutcomes?.map((slug) => {
               const outcome = configOutcomes!.find((set) => {
                 return set?.slug === slug;
@@ -118,7 +126,21 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   !analysis!.overall![resultsContextValue.controlBranchName]
                     .branch_data[GROUP.OTHER][metric?.slug!]
                 ) {
-                  // Primary metric does not have data to display.
+                  // Primary metric does not have data to display. Show error if there is one.
+                  if (metric?.slug && analysis?.errors && metric.slug in analysis.errors && analysis.errors[metric.slug].length > 0) {
+                    primaryOutcomeMetricsWithErrors.push(metric.slug);
+                    return (
+                      <>
+                        <MetricHeader
+                          key={metric.slug}
+                          outcomeSlug={metric.slug!}
+                          outcomeDefaultName={metric?.friendlyName!}
+                          metricType={METRIC_TYPE.PRIMARY}
+                        />
+                        <AnalysisErrorAlert errors={analysis.errors[metric.slug]} />
+                      </>
+                    );
+                  }
                   return;
                 }
                 return (
@@ -131,8 +153,33 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   />
                 );
               });
-            })}
-          {analysis.overall &&
+            })
+          ) : (
+            // no Overall results, check for errors in primary outcome metrics
+            experiment.primaryOutcomes?.map((slug) => {
+              const outcome = configOutcomes!.find((set) => {
+                return set?.slug === slug;
+              });
+              return outcome?.metrics?.map((metric) => {
+                if (metric?.slug && analysis?.errors && metric.slug in analysis.errors && analysis.errors[metric.slug].length > 0) {
+                  primaryOutcomeMetricsWithErrors.push(metric.slug);
+                  return (
+                    <>
+                      <MetricHeader
+                        key={metric.slug}
+                        outcomeSlug={metric.slug!}
+                        outcomeDefaultName={metric?.friendlyName!}
+                        metricType={METRIC_TYPE.PRIMARY}
+                      />
+                      <AnalysisErrorAlert errors={analysis.errors[metric.slug]} />
+                    </>
+                  );
+                }
+                return;
+              });
+            })
+          )}
+          {analysis.overall ? (
             experiment.secondaryOutcomes?.map((slug) => {
               const outcome = configOutcomes!.find((set) => {
                 return set?.slug === slug;
@@ -147,7 +194,38 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   metricType={METRIC_TYPE.DEFAULT_SECONDARY}
                 />
               );
-            })}
+            })
+          ) : (
+            // no Overall results, check for errors in secondary outcome metrics
+            experiment.secondaryOutcomes?.map((slug) => {
+              const outcome = configOutcomes!.find((set) => {
+                return set?.slug === slug;
+              });
+              return outcome?.metrics?.map((metric) => {
+                if (
+                  metric?.slug &&
+                  analysis?.errors &&
+                  metric.slug in analysis.errors &&
+                  analysis.errors[metric.slug].length > 0 &&
+                  !(primaryOutcomeMetricsWithErrors.includes(metric.slug))
+                ) {
+                  return (
+                    <>
+                      <MetricHeader
+                        key={metric?.slug}
+                        outcomeSlug={metric?.slug!}
+                        outcomeDefaultName={metric?.friendlyName!}
+                        metricType={METRIC_TYPE.DEFAULT_SECONDARY}
+                      />
+                      <AnalysisErrorAlert errors={analysis.errors[metric.slug]} />
+                    </>
+                  );
+                } else {
+                  return;
+                }
+              });
+            })
+          )}
           {analysis.other_metrics &&
             Object.keys(analysis.other_metrics).map((group: string) => {
               const [open, setOpen] = groupStates[group];

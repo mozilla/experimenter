@@ -46,13 +46,14 @@ const Subject = ({
     analysis ||
     (withAnalysis
       ? {
-          show_analysis: true,
-          daily: [],
-          weekly: {},
-          overall: mockAnalysis().overall,
-          metadata: mockAnalysis().metadata,
-          other_metrics: mockAnalysis().other_metrics,
-        }
+        show_analysis: true,
+        daily: [],
+        weekly: {},
+        overall: mockAnalysis().overall,
+        errors: {},
+        metadata: mockAnalysis().metadata,
+        other_metrics: mockAnalysis().other_metrics,
+      }
       : undefined);
   return (
     <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
@@ -63,7 +64,7 @@ const Subject = ({
           analysisError: analysisError ? new Error("boop") : undefined,
           analysis: mockedAnalysis,
           experiment,
-          refetch: async () => {},
+          refetch: async () => { },
         }}
       >
         <p data-testid="test-child">Hello, world!</p>

@@ -19,6 +19,7 @@ export const defaultResultsContext = {
     daily: [],
     weekly: {},
     overall: {},
+    errors: { experiment: [] },
     metadata: { metrics: {}, outcomes: {}, external_config: null },
     show_analysis: false,
   },

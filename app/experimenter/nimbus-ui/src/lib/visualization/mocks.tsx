@@ -7,6 +7,7 @@ export const MOCK_UNAVAILABLE_ANALYSIS = {
   daily: null,
   weekly: null,
   overall: null,
+  errors: null,
   metadata: {
     metrics: {},
     outcomes: {},
@@ -387,6 +388,7 @@ export const mockAnalysis = (modifications = {}) =>
       other_metrics: { other_metrics: { feature_d: "Feature D" } },
       metadata: MOCK_METADATA,
       show_analysis: true,
+      errors: { experiment: [] },
       daily: [],
       weekly: weeklyMockAnalysis(),
       overall: {
@@ -1029,6 +1031,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
       other_metrics: { other_metrics: { feature_d: "Feature D" } },
       metadata: MOCK_METADATA,
       show_analysis: true,
+      errors: {},
       daily: [],
       weekly: {},
       overall: {
