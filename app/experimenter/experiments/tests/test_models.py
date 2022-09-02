@@ -1040,10 +1040,30 @@ class TestNimbusExperiment(TestCase):
             experiment.end_date,
         )
 
-    def test_monitoring_dashboard_url_is_when_experiment_not_begun(self):
+    def test_monitoring_dashboard_url_is_valid_when_experiment_not_begun(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
             status=NimbusExperiment.Status.DRAFT,
+            is_rollout=False,
+        )
+
+        from_date = datetime.date.today() - datetime.timedelta(days=1)
+        to_date = datetime.date.today() + datetime.timedelta(days=1)
+
+        self.assertEqual(
+            experiment.monitoring_dashboard_url,
+            settings.MONITORING_URL.format(
+                slug=experiment.slug,
+                from_date=from_date.strftime("%Y-%m-%d"),
+                to_date=to_date.strftime("%Y-%m-%d"),
+            ),
+        )
+
+    def test_monitoring_dashboard_returns_url_when_rollout(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment",
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
         )
 
         from_date = datetime.date.today() - datetime.timedelta(days=1)
@@ -1062,6 +1082,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
             status=NimbusExperiment.Status.LIVE,
+            is_rollout=False,
         )
 
         NimbusChangeLogFactory.create(
@@ -1087,6 +1108,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
             status=NimbusExperiment.Status.COMPLETE,
+            is_rollout=False,
         )
 
         NimbusChangeLogFactory.create(
