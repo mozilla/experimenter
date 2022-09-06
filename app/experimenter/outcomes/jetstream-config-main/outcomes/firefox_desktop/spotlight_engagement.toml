@@ -1,24 +1,38 @@
-friendly_name = "Spotlight Engagement - not experiment specific"
+### outcome properties
+friendly_name = "Spotlight Engagement"
 description = "Usage and engagement metrics for the Spotlight feature - for ALL engagement with Spotlight feature, not experiment specific "
 
+
+### parameters definition
+[parameters]
+
+[parameters.message_id]
+friendly_name = "Message ID associated with the experiment"
+description = "ID of the spotlight message associated with this experiment"
+# only used for validation; needs to be specified for each experiment
+default = { test-branch = "test-message-id"}
+distinct_by_branch = true
+
+
+### metrics definition
 [metrics.spotlight_impressions]
 friendly_name = "Spotlight Impressions"
 description = "How often users saw Spotlight during an analysis window"
-select_expression = "COUNTIF(event = 'IMPRESSION')"
+select_expression = "COUNTIF(event = 'IMPRESSION' AND message_id = '{{ parameters.message_id }}')"
 data_source = "spotlight"
 statistics = { bootstrap_mean = {} }
 
 [metrics.spotlight_clicks]
 friendly_name = "Spotlight Clicks"
 description = "How often users clicked Spotlight during an analysis window"
-select_expression = "COUNTIF(event = 'CLICK')"
+select_expression = "COUNTIF(event = 'CLICK' AND message_id = '{{ parameters.message_id }}')"
 data_source = "spotlight"
 statistics = { bootstrap_mean = {} }
 
 [metrics.spotlight_dismisses]
 friendly_name = "Spotlight Dismisses"
 description = "How often users dismissed Spotlight during an analysis window"
-select_expression = "COUNTIF(event = 'DISMISS')"
+select_expression = "COUNTIF(event = 'DISMISS' AND message_id = '{{ parameters.message_id }}')"
 data_source = "spotlight"
 statistics = { bootstrap_mean = {} }
 
@@ -27,14 +41,13 @@ from_expression = """
 (SELECT
     client_id,
     event,
+    message_id,
     experiments,
     DATE(submission_timestamp) AS submission_date
 FROM
     mozdata.messaging_system.spotlight
 CROSS JOIN
     UNNEST(experiments) AS experiment
-WHERE
-    message_id = CONCAT(experiment.key, ':', experiment.value.branch)
 )
 """
 experiments_column_type = "native"
