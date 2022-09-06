@@ -448,6 +448,7 @@ type NimbusExperimentType {
   featureConfigs: [NimbusFeatureConfigType]
   readyForReview: NimbusReviewType
   monitoringDashboardUrl: String
+  rolloutMonitoringDashboardUrl: String
   resultsReady: Boolean
   startDate: DateTime
   computedEndDate: DateTime

@@ -522,6 +522,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         )
 
     @property
+    def rollout_monitoring_dashboard_url(self):
+        if self.is_rollout and (
+            self.status
+            in (NimbusExperiment.Status.LIVE, NimbusExperiment.Status.COMPLETE)
+        ):
+            return settings.ROLLOUT_MONITORING_URL.format(
+                slug=self.slug.replace("-", "_")
+            )
+
+    @property
     def review_url(self):
         return "{base_url}{collection_path}/{collection}/{review_path}".format(
             base_url=settings.KINTO_ADMIN_URL,
