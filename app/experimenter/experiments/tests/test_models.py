@@ -1040,10 +1040,30 @@ class TestNimbusExperiment(TestCase):
             experiment.end_date,
         )
 
-    def test_monitoring_dashboard_url_is_when_experiment_not_begun(self):
+    def test_monitoring_dashboard_url_is_valid_when_experiment_not_begun(self):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
             status=NimbusExperiment.Status.DRAFT,
+            is_rollout=False,
+        )
+
+        from_date = datetime.date.today() - datetime.timedelta(days=1)
+        to_date = datetime.date.today() + datetime.timedelta(days=1)
+
+        self.assertEqual(
+            experiment.monitoring_dashboard_url,
+            settings.MONITORING_URL.format(
+                slug=experiment.slug,
+                from_date=from_date.strftime("%Y-%m-%d"),
+                to_date=to_date.strftime("%Y-%m-%d"),
+            ),
+        )
+
+    def test_monitoring_dashboard_returns_url_when_rollout(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment",
+            status=NimbusExperiment.Status.DRAFT,
+            is_rollout=True,
         )
 
         from_date = datetime.date.today() - datetime.timedelta(days=1)
@@ -1062,6 +1082,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
             status=NimbusExperiment.Status.LIVE,
+            is_rollout=False,
         )
 
         NimbusChangeLogFactory.create(
@@ -1087,6 +1108,7 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
             status=NimbusExperiment.Status.COMPLETE,
+            is_rollout=False,
         )
 
         NimbusChangeLogFactory.create(
@@ -1114,6 +1136,59 @@ class TestNimbusExperiment(TestCase):
                 to_date=to_date.strftime("%Y-%m-%d"),
             ),
         )
+
+    def test_rollouts_monitoring_dashboard_url_is_none_when_rollout_not_begun(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="rollout-1-slug",
+            is_rollout=True,
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
+
+    def test_rollouts_monitoring_dashboard_returns_correct_formatted_url(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            slug="rollout-1-slug",
+            is_rollout=True,
+            status=NimbusExperiment.Status.LIVE,
+        )
+
+        expected_slug = "rollout_1_slug"
+        url = experiment.rollout_monitoring_dashboard_url
+        actual_slug = url[(url.index("::") + 2) :]  # take a slice of the url after '::'
+        self.assertEqual(expected_slug, actual_slug)
+
+        self.assertEqual(
+            experiment.rollout_monitoring_dashboard_url,
+            settings.ROLLOUT_MONITORING_URL.format(
+                slug=expected_slug,
+            ),
+        )
+
+    def test_rollouts_monitoring_dashboard_returns_url_when_rollout_is_complete(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            slug="rollout-1-slug",
+            is_rollout=True,
+            status=NimbusExperiment.Status.COMPLETE,
+        )
+        expected_slug = "rollout_1_slug"
+        self.assertEqual(
+            experiment.rollout_monitoring_dashboard_url,
+            settings.ROLLOUT_MONITORING_URL.format(
+                slug=expected_slug,
+            ),
+        )
+
+    def test_rollouts_monitoring_dashboard_returns_none_when_not_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            slug="rollout-1-slug",
+            is_rollout=False,
+            status=NimbusExperiment.Status.COMPLETE,
+        )
+        self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
 
     def test_review_url_should_return_simple_review_url(self):
         with override_settings(

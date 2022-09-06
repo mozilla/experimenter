@@ -30,6 +30,7 @@ export interface getAllExperiments_experiments_featureConfig {
 
 export interface getAllExperiments_experiments {
   isArchived: boolean | null;
+  isRollout: boolean | null;
   name: string;
   owner: getAllExperiments_experiments_owner;
   featureConfigs: (getAllExperiments_experiments_featureConfigs | null)[] | null;
@@ -47,6 +48,7 @@ export interface getAllExperiments_experiments {
   statusNext: NimbusExperimentStatusEnum | null;
   publishStatus: NimbusExperimentPublishStatusEnum | null;
   monitoringDashboardUrl: string | null;
+  rolloutMonitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
 }
