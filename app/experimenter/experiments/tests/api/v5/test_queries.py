@@ -43,7 +43,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             """,
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiments = content["data"]["experiments"]
         self.assertEqual(len(experiments), 1)
@@ -92,7 +92,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             """,
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experiments"][0]
         self.assertEqual(
@@ -350,7 +350,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             """,
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experiments"][0]
         for key in (
@@ -378,7 +378,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             """,
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experiments"][0]
         self.assertEqual(
@@ -411,7 +411,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             """,
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experiments"][0]
 
@@ -590,7 +590,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             variables={"slug": "nope"},
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment = content["data"]["experimentBySlug"]
         self.assertIsNone(experiment)
@@ -815,7 +815,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         content = json.loads(response.content)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         experiment_data = content["data"]["experimentBySlug"]
         self.assertIsNone(experiment_data["timeout"])
 
@@ -840,7 +840,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         content = json.loads(response.content)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
             experiment_data["timeout"]["changedBy"]["email"], experiment.owner.email
@@ -863,7 +863,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         content = json.loads(response.content)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
             experiment_data["recipeJson"],
@@ -890,7 +890,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         content = json.loads(response.content)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(
             experiment_data["recipeJson"],
@@ -1042,28 +1042,19 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
+        targeting_config = NimbusExperiment.TARGETING_CONFIGS[
+            NimbusExperiment.TargetingConfig.FIRST_RUN.value
+        ]
         self.assertEqual(
             experiment_data["targetingConfig"],
             [
                 {
-                    "label": NimbusExperiment.TARGETING_CONFIGS[
-                        NimbusExperiment.TargetingConfig.FIRST_RUN.value
-                    ].name,
+                    "label": targeting_config.name,
                     "value": NimbusExperiment.TargetingConfig.FIRST_RUN.value,
-                    "applicationValues": list(
-                        NimbusExperiment.TARGETING_CONFIGS[
-                            NimbusExperiment.TargetingConfig.FIRST_RUN.value
-                        ].application_choice_names
-                    ),
-                    "description": NimbusExperiment.TARGETING_CONFIGS[
-                        NimbusExperiment.TargetingConfig.FIRST_RUN.value
-                    ].description,
-                    "stickyRequired": NimbusExperiment.TARGETING_CONFIGS[
-                        NimbusExperiment.TargetingConfig.FIRST_RUN.value
-                    ].sticky_required,
-                    "isFirstRunRequired": NimbusExperiment.TARGETING_CONFIGS[
-                        NimbusExperiment.TargetingConfig.FIRST_RUN.value
-                    ].is_first_run_required,
+                    "applicationValues": list(targeting_config.application_choice_names),
+                    "description": targeting_config.description,
+                    "stickyRequired": targeting_config.sticky_required,
+                    "isFirstRunRequired": targeting_config.is_first_run_required,
                 }
             ],
         )
@@ -1342,8 +1333,9 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             """,
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
+        print("\n\n\n", content, "\n\n\n")
         config = content["data"]["nimbusConfig"]
 
         def assertChoices(data, text_choices):
