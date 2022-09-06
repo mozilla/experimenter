@@ -288,10 +288,21 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
                 Looker
               </LinkExternal>
             )}
+            {experiment.monitoringDashboardUrl &&
+              experiment.resultsReady &&
+              experiment.rolloutMonitoringDashboardUrl && <br />}
+            {experiment.rolloutMonitoringDashboardUrl && (
+              <LinkExternal
+                href={experiment.rolloutMonitoringDashboardUrl!}
+                data-testid="link-rollout-monitoring-dashboard"
+              >
+                Rollout dashboard
+              </LinkExternal>
+            )}
             {experiment.monitoringDashboardUrl && experiment.resultsReady && (
               <br />
             )}
-            {experiment.resultsReady && (
+            {!experiment.isRollout && experiment.resultsReady && (
               <Link
                 to={`${experiment.slug}/results`}
                 data-sb-kind="pages/Results"
@@ -300,6 +311,7 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
               </Link>
             )}
             {!experiment.monitoringDashboardUrl &&
+              !experiment.rolloutMonitoringDashboardUrl &&
               !experiment.resultsReady &&
               "N/A"}
           </td>

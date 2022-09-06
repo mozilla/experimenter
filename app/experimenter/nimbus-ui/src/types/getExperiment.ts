@@ -144,6 +144,7 @@ export interface getExperiment_experimentBySlug {
   statusNext: NimbusExperimentStatusEnum | null;
   publishStatus: NimbusExperimentPublishStatusEnum | null;
   monitoringDashboardUrl: string | null;
+  rolloutMonitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
   hypothesis: string;
   application: NimbusExperimentApplicationEnum | null;

@@ -367,6 +367,7 @@ class NimbusExperimentType(DjangoObjectType):
     warn_feature_schema = graphene.Boolean()
     ready_for_review = graphene.Field(NimbusReviewType)
     monitoring_dashboard_url = graphene.String()
+    rollout_monitoring_dashboard_url = graphene.String()
     results_ready = graphene.Boolean()
     start_date = graphene.DateTime()
     computed_end_date = graphene.DateTime()
