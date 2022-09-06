@@ -303,8 +303,9 @@ pyjexl==0.3.0 \
     --hash=sha256:e7aea7f4d7c3574cb630ca5d026ec0ab5e4e48f20a5f1e495e2740779d0045dd
 future==0.18.2 \
     --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d
-parsimonious==0.9.0 \
-    --hash=sha256:b2ad1ae63a2f65bd78f5e0a8ac510a98f3607a43f1db2a8d46636a5d9e4a30c1
+parsimonious==0.10.0 \
+    --hash=sha256:8281600da180ec8ae35427a4ab4f7b82bfec1e3d1e52f80cb60ea82b9512501c \
+    --hash=sha256:982ab435fabe86519b57f6b35610aa4e4e977e9f02a14353edf4bbc75369fc0f
 regex==2022.8.17 \
     --hash=sha256:02b6dc102123f5178796dcdb5a90f6e88895607fd1a1d115d8de1af8161ca2b4 \
     --hash=sha256:0843cc977b9cc00eb2299b624db6481d25e7f5b093f7a7c2bb727028d4a26eda \
