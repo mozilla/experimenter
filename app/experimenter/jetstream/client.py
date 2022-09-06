@@ -1,4 +1,3 @@
-from datetime import datetime
 import json
 import os
 from itertools import chain
