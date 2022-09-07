@@ -6,7 +6,6 @@ from experimenter.experiments.api.v5.serializers import NimbusExperimentCsvSeria
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
-    NimbusChangeLogFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
@@ -44,13 +43,15 @@ class TestNimbusExperimentCsvSerializer(TestCase):
         application = NimbusConstants.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
 
-        experiment = NimbusExperimentFactory.create(
-            application=application, feature_configs=[feature_config]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=application,
+            feature_configs=[feature_config],
         )
-        NimbusChangeLogFactory.create(
-            experiment=experiment,
+        experiment.changes.all().filter(
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
+        ).update(
             changed_on=datetime.date(2019, 5, 1),
         )
         serializer = NimbusExperimentCsvSerializer(experiment)
@@ -58,7 +59,7 @@ class TestNimbusExperimentCsvSerializer(TestCase):
             serializer.data,
             {
                 "launch_month": experiment.launch_month,
-                "product_area": experiment.application.value,
+                "product_area": experiment.application,
                 "experiment_name": experiment.name,
                 "owner": experiment.owner.email,
                 "feature_configs": getattr(feature_config, "name"),

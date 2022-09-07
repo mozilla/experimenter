@@ -1,3 +1,5 @@
+import datetime
+
 from django.test import TestCase
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -33,6 +35,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         self.assertEqual(
             data,
             {
+                "_start_date": None,
+                "_end_date": None,
                 "application": "",
                 "branches": [],
                 "channel": NimbusExperiment.Channel.NO_CHANNEL,
@@ -87,6 +91,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            start_date=datetime.date(2020, 1, 1),
+            end_date=datetime.date(2020, 2, 1),
             application=application,
             feature_configs=[feature_config],
             projects=[project],
@@ -106,6 +112,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         self.assertEqual(
             data,
             {
+                "_start_date": "2020-01-01",
+                "_end_date": "2020-02-01",
                 "application": experiment.application,
                 "channel": experiment.channel,
                 "conclusion_recommendation": None,

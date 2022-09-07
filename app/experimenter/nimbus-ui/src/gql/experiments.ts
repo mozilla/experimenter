@@ -37,6 +37,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       statusNext
       publishStatus
       monitoringDashboardUrl
+      rolloutMonitoringDashboardUrl
       resultsReady
 
       hypothesis
@@ -196,6 +197,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
   query getAllExperiments {
     experiments {
       isArchived
+      isRollout
       name
       owner {
         username
@@ -223,6 +225,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       statusNext
       publishStatus
       monitoringDashboardUrl
+      rolloutMonitoringDashboardUrl
       resultsReady
       featureConfig {
         slug

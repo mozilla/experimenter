@@ -24,7 +24,7 @@ class Query(graphene.ObjectType):
     )
 
     def resolve_experiments(root, info):
-        return NimbusExperiment.objects.latest_with_related()
+        return NimbusExperiment.objects.with_owner_features()
 
     def resolve_experiment_by_slug(root, info, slug):
         try:
