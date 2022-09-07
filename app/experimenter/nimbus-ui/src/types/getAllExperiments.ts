@@ -49,7 +49,7 @@ export interface getAllExperiments_experiments {
   monitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
-  channel: string;
+  channel: string | null;
   populationPercent: number | null;
 }
 
