@@ -63,6 +63,8 @@ describe("FormBranches", () => {
         // @ts-ignore type mismatch covers discarded annotation properties
         (branch) => extractUpdateBranch(branch!),
       ),
+      isRollout: false,
+      warnFeatureSchema: false,
     });
     expect(typeof onSaveArgs[1]).toEqual("function");
     expect(typeof onSaveArgs[2]).toEqual("function");
