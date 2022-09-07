@@ -60,10 +60,9 @@ class NimbusExperimentManager(models.Manager):
             .order_by("-latest_change")
         )
 
-    def latest_with_related(self):
-        return self.latest_changed().prefetch_related(
+    def with_owner_features(self):
+        return self.get_queryset().prefetch_related(
             "owner",
-            "changes",
             "feature_configs",
         )
 
@@ -199,6 +198,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     )
     takeaways_summary = models.TextField(blank=True, null=True)
     is_first_run = models.BooleanField(default=False)
+
+    _start_date = models.DateField(blank=True, null=True)
+    _end_date = models.DateField(blank=True, null=True)
 
     objects = NimbusExperimentManager()
 
@@ -394,17 +396,29 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return list(branches)
 
     @property
+    def is_started(self):
+        return self.status in (self.Status.LIVE, self.Status.COMPLETE)
+
+    @property
     def start_date(self):
-        start_changelogs = [
-            c
-            for c in self.changes.all()
-            if c.old_status == NimbusExperiment.Status.DRAFT
-            and c.new_status == NimbusExperiment.Status.LIVE
-        ]
-        if start_changelogs:
-            return sorted(start_changelogs, key=lambda c: c.changed_on)[
-                -1
-            ].changed_on.date()
+        if self._start_date is not None:
+            return self._start_date
+
+        if self.is_started:
+            start_changelogs = [
+                c
+                for c in self.changes.all()
+                if c.old_status == NimbusExperiment.Status.DRAFT
+                and c.new_status == NimbusExperiment.Status.LIVE
+            ]
+
+            if start_changelogs:
+                start_date = sorted(start_changelogs, key=lambda c: c.changed_on)[
+                    -1
+                ].changed_on.date()
+                self._start_date = start_date
+                self.save()
+                return start_date
 
     @property
     def launch_month(self):
@@ -413,16 +427,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def end_date(self):
-        changes = self.changes.all()
-        end_changelogs = [
-            c
-            for c in changes
-            if c.old_status == self.Status.LIVE and c.new_status == self.Status.COMPLETE
-        ]
-        if end_changelogs:
-            return sorted(end_changelogs, key=lambda c: c.changed_on)[
-                -1
-            ].changed_on.date()
+        if self._end_date is not None:
+            return self._end_date
+
+        if self.status == self.Status.COMPLETE:
+            changes = self.changes.all()
+            end_changelogs = [
+                c
+                for c in changes
+                if c.old_status == self.Status.LIVE
+                and c.new_status == self.Status.COMPLETE
+            ]
+
+            if end_changelogs:
+                end_date = sorted(end_changelogs, key=lambda c: c.changed_on)[
+                    -1
+                ].changed_on.date()
+                self._end_date = end_date
+                self.save()
+                return end_date
 
     @property
     def proposed_enrollment_end_date(self):
@@ -520,6 +543,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             from_date=start_date.strftime("%Y-%m-%d"),
             to_date=end_date.strftime("%Y-%m-%d"),
         )
+
+    @property
+    def rollout_monitoring_dashboard_url(self):
+        if self.is_rollout and (
+            self.status
+            in (NimbusExperiment.Status.LIVE, NimbusExperiment.Status.COMPLETE)
+        ):
+            return settings.ROLLOUT_MONITORING_URL.format(
+                slug=self.slug.replace("-", "_")
+            )
 
     @property
     def review_url(self):

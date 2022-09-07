@@ -177,6 +177,7 @@ class Lifecycles(Enum):
     LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
     LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
     LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE_ENROLLING,)
+    LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
     PAUSING_REVIEW_REQUESTED = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
     PAUSING_REJECT = PAUSING_REVIEW_REQUESTED + (
         LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
@@ -190,7 +191,6 @@ class Lifecycles(Enum):
     PAUSING_APPROVE_TIMEOUT = PAUSING_APPROVE_WAITING + (
         LifecycleStates.LIVE_REVIEW_PAUSING,
     )
-    LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
     ENDING_REVIEW_REQUESTED = LIVE_PAUSED + (LifecycleStates.LIVE_REVIEW_ENDING,)
     ENDING_APPROVE = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_ENDING,)
     ENDING_APPROVE_WAITING = ENDING_APPROVE + (LifecycleStates.LIVE_WAITING_ENDING,)
@@ -374,7 +374,14 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         return experiment
 
     @classmethod
-    def create_with_lifecycle(cls, lifecycle, with_latest_change_now=False, **kwargs):
+    def create_with_lifecycle(
+        cls,
+        lifecycle,
+        with_latest_change_now=False,
+        start_date=None,
+        end_date=None,
+        **kwargs,
+    ):
         experiment = cls.create(**kwargs)
         current_datetime = timezone.datetime(2021, 1, 1)
 
@@ -384,9 +391,21 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             if (
                 experiment.status == experiment.Status.LIVE
                 and experiment.status_next is None
-                and "published_dto" not in kwargs
             ):
-                experiment.published_dto = NimbusExperimentSerializer(experiment).data
+                if start_date is not None:
+                    experiment._start_date = start_date
+                    current_datetime = start_date
+
+                if "published_dto" not in kwargs:
+                    experiment.published_dto = NimbusExperimentSerializer(experiment).data
+
+            if (
+                experiment.status == experiment.Status.COMPLETE
+                and experiment.status_next is None
+            ):
+                if end_date is not None:
+                    experiment._end_date = end_date
+                    current_datetime = end_date
 
             experiment.save()
 

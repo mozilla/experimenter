@@ -221,19 +221,36 @@ describe("DirectoryLiveTable", () => {
   it.each([
     ["looker link is present", experiment, "Looker"],
     [
+      "rollouts link is present",
+      {
+        ...experiment,
+        rolloutMonitoringDashboardUrl: "https",
+      },
+      "Rollout dashboard",
+    ],
+    [
       "results are ready",
-      { ...experiment, resultsReady: true, monitoringDashboardUrl: null },
+      {
+        ...experiment,
+        resultsReady: true,
+        monitoringDashboardUrl: null,
+        rolloutMonitoringDashboardUrl: null,
+      },
       "Results",
     ],
     [
       "neither is present",
-      { ...experiment, monitoringDashboardUrl: null },
+      {
+        ...experiment,
+        monitoringDashboardUrl: null,
+        rolloutMonitoringDashboardUrl: null,
+      },
       "N/A",
     ],
     [
-      "both are present",
+      "all are present",
       { ...experiment, resultsReady: true },
-      "LookerOpens in new windowResults",
+      "LookerOpens in new windowRollout dashboardOpens in new windowResults",
     ],
   ])(
     "renders as expected with custom columns when %s",
