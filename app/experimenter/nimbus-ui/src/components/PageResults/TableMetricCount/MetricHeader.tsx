@@ -5,11 +5,8 @@
 import React, { useContext } from "react";
 import { ReactComponent as Info } from "../../../images/info.svg";
 import { ResultsContext } from "../../../lib/contexts";
-import {
-  METRIC_TYPE,
-} from "../../../lib/visualization/constants";
+import { METRIC_TYPE } from "../../../lib/visualization/constants";
 import TooltipWithMarkdown from "../TooltipWithMarkdown";
-
 
 type MetricTypes =
   | typeof METRIC_TYPE.PRIMARY
@@ -29,7 +26,7 @@ const MetricHeader = ({
   metricType = METRIC_TYPE.DEFAULT_SECONDARY,
 }: MetricHeaderProps) => {
   const {
-    analysis: { metadata }
+    analysis: { metadata },
   } = useContext(ResultsContext);
 
   const outcomeName =
@@ -40,7 +37,7 @@ const MetricHeader = ({
   return (
     <h3 className="h5 mb-3" id={outcomeSlug}>
       <span className="mr-2">
-        <span style={{ textTransform: 'capitalize' }}>{outcomeName}{" "}</span>
+        <span style={{ textTransform: "capitalize" }}>{outcomeName} </span>
         {outcomeDescription && (
           <>
             <span className="align-middle">

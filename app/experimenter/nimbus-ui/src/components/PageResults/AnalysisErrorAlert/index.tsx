@@ -4,8 +4,9 @@
 
 import React from "react";
 import { Alert } from "react-bootstrap";
-import AnalysisErrorMessage from './AnalysisErrorMessage';
 import { AnalysisError } from "../../../lib/visualization/types";
+import LinkExternal from "../../LinkExternal";
+import AnalysisErrorMessage from "./AnalysisErrorMessage";
 
 type AnalysisErrorAlertProps = {
   errors: AnalysisError[];
@@ -14,12 +15,19 @@ type AnalysisErrorAlertProps = {
 const AnalysisErrorAlert = ({ errors }: AnalysisErrorAlertProps) => (
   <Alert variant="danger">
     <Alert.Heading as="h5">Analysis errors during last run:</Alert.Heading>
-    {errors.map((err, idx) => <AnalysisErrorMessage key={idx} err={err} />)}
+    {errors.map((err, idx) => (
+      <AnalysisErrorMessage key={idx} err={err} />
+    ))}
     <hr />
-    <p style={{ textAlign: 'right', marginBottom: 0 }}>
-      <i>Contact{' '}
-        <Alert.Link href="https://mozilla.slack.com/archives/CF94YGE03">#ask-experimenter</Alert.Link>
-        {' '}with questions.</i></p>
+    <p style={{ textAlign: "right", marginBottom: 0 }}>
+      <i>
+        Contact{" "}
+        <LinkExternal href="https://mozilla.slack.com/archives/CF94YGE03">
+          #ask-experimenter
+        </LinkExternal>{" "}
+        with questions.
+      </i>
+    </p>
   </Alert>
 );
 

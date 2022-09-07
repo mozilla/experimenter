@@ -77,9 +77,10 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             </b>
           </p>
         )}
-        {analysis?.errors?.experiment && analysis?.errors?.experiment.length > 0 && (
-          <AnalysisErrorAlert errors={analysis.errors.experiment} />
-        )}
+        {analysis?.errors?.experiment &&
+          analysis?.errors?.experiment.length > 0 && (
+            <AnalysisErrorAlert errors={analysis.errors.experiment} />
+          )}
 
         {externalConfig && <ExternalConfigAlert {...{ externalConfig }} />}
 
@@ -116,116 +117,163 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
         <div>
           <h2 className="h4 mb-3">Outcome Metrics</h2>
-          {analysis.overall ? (
-            experiment.primaryOutcomes?.map((slug) => {
-              const outcome = configOutcomes!.find((set) => {
-                return set?.slug === slug;
-              });
-              return outcome?.metrics?.map((metric) => {
-                if (
-                  !analysis!.overall![resultsContextValue.controlBranchName]
-                    .branch_data[GROUP.OTHER][metric?.slug!]
-                ) {
-                  // Primary metric does not have data to display. Show error if there is one.
-                  if (metric?.slug && analysis?.errors && metric.slug in analysis.errors && analysis.errors[metric.slug].length > 0) {
-                    primaryOutcomeMetricsWithErrors.push(metric.slug);
-                    return (
-                      <>
-                        <MetricHeader
-                          key={metric.slug}
-                          outcomeSlug={metric.slug!}
-                          outcomeDefaultName={metric?.friendlyName!}
-                          metricType={METRIC_TYPE.PRIMARY}
-                        />
-                        <AnalysisErrorAlert errors={analysis.errors[metric.slug]} />
-                      </>
-                    );
+          {analysis.overall
+            ? experiment.primaryOutcomes?.map((slug) => {
+                const outcome = configOutcomes!.find((set) => {
+                  return set?.slug === slug;
+                });
+                return outcome?.metrics?.map((metric) => {
+                  if (
+                    !analysis!.overall![resultsContextValue.controlBranchName]
+                      .branch_data[GROUP.OTHER][metric?.slug!]
+                  ) {
+                    // Primary metric does not have data to display. Show error if there is one.
+                    if (
+                      metric?.slug &&
+                      analysis?.errors &&
+                      metric.slug in analysis.errors &&
+                      analysis.errors[metric.slug].length > 0
+                    ) {
+                      primaryOutcomeMetricsWithErrors.push(metric.slug);
+                      return (
+                        <>
+                          <MetricHeader
+                            key={metric.slug}
+                            outcomeSlug={metric.slug!}
+                            outcomeDefaultName={metric?.friendlyName!}
+                            metricType={METRIC_TYPE.PRIMARY}
+                          />
+                          <AnalysisErrorAlert
+                            errors={analysis.errors[metric.slug]}
+                          />
+                        </>
+                      );
+                    }
+                    return;
                   }
-                  return;
-                }
-                return (
-                  <TableMetricCount
-                    key={metric?.slug}
-                    outcomeSlug={metric?.slug!}
-                    outcomeDefaultName={metric?.friendlyName!}
-                    group={GROUP.OTHER}
-                    metricType={METRIC_TYPE.PRIMARY}
-                  />
-                );
-              });
-            })
-          ) : (
-            // no Overall results, check for errors in primary outcome metrics
-            experiment.primaryOutcomes?.map((slug) => {
-              const outcome = configOutcomes!.find((set) => {
-                return set?.slug === slug;
-              });
-              return outcome?.metrics?.map((metric) => {
-                if (metric?.slug && analysis?.errors && metric.slug in analysis.errors && analysis.errors[metric.slug].length > 0) {
-                  primaryOutcomeMetricsWithErrors.push(metric.slug);
                   return (
-                    <>
+                    <TableMetricCount
+                      key={metric?.slug}
+                      outcomeSlug={metric?.slug!}
+                      outcomeDefaultName={metric?.friendlyName!}
+                      group={GROUP.OTHER}
+                      metricType={METRIC_TYPE.PRIMARY}
+                    />
+                  );
+                });
+              })
+            : // no Overall results, check for errors in primary outcome metrics
+              experiment.primaryOutcomes?.map((slug) => {
+                const outcome = configOutcomes!.find((set) => {
+                  return set?.slug === slug;
+                });
+                return outcome?.metrics?.map((metric) => {
+                  if (
+                    metric?.slug &&
+                    analysis?.errors &&
+                    Object.keys(analysis.errors).length > 1
+                  ) {
+                    // if we have more than just the 'experiment' errors key,
+                    // that means at least one metric had errors, so we should
+                    // show all the metric headers to avoid potential confusion
+                    const metricHeader = (
                       <MetricHeader
                         key={metric.slug}
                         outcomeSlug={metric.slug!}
                         outcomeDefaultName={metric?.friendlyName!}
                         metricType={METRIC_TYPE.PRIMARY}
                       />
-                      <AnalysisErrorAlert errors={analysis.errors[metric.slug]} />
-                    </>
-                  );
-                }
-                return;
-              });
-            })
-          )}
-          {analysis.overall ? (
-            experiment.secondaryOutcomes?.map((slug) => {
-              const outcome = configOutcomes!.find((set) => {
-                return set?.slug === slug;
-              });
+                    );
+                    if (
+                      metric.slug in analysis.errors &&
+                      analysis.errors[metric.slug].length > 0
+                    ) {
+                      primaryOutcomeMetricsWithErrors.push(metric.slug);
+                      return (
+                        <>
+                          {metricHeader}
+                          <AnalysisErrorAlert
+                            errors={analysis.errors[metric.slug]}
+                          />
+                        </>
+                      );
+                    } else {
+                      return (
+                        <>
+                          {metricHeader}
+                          <p>
+                            <i>No results available for metric.</i>
+                          </p>
+                        </>
+                      );
+                    }
+                  }
+                  return;
+                });
+              })}
+          {analysis.overall
+            ? experiment.secondaryOutcomes?.map((slug) => {
+                const outcome = configOutcomes!.find((set) => {
+                  return set?.slug === slug;
+                });
 
-              return (
-                <TableMetricCount
-                  key={outcome!.slug}
-                  outcomeSlug={outcome!.slug!}
-                  outcomeDefaultName={outcome!.friendlyName!}
-                  group={GROUP.OTHER}
-                  metricType={METRIC_TYPE.DEFAULT_SECONDARY}
-                />
-              );
-            })
-          ) : (
-            // no Overall results, check for errors in secondary outcome metrics
-            experiment.secondaryOutcomes?.map((slug) => {
-              const outcome = configOutcomes!.find((set) => {
-                return set?.slug === slug;
-              });
-              return outcome?.metrics?.map((metric) => {
-                if (
-                  metric?.slug &&
-                  analysis?.errors &&
-                  metric.slug in analysis.errors &&
-                  analysis.errors[metric.slug].length > 0 &&
-                  !(primaryOutcomeMetricsWithErrors.includes(metric.slug))
-                ) {
-                  return (
-                    <>
+                return (
+                  <TableMetricCount
+                    key={outcome!.slug}
+                    outcomeSlug={outcome!.slug!}
+                    outcomeDefaultName={outcome!.friendlyName!}
+                    group={GROUP.OTHER}
+                    metricType={METRIC_TYPE.DEFAULT_SECONDARY}
+                  />
+                );
+              })
+            : // no Overall results, check for errors in secondary outcome metrics
+              experiment.secondaryOutcomes?.map((slug) => {
+                const outcome = configOutcomes!.find((set) => {
+                  return set?.slug === slug;
+                });
+                return outcome?.metrics?.map((metric) => {
+                  if (
+                    metric?.slug &&
+                    analysis?.errors &&
+                    Object.keys(analysis.errors).length > 1 &&
+                    !primaryOutcomeMetricsWithErrors.includes(metric.slug)
+                  ) {
+                    const metricHeader = (
                       <MetricHeader
                         key={metric?.slug}
                         outcomeSlug={metric?.slug!}
                         outcomeDefaultName={metric?.friendlyName!}
                         metricType={METRIC_TYPE.DEFAULT_SECONDARY}
                       />
-                      <AnalysisErrorAlert errors={analysis.errors[metric.slug]} />
-                    </>
-                  );
-                } else {
-                  return;
-                }
-              });
-            })
-          )}
+                    );
+                    if (
+                      metric.slug in analysis.errors &&
+                      analysis.errors[metric.slug].length > 0
+                    ) {
+                      return (
+                        <>
+                          {metricHeader}
+                          <AnalysisErrorAlert
+                            errors={analysis.errors[metric.slug]}
+                          />
+                        </>
+                      );
+                    } else {
+                      return (
+                        <>
+                          {metricHeader}
+                          <p>
+                            <i>No results available for metric.</i>
+                          </p>
+                        </>
+                      );
+                    }
+                  } else {
+                    return;
+                  }
+                });
+              })}
           {analysis.other_metrics &&
             Object.keys(analysis.other_metrics).map((group: string) => {
               const [open, setOpen] = groupStates[group];

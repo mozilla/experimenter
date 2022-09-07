@@ -10,7 +10,7 @@ type AnalysisErrorMessageProps = {
 };
 
 const AnalysisErrorMessage = ({ err }: AnalysisErrorMessageProps) => {
-  let alertMessage = '';
+  let alertMessage = "";
   if (err.exception_type) {
     alertMessage += err.exception_type;
   } else {
@@ -22,7 +22,9 @@ const AnalysisErrorMessage = ({ err }: AnalysisErrorMessageProps) => {
   return (
     <>
       <hr />
-      <p><b>{alertMessage}</b>: {err.message}</p>
+      <p>
+        <b>{alertMessage}</b>: {err.message}
+      </p>
     </>
   );
 };
