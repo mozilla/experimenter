@@ -46,14 +46,14 @@ const Subject = ({
     analysis ||
     (withAnalysis
       ? {
-        show_analysis: true,
-        daily: [],
-        weekly: {},
-        overall: mockAnalysis().overall,
-        errors: {},
-        metadata: mockAnalysis().metadata,
-        other_metrics: mockAnalysis().other_metrics,
-      }
+          show_analysis: true,
+          daily: [],
+          weekly: {},
+          overall: mockAnalysis().overall,
+          errors: mockAnalysis().errors,
+          metadata: mockAnalysis().metadata,
+          other_metrics: mockAnalysis().other_metrics,
+        }
       : undefined);
   return (
     <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
@@ -64,7 +64,7 @@ const Subject = ({
           analysisError: analysisError ? new Error("boop") : undefined,
           analysis: mockedAnalysis,
           experiment,
-          refetch: async () => { },
+          refetch: async () => {},
         }}
       >
         <p data-testid="test-child">Hello, world!</p>
@@ -123,6 +123,7 @@ describe("AppLayoutSidebarLaunched", () => {
             daily: null,
             weekly: null,
             overall: null,
+            errors: null,
             metadata: MOCK_METADATA_WITH_CONFIG,
           }}
         />,
@@ -174,7 +175,7 @@ describe("AppLayoutSidebarLaunched", () => {
       });
     });
 
-    it("when complete and page does not require full analaysis data, has expected results page items in side bar", () => {
+    it("when complete and page does not require full analysis data, has expected results page items in side bar", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(
         <Subject withAnalysis analysisRequired={false} {...{ experiment }} />,
