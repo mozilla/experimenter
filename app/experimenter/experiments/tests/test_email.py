@@ -15,12 +15,9 @@ class TestNimbusEmail(TestCase):
     def test_send_experiment_ending_email(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            start_date=datetime.date.today() - datetime.timedelta(days=10),
             proposed_duration=10,
         )
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
 
         nimbus_send_experiment_ending_email(experiment)
 
