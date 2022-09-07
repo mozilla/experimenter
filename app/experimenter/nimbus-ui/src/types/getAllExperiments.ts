@@ -49,6 +49,8 @@ export interface getAllExperiments_experiments {
   monitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
+  channel: string;
+  populationPercent: number | null;
 }
 
 export interface getAllExperiments {

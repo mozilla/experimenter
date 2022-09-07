@@ -22,13 +22,12 @@ import NotSet from "../../NotSet";
 
 // These are all render functions for column types in the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;
-
 export const DirectoryColumnTitle: React.FC<getAllExperiments_experiments> = ({
   slug,
   name,
 }) => {
   return (
-    <td className="w-33" data-testid="directory-table-cell">
+    <td data-testid="directory-table-cell">
       <Link
         to={slug}
         data-sb-kind="pages/Summary"
@@ -36,17 +35,9 @@ export const DirectoryColumnTitle: React.FC<getAllExperiments_experiments> = ({
       >
         {name}
       </Link>
-      <br />
-      <span
-        className="text-monospace text-secondary small"
-        data-testid="directory-title-slug"
-      >
-        {slug}
-      </span>
     </td>
   );
 };
-
 export const DirectoryColumnOwner: ColumnComponent = (experiment) => (
   // #4380 made it so owner is never null, but we have experiments pre-this
   // that may be absent an owner, so keep this fallback in place.
@@ -61,13 +52,6 @@ export const DirectoryColumnFeature: ColumnComponent = ({ featureConfig }) => (
       <>
         <span data-testid="directory-feature-config-name">
           {featureConfig.name}
-        </span>
-        <br />
-        <span
-          className="text-monospace text-secondary small"
-          data-testid="directory-feature-config-slug"
-        >
-          {featureConfig.slug}
         </span>
       </>
     ) : (
@@ -139,7 +123,6 @@ export const SortableColumnTitle: React.FunctionComponent<
       }
     });
   }, [label, descending, selected, updateSearchParams]);
-
   return (
     <th
       className={classNames("border-top-0", {
@@ -172,7 +155,11 @@ interface DirectoryTableProps {
 }
 
 const commonColumns: Column[] = [
-  { label: "Name", sortBy: "name", component: DirectoryColumnTitle },
+  {
+    label: "Name",
+    sortBy: "name",
+    component: DirectoryColumnTitle,
+  },
   {
     label: "Owner",
     sortBy: ownerUsernameSortSelector,
@@ -209,7 +196,6 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
       ),
     );
   }
-
   return (
     <div className="directory-table pb-2 mt-4">
       {experiments.length ? (
@@ -250,6 +236,52 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
     {...props}
     columns={[
       ...commonColumns,
+      {
+        label: "Application",
+        sortBy: "application",
+        component: (experiment) => (
+          <td data-testid="directory-table-cell">
+            {experiment.application?.charAt(0).toUpperCase()}
+            {experiment.application?.slice(1).toLowerCase()}
+          </td>
+        ),
+      },
+      {
+        label: "Channel",
+        sortBy: "channel",
+        component: (experiment) => (
+          <td data-testid="directory-table-cell" className="text-lowercase">
+            {experiment.channel}
+          </td>
+        ),
+      },
+      {
+        label: "Population %",
+        sortBy: "populationPercent",
+        component: (experiment) => (
+          <td data-testid="directory-table-cell">
+            {experiment.populationPercent}
+          </td>
+        ),
+      },
+      {
+        label: "Min Version",
+        sortBy: "firefoxMinVersion",
+        component: (experiment) => (
+          <td data-testid="directory-table-cell" className="text-lowercase">
+            {experiment.firefoxMinVersion}
+          </td>
+        ),
+      },
+      {
+        label: "Max Version",
+        sortBy: "firefoxMaxVersion",
+        component: (experiment) => (
+          <td data-testid="directory-table-cell" className="text-lowercase">
+            {experiment.firefoxMaxVersion}
+          </td>
+        ),
+      },
       {
         label: "Started",
         sortBy: "startDate",
