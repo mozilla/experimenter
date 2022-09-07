@@ -1064,10 +1064,18 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
-    def test_monitoring_dashboard_returns_url_when_rollout(self):
+    @parameterized.expand(
+        [
+            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.COMPLETE,
+            NimbusExperiment.Status.LIVE,
+            NimbusExperiment.Status.PREVIEW,
+        ]
+    )
+    def test_monitoring_dashboard_returns_url_when_rollout(self, status):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
-            status=NimbusExperiment.Status.DRAFT,
+            status=status,
             is_rollout=True,
         )
 
@@ -1126,15 +1134,6 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
-    def test_rollouts_monitoring_dashboard_url_is_none_when_rollout_not_begun(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            slug="rollout-1-slug",
-            is_rollout=True,
-            status=NimbusExperiment.Status.DRAFT,
-        )
-        self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
-
     def test_rollouts_monitoring_dashboard_returns_correct_formatted_url(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
@@ -1155,20 +1154,32 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
-    def test_rollouts_monitoring_dashboard_returns_url_when_rollout_is_complete(self):
+    @parameterized.expand(
+        [
+            (False, NimbusExperimentFactory.Lifecycles.CREATED),
+            (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
+            (True, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING),
+            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
+        ]
+    )
+    def test_rollouts_monitoring_dashboard_returns_url(self, valid_status, lifecycle):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            lifecycle=lifecycle,
             slug="rollout-1-slug",
             is_rollout=True,
-            status=NimbusExperiment.Status.COMPLETE,
         )
-        expected_slug = "rollout_1_slug"
-        self.assertEqual(
-            experiment.rollout_monitoring_dashboard_url,
-            settings.ROLLOUT_MONITORING_URL.format(
-                slug=expected_slug,
-            ),
-        )
+
+        if valid_status:
+            expected_slug = "rollout_1_slug"
+            self.assertEqual(
+                experiment.rollout_monitoring_dashboard_url,
+                settings.ROLLOUT_MONITORING_URL.format(
+                    slug=expected_slug,
+                ),
+            )
+        else:
+            self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
 
     def test_rollouts_monitoring_dashboard_returns_none_when_not_rollout(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
