@@ -19,7 +19,7 @@ export const AppLayout = ({ children, testid = "main" }: AppLayoutProps) => {
       data-testid={testid}
       id={testid + "-page"}
     >
-      <div className="h-100 container-lg mx-auto">{children}</div>
+      <div className="h-100 container-fluid mx-auto">{children}</div>
     </Container>
   );
 };
