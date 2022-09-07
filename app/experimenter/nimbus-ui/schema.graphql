@@ -25,6 +25,8 @@ type CreateExperiment {
   message: ObjectField
 }
 
+scalar Date
+
 scalar DateTime
 
 input DocumentationLinkInput {
@@ -437,6 +439,8 @@ type NimbusExperimentType {
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
   isFirstRun: Boolean!
+  StartDate: Date
+  EndDate: Date
   nimbusexperimentSet: [NimbusExperimentType!]!
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType
