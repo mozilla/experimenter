@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import Q
 from django.test import TestCase, override_settings
-from django.utils import timezone
 from parameterized import parameterized_class
 from parameterized.parameterized import parameterized
 
@@ -712,62 +711,99 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertIsNone(experiment.end_date)
 
-    def test_start_date_returns_datetime_for_started_experiment(self):
-        experiment = NimbusExperimentFactory.create()
-        start_change = NimbusChangeLogFactory(
-            experiment=experiment,
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        )
-        self.assertEqual(experiment.start_date, start_change.changed_on.date())
-
     def test_launch_month_returns_month_for_started_experiment(self):
-        experiment = NimbusExperimentFactory.create()
-        NimbusChangeLogFactory(
-            experiment=experiment,
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-            changed_on=timezone.now() + datetime.timedelta(days=1),
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date.today() + datetime.timedelta(days=1),
         )
+
         self.assertEqual(experiment.launch_month, experiment.start_date.strftime("%B"))
 
-    def test_start_date_uses_most_recent_start_change(self):
-        experiment = NimbusExperimentFactory.create()
+    @parameterized.expand(
+        [[NimbusExperiment.Status.LIVE], [NimbusExperiment.Status.COMPLETE]]
+    )
+    def test_start_date_uses_most_recent_start_change_without_cache(self, status):
+        experiment = NimbusExperimentFactory.create(status=status)
         NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
-            changed_on=timezone.now() + datetime.timedelta(days=1),
+            changed_on=datetime.datetime.now() + datetime.timedelta(days=1),
         )
         start_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
-            changed_on=timezone.now() + datetime.timedelta(days=2),
+            changed_on=datetime.datetime.now() + datetime.timedelta(days=2),
         )
         self.assertEqual(experiment.start_date, start_change.changed_on.date())
 
-    def test_end_date_returns_datetime_for_ended_experiment(self):
-        experiment = NimbusExperimentFactory.create()
+    @parameterized.expand(
+        [[NimbusExperiment.Status.LIVE], [NimbusExperiment.Status.COMPLETE]]
+    )
+    def test_start_date_uses_cached_start_date(self, status):
+        cached_date = datetime.date(2022, 1, 1)
+        changelog_date = datetime.date(2022, 1, 2)
+
+        experiment = NimbusExperimentFactory.create(status=status)
+        experiment._start_date = cached_date
+        experiment.save()
+
+        NimbusChangeLogFactory(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=changelog_date,
+        )
+
+        self.assertEqual(experiment.start_date, cached_date)
+
+    def test_end_date_uses_most_recent_end_change_without_cache(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.COMPLETE
+        )
+        NimbusChangeLogFactory(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.COMPLETE,
+            changed_on=datetime.datetime.now() + datetime.timedelta(days=1),
+        )
         end_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
+            changed_on=datetime.datetime.now() + datetime.timedelta(days=2),
         )
         self.assertEqual(experiment.end_date, end_change.changed_on.date())
 
-    def test_enrollment_duration_for_ended_experiment(self):
-        experiment = NimbusExperimentFactory.create()
+    def test_end_date_uses_cached_end_date(self):
+        cached_date = datetime.date(2022, 1, 1)
+        changelog_date = datetime.date(2022, 1, 2)
+
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.COMPLETE
+        )
+        experiment._end_date = cached_date
+        experiment.save()
+
         NimbusChangeLogFactory(
             experiment=experiment,
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-            changed_on=timezone.now() + datetime.timedelta(days=1),
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.COMPLETE,
+            changed_on=changelog_date,
         )
-        expected_enrollment_duration = (
-            experiment.start_date.strftime("%Y-%m-%d")
-            + " to "
-            + experiment.computed_end_date.strftime("%Y-%m-%d")
+
+        self.assertEqual(experiment.end_date, cached_date)
+
+    def test_enrollment_duration_for_ended_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            start_date=datetime.date.today() + datetime.timedelta(days=1),
+        )
+
+        expected_enrollment_duration = "{start} to {end}".format(
+            start=experiment.start_date.strftime("%Y-%m-%d"),
+            end=experiment.computed_end_date.strftime("%Y-%m-%d"),
         )
         self.assertEqual(experiment.enrollment_duration, expected_enrollment_duration)
 
@@ -779,18 +815,20 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.enrollment_duration, experiment.proposed_duration)
 
     def test_end_date_uses_most_recent_end_change(self):
-        experiment = NimbusExperimentFactory.create()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.COMPLETE
+        )
         NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
-            changed_on=timezone.now() + datetime.timedelta(days=1),
+            changed_on=datetime.datetime.now() + datetime.timedelta(days=1),
         )
         end_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
-            changed_on=timezone.now() + datetime.timedelta(days=2),
+            changed_on=datetime.datetime.now() + datetime.timedelta(days=2),
         )
         self.assertEqual(experiment.end_date, end_change.changed_on.date())
 
@@ -822,12 +860,9 @@ class TestNimbusExperiment(TestCase):
     def test_should_end_returns_True_after_proposed_end_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            start_date=datetime.date.today() - datetime.timedelta(days=10),
             proposed_duration=10,
         )
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
         self.assertTrue(experiment.should_end)
 
     def test_should_end_enrollment_returns_False_before_proposed_enrollment_end_date(
@@ -843,25 +878,16 @@ class TestNimbusExperiment(TestCase):
     def test_should_end_enrollment_returns_True_after_proposed_enrollment_end_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            start_date=datetime.date.today() - datetime.timedelta(days=10),
             proposed_enrollment=10,
         )
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
         self.assertTrue(experiment.should_end_enrollment)
 
     def test_computed_enrollment_days_returns_changed_on_minus_start_date(self):
         expected_days = 3
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE,
-        )
-
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        ).update(
-            changed_on=datetime.datetime.now() - datetime.timedelta(days=expected_days)
+            start_date=datetime.date.today() - datetime.timedelta(days=expected_days),
         )
 
         experiment.changes.filter(experiment_data__is_paused=True).update(
@@ -878,17 +904,10 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE_WITHOUT_PAUSE,
             proposed_enrollment=99,
+            start_date=datetime.date.today() - datetime.timedelta(days=expected_days),
+            end_date=datetime.date.today(),
         )
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        ).update(
-            changed_on=datetime.datetime.now() - datetime.timedelta(days=expected_days)
-        )
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.LIVE,
-            new_status=NimbusExperiment.Status.COMPLETE,
-        ).update(changed_on=datetime.datetime.now())
+
         self.assertEqual(
             experiment.computed_enrollment_days,
             expected_days,
@@ -917,13 +936,11 @@ class TestNimbusExperiment(TestCase):
         expected_days = 99
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
+            # Set the span to 5 days, but that shouldn't apply while pending approval
+            start_date=datetime.date.today() - datetime.timedelta(days=5),
             proposed_enrollment=expected_days,
         )
-        # Set the span to 5 days, but that shouldn't apply while pending approval
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=5))
+
         experiment.changes.filter(experiment_data__is_paused=True).update(
             changed_on=datetime.datetime.now()
         )
@@ -965,13 +982,9 @@ class TestNimbusExperiment(TestCase):
         enrollment_end_date = start_date + datetime.timedelta(days=3)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE,
+            start_date=start_date,
             proposed_enrollment=7,
         )
-
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        ).update(changed_on=start_date)
 
         experiment.changes.filter(experiment_data__is_paused=True).update(
             changed_on=enrollment_end_date
@@ -993,17 +1006,9 @@ class TestNimbusExperiment(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             proposed_duration=10,
+            start_date=datetime.date.today() - datetime.timedelta(days=7),
+            end_date=datetime.date.today(),
         )
-
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=7))
-
-        experiment.changes.filter(
-            old_status=NimbusExperiment.Status.LIVE,
-            new_status=NimbusExperiment.Status.COMPLETE,
-        ).update(changed_on=datetime.datetime.now())
 
         self.assertEqual(
             experiment.computed_duration_days,
@@ -1079,17 +1084,12 @@ class TestNimbusExperiment(TestCase):
         )
 
     def test_monitoring_dashboard_url_returns_url_when_experiment_has_begun(self):
-        experiment = NimbusExperimentFactory.create(
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             slug="experiment",
+            start_date=datetime.date(2019, 5, 1),
             status=NimbusExperiment.Status.LIVE,
             is_rollout=False,
-        )
-
-        NimbusChangeLogFactory.create(
-            experiment=experiment,
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-            changed_on=datetime.date(2019, 5, 1),
         )
 
         from_date = datetime.date(2019, 4, 30)
@@ -1105,24 +1105,13 @@ class TestNimbusExperiment(TestCase):
         )
 
     def test_monitoring_dashboard_url_returns_url_when_experiment_is_complete(self):
-        experiment = NimbusExperimentFactory.create(
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            start_date=datetime.date(2019, 5, 1),
+            end_date=datetime.date(2019, 5, 10),
             slug="experiment",
             status=NimbusExperiment.Status.COMPLETE,
             is_rollout=False,
-        )
-
-        NimbusChangeLogFactory.create(
-            experiment=experiment,
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-            changed_on=datetime.date(2019, 5, 1),
-        )
-
-        NimbusChangeLogFactory.create(
-            experiment=experiment,
-            old_status=NimbusExperiment.Status.LIVE,
-            new_status=NimbusExperiment.Status.COMPLETE,
-            changed_on=datetime.date(2019, 5, 10),
         )
 
         from_date = datetime.date(2019, 4, 30)
@@ -1389,25 +1378,19 @@ class TestNimbusExperiment(TestCase):
         self.assertTrue(experiment.can_review(UserFactory.create()))
 
     def test_results_ready_true(self):
-        experiment = NimbusExperimentFactory.create()
-
-        NimbusChangeLogFactory.create(
-            experiment=experiment,
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-            changed_on=datetime.date(2019, 5, 1),
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            start_date=datetime.date(2019, 5, 1),
         )
+
         self.assertTrue(experiment.results_ready)
 
     def test_results_ready_false(self):
-        experiment = NimbusExperimentFactory.create()
-
-        NimbusChangeLogFactory.create(
-            experiment=experiment,
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-            changed_on=datetime.date.today() - datetime.timedelta(days=2),
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            start_date=datetime.date.today() - datetime.timedelta(days=2),
         )
+
         self.assertFalse(experiment.results_ready)
 
     @parameterized.expand(
@@ -2050,7 +2033,7 @@ class TestNimbusChangeLog(TestCase):
         self.assertEqual(str(changelog), changelog.message)
 
     def test_formats_str_if_no_message_set(self):
-        now = timezone.now()
+        now = datetime.datetime.now()
         user = UserFactory.create()
         changelog = NimbusChangeLogFactory.create(
             changed_by=user,

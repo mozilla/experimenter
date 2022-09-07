@@ -901,14 +901,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            start_date=datetime.date(2021, 1, 1),
             proposed_enrollment=7,
         )
-        live_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        )
-        live_change.changed_on = datetime.datetime(2021, 1, 1)
-        live_change.save()
 
         response = self.query(
             """
