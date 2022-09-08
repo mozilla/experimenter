@@ -29,6 +29,7 @@ export interface getAllExperiments_experiments_featureConfig {
 }
 
 export interface getAllExperiments_experiments {
+  channel: string | null;
   isArchived: boolean | null;
   name: string;
   owner: getAllExperiments_experiments_owner;

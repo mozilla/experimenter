@@ -690,6 +690,7 @@ export function mockSingleDirectoryExperiment(
     isEnrollmentPausePending: false,
     proposedEnrollment: 7,
     proposedDuration: 28,
+    channel: NimbusExperimentChannelEnum.BETA,
     startDate: new Date(startTime).toISOString(),
     computedEndDate: new Date(endTime).toISOString(),
     resultsReady: false,
