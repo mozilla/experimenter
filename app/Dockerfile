@@ -43,8 +43,8 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgre
 
 
 # Python packages
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-ENV PATH "/root/.poetry/bin:${PATH}"
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH "/root/.local/bin:$PATH"
 RUN poetry config virtualenvs.create false
 COPY --from=file-loader /app/pyproject.toml /app/pyproject.toml
 COPY --from=file-loader /app/poetry.lock /app/poetry.lock
