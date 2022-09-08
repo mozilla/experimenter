@@ -51,6 +51,8 @@ export interface getAllExperiments_experiments {
   rolloutMonitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
+  channel: string | null;
+  populationPercent: number | null;
 }
 
 export interface getAllExperiments {
