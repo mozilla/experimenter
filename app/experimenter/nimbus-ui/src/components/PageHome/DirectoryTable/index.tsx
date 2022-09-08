@@ -6,7 +6,11 @@ import { Link } from "@reach/router";
 import classNames from "classnames";
 import React, { useCallback, useMemo } from "react";
 import { Button } from "react-bootstrap";
-import { UpdateSearchParams, useSearchParamsState } from "../../../hooks";
+import {
+  UpdateSearchParams,
+  useConfig,
+  useSearchParamsState,
+} from "../../../hooks";
 import { getProposedEnrollmentRange, humanDate } from "../../../lib/dateUtils";
 import {
   enrollmentSortSelector,
@@ -19,16 +23,16 @@ import {
 import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
 import LinkExternal from "../../LinkExternal";
 import NotSet from "../../NotSet";
+import { displayConfigLabelOrNotSet } from "../../Summary";
 
 // These are all render functions for column types in the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;
-
 export const DirectoryColumnTitle: React.FC<getAllExperiments_experiments> = ({
   slug,
   name,
 }) => {
   return (
-    <td className="w-33" data-testid="directory-table-cell">
+    <td data-testid="directory-table-cell">
       <Link
         to={slug}
         data-sb-kind="pages/Summary"
@@ -36,17 +40,9 @@ export const DirectoryColumnTitle: React.FC<getAllExperiments_experiments> = ({
       >
         {name}
       </Link>
-      <br />
-      <span
-        className="text-monospace text-secondary small"
-        data-testid="directory-title-slug"
-      >
-        {slug}
-      </span>
     </td>
   );
 };
-
 export const DirectoryColumnOwner: ColumnComponent = (experiment) => (
   // #4380 made it so owner is never null, but we have experiments pre-this
   // that may be absent an owner, so keep this fallback in place.
@@ -61,13 +57,6 @@ export const DirectoryColumnFeature: ColumnComponent = ({ featureConfig }) => (
       <>
         <span data-testid="directory-feature-config-name">
           {featureConfig.name}
-        </span>
-        <br />
-        <span
-          className="text-monospace text-secondary small"
-          data-testid="directory-feature-config-slug"
-        >
-          {featureConfig.slug}
         </span>
       </>
     ) : (
@@ -139,7 +128,6 @@ export const SortableColumnTitle: React.FunctionComponent<
       }
     });
   }, [label, descending, selected, updateSearchParams]);
-
   return (
     <th
       className={classNames("border-top-0", {
@@ -172,7 +160,11 @@ interface DirectoryTableProps {
 }
 
 const commonColumns: Column[] = [
-  { label: "Name", sortBy: "name", component: DirectoryColumnTitle },
+  {
+    label: "Name",
+    sortBy: "name",
+    component: DirectoryColumnTitle,
+  },
   {
     label: "Owner",
     sortBy: ownerUsernameSortSelector,
@@ -209,9 +201,11 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
       ),
     );
   }
-
   return (
-    <div className="directory-table pb-2 mt-4">
+    <div
+      className="directory-table pb-2 mt-4"
+      style={{ width: "auto", maxWidth: "100%", wordBreak: "break-word" }}
+    >
       {experiments.length ? (
         <table className="table" data-testid="DirectoryTable">
           <thead>
@@ -245,80 +239,138 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
   );
 };
 
-export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
-  <DirectoryTable
-    {...props}
-    columns={[
-      ...commonColumns,
-      {
-        label: "Started",
-        sortBy: "startDate",
-        component: ({ startDate: d }) => (
-          <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
-        ),
-      },
-      {
-        label: "Enrolling",
-        sortBy: enrollmentSortSelector,
-        component: (experiment) => (
-          <td data-testid="directory-table-cell">
-            {getProposedEnrollmentRange(experiment)}
-          </td>
-        ),
-      },
-      {
-        label: "Ending",
-        sortBy: "computedEndDate",
-        component: (experiment) => (
-          <td data-testid="directory-table-cell">
-            {humanDate(experiment.computedEndDate!)}
-          </td>
-        ),
-      },
-      {
-        label: "Results",
-        sortBy: resultsReadySortSelector,
-        component: (experiment) => (
-          <td data-testid="directory-table-cell">
-            {experiment.monitoringDashboardUrl && (
-              <LinkExternal
-                href={experiment.monitoringDashboardUrl!}
-                data-testid="link-monitoring-dashboard"
-              >
-                Looker
-              </LinkExternal>
-            )}
-            {experiment.monitoringDashboardUrl &&
-              experiment.rolloutMonitoringDashboardUrl && <br />}
-            {experiment.rolloutMonitoringDashboardUrl && (
-              <LinkExternal
-                href={experiment.rolloutMonitoringDashboardUrl!}
-                data-testid="link-rollout-monitoring-dashboard"
-              >
-                Rollout dashboard
-              </LinkExternal>
-            )}
-            {experiment.monitoringDashboardUrl && experiment.resultsReady && (
-              <br />
-            )}
-            {!experiment.isRollout && experiment.resultsReady && (
-              <Link
-                to={`${experiment.slug}/results`}
-                data-sb-kind="pages/Results"
-              >
-                Results
-              </Link>
-            )}
-            {!experiment.monitoringDashboardUrl &&
-              !experiment.rolloutMonitoringDashboardUrl &&
-              !experiment.resultsReady &&
-              "N/A"}
-          </td>
-        ),
-      },
-    ]}
-  />
-);
+export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => {
+  const { channels, applications, firefoxVersions } = useConfig();
+  return (
+    <DirectoryTable
+      {...props}
+      columns={[
+        ...commonColumns,
+        {
+          label: "Application",
+          sortBy: "application",
+          component: (experiment) => (
+            <td data-testid="directory-table-cell" className="text-capitalize">
+              {displayConfigLabelOrNotSet(experiment.application, applications)}
+            </td>
+          ),
+        },
+        {
+          label: "Channel",
+          sortBy: "channel",
+          component: (experiment) => (
+            <td data-testid="directory-table-cell" className="text-capitalize">
+              {displayConfigLabelOrNotSet(experiment.channel, channels)}
+            </td>
+          ),
+        },
+        {
+          label: "Population %",
+          sortBy: "populationPercent",
+          component: (experiment) => (
+            <td data-testid="directory-table-cell">
+              {experiment.populationPercent ? (
+                `${experiment.populationPercent}%`
+              ) : (
+                <NotSet />
+              )}
+            </td>
+          ),
+        },
+        {
+          label: "Min Version",
+          sortBy: "firefoxMinVersion",
+          component: (experiment) => (
+            <td data-testid="directory-table-cell" className="text-capitalize">
+              {displayConfigLabelOrNotSet(
+                experiment.firefoxMinVersion,
+                firefoxVersions,
+              )}
+            </td>
+          ),
+        },
+        {
+          label: "Max Version",
+          sortBy: "firefoxMaxVersion",
+          component: (experiment) => (
+            <td data-testid="directory-table-cell" className="text-capitalize">
+              {displayConfigLabelOrNotSet(
+                experiment.firefoxMaxVersion,
+                firefoxVersions,
+              )}
+            </td>
+          ),
+        },
+        {
+          label: "Started",
+          sortBy: "startDate",
+          component: ({ startDate: d }) => (
+            <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
+          ),
+        },
+        {
+          label: "Enrolling",
+          sortBy: enrollmentSortSelector,
+          component: (experiment) => (
+            <td data-testid="directory-table-cell">
+              {getProposedEnrollmentRange(experiment)}
+            </td>
+          ),
+        },
+        {
+          label: "Ending",
+          sortBy: "computedEndDate",
+          component: (experiment) => (
+            <td data-testid="directory-table-cell">
+              {humanDate(experiment.computedEndDate!)}
+            </td>
+          ),
+        },
+        {
+          label: "Results",
+          sortBy: resultsReadySortSelector,
+          component: (experiment) => (
+            <td data-testid="directory-table-cell">
+              {experiment.monitoringDashboardUrl && (
+                <LinkExternal
+                  href={experiment.monitoringDashboardUrl!}
+                  data-testid="link-monitoring-dashboard"
+                >
+                  Looker
+                </LinkExternal>
+              )}
+              {experiment.monitoringDashboardUrl &&
+                experiment.rolloutMonitoringDashboardUrl && <br />}
+              {experiment.rolloutMonitoringDashboardUrl && (
+                <LinkExternal
+                  href={experiment.rolloutMonitoringDashboardUrl!}
+                  data-testid="link-rollout-monitoring-dashboard"
+                >
+                  Rollout dashboard
+                </LinkExternal>
+              )}
+              {experiment.monitoringDashboardUrl && experiment.resultsReady && (
+                <br />
+              )}
+              {!experiment.isRollout && experiment.resultsReady && (
+                <Link
+                  to={`${experiment.slug}/results`}
+                  data-sb-kind="pages/Results"
+                >
+                  Results
+                </Link>
+              )}
+              {!experiment.monitoringDashboardUrl &&
+                !experiment.rolloutMonitoringDashboardUrl &&
+                !experiment.resultsReady &&
+                "N/A"}
+            </td>
+          ),
+        },
+      ]}
+    />
+  );
+};
 
 export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
   props,

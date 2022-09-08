@@ -40,7 +40,7 @@ const TestTable = ({ children }: { children: React.ReactNode }) => {
 };
 
 describe("DirectoryColumnTitle", () => {
-  it("renders the experiment name and slug", () => {
+  it("renders the experiment name", () => {
     render(
       <TestTable>
         <DirectoryColumnTitle {...experiment} />
@@ -48,9 +48,6 @@ describe("DirectoryColumnTitle", () => {
     );
     expect(screen.getByTestId("directory-title-name")).toHaveTextContent(
       experiment.name,
-    );
-    expect(screen.getByTestId("directory-title-slug")).toHaveTextContent(
-      experiment.slug,
     );
   });
 });
@@ -93,9 +90,6 @@ describe("DirectoryColumnFeature", () => {
     expect(
       screen.getByTestId("directory-feature-config-name"),
     ).toHaveTextContent(experiment.featureConfig!.name);
-    expect(
-      screen.getByTestId("directory-feature-config-slug"),
-    ).toHaveTextContent(experiment.featureConfig!.slug);
   });
 
   it("renders the None label if feature config is not present", () => {
@@ -264,6 +258,11 @@ describe("DirectoryLiveTable", () => {
         "Name",
         "Owner",
         "Feature",
+        "Application",
+        "Channel",
+        "Population %",
+        "Min Version",
+        "Max Version",
         "Started",
         "Enrolling",
         "Ending",
@@ -273,6 +272,11 @@ describe("DirectoryLiveTable", () => {
         experiment.name,
         experiment.owner!.username,
         experiment.featureConfig!.name,
+        "Desktop",
+        "Desktop Nightly",
+        experiment.populationPercent!.toString(),
+        "Firefox 80",
+        "Firefox 64",
         humanDate(experiment.startDate!),
         getProposedEnrollmentRange(experiment) as string,
         humanDate(experiment.computedEndDate!),
