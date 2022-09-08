@@ -1158,24 +1158,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-    def test_no_treatment_branches_for_rollout(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            application=NimbusExperiment.Application.DESKTOP,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-            feature_configs=[
-                NimbusFeatureConfigFactory(
-                    application=NimbusExperiment.Application.DESKTOP
-                )
-            ],
-            is_sticky=True,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
-        )
-        self.assertNotEqual(experiment.treatment_branches, [])
-        experiment.is_rollout = True
-        experiment.save()
-        self.assertEqual(experiment.treatment_branches, [])
-
     def test_rollout_valid_version_support(self):
         desktop = NimbusExperiment.Application.DESKTOP
         experiment = NimbusExperimentFactory.create_with_lifecycle(
