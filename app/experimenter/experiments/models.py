@@ -683,6 +683,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.results_data = None
         cloned.takeaways_summary = None
         cloned.conclusion_recommendation = None
+        cloned._start_date = None
+        cloned._end_date = None
         cloned.save()
 
         if rollout_branch_slug:
