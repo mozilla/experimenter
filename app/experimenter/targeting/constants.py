@@ -573,6 +573,42 @@ RALLY_CORE_ADDON_USER = NimbusTargetingConfig(
 )
 
 
+WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_ = NimbusTargetingConfig(
+    name="Lapsed users background task notification",
+    slug="background_task_notification_major_release_2022",
+    description=(
+        "Windows 10+ users with 0 days of activity in the past 28 days "
+        "who are running a background task"
+    ),
+    targeting="""
+    (
+        (
+            os.isWindows
+            &&
+            (os.windowsVersion >= 10)
+        )
+        &&
+        (
+            (
+                ((defaultProfile|keys)|length == 0)
+            )
+            ||
+            (
+                ((currentDate|date - defaultProfile.currentDate|date) / 86400000 >= 28)
+                &&
+                (firefoxVersion > defaultProfile.firefoxVersion)
+            )
+        )
+        &&
+        isBackgroundTaskMode
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
     TARGETING_CHANNEL = 'browserSettings.update.channel == "{channel}"'
