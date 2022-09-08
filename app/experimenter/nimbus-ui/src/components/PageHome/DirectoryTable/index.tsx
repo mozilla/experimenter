@@ -326,52 +326,50 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => {
             </td>
           ),
         },
-        {
-          label: "Results",
-          sortBy: resultsReadySortSelector,
-          component: (experiment) => (
-            <td data-testid="directory-table-cell">
-              {experiment.monitoringDashboardUrl && (
-                <LinkExternal
-                  href={experiment.monitoringDashboardUrl!}
-                  data-testid="link-monitoring-dashboard"
-                >
-                  Looker
-                </LinkExternal>
-              )}
-              {experiment.monitoringDashboardUrl &&
-                experiment.resultsReady &&
-                experiment.rolloutMonitoringDashboardUrl && <br />}
-              {experiment.rolloutMonitoringDashboardUrl && (
-                <LinkExternal
-                  href={experiment.rolloutMonitoringDashboardUrl!}
-                  data-testid="link-rollout-monitoring-dashboard"
-                >
-                  Rollout dashboard
-                </LinkExternal>
-              )}
-              {experiment.monitoringDashboardUrl && experiment.resultsReady && (
-                <br />
-              )}
-              {!experiment.isRollout && experiment.resultsReady && (
-                <Link
-                  to={`${experiment.slug}/results`}
-                  data-sb-kind="pages/Results"
-                >
-                  Results
-                </Link>
-              )}
-              {!experiment.monitoringDashboardUrl &&
-                !experiment.rolloutMonitoringDashboardUrl &&
-                !experiment.resultsReady &&
-                "N/A"}
-            </td>
-          ),
-        },
-      ]}
-    />
-  );
-};
+      {
+        label: "Results",
+        sortBy: resultsReadySortSelector,
+        component: (experiment) => (
+          <td data-testid="directory-table-cell">
+            {experiment.monitoringDashboardUrl && (
+              <LinkExternal
+                href={experiment.monitoringDashboardUrl!}
+                data-testid="link-monitoring-dashboard"
+              >
+                Looker
+              </LinkExternal>
+            )}
+            {experiment.monitoringDashboardUrl &&
+              experiment.rolloutMonitoringDashboardUrl && <br />}
+            {experiment.rolloutMonitoringDashboardUrl && (
+              <LinkExternal
+                href={experiment.rolloutMonitoringDashboardUrl!}
+                data-testid="link-rollout-monitoring-dashboard"
+              >
+                Rollout dashboard
+              </LinkExternal>
+            )}
+            {experiment.monitoringDashboardUrl && experiment.resultsReady && (
+              <br />
+            )}
+            {!experiment.isRollout && experiment.resultsReady && (
+              <Link
+                to={`${experiment.slug}/results`}
+                data-sb-kind="pages/Results"
+              >
+                Results
+              </Link>
+            )}
+            {!experiment.monitoringDashboardUrl &&
+              !experiment.rolloutMonitoringDashboardUrl &&
+              !experiment.resultsReady &&
+              "N/A"}
+          </td>
+        ),
+      },
+    ]}
+  />
+);
 
 export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
   props,
