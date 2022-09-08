@@ -19,3 +19,12 @@ class NimbusExperimentViewSet(
     serializer_class = NimbusExperimentSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["is_first_run"]
+
+
+class NimbusExperimentFirstRunViewSet(NimbusExperimentViewSet):
+    queryset = (
+        NimbusExperiment.objects.with_related()
+        .filter(status=NimbusExperiment.Status.LIVE)
+        .filter(is_first_run=True)
+        .order_by("slug")
+    )

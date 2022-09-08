@@ -165,6 +165,7 @@ OPENIDC_AUTH_WHITELIST = (
     "experiments-api-detail",
     "nimbus-experiment-rest-list",
     "nimbus-experiment-rest-detail",
+    "nimbus-experiment-rest-first-run-list",
 )
 
 # Internationalization
