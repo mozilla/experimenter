@@ -289,7 +289,6 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
               </LinkExternal>
             )}
             {experiment.monitoringDashboardUrl &&
-              experiment.resultsReady &&
               experiment.rolloutMonitoringDashboardUrl && <br />}
             {experiment.rolloutMonitoringDashboardUrl && (
               <LinkExternal
