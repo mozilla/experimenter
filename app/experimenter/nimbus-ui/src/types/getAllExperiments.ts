@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentApplicationEnum, NimbusExperimentFirefoxVersionEnum, NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum } from "./globalTypes";
+import { NimbusExperimentApplicationEnum, NimbusExperimentFirefoxVersionEnum, NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentChannelEnum } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getAllExperiments
@@ -29,7 +29,7 @@ export interface getAllExperiments_experiments_featureConfig {
 }
 
 export interface getAllExperiments_experiments {
-  channel: string | null;
+  channel: NimbusExperimentChannelEnum | null;
   isArchived: boolean | null;
   name: string;
   owner: getAllExperiments_experiments_owner;

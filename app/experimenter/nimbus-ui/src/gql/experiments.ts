@@ -228,6 +228,8 @@ export const GET_EXPERIMENTS_QUERY = gql`
         slug
         name
       }
+      channel
+      isRollout
     }
   }
 `;
