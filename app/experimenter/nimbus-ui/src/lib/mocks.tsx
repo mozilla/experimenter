@@ -306,6 +306,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       applicationValues: ["DESKTOP"],
       description: "Mac only configuration",
       stickyRequired: false,
+      isFirstRunRequired: false,
     },
     {
       label: "Win Only",
@@ -313,6 +314,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       applicationValues: ["DESKTOP"],
       description: "Win only configuration",
       stickyRequired: true,
+      isFirstRunRequired: false,
     },
   ],
   hypothesisDefault: "Enter a hypothesis",
