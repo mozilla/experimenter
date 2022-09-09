@@ -98,6 +98,7 @@ class TestNimbusConfigurationSerializer(TestCase):
                     "description": targeting_config.description,
                     "stickyRequired": targeting_config.sticky_required,
                     "applicationValues": list(targeting_config.application_choice_names),
+                    "isFirstRunRequired": targeting_config.is_first_run_required,
                 },
                 config["targetingConfigs"],
             )

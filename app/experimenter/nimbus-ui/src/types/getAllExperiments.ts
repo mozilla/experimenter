@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentApplicationEnum, NimbusExperimentFirefoxVersionEnum, NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum } from "./globalTypes";
+import { NimbusExperimentApplicationEnum, NimbusExperimentFirefoxVersionEnum, NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentChannelEnum } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getAllExperiments
@@ -51,8 +51,8 @@ export interface getAllExperiments_experiments {
   rolloutMonitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
-  channel: string | null;
-  populationPercent: number | null;
+  channel: NimbusExperimentChannelEnum | null;
+  populationPercent: string | null;
 }
 
 export interface getAllExperiments {
