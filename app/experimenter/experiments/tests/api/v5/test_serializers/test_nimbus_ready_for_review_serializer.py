@@ -1196,7 +1196,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["treatment_branches"][0]["name"],
-            [NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT]
+            [NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT],
         )
 
     def test_rollout_valid_version_support(self):
