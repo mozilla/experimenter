@@ -3399,6 +3399,9 @@
                 },
                 "stickyRequired": {
                   "type": "boolean"
+                },
+                "isFirstRunRequired": {
+                  "type": "boolean"
                 }
               },
               "required": [
@@ -3406,7 +3409,8 @@
                 "value",
                 "applicationValues",
                 "description",
-                "stickyRequired"
+                "stickyRequired",
+                "isFirstRunRequired"
               ]
             }
           },
