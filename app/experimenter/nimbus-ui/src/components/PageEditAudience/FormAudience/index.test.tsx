@@ -59,6 +59,7 @@ describe("FormAudience", () => {
               ],
               description: "No Targeting configuration",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
             {
               label: "Mac Only",
@@ -66,6 +67,7 @@ describe("FormAudience", () => {
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
               description: "Mac Only configuration",
               stickyRequired: true,
+              isFirstRunRequired: false,
             },
             {
               label: "Toaster thing",
@@ -73,6 +75,7 @@ describe("FormAudience", () => {
               applicationValues: ["TOASTER"],
               description: "Toaster thing description",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
           ],
         }}
@@ -136,6 +139,7 @@ describe("FormAudience", () => {
               ],
               description: "No Targeting configuration",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
             {
               label: "Mac Only",
@@ -143,6 +147,7 @@ describe("FormAudience", () => {
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
               description: "Mac Only configuration",
               stickyRequired: true,
+              isFirstRunRequired: false,
             },
             {
               label: "Toaster thing",
@@ -150,6 +155,7 @@ describe("FormAudience", () => {
               applicationValues: ["TOASTER"],
               description: "Toaster thing description",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
           ],
         }}
@@ -180,6 +186,7 @@ describe("FormAudience", () => {
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
               description: "Win Only configuration",
               stickyRequired: true,
+              isFirstRunRequired: false,
             },
           ],
           isSticky: true,
@@ -196,6 +203,7 @@ describe("FormAudience", () => {
               ],
               description: "No Targeting configuration",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
             {
               label: "Win Only",
@@ -203,6 +211,7 @@ describe("FormAudience", () => {
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
               description: "Win Only configuration",
               stickyRequired: true,
+              isFirstRunRequired: false,
             },
             {
               label: "Toaster thing",
@@ -210,6 +219,7 @@ describe("FormAudience", () => {
               applicationValues: ["TOASTER"],
               description: "Toaster thing description",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
           ],
         }}
@@ -245,6 +255,7 @@ describe("FormAudience", () => {
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
               description: "Win Only configuration",
               stickyRequired: true,
+              isFirstRunRequired: false,
             },
           ],
           isSticky: true,
@@ -261,6 +272,7 @@ describe("FormAudience", () => {
               ],
               description: "No Targeting configuration",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
             {
               label: "Win Only",
@@ -268,6 +280,7 @@ describe("FormAudience", () => {
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
               description: "Win Only configuration",
               stickyRequired: true,
+              isFirstRunRequired: false,
             },
             {
               label: "Toaster thing",
@@ -275,6 +288,7 @@ describe("FormAudience", () => {
               applicationValues: ["TOASTER"],
               description: "Toaster thing description",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
           ],
         }}
@@ -322,6 +336,7 @@ describe("FormAudience", () => {
               ],
               description: "No Targeting configuration",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
             {
               label: "Mac Only",
@@ -329,6 +344,7 @@ describe("FormAudience", () => {
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
               description: "Mac Only configuration",
               stickyRequired: true,
+              isFirstRunRequired: false,
             },
             {
               label: "Toaster thing",
@@ -336,6 +352,7 @@ describe("FormAudience", () => {
               applicationValues: ["TOASTER"],
               description: "Toaster thing description",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
           ],
         }}
@@ -380,6 +397,7 @@ describe("FormAudience", () => {
               ],
               description: "No Targeting configuration",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
             {
               label: "Mac Only",
@@ -387,6 +405,7 @@ describe("FormAudience", () => {
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
               description: "Mac Only configuration",
               stickyRequired: true,
+              isFirstRunRequired: false,
             },
             {
               label: "Toaster thing",
@@ -394,6 +413,7 @@ describe("FormAudience", () => {
               applicationValues: ["TOASTER"],
               description: "Toaster thing description",
               stickyRequired: false,
+              isFirstRunRequired: false,
             },
           ],
         }}
@@ -413,6 +433,151 @@ describe("FormAudience", () => {
       fireEvent.click(submitandContinueButton);
     });
     expect(screen.getByTestId("isSticky")).toBeChecked();
+  });
+
+  it("expect first run to be selected as first run is required for the selected targeting", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          targetingConfigSlug: "WIN_ONLY",
+          targetingConfig: [
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+              isFirstRunRequired: true,
+            },
+          ],
+          isSticky: true,
+          isFirstRun: true,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigs: [
+            {
+              label: "No Targeting",
+              value: "",
+              applicationValues: [
+                NimbusExperimentApplicationEnum.DESKTOP,
+                "TOASTER",
+              ],
+              description: "No Targeting configuration",
+              stickyRequired: false,
+              isFirstRunRequired: false,
+            },
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+              isFirstRunRequired: true,
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
+              stickyRequired: false,
+              isFirstRunRequired: false,
+            },
+          ],
+        }}
+      />,
+    );
+
+    const targetingConfigSlug = (await screen.findByTestId(
+      "targetingConfigSlug",
+    )) as HTMLSelectElement;
+
+    expect(targetingConfigSlug.value).toEqual(
+      MOCK_CONFIG!.targetingConfigs![1]!.value,
+    );
+    expect(screen.getByTestId("isFirstRun")).toHaveProperty("checked", true);
+    expect(screen.getByTestId("isFirstRun")).toBeDisabled();
+    await expect(
+      screen.getByTestId("is-first-run-required-warning"),
+    ).toBeInTheDocument();
+  });
+
+  it("expect sticky enrollment to be optional as changing targeting from sticky required to sticky not required", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          targetingConfigSlug: "WIN_ONLY",
+          targetingConfig: [
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+              isFirstRunRequired: true,
+            },
+          ],
+          isSticky: true,
+          isFirstRun: true,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigs: [
+            {
+              label: "No Targeting",
+              value: "",
+              applicationValues: [
+                NimbusExperimentApplicationEnum.DESKTOP,
+                "TOASTER",
+              ],
+              description: "No Targeting configuration",
+              stickyRequired: false,
+              isFirstRunRequired: false,
+            },
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+              isFirstRunRequired: true,
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
+              stickyRequired: false,
+              isFirstRunRequired: false,
+            },
+          ],
+        }}
+      />,
+    );
+    const targetingConfigSlug = (await screen.findByTestId(
+      "targetingConfigSlug",
+    )) as HTMLSelectElement;
+
+    expect(targetingConfigSlug.value).toEqual(
+      MOCK_CONFIG!.targetingConfigs![1]!.value,
+    );
+    fireEvent.change(screen.getByTestId("targetingConfigSlug"), {
+      target: { value: MOCK_CONFIG!.targetingConfigs![0]!.value },
+    });
+    fireEvent.click(screen.getByTestId("isFirstRun"), {
+      target: { checked: false },
+    });
+    expect(screen.getByTestId("isFirstRun")).toHaveProperty("checked", true);
+    expect(screen.getByTestId("isFirstRun")).not.toBeDisabled();
+    await expect(
+      screen.queryByTestId("is-first-run-required-warning"),
+    ).not.toBeInTheDocument();
   });
 
   it("expect First Run to be  unchecked", async () => {
@@ -734,6 +899,7 @@ describe("filterAndSortTargetingConfigSlug", () => {
         applicationValues: [application, NimbusExperimentApplicationEnum.IOS],
         description: "",
         stickyRequired: false,
+        isFirstRunRequired: false,
       },
       {
         label: expectedLastLabel,
@@ -741,6 +907,7 @@ describe("filterAndSortTargetingConfigSlug", () => {
         applicationValues: [application],
         description: "",
         stickyRequired: false,
+        isFirstRunRequired: false,
       },
       {
         label: expectedLabel,
@@ -748,6 +915,7 @@ describe("filterAndSortTargetingConfigSlug", () => {
         applicationValues: [application],
         description: "",
         stickyRequired: false,
+        isFirstRunRequired: false,
       },
       {
         label: expectedMissingLabel,
@@ -755,6 +923,7 @@ describe("filterAndSortTargetingConfigSlug", () => {
         applicationValues: [NimbusExperimentApplicationEnum.IOS],
         description: "",
         stickyRequired: false,
+        isFirstRunRequired: false,
       },
     ];
     const result = filterAndSortTargetingConfigs(
@@ -791,6 +960,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
             ],
             description: "No targeting configuration",
             stickyRequired: false,
+            isFirstRunRequired: false,
           },
           {
             label: "Mac Only",
@@ -798,6 +968,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
             applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
             description: "Mac only configuration",
             stickyRequired: true,
+            isFirstRunRequired: false,
           },
           {
             label: "Some toaster thing",
@@ -805,6 +976,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
             applicationValues: ["TOASTER"],
             description: "Some toaster thing configuration",
             stickyRequired: false,
+            isFirstRunRequired: false,
           },
         ],
         firefoxVersions: [
