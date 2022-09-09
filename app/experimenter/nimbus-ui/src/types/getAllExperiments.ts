@@ -52,7 +52,7 @@ export interface getAllExperiments_experiments {
   resultsReady: boolean | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
   channel: NimbusExperimentChannelEnum | null;
-  populationPercent: number | null;
+  populationPercent: string | null;
 }
 
 export interface getAllExperiments {

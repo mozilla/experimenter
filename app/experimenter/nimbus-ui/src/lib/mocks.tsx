@@ -690,7 +690,7 @@ export function mockSingleDirectoryExperiment(
     name: "Open-architected background installation",
     status: NimbusExperimentStatusEnum.COMPLETE,
     statusNext: null,
-    populationPercent: 100.0,
+    populationPercent: "100.0",
     channel: NimbusExperimentChannelEnum.NIGHTLY,
     publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     featureConfig: MOCK_CONFIG.allFeatureConfigs![0],
