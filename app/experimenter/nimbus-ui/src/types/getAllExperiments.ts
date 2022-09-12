@@ -29,7 +29,6 @@ export interface getAllExperiments_experiments_featureConfig {
 }
 
 export interface getAllExperiments_experiments {
-  channel: NimbusExperimentChannelEnum | null;
   isArchived: boolean | null;
   isRollout: boolean | null;
   name: string;
