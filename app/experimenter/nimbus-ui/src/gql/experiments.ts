@@ -233,7 +233,6 @@ export const GET_EXPERIMENTS_QUERY = gql`
         name
       }
       channel
-      isRollout
       populationPercent
     }
   }
