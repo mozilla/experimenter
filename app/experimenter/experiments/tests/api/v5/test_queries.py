@@ -901,14 +901,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            start_date=datetime.date(2021, 1, 1),
             proposed_enrollment=7,
         )
-        live_change = experiment.changes.get(
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-        )
-        live_change.changed_on = datetime.datetime(2021, 1, 1)
-        live_change.save()
 
         response = self.query(
             """
@@ -1036,6 +1031,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         description
                         applicationValues
                         stickyRequired
+                        isFirstRunRequired
                     }
                 }
             }
@@ -1065,6 +1061,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     "stickyRequired": NimbusExperiment.TARGETING_CONFIGS[
                         NimbusExperiment.TargetingConfig.FIRST_RUN.value
                     ].sticky_required,
+                    "isFirstRunRequired": NimbusExperiment.TARGETING_CONFIGS[
+                        NimbusExperiment.TargetingConfig.FIRST_RUN.value
+                    ].is_first_run_required,
                 }
             ],
         )
@@ -1318,6 +1317,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         description
                         applicationValues
                         stickyRequired
+                        isFirstRunRequired
                     }
                     hypothesisDefault
                     documentationLink {
@@ -1424,6 +1424,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                     "description": targeting_config.description,
                     "stickyRequired": targeting_config.sticky_required,
                     "applicationValues": list(targeting_config.application_choice_names),
+                    "isFirstRunRequired": targeting_config.is_first_run_required,
                 },
                 config["targetingConfigs"],
             )

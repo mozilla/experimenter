@@ -37,6 +37,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       statusNext
       publishStatus
       monitoringDashboardUrl
+      rolloutMonitoringDashboardUrl
       resultsReady
 
       hypothesis
@@ -110,6 +111,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         applicationValues
         description
         stickyRequired
+        isFirstRunRequired
       }
       isSticky
       isFirstRun
@@ -196,6 +198,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
   query getAllExperiments {
     experiments {
       isArchived
+      isRollout
       name
       owner {
         username
@@ -223,6 +226,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       statusNext
       publishStatus
       monitoringDashboardUrl
+      rolloutMonitoringDashboardUrl
       resultsReady
       featureConfig {
         slug
@@ -230,6 +234,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       }
       channel
       isRollout
+      populationPercent
     }
   }
 `;

@@ -306,6 +306,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       applicationValues: ["DESKTOP"],
       description: "Mac only configuration",
       stickyRequired: false,
+      isFirstRunRequired: false,
     },
     {
       label: "Win Only",
@@ -313,6 +314,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       applicationValues: ["DESKTOP"],
       description: "Win only configuration",
       stickyRequired: true,
+      isFirstRunRequired: false,
     },
   ],
   hypothesisDefault: "Enter a hypothesis",
@@ -473,6 +475,7 @@ export class SimulatedMockLink extends ApolloLink {
 export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   id: 1,
   isArchived: false,
+  isRollout: false,
   canEdit: true,
   canArchive: true,
   owner: {
@@ -484,6 +487,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   statusNext: null,
   publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
   monitoringDashboardUrl: "https://mozilla.cloud.looker.com",
+  rolloutMonitoringDashboardUrl: "https://mozilla.cloud.looker.com",
   hypothesis: "Realize material say pretty.",
   application: NimbusExperimentApplicationEnum.DESKTOP,
   publicDescription: "Official approach present industry strategy dream piece.",
@@ -668,6 +672,7 @@ export function mockSingleDirectoryExperiment(
 
   return {
     isArchived: false,
+    isRollout: false,
     slug: `some-experiment-${slugIndex}`,
     owner: {
       username: "example@mozilla.com",
@@ -680,9 +685,13 @@ export function mockSingleDirectoryExperiment(
       .value as NimbusExperimentFirefoxVersionEnum,
     monitoringDashboardUrl:
       "https://mozilla.cloud.looker.com/dashboards-next/216?Experiment=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
+    rolloutMonitoringDashboardUrl:
+      "https://mozilla.cloud.looker.com/dashboards/operational_monitoring::experiment_slug",
     name: "Open-architected background installation",
     status: NimbusExperimentStatusEnum.COMPLETE,
     statusNext: null,
+    populationPercent: "100.0",
+    channel: NimbusExperimentChannelEnum.NIGHTLY,
     publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     featureConfig: MOCK_CONFIG.allFeatureConfigs![0],
     featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],

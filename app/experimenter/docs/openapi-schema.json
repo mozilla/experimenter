@@ -1461,6 +1461,82 @@
         ]
       }
     },
+    "/api/v6/experiments-first-run/": {
+      "get": {
+        "operationId": "listNimbusExperiments",
+        "description": "",
+        "parameters": [
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NimbusExperiment"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Nimbus: Public"
+        ]
+      }
+    },
+    "/api/v6/experiments-first-run/{slug}/": {
+      "get": {
+        "operationId": "retrieveNimbusExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NimbusExperiment"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Nimbus: Public"
+        ]
+      }
+    },
     "/api/v2/experiments/{slug}/intent-to-ship-email": {
       "put": {
         "operationId": "updateExperiment",
@@ -3323,6 +3399,9 @@
                 },
                 "stickyRequired": {
                   "type": "boolean"
+                },
+                "isFirstRunRequired": {
+                  "type": "boolean"
                 }
               },
               "required": [
@@ -3330,7 +3409,8 @@
                 "value",
                 "applicationValues",
                 "description",
-                "stickyRequired"
+                "stickyRequired",
+                "isFirstRunRequired"
               ]
             }
           },

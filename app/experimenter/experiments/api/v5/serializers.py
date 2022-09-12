@@ -91,6 +91,7 @@ class TargetingConfigDataClass:
     applicationValues: typing.List[str]
     description: str
     stickyRequired: bool
+    isFirstRunRequired: bool
 
 
 @dataclass
@@ -214,6 +215,9 @@ class NimbusConfigurationDataClass:
                 stickyRequired=NimbusExperiment.TARGETING_CONFIGS[
                     choice.value
                 ].sticky_required,
+                isFirstRunRequired=NimbusExperiment.TARGETING_CONFIGS[
+                    choice.value
+                ].is_first_run_required,
             )
             for choice in NimbusExperiment.TargetingConfig
         ]

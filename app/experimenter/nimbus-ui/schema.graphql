@@ -25,6 +25,8 @@ type CreateExperiment {
   message: ObjectField
 }
 
+scalar Date
+
 scalar DateTime
 
 input DocumentationLinkInput {
@@ -394,6 +396,7 @@ type NimbusExperimentTargetingConfigType {
   applicationValues: [String]
   description: String
   stickyRequired: Boolean
+  isFirstRunRequired: Boolean
 }
 
 type NimbusExperimentType {
@@ -437,6 +440,8 @@ type NimbusExperimentType {
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
   isFirstRun: Boolean!
+  StartDate: Date
+  EndDate: Date
   nimbusexperimentSet: [NimbusExperimentType!]!
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType
@@ -448,6 +453,7 @@ type NimbusExperimentType {
   featureConfigs: [NimbusFeatureConfigType]
   readyForReview: NimbusReviewType
   monitoringDashboardUrl: String
+  rolloutMonitoringDashboardUrl: String
   resultsReady: Boolean
   startDate: DateTime
   computedEndDate: DateTime

@@ -16,6 +16,8 @@ import { FormBranchesState } from "./reducer/state";
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
   application: NimbusExperimentApplicationEnum.DESKTOP,
   featureConfigs: [], //MOCK_CONFIG!.featureConfigs![0],
+  isRollout: false,
+  warnFeatureSchema: false,
   referenceBranch: {
     id: 123,
     name: "User-centric mobile solution",

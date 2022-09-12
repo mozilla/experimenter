@@ -68,6 +68,7 @@ export interface getExperiment_experimentBySlug_targetingConfig {
   applicationValues: (string | null)[] | null;
   description: string | null;
   stickyRequired: boolean | null;
+  isFirstRunRequired: boolean | null;
 }
 
 export interface getExperiment_experimentBySlug_readyForReview {
@@ -144,6 +145,7 @@ export interface getExperiment_experimentBySlug {
   statusNext: NimbusExperimentStatusEnum | null;
   publishStatus: NimbusExperimentPublishStatusEnum | null;
   monitoringDashboardUrl: string | null;
+  rolloutMonitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
   hypothesis: string;
   application: NimbusExperimentApplicationEnum | null;

@@ -165,6 +165,7 @@ OPENIDC_AUTH_WHITELIST = (
     "experiments-api-detail",
     "nimbus-experiment-rest-list",
     "nimbus-experiment-rest-detail",
+    "nimbus-experiment-rest-first-run-list",
 )
 
 # Internationalization
@@ -361,6 +362,9 @@ MONITORING_URL = (
     # from_date and to_date format is YYYY-mm-dd
     "https://mozilla.cloud.looker.com/dashboards-next/216?"
     "Experiment={slug}&Time+Range={from_date}+to+{to_date}"
+)
+ROLLOUT_MONITORING_URL = (
+    "https://mozilla.cloud.looker.com/dashboards/operational_monitoring::{slug}"
 )
 
 # Statsd via Markus

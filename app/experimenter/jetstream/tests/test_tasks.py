@@ -277,7 +277,9 @@ class TestFetchJetstreamDataTask(TestCase):
     )
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_data_expired_in_loop(self, lifecycle, mock_delay):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=4)
+        )
         experiment.results_data = {
             "daily": None,
             "metadata": None,
@@ -286,10 +288,7 @@ class TestFetchJetstreamDataTask(TestCase):
             "weekly": None,
         }
         experiment.save()
-        experiment.changes.all().filter(
-            old_status=NimbusExperiment.Status.LIVE,
-            new_status=NimbusExperiment.Status.COMPLETE,
-        ).update(changed_on=datetime.date.today() - datetime.timedelta(days=4))
+
         tasks.fetch_jetstream_data()
         mock_delay.assert_not_called()
 
@@ -300,11 +299,10 @@ class TestFetchJetstreamDataTask(TestCase):
     )
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_data_null_fetches(self, lifecycle, mock_delay):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
-        experiment.changes.all().filter(
-            old_status=NimbusExperiment.Status.LIVE,
-            new_status=NimbusExperiment.Status.COMPLETE,
-        ).update(changed_on=datetime.date.today() - datetime.timedelta(days=4))
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=4)
+        )
+
         tasks.fetch_jetstream_data()
         mock_delay.assert_called_once_with(experiment.id)
 
