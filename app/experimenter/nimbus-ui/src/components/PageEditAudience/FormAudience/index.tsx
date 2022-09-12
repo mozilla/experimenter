@@ -87,10 +87,16 @@ export const FormAudience = ({
     experiment.isSticky ?? false,
   );
 
-  const [isFirstRun, setIsFirstRun] = useState<boolean>(experiment.isFirstRun);
+  const [isFirstRun, setIsFirstRun] = useState<boolean>(
+    experiment.isFirstRun ?? false,
+  );
   const [stickyRequiredWarning, setStickyRequiredWarning] = useState<boolean>(
     experiment.targetingConfig![0]?.stickyRequired ?? false,
   );
+  const [isFirstRunRequiredWarning, setisFirstRunRequiredRequiredWarning] =
+    useState<boolean>(
+      experiment.targetingConfig![0]?.isFirstRunRequired ?? false,
+    );
 
   const applicationConfig = config.applicationConfigs?.find(
     (applicationConfig) =>
@@ -171,11 +177,15 @@ export const FormAudience = ({
   );
 
   const TargetingOnChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const checkStickyRequired = targetingConfigSlugOptions.find(
+    const checkRequired = targetingConfigSlugOptions.find(
       (config) => config.value === ev.target.value,
     );
-    setIsSticky(checkStickyRequired?.stickyRequired || false);
-    setStickyRequiredWarning(!!checkStickyRequired?.stickyRequired);
+    setIsSticky(checkRequired?.stickyRequired || false);
+    setStickyRequiredWarning(!!checkRequired?.stickyRequired);
+    setIsFirstRun(
+      checkRequired?.isFirstRunRequired || experiment.isFirstRun || false,
+    );
+    setisFirstRunRequiredRequiredWarning(!!checkRequired?.isFirstRunRequired);
   };
 
   const isDesktop =
@@ -307,8 +317,17 @@ export const FormAudience = ({
               type="checkbox"
               onChange={(e) => setIsFirstRun(e.target.checked)}
               checked={isFirstRun}
+              disabled={isFirstRunRequiredWarning}
               label="First Run Experiment"
             />
+            {isFirstRunRequiredWarning && (
+              <Alert
+                data-testid="is-first-run-required-warning"
+                variant="warning"
+              >
+                First run is required for this targeting configuration.
+              </Alert>
+            )}
             <FormErrors name="isFirstRun" />
           </Form.Group>
         </Form.Row>

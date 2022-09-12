@@ -1064,10 +1064,18 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
-    def test_monitoring_dashboard_returns_url_when_rollout(self):
+    @parameterized.expand(
+        [
+            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.COMPLETE,
+            NimbusExperiment.Status.LIVE,
+            NimbusExperiment.Status.PREVIEW,
+        ]
+    )
+    def test_monitoring_dashboard_returns_url_when_rollout(self, status):
         experiment = NimbusExperimentFactory.create(
             slug="experiment",
-            status=NimbusExperiment.Status.DRAFT,
+            status=status,
             is_rollout=True,
         )
 
@@ -1126,15 +1134,6 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
-    def test_rollouts_monitoring_dashboard_url_is_none_when_rollout_not_begun(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            slug="rollout-1-slug",
-            is_rollout=True,
-            status=NimbusExperiment.Status.DRAFT,
-        )
-        self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
-
     def test_rollouts_monitoring_dashboard_returns_correct_formatted_url(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
@@ -1155,20 +1154,32 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
-    def test_rollouts_monitoring_dashboard_returns_url_when_rollout_is_complete(self):
+    @parameterized.expand(
+        [
+            (False, NimbusExperimentFactory.Lifecycles.CREATED),
+            (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
+            (True, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING),
+            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
+        ]
+    )
+    def test_rollouts_monitoring_dashboard_returns_url(self, valid_status, lifecycle):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
+            lifecycle=lifecycle,
             slug="rollout-1-slug",
             is_rollout=True,
-            status=NimbusExperiment.Status.COMPLETE,
         )
-        expected_slug = "rollout_1_slug"
-        self.assertEqual(
-            experiment.rollout_monitoring_dashboard_url,
-            settings.ROLLOUT_MONITORING_URL.format(
-                slug=expected_slug,
-            ),
-        )
+
+        if valid_status:
+            expected_slug = "rollout_1_slug"
+            self.assertEqual(
+                experiment.rollout_monitoring_dashboard_url,
+                settings.ROLLOUT_MONITORING_URL.format(
+                    slug=expected_slug,
+                ),
+            )
+        else:
+            self.assertIsNone(experiment.rollout_monitoring_dashboard_url)
 
     def test_rollouts_monitoring_dashboard_returns_none_when_not_rollout(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1601,9 +1612,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             child.targeting_config_slug, NimbusExperiment.TargetingConfig.NO_TARGETING
         )
-        self.assertIsNone(child.reference_branch)
-        self.assertIsNone(child.published_dto)
-        self.assertIsNone(child.results_data)
+
         self.assertFalse(child.risk_partner_related)
         self.assertFalse(child.risk_revenue)
         self.assertFalse(child.risk_brand)
@@ -1651,15 +1660,24 @@ class TestNimbusExperiment(TestCase):
     ):
         child = parent.clone("Child Experiment", parent.owner, rollout_branch_slug)
 
-        self.assertEqual(child.parent, parent)
-        self.assertFalse(child.is_archived)
-        self.assertEqual(child.owner, parent.owner)
+        # Explicitly set fields
         self.assertEqual(child.status, NimbusExperiment.Status.DRAFT)
-        self.assertIsNone(child.status_next)
+        self.assertEqual(child.status_next, None)
         self.assertEqual(child.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertEqual(child.owner, parent.owner)
+        self.assertEqual(child.parent, parent)
+        self.assertEqual(child.is_archived, False)
+        self.assertEqual(child.is_paused, False)
+        self.assertEqual(child.published_dto, None)
+        self.assertEqual(child.results_data, None)
+        self.assertEqual(child.takeaways_summary, None)
+        self.assertEqual(child.conclusion_recommendation, None)
+        self.assertEqual(child._start_date, None)
+        self.assertEqual(child._end_date, None)
+
+        # Cloned fields
         self.assertEqual(child.name, "Child Experiment")
         self.assertEqual(child.slug, "child-experiment")
-        self.assertFalse(child.is_paused)
         self.assertEqual(child.public_description, parent.public_description)
         self.assertEqual(child.application, parent.application)
         self.assertEqual(child.channel, parent.channel)
@@ -1669,14 +1687,13 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.risk_mitigation_link, parent.risk_mitigation_link)
         self.assertEqual(child.primary_outcomes, parent.primary_outcomes)
         self.assertEqual(child.secondary_outcomes, parent.secondary_outcomes)
-
         self.assertEqual(child.targeting_config_slug, parent.targeting_config_slug)
-        self.assertIsNone(child.published_dto)
-        self.assertIsNone(child.results_data)
         self.assertEqual(child.risk_partner_related, parent.risk_partner_related)
         self.assertEqual(child.risk_revenue, parent.risk_revenue)
         self.assertEqual(child.risk_brand, parent.risk_brand)
+
         self.assertFalse(NimbusBucketRange.objects.filter(experiment=child).exists())
+
         self.assertEqual(
             set(child.feature_configs.all().values_list("slug", flat=True)),
             set(parent.feature_configs.all().values_list("slug", flat=True)),

@@ -60,6 +60,7 @@ export const GET_CONFIG_QUERY = gql`
         description
         applicationValues
         stickyRequired
+        isFirstRunRequired
       }
       hypothesisDefault
       documentationLink {

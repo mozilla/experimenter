@@ -15,15 +15,14 @@ class TestNimbusExperimentViewSet(TestCase):
         experiments = []
 
         for lifecycle in NimbusExperimentFactory.Lifecycles:
-            final_status = lifecycle.value[-1].value
-            if final_status["status"] not in [
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                lifecycle, slug=lifecycle.name
+            )
+
+            if experiment.status not in [
                 NimbusExperiment.Status.DRAFT,
             ]:
-                experiments.append(
-                    NimbusExperimentFactory.create_with_lifecycle(
-                        lifecycle, slug=lifecycle.name
-                    )
-                )
+                experiments.append(experiment)
 
         experiments = sorted(experiments, key=lambda e: e.slug)
 
@@ -73,3 +72,34 @@ class TestNimbusExperimentViewSet(TestCase):
         json_data = json.loads(response.content)
         self.assertEqual(len(json_data), 1)
         self.assertEqual(json_data[0]["slug"], first_run_experiment.slug)
+
+
+class TestNimbusExperimentFirstRunViewSet(TestCase):
+    maxDiff = None
+
+    def test_list_view_serializes_live_first_run_experiments(self):
+        experiments = []
+
+        for lifecycle in NimbusExperimentFactory.Lifecycles:
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                lifecycle, slug=lifecycle.name, is_first_run=True
+            )
+
+            if experiment.status == NimbusExperiment.Status.LIVE:
+                experiments.append(experiment)
+
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, is_first_run=False
+        )
+
+        experiments = sorted(experiments, key=lambda e: e.slug)
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-first-run-list"),
+        )
+        self.assertEqual(response.status_code, 200)
+
+        json_data = json.loads(response.content)
+        json_slugs = [d["id"] for d in json_data]
+        expected_slugs = [e.slug for e in experiments]
+        self.assertEqual(json_slugs, expected_slugs)
