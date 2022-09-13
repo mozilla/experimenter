@@ -162,7 +162,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"reference_branch": ["This field may not be null."]},
+            {"referenceBranch": ["This field may not be null."]},
         )
 
     def test_invalid_experiment_reference_branch_requires_description(self):
@@ -189,7 +189,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"reference_branch": {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]}},
+            {"referenceBranch": {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]}},
         )
 
     def test_invalid_experiment_requires_min_version_less_than_max_version(self):
@@ -212,8 +212,8 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertEqual(
             serializer.errors,
             {
-                "firefox_min_version": [NimbusExperiment.ERROR_FIREFOX_VERSION_MIN],
-                "firefox_max_version": [NimbusExperiment.ERROR_FIREFOX_VERSION_MAX],
+                "firefoxMinVersion": [NimbusExperiment.ERROR_FIREFOX_VERSION_MIN],
+                "firefoxMaxVersion": [NimbusExperiment.ERROR_FIREFOX_VERSION_MAX],
             },
         )
 
@@ -296,7 +296,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertTrue(serializer_2.is_valid())
+        self.assertTrue(serializer_2.is_valid(), serializer_2.errors)
 
     @parameterized.expand(
         [
@@ -606,7 +606,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertEqual(len(serializer.errors), errors)
         if not serializer_result:
-            self.assertIn("is_sticky", serializer.errors)
+            self.assertIn("isSticky", serializer.errors)
 
     def test_valid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -648,7 +648,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            str(serializer.errors["population_percent"][0]),
+            str(serializer.errors["populationPercent"][0]),
             "Ensure this value is greater than or equal to 0.0001.",
         )
 
@@ -700,7 +700,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["treatment_branches"][1],
+            serializer.errors["treatmentBranches"][1],
             {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]},
         )
 
@@ -721,7 +721,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["featureConfig"],
             [NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG],
         )
 
@@ -749,15 +749,15 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            str(serializer.errors["risk_partner_related"][0]),
+            str(serializer.errors["riskPartnerRelated"][0]),
             NimbusConstants.ERROR_REQUIRED_QUESTION,
         )
         self.assertEqual(
-            str(serializer.errors["risk_revenue"][0]),
+            str(serializer.errors["riskRevenue"][0]),
             NimbusConstants.ERROR_REQUIRED_QUESTION,
         )
         self.assertEqual(
-            str(serializer.errors["risk_brand"][0]),
+            str(serializer.errors["riskBrand"][0]),
             NimbusConstants.ERROR_REQUIRED_QUESTION,
         )
 
@@ -816,7 +816,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["featureConfig"],
             [
                 "Feature Config application ios does not "
                 "match experiment application fenix."
@@ -843,7 +843,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["featureConfig"],
             ["You must select a feature configuration from the drop down."],
         )
 
@@ -886,7 +886,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn(
             "Unterminated string",
-            serializer.errors["reference_branch"]["feature_value"][0],
+            serializer.errors["referenceBranch"]["featureValue"][0],
         )
         self.assertEqual(len(serializer.errors), 1)
 
@@ -927,7 +927,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertTrue(
-            serializer.errors["reference_branch"]["feature_value"][0].startswith(
+            serializer.errors["referenceBranch"]["featureValue"][0].startswith(
                 "Additional properties are not allowed"
             ),
             serializer.errors,
@@ -972,7 +972,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertTrue(serializer.is_valid())
         self.assertTrue(
-            serializer.warnings["reference_branch"]["feature_value"][0].startswith(
+            serializer.warnings["referenceBranch"]["featureValue"][0].startswith(
                 "Additional properties are not allowed"
             ),
             serializer.warnings,
@@ -1016,7 +1016,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertTrue(
-            serializer.errors["treatment_branches"][0]["feature_value"][0].startswith(
+            serializer.errors["treatmentBranches"][0]["featureValue"][0].startswith(
                 "Additional properties are not allowed"
             ),
             serializer.errors,
@@ -1063,7 +1063,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
         self.assertTrue(
-            serializer.warnings["treatment_branches"][0]["feature_value"][0].startswith(
+            serializer.warnings["treatmentBranches"][0]["featureValue"][0].startswith(
                 "Additional properties are not allowed"
             ),
             serializer.warnings,
@@ -1145,11 +1145,11 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             branch.delete()
         data = {
             "application": NimbusExperiment.Application.DESKTOP,
-            "is_sticky": "true",
-            "is_rollout": "true",
-            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
-            "firefox_min_version": NimbusExperiment.Version.FIREFOX_108,
-            "changelog_message": "test changelog message",
+            "isSticky": "true",
+            "isRollout": "true",
+            "targetingConfigSlug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "firefoxMinVersion": NimbusExperiment.Version.FIREFOX_108,
+            "changelogMessage": "test changelog message",
             "channel": "",
         }
         serializer = NimbusReviewSerializer(
@@ -1194,12 +1194,12 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         data = {
             "application": NimbusExperiment.Application.DESKTOP,
-            "is_sticky": "false",
-            "is_rollout": "true",
-            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
-            "changelog_message": "test changelog message",
+            "isSticky": "false",
+            "isRollout": "true",
+            "targetingConfigSlug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "changelogMessage": "test changelog message",
             "channel": "",
-            "firefox_min_version": NimbusExperiment.Version.FIREFOX_108,
+            "firefoxMinVersion": NimbusExperiment.Version.FIREFOX_108,
         }
         serializer = NimbusReviewSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -1225,12 +1225,12 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         data = {
             "application": NimbusExperiment.Application.DESKTOP,
-            "is_sticky": "true",
-            "is_rollout": "true",
-            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
-            "changelog_message": "test changelog message",
+            "isSticky": "true",
+            "isRollout": "true",
+            "targetingConfigSlug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "changelogMessage": "test changelog message",
             "channel": "",
-            "firefox_min_version": NimbusExperiment.Version.FIREFOX_50,
+            "firefoxMinVersion": NimbusExperiment.Version.FIREFOX_50,
         }
         serializer = NimbusReviewSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -1239,7 +1239,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(len(serializer.errors), 1)
         self.assertEqual(
-            serializer.errors["is_rollout"][0],
+            serializer.errors["isRollout"][0],
             NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT,
         )
 
@@ -1275,8 +1275,8 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertEqual(
             serializer.errors,
             {
-                "reference_branch": {
-                    "feature_value": [NimbusConstants.ERROR_BRANCH_NO_VALUE]
+                "referenceBranch": {
+                    "featureValue": [NimbusConstants.ERROR_BRANCH_NO_VALUE]
                 }
             },
         )
@@ -1313,8 +1313,8 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertEqual(
             serializer.errors,
             {
-                "reference_branch": {
-                    "feature_enabled": [NimbusConstants.ERROR_BRANCH_NO_ENABLED]
+                "referenceBranch": {
+                    "featureEnabled": [NimbusConstants.ERROR_BRANCH_NO_ENABLED]
                 }
             },
         )
@@ -1363,7 +1363,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_configs"],
+            serializer.errors["featureConfigs"],
             [
                 "Feature Config application ios does not "
                 "match experiment application fenix."
@@ -1390,7 +1390,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_configs"],
+            serializer.errors["featureConfigs"],
             [
                 "You must select a feature configuration from the drop down.",
             ],
@@ -1438,7 +1438,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         self.assertEqual(len(serializer.errors), 1)
         feature_values_errors = [
             e
-            for e in serializer.errors["reference_branch"]["feature_values"]
+            for e in serializer.errors["referenceBranch"]["featureValues"]
             if "value" in e
         ]
         self.assertEqual(len(feature_values_errors), 1)
@@ -1513,7 +1513,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         self.assertEqual(serializer.is_valid(), expected_valid)
         if not expected_valid:
             self.assertEqual(len(serializer.errors), 1)
-            error = serializer.errors["reference_branch"].get("feature_enabled")
+            error = serializer.errors["referenceBranch"].get("featureEnabled")
             self.assertEqual(error, NimbusConstants.ERROR_FEATURE_ENABLED)
 
     @parameterized.expand(
@@ -1580,10 +1580,10 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
-        self.assertEqual(serializer.is_valid(), expected_valid)
+        self.assertEqual(serializer.is_valid(), expected_valid, serializer.errors)
         if not expected_valid:
             self.assertEqual(len(serializer.errors), 1)
-            error = serializer.errors["treatment_branches"][0].get("feature_enabled")
+            error = serializer.errors["treatmentBranches"][0].get("featureEnabled")
             self.assertIsNotNone(error)
             self.assertEqual(error, NimbusConstants.ERROR_FEATURE_ENABLED)
 
@@ -1629,7 +1629,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         self.assertEqual(len(serializer.errors), 1)
         feature_values_errors = [
             e
-            for e in serializer.errors["reference_branch"]["feature_values"]
+            for e in serializer.errors["referenceBranch"]["featureValues"]
             if "value" in e
         ]
         self.assertEqual(len(feature_values_errors), 1)
@@ -1681,7 +1681,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         self.assertEqual(len(serializer.errors), 1)
         feature_values_errors = [
             e
-            for e in serializer.errors["treatment_branches"][0]["feature_values"]
+            for e in serializer.errors["treatmentBranches"][0]["featureValues"]
             if "value" in e
         ]
         self.assertEqual(len(feature_values_errors), 1)
@@ -1777,7 +1777,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
     #     self.assertTrue(serializer.is_valid())
     #     self.assertTrue(
-    #         serializer.warnings["reference_branch"]["feature_values"][1]["value"][
+    #         serializer.warnings["referenceBranch"]["featureValues"][1]["value"][
     #             0
     #         ].startswith("Additional properties are not allowed"),
     #         serializer.warnings,
@@ -1822,7 +1822,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
     #     self.assertTrue(serializer.is_valid())
     #     self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
     #     self.assertTrue(
-    #         serializer.warnings["treatment_branches"][0]["feature_value"][0].startswith(
+    #         serializer.warnings["treatmentBranches"][0]["featureValue"][0].startswith(
     #             "Additional properties are not allowed"
     #         ),
     #         serializer.warnings,
