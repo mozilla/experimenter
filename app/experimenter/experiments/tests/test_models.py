@@ -1555,10 +1555,10 @@ class TestNimbusExperiment(TestCase):
             risk_revenue=risk_revenue,
             risk_partner_related=risk_partner_related,
         )
-        self.assertEqual(experiment.signoff_recommendations["qa_signoff"], True)
-        self.assertEqual(experiment.signoff_recommendations["vp_signoff"], vp_recommended)
+        self.assertEqual(experiment.signoff_recommendations["qaSignoff"], True)
+        self.assertEqual(experiment.signoff_recommendations["vpSignoff"], vp_recommended)
         self.assertEqual(
-            experiment.signoff_recommendations["legal_signoff"], legal_recommended
+            experiment.signoff_recommendations["legalSignoff"], legal_recommended
         )
 
     @parameterized.expand(

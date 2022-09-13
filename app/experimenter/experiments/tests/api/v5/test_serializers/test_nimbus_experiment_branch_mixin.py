@@ -28,22 +28,22 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "feature_enabled": False,
-            "feature_value": "",
+            "featureEnabled": False,
+            "featureValue": "",
         }
         treatment_branch = {
             "name": "treatment",
             "description": "a treatment",
             "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": '{"value": true}',
+            "featureEnabled": True,
+            "featureValue": '{"value": true}',
         }
 
         data = {
-            "feature_config": feature_config.id,
-            "reference_branch": reference_branch,
-            "treatment_branches": [treatment_branch],
-            "changelog_message": "test changelog message",
+            "featureConfig": feature_config.id,
+            "referenceBranch": reference_branch,
+            "treatmentBranches": [treatment_branch],
+            "changelogMessage": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -89,22 +89,22 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 1,
-            "feature_enabled": False,
-            "feature_value": "",
+            "featureEnabled": False,
+            "featureValue": "",
         }
         treatment_branch = {
             "name": "new treatment",
             "description": "a new treatment",
             "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": '{"value": true}',
+            "featureEnabled": True,
+            "featureValue": '{"value": true}',
         }
 
         data = {
-            "feature_config": feature_config.id,
-            "reference_branch": reference_branch,
-            "treatment_branches": [treatment_branch],
-            "changelog_message": "test changelog message",
+            "featureConfig": feature_config.id,
+            "referenceBranch": reference_branch,
+            "treatmentBranches": [treatment_branch],
+            "changelogMessage": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -157,23 +157,23 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 1,
-            "feature_enabled": False,
-            "feature_value": "",
+            "featureEnabled": False,
+            "featureValue": "",
         }
         treatment_branch = {
             "id": experiment.treatment_branches[0].id,
             "name": "new treatment",
             "description": "a new treatment",
             "ratio": 1,
-            "feature_enabled": True,
-            "feature_value": '{"value": true}',
+            "featureEnabled": True,
+            "featureValue": '{"value": true}',
         }
 
         data = {
-            "feature_config": feature_config.id,
-            "reference_branch": reference_branch,
-            "treatment_branches": [treatment_branch],
-            "changelog_message": "test changelog message",
+            "featureConfig": feature_config.id,
+            "referenceBranch": reference_branch,
+            "treatmentBranches": [treatment_branch],
+            "changelogMessage": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -221,7 +221,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             instance=experiment,
             data={
                 "name": "new name",
-                "changelog_message": "test changelog message",
+                "changelogMessage": "test changelog message",
             },
             context={"user": UserFactory()},
         )
@@ -243,10 +243,10 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         ]
 
         data = {
-            "feature_config": None,
-            "reference_branch": reference_branch,
-            "treatment_branches": treatment_branches,
-            "changelog_message": "test changelog message",
+            "featureConfig": None,
+            "referenceBranch": reference_branch,
+            "treatmentBranches": treatment_branches,
+            "changelogMessage": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -255,10 +255,10 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         self.assertEqual(
             serializer.errors,
             {
-                "reference_branch": {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME},
-                "treatment_branches": [
+                "referenceBranch": {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME},
+                "treatmentBranches": [
                     {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
-                    for i in data["treatment_branches"]
+                    for i in data["treatmentBranches"]
                 ],
             },
         )
@@ -286,25 +286,25 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+            "featureValues": [
+                {"featureConfig": feature_config1.id, "enabled": True, "value": "{}"},
+                {"featureConfig": feature_config2.id, "enabled": True, "value": "{}"},
             ],
         }
         treatment_branch = {
             "name": "treatment",
             "description": "a treatment",
             "ratio": 1,
-            "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+            "featureValues": [
+                {"featureConfig": feature_config1.id, "enabled": True, "value": "{}"},
+                {"featureConfig": feature_config2.id, "enabled": True, "value": "{}"},
             ],
         }
         data = {
-            "feature_configs": [feature_config1.id, feature_config2.id],
-            "reference_branch": reference_branch,
-            "treatment_branches": [treatment_branch],
-            "changelog_message": "test changelog message",
+            "featureConfigs": [feature_config1.id, feature_config2.id],
+            "referenceBranch": reference_branch,
+            "treatmentBranches": [treatment_branch],
+            "changelogMessage": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(
@@ -358,25 +358,25 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 2,
-            "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+            "featureValues": [
+                {"featureConfig": feature_config1.id, "enabled": True, "value": "{}"},
+                {"featureConfig": feature_config2.id, "enabled": True, "value": "{}"},
             ],
         }
         treatment_branch = {
             "name": "new treatment",
             "description": "a new treatment",
             "ratio": 2,
-            "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+            "featureValues": [
+                {"featureConfig": feature_config1.id, "enabled": True, "value": "{}"},
+                {"featureConfig": feature_config2.id, "enabled": True, "value": "{}"},
             ],
         }
         data = {
-            "feature_configs": [feature_config1.id, feature_config2.id],
-            "reference_branch": reference_branch,
-            "treatment_branches": [treatment_branch],
-            "changelog_message": "test changelog message",
+            "featureConfigs": [feature_config1.id, feature_config2.id],
+            "referenceBranch": reference_branch,
+            "treatmentBranches": [treatment_branch],
+            "changelogMessage": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(
@@ -437,9 +437,9 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 2,
-            "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+            "featureValues": [
+                {"featureConfig": feature_config1.id, "enabled": True, "value": "{}"},
+                {"featureConfig": feature_config2.id, "enabled": True, "value": "{}"},
             ],
         }
         treatment_branch = {
@@ -447,16 +447,16 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
             "name": "new treatment",
             "description": "a new treatment",
             "ratio": 2,
-            "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+            "featureValues": [
+                {"featureConfig": feature_config1.id, "enabled": True, "value": "{}"},
+                {"featureConfig": feature_config2.id, "enabled": True, "value": "{}"},
             ],
         }
         data = {
-            "feature_configs": [feature_config1.id, feature_config2.id],
-            "reference_branch": reference_branch,
-            "treatment_branches": [treatment_branch],
-            "changelog_message": "test changelog message",
+            "featureConfigs": [feature_config1.id, feature_config2.id],
+            "referenceBranch": reference_branch,
+            "treatmentBranches": [treatment_branch],
+            "changelogMessage": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(
