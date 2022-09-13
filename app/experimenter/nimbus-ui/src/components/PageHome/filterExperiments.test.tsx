@@ -14,7 +14,7 @@ import {
 } from "./mocks";
 import { filterValueKeys } from "./types";
 
-const { owners, applications, allFeatureConfigs } = MOCK_CONFIG!;
+const { owners, applications, allFeatureConfigs, channels } = MOCK_CONFIG!;
 
 describe("getFilterValueFromParams", () => {
   it("converts comma-separated list representation from filter params into a filter value", () => {
@@ -22,10 +22,12 @@ describe("getFilterValueFromParams", () => {
     params.set("owners", "alpha-example@mozilla.com,beta-example@mozilla.com");
     params.set("applications", "DESKTOP,FENIX");
     params.set("allFeatureConfigs", "IOS:foo-lila-sat");
+    params.set("channels", "BETA");
     expect(getFilterValueFromParams(MOCK_CONFIG, params)).toEqual({
       owners: [owners![0], owners![1]],
       applications: [applications![0], applications![3]],
       allFeatureConfigs: [allFeatureConfigs![2]],
+      channels: [channels![0]],
     });
   });
 });
@@ -38,6 +40,7 @@ describe("updateParamsFromFilterValue", () => {
       owners: [owners![0], owners![1]],
       applications: [applications![0], applications![3]],
       allFeatureConfigs: [allFeatureConfigs![2], allFeatureConfigs![3]],
+      channels: [channels![1]],
     });
     expect(params.get("owners")).toEqual(
       "alpha-example@mozilla.com,beta-example@mozilla.com",
@@ -46,6 +49,7 @@ describe("updateParamsFromFilterValue", () => {
     expect(params.get("allFeatureConfigs")).toEqual(
       "IOS:foo-lila-sat,FENIX:foo-lila-sat",
     );
+    expect(params.get("channels")).toEqual("NIGHTLY");
   });
 
   it("handles a roundtrip encoding with everything filtered", () => {
@@ -95,6 +99,11 @@ describe("filterExperiments", () => {
           case "firefoxVersions":
             expect(experiment.firefoxMinVersion).toEqual(
               MOCK_CONFIG!.firefoxVersions![0]!.value,
+            );
+            break;
+          case "channels":
+            expect(experiment.channel).toEqual(
+              MOCK_CONFIG!.channels![0]!.value,
             );
             break;
         }
