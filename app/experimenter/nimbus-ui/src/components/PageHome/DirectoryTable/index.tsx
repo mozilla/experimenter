@@ -281,7 +281,7 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
   return (
     <div
       className="directory-table pb-2 mt-4"
-      style={{ width: "auto", maxWidth: "100%", wordBreak: "break-word" }}
+      style={{ width: "auto", maxWidth: "100%" }}
     >
       {experiments.length ? (
         <table className="table" data-testid="DirectoryTable">
