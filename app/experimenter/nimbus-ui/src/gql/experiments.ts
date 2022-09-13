@@ -111,6 +111,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         applicationValues
         description
         stickyRequired
+        isFirstRunRequired
       }
       isSticky
       isFirstRun
@@ -231,6 +232,8 @@ export const GET_EXPERIMENTS_QUERY = gql`
         slug
         name
       }
+      channel
+      populationPercent
     }
   }
 `;
