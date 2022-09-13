@@ -650,6 +650,7 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_ = NimbusTargetingConfig(
     """,
     desktop_telemetry="",
     sticky_required=True,
+    is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
 
