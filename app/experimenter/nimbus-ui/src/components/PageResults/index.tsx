@@ -149,7 +149,6 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                         </>
                       );
                     }
-                    return;
                   }
                   return (
                     <TableMetricCount
@@ -208,7 +207,6 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       );
                     }
                   }
-                  return;
                 });
               })}
           {analysis.overall
@@ -269,8 +267,6 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                         </>
                       );
                     }
-                  } else {
-                    return;
                   }
                 });
               })}
@@ -308,7 +304,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   </span>
                   <Collapse in={open}>
                     <div>
-                      {analysis.other_metrics?.[group] &&
+                      {analysis.overall &&
+                        analysis.other_metrics?.[group] &&
                         Object.keys(analysis.other_metrics[group]).map(
                           (metric: string) => (
                             <TableMetricCount

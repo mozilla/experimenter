@@ -13,7 +13,7 @@ type AnalysisErrorAlertProps = {
 };
 
 const AnalysisErrorAlert = ({ errors }: AnalysisErrorAlertProps) => (
-  <Alert variant="danger">
+  <Alert variant="danger" data-testid="analysis-error">
     <Alert.Heading as="h5">Analysis errors during last run:</Alert.Heading>
     {errors.map((err, idx) => (
       <AnalysisErrorMessage key={idx} err={err} />
@@ -22,7 +22,10 @@ const AnalysisErrorAlert = ({ errors }: AnalysisErrorAlertProps) => (
     <p style={{ textAlign: "right", marginBottom: 0 }}>
       <i>
         Contact{" "}
-        <LinkExternal href="https://mozilla.slack.com/archives/CF94YGE03">
+        <LinkExternal
+          href="https://mozilla.slack.com/archives/CF94YGE03"
+          data-testid="error-help-url"
+        >
           #ask-experimenter
         </LinkExternal>{" "}
         with questions.

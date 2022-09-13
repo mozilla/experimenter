@@ -35,8 +35,24 @@ export const MOCK_METADATA = {
         "This is a metric description for search. It's made by a data scientist at the creation time of the metric [Link](https://www.example.com)",
       friendly_name: "Search Count",
     },
+    picture_in_picture: {
+      bigger_is_better: true,
+      description:
+        "This is a metric description for picture_in_picture. It's made by a data scientist at the creation time of the metric [Link](https://www.example.com)",
+      friendly_name: "Picture in picture",
+    },
   },
-  outcomes: {},
+  outcomes: {
+    outcome_test: {
+      commit_hash: "1234abcdef",
+      default_metrics: [],
+      description: "Outcome for testing",
+      friendly_name: "Test Outcome",
+      metrics: ["picture_in_picture"],
+      slug: "outcome_test",
+      bigger_is_better: false,
+    },
+  },
 };
 
 /**
@@ -404,7 +420,7 @@ export const mockAnalysis = (modifications = {}) =>
             timestamp: "2022-08-11 20:06:35+00:00",
           },
         ],
-        search_count: [
+        picture_in_picture: [
           {
             exception:
               "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
@@ -414,8 +430,24 @@ export const mockAnalysis = (modifications = {}) =>
             func_name: "apply",
             log_level: "ERROR",
             message:
-              "Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values",
-            metric: "search_count",
+              "Error while computing statistic bootstrap_mean for metric picture_in_picture: 'data' contains null values",
+            metric: "picture_in_picture",
+            statistic: "bootstrap_mean",
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+        feature_b: [
+          {
+            exception:
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+            exception_type: "StatisticComputationException",
+            experiment: "demo-slug",
+            filename: "statistics.py",
+            func_name: "apply",
+            log_level: "ERROR",
+            message:
+              "Error while computing statistic bootstrap_mean for metric feature_b: 'data' contains null values",
+            metric: "feature_b",
             statistic: "bootstrap_mean",
             timestamp: "2022-08-11 20:06:35+00:00",
           },
@@ -1797,7 +1829,7 @@ export const mockAnalysisWithErrors = (modifications = {}) =>
             timestamp: "2022-08-11 20:06:35+00:00",
           },
         ],
-        search_count: [
+        picture_in_picture: [
           {
             exception:
               "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
@@ -1807,8 +1839,86 @@ export const mockAnalysisWithErrors = (modifications = {}) =>
             func_name: "apply",
             log_level: "ERROR",
             message:
-              "Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values",
-            metric: "search_count",
+              "Error while computing statistic bootstrap_mean for metric picture_in_picture: 'data' contains null values",
+            metric: "picture_in_picture",
+            statistic: "bootstrap_mean",
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+        feature_b: [
+          {
+            exception:
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+            exception_type: "StatisticComputationException",
+            experiment: "demo-slug",
+            filename: "statistics.py",
+            func_name: "apply",
+            log_level: "ERROR",
+            message:
+              "Error while computing statistic bootstrap_mean for metric feature_b: 'data' contains null values",
+            metric: "feature_b",
+            statistic: "bootstrap_mean",
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+      },
+      daily: [],
+      weekly: weeklyMockAnalysis(),
+      overall: null,
+    },
+    modifications,
+  );
+
+export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
+  Object.assign(
+    {
+      other_metrics: { other_metrics: { feature_d: "Feature D" } },
+      metadata: MOCK_METADATA,
+      show_analysis: true,
+      errors: {
+        experiment: [
+          {
+            exception:
+              "(<class 'jetstream.errors.NoEnrollmentPeriodException'>, NoEnrollmentPeriodException('demo-slug -> Experiment has no enrollment period'), <traceback object at 0x7f50b65ce200>)",
+            exception_type: "NoEnrollmentPeriodException",
+            experiment: "demo-slug",
+            filename: "cli.py",
+            func_name: "execute",
+            log_level: "ERROR",
+            message: "demo-slug -> Experiment has no enrollment period",
+            metric: null,
+            statistic: null,
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+        picture_in_picture: [
+          {
+            exception:
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+            exception_type: "StatisticComputationException",
+            experiment: "demo-slug",
+            filename: "statistics.py",
+            func_name: "apply",
+            log_level: "ERROR",
+            message:
+              "Error while computing statistic bootstrap_mean for metric picture_in_picture: 'data' contains null values",
+            metric: "picture_in_picture",
+            statistic: "bootstrap_mean",
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+        feature_b: [
+          {
+            exception:
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+            exception_type: "StatisticComputationException",
+            experiment: "demo-slug",
+            filename: "statistics.py",
+            func_name: "apply",
+            log_level: "ERROR",
+            message:
+              "Error while computing statistic bootstrap_mean for metric feature_b: 'data' contains null values",
+            metric: "feature_b",
             statistic: "bootstrap_mean",
             timestamp: "2022-08-11 20:06:35+00:00",
           },
@@ -1867,32 +1977,6 @@ export const mockAnalysisWithErrors = (modifications = {}) =>
                 },
               },
               picture_in_picture_ever_used: {
-                absolute: {
-                  first: {
-                    point: 0.05,
-                    count: 10,
-                    lower: 0.024357271316207685,
-                    upper: 0.08411463700173483,
-                  },
-                  all: [
-                    {
-                      point: 0.05,
-                      count: 10,
-                      lower: 0.024357271316207685,
-                      upper: 0.08411463700173483,
-                    },
-                  ],
-                },
-                difference: {
-                  first: {},
-                  all: [],
-                },
-                relative_uplift: {
-                  first: {},
-                  all: [],
-                },
-              },
-              picture_in_picture: {
                 absolute: {
                   first: {
                     point: 0.05,
@@ -2052,7 +2136,30 @@ export const mockAnalysisWithErrors = (modifications = {}) =>
               days_of_use: CONTROL_NEUTRAL,
             },
             search_metrics: {
-              search_count: {},
+              search_count: {
+                absolute: {
+                  all: [
+                    {
+                      point: 14.967359019193298,
+                      lower: 10.534758870048162,
+                      upper: 20.754349791764547,
+                    },
+                  ],
+                  first: {
+                    point: 14.967359019193298,
+                    lower: 10.534758870048162,
+                    upper: 20.754349791764547,
+                  },
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
             },
           },
         },
@@ -2415,7 +2522,7 @@ export const mockAnalysisWithErrors = (modifications = {}) =>
               },
             },
             search_metrics: {
-              search_count: {},
+              search_count: TREATMENT_NEGATIVE,
             },
           },
         },
