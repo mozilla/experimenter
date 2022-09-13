@@ -1,12 +1,9 @@
 import json
 import time
-from urllib.parse import urljoin
 
 import pytest
 import requests
-from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.pages.browser import Browser
-from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.utils import helpers
 
 LOAD_DATA_RETRIES = 10
