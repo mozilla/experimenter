@@ -120,11 +120,25 @@ describe("DirectoryTable", () => {
         <DirectoryTable {...{ experiments }} />
       </RouterSlugProvider>,
     );
-    expectTableCells("directory-table-header", ["Name", "Owner", "Feature"]);
+    expectTableCells("directory-table-header", [
+      "Name",
+      "Owner",
+      "Feature",
+      "Application",
+      "Channel",
+      "Population %",
+      "Min Version",
+      "Max Version",
+    ]);
     expectTableCells("directory-table-cell", [
       experiment.name,
       experiment.owner!.username,
       experiment.featureConfig!.name,
+      "Desktop",
+      "Desktop Nightly",
+      experiment.populationPercent!.toString(),
+      "Firefox 80",
+      "Firefox 64",
     ]);
     expect(screen.getAllByTestId("directory-table-row")).toHaveLength(
       experiments.length,
@@ -297,6 +311,11 @@ describe("DirectoryCompleteTable", () => {
       "Name",
       "Owner",
       "Feature",
+      "Application",
+      "Channel",
+      "Population %",
+      "Min Version",
+      "Max Version",
       "Started",
       "Ended",
       "Results",
@@ -309,6 +328,11 @@ describe("DirectoryCompleteTable", () => {
       experiment.name,
       experiment.owner!.username,
       experiment.featureConfig!.name,
+      "Desktop",
+      "Desktop Nightly",
+      experiment.populationPercent!.toString(),
+      "Firefox 80",
+      "Firefox 64",
       humanDate(experiment.startDate!),
       humanDate(experiment.computedEndDate!),
       "Results",
@@ -323,11 +347,25 @@ describe("DirectoryDraftsTable", () => {
         <DirectoryDraftsTable experiments={[experiment]} />
       </RouterSlugProvider>,
     );
-    expectTableCells("directory-table-header", ["Name", "Owner", "Feature"]);
+    expectTableCells("directory-table-header", [
+      "Name",
+      "Owner",
+      "Feature",
+      "Application",
+      "Channel",
+      "Population %",
+      "Min Version",
+      "Max Version",
+    ]);
     expectTableCells("directory-table-cell", [
       experiment.name,
       experiment.owner!.username,
       experiment.featureConfig!.name,
+      "Desktop",
+      "Desktop Nightly",
+      experiment.populationPercent!.toString(),
+      "Firefox 80",
+      "Firefox 64",
     ]);
   });
 });
