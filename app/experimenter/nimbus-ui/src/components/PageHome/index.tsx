@@ -69,6 +69,7 @@ export const Body = () => {
     allFeatureConfigs: config!.allFeatureConfigs!,
     firefoxVersions: config!.firefoxVersions!,
     owners: config!.owners!,
+    channels: config!.channels,
   };
 
   const { live, complete, preview, review, draft, archived } = sortByStatus(
