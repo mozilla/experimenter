@@ -79,6 +79,7 @@ class NimbusCountryType(DjangoObjectType):
 
     class Meta:
         model = Country
+        fields = ("id", "code", "name")
 
 
 class NimbusLocaleType(DjangoObjectType):
@@ -88,6 +89,7 @@ class NimbusLocaleType(DjangoObjectType):
 
     class Meta:
         model = Locale
+        fields = ("id", "code", "name")
 
 
 class NimbusLanguageType(DjangoObjectType):
@@ -97,14 +99,17 @@ class NimbusLanguageType(DjangoObjectType):
 
     class Meta:
         model = Language
+        fields = ("id", "code", "name")
 
 
 class NimbusUserType(DjangoObjectType):
     id = graphene.Int()
+    firstName = graphene.String(source="first_name")
+    lastName = graphene.String(source="last_name")
 
     class Meta:
         model = get_user_model()
-        fields = ("id", "username", "first_name", "last_name", "email")
+        fields = ("id", "username", "firstName", "lastName", "email")
 
 
 class NimbusExperimentApplicationConfigType(graphene.ObjectType):
@@ -115,18 +120,29 @@ class NimbusExperimentApplicationConfigType(graphene.ObjectType):
 class NimbusExperimentTargetingConfigType(graphene.ObjectType):
     label = graphene.String()
     value = graphene.String()
-    application_values = graphene.List(graphene.String)
+    applicationValues = graphene.List(graphene.String)
     description = graphene.String()
-    sticky_required = graphene.Boolean()
-    is_first_run_required = graphene.Boolean()
+    stickyRequired = graphene.Boolean()
+    isFirstRunRequired = graphene.Boolean()
 
 
 class NimbusFeatureConfigType(DjangoObjectType):
     id = graphene.Int()
     application = NimbusExperimentApplicationEnum()
+    ownerEmail = graphene.String(source="owner_email")
+    readOnly = graphene.Boolean(source="read_only")
 
     class Meta:
         model = NimbusFeatureConfig
+        fields = (
+            "slug",
+            "name",
+            "description",
+            "application",
+            "ownerEmail",
+            "schema",
+            "readOnly",
+        )
 
 
 class NimbusBranchScreenshotType(DjangoObjectType):
@@ -144,35 +160,45 @@ class NimbusBranchScreenshotType(DjangoObjectType):
 
 class NimbusBranchFeatureValueType(DjangoObjectType):
     id = graphene.Int()
-    feature_config = graphene.Field(NimbusFeatureConfigType)
+    featureConfig = graphene.Field(NimbusFeatureConfigType, source="feature_config")
     enabled = graphene.Boolean()
     value = graphene.String()
 
     class Meta:
         model = NimbusBranchFeatureValue
+        fields = ("id", "branch", "featureConfig", "enabled", "value")
 
 
 class NimbusBranchType(DjangoObjectType):
     id = graphene.Int(required=False)
-    feature_enabled = graphene.Boolean(required=True)
-    feature_value = graphene.String(required=False)
-    feature_values = graphene.List(NimbusBranchFeatureValueType)
+    featureEnabled = graphene.Boolean(required=True)
+    featureValue = graphene.String(required=False)
+    featureValues = graphene.List(NimbusBranchFeatureValueType)
     screenshots = DjangoListField(NimbusBranchScreenshotType)
 
     class Meta:
         model = NimbusBranch
-        exclude = ("experiment", "nimbusexperiment")
+        fields = (
+            "slug",
+            "name",
+            "description",
+            "ratio",
+            "screenshots",
+            "featureEnabled",
+            "featureValue",
+            "featureValues",
+        )
 
-    def resolve_feature_values(root, info):
+    def resolve_featureValues(root, info):
         return root.feature_values.all()
 
-    def resolve_feature_enabled(root, info):
+    def resolve_featureEnabled(root, info):
         return (
             root.feature_values.exists()
             and root.feature_values.all().order_by("feature_config__slug").first().enabled
         )
 
-    def resolve_feature_value(root, info):
+    def resolve_featureValue(root, info):
         return (
             root.feature_values.exists()
             and root.feature_values.all().order_by("feature_config__slug").first().value
@@ -199,23 +225,25 @@ class NimbusIsolationGroupType(DjangoObjectType):
 
 
 class NimbusBucketRangeType(DjangoObjectType):
+    isolationGroup = graphene.Field(NimbusIsolationGroupType, source="isolation_group")
+
     class Meta:
         model = NimbusBucketRange
-        exclude = ("id", "experiment")
+        fields = ("isolationGroup", "start", "end", "count")
 
 
 class NimbusOutcomeMetricType(graphene.ObjectType):
     slug = graphene.String()
-    friendly_name = graphene.String()
+    friendlyName = graphene.String(source="friendly_name")
     description = graphene.String()
 
 
 class NimbusOutcomeType(graphene.ObjectType):
-    friendly_name = graphene.String()
+    friendlyName = graphene.String(source="friendly_name")
     slug = graphene.String()
     application = NimbusExperimentApplicationEnum()
     description = graphene.String()
-    is_default = graphene.Boolean()
+    isDefault = graphene.Boolean(source="is_default")
     metrics = graphene.List(NimbusOutcomeMetricType)
 
 
@@ -226,33 +254,57 @@ class NimbusReviewType(graphene.ObjectType):
 
 
 class NimbusChangeLogType(DjangoObjectType):
+    changedOn = graphene.DateTime(source="changed_on", required=True)
+    changedBy = graphene.Field(NimbusUserType, source="changed_by", required=True)
+    oldStatus = NimbusExperimentStatusEnum(source="old_status")
+    oldStatusNext = NimbusExperimentStatusEnum(source="old_status_next")
+    oldPublishStatus = NimbusExperimentPublishStatusEnum(source="old_publish_status")
+    newStatus = NimbusExperimentStatusEnum(source="new_status")
+    newStatusNext = NimbusExperimentStatusEnum(source="new_status_next")
+    newPublishStatus = NimbusExperimentPublishStatusEnum(source="old_publish_status")
+    experimentData = graphene.JSONString(source="experiment_data")
+    publishedDtoChanged = graphene.Boolean(source="published_dto_changed")
+
     class Meta:
         model = NimbusChangeLog
-        exclude = ("id",)
+        fields = (
+            "experiment",
+            "changedOn",
+            "changedBy",
+            "oldStatus",
+            "oldStatusNext",
+            "oldPublishStatus",
+            "newStatus",
+            "newStatusNext",
+            "newPublishStatus",
+            "experimentData",
+            "publishedDtoChanged",
+            "message",
+        )
 
 
 class NimbusSignoffRecommendationsType(graphene.ObjectType):
-    qa_signoff = graphene.Boolean()
-    vp_signoff = graphene.Boolean()
-    legal_signoff = graphene.Boolean()
+    qaSignoff = graphene.Boolean()
+    vpSignoff = graphene.Boolean()
+    legalSignoff = graphene.Boolean()
 
 
 class NimbusConfigurationType(graphene.ObjectType):
-    application_configs = graphene.List(NimbusExperimentApplicationConfigType)
+    applicationConfigs = graphene.List(NimbusExperimentApplicationConfigType)
     applications = graphene.List(NimbusLabelValueType)
     channels = graphene.List(NimbusLabelValueType)
     countries = graphene.List(NimbusCountryType)
-    documentation_link = graphene.List(NimbusLabelValueType)
-    all_feature_configs = graphene.List(NimbusFeatureConfigType)
-    firefox_versions = graphene.List(NimbusLabelValueType)
-    hypothesis_default = graphene.String()
+    documentationLink = graphene.List(NimbusLabelValueType)
+    allFeatureConfigs = graphene.List(NimbusFeatureConfigType)
+    firefoxVersions = graphene.List(NimbusLabelValueType)
+    hypothesisDefault = graphene.String()
     locales = graphene.List(NimbusLocaleType)
     languages = graphene.List(NimbusLanguageType)
-    max_primary_outcomes = graphene.Int()
+    maxPrimaryOutcomes = graphene.Int()
     outcomes = graphene.List(NimbusOutcomeType)
     owners = graphene.List(NimbusUserType)
-    targeting_configs = graphene.List(NimbusExperimentTargetingConfigType)
-    conclusion_recommendations = graphene.List(NimbusLabelValueType)
+    targetingConfigs = graphene.List(NimbusExperimentTargetingConfigType)
+    conclusionRecommendations = graphene.List(NimbusLabelValueType)
 
     def _text_choices_to_label_value_list(root, text_choices):
         return [
@@ -269,7 +321,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_channels(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Channel)
 
-    def resolve_application_configs(root, info):
+    def resolve_applicationConfigs(root, info):
         configs = []
         for application in NimbusExperiment.Application:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
@@ -285,13 +337,13 @@ class NimbusConfigurationType(graphene.ObjectType):
             )
         return configs
 
-    def resolve_all_feature_configs(root, info):
+    def resolve_allFeatureConfigs(root, info):
         return NimbusFeatureConfig.objects.all().order_by("name")
 
-    def resolve_firefox_versions(root, info):
+    def resolve_firefoxVersions(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Version)
 
-    def resolve_conclusion_recommendations(root, info):
+    def resolve_conclusionRecommendations(root, info):
         return root._text_choices_to_label_value_list(
             NimbusExperiment.ConclusionRecommendation
         )
@@ -307,32 +359,32 @@ class NimbusConfigurationType(graphene.ObjectType):
             .order_by("email")
         )
 
-    def resolve_targeting_configs(root, info):
+    def resolve_targetingConfigs(root, info):
         return [
             NimbusExperimentTargetingConfigType(
                 label=choice.label,
                 value=choice.value,
-                application_values=NimbusExperiment.TARGETING_CONFIGS[
+                applicationValues=NimbusExperiment.TARGETING_CONFIGS[
                     choice.value
                 ].application_choice_names,
                 description=NimbusExperiment.TARGETING_CONFIGS[choice.value].description,
-                sticky_required=NimbusExperiment.TARGETING_CONFIGS[
+                stickyRequired=NimbusExperiment.TARGETING_CONFIGS[
                     choice.value
                 ].sticky_required,
-                is_first_run_required=NimbusExperiment.TARGETING_CONFIGS[
+                isFirstRunRequired=NimbusExperiment.TARGETING_CONFIGS[
                     choice.value
                 ].is_first_run_required,
             )
             for choice in NimbusExperiment.TargetingConfig
         ]
 
-    def resolve_hypothesis_default(root, info):
+    def resolve_hypothesisDefault(root, info):
         return NimbusExperiment.HYPOTHESIS_DEFAULT
 
-    def resolve_max_primary_outcomes(root, info):
+    def resolve_maxPrimaryOutcomes(root, info):
         return NimbusExperiment.MAX_PRIMARY_OUTCOMES
 
-    def resolve_documentation_link(root, info):
+    def resolve_documentationLink(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.DocumentationLink)
 
     def resolve_locales(root, info):
@@ -348,76 +400,157 @@ class NimbusConfigurationType(graphene.ObjectType):
 class NimbusExperimentType(DjangoObjectType):
     id = graphene.Int()
     parent = graphene.Field(lambda: NimbusExperimentType)
-    is_rollout = graphene.Boolean()
-    is_archived = graphene.Boolean()
+    isRollout = graphene.Boolean(source="is_rollout")
+    isArchived = graphene.Boolean(source="is_archived")
     status = NimbusExperimentStatusEnum()
-    status_next = NimbusExperimentStatusEnum()
-    publish_status = NimbusExperimentPublishStatusEnum()
+    statusNext = NimbusExperimentStatusEnum(source="status_next")
+    publishStatus = NimbusExperimentPublishStatusEnum(source="publish_status")
     application = NimbusExperimentApplicationEnum()
-    firefox_min_version = NimbusExperimentFirefoxVersionEnum()
-    firefox_max_version = NimbusExperimentFirefoxVersionEnum()
-    population_percent = graphene.String()
+    firefoxMinVersion = NimbusExperimentFirefoxVersionEnum(source="firefox_min_version")
+    firefoxMaxVersion = NimbusExperimentFirefoxVersionEnum(source="firefox_min_version")
+    populationPercent = graphene.String(source="population_percent")
     channel = NimbusExperimentChannelEnum()
-    documentation_links = DjangoListField(NimbusDocumentationLinkType)
-    treatment_branches = graphene.List(NimbusBranchType)
-    targeting_config_slug = graphene.String()
-    targeting_config = graphene.List(NimbusExperimentTargetingConfigType)
-    is_sticky = graphene.Boolean()
-    jexl_targeting_expression = graphene.String()
-    primary_outcomes = graphene.List(graphene.String)
-    secondary_outcomes = graphene.List(graphene.String)
-    feature_config = graphene.Field(NimbusFeatureConfigType)
-    feature_configs = graphene.List(NimbusFeatureConfigType)
-    warn_feature_schema = graphene.Boolean()
-    ready_for_review = graphene.Field(NimbusReviewType)
-    monitoring_dashboard_url = graphene.String()
-    rollout_monitoring_dashboard_url = graphene.String()
-    results_ready = graphene.Boolean()
-    start_date = graphene.DateTime()
-    computed_end_date = graphene.DateTime()
-    is_enrollment_paused = graphene.Boolean()
-    is_enrollment_pause_pending = graphene.Boolean()
-    enrollment_end_date = graphene.DateTime()
-    computed_enrollment_days = graphene.Int()
-    computed_duration_days = graphene.Int()
-    can_edit = graphene.Boolean()
-    can_archive = graphene.Boolean()
-    can_review = graphene.Boolean()
-    review_request = graphene.Field(NimbusChangeLogType)
+    documentationLinks = DjangoListField(
+        NimbusDocumentationLinkType, source="documentation_links"
+    )
+    referenceBranch = graphene.Field(NimbusBranchType)
+    treatmentBranches = graphene.List(NimbusBranchType)
+    targetingConfigSlug = graphene.String()
+    targetingConfig = graphene.List(NimbusExperimentTargetingConfigType)
+    isSticky = graphene.Boolean(source="is_sticky")
+    isFirstRun = graphene.Boolean(source="is_first_run", required=True)
+    jexlTargetingExpression = graphene.String(source="targeting")
+    primaryOutcomes = graphene.List(graphene.String, source="primary_outcomes")
+    secondaryOutcomes = graphene.List(graphene.String, source="secondary_outcomes")
+    featureConfig = graphene.Field(NimbusFeatureConfigType)
+    featureConfigs = graphene.List(NimbusFeatureConfigType)
+    warnFeatureSchema = graphene.Boolean(source="warn_feature_schema")
+    readyForReview = graphene.Field(NimbusReviewType)
+    monitoringDashboardUrl = graphene.String(source="monitoring_dashboard_url")
+    resultsReady = graphene.Boolean(source="results_ready")
+    startDate = graphene.DateTime(source="start_date")
+    computedEndDate = graphene.DateTime(source="computed_end_date")
+    isEnrollmentPaused = graphene.Boolean(source="is_paused_published")
+    isEnrollmentPausePending = graphene.Boolean()
+    enrollmentEndDate = graphene.DateTime(source="proposed_enrollment_end_date")
+    computedEnrollmentDays = graphene.Int(source="computed_enrollment_days")
+    computedDurationDays = graphene.Int(source="computed_duration_days")
+    canEdit = graphene.Boolean(source="can_edit")
+    canArchive = graphene.Boolean(source="can_archive")
+    canReview = graphene.Boolean()
+    reviewRequest = graphene.Field(NimbusChangeLogType)
     rejection = graphene.Field(NimbusChangeLogType)
     timeout = graphene.Field(NimbusChangeLogType)
-    signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
-    recipe_json = graphene.String()
-    review_url = graphene.String()
-    conclusion_recommendation = graphene.Field(
-        NimbusExperimentConclusionRecommendationEnum
+    signoffRecommendations = graphene.Field(
+        NimbusSignoffRecommendationsType, source="signoff_recommendations"
     )
+    recipeJson = graphene.String()
+    reviewUrl = graphene.String(source="review_url")
+    conclusionRecommendation = graphene.Field(
+        NimbusExperimentConclusionRecommendationEnum,
+        source="conclusion_recommendation",
+    )
+    publicDescription = graphene.String(source="public_description", required=True)
+    riskMitigationLink = graphene.String(source="risk_mitigation_link", required=True)
+    rolloutMonitoringDashboardUrl = graphene.String(
+        source="rollout_monitoring_dashboard_url"
+    )
+    takeawaysSummary = graphene.String(source="takeaways_summary")
+    totalEnrolledClients = graphene.Int(source="total_enrolled_clients", required=True)
+    proposedEnrollment = graphene.Int(source="proposed_enrollment", required=True)
+    proposedDuration = graphene.Int(source="proposed_duration", required=True)
+    riskRevenue = graphene.Boolean(source="risk_revenue")
+    riskBrand = graphene.Boolean(source="risk_brand")
+    riskPartnerRelated = graphene.Boolean(source="risk_partner_related")
 
     class Meta:
         model = NimbusExperiment
-        exclude = ("branches", "feature_configs")
+        fields = (
+            "id",
+            "parent",
+            "slug",
+            "name",
+            "hypothesis",
+            "owner",
+            "locales",
+            "countries",
+            "languages",
+            "isRollout",
+            "isArchived",
+            "status",
+            "statusNext",
+            "publishStatus",
+            "application",
+            "firefoxMinVersion",
+            "firefoxMaxVersion",
+            "populationPercent",
+            "channel",
+            "documentationLinks",
+            "referenceBranch",
+            "treatmentBranches",
+            "targetingConfigSlug",
+            "targetingConfig",
+            "isSticky",
+            "isFirstRun",
+            "jexlTargetingExpression",
+            "primaryOutcomes",
+            "secondaryOutcomes",
+            "featureConfig",
+            "featureConfigs",
+            "warnFeatureSchema",
+            "readyForReview",
+            "monitoringDashboardUrl",
+            "resultsReady",
+            "startDate",
+            "computedEndDate",
+            "isEnrollmentPaused",
+            "isEnrollmentPausePending",
+            "enrollmentEndDate",
+            "computedEnrollmentDays",
+            "computedDurationDays",
+            "canEdit",
+            "canArchive",
+            "canReview",
+            "reviewRequest",
+            "rejection",
+            "timeout",
+            "signoffRecommendations",
+            "recipeJson",
+            "reviewUrl",
+            "conclusionRecommendation",
+            "publicDescription",
+            "riskMitigationLink",
+            "rolloutMonitoringDashboardUrl",
+            "takeawaysSummary",
+            "totalEnrolledClients",
+            "proposedEnrollment",
+            "proposedDuration",
+            "riskRevenue",
+            "riskBrand",
+            "riskPartnerRelated",
+        )
 
-    def resolve_feature_config(self, info):
+    def resolve_featureConfig(self, info):
         if self.feature_configs.exists():
             return sorted(
                 self.feature_configs.all(),
                 key=lambda feature_config: (feature_config.slug),
             )[0]
 
-    def resolve_feature_configs(self, info):
+    def resolve_featureConfigs(self, info):
         return self.feature_configs.all()
 
-    def resolve_reference_branch(self, info):
+    def resolve_referenceBranch(self, info):
         if self.reference_branch:
             return self.reference_branch
         return NimbusBranch(name=NimbusConstants.DEFAULT_REFERENCE_BRANCH_NAME)
 
-    def resolve_treatment_branches(self, info):
+    def resolve_treatmentBranches(self, info):
         if self.branches.exists():
             return self.treatment_branches
         return [NimbusBranch(name=NimbusConstants.DEFAULT_TREATMENT_BRANCH_NAME)]
 
-    def resolve_ready_for_review(self, info):
+    def resolve_readyForReview(self, info):
         serializer = NimbusReviewSerializer(
             self,
             data=NimbusReviewSerializer(self).data,
@@ -429,54 +562,31 @@ class NimbusExperimentType(DjangoObjectType):
             ready=ready,
         )
 
-    def resolve_targeting_config_slug(self, info):
+    def resolve_targetingConfigSlug(self, info):
         if self.targeting_config_slug in self.TargetingConfig:
             return self.TargetingConfig(self.targeting_config_slug).value
         return self.targeting_config_slug
 
-    def resolve_targeting_config(self, info):
-
+    def resolve_targetingConfig(self, info):
+        targeting_config = NimbusExperiment.TARGETING_CONFIGS[self.targeting_config_slug]
         return [
             NimbusExperimentTargetingConfigType(
-                label=NimbusExperiment.TARGETING_CONFIGS[self.targeting_config_slug].name,
+                label=targeting_config.name,
                 value=self.targeting_config_slug,
-                description=NimbusExperiment.TARGETING_CONFIGS[
-                    self.targeting_config_slug
-                ].description,
-                application_values=NimbusExperiment.TARGETING_CONFIGS[
-                    self.targeting_config_slug
-                ].application_choice_names,
-                sticky_required=NimbusExperiment.TARGETING_CONFIGS[
-                    self.targeting_config_slug
-                ].sticky_required,
-                is_first_run_required=NimbusExperiment.TARGETING_CONFIGS[
-                    self.targeting_config_slug
-                ].is_first_run_required,
+                description=targeting_config.description,
+                applicationValues=targeting_config.application_choice_names,
+                stickyRequired=targeting_config.sticky_required,
+                isFirstRunRequired=targeting_config.is_first_run_required,
             )
         ]
 
-    def resolve_jexl_targeting_expression(self, info):
-        return self.targeting
-
-    def resolve_is_enrollment_paused(self, info):
-        return self.is_paused_published
-
-    def resolve_is_enrollment_pause_pending(self, info):
+    def resolve_isEnrollmentPausePending(self, info):
         return self.is_paused and not self.is_paused_published
 
-    def resolve_enrollment_end_date(self, info):
-        return self.proposed_enrollment_end_date
-
-    def resolve_can_edit(self, info):
-        return self.can_edit
-
-    def resolve_can_archive(self, info):
-        return self.can_archive
-
-    def resolve_can_review(self, info):
+    def resolve_canReview(self, info):
         return self.can_review(info.context.user)
 
-    def resolve_review_request(self, info):
+    def resolve_reviewRequest(self, info):
         return self.changes.latest_review_request()
 
     def resolve_rejection(self, info):
@@ -485,7 +595,7 @@ class NimbusExperimentType(DjangoObjectType):
     def resolve_timeout(self, info):
         return self.changes.latest_timeout()
 
-    def resolve_recipe_json(self, info):
+    def resolve_recipeJson(self, info):
         return json.dumps(
             self.published_dto or NimbusExperimentSerializer(self).data,
             indent=2,

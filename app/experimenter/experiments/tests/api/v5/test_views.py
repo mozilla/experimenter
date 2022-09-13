@@ -59,7 +59,7 @@ class TestNimbusExperimentCsvListView(TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
 
         csv_data = response.content
         expected_csv_data = NimbusExperimentCsvRenderer().render(
@@ -91,7 +91,7 @@ class TestNimbusExperimentCsvListView(TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
 
         csv_data = response.content
         expected_csv_data = NimbusExperimentCsvRenderer().render(
@@ -109,7 +109,7 @@ class TestNimbusConfigurationView(TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(
             response.json(),
             NimbusConfigurationSerializer(NimbusConfigurationDataClass()).data,
