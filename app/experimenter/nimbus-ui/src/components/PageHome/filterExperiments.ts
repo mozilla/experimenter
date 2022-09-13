@@ -25,6 +25,7 @@ export const optionIndexKeys: {
   applications: (option) => option.value,
   allFeatureConfigs: (option) => `${option.application}:${option.slug}`,
   firefoxVersions: (option) => option.value,
+  channels: (option) => option.value,
 };
 
 type ExperimentFilter<K extends FilterValueKeys> = (
@@ -54,6 +55,7 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
   },
   firefoxVersions: (option, experiment) =>
     experiment.firefoxMinVersion === option.value,
+  channels: (option, experiment) => experiment.channel === option.value,
 };
 
 export function getFilterValueFromParams(
@@ -89,6 +91,13 @@ export function getFilterValueFromParams(
         break;
       case "firefoxVersions":
         filterValue[key] = selectFilterOptions<"firefoxVersions">(
+          options[key],
+          optionIndexKeys[key],
+          values,
+        );
+        break;
+      case "channels":
+        filterValue[key] = selectFilterOptions<"channels">(
           options[key],
           optionIndexKeys[key],
           values,
@@ -147,6 +156,12 @@ export function updateParamsFromFilterValue(
             optionIndexKeys[key],
           );
           break;
+        case "channels":
+          values = indexFilterOptions<"channels">(
+            filterValue[key],
+            optionIndexKeys[key],
+          );
+          break;
       }
       if (values && values.length) {
         params.set(key, values.join(","));
@@ -196,6 +211,13 @@ export function filterExperiments(
         break;
       case "firefoxVersions":
         filteredExperiments = filterExperimentsByOptions<"firefoxVersions">(
+          filterState[key],
+          experimentFilters[key],
+          filteredExperiments,
+        );
+        break;
+      case "channels":
+        filteredExperiments = filterExperimentsByOptions<"channels">(
           filterState[key],
           experimentFilters[key],
           filteredExperiments,
