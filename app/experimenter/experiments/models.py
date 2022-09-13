@@ -648,11 +648,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def signoff_recommendations(self):
         return {
             # QA signoff is always recommended
-            "qa_signoff": True,
-            "vp_signoff": any(
+            "qaSignoff": True,
+            "vpSignoff": any(
                 (self.risk_brand, self.risk_revenue, self.risk_partner_related)
             ),
-            "legal_signoff": any((self.risk_revenue, self.risk_partner_related)),
+            "legalSignoff": any((self.risk_revenue, self.risk_partner_related)),
         }
 
     @property
