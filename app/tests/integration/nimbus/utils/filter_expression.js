@@ -18,6 +18,7 @@ async function remoteSettings(arguments) {
 
     const context = TargetingContext.TargetingContext.combineContexts(
         _experiment,
+        {defaultProfile: {}}, // Workaround for supporting background tasks
         ExperimentManager.ExperimentManager.createTargetingContext(),
         ASRouterTargeting.ASRouterTargeting.Environment
     );
