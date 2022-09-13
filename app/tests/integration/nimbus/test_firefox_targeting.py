@@ -1,10 +1,13 @@
 import json
 import time
+from urllib.parse import urljoin
 
 import pytest
 import requests
 from nimbus.models.base_dataclass import BaseExperimentApplications
 from nimbus.pages.browser import Browser
+from nimbus.pages.experimenter.summary import SummaryPage
+from nimbus.utils import helpers
 
 LOAD_DATA_RETRIES = 10
 LOAD_DATA_RETRY_DELAY = 1.0
@@ -76,22 +79,52 @@ def targeting_config_slug(request):
 @pytest.mark.run_targeting
 def test_check_targeting(
     selenium,
+    slugify,
     default_data,
-    create_experiment,
+    experiment_name,
     targeting_config_slug,
+    create_desktop_experiment,
+    countries_database_id_loader,
+    locales_database_id_loader,
 ):
-    # TODO #6791
-    # If the targeting config slug includes the word desktop it will cause this test
-    # to run against applications other than desktop, which will then fail.
-    # This check will prevent the test from executing fully but we should dig
-    # into preventing this case altogether when we have time.
-    if default_data.application != BaseExperimentApplications.DESKTOP:
-        return
-
-    default_data.audience.targeting = targeting_config_slug
-    experiment = create_experiment(selenium)
-
-    experiment_data = load_experiment_data(experiment.experiment_slug)
+    targeting = helpers.load_targeting_configs()[1]
+    experiment_slug = str(slugify(experiment_name))
+    create_desktop_experiment(
+        experiment_slug,
+        "desktop",
+        targeting_config_slug,
+        public_description="Some sort of words",
+        risk_revenue=False,
+        risk_partner_related=False,
+        risk_brand=False,
+        feature_config=1,
+        reference_branch={
+            "description": "reference branch",
+            "name": "Branch 1",
+            "ratio": 50,
+            "featureEnabled": True,
+            "featureValue": "{}",
+        },
+        treatement_branch=[
+            {
+                "description": "treatment branch",
+                "name": "Branch 2",
+                "ratio": 50,
+                "featureEnabled": False,
+                "featureValue": "",
+            }
+        ],
+        population_percent="75",
+        total_enrolled_clients=35,
+        channel="NIGHTLY",
+        firefox_min_version="FIREFOX_100",
+        firefox_max_version="FIREFOX_120",
+        countries=countries_database_id_loader(["CA"]),
+        proposed_enrollment="14",
+        proposed_duration="30",
+        locales=locales_database_id_loader(["en-CA"]),
+    )
+    experiment_data = load_experiment_data(experiment_slug)
     targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
     recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
 

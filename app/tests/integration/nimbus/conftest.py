@@ -24,7 +24,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 APPLICATION_FEATURE_IDS = {
-    BaseExperimentApplications.DESKTOP: "1",
+    BaseExperimentApplications.FIREFOX_DESKTOP: "1",
     BaseExperimentApplications.FENIX: "2",
     BaseExperimentApplications.IOS: "3",
     BaseExperimentApplications.FOCUS_ANDROID: "4",
@@ -32,7 +32,7 @@ APPLICATION_FEATURE_IDS = {
 }
 
 APPLICATION_KINTO_REVIEW_PATH = {
-    BaseExperimentApplications.DESKTOP: (
+    BaseExperimentApplications.FIREFOX_DESKTOP: (
         "#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"
     ),
     BaseExperimentApplications.FENIX: (
@@ -50,7 +50,7 @@ APPLICATION_KINTO_REVIEW_PATH = {
 }
 
 APPLICATION_KINTO_COLLECTION = {
-    "DESKTOP": KINTO_COLLECTION_DESKTOP,
+    "FIREFOX_DESKTOP": KINTO_COLLECTION_DESKTOP,
     "FENIX": KINTO_COLLECTION_MOBILE,
     "IOS": KINTO_COLLECTION_MOBILE,
     "FOCUS_ANDROID": KINTO_COLLECTION_MOBILE,
@@ -274,7 +274,6 @@ def create_desktop_experiment(create_basic_experiment):
             "variables": {
                 "input": {
                     "id": experiment_id,
-                    "name": f"test_check_telemetry_enrollment-{experiment_id}",
                     "hypothesis": "Test hypothesis",
                     "application": app.upper(),
                     "changelogMessage": "test updated",
@@ -288,6 +287,13 @@ def create_desktop_experiment(create_basic_experiment):
                     "treatmentBranches": data.get("treatement_branch"),
                     "populationPercent": data.get("population_percent"),
                     "totalEnrolledClients": data.get("total_enrolled_clients"),
+                    "channel": data.get("channel"),
+                    "firefoxMinVersion": data.get("firefox_min_version"),
+                    "firefoxMaxVersion": data.get("firefox_max_version"),
+                    "locales": data.get("locales"),
+                    "countries": data.get("countries"),
+                    "proposedEnrollment": data.get("proposed_enrollment"),
+                    "proposedDuration": data.get("proposed_duration"),
                 }
             },
             "query": "mutation updateExperiment($input: ExperimentInput!) \
@@ -318,6 +324,48 @@ def fixture_language_database_id_loader():
         return language_list
 
     return _language_database_id_loader
+
+
+@pytest.fixture(name="countries_database_id_loader")
+def fixture_countries_database_id_loader():
+    """Return database id's for languages"""
+
+    def _countries_database_id_loader(countries=None):
+        country_list = []
+        path = Path().resolve()
+        path = str(path)
+        path = path.strip("/tests/integration/nimbus")
+        path = os.path.join("/", path, "experimenter/base/fixtures/countries.json")
+        with open(path) as file:
+            data = json.loads(file.read())
+            for country in countries:
+                for item in data:
+                    if country in item["fields"]["code"][:2]:
+                        country_list.append(item["pk"])
+        return country_list
+
+    return _countries_database_id_loader
+
+
+@pytest.fixture(name="locales_database_id_loader")
+def fixture_locales_database_id_loader():
+    """Return database id's for languages"""
+
+    def _locales_database_id_loader(locales=None):
+        locale_list = []
+        path = Path().resolve()
+        path = str(path)
+        path = path.strip("/tests/integration/nimbus")
+        path = os.path.join("/", path, "experimenter/base/fixtures/locales.json")
+        with open(path) as file:
+            data = json.loads(file.read())
+            for locale in locales:
+                for item in data:
+                    if locale in item["fields"]["code"]:
+                        locale_list.append(item["pk"])
+        return locale_list
+
+    return _locales_database_id_loader
 
 
 @pytest.fixture
