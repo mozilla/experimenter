@@ -120,7 +120,7 @@ export const SidebarActions = ({
           documentationLinks?.length > 0 &&
           documentationLinks.map((documentationLink, idx) => (
             <LinkExternal
-              href={documentationLink.link}
+              href={documentationLink!.link}
               data-testid="experiment-additional-link"
               key={`doc-link-${idx}`}
               className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
@@ -128,7 +128,7 @@ export const SidebarActions = ({
               <ExternalIcon className="sidebar-icon-external-link" />
               {
                 configDocumentationLinks!.find(
-                  (d) => d?.value === documentationLink.title,
+                  (d) => d?.value === documentationLink!.title,
                 )?.label
               }
             </LinkExternal>
