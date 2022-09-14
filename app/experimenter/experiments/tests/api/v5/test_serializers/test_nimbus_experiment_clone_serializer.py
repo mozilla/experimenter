@@ -14,7 +14,7 @@ class TestNimbusExperimentCloneSerializer(TestCase):
         )
         serializer = NimbusExperimentCloneSerializer(
             data={
-                "parentSlug": parent.slug,
+                "parent_slug": parent.slug,
                 "name": "New Name",
             },
             context={"user": parent.owner},
@@ -29,13 +29,13 @@ class TestNimbusExperimentCloneSerializer(TestCase):
         user = UserFactory.create()
         serializer = NimbusExperimentCloneSerializer(
             data={
-                "parentSlug": "bad slug",
+                "parent_slug": "bad slug",
                 "name": "New Name",
             },
             context={"user": user},
         )
         self.assertFalse(serializer.is_valid())
-        self.assertIn("parentSlug", serializer.errors)
+        self.assertIn("parent_slug", serializer.errors)
 
     def test_invalid_with_duplicate_name(self):
         parent = NimbusExperimentFactory.create_with_lifecycle(
@@ -43,7 +43,7 @@ class TestNimbusExperimentCloneSerializer(TestCase):
         )
         serializer = NimbusExperimentCloneSerializer(
             data={
-                "parentSlug": parent.slug,
+                "parent_slug": parent.slug,
                 "name": parent.name,
             },
             context={"user": parent.owner},
@@ -57,7 +57,7 @@ class TestNimbusExperimentCloneSerializer(TestCase):
         )
         serializer = NimbusExperimentCloneSerializer(
             data={
-                "parentSlug": parent.slug,
+                "parent_slug": parent.slug,
                 "name": "a" * 81,
             },
             context={"user": parent.owner},
@@ -71,14 +71,14 @@ class TestNimbusExperimentCloneSerializer(TestCase):
         )
         serializer = NimbusExperimentCloneSerializer(
             data={
-                "parentSlug": parent.slug,
+                "parent_slug": parent.slug,
                 "name": "New Experiment",
-                "rolloutBranchSlug": "BAD SLUG NOPE",
+                "rollout_branch_slug": "BAD SLUG NOPE",
             },
             context={"user": parent.owner},
         )
         self.assertFalse(serializer.is_valid())
-        self.assertIn("rolloutBranchSlug", serializer.errors)
+        self.assertIn("rollout_branch_slug", serializer.errors)
 
     def test_locales_only_clone_for_desktop_application(self):
         desktop_application = NimbusExperiment.Application.DESKTOP
@@ -91,7 +91,7 @@ class TestNimbusExperimentCloneSerializer(TestCase):
         )
         serializer = NimbusExperimentCloneSerializer(
             data={
-                "parentSlug": parent.slug,
+                "parent_slug": parent.slug,
                 "name": "New Name",
             },
             context={"user": parent.owner},
@@ -111,7 +111,7 @@ class TestNimbusExperimentCloneSerializer(TestCase):
         )
         serializer = NimbusExperimentCloneSerializer(
             data={
-                "parentSlug": parent.slug,
+                "parent_slug": parent.slug,
                 "name": "New Name",
             },
             context={"user": parent.owner},
