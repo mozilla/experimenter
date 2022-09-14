@@ -48,7 +48,7 @@ describe("FormOverview", () => {
         "option[selected]",
       ) as HTMLSelectElement;
       expect(selected.value).toEqual(
-        experiment.documentationLinks![index].title,
+        experiment.documentationLinks![index]!.title,
       );
     });
   });
@@ -259,7 +259,9 @@ describe("FormOverview", () => {
     const addButton = screen.getByText("+ Add Link");
 
     // Assert that the initial documentation link sets are rendered
-    experiment.documentationLinks!.map(assertDocumentationLinkFields);
+    experiment.documentationLinks!.map((documentationLink, index) =>
+      assertDocumentationLinkFields(documentationLink!, index),
+    );
 
     // The first remove button should not be present
     expect(getDocumentationLinkFields(0).removeButton).toBeNull();
@@ -290,7 +292,7 @@ describe("FormOverview", () => {
       title: NimbusDocumentationLinkTitle.DESIGN_DOC,
       link: "https://boingo.oingo",
     });
-    fillDocumentationLinkFields(experiment.documentationLinks![1], 1);
+    fillDocumentationLinkFields(experiment.documentationLinks![1]!, 1);
 
     // Add a new set and PARTIALLY populate it
     // This set should be filtered out and therefore will
@@ -306,7 +308,7 @@ describe("FormOverview", () => {
 
     // Add a new set, and populate it with the data from the second field
     fireEvent.click(addButton);
-    fillDocumentationLinkFields(experiment.documentationLinks![1], 3);
+    fillDocumentationLinkFields(experiment.documentationLinks![1]!, 3);
 
     // Now delete the second set
     fireEvent.click(getDocumentationLinkFields(1).removeButton);
@@ -322,10 +324,7 @@ describe("FormOverview", () => {
 
     await waitFor(() =>
       expect(onSubmit.mock.calls[0][0].documentationLinks).toEqual(
-        experiment.documentationLinks!.map(({ title, link }) => ({
-          title,
-          link,
-        })),
+        experiment.documentationLinks!,
       ),
     );
   });

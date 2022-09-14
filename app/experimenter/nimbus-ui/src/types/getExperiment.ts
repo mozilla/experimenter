@@ -32,7 +32,7 @@ export interface getExperiment_experimentBySlug_referenceBranch {
   ratio: number;
   featureValue: string | null;
   featureEnabled: boolean;
-  screenshots: getExperiment_experimentBySlug_referenceBranch_screenshots[] | null;
+  screenshots: (getExperiment_experimentBySlug_referenceBranch_screenshots | null)[] | null;
 }
 
 export interface getExperiment_experimentBySlug_treatmentBranches_screenshots {
@@ -49,7 +49,7 @@ export interface getExperiment_experimentBySlug_treatmentBranches {
   ratio: number;
   featureValue: string | null;
   featureEnabled: boolean;
-  screenshots: getExperiment_experimentBySlug_treatmentBranches_screenshots[] | null;
+  screenshots: (getExperiment_experimentBySlug_treatmentBranches_screenshots | null)[] | null;
 }
 
 export interface getExperiment_experimentBySlug_featureConfigs {
@@ -182,7 +182,7 @@ export interface getExperiment_experimentBySlug {
   riskBrand: boolean | null;
   riskPartnerRelated: boolean | null;
   signoffRecommendations: getExperiment_experimentBySlug_signoffRecommendations | null;
-  documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
+  documentationLinks: (getExperiment_experimentBySlug_documentationLinks | null)[] | null;
   isEnrollmentPausePending: boolean | null;
   isEnrollmentPaused: boolean | null;
   enrollmentEndDate: DateTime | null;

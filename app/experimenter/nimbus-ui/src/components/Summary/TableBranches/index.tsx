@@ -155,12 +155,12 @@ const TableBranch = ({
                   className="d-block"
                   key={idx}
                 >
-                  <Figure.Caption>{screenshot.description}</Figure.Caption>
-                  {screenshot.image ? (
+                  <Figure.Caption>{screenshot!.description}</Figure.Caption>
+                  {screenshot!.image ? (
                     <Figure.Image
                       fluid
-                      src={screenshot.image}
-                      alt={screenshot.description || ""}
+                      src={screenshot!.image}
+                      alt={screenshot!.description || ""}
                     />
                   ) : (
                     <NotSet />
