@@ -20,8 +20,8 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureEnabled": True,
-            "featureValue": "{}",
+            "feature_enabled": True,
+            "feature_value": "{}",
         }
         branch_serializer = NimbusBranchSerializer(data=branch_data)
         self.assertTrue(branch_serializer.is_valid())
@@ -51,8 +51,8 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureEnabled": True,
-            "featureValue": "{}",
+            "feature_enabled": True,
+            "feature_value": "{}",
         }
 
         branch_serializer = NimbusBranchSerializer(data=branch_data)
@@ -79,8 +79,8 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 2,
-            "featureEnabled": True,
-            "featureValue": "{}",
+            "feature_enabled": True,
+            "feature_value": "{}",
         }
 
         branch_serializer = NimbusBranchSerializer(
@@ -170,8 +170,8 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureEnabled": False,
-            "featureValue": "{}",
+            "feature_enabled": False,
+            "feature_value": "{}",
         }
 
         branch_serializer = NimbusBranchSerializer(data=branch_data)
@@ -190,7 +190,7 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureValues": [],
+            "feature_values": [],
         }
         branch_serializer = NimbusBranchSerializer(data=branch_data)
         self.assertTrue(branch_serializer.is_valid())
@@ -201,13 +201,13 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureValues": [{"featureConfig": feature_config.id, "enabled": True}],
+            "feature_values": [{"feature_config": feature_config.id, "enabled": True}],
         }
         branch_serializer = NimbusBranchSerializer(data=branch_data)
         self.assertFalse(branch_serializer.is_valid())
         self.assertEqual(
             branch_serializer.errors,
-            {"featureValues": [{"value": [NimbusConstants.ERROR_BRANCH_NO_VALUE]}]},
+            {"feature_values": [{"value": [NimbusConstants.ERROR_BRANCH_NO_VALUE]}]},
         )
 
     def test_branch_missing_feature_enabled(self):
@@ -216,13 +216,13 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureValues": [{"featureConfig": feature_config.id, "value": "{}"}],
+            "feature_values": [{"feature_config": feature_config.id, "value": "{}"}],
         }
         branch_serializer = NimbusBranchSerializer(data=branch_data)
         self.assertFalse(branch_serializer.is_valid())
         self.assertEqual(
             branch_serializer.errors,
-            {"featureValues": [{"enabled": [NimbusConstants.ERROR_BRANCH_NO_ENABLED]}]},
+            {"feature_values": [{"enabled": [NimbusConstants.ERROR_BRANCH_NO_ENABLED]}]},
         )
 
     def test_no_duplicate_feature_configs(self):
@@ -231,9 +231,9 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureValues": [
-                {"featureConfig": feature_config.id, "enabled": True, "value": "{}"},
-                {"featureConfig": feature_config.id, "enabled": True, "value": "{}"},
+            "feature_values": [
+                {"feature_config": feature_config.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config.id, "enabled": True, "value": "{}"},
             ],
         }
         branch_serializer = NimbusBranchSerializer(data=branch_data)
@@ -241,14 +241,14 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
         self.assertEqual(
             branch_serializer.errors,
             {
-                "featureValues": [
+                "feature_values": [
                     {
-                        "featureConfig": (
+                        "feature_config": (
                             NimbusConstants.ERROR_DUPLICATE_BRANCH_FEATURE_VALUE
                         )
                     },
                     {
-                        "featureConfig": (
+                        "feature_config": (
                             NimbusConstants.ERROR_DUPLICATE_BRANCH_FEATURE_VALUE
                         )
                     },
@@ -269,9 +269,9 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "featureValues": [
-                {"featureConfig": feature_config1.id, "enabled": True, "value": "{}"},
-                {"featureConfig": feature_config2.id, "enabled": True, "value": "{}"},
+            "feature_values": [
+                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
             ],
         }
 
@@ -304,9 +304,9 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 2,
-            "featureValues": [
-                {"featureConfig": feature_config1.id, "enabled": True, "value": "{}"},
-                {"featureConfig": feature_config2.id, "enabled": True, "value": "{}"},
+            "feature_values": [
+                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
             ],
         }
 

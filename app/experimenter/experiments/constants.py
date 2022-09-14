@@ -202,7 +202,7 @@ class NimbusConstants(object):
 
     ARCHIVE_UPDATE_EXEMPT_FIELDS = (
         "is_archived",
-        "changelogMessage",
+        "changelog_message",
     )
 
     APPLICATION_CONFIGS = {

@@ -387,13 +387,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def treatment_branches(self):
-        if self.is_rollout:
-            return []
-        else:
-            branches = self.branches.order_by("id")
-            if self.reference_branch:
-                branches = branches.exclude(id=self.reference_branch.id)
-            return list(branches)
+        branches = self.branches.order_by("id")
+        if self.reference_branch:
+            branches = branches.exclude(id=self.reference_branch.id)
+        return list(branches)
 
     @property
     def is_started(self):
@@ -648,11 +645,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def signoff_recommendations(self):
         return {
             # QA signoff is always recommended
-            "qaSignoff": True,
-            "vpSignoff": any(
+            "qa_signoff": True,
+            "vp_signoff": any(
                 (self.risk_brand, self.risk_revenue, self.risk_partner_related)
             ),
-            "legalSignoff": any((self.risk_revenue, self.risk_partner_related)),
+            "legal_signoff": any((self.risk_revenue, self.risk_partner_related)),
         }
 
     @property

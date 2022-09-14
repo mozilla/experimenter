@@ -160,6 +160,40 @@ describe("FormBranches", () => {
     expect(saveResult.isRollout).toBeTruthy();
   });
 
+  it("removes treatment branches when isRollout checkbox enabled", async () => {
+    const onSave = jest.fn();
+    const { container } = render(
+      <SubjectBranches
+        {...{
+          onSave,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            treatmentBranches: [
+              {
+                id: null,
+                name: "",
+                slug: "",
+                description: "",
+                ratio: 0,
+                featureValue: null,
+                featureEnabled: false,
+                screenshots: [],
+              },
+            ],
+          },
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("is-rollout-checkbox"));
+    await clickAndWaitForSave(onSave);
+
+    const saveResult = onSave.mock.calls[0][0];
+    await waitFor(() => {
+      expect(saveResult.treatmentBranches).toEqual([]);
+    });
+  });
+
   it("gracefully handles selecting an invalid feature config", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
