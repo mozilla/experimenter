@@ -105,29 +105,6 @@ def test_check_telemetry_enrollment_unenrollment(
         experiment_slug,
         "desktop",
         targeting,
-        # public_description="Some sort of words",
-        # risk_revenue=False,
-        # risk_partner_related=False,
-        # risk_brand=False,
-        # feature_config=1,
-        # reference_branch={
-        #     "description": "reference branch",
-        #     "name": "Branch 1",
-        #     "ratio": 50,
-        #     "featureEnabled": True,
-        #     "featureValue": "{}",
-        # },
-        # treatement_branch=[
-        #     {
-        #         "description": "treatment branch",
-        #         "name": "Branch 2",
-        #         "ratio": 50,
-        #         "featureEnabled": False,
-        #         "featureValue": "",
-        #     }
-        # ],
-        # population_percent="100",
-        # total_enrolled_clients=55,
         data,
     )
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
