@@ -61,7 +61,61 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
   const { external_config: externalConfig } = analysis.metadata || {};
 
-  const primaryOutcomeMetricsWithErrors: string[] = [];
+  const getErrorsForOutcomes = (
+    outcomes: (string | null)[] | null,
+    isPrimary: boolean,
+  ): React.ReactElement => {
+    return (
+      <>
+        {outcomes?.map((slug) => {
+          const outcome = configOutcomes!.find((set) => {
+            return set?.slug === slug;
+          });
+          return outcome?.metrics?.map((metric) => {
+            if (metric?.slug) {
+              // if we have more than just the 'experiment' errors key,
+              // that means at least one metric had errors, so we should
+              // show all the metric headers to avoid potential confusion
+              const metricHeader = (
+                <MetricHeader
+                  key={metric.slug}
+                  outcomeSlug={metric.slug!}
+                  outcomeDefaultName={metric?.friendlyName!}
+                  metricType={
+                    isPrimary
+                      ? METRIC_TYPE.PRIMARY
+                      : METRIC_TYPE.DEFAULT_SECONDARY
+                  }
+                />
+              );
+              if (
+                metric.slug in analysis.errors! &&
+                analysis.errors![metric.slug].length > 0
+              ) {
+                return (
+                  <>
+                    {metricHeader}
+                    <AnalysisErrorAlert
+                      errors={analysis.errors![metric.slug]}
+                    />
+                  </>
+                );
+              } else {
+                return (
+                  <>
+                    {metricHeader}
+                    <p>
+                      <i>No results available for metric.</i>
+                    </p>
+                  </>
+                );
+              }
+            }
+          });
+        })}
+      </>
+    );
+  };
 
   return (
     <AppLayoutWithExperiment title="Analysis" testId="PageResults">
@@ -134,7 +188,6 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       metric.slug in analysis.errors &&
                       analysis.errors[metric.slug].length > 0
                     ) {
-                      primaryOutcomeMetricsWithErrors.push(metric.slug);
                       return (
                         <>
                           <MetricHeader
@@ -162,53 +215,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                 });
               })
             : // no Overall results, check for errors in primary outcome metrics
-              experiment.primaryOutcomes?.map((slug) => {
-                const outcome = configOutcomes!.find((set) => {
-                  return set?.slug === slug;
-                });
-                return outcome?.metrics?.map((metric) => {
-                  if (
-                    metric?.slug &&
-                    analysis?.errors &&
-                    Object.keys(analysis.errors).length > 1
-                  ) {
-                    // if we have more than just the 'experiment' errors key,
-                    // that means at least one metric had errors, so we should
-                    // show all the metric headers to avoid potential confusion
-                    const metricHeader = (
-                      <MetricHeader
-                        key={metric.slug}
-                        outcomeSlug={metric.slug!}
-                        outcomeDefaultName={metric?.friendlyName!}
-                        metricType={METRIC_TYPE.PRIMARY}
-                      />
-                    );
-                    if (
-                      metric.slug in analysis.errors &&
-                      analysis.errors[metric.slug].length > 0
-                    ) {
-                      primaryOutcomeMetricsWithErrors.push(metric.slug);
-                      return (
-                        <>
-                          {metricHeader}
-                          <AnalysisErrorAlert
-                            errors={analysis.errors[metric.slug]}
-                          />
-                        </>
-                      );
-                    } else {
-                      return (
-                        <>
-                          {metricHeader}
-                          <p>
-                            <i>No results available for metric.</i>
-                          </p>
-                        </>
-                      );
-                    }
-                  }
-                });
-              })}
+              analysis?.errors &&
+              Object.keys(analysis.errors).length > 1 &&
+              getErrorsForOutcomes(experiment.primaryOutcomes, true)}
           {analysis.overall
             ? experiment.secondaryOutcomes?.map((slug) => {
                 const outcome = configOutcomes!.find((set) => {
@@ -226,50 +235,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                 );
               })
             : // no Overall results, check for errors in secondary outcome metrics
-              experiment.secondaryOutcomes?.map((slug) => {
-                const outcome = configOutcomes!.find((set) => {
-                  return set?.slug === slug;
-                });
-                return outcome?.metrics?.map((metric) => {
-                  if (
-                    metric?.slug &&
-                    analysis?.errors &&
-                    Object.keys(analysis.errors).length > 1 &&
-                    !primaryOutcomeMetricsWithErrors.includes(metric.slug)
-                  ) {
-                    const metricHeader = (
-                      <MetricHeader
-                        key={metric?.slug}
-                        outcomeSlug={metric?.slug!}
-                        outcomeDefaultName={metric?.friendlyName!}
-                        metricType={METRIC_TYPE.DEFAULT_SECONDARY}
-                      />
-                    );
-                    if (
-                      metric.slug in analysis.errors &&
-                      analysis.errors[metric.slug].length > 0
-                    ) {
-                      return (
-                        <>
-                          {metricHeader}
-                          <AnalysisErrorAlert
-                            errors={analysis.errors[metric.slug]}
-                          />
-                        </>
-                      );
-                    } else {
-                      return (
-                        <>
-                          {metricHeader}
-                          <p>
-                            <i>No results available for metric.</i>
-                          </p>
-                        </>
-                      );
-                    }
-                  }
-                });
-              })}
+              analysis?.errors &&
+              Object.keys(analysis.errors).length > 1 &&
+              getErrorsForOutcomes(experiment.secondaryOutcomes, false)}
           {analysis.other_metrics &&
             Object.keys(analysis.other_metrics).map((group: string) => {
               const [open, setOpen] = groupStates[group];
