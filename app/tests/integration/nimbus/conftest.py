@@ -243,7 +243,7 @@ def create_basic_experiment():
 
 @pytest.fixture
 def create_desktop_experiment(create_basic_experiment):
-    def _create_desktop_experiment(slug, app, targeting, **data):
+    def _create_desktop_experiment(slug, app, targeting, data):
         # create a basic experiment via graphql so we can get an ID
         create_basic_experiment(
             slug,
@@ -269,33 +269,11 @@ def create_desktop_experiment(create_basic_experiment):
         )
         experiment_id = response.json()["data"]["experimentBySlug"]["id"]
 
+        data.update({"id": experiment_id})
+
         query = {
             "operationName": "updateExperiment",
-            "variables": {
-                "input": {
-                    "id": experiment_id,
-                    "hypothesis": "Test hypothesis",
-                    "application": app.upper(),
-                    "changelogMessage": "test updated",
-                    "targetingConfigSlug": targeting,
-                    "publicDescription": data.get("public_description", "Fancy Words"),
-                    "riskRevenue": data.get("risk_revenue"),
-                    "riskPartnerRelated": data.get("risk_partner_related"),
-                    "riskBrand": data.get("risk_brand"),
-                    "featureConfigId": data.get("feature_config"),
-                    "referenceBranch": data.get("reference_branch"),
-                    "treatmentBranches": data.get("treatement_branch"),
-                    "populationPercent": data.get("population_percent"),
-                    "totalEnrolledClients": data.get("total_enrolled_clients"),
-                    "channel": data.get("channel"),
-                    "firefoxMinVersion": data.get("firefox_min_version"),
-                    "firefoxMaxVersion": data.get("firefox_max_version"),
-                    "locales": data.get("locales"),
-                    "countries": data.get("countries"),
-                    "proposedEnrollment": data.get("proposed_enrollment"),
-                    "proposedDuration": data.get("proposed_duration"),
-                }
-            },
+            "variables": {"input": data},
             "query": "mutation updateExperiment($input: ExperimentInput!) \
                 {\n updateExperiment(input: $input) \
                     {\n message\n __typename\n }\n}\n",

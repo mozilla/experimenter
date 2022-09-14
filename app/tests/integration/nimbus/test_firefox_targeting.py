@@ -86,23 +86,24 @@ def test_check_targeting(
 ):
     targeting = helpers.load_targeting_configs()[1]
     experiment_slug = str(slugify(experiment_name))
-    create_desktop_experiment(
-        experiment_slug,
-        "desktop",
-        targeting_config_slug,
-        public_description="Some sort of words",
-        risk_revenue=False,
-        risk_partner_related=False,
-        risk_brand=False,
-        feature_config=1,
-        reference_branch={
+    data = {
+        "hypothesis": "Test Hypothesis",
+        "application": "DESKTOP",
+        "changelogMessage": "test updates",
+        "targetingConfigSlug": targeting,
+        "publicDescription": "Some sort of Fancy Words",
+        "riskRevenue": False,
+        "riskPartnerRelated": False,
+        "riskBrand": False,
+        "featureConfigId": 1,
+        "referenceBranch": {
             "description": "reference branch",
             "name": "Branch 1",
             "ratio": 50,
             "featureEnabled": True,
             "featureValue": "{}",
         },
-        treatement_branch=[
+        "treatmentBranches": [
             {
                 "description": "treatment branch",
                 "name": "Branch 2",
@@ -111,15 +112,21 @@ def test_check_targeting(
                 "featureValue": "",
             }
         ],
-        population_percent="75",
-        total_enrolled_clients=35,
-        channel="NIGHTLY",
-        firefox_min_version="FIREFOX_100",
-        firefox_max_version="FIREFOX_120",
-        countries=countries_database_id_loader(["CA"]),
-        proposed_enrollment="14",
-        proposed_duration="30",
-        locales=locales_database_id_loader(["en-CA"]),
+        "populationPercent": "100",
+        "totalEnrolledClients": 55,
+        "channel": "NIGHTLY",
+        "firefoxMinVersion": "FIREFOX_100",
+        "firefoxMaxVersion": "FIREFOX_120",
+        "locales": locales_database_id_loader(["en-CA"]),
+        "countries": countries_database_id_loader(["CA"]),
+        "proposedEnrollment": "14",
+        "proposedDuration": "30",
+    }
+    create_desktop_experiment(
+        experiment_slug,
+        "desktop",
+        targeting_config_slug,
+        data,
     )
     experiment_data = load_experiment_data(experiment_slug)
     targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
