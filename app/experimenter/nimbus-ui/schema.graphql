@@ -25,6 +25,8 @@ type CreateExperiment {
   message: ObjectField
 }
 
+scalar Date
+
 scalar DateTime
 
 input DocumentationLinkInput {
@@ -91,9 +93,9 @@ type Mutation {
 type NimbusBranchFeatureValueType {
   id: Int
   branch: NimbusBranchType!
+  featureConfig: NimbusFeatureConfigType
   enabled: Boolean
   value: String
-  featureConfig: NimbusFeatureConfigType
 }
 
 type NimbusBranchScreenshotType {
@@ -104,30 +106,78 @@ type NimbusBranchScreenshotType {
 }
 
 type NimbusBranchType {
+  id: Int
   name: String!
   slug: String!
   description: String!
   ratio: Int!
+  featureValues: [NimbusBranchFeatureValueType]
   screenshots: [NimbusBranchScreenshotType!]
-  id: Int
   featureEnabled: Boolean!
   featureValue: String
-  featureValues: [NimbusBranchFeatureValueType]
+}
+
+type NimbusBucketRangeType {
+  isolationGroup: NimbusIsolationGroupType!
+  start: Int!
+  count: Int!
+}
+
+enum NimbusChangeLogNewPublishStatus {
+  IDLE
+  REVIEW
+  APPROVED
+  WAITING
+}
+
+enum NimbusChangeLogNewStatus {
+  DRAFT
+  PREVIEW
+  LIVE
+  COMPLETE
+}
+
+enum NimbusChangeLogNewStatusNext {
+  DRAFT
+  PREVIEW
+  LIVE
+  COMPLETE
+}
+
+enum NimbusChangeLogOldPublishStatus {
+  IDLE
+  REVIEW
+  APPROVED
+  WAITING
+}
+
+enum NimbusChangeLogOldStatus {
+  DRAFT
+  PREVIEW
+  LIVE
+  COMPLETE
+}
+
+enum NimbusChangeLogOldStatusNext {
+  DRAFT
+  PREVIEW
+  LIVE
+  COMPLETE
 }
 
 type NimbusChangeLogType {
   experiment: NimbusExperimentType!
-  message: String
   changedOn: DateTime!
   changedBy: NimbusUserType!
-  oldStatus: NimbusExperimentStatusEnum
-  oldStatusNext: NimbusExperimentStatusEnum
-  oldPublishStatus: NimbusExperimentPublishStatusEnum
-  newStatus: NimbusExperimentStatusEnum
-  newStatusNext: NimbusExperimentStatusEnum
-  newPublishStatus: NimbusExperimentPublishStatusEnum
+  oldStatus: NimbusChangeLogOldStatus
+  oldStatusNext: NimbusChangeLogOldStatusNext
+  oldPublishStatus: NimbusChangeLogOldPublishStatus
+  newStatus: NimbusChangeLogNewStatus!
+  newStatusNext: NimbusChangeLogNewStatusNext
+  newPublishStatus: NimbusChangeLogNewPublishStatus!
+  message: String
   experimentData: JSONString
-  publishedDtoChanged: Boolean
+  publishedDtoChanged: Boolean!
 }
 
 type NimbusConfigurationType {
@@ -152,6 +202,7 @@ type NimbusCountryType {
   id: Int
   code: String
   name: String
+  nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
 enum NimbusDocumentationLinkTitle {
@@ -351,38 +402,58 @@ type NimbusExperimentTargetingConfigType {
 type NimbusExperimentType {
   id: Int
   parent: NimbusExperimentType
+  isRollout: Boolean
+  isArchived: Boolean
   owner: NimbusUserType!
   status: NimbusExperimentStatusEnum
+  statusNext: NimbusExperimentStatusEnum
+  publishStatus: NimbusExperimentPublishStatusEnum
   name: String!
   slug: String!
+  publicDescription: String!
+  riskMitigationLink: String!
+  isPaused: Boolean!
+  proposedDuration: Int!
+  proposedEnrollment: Int!
+  populationPercent: String
+  totalEnrolledClients: Int!
+  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
+  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
   application: NimbusExperimentApplicationEnum
   channel: NimbusExperimentChannelEnum
   locales: [NimbusLocaleType!]!
   countries: [NimbusCountryType!]!
   languages: [NimbusLanguageType!]!
-  hypothesis: String!
-  isRollout: Boolean
-  isArchived: Boolean
-  statusNext: NimbusExperimentStatusEnum
-  publishStatus: NimbusExperimentPublishStatusEnum
-  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
-  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
-  populationPercent: String
-  documentationLinks: [NimbusDocumentationLinkType!]
-  referenceBranch: NimbusBranchType
-  treatmentBranches: [NimbusBranchType]
-  targetingConfigSlug: String
-  targetingConfig: [NimbusExperimentTargetingConfigType]
   isSticky: Boolean
-  isFirstRun: Boolean!
-  jexlTargetingExpression: String
+  projects: [ProjectType!]!
+  hypothesis: String!
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
+  warnFeatureSchema: Boolean
+  targetingConfigSlug: String
+  referenceBranch: NimbusBranchType
+  publishedDto: JSONString
+  resultsData: JSONString
+  riskPartnerRelated: Boolean
+  riskRevenue: Boolean
+  riskBrand: Boolean
+  conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
+  takeawaysSummary: String
+  isFirstRun: Boolean!
+  StartDate: Date
+  EndDate: Date
+  nimbusexperimentSet: [NimbusExperimentType!]!
+  documentationLinks: [NimbusDocumentationLinkType!]
+  bucketRange: NimbusBucketRangeType
+  changes: [NimbusChangeLogType!]!
+  treatmentBranches: [NimbusBranchType]
+  targetingConfig: [NimbusExperimentTargetingConfigType]
+  jexlTargetingExpression: String
   featureConfig: NimbusFeatureConfigType
   featureConfigs: [NimbusFeatureConfigType]
-  warnFeatureSchema: Boolean
   readyForReview: NimbusReviewType
   monitoringDashboardUrl: String
+  rolloutMonitoringDashboardUrl: String
   resultsReady: Boolean
   startDate: DateTime
   computedEndDate: DateTime
@@ -400,28 +471,37 @@ type NimbusExperimentType {
   signoffRecommendations: NimbusSignoffRecommendationsType
   recipeJson: String
   reviewUrl: String
-  conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
-  publicDescription: String!
-  riskMitigationLink: String!
-  rolloutMonitoringDashboardUrl: String
-  takeawaysSummary: String
-  totalEnrolledClients: Int!
-  proposedEnrollment: Int!
-  proposedDuration: Int!
-  riskRevenue: Boolean
-  riskBrand: Boolean
-  riskPartnerRelated: Boolean
 }
 
 type NimbusFeatureConfigType {
+  id: Int
   name: String!
   slug: String!
   description: String
   application: NimbusExperimentApplicationEnum
-  schema: String
-  id: Int
   ownerEmail: String
-  readOnly: Boolean
+  schema: String
+  readOnly: Boolean!
+  nimbusexperimentSet: [NimbusExperimentType!]!
+  nimbusbranchfeaturevalueSet: [NimbusBranchFeatureValueType!]!
+}
+
+enum NimbusIsolationGroupApplication {
+  FIREFOX_DESKTOP
+  FENIX
+  IOS
+  FOCUS_ANDROID
+  KLAR_ANDROID
+  FOCUS_IOS
+  KLAR_IOS
+}
+
+type NimbusIsolationGroupType {
+  application: NimbusIsolationGroupApplication!
+  name: String!
+  instance: Int!
+  total: Int!
+  bucketRanges: [NimbusBucketRangeType!]!
 }
 
 type NimbusLabelValueType {
@@ -433,12 +513,14 @@ type NimbusLanguageType {
   id: Int
   code: String
   name: String
+  nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
 type NimbusLocaleType {
   id: Int
   code: String
   name: String
+  nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
 type NimbusOutcomeMetricType {
@@ -471,12 +553,19 @@ type NimbusSignoffRecommendationsType {
 type NimbusUserType {
   id: Int
   username: String!
+  firstName: String!
+  lastName: String!
   email: String!
-  firstName: String
-  lastName: String
 }
 
 scalar ObjectField
+
+type ProjectType {
+  id: Int
+  name: String!
+  slug: String!
+  nimbusexperimentSet: [NimbusExperimentType!]!
+}
 
 type Query {
   experiments: [NimbusExperimentType]

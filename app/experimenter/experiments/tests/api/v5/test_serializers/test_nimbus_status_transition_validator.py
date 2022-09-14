@@ -22,7 +22,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
             experiment,
             data={
                 "status": NimbusExperiment.Status.LIVE,
-                "changelogMessage": "test changelog message",
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -39,14 +39,14 @@ class TestNimbusStatusTransitionValidator(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": NimbusExperiment.PublishStatus.REVIEW,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["publishStatus"][0],
+            serializer.errors["publish_status"][0],
             "Nimbus Experiment publish_status cannot transition from Approved to Review.",
         )
 
@@ -59,15 +59,15 @@ class TestNimbusStatusTransitionValidator(TestCase):
             experiment,
             data={
                 "status": NimbusExperiment.Status.DRAFT,
-                "statusNext": NimbusExperiment.Status.LIVE,
-                "publishStatus": NimbusExperiment.PublishStatus.REVIEW,
-                "changelogMessage": "Review Requested for Launch",
+                "status_next": NimbusExperiment.Status.LIVE,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "Review Requested for Launch",
             },
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["statusNext"][0],
+            serializer.errors["status_next"][0],
             NimbusExperiment.ERROR_LAUNCHING_DISABLED,
         )
 
@@ -80,9 +80,9 @@ class TestNimbusStatusTransitionValidator(TestCase):
             experiment,
             data={
                 "status": NimbusExperiment.Status.LIVE,
-                "statusNext": NimbusExperiment.Status.LIVE,
-                "publishStatus": NimbusExperiment.PublishStatus.REVIEW,
-                "changelogMessage": "Review Requested for Launch",
+                "status_next": NimbusExperiment.Status.LIVE,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "Review Requested for Launch",
             },
             context={"user": self.user},
         )
@@ -97,9 +97,9 @@ class TestNimbusStatusTransitionValidator(TestCase):
             experiment,
             data={
                 "status": NimbusExperiment.Status.LIVE,
-                "statusNext": NimbusExperiment.Status.COMPLETE,
-                "publishStatus": NimbusExperiment.PublishStatus.REVIEW,
-                "changelogMessage": "Review Requested for Launch",
+                "status_next": NimbusExperiment.Status.COMPLETE,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "Review Requested for Launch",
             },
             context={"user": self.user},
         )
