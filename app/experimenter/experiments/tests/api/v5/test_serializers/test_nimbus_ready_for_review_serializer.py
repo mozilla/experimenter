@@ -1180,14 +1180,14 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         data = {
             "application": NimbusExperiment.Application.DESKTOP,
-            "is_sticky": "false",
-            "is_rollout": "true",
-            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
-            "treatment_branches": [
+            "isSticky": "false",
+            "isRollout": "true",
+            "targetingConfigSlug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "treatmentBranches": [
                 {"name": "treatment A", "description": "desc1", "ratio": 1},
                 {"name": "treatment B", "description": "desc2", "ratio": 1},
             ],
-            "changelog_message": "test changelog message",
+            "changelogMessage": "test changelog message",
             "channel": "",
         }
         serializer = NimbusReviewSerializer(
@@ -1195,7 +1195,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["treatment_branches"][0]["name"],
+            serializer.errors["treatmentBranches"][0]["name"],
             [NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT],
         )
 
