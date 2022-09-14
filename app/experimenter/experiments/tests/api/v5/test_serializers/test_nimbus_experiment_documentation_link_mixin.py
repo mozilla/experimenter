@@ -16,9 +16,9 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
             status=NimbusExperiment.Status.DRAFT,
         )
         data = {
-            "changelogMessage": "test changelog message",
-            "publicDescription": "changed",
-            "documentationLinks": [
+            "changelog_message": "test changelog message",
+            "public_description": "changed",
+            "documentation_links": [
                 {
                     "title": NimbusExperiment.DocumentationLink.DS_JIRA,
                     "link": "https://example.com/1",
@@ -34,7 +34,7 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
         )
         self.assertTrue(serializer.is_valid())
         serializer.save()
-        self.assert_documentation_links(experiment.id, data["documentationLinks"])
+        self.assert_documentation_links(experiment.id, data["documentation_links"])
 
     def test_serializer_preserves_links_when_absent_in_data(self):
         experiment = NimbusExperimentFactory.create(
@@ -49,8 +49,8 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
                 }
             )
         data = {
-            "publicDescription": "changed",
-            "changelogMessage": "test changelog message",
+            "public_description": "changed",
+            "changelog_message": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -77,22 +77,22 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
                 }
             )
         data = {
-            "publicDescription": "changed reference",
-            "referenceBranch": {
+            "public_description": "changed reference",
+            "reference_branch": {
                 "description": "changed",
-                "featureEnabled": False,
+                "feature_enabled": False,
                 "name": "also changed reference",
                 "ratio": 1,
             },
-            "treatmentBranches": [
+            "treatment_branches": [
                 {
                     "description": "changed treatment",
-                    "featureEnabled": False,
+                    "feature_enabled": False,
                     "name": "also changed treatment",
                     "ratio": 1,
                 },
             ],
-            "changelogMessage": "test changelog message",
+            "changelog_message": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -106,9 +106,9 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
             status=NimbusExperiment.Status.DRAFT,
         )
         data = {
-            "changelogMessage": "test changelog message",
-            "publicDescription": "changed",
-            "documentationLinks": [
+            "changelog_message": "test changelog message",
+            "public_description": "changed",
+            "documentation_links": [
                 {
                     "title": NimbusExperiment.DocumentationLink.ENG_TICKET,
                     "link": "https://example.com/1",
@@ -124,7 +124,7 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
         )
         self.assertTrue(serializer.is_valid())
         serializer.save()
-        self.assert_documentation_links(experiment.id, data["documentationLinks"])
+        self.assert_documentation_links(experiment.id, data["documentation_links"])
 
     def assert_documentation_links(self, experiment_id, links_data):
         experiment = NimbusExperiment.objects.get(id=experiment_id)

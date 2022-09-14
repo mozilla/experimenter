@@ -71,7 +71,7 @@ class TestCreateExperimentMutation(GraphQLTestCase):
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         result = content["data"]["createExperiment"]
         self.assertEqual(result["message"], "success")
@@ -97,13 +97,13 @@ class TestCreateExperimentMutation(GraphQLTestCase):
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         result = content["data"]["createExperiment"]
         self.assertEqual(
             result["message"],
             {
-                "changelogMessage": ["This field is required."],
+                "changelog_message": ["This field is required."],
                 "name": ["Ensure this field has no more than 80 characters."],
             },
         )
@@ -194,7 +194,7 @@ class TestUpdateExperimentMutationSingleFeature(
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]
         self.assertEqual(
@@ -236,7 +236,7 @@ class TestUpdateExperimentMutationSingleFeature(
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         experiment_links = experiment.documentation_links.all()
@@ -344,7 +344,7 @@ class TestUpdateExperimentMutationSingleFeature(
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertEqual(experiment.feature_configs.get(), feature)
@@ -379,7 +379,7 @@ class TestUpdateExperimentMutationSingleFeature(
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertTrue(experiment.warn_feature_schema)
@@ -445,7 +445,7 @@ class TestUpdateExperimentMutationSingleFeature(
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertEqual(experiment.feature_configs.count(), 0)
@@ -489,13 +489,13 @@ class TestUpdateExperimentMutationSingleFeature(
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]
         self.assertEqual(
             result["message"],
             {
-                "featureConfig": [
+                "feature_config": [
                     f'Invalid pk "{invalid_feature_config_id}" - object does not exist.'
                 ]
             },
@@ -560,7 +560,7 @@ class TestUpdateExperimentMutationSingleFeature(
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(
             content["data"]["updateExperiment"]["message"], "success", content
@@ -643,10 +643,10 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(
             result["message"],
             {
-                "primaryOutcomes": [
+                "primary_outcomes": [
                     "Invalid choices for primary outcomes: {'invalid-outcome'}"
                 ],
-                "secondaryOutcomes": [
+                "secondary_outcomes": [
                     "Invalid choices for secondary outcomes: {'invalid-outcome'}"
                 ],
             },
@@ -741,13 +741,13 @@ class TestUpdateExperimentMutationSingleFeature(
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]
         self.assertEqual(
             result["message"],
             {
-                "populationPercent": [
+                "population_percent": [
                     "Ensure that there are no more than 4 decimal places."
                 ]
             },
@@ -769,7 +769,7 @@ class TestUpdateExperimentMutationSingleFeature(
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.status, NimbusExperiment.Status.PREVIEW)
@@ -790,7 +790,7 @@ class TestUpdateExperimentMutationSingleFeature(
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
@@ -811,7 +811,7 @@ class TestUpdateExperimentMutationSingleFeature(
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
@@ -866,8 +866,6 @@ class TestUpdateExperimentMutationSingleFeature(
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200, response.content)
-        response_data = json.loads(response.content)
-        self.assertNotIn("errors", response_data, response_data)
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
@@ -1142,7 +1140,7 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.feature_configs.count(), 0)
@@ -1183,13 +1181,13 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]
         self.assertEqual(
             result["message"],
             {
-                "featureConfigs": [
+                "feature_configs": [
                     f'Invalid pk "{invalid_feature_config_id}" - object does not exist.'
                 ]
             },
@@ -1238,7 +1236,7 @@ class TestCloneExperimentMutation(GraphQLTestCase):
         )
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
-        self.assertIn("parentSlug", content["data"]["cloneExperiment"]["message"])
+        self.assertIn("parent_slug", content["data"]["cloneExperiment"]["message"])
 
     def test_clone_experiment_with_rollout_branch_slug_success(self):
         user_email = "user@example.com"

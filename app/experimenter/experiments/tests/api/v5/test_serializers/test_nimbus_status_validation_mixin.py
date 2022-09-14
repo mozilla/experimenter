@@ -20,8 +20,8 @@ class TestNimbusStatusValidationMixin(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": NimbusExperiment.PublishStatus.APPROVED,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -34,8 +34,8 @@ class TestNimbusStatusValidationMixin(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publicDescription": "who knows, really",
-                "changelogMessage": "test changelog message",
+                "public_description": "who knows, really",
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -49,8 +49,8 @@ class TestNimbusStatusValidationMixin(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publicDescription": "who knows, really",
-                "changelogMessage": "test changelog message",
+                "public_description": "who knows, really",
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
