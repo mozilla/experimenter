@@ -1171,10 +1171,33 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             is_sticky=True,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
         )
-        self.assertNotEqual(experiment.treatment_branches, [])
+
         experiment.is_rollout = True
         experiment.save()
-        self.assertEqual(experiment.treatment_branches, [])
+
+        for branch in experiment.treatment_branches:
+            branch.delete()
+
+        data = {
+            "application": NimbusExperiment.Application.DESKTOP,
+            "isSticky": "false",
+            "isRollout": "true",
+            "targetingConfigSlug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "treatmentBranches": [
+                {"name": "treatment A", "description": "desc1", "ratio": 1},
+                {"name": "treatment B", "description": "desc2", "ratio": 1},
+            ],
+            "changelogMessage": "test changelog message",
+            "channel": "",
+        }
+        serializer = NimbusReviewSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["treatmentBranches"][0]["name"],
+            [NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT],
+        )
 
     def test_rollout_valid_version_support(self):
         desktop = NimbusExperiment.Application.DESKTOP
