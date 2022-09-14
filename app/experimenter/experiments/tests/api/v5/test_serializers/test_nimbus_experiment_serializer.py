@@ -56,9 +56,9 @@ class TestNimbusExperimentSerializer(TestCase):
             "name": "Test 1234",
             "hypothesis": "Test hypothesis",
             "application": NimbusExperiment.Application.DESKTOP,
-            "riskMitigationLink": "https://example.com/risk",
-            "publicDescription": "Test description",
-            "changelogMessage": "test changelog message",
+            "risk_mitigation_link": "https://example.com/risk",
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
@@ -69,8 +69,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.name, data["name"])
         self.assertEqual(experiment.application, data["application"])
         self.assertEqual(experiment.hypothesis, data["hypothesis"])
-        self.assertEqual(experiment.risk_mitigation_link, data["riskMitigationLink"])
-        self.assertEqual(experiment.public_description, data["publicDescription"])
+        self.assertEqual(experiment.risk_mitigation_link, data["risk_mitigation_link"])
+        self.assertEqual(experiment.public_description, data["public_description"])
         # Owner should match the email of the user who created the experiment
         self.assertEqual(experiment.owner, self.user)
         self.assertFalse(experiment.branches.exists())
@@ -81,9 +81,9 @@ class TestNimbusExperimentSerializer(TestCase):
             "name": "Test 1234",
             "hypothesis": "Test hypothesis",
             "application": application,
-            "riskMitigationLink": "https://example.com/risk",
-            "publicDescription": "Test description",
-            "changelogMessage": "test changelog message",
+            "risk_mitigation_link": "https://example.com/risk",
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
@@ -97,20 +97,20 @@ class TestNimbusExperimentSerializer(TestCase):
             "name": "Test 1234",
             "hypothesis": "Test hypothesis",
             "application": NimbusExperiment.Application.DESKTOP,
-            "publicDescription": "Test description",
-            "riskMitigationLink": "",
-            "changelogMessage": "test changelog message",
+            "public_description": "Test description",
+            "risk_mitigation_link": "",
+            "changelog_message": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
-        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertTrue(serializer.is_valid())
 
     def test_serializer_rejects_long_name(self):
         data = {
             "name": "a" * 81,
             "hypothesis": "Test hypothesis",
             "application": NimbusExperiment.Application.DESKTOP,
-            "publicDescription": "Test description",
-            "changelogMessage": "test changelog message",
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
@@ -122,7 +122,7 @@ class TestNimbusExperimentSerializer(TestCase):
             "name": "",
             "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
             "application": "",
-            "changelogMessage": "test changelog message",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(
@@ -142,19 +142,19 @@ class TestNimbusExperimentSerializer(TestCase):
         data = {
             "name": "",
             "hypothesis": "",
-            "publicDescription": "",
-            "featureConfig": None,
-            "treatmentBranches": [],
-            "primaryOutcomes": [],
-            "secondaryOutcomes": [],
+            "public_description": "",
+            "feature_config": None,
+            "treatment_branches": [],
+            "primary_outcomes": [],
+            "secondary_outcomes": [],
             "channel": NimbusExperiment.Channel.NO_CHANNEL,
-            "firefoxMinVersion": NimbusExperiment.Version.NO_VERSION,
-            "populationPercent": "0.0",
-            "proposedDuration": 0,
-            "proposedEnrollment": 0,
-            "targetingConfigSlug": NimbusExperiment.TargetingConfig.NO_TARGETING,
-            "totalEnrolledClients": 0,
-            "changelogMessage": "test changelog message",
+            "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
+            "population_percent": "0.0",
+            "proposed_duration": 0,
+            "proposed_enrollment": 0,
+            "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
+            "total_enrolled_clients": 0,
+            "changelog_message": "test changelog message",
             "countries": [],
             "locales": [],
             "languages": [],
@@ -198,8 +198,8 @@ class TestNimbusExperimentSerializer(TestCase):
             "name": "&^%&^%&^%&^%^&%^&",
             "hypothesis": "Test hypothesis",
             "application": NimbusExperiment.Application.DESKTOP,
-            "publicDescription": "Test description",
-            "changelogMessage": "test changelog message",
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
@@ -219,8 +219,8 @@ class TestNimbusExperimentSerializer(TestCase):
             "name": "non-unique slug",
             "hypothesis": "Test hypothesis",
             "application": NimbusExperiment.Application.DESKTOP,
-            "publicDescription": "Test description",
-            "changelogMessage": "test changelog message",
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
@@ -236,8 +236,8 @@ class TestNimbusExperimentSerializer(TestCase):
             "name": "Test 1234",
             "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
             "application": NimbusExperiment.Application.DESKTOP,
-            "publicDescription": "Test description",
-            "changelogMessage": "test changelog message",
+            "public_description": "Test description",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
@@ -249,8 +249,8 @@ class TestNimbusExperimentSerializer(TestCase):
             "application": NimbusExperiment.Application.DESKTOP,
             "hypothesis": "It does the thing",
             "name": "The Thing",
-            "publicDescription": "Does it do the thing?",
-            "changelogMessage": "test changelog message",
+            "public_description": "Does it do the thing?",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(data=data, context={"user": self.user})
@@ -279,8 +279,8 @@ class TestNimbusExperimentSerializer(TestCase):
             "application": NimbusExperiment.Application.DESKTOP,
             "hypothesis": "New Hypothesis",
             "name": "New Name",
-            "publicDescription": "New public description",
-            "changelogMessage": "test changelog message",
+            "public_description": "New public description",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(
@@ -309,24 +309,24 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment.branches.all().delete()
 
         data = {
-            "featureConfigs": [feature_config.id],
-            "referenceBranch": {
+            "feature_configs": [feature_config.id],
+            "reference_branch": {
                 "name": "control",
                 "description": "a control",
                 "ratio": 1,
-                "featureEnabled": False,
-                "featureValue": "",
+                "feature_enabled": False,
+                "feature_value": "",
             },
-            "treatmentBranches": [
+            "treatment_branches": [
                 {
                     "name": "treatment",
                     "description": "a treatment",
                     "ratio": 1,
-                    "featureEnabled": True,
-                    "featureValue": "{'this': 'that'}",
+                    "feature_enabled": True,
+                    "feature_value": "{'this': 'that'}",
                 }
             ],
-            "changelogMessage": "test changelog message",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(
@@ -371,44 +371,44 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment.branches.all().delete()
 
         data = {
-            "featureConfigs": [feature1.id, feature2.id],
-            "referenceBranch": {
+            "feature_configs": [feature1.id, feature2.id],
+            "reference_branch": {
                 "name": "control",
                 "description": "a control",
                 "ratio": 1,
-                "featureValues": [
+                "feature_values": [
                     {
-                        "featureConfig": feature1.id,
+                        "feature_config": feature1.id,
                         "enabled": False,
                         "value": "",
                     },
                     {
-                        "featureConfig": feature2.id,
+                        "feature_config": feature2.id,
                         "enabled": False,
                         "value": "",
                     },
                 ],
             },
-            "treatmentBranches": [
+            "treatment_branches": [
                 {
                     "name": "treatment",
                     "description": "a treatment",
                     "ratio": 1,
-                    "featureValues": [
+                    "feature_values": [
                         {
-                            "featureConfig": feature1.id,
+                            "feature_config": feature1.id,
                             "enabled": True,
                             "value": f"{{'{feature1.name}': 'value'}}",
                         },
                         {
-                            "featureConfig": feature2.id,
+                            "feature_config": feature2.id,
                             "enabled": True,
                             "value": f"{{'{feature2.name}': 'value'}}",
                         },
                     ],
                 }
             ],
-            "changelogMessage": "test changelog message",
+            "changelog_message": "test changelog message",
         }
 
         serializer = NimbusExperimentSerializer(
@@ -464,18 +464,17 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             {
                 "channel": NimbusConstants.Channel.BETA,
-                "firefoxMinVersion": NimbusConstants.Version.FIREFOX_83,
-                "firefoxMaxVersion": NimbusConstants.Version.FIREFOX_84,
-                "populationPercent": 10,
-                "proposedDuration": 120,
-                "proposedEnrollment": 42,
-                "targetingConfigSlug": (TargetingConstants.TargetingConfig.FIRST_RUN),
-                "totalEnrolledClients": 100,
-                "changelogMessage": "test changelog message",
+                "firefox_min_version": NimbusConstants.Version.FIREFOX_83,
+                "population_percent": 10,
+                "proposed_duration": 120,
+                "proposed_enrollment": 42,
+                "targeting_config_slug": (TargetingConstants.TargetingConfig.FIRST_RUN),
+                "total_enrolled_clients": 100,
+                "changelog_message": "test changelog message",
                 "countries": [country.id],
                 "locales": [locale.id],
                 "languages": [language.id],
-                "isSticky": True,
+                "is_sticky": True,
             },
             context={"user": self.user},
         )
@@ -486,10 +485,6 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA)
         self.assertEqual(
             experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83
-        )
-        self.assertEqual(
-            experiment.firefox_max_version,
-            NimbusConstants.Version.FIREFOX_84,
         )
         self.assertEqual(experiment.population_percent, 10)
         self.assertEqual(experiment.proposed_duration, 120)
@@ -521,16 +516,16 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             {
-                "populationPercent": population_percent,
-                "changelogMessage": "test changelog message",
+                "population_percent": population_percent,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
         self.assertEqual(serializer.is_valid(), expected_valid)
         if not expected_valid:
-            self.assertIn("populationPercent", serializer.errors)
+            self.assertIn("population_percent", serializer.errors)
         else:
-            self.assertNotIn("populationPercent", serializer.errors)
+            self.assertNotIn("population_percent", serializer.errors)
 
     @parameterized.expand(
         [
@@ -544,7 +539,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             data={
                 "status": to_status,
-                "changelogMessage": "test changelog message",
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -560,7 +555,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             data={
                 "status": NimbusExperiment.Status.COMPLETE,
-                "changelogMessage": "test changelog message",
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -581,9 +576,9 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": NimbusExperiment.PublishStatus.REVIEW,
-                "statusNext": NimbusExperiment.Status.COMPLETE,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "status_next": NimbusExperiment.Status.COMPLETE,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -592,7 +587,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(
             serializer.errors,
             {
-                "statusNext": [
+                "status_next": [
                     "Invalid choice for status_next: 'Complete' - with status 'Draft',"
                     " the only valid choices are 'None, Live'"
                 ]
@@ -606,7 +601,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             data={
                 "name": "new name",
-                "changelogMessage": "test changelog message",
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -625,7 +620,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             data={
                 "status": NimbusExperiment.Status.PREVIEW,
-                "changelogMessage": "test changelog message",
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -651,8 +646,8 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": NimbusExperiment.PublishStatus.APPROVED,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -674,8 +669,8 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": NimbusExperiment.PublishStatus.APPROVED,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -702,7 +697,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             data={
                 "status": to_status,
-                "changelogMessage": "test changelog message",
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -721,7 +716,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             data={
                 "status": NimbusExperiment.Status.DRAFT,
-                "changelogMessage": "test changelog message",
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -745,8 +740,8 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": publish_status,
-                "changelogMessage": "test changelog message",
+                "publish_status": publish_status,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -766,8 +761,8 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": NimbusExperiment.PublishStatus.APPROVED,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -799,9 +794,9 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "primaryOutcomes": primary_outcomes,
-                "secondaryOutcomes": secondary_outcomes,
-                "changelogMessage": "test changelog message",
+                "primary_outcomes": primary_outcomes,
+                "secondary_outcomes": secondary_outcomes,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -822,15 +817,15 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "primaryOutcomes": ["invalid-slug"],
-                "secondaryOutcomes": ["invalid-slug"],
-                "changelogMessage": "test changelog message",
+                "primary_outcomes": ["invalid-slug"],
+                "secondary_outcomes": ["invalid-slug"],
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
-        self.assertIn("primaryOutcomes", serializer.errors)
-        self.assertIn("secondaryOutcomes", serializer.errors)
+        self.assertIn("primary_outcomes", serializer.errors)
+        self.assertIn("secondary_outcomes", serializer.errors)
 
     def test_serializer_rejects_outcomes_for_wrong_application(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -849,15 +844,15 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "primaryOutcomes": primary_outcomes,
-                "secondaryOutcomes": secondary_outcomes,
-                "changelogMessage": "test changelog message",
+                "primary_outcomes": primary_outcomes,
+                "secondary_outcomes": secondary_outcomes,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
-        self.assertIn("primaryOutcomes", serializer.errors)
-        self.assertIn("secondaryOutcomes", serializer.errors)
+        self.assertIn("primary_outcomes", serializer.errors)
+        self.assertIn("secondary_outcomes", serializer.errors)
 
     def test_serializer_rejects_duplicate_outcomes(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -877,14 +872,14 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "primaryOutcomes": outcomes,
-                "secondaryOutcomes": outcomes,
-                "changelogMessage": "test changelog message",
+                "primary_outcomes": outcomes,
+                "secondary_outcomes": outcomes,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
-        self.assertIn("primaryOutcomes", serializer.errors)
+        self.assertIn("primary_outcomes", serializer.errors)
 
     def test_serializer_rejects_too_many_primary_outcomes(self):
         NimbusConstants.MAX_PRIMARY_OUTCOMES = 1
@@ -899,17 +894,17 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "primaryOutcomes": [
+                "primary_outcomes": [
                     "someoutcome",
                     "someotheroutcome",
                     "toomanyoutcomes",
                 ],
-                "changelogMessage": "test changelog message",
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
-        self.assertIn("primaryOutcomes", serializer.errors)
+        self.assertIn("primary_outcomes", serializer.errors)
 
     def test_can_request_review_from_preview(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -920,8 +915,8 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             data={
                 "status": NimbusExperiment.Status.DRAFT,
-                "publishStatus": NimbusExperiment.PublishStatus.REVIEW,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -939,8 +934,8 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": NimbusExperiment.PublishStatus.APPROVED,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
             },
             context={"user": self.user},
         )
@@ -964,14 +959,14 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": NimbusExperiment.PublishStatus.APPROVED,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
             },
             context={"user": experiment.owner},
         )
 
         self.assertFalse(serializer.is_valid(), serializer.errors)
-        self.assertIn("publishStatus", serializer.errors)
+        self.assertIn("publish_status", serializer.errors)
 
     def test_can_review_for_requesting_user_when_idle(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -981,8 +976,8 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": NimbusExperiment.PublishStatus.APPROVED,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
             },
             context={"user": experiment.owner},
         )
@@ -1002,8 +997,8 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publishStatus": NimbusExperiment.PublishStatus.IDLE,
-                "changelogMessage": "test changelog message",
+                "publish_status": NimbusExperiment.PublishStatus.IDLE,
+                "changelog_message": "test changelog message",
             },
             context={"user": experiment.owner},
         )
@@ -1018,8 +1013,8 @@ class TestNimbusExperimentSerializer(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
         data = {
-            "targetingConfigSlug": (NimbusExperiment.TargetingConfig.FIRST_RUN_WIN1903),
-            "changelogMessage": "updating targeting config",
+            "targeting_config_slug": (NimbusExperiment.TargetingConfig.FIRST_RUN_WIN1903),
+            "changelog_message": "updating targeting config",
         }
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1034,8 +1029,8 @@ class TestNimbusExperimentSerializer(TestCase):
             application=NimbusExperiment.Application.IOS,
         )
         data = {
-            "targetingConfigSlug": NimbusExperiment.TargetingConfig.FIRST_RUN_WIN1903,
-            "changelogMessage": "updating targeting config",
+            "targeting_config_slug": (NimbusExperiment.TargetingConfig.FIRST_RUN_WIN1903),
+            "changelog_message": "updating targeting config",
         }
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1044,7 +1039,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["targetingConfigSlug"],
+            serializer.errors["targeting_config_slug"],
             [
                 "Targeting config 'First start-up users on Windows 10 1903 "
                 "(build 18362) or newer' is not available for application "
@@ -1057,9 +1052,9 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED
         )
         data = {
-            "proposedDuration": 3,
-            "proposedEnrollment": 4,
-            "changelogMessage": "updating durations",
+            "proposed_duration": 3,
+            "proposed_enrollment": 4,
+            "changelog_message": "updating durations",
         }
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -1068,7 +1063,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["proposedEnrollment"],
+            serializer.errors["proposed_enrollment"],
             [
                 "The enrollment duration must be less than or "
                 "equal to the experiment duration."
@@ -1093,7 +1088,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         serializer = NimbusExperimentSerializer(
             experiment,
-            {"isArchived": True, "changelogMessage": "archiving"},
+            {"is_archived": True, "changelog_message": "archiving"},
             context={"user": self.user},
         )
         self.assertEqual(serializer.is_valid(), can_update, serializer.errors)
@@ -1101,7 +1096,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment = serializer.save()
             self.assertTrue(experiment.is_archived, serializer.errors)
         else:
-            self.assertIn("isArchived", serializer.errors, serializer.errors)
+            self.assertIn("is_archived", serializer.errors, serializer.errors)
 
     def test_cant_update_other_fields_while_archived(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1110,7 +1105,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         serializer = NimbusExperimentSerializer(
             experiment,
-            {"name": "New Name", "changelogMessage": "updating name"},
+            {"name": "New Name", "changelog_message": "updating name"},
             context={"user": self.user},
         )
         self.assertFalse(serializer.is_valid())
@@ -1123,7 +1118,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         serializer = NimbusExperimentSerializer(
             experiment,
-            {"isArchived": False, "changelogMessage": "unarchiving"},
+            {"is_archived": False, "changelog_message": "unarchiving"},
             context={"user": self.user},
         )
         self.assertTrue(serializer.is_valid(), serializer.errors)
