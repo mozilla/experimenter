@@ -184,10 +184,11 @@ def get_experiment_data(experiment):
     errors_experiment_overall = []
     if experiment_errors is not None:
         for err in experiment_errors:
-            if "metric" in err and err.get("metric") is not None:
-                if err.get("metric") not in errors_by_metric:
-                    errors_by_metric[err.get("metric")] = []
-                errors_by_metric[err.get("metric")].append(err)
+            metric_slug = err.get("metric")
+            if "metric" in err and metric_slug is not None:
+                if metric_slug not in errors_by_metric:
+                    errors_by_metric[metric_slug] = []
+                errors_by_metric[metric_slug].append(err)
             else:
                 errors_experiment_overall.append(err)
 
