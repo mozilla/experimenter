@@ -12,7 +12,10 @@ import {
 import React from "react";
 import { LIFECYCLE_REVIEW_FLOWS } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
-import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
+import {
+  NimbusChangeLogOldStatus,
+  NimbusChangeLogOldStatusNext,
+} from "../../types/globalTypes";
 import {
   BaseSubject,
   MOCK_EXPERIMENT,
@@ -211,8 +214,8 @@ describe("ChangeApprovalOperations", () => {
   const commonRejectionCase =
     (
       actionDescription: string,
-      oldStatus: NimbusExperimentStatusEnum,
-      oldStatusNext: NimbusExperimentStatusEnum,
+      oldStatus: NimbusChangeLogOldStatus,
+      oldStatusNext: NimbusChangeLogOldStatusNext,
     ) =>
     async () => {
       const rejectionEvent = {
@@ -243,8 +246,8 @@ describe("ChangeApprovalOperations", () => {
     "reports a rejection reason when launch review is rejected",
     commonRejectionCase(
       LIFECYCLE_REVIEW_FLOWS.LAUNCH.description,
-      NimbusExperimentStatusEnum.DRAFT,
-      NimbusExperimentStatusEnum.LIVE,
+      NimbusChangeLogOldStatus.DRAFT,
+      NimbusChangeLogOldStatusNext.LIVE,
     ),
   );
 
@@ -252,8 +255,8 @@ describe("ChangeApprovalOperations", () => {
     "reports a rejection reason when end enrollment review is rejected",
     commonRejectionCase(
       LIFECYCLE_REVIEW_FLOWS.PAUSE.description,
-      NimbusExperimentStatusEnum.LIVE,
-      NimbusExperimentStatusEnum.LIVE,
+      NimbusChangeLogOldStatus.LIVE,
+      NimbusChangeLogOldStatusNext.LIVE,
     ),
   );
 
@@ -261,8 +264,8 @@ describe("ChangeApprovalOperations", () => {
     "reports a rejection reason when end experiment review is rejected",
     commonRejectionCase(
       LIFECYCLE_REVIEW_FLOWS.END.description,
-      NimbusExperimentStatusEnum.LIVE,
-      NimbusExperimentStatusEnum.COMPLETE,
+      NimbusChangeLogOldStatus.LIVE,
+      NimbusChangeLogOldStatusNext.COMPLETE,
     ),
   );
 

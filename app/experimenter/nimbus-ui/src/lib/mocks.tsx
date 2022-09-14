@@ -34,6 +34,8 @@ import {
 } from "../types/getExperiment";
 import {
   ExperimentInput,
+  NimbusChangeLogOldStatus,
+  NimbusChangeLogOldStatusNext,
   NimbusDocumentationLinkTitle,
   NimbusExperimentApplicationEnum,
   NimbusExperimentChannelEnum,
@@ -862,7 +864,7 @@ export const mockChangelog = (
   message: string | null = null,
   changedOn: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
-  oldStatus: NimbusExperimentStatusEnum.LIVE,
+  oldStatus: NimbusChangeLogOldStatus.LIVE,
   oldStatusNext: null,
   changedBy: mockUser(email),
   changedOn,
@@ -872,8 +874,8 @@ export const mockChangelog = (
 export const mockRejectionChangelog = (
   email = "abc@mozilla.com",
   message: string | null = null,
-  oldStatus: NimbusExperimentStatusEnum = NimbusExperimentStatusEnum.LIVE,
-  oldStatusNext: NimbusExperimentStatusEnum | null = null,
+  oldStatus: NimbusChangeLogOldStatus = NimbusChangeLogOldStatus.LIVE,
+  oldStatusNext: NimbusChangeLogOldStatusNext | null = null,
   changedOn: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
   oldStatus,
