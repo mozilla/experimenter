@@ -134,9 +134,14 @@ function setIsRollout(
   state: FormBranchesState,
   { value: isRollout }: SetIsRolloutAction,
 ) {
+  let { treatmentBranches } = state;
+  if (isRollout) {
+    treatmentBranches = [];
+  }
   return {
     ...state,
     isRollout,
+    treatmentBranches,
   };
 }
 
