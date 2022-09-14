@@ -296,6 +296,10 @@ Pull in the latest Kinto Docker image. Kinto is not automatically updated when n
 
 Run all test and lint suites, this is run in CI on all PRs and deploys.
 
+##### Helpful UI Testing Tips
+If you have a test failing to find an element (or finding too many, etc.) and the DOM is being cut off in the console output,
+you can increase how much is printed by locally editing the `DEBUG_PRINT_LIMIT=7000` in the `Makefile` (line starts with `JS_TEST_NIMBUS_UI`).
+
 #### make py_test
 
 Run only the python test suite.
