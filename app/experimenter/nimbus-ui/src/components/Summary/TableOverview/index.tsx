@@ -103,13 +103,13 @@ const TableOverview = ({
               <th>Feature config</th>
               <td data-testid="experiment-feature-config">
                 {experiment.featureConfigs?.length ? (
-                  experiment.featureConfigs.map((f) => (
-                    <>
+                  experiment.featureConfigs.map((f, idx) => (
+                    <React.Fragment key={f?.id || idx}>
                       <p>
                         {f?.name}
                         {f?.description?.length ? `- ${f.description}` : ""}
                       </p>
-                    </>
+                    </React.Fragment>
                   ))
                 ) : (
                   <NotSet />
