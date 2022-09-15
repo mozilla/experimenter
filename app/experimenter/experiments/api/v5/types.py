@@ -2,7 +2,6 @@ import json
 
 import graphene
 from django.contrib.auth import get_user_model
-from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
 from experimenter.base.models import Country, Language, Locale
@@ -179,7 +178,7 @@ class NimbusBranchType(DjangoObjectType):
     featureEnabled = graphene.Boolean(required=True)
     featureValue = graphene.String(required=False)
     featureValues = graphene.List(NimbusBranchFeatureValueType)
-    screenshots = DjangoListField(NimbusBranchScreenshotType)
+    screenshots = graphene.List(NimbusBranchScreenshotType)
 
     class Meta:
         model = NimbusBranch
@@ -208,6 +207,9 @@ class NimbusBranchType(DjangoObjectType):
             root.feature_values.exists()
             and root.feature_values.all().order_by("feature_config__slug").first().value
         ) or ""
+
+    def resolve_screenshots(root, info):
+        return root.screenshots.all()
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
@@ -419,9 +421,7 @@ class NimbusExperimentType(DjangoObjectType):
     firefoxMaxVersion = NimbusExperimentFirefoxVersionEnum(source="firefox_min_version")
     populationPercent = graphene.String(source="population_percent")
     channel = NimbusExperimentChannelEnum()
-    documentationLinks = DjangoListField(
-        NimbusDocumentationLinkType, source="documentation_links"
-    )
+    documentationLinks = graphene.List(NimbusDocumentationLinkType)
     referenceBranch = graphene.Field(NimbusBranchType)
     treatmentBranches = graphene.List(NimbusBranchType)
     targetingConfigSlug = graphene.String()
@@ -610,3 +610,6 @@ class NimbusExperimentType(DjangoObjectType):
             indent=2,
             sort_keys=True,
         )
+
+    def resolve_documentationLinks(self, info):
+        return self.documentation_links.all()

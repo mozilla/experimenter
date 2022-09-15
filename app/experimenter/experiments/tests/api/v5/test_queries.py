@@ -1242,6 +1242,43 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 experiment_data["treatmentBranches"],
             )
 
+    def test_returns_documentation_links_only_for_experiment(self):
+        user_email = "user@example.com"
+
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    documentationLinks {
+                        title
+                        link
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment1.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+
+        self.assertEqual(
+            {link["link"] for link in experiment_data["documentationLinks"]},
+            {link.link for link in experiment1.documentation_links.all()},
+        )
+        self.assertNotEqual(
+            {link["link"] for link in experiment_data["documentationLinks"]},
+            {link.link for link in experiment2.documentation_links.all()},
+        )
+
 
 class TestNimbusConfigQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
