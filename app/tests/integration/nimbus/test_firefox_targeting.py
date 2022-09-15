@@ -136,14 +136,15 @@ def test_check_advanced_targeting(
 
 
 @pytest.mark.parametrize(
-    "audience_field", [
+    "audience_field",
+    [
         {"channel": "NIGHTLY"},
         {"firefoxMinVersion": "FIREFOX_100"},
         {"firefoxMaxVersion": "FIREFOX_120"},
         {"locales": [37]},
         {"countries": [42]},
         {"proposedEnrollment": "14"},
-        {"proposedDuration": "30"}
+        {"proposedDuration": "30"},
     ],
     ids=[
         "channel",
@@ -152,16 +153,12 @@ def test_check_advanced_targeting(
         "locales",
         "countries",
         "proposed_enrollment",
-        "proposed_duration"
-    ]
+        "proposed_duration",
+    ],
 )
 @pytest.mark.run_targeting
 def test_check_audience_targeting(
-    selenium,
-    slugify,
-    experiment_name,
-    create_desktop_experiment,
-    audience_field
+    selenium, slugify, experiment_name, create_desktop_experiment, audience_field
 ):
     experiment_slug = str(slugify(experiment_name))
     data = {
