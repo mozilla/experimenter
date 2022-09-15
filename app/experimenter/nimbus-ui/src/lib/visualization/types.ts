@@ -9,12 +9,34 @@ export interface AnalysisData {
   weekly: { [branch: string]: BranchDescription } | null;
   overall: { [branch: string]: BranchDescription } | null;
   show_analysis: boolean;
+  errors: AnalysisErrorGroup | null;
   metadata?: Metadata;
   other_metrics?: { [group: string]: { [metric: string]: string } };
 }
 
 export type AnalysisDataOverall = Exclude<AnalysisData["overall"], null>;
 export type AnalysisDataWeekly = Exclude<AnalysisData["weekly"], null>;
+
+/**
+ * Contains the analysis errors grouped by metric name, with any errors
+ * not specific to a metric put in the "experiment" array.
+ */
+export interface AnalysisErrorGroup extends Record<string, AnalysisError[]> {
+  experiment: AnalysisError[];
+}
+
+export interface AnalysisError {
+  metric: string | null;
+  message: string | null;
+  filename: string | null;
+  exception: string | null;
+  func_name: string | null;
+  log_level: string | null;
+  statistic: string | null;
+  timestamp: string | null;
+  experiment: string | null;
+  exception_type: string | null;
+}
 
 export interface Metadata {
   metrics: { [metric: string]: MetadataPoint };

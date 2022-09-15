@@ -16,6 +16,8 @@ import {
 } from "../../lib/test-utils";
 import {
   mockAnalysis,
+  mockAnalysisWithErrors,
+  mockAnalysisWithErrorsAndResults,
   MOCK_METADATA_WITH_CONFIG,
   MOCK_UNAVAILABLE_ANALYSIS,
 } from "../../lib/visualization/mocks";
@@ -55,7 +57,7 @@ describe("PageResults", () => {
     // length of 2 due to two sets of tabs per table
     expect(screen.queryAllByTestId("table-highlights")).toHaveLength(2);
     expect(screen.queryAllByTestId("table-results")).toHaveLength(2);
-    expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(4);
+    expect(screen.getAllByTestId("table-metric-secondary")).toHaveLength(6);
   });
 
   it("displays the external config alert when an override exists", async () => {
@@ -79,6 +81,82 @@ describe("PageResults", () => {
         ),
       ),
     );
+  });
+
+  it("displays analysis errors", async () => {
+    render(
+      <Subject
+        mockAnalysisData={mockAnalysisWithErrors()}
+        mockExperiment={
+          mockExperimentQuery("demo-slug", {
+            status: NimbusExperimentStatusEnum.COMPLETE,
+          }).experiment
+        }
+      />,
+    );
+
+    expect(screen.getByText("NoEnrollmentPeriodException"));
+    expect(
+      screen.getByText(
+        "Error while computing statistic bootstrap_mean for metric picture_in_picture",
+        { exact: false },
+      ),
+    );
+    expect(
+      screen.getByText(
+        "Error while computing statistic bootstrap_mean for metric feature_b",
+        { exact: false },
+      ),
+    );
+    expect(screen.getAllByTestId("analysis-error")).toHaveLength(3);
+  });
+
+  it("displays analysis errors if no results exist for metric, else results", async () => {
+    render(
+      <Subject
+        mockAnalysisData={mockAnalysisWithErrorsAndResults()}
+        mockExperiment={
+          mockExperimentQuery("demo-slug", {
+            status: NimbusExperimentStatusEnum.COMPLETE,
+          }).experiment
+        }
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        "Error while computing statistic bootstrap_mean for metric picture_in_picture",
+        { exact: false },
+      ),
+    );
+    expect(
+      screen.queryByText(
+        "Error while computing statistic bootstrap_mean for metric feature_b",
+        { exact: false },
+      ),
+    ).toBeNull();
+  });
+
+  it("displays no results message when other metrics have errors", async () => {
+    render(
+      <Subject
+        mockAnalysisData={mockAnalysisWithErrors()}
+        mockExperiment={
+          mockExperimentQuery("demo-slug", {
+            status: NimbusExperimentStatusEnum.COMPLETE,
+          }).experiment
+        }
+      />,
+    );
+
+    expect(
+      screen.getAllByText(
+        "StatisticComputationException calculating bootstrap_mean",
+      ),
+    );
+    expect(
+      screen.getAllByText("No results available for metric."),
+    ).toHaveLength(3);
   });
 
   it("redirects to the edit overview page if the experiment status is draft", async () => {

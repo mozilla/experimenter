@@ -19,10 +19,12 @@ import {
   getSortedBranchNames,
 } from "../../lib/visualization/utils";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
+import AnalysisErrorAlert from "./AnalysisErrorAlert";
 import ExternalConfigAlert from "./ExternalConfigAlert";
 import TableHighlights from "./TableHighlights";
 import TableHighlightsOverview from "./TableHighlightsOverview";
 import TableMetricCount from "./TableMetricCount";
+import MetricHeader from "./TableMetricCount/MetricHeader";
 import TableResults from "./TableResults";
 import TableResultsWeekly from "./TableResultsWeekly";
 import TableWithTabComparison from "./TableWithTabComparison";
@@ -59,6 +61,62 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
   const { external_config: externalConfig } = analysis.metadata || {};
 
+  const getErrorsForOutcomes = (
+    outcomes: (string | null)[] | null,
+    isPrimary: boolean,
+  ): React.ReactElement => {
+    return (
+      <>
+        {outcomes?.map((slug) => {
+          const outcome = configOutcomes!.find((set) => {
+            return set?.slug === slug;
+          });
+          return outcome?.metrics?.map((metric) => {
+            if (metric?.slug) {
+              // if we have more than just the 'experiment' errors key,
+              // that means at least one metric had errors, so we should
+              // show all the metric headers to avoid potential confusion
+              const metricHeader = (
+                <MetricHeader
+                  key={metric.slug}
+                  outcomeSlug={metric.slug!}
+                  outcomeDefaultName={metric?.friendlyName!}
+                  metricType={
+                    isPrimary
+                      ? METRIC_TYPE.PRIMARY
+                      : METRIC_TYPE.DEFAULT_SECONDARY
+                  }
+                />
+              );
+              if (
+                metric.slug in analysis.errors! &&
+                analysis.errors![metric.slug].length > 0
+              ) {
+                return (
+                  <>
+                    {metricHeader}
+                    <AnalysisErrorAlert
+                      errors={analysis.errors![metric.slug]}
+                    />
+                  </>
+                );
+              } else {
+                return (
+                  <>
+                    {metricHeader}
+                    <p>
+                      <i>No results available for metric.</i>
+                    </p>
+                  </>
+                );
+              }
+            }
+          });
+        })}
+      </>
+    );
+  };
+
   return (
     <AppLayoutWithExperiment title="Analysis" testId="PageResults">
       <ResultsContext.Provider value={resultsContextValue}>
@@ -73,6 +131,11 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             </b>
           </p>
         )}
+        {analysis?.errors?.experiment &&
+          analysis?.errors?.experiment.length > 0 && (
+            <AnalysisErrorAlert errors={analysis.errors.experiment} />
+          )}
+
         {externalConfig && <ExternalConfigAlert {...{ externalConfig }} />}
 
         <h3 className="h4 mb-3 mt-4" id="overview">
@@ -108,46 +171,73 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
         <div>
           <h2 className="h4 mb-3">Outcome Metrics</h2>
-          {analysis.overall &&
-            experiment.primaryOutcomes?.map((slug) => {
-              const outcome = configOutcomes!.find((set) => {
-                return set?.slug === slug;
-              });
-              return outcome?.metrics?.map((metric) => {
-                if (
-                  !analysis!.overall![resultsContextValue.controlBranchName]
-                    .branch_data[GROUP.OTHER][metric?.slug!]
-                ) {
-                  // Primary metric does not have data to display.
-                  return;
-                }
+          {analysis.overall
+            ? experiment.primaryOutcomes?.map((slug) => {
+                const outcome = configOutcomes!.find((set) => {
+                  return set?.slug === slug;
+                });
+                return outcome?.metrics?.map((metric) => {
+                  if (
+                    !analysis!.overall![resultsContextValue.controlBranchName]
+                      .branch_data[GROUP.OTHER][metric?.slug!]
+                  ) {
+                    // Primary metric does not have data to display. Show error if there is one.
+                    if (
+                      metric?.slug &&
+                      analysis?.errors &&
+                      metric.slug in analysis.errors &&
+                      analysis.errors[metric.slug].length > 0
+                    ) {
+                      return (
+                        <>
+                          <MetricHeader
+                            key={metric.slug}
+                            outcomeSlug={metric.slug!}
+                            outcomeDefaultName={metric?.friendlyName!}
+                            metricType={METRIC_TYPE.PRIMARY}
+                          />
+                          <AnalysisErrorAlert
+                            errors={analysis.errors[metric.slug]}
+                          />
+                        </>
+                      );
+                    }
+                  }
+                  return (
+                    <TableMetricCount
+                      key={metric?.slug}
+                      outcomeSlug={metric?.slug!}
+                      outcomeDefaultName={metric?.friendlyName!}
+                      group={GROUP.OTHER}
+                      metricType={METRIC_TYPE.PRIMARY}
+                    />
+                  );
+                });
+              })
+            : // no Overall results, check for errors in primary outcome metrics
+              analysis?.errors &&
+              Object.keys(analysis.errors).length > 1 &&
+              getErrorsForOutcomes(experiment.primaryOutcomes, true)}
+          {analysis.overall
+            ? experiment.secondaryOutcomes?.map((slug) => {
+                const outcome = configOutcomes!.find((set) => {
+                  return set?.slug === slug;
+                });
+
                 return (
                   <TableMetricCount
-                    key={metric?.slug}
-                    outcomeSlug={metric?.slug!}
-                    outcomeDefaultName={metric?.friendlyName!}
+                    key={outcome!.slug}
+                    outcomeSlug={outcome!.slug!}
+                    outcomeDefaultName={outcome!.friendlyName!}
                     group={GROUP.OTHER}
-                    metricType={METRIC_TYPE.PRIMARY}
+                    metricType={METRIC_TYPE.DEFAULT_SECONDARY}
                   />
                 );
-              });
-            })}
-          {analysis.overall &&
-            experiment.secondaryOutcomes?.map((slug) => {
-              const outcome = configOutcomes!.find((set) => {
-                return set?.slug === slug;
-              });
-
-              return (
-                <TableMetricCount
-                  key={outcome!.slug}
-                  outcomeSlug={outcome!.slug!}
-                  outcomeDefaultName={outcome!.friendlyName!}
-                  group={GROUP.OTHER}
-                  metricType={METRIC_TYPE.DEFAULT_SECONDARY}
-                />
-              );
-            })}
+              })
+            : // no Overall results, check for errors in secondary outcome metrics
+              analysis?.errors &&
+              Object.keys(analysis.errors).length > 1 &&
+              getErrorsForOutcomes(experiment.secondaryOutcomes, false)}
           {analysis.other_metrics &&
             Object.keys(analysis.other_metrics).map((group: string) => {
               const [open, setOpen] = groupStates[group];
@@ -182,7 +272,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   </span>
                   <Collapse in={open}>
                     <div>
-                      {analysis.other_metrics?.[group] &&
+                      {analysis.overall &&
+                        analysis.other_metrics?.[group] &&
                         Object.keys(analysis.other_metrics[group]).map(
                           (metric: string) => (
                             <TableMetricCount

@@ -518,7 +518,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
     },
   ],
   primaryOutcomes: ["picture_in_picture", "feature_c", "feature_nodata"],
-  secondaryOutcomes: ["feature_b"],
+  secondaryOutcomes: ["feature_b", "feature_d"],
   channel: NimbusExperimentChannelEnum.NIGHTLY,
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_16,
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_64,

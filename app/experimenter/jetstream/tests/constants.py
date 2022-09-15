@@ -399,6 +399,51 @@ class JetstreamTestData:
             },
         }
 
+        ERRORS = {
+            "experiment": [
+                {
+                    "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                    "exception_type": "NoEnrollmentPeriodException",
+                    "experiment": "test-experiment-slug",
+                    "filename": "cli.py",
+                    "func_name": "execute",
+                    "log_level": "ERROR",
+                    "message": "test-experiment-slug -> error",
+                    "metric": None,
+                    "statistic": None,
+                    "timestamp": "2022-08-31T04:32:03+00:00",
+                }
+            ],
+            "default_browser_action": [
+                {
+                    "exception": "(<class 'StatisticComputationException'>)",
+                    "exception_type": "StatisticComputationException",
+                    "experiment": "test-experiment-slug",
+                    "filename": "statistics.py",
+                    "func_name": "apply",
+                    "log_level": "ERROR",
+                    "message": "Error while computing statistic bootstrap_mean",
+                    "metric": "default_browser_action",
+                    "statistic": "bootstrap_mean",
+                    "timestamp": "2022-08-31T04:32:03+00:00",
+                }
+            ],
+            "spoc_tiles_disable_rate": [
+                {
+                    "exception": "(<class 'StatisticComputationException'>)",
+                    "exception_type": "StatisticComputationException",
+                    "experiment": "test-experiment-slug",
+                    "filename": "statistics.py",
+                    "func_name": "apply",
+                    "log_level": "ERROR",
+                    "message": "Error while computing statistic binomial",
+                    "metric": "spoc_tiles_disable_rate",
+                    "statistic": "binomial",
+                    "timestamp": "2022-08-31T04:32:03+00:00",
+                }
+            ],
+        }
+
         cls.add_all_outcome_data(
             DAILY_DATA,
             OVERALL_DATA,
@@ -406,11 +451,7 @@ class JetstreamTestData:
             primary_outcomes,
         )
 
-        return (
-            DAILY_DATA,
-            WEEKLY_DATA,
-            OVERALL_DATA,
-        )
+        return (DAILY_DATA, WEEKLY_DATA, OVERALL_DATA, ERRORS)
 
 
 class ZeroJetstreamTestData(JetstreamTestData):
