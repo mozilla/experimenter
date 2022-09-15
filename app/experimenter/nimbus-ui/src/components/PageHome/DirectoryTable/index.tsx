@@ -13,12 +13,19 @@ import {
 } from "../../../hooks";
 import { getProposedEnrollmentRange, humanDate } from "../../../lib/dateUtils";
 import {
+  applicationSortSelector,
+  channelSortSelector,
+  computedEndDateSortSelector,
   enrollmentSortSelector,
   experimentSortComparator,
   ExperimentSortSelector,
   featureConfigNameSortSelector,
+  firefoxMaxVersionSortSelector,
+  firefoxMinVersionSortSelector,
   ownerUsernameSortSelector,
+  populationPercentSortSelector,
   resultsReadySortSelector,
+  startDateSortSelector,
 } from "../../../lib/experiment";
 import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
 import LinkExternal from "../../LinkExternal";
@@ -119,6 +126,57 @@ export const DirectoryColumnFeature: ColumnComponent = ({ featureConfig }) => (
   </td>
 );
 
+export const DirectoryColumnStartDate: ColumnComponent = ({ startDate: d }) => (
+  <td data-testid="directory-table-cell">
+    {(d && humanDate(d)) || <NotSet />}
+  </td>
+);
+export const DirectoryColumnEnrollmentDate: ColumnComponent = (experiment) => (
+  <td data-testid="directory-table-cell">
+    {getProposedEnrollmentRange(experiment) || <NotSet />}
+  </td>
+);
+export const DirectoryColumnEndDate: ColumnComponent = ({
+  computedEndDate: d,
+}) => (
+  <td data-testid="directory-table-cell">
+    {(d && humanDate(d)) || <NotSet />}
+  </td>
+);
+
+export const DirectoryColumnResults: ColumnComponent = (experiment) => (
+  <td data-testid="directory-table-cell">
+    {experiment.monitoringDashboardUrl && (
+      <LinkExternal
+        href={experiment.monitoringDashboardUrl!}
+        data-testid="link-monitoring-dashboard"
+      >
+        Looker
+      </LinkExternal>
+    )}
+    {experiment.monitoringDashboardUrl &&
+      experiment.rolloutMonitoringDashboardUrl && <br />}
+    {experiment.rolloutMonitoringDashboardUrl && (
+      <LinkExternal
+        href={experiment.rolloutMonitoringDashboardUrl!}
+        data-testid="link-rollout-monitoring-dashboard"
+      >
+        Rollout dashboard
+      </LinkExternal>
+    )}
+    {experiment.monitoringDashboardUrl && experiment.resultsReady && <br />}
+    {!experiment.isRollout && experiment.resultsReady && (
+      <Link to={`${experiment.slug}/results`} data-sb-kind="pages/Results">
+        Results
+      </Link>
+    )}
+    {!experiment.monitoringDashboardUrl &&
+      !experiment.rolloutMonitoringDashboardUrl &&
+      !experiment.resultsReady &&
+      "N/A"}
+  </td>
+);
+
 export interface Column {
   /** The label of the column, which shows up in <th/> */
   label: string;
@@ -132,23 +190,6 @@ export interface ColumnSortOrder {
   column: Column | undefined;
   descending: boolean;
 }
-
-interface ColumnTitleProps {
-  column: Column;
-}
-
-export const ColumnTitle: React.FunctionComponent<ColumnTitleProps> = ({
-  column: { label },
-}) => (
-  <th
-    className="border-top-0 font-weight-normal"
-    key={label}
-    data-testid="directory-table-header"
-  >
-    {label}
-  </th>
-);
-
 interface SortableColumnTitleProps {
   column: Column;
   columnSortOrder: ColumnSortOrder;
@@ -228,28 +269,48 @@ const commonColumns: Column[] = [
   },
   {
     label: "Application",
-    sortBy: "application",
+    sortBy: applicationSortSelector,
     component: DirectoryColumnApplication,
   },
   {
     label: "Channel",
-    sortBy: "channel",
+    sortBy: channelSortSelector,
     component: DirectoryColumnChannel,
   },
   {
     label: "Population %",
-    sortBy: "populationPercent",
+    sortBy: populationPercentSortSelector,
     component: DirectoryColumnPopulationPercent,
   },
   {
     label: "Min Version",
-    sortBy: "firefoxMinVersion",
+    sortBy: firefoxMinVersionSortSelector,
     component: DirectoryColumnFirefoxMinVersion,
   },
   {
     label: "Max Version",
-    sortBy: "firefoxMaxVersion",
+    sortBy: firefoxMaxVersionSortSelector,
     component: DirectoryColumnFirefoxMaxVersion,
+  },
+  {
+    label: "Start",
+    sortBy: startDateSortSelector,
+    component: DirectoryColumnStartDate,
+  },
+  {
+    label: "Enroll",
+    sortBy: enrollmentSortSelector,
+    component: DirectoryColumnEnrollmentDate,
+  },
+  {
+    label: "End",
+    sortBy: computedEndDateSortSelector,
+    component: DirectoryColumnEndDate,
+  },
+  {
+    label: "Results",
+    sortBy: resultsReadySortSelector,
+    component: DirectoryColumnResults,
   },
 ];
 
@@ -287,16 +348,12 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
         <table className="table" data-testid="DirectoryTable">
           <thead>
             <tr>
-              {columns.map((column, i) =>
-                column.sortBy ? (
-                  <SortableColumnTitle
-                    key={column.label + i}
-                    {...{ column, columnSortOrder, updateSearchParams }}
-                  />
-                ) : (
-                  <ColumnTitle key={column.label + i} {...{ column }} />
-                ),
-              )}
+              {columns.map((column, i) => (
+                <SortableColumnTitle
+                  key={column.label + i}
+                  {...{ column, columnSortOrder, updateSearchParams }}
+                />
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -315,120 +372,5 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
     </div>
   );
 };
-
-export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
-  <DirectoryTable
-    {...props}
-    columns={[
-      ...commonColumns,
-
-      {
-        label: "Started",
-        sortBy: "startDate",
-        component: ({ startDate: d }) => (
-          <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
-        ),
-      },
-      {
-        label: "Enrolling",
-        sortBy: enrollmentSortSelector,
-        component: (experiment) => (
-          <td data-testid="directory-table-cell">
-            {getProposedEnrollmentRange(experiment)}
-          </td>
-        ),
-      },
-      {
-        label: "Ending",
-        sortBy: "computedEndDate",
-        component: (experiment) => (
-          <td data-testid="directory-table-cell">
-            {humanDate(experiment.computedEndDate!)}
-          </td>
-        ),
-      },
-      {
-        label: "Results",
-        sortBy: resultsReadySortSelector,
-        component: (experiment) => (
-          <td data-testid="directory-table-cell">
-            {experiment.monitoringDashboardUrl && (
-              <LinkExternal
-                href={experiment.monitoringDashboardUrl!}
-                data-testid="link-monitoring-dashboard"
-              >
-                Looker
-              </LinkExternal>
-            )}
-            {experiment.monitoringDashboardUrl &&
-              experiment.rolloutMonitoringDashboardUrl && <br />}
-            {experiment.rolloutMonitoringDashboardUrl && (
-              <LinkExternal
-                href={experiment.rolloutMonitoringDashboardUrl!}
-                data-testid="link-rollout-monitoring-dashboard"
-              >
-                Rollout dashboard
-              </LinkExternal>
-            )}
-            {experiment.monitoringDashboardUrl && experiment.resultsReady && (
-              <br />
-            )}
-            {!experiment.isRollout && experiment.resultsReady && (
-              <Link
-                to={`${experiment.slug}/results`}
-                data-sb-kind="pages/Results"
-              >
-                Results
-              </Link>
-            )}
-            {!experiment.monitoringDashboardUrl &&
-              !experiment.rolloutMonitoringDashboardUrl &&
-              !experiment.resultsReady &&
-              "N/A"}
-          </td>
-        ),
-      },
-    ]}
-  />
-);
-
-export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
-  props,
-) => (
-  <DirectoryTable
-    {...props}
-    columns={[
-      ...commonColumns,
-      {
-        label: "Started",
-        sortBy: "startDate",
-        component: ({ startDate: d }) => (
-          <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
-        ),
-      },
-      {
-        label: "Ended",
-        sortBy: "computedEndDate",
-        component: ({ computedEndDate: d }) => (
-          <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
-        ),
-      },
-      {
-        label: "Results",
-        component: ({ slug }) => (
-          <td data-testid="directory-table-cell">
-            <Link to={`${slug}/results`} data-sb-kind="pages/Results">
-              Results
-            </Link>
-          </td>
-        ),
-      },
-    ]}
-  />
-);
-
-export const DirectoryDraftsTable: React.FC<DirectoryTableProps> = (props) => (
-  <DirectoryTable {...props} />
-);
 
 export default DirectoryTable;
