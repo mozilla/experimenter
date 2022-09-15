@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useContext } from "react";
-import { ReactComponent as Info } from "../../../images/info.svg";
 import { ResultsContext } from "../../../lib/contexts";
 import {
   COUNT_METRIC_COLUMNS,
@@ -15,7 +14,7 @@ import { BranchComparisonValues } from "../../../lib/visualization/types";
 import { getExtremeBounds } from "../../../lib/visualization/utils";
 import GraphsWeekly from "../GraphsWeekly";
 import TableVisualizationRow from "../TableVisualizationRow";
-import TooltipWithMarkdown from "../TooltipWithMarkdown";
+import MetricHeader from "./MetricHeader";
 
 type CountMetricStatistic = {
   name: string;
@@ -71,37 +70,14 @@ const TableMetricCount = ({
   );
   const outcomeName =
     metadata?.metrics[outcomeSlug]?.friendly_name || outcomeDefaultName;
-  const outcomeDescription =
-    metadata?.metrics[outcomeSlug]?.description || undefined;
 
   return (
     <div data-testid="table-metric-secondary" className="mb-5">
-      <h3 className="h5 mb-3" id={outcomeSlug}>
-        <span className="mr-2">
-          {outcomeName}{" "}
-          {outcomeDescription && (
-            <>
-              <span className="align-middle">
-                <Info
-                  className="align-baseline"
-                  data-tip
-                  data-for={outcomeSlug}
-                />
-              </span>
-              <TooltipWithMarkdown
-                tooltipId={outcomeSlug}
-                markdown={outcomeDescription}
-              />
-            </>
-          )}
-        </span>
-        <span
-          className={`badge ${metricType.badge}`}
-          data-tip={metricType.tooltip}
-        >
-          {metricType.label}
-        </span>
-      </h3>
+      <MetricHeader
+        outcomeSlug={outcomeSlug}
+        outcomeDefaultName={outcomeDefaultName}
+        metricType={metricType}
+      />
 
       <table className="table-visualization-center border">
         <thead>

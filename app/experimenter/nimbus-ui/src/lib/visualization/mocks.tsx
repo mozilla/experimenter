@@ -7,6 +7,7 @@ export const MOCK_UNAVAILABLE_ANALYSIS = {
   daily: null,
   weekly: null,
   overall: null,
+  errors: null,
   metadata: {
     metrics: {},
     outcomes: {},
@@ -34,8 +35,24 @@ export const MOCK_METADATA = {
         "This is a metric description for search. It's made by a data scientist at the creation time of the metric [Link](https://www.example.com)",
       friendly_name: "Search Count",
     },
+    picture_in_picture: {
+      bigger_is_better: true,
+      description:
+        "This is a metric description for picture_in_picture. It's made by a data scientist at the creation time of the metric [Link](https://www.example.com)",
+      friendly_name: "Picture in picture",
+    },
   },
-  outcomes: {},
+  outcomes: {
+    outcome_test: {
+      commit_hash: "1234abcdef",
+      default_metrics: [],
+      description: "Outcome for testing",
+      friendly_name: "Test Outcome",
+      metrics: ["picture_in_picture"],
+      slug: "outcome_test",
+      bigger_is_better: false,
+    },
+  },
 };
 
 /**
@@ -387,6 +404,55 @@ export const mockAnalysis = (modifications = {}) =>
       other_metrics: { other_metrics: { feature_d: "Feature D" } },
       metadata: MOCK_METADATA,
       show_analysis: true,
+      errors: {
+        experiment: [
+          {
+            exception:
+              "(<class 'jetstream.errors.NoEnrollmentPeriodException'>, NoEnrollmentPeriodException('demo-slug -> Experiment has no enrollment period'), <traceback object at 0x7f50b65ce200>)",
+            exception_type: "NoEnrollmentPeriodException",
+            experiment: "demo-slug",
+            filename: "cli.py",
+            func_name: "execute",
+            log_level: "ERROR",
+            message: "demo-slug -> Experiment has no enrollment period",
+            metric: null,
+            statistic: null,
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+        picture_in_picture: [
+          {
+            exception:
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+            exception_type: "StatisticComputationException",
+            experiment: "demo-slug",
+            filename: "statistics.py",
+            func_name: "apply",
+            log_level: "ERROR",
+            message:
+              "Error while computing statistic bootstrap_mean for metric picture_in_picture: 'data' contains null values",
+            metric: "picture_in_picture",
+            statistic: "bootstrap_mean",
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+        feature_b: [
+          {
+            exception:
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+            exception_type: "StatisticComputationException",
+            experiment: "demo-slug",
+            filename: "statistics.py",
+            func_name: "apply",
+            log_level: "ERROR",
+            message:
+              "Error while computing statistic bootstrap_mean for metric feature_b: 'data' contains null values",
+            metric: "feature_b",
+            statistic: "bootstrap_mean",
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+      },
       daily: [],
       weekly: weeklyMockAnalysis(),
       overall: {
@@ -1029,6 +1095,7 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
       other_metrics: { other_metrics: { feature_d: "Feature D" } },
       metadata: MOCK_METADATA,
       show_analysis: true,
+      errors: { experiment: [] },
       daily: [],
       weekly: {},
       overall: {
@@ -1732,6 +1799,730 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
                 },
                 significance: { overall: { "1": "negative" }, weekly: {} },
               },
+            },
+          },
+        },
+      },
+    },
+    modifications,
+  );
+
+export const mockAnalysisWithErrors = (modifications = {}) =>
+  Object.assign(
+    {
+      other_metrics: { other_metrics: { feature_d: "Feature D" } },
+      metadata: MOCK_METADATA,
+      show_analysis: true,
+      errors: {
+        experiment: [
+          {
+            exception:
+              "(<class 'jetstream.errors.NoEnrollmentPeriodException'>, NoEnrollmentPeriodException('demo-slug -> Experiment has no enrollment period'), <traceback object at 0x7f50b65ce200>)",
+            exception_type: "NoEnrollmentPeriodException",
+            experiment: "demo-slug",
+            filename: "cli.py",
+            func_name: "execute",
+            log_level: "ERROR",
+            message: "demo-slug -> Experiment has no enrollment period",
+            metric: null,
+            statistic: null,
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+        picture_in_picture: [
+          {
+            exception:
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+            exception_type: "StatisticComputationException",
+            experiment: "demo-slug",
+            filename: "statistics.py",
+            func_name: "apply",
+            log_level: "ERROR",
+            message:
+              "Error while computing statistic bootstrap_mean for metric picture_in_picture: 'data' contains null values",
+            metric: "picture_in_picture",
+            statistic: "bootstrap_mean",
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+        feature_b: [
+          {
+            exception:
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+            exception_type: "StatisticComputationException",
+            experiment: "demo-slug",
+            filename: "statistics.py",
+            func_name: "apply",
+            log_level: "ERROR",
+            message:
+              "Error while computing statistic bootstrap_mean for metric feature_b: 'data' contains null values",
+            metric: "feature_b",
+            statistic: "bootstrap_mean",
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+      },
+      daily: [],
+      weekly: weeklyMockAnalysis(),
+      overall: null,
+    },
+    modifications,
+  );
+
+export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
+  Object.assign(
+    {
+      other_metrics: { other_metrics: { feature_d: "Feature D" } },
+      metadata: MOCK_METADATA,
+      show_analysis: true,
+      errors: {
+        experiment: [
+          {
+            exception:
+              "(<class 'jetstream.errors.NoEnrollmentPeriodException'>, NoEnrollmentPeriodException('demo-slug -> Experiment has no enrollment period'), <traceback object at 0x7f50b65ce200>)",
+            exception_type: "NoEnrollmentPeriodException",
+            experiment: "demo-slug",
+            filename: "cli.py",
+            func_name: "execute",
+            log_level: "ERROR",
+            message: "demo-slug -> Experiment has no enrollment period",
+            metric: null,
+            statistic: null,
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+        picture_in_picture: [
+          {
+            exception:
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+            exception_type: "StatisticComputationException",
+            experiment: "demo-slug",
+            filename: "statistics.py",
+            func_name: "apply",
+            log_level: "ERROR",
+            message:
+              "Error while computing statistic bootstrap_mean for metric picture_in_picture: 'data' contains null values",
+            metric: "picture_in_picture",
+            statistic: "bootstrap_mean",
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+        feature_b: [
+          {
+            exception:
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+            exception_type: "StatisticComputationException",
+            experiment: "demo-slug",
+            filename: "statistics.py",
+            func_name: "apply",
+            log_level: "ERROR",
+            message:
+              "Error while computing statistic bootstrap_mean for metric feature_b: 'data' contains null values",
+            metric: "feature_b",
+            statistic: "bootstrap_mean",
+            timestamp: "2022-08-11 20:06:35+00:00",
+          },
+        ],
+      },
+      daily: [],
+      weekly: weeklyMockAnalysis(),
+      overall: {
+        control: {
+          is_control: true,
+          branch_data: {
+            other_metrics: {
+              identity: {
+                absolute: {
+                  all: [
+                    {
+                      point: 198,
+                    },
+                  ],
+                  first: {
+                    point: 198,
+                  },
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+                percent: 45,
+              },
+              retained: {
+                absolute: {
+                  all: [
+                    {
+                      point: 0.9261083743842364,
+                      lower: 0.8864481497569532,
+                      upper: 0.9578449264993547,
+                    },
+                  ],
+                  first: {
+                    point: 14.967359019193298,
+                    lower: 10.534758870048162,
+                    upper: 20.754349791764547,
+                  },
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              picture_in_picture_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_b_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_b: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_c_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              feature_c: CONTROL_NEUTRAL,
+              feature_d: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              outcome_d: {
+                absolute: {
+                  first: {
+                    point: 0.05,
+                    count: 10,
+                    lower: 0.024357271316207685,
+                    upper: 0.08411463700173483,
+                  },
+                  all: [
+                    {
+                      point: 0.05,
+                      count: 10,
+                      lower: 0.024357271316207685,
+                      upper: 0.08411463700173483,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+              days_of_use: CONTROL_NEUTRAL,
+            },
+            search_metrics: {
+              search_count: {
+                absolute: {
+                  all: [
+                    {
+                      point: 14.967359019193298,
+                      lower: 10.534758870048162,
+                      upper: 20.754349791764547,
+                    },
+                  ],
+                  first: {
+                    point: 14.967359019193298,
+                    lower: 10.534758870048162,
+                    upper: 20.754349791764547,
+                  },
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+              },
+            },
+          },
+        },
+        treatment: {
+          is_control: false,
+          branch_data: {
+            other_metrics: {
+              identity: {
+                absolute: {
+                  first: {
+                    point: 200,
+                  },
+                  all: [
+                    {
+                      point: 200,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {},
+                  all: [],
+                },
+                relative_uplift: {
+                  first: {},
+                  all: [],
+                },
+                percent: 55,
+              },
+              retained: TREATMENT_NEUTRAL,
+              picture_in_picture_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+              picture_in_picture: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+              feature_b_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "negative" }, weekly: {} },
+              },
+              feature_b: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "negative" }, weekly: {} },
+              },
+              feature_c_ever_used: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "neutral" }, weekly: {} },
+              },
+              feature_c: TREATMENT_NEUTRAL,
+              days_of_use: TREATMENT_NEUTRAL,
+              feature_d: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+              outcome_d: {
+                absolute: {
+                  first: {
+                    point: 0.049019607843137254,
+                    count: 10,
+                    lower: 0.023872203557007872,
+                    upper: 0.08249069209461024,
+                  },
+                  all: [
+                    {
+                      point: 0.049019607843137254,
+                      count: 10,
+                      lower: 0.023872203557007872,
+                      upper: 0.08249069209461024,
+                    },
+                  ],
+                },
+                difference: {
+                  first: {
+                    point: -0.0006569487628876534,
+                    upper: 0.04316381736512019,
+                    lower: 0.04175095963994029,
+                  },
+                  all: [
+                    {
+                      point: -0.0006569487628876534,
+                      upper: 0.04316381736512019,
+                      lower: 0.04175095963994029,
+                    },
+                  ],
+                },
+                relative_uplift: {
+                  first: {
+                    lower: -0.455210299676828,
+                    upper: 0.5104985718410426,
+                    point: -0.06233954570562385,
+                  },
+                  all: [
+                    {
+                      lower: -0.455210299676828,
+                      upper: 0.5104985718410426,
+                      point: -0.06233954570562385,
+                    },
+                  ],
+                },
+                significance: { overall: { "1": "positive" }, weekly: {} },
+              },
+            },
+            search_metrics: {
+              search_count: TREATMENT_NEGATIVE,
             },
           },
         },

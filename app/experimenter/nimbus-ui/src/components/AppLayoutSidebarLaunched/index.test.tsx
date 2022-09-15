@@ -50,6 +50,7 @@ const Subject = ({
           daily: [],
           weekly: {},
           overall: mockAnalysis().overall,
+          errors: mockAnalysis().errors,
           metadata: mockAnalysis().metadata,
           other_metrics: mockAnalysis().other_metrics,
         }
@@ -122,6 +123,7 @@ describe("AppLayoutSidebarLaunched", () => {
             daily: null,
             weekly: null,
             overall: null,
+            errors: null,
             metadata: MOCK_METADATA_WITH_CONFIG,
           }}
         />,
@@ -173,7 +175,7 @@ describe("AppLayoutSidebarLaunched", () => {
       });
     });
 
-    it("when complete and page does not require full analaysis data, has expected results page items in side bar", () => {
+    it("when complete and page does not require full analysis data, has expected results page items in side bar", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(
         <Subject withAnalysis analysisRequired={false} {...{ experiment }} />,
