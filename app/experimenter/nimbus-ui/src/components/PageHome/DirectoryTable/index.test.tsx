@@ -8,12 +8,17 @@ import DirectoryTable, {
   Column,
   ColumnComponent,
   ColumnSortOrder,
+  DirectoryColumnApplication,
+  DirectoryColumnChannel,
+  DirectoryColumnEndDate,
+  DirectoryColumnEnrollmentDate,
   DirectoryColumnFeature,
+  DirectoryColumnFirefoxMaxVersion,
+  DirectoryColumnFirefoxMinVersion,
   DirectoryColumnOwner,
+  DirectoryColumnPopulationPercent,
+  DirectoryColumnStartDate,
   DirectoryColumnTitle,
-  DirectoryCompleteTable,
-  DirectoryDraftsTable,
-  DirectoryLiveTable,
   SortableColumnTitle,
 } from ".";
 import { UpdateSearchParams } from "../../../hooks/useSearchParamsState";
@@ -104,6 +109,151 @@ describe("DirectoryColumnFeature", () => {
   });
 });
 
+describe("DirectoryColumnApplication", () => {
+  it("renders the application", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnApplication {...experiment} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      "Desktop",
+    );
+  });
+});
+
+describe("DirectoryColumnChannel", () => {
+  it("renders the channel", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnChannel {...experiment} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      "Nightly",
+    );
+  });
+});
+
+describe("DirectoryColumnPopulationPercent", () => {
+  it("renders the population percent", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnPopulationPercent {...experiment} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      "100.0",
+    );
+  });
+});
+
+describe("DirectoryColumnFirefoxMinVersion", () => {
+  it("renders the firefox min version", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnFirefoxMinVersion {...experiment} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      "Firefox 80",
+    );
+  });
+});
+describe("DirectoryColumnFirefoxMaxVersion", () => {
+  it("renders the firefox max version", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnFirefoxMaxVersion {...experiment} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      "Firefox 64",
+    );
+  });
+  it("renders no version if no max version is set", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnFirefoxMaxVersion
+          {...experiment}
+          firefoxMaxVersion={null}
+        />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      "Not set",
+    );
+  });
+});
+
+describe("DirectoryColumneEnrollmentDate", () => {
+  it("renders the enrollment date period", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnEnrollmentDate {...experiment} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      getProposedEnrollmentRange(experiment),
+    );
+  });
+  it("renders days if date is null for enrollment column", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnEnrollmentDate {...experiment} computedEndDate={null} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      getProposedEnrollmentRange(experiment),
+    );
+  });
+});
+describe("DirectoryColumnStartDate", () => {
+  it("renders the start date", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnStartDate {...experiment} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      humanDate(experiment.startDate!),
+    );
+  });
+  it("renders not set start date", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnStartDate {...experiment} startDate={null} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      "Not set",
+    );
+  });
+});
+
+describe("DirectoryColumnEndDate", () => {
+  it("renders the end date", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnEndDate {...experiment} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      humanDate(experiment.computedEndDate!),
+    );
+  });
+  it("renders not set end date", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnEndDate {...experiment} computedEndDate={null} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      "Not set",
+    );
+  });
+});
+
 function expectTableCells(testId: string, cellTexts: string[]) {
   const cells = screen.getAllByTestId(testId);
   expect(cells).toHaveLength(cellTexts.length);
@@ -113,24 +263,6 @@ function expectTableCells(testId: string, cellTexts: string[]) {
 }
 
 describe("DirectoryTable", () => {
-  it("renders as expected with default columns", () => {
-    const experiments = [experiment];
-    render(
-      <RouterSlugProvider>
-        <DirectoryTable {...{ experiments }} />
-      </RouterSlugProvider>,
-    );
-    expectTableCells("directory-table-header", ["Name", "Owner", "Feature"]);
-    expectTableCells("directory-table-cell", [
-      experiment.name,
-      experiment.owner!.username,
-      experiment.featureConfig!.name,
-    ]);
-    expect(screen.getAllByTestId("directory-table-row")).toHaveLength(
-      experiments.length,
-    );
-  });
-
   it("renders as expected without experiments", () => {
     render(
       <RouterSlugProvider>
@@ -138,35 +270,6 @@ describe("DirectoryTable", () => {
       </RouterSlugProvider>,
     );
     expect(screen.getByTestId("no-experiments")).toBeInTheDocument();
-  });
-
-  it("renders as expected with custom columns", () => {
-    render(
-      <RouterSlugProvider>
-        <DirectoryTable
-          experiments={[experiment]}
-          columns={[
-            {
-              label: "Cant think",
-              sortBy: "name",
-              component: DirectoryColumnTitle,
-            },
-            {
-              label: "Of a title",
-              sortBy: "status",
-              component: ({ status }) => (
-                <td data-testid="directory-table-cell">{status}</td>
-              ),
-            },
-          ]}
-        />
-      </RouterSlugProvider>,
-    );
-    expectTableCells("directory-table-header", ["Cant think", "Of a title"]);
-    expectTableCells("directory-table-cell", [
-      experiment.name,
-      experiment.status!,
-    ]);
   });
 
   // TODO: not exhaustively testing all sort orders here, might be worth adding more?
@@ -211,7 +314,7 @@ describe("DirectoryTable", () => {
   });
 });
 
-describe("DirectoryLiveTable", () => {
+describe("DirectoryTable", () => {
   it.each([
     ["looker link is present", experiment, "Looker"],
     [
@@ -251,7 +354,7 @@ describe("DirectoryLiveTable", () => {
     (_, experiment: getAllExperiments_experiments, expectedResult: string) => {
       render(
         <RouterSlugProvider>
-          <DirectoryLiveTable experiments={[experiment]} />
+          <DirectoryTable experiments={[experiment]} />
         </RouterSlugProvider>,
       );
       expectTableCells("directory-table-header", [
@@ -263,9 +366,9 @@ describe("DirectoryLiveTable", () => {
         "Population %",
         "Min Version",
         "Max Version",
-        "Started",
-        "Enrolling",
-        "Ending",
+        "Start",
+        "Enroll",
+        "End",
         "Results",
       ]);
       expectTableCells("directory-table-cell", [
@@ -284,52 +387,6 @@ describe("DirectoryLiveTable", () => {
       ]);
     },
   );
-});
-
-describe("DirectoryCompleteTable", () => {
-  it("renders as expected with custom columns", () => {
-    render(
-      <RouterSlugProvider>
-        <DirectoryCompleteTable experiments={[experiment]} />
-      </RouterSlugProvider>,
-    );
-    expectTableCells("directory-table-header", [
-      "Name",
-      "Owner",
-      "Feature",
-      "Started",
-      "Ended",
-      "Results",
-    ]);
-    const header = screen
-      .getAllByTestId("directory-table-header")
-      .find((el) => el.textContent === "Results");
-    expect(header!.tagName).not.toEqual("BUTTON");
-    expectTableCells("directory-table-cell", [
-      experiment.name,
-      experiment.owner!.username,
-      experiment.featureConfig!.name,
-      humanDate(experiment.startDate!),
-      humanDate(experiment.computedEndDate!),
-      "Results",
-    ]);
-  });
-});
-
-describe("DirectoryDraftsTable", () => {
-  it("renders as expected with custom columns", () => {
-    render(
-      <RouterSlugProvider>
-        <DirectoryDraftsTable experiments={[experiment]} />
-      </RouterSlugProvider>,
-    );
-    expectTableCells("directory-table-header", ["Name", "Owner", "Feature"]);
-    expectTableCells("directory-table-cell", [
-      experiment.name,
-      experiment.owner!.username,
-      experiment.featureConfig!.name,
-    ]);
-  });
 });
 
 describe("SortableColumnTitle", () => {
