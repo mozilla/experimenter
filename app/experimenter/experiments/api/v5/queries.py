@@ -12,13 +12,13 @@ class Query(graphene.ObjectType):
         NimbusExperimentType,
         description="List Nimbus Experiments.",
     )
-    experiment_by_slug = graphene.Field(
+    experimentBySlug = graphene.Field(
         NimbusExperimentType,
         description="Retrieve a Nimbus experiment by its slug.",
         slug=graphene.String(required=True),
     )
 
-    nimbus_config = graphene.Field(
+    nimbusConfig = graphene.Field(
         NimbusConfigurationType,
         description="Nimbus Configuration Data for front-end usage.",
     )
@@ -26,11 +26,11 @@ class Query(graphene.ObjectType):
     def resolve_experiments(root, info):
         return NimbusExperiment.objects.with_owner_features()
 
-    def resolve_experiment_by_slug(root, info, slug):
+    def resolve_experimentBySlug(root, info, slug):
         try:
             return NimbusExperiment.objects.get(slug=slug)
         except NimbusExperiment.DoesNotExist:
             return None
 
-    def resolve_nimbus_config(root, info):
+    def resolve_nimbusConfig(root, info):
         return NimbusConfigurationType()

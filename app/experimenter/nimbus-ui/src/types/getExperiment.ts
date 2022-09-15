@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentApplicationEnum, NimbusExperimentConclusionRecommendationEnum, NimbusExperimentChannelEnum, NimbusExperimentFirefoxVersionEnum, NimbusDocumentationLinkTitle, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
+import { NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentApplicationEnum, NimbusExperimentConclusionRecommendationEnum, NimbusExperimentChannelEnum, NimbusExperimentFirefoxVersionEnum, NimbusDocumentationLinkTitle } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -103,8 +103,8 @@ export interface getExperiment_experimentBySlug_rejection_changedBy {
 
 export interface getExperiment_experimentBySlug_rejection {
   message: string | null;
-  oldStatus: NimbusChangeLogOldStatus | null;
-  oldStatusNext: NimbusChangeLogOldStatusNext | null;
+  oldStatus: NimbusExperimentStatusEnum | null;
+  oldStatusNext: NimbusExperimentStatusEnum | null;
   changedOn: DateTime;
   changedBy: getExperiment_experimentBySlug_rejection_changedBy;
 }
