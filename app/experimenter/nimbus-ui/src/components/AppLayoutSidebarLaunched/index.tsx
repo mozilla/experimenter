@@ -212,8 +212,8 @@ export const AppLayoutSidebarLaunched = ({
                     <>
                       Could not get visualization data. Please contact data
                       science in{" "}
-                      <LinkExternal href="https://mozilla.slack.com/archives/C0149JH7C1M">
-                        #cirrus
+                      <LinkExternal href="https://mozilla.slack.com/archives/CF94YGE03">
+                        #ask-experimenter
                       </LinkExternal>
                       .
                     </>

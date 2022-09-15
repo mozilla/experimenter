@@ -51,11 +51,9 @@ class TestFetchJetstreamDataTask(TestCase):
         treatment_branch.slug = "variant"
         treatment_branch.save()
 
-        (
-            DAILY_DATA,
-            WEEKLY_DATA,
-            OVERALL_DATA,
-        ) = JetstreamTestData.get_test_data(primary_outcomes)
+        (DAILY_DATA, WEEKLY_DATA, OVERALL_DATA, ERRORS) = JetstreamTestData.get_test_data(
+            primary_outcomes
+        )
 
         FULL_DATA = {
             "daily": DAILY_DATA,
@@ -80,6 +78,7 @@ class TestFetchJetstreamDataTask(TestCase):
                 }
             },
             "show_analysis": False,
+            "errors": ERRORS,
         }
 
         class File:
@@ -100,6 +99,45 @@ class TestFetchJetstreamDataTask(TestCase):
                             }
                         }
                     }"""
+                if "errors" in self.name:
+                    return """[
+                        {
+                            "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "cli.py",
+                            "func_name": "execute",
+                            "log_level": "ERROR",
+                            "message": "test-experiment-slug -> error",
+                            "metric": null,
+                            "statistic": null,
+                            "timestamp": "2022-08-31T04:32:03+00:00"
+                        },
+                        {
+                            "exception": "(<class 'StatisticComputationException'>)",
+                            "exception_type": "StatisticComputationException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "statistics.py",
+                            "func_name": "apply",
+                            "log_level": "ERROR",
+                            "message": "Error while computing statistic bootstrap_mean",
+                            "metric": "default_browser_action",
+                            "statistic": "bootstrap_mean",
+                            "timestamp": "2022-08-31T04:32:03+00:00"
+                        },
+                        {
+                            "exception": "(<class 'StatisticComputationException'>)",
+                            "exception_type": "StatisticComputationException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "statistics.py",
+                            "func_name": "apply",
+                            "log_level": "ERROR",
+                            "message": "Error while computing statistic binomial",
+                            "metric": "spoc_tiles_disable_rate",
+                            "statistic": "binomial",
+                            "timestamp": "2022-08-31T04:32:03+00:00"
+                        }
+                    ]"""
                 return json.dumps(DAILY_DATA)
 
         def open_file(filename):
@@ -140,6 +178,7 @@ class TestFetchJetstreamDataTask(TestCase):
             DAILY_DATA,
             WEEKLY_DATA,
             OVERALL_DATA,
+            _,
         ) = ZeroJetstreamTestData.get_test_data(primary_outcomes)
 
         FULL_DATA = {
@@ -154,6 +193,7 @@ class TestFetchJetstreamDataTask(TestCase):
             },
             "metadata": {},
             "show_analysis": False,
+            "errors": {"experiment": []},
         }
 
         class File:
@@ -163,6 +203,8 @@ class TestFetchJetstreamDataTask(TestCase):
             def read(self):
                 if "metadata" in self.name:
                     return "{}"
+                if "errors" in self.name:
+                    return "[]"
                 return json.dumps(DAILY_DATA)
 
         def open_file(filename):
@@ -204,6 +246,7 @@ class TestFetchJetstreamDataTask(TestCase):
             DAILY_DATA,
             WEEKLY_DATA,
             OVERALL_DATA,
+            _,
         ) = NonePointJetstreamTestData.get_test_data(primary_outcomes)
 
         class File:
@@ -213,6 +256,8 @@ class TestFetchJetstreamDataTask(TestCase):
             def read(self):
                 if "metadata" in self.name:
                     return "{}"
+                if "errors" in self.name:
+                    return "[]"
                 return json.dumps(DAILY_DATA)
 
         def open_file(filename):
@@ -256,6 +301,7 @@ class TestFetchJetstreamDataTask(TestCase):
                 "overall": None,
                 "show_analysis": False,
                 "weekly": None,
+                "errors": {"experiment": []},
             },
         )
 
