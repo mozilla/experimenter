@@ -104,7 +104,7 @@ def application(request):
     Returns the current application to use for testing
     Will also parametrize the tests
     """
-    return request.param 
+    return request.param
 
 
 @pytest.fixture(scope="session", autouse=True)
