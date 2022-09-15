@@ -97,7 +97,7 @@ def firefox_options(firefox_options):
     # Use all applications as available parameters in parallel_pytest_args.txt
     params=list(BaseExperimentApplications),
     ids=[application.name for application in BaseExperimentApplications],
-    autouse=True
+    autouse=True,
 )
 def application(request):
     """
