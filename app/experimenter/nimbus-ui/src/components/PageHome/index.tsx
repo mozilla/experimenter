@@ -18,11 +18,7 @@ import AppLayout from "../AppLayout";
 import Head from "../Head";
 import LinkExternal from "../LinkExternal";
 import PageLoading from "../PageLoading";
-import DirectoryTable, {
-  DirectoryCompleteTable,
-  DirectoryDraftsTable,
-  DirectoryLiveTable,
-} from "./DirectoryTable";
+import DirectoryTable from "./DirectoryTable";
 import FilterBar from "./FilterBar";
 import {
   filterExperiments,
@@ -87,7 +83,7 @@ export const Body = () => {
       />
       <Tabs activeKey={selectedTab} onSelect={onSelectTab}>
         <Tab eventKey="live" title={`Live (${live.length})`}>
-          <DirectoryLiveTable experiments={live} />
+          <DirectoryTable experiments={live} />
         </Tab>
         <Tab eventKey="review" title={`Review (${review.length})`}>
           <DirectoryTable experiments={review} />
@@ -96,13 +92,13 @@ export const Body = () => {
           <DirectoryTable experiments={preview} />
         </Tab>
         <Tab eventKey="completed" title={`Completed (${complete.length})`}>
-          <DirectoryCompleteTable experiments={complete} />
+          <DirectoryTable experiments={complete} />
         </Tab>
         <Tab eventKey="drafts" title={`Draft (${draft.length})`}>
-          <DirectoryDraftsTable experiments={draft} />
+          <DirectoryTable experiments={draft} />
         </Tab>
         <Tab eventKey="archived" title={`Archived (${archived.length})`}>
-          <DirectoryDraftsTable experiments={archived} />
+          <DirectoryTable experiments={archived} />
         </Tab>
       </Tabs>
     </>

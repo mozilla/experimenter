@@ -97,6 +97,31 @@ export const featureConfigNameSortSelector: ExperimentSortSelector = (
 export const ownerUsernameSortSelector: ExperimentSortSelector = (experiment) =>
   experiment.owner?.username;
 
+export const applicationSortSelector: ExperimentSortSelector = (experiment) =>
+  experiment.application!;
+
+export const channelSortSelector: ExperimentSortSelector = (experiment) =>
+  experiment.channel!;
+
+export const populationPercentSortSelector: ExperimentSortSelector = (
+  experiment,
+) => experiment.populationPercent!;
+
+export const firefoxMinVersionSortSelector: ExperimentSortSelector = (
+  experiment,
+) => experiment.firefoxMinVersion!;
+
+export const firefoxMaxVersionSortSelector: ExperimentSortSelector = (
+  experiment,
+) => experiment.firefoxMaxVersion!;
+
+export const startDateSortSelector: ExperimentSortSelector = (experiment) =>
+  experiment.startDate!;
+
+export const computedEndDateSortSelector: ExperimentSortSelector = (
+  experiment,
+) => experiment.computedEndDate!;
+
 export const enrollmentSortSelector: ExperimentSortSelector = ({
   startDate,
   proposedEnrollment,

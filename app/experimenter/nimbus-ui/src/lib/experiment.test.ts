@@ -7,14 +7,21 @@ import {
   NimbusExperimentStatusEnum,
 } from "../types/globalTypes";
 import {
+  applicationSortSelector,
+  channelSortSelector,
+  computedEndDateSortSelector,
   editCommonRedirects,
   enrollmentSortSelector,
   experimentSortComparator,
   featureConfigNameSortSelector,
+  firefoxMaxVersionSortSelector,
+  firefoxMinVersionSortSelector,
   getStatus,
   ownerUsernameSortSelector,
+  populationPercentSortSelector,
   resultsReadySortSelector,
   selectFromExperiment,
+  startDateSortSelector,
 } from "./experiment";
 import {
   mockDirectoryExperiments,
@@ -99,6 +106,13 @@ describe("selectFromExperiment", () => {
       [ownerUsernameSortSelector, "example@mozilla.com"],
       [resultsReadySortSelector, "0"],
       [enrollmentSortSelector, "2021-07-07T00:00:00.000Z"],
+      [applicationSortSelector, "DESKTOP"],
+      [channelSortSelector, "NIGHTLY"],
+      [startDateSortSelector, "2021-06-29T00:00:00Z"],
+      [computedEndDateSortSelector, experiment.computedEndDate],
+      [firefoxMinVersionSortSelector, "FIREFOX_83"],
+      [firefoxMaxVersionSortSelector, "FIREFOX_64"],
+      [populationPercentSortSelector, "100.0"],
     ] as const;
     selectorCases.forEach(([selectBy, expected]) =>
       expect(selectFromExperiment(experiment, selectBy)).toEqual(expected),
@@ -110,6 +124,12 @@ describe("selectFromExperiment", () => {
         enrollmentSortSelector,
       ),
     ).toEqual("8");
+    expect(
+      selectFromExperiment(
+        { ...experiment, resultsReady: true },
+        resultsReadySortSelector,
+      ),
+    ).toEqual("1");
   });
 });
 
