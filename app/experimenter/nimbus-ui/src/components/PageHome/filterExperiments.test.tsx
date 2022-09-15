@@ -40,7 +40,7 @@ describe("updateParamsFromFilterValue", () => {
       owners: [owners![0], owners![1]],
       applications: [applications![0], applications![3]],
       allFeatureConfigs: [allFeatureConfigs![2], allFeatureConfigs![3]],
-      channels: [channels![1]],
+      channels: [channels![0], channels![1]],
     });
     expect(params.get("owners")).toEqual(
       "alpha-example@mozilla.com,beta-example@mozilla.com",
@@ -49,7 +49,7 @@ describe("updateParamsFromFilterValue", () => {
     expect(params.get("allFeatureConfigs")).toEqual(
       "IOS:foo-lila-sat,FENIX:foo-lila-sat",
     );
-    expect(params.get("channels")).toEqual("NIGHTLY");
+    expect(params.get("channels")).toEqual("BETA,NIGHTLY");
   });
 
   it("handles a roundtrip encoding with everything filtered", () => {
