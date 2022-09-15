@@ -4,7 +4,7 @@ from typing import List, Optional
 
 
 class BaseExperimentApplications(Enum):
-    DESKTOP = "DESKTOP"
+    FIREFOX_DESKTOP = "DESKTOP"
     FENIX = "FENIX"
     IOS = "IOS"
     FOCUS_ANDROID = "FOCUS_ANDROID"

@@ -72,23 +72,24 @@ def test_check_telemetry_enrollment_unenrollment(
     requests.delete("http://ping-server:5000/pings")
     targeting = helpers.load_targeting_configs()[0]
     experiment_slug = str(slugify(experiment_name))
-    create_desktop_experiment(
-        experiment_slug,
-        "desktop",
-        targeting,
-        public_description="Some sort of words",
-        risk_revenue=False,
-        risk_partner_related=False,
-        risk_brand=False,
-        feature_config=1,
-        reference_branch={
+    data = {
+        "hypothesis": "Test Hypothesis",
+        "application": "DESKTOP",
+        "changelogMessage": "test updates",
+        "targetingConfigSlug": targeting,
+        "publicDescription": "Some sort of Fancy Words",
+        "riskRevenue": False,
+        "riskPartnerRelated": False,
+        "riskBrand": False,
+        "featureConfigId": 1,
+        "referenceBranch": {
             "description": "reference branch",
             "name": "Branch 1",
             "ratio": 50,
             "featureEnabled": True,
             "featureValue": "{}",
         },
-        treatement_branch=[
+        "treatmentBranches": [
             {
                 "description": "treatment branch",
                 "name": "Branch 2",
@@ -97,8 +98,14 @@ def test_check_telemetry_enrollment_unenrollment(
                 "featureValue": "",
             }
         ],
-        population_percent="100",
-        total_enrolled_clients=55,
+        "populationPercent": "100",
+        "totalEnrolledClients": 55,
+    }
+    create_desktop_experiment(
+        experiment_slug,
+        "desktop",
+        targeting,
+        data,
     )
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.launch_and_approve()
