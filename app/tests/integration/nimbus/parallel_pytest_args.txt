@@ -1,7 +1,7 @@
--k DESKTOP -m run_per_app
+-k FIREFOX_DESKTOP -m run_per_app
 -k FENIX -m run_per_app
 -k IOS -m run_per_app
 -k FOCUS_ANDROID -m run_per_app
 -k FOCUS_IOS -m run_per_app
--k DESKTOP -m run_once --dist=loadgroup -n=2
--k DESKTOP -m run_targeting -n 2
+-k FIREFOX_DESKTOP -m run_once --dist=loadgroup -n=2
+-k FIREFOX_DESKTOP -m run_targeting -n 2
