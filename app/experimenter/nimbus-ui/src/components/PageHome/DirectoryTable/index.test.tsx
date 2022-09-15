@@ -314,7 +314,7 @@ describe("DirectoryTable", () => {
   });
 });
 
-describe("DirectoryTableResults", () => {
+describe("DirectoryTable", () => {
   it.each([
     ["looker link is present", experiment, "Looker"],
     [
