@@ -30,13 +30,13 @@ def handle_with_serializer(cls, serializer):
         msg = serializer.errors
         obj = None
     return cls(
-        nimbus_experiment=obj,
+        nimbusExperiment=obj,
         message=msg,
     )
 
 
 class CreateExperiment(graphene.Mutation):
-    nimbus_experiment = graphene.Field(NimbusExperimentType)
+    nimbusExperiment = graphene.Field(NimbusExperimentType)
     message = ObjectField()
 
     class Arguments:
@@ -51,7 +51,7 @@ class CreateExperiment(graphene.Mutation):
 
 
 class UpdateExperiment(graphene.Mutation):
-    nimbus_experiment = graphene.Field(NimbusExperimentType)
+    nimbusExperiment = graphene.Field(NimbusExperimentType)
     message = ObjectField()
 
     class Arguments:
@@ -60,10 +60,10 @@ class UpdateExperiment(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, input: ExperimentInput):
         experiment = NimbusExperiment.objects.get(id=input.id)
-        if "feature_config_id" in input:
-            input["feature_config"] = input.pop("feature_config_id", None)
-        if "feature_config_ids" in input:
-            input["feature_configs"] = input.pop("feature_config_ids", None)
+        if "featureConfigId" in input:
+            input["featureConfig"] = input.pop("featureConfigId", None)
+        if "featureConfigIds" in input:
+            input["featureConfigs"] = input.pop("featureConfigIds", None)
         serializer = NimbusExperimentSerializer(
             experiment, data=input, partial=True, context={"user": info.context.user}
         )
@@ -71,7 +71,7 @@ class UpdateExperiment(graphene.Mutation):
 
 
 class CloneExperiment(graphene.Mutation):
-    nimbus_experiment = graphene.Field(NimbusExperimentType)
+    nimbusExperiment = graphene.Field(NimbusExperimentType)
     message = ObjectField()
 
     class Arguments:
@@ -86,8 +86,8 @@ class CloneExperiment(graphene.Mutation):
 
 
 class Mutation(graphene.ObjectType):
-    create_experiment = CreateExperiment.Field(
+    createExperiment = CreateExperiment.Field(
         description="Create a new Nimbus Experiment."
     )
-    update_experiment = UpdateExperiment.Field(description="Update a Nimbus Experiment.")
-    clone_experiment = CloneExperiment.Field(description="Clone an experiment.")
+    updateExperiment = UpdateExperiment.Field(description="Update a Nimbus Experiment.")
+    cloneExperiment = CloneExperiment.Field(description="Clone an experiment.")
