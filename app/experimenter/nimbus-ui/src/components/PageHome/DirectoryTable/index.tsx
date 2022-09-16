@@ -81,7 +81,7 @@ export const DirectoryColumnPopulationPercent: ColumnComponent = (
   experiment,
 ) => (
   <td data-testid="directory-table-cell">
-    {experiment.populationPercent! || <NotSet />}
+    {Math.round(Number(experiment.populationPercent!)) + "%" || <NotSet />}
   </td>
 );
 
