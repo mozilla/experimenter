@@ -7,7 +7,7 @@ import nimbus_rust as nimbus
 
 def load_parser():
     parser = argparse.ArgumentParser(description="Load configurations")
-    parser.add_argument("--targeting-string", type=str, action="store", nargs="+")
+    parser.add_argument("--targeting-string", type=str, action="store", nargs="?")
     return parser
 
 
@@ -52,4 +52,4 @@ if __name__ == "__main__":
 
     targeting_helper = client.create_targeting_helper(json.dumps(additional_targeting))
 
-    print(targeting_helper.eval_jexl(args.targeting_string[0]))
+    print(targeting_helper.eval_jexl(args.targeting_string))
