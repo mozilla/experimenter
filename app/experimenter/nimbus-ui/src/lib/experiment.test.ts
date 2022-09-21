@@ -112,7 +112,7 @@ describe("selectFromExperiment", () => {
       [computedEndDateSortSelector, experiment.computedEndDate],
       [firefoxMinVersionSortSelector, "FIREFOX_83"],
       [firefoxMaxVersionSortSelector, "FIREFOX_64"],
-      [populationPercentSortSelector, "100.0"],
+      [populationPercentSortSelector, "100"],
     ] as const;
     selectorCases.forEach(([selectBy, expected]) =>
       expect(selectFromExperiment(experiment, selectBy)).toEqual(expected),
