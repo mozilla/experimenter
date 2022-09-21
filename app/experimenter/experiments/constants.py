@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pickle import FALSE
 from typing import Dict
 
 from django.conf import settings
@@ -15,6 +16,11 @@ class Channel(models.TextChoices):
     ESR = "esr"
     TESTFLIGHT = "testflight"
     AURORA = "aurora"
+
+
+class Type(models.TextChoices):
+    EXPERIMENT = "Experiment"
+    ROLLOUT = "Rollout"
 
 
 class BucketRandomizationUnit(models.TextChoices):
@@ -168,6 +174,8 @@ class NimbusConstants(object):
         FOLLOWUP = "FOLLOWUP", "Run follow ups"
 
     Application = Application
+
+    Type = Type
 
     VALID_STATUS_TRANSITIONS = {
         Status.DRAFT: (Status.PREVIEW,),
