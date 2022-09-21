@@ -399,9 +399,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     # Serializer validation errors
     ERROR_DUPLICATE_BRANCH_NAME = "Branch names must be unique."
     ERROR_SINGLE_BRANCH_FOR_ROLLOUT = "A rollout may have only a single reference branch"
-    ERROR_ROLLOUT_VERSION_SUPPORT = (
-        "Rollouts are not supported for the given application and version number."
-    )
     ERROR_DUPLICATE_BRANCH_FEATURE_VALUE = (
         "A branch can not have multiple configurations for the same feature"
     )
