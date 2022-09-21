@@ -25,10 +25,10 @@ def pings():
 
 
 @app.route(
-    "/submit/telemetry/<uuid>/<type>/<browser>/<version>/<browser_type>/<date>/",
+    "/submit/<path:telemetry>",
     methods=["POST"],
 )
-def submit(uuid, type, browser, version, browser_type, date):
+def submit_desktop(telemetry):
 
     if request.method == "POST":
         request_data = request.get_data()
