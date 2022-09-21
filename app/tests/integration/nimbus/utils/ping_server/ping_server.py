@@ -28,7 +28,7 @@ def pings():
     "/submit/<path:telemetry>",
     methods=["POST"],
 )
-def submit_desktop(telemetry):
+def submit(telemetry):
 
     if request.method == "POST":
         request_data = request.get_data()
