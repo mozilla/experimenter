@@ -143,7 +143,7 @@ describe("DirectoryColumnPopulationPercent", () => {
       </TestTable>,
     );
     expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
-      "100.0",
+      "100%",
     );
   });
 });
