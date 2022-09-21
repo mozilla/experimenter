@@ -437,7 +437,7 @@ To test a targeting expression, first add an app context named `app_context.json
 
 You can then invoke the script with the `--targeting-string` flag:
 ```bash
-python test_sdk_evals.py --targeting "(app_version|versionCompare('106.*') <= 0) && (is_already_enrolled)"
+python sdk_eval_check.py --targeting "(app_version|versionCompare('106.*') <= 0) && (is_already_enrolled)"
 ```
 The script should return the results, either `True`, `False`, or an error.
 

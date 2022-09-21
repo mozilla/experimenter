@@ -174,7 +174,7 @@ integration_shell:
 	$(COMPOSE_INTEGRATION) run firefox bash
 
 integration_sdk_shell: build_prod
-	$(COMPOSE_INTEGRATION) run rust-sdk bash
+	PYTHONPATH=/application-services/components/nimbus/src $(COMPOSE_INTEGRATION) run rust-sdk bash
 
 integration_vnc_up: build_prod
 	$(COMPOSE_INTEGRATION) up
