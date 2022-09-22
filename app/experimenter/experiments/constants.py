@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from pickle import FALSE
 from typing import Dict
 
 from django.conf import settings

@@ -3432,6 +3432,24 @@
               ]
             }
           },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
           "hypothesisDefault": {
             "type": "string"
           },
@@ -3452,7 +3470,8 @@
           "outcomes",
           "owners",
           "targetingConfigs",
-          "conclusionRecommendations"
+          "conclusionRecommendations",
+          "types"
         ]
       },
       "NimbusExperiment": {
