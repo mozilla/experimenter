@@ -24,6 +24,8 @@ services:
   rust-sdk:
     image: b4handjr/nimbus-rust-image:latest
     env_file: .env
+    environment:
+      - PYTHONPATH
     volumes:
       - .:/code
       - /code/app/tests/integration/.tox

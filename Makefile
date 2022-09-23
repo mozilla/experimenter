@@ -41,6 +41,7 @@ LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.js
 LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
 LOAD_FEATURES = python manage.py load_feature_configs
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || echo "skipping dummy experiments"
+PYTHON_PATH_SDK = PYTHONPATH=/application-services/components/nimbus/src
 
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/jetstream-config/archive/main.zip
@@ -174,7 +175,7 @@ integration_shell:
 	$(COMPOSE_INTEGRATION) run firefox bash
 
 integration_sdk_shell: build_prod
-	$(COMPOSE_INTEGRATION) run rust-sdk bash
+	$(PYTHON_PATH_SDK) $(COMPOSE_INTEGRATION) run rust-sdk bash
 
 integration_vnc_up: build_prod
 	$(COMPOSE_INTEGRATION) up
