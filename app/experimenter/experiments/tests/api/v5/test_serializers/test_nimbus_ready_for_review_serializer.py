@@ -1261,10 +1261,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(len(serializer.errors), 1)
-        self.assertEqual(
-            serializer.errors["is_rollout"][0],
-            NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT,
-        )
+        self.assertIn("is_rollout", serializer.errors)
 
     def test_invalid_experiment_with_branch_missing_feature_value(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
