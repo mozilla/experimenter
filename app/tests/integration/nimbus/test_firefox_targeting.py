@@ -158,44 +158,20 @@ def test_check_advanced_targeting(
 )
 @pytest.mark.run_targeting
 def test_check_audience_targeting(
-    selenium, slugify, experiment_name, create_desktop_experiment, audience_field
+    selenium,
+    slugify,
+    experiment_name,
+    create_desktop_experiment,
+    audience_field,
+    experiment_default_data,
 ):
     experiment_slug = str(slugify(experiment_name))
-    data = {
-        "hypothesis": "Test Hypothesis",
-        "application": "DESKTOP",
-        "changelogMessage": "test updates",
-        "targetingConfigSlug": "no_targeting",
-        "publicDescription": "Some sort of Fancy Words",
-        "riskRevenue": False,
-        "riskPartnerRelated": False,
-        "riskBrand": False,
-        "featureConfigId": 1,
-        "referenceBranch": {
-            "description": "reference branch",
-            "name": "Branch 1",
-            "ratio": 50,
-            "featureEnabled": True,
-            "featureValue": "{}",
-        },
-        "treatmentBranches": [
-            {
-                "description": "treatment branch",
-                "name": "Branch 2",
-                "ratio": 50,
-                "featureEnabled": False,
-                "featureValue": "",
-            }
-        ],
-        "populationPercent": "100",
-        "totalEnrolledClients": 55,
-    }
-    data.update(audience_field)
+    experiment_default_data.update(audience_field)
     create_desktop_experiment(
         experiment_slug,
         "desktop",
         "no_targeting",
-        data,
+        experiment_default_data,
     )
     experiment_data = load_experiment_data(experiment_slug)
     targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
