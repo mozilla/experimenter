@@ -169,6 +169,10 @@ class NimbusConstants(object):
 
     Application = Application
 
+    class Type(models.TextChoices):
+        EXPERIMENT = "Experiment"
+        ROLLOUT = "Rollout"
+
     VALID_STATUS_TRANSITIONS = {
         Status.DRAFT: (Status.PREVIEW,),
         Status.PREVIEW: (Status.DRAFT,),

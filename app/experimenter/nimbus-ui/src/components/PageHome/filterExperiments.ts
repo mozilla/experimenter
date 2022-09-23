@@ -26,6 +26,7 @@ export const optionIndexKeys: {
   allFeatureConfigs: (option) => `${option.application}:${option.slug}`,
   firefoxVersions: (option) => option.value,
   channels: (option) => option.value,
+  types: (option) => option.value,
 };
 
 type ExperimentFilter<K extends FilterValueKeys> = (
@@ -56,6 +57,12 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
   firefoxVersions: (option, experiment) =>
     experiment.firefoxMinVersion === option.value,
   channels: (option, experiment) => experiment.channel === option.value,
+  types: (option, experiment) => {
+    return (
+      (experiment.isRollout && option.value === "ROLLOUT") ||
+      (!experiment.isRollout && option.value === "EXPERIMENT")
+    );
+  },
 };
 
 export function getFilterValueFromParams(
@@ -98,6 +105,13 @@ export function getFilterValueFromParams(
         break;
       case "channels":
         filterValue[key] = selectFilterOptions<"channels">(
+          options[key],
+          optionIndexKeys[key],
+          values,
+        );
+        break;
+      case "types":
+        filterValue[key] = selectFilterOptions<"types">(
           options[key],
           optionIndexKeys[key],
           values,
@@ -162,6 +176,12 @@ export function updateParamsFromFilterValue(
             optionIndexKeys[key],
           );
           break;
+        case "types":
+          values = indexFilterOptions<"types">(
+            filterValue[key],
+            optionIndexKeys[key],
+          );
+          break;
       }
       if (values && values.length) {
         params.set(key, values.join(","));
@@ -218,6 +238,13 @@ export function filterExperiments(
         break;
       case "channels":
         filteredExperiments = filterExperimentsByOptions<"channels">(
+          filterState[key],
+          experimentFilters[key],
+          filteredExperiments,
+        );
+        break;
+      case "types":
+        filteredExperiments = filterExperimentsByOptions<"types">(
           filterState[key],
           experimentFilters[key],
           filteredExperiments,
