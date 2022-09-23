@@ -126,6 +126,7 @@ class NimbusConfigurationDataClass:
     owners: typing.List[UserDataClass]
     targetingConfigs: typing.List[TargetingConfigDataClass]
     conclusionRecommendations: typing.List[LabelValueDataClass]
+    types: typing.List[LabelValueDataClass]
     hypothesisDefault: str = NimbusExperiment.HYPOTHESIS_DEFAULT
     maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
 
@@ -151,6 +152,7 @@ class NimbusConfigurationDataClass:
         self.conclusionRecommendations = self._enum_to_label_value(
             NimbusExperiment.ConclusionRecommendation
         )
+        self.types = self._enum_to_label_value(NimbusExperiment.Type)
 
     def _geo_model_to_dataclass(self, queryset):
         return [GeoDataClass(id=i.id, name=i.name, code=i.code) for i in queryset]
@@ -1425,7 +1427,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             and min_version < NimbusExperiment.Version.parse(rollout_version_supported)
         ):
             raise serializers.ValidationError(
-                {"is_rollout": NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT}
+                {
+                    "is_rollout": f"Rollouts are not supported for this application \
+                                below version {rollout_version_supported}"
+                }
             )
 
         return data

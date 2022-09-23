@@ -97,6 +97,11 @@ export interface getConfig_nimbusConfig_languages {
   name: string | null;
 }
 
+export interface getConfig_nimbusConfig_types {
+  label: string | null;
+  value: string | null;
+}
+
 export interface getConfig_nimbusConfig {
   applications: (getConfig_nimbusConfig_applications | null)[] | null;
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
@@ -113,6 +118,7 @@ export interface getConfig_nimbusConfig {
   locales: (getConfig_nimbusConfig_locales | null)[] | null;
   countries: (getConfig_nimbusConfig_countries | null)[] | null;
   languages: (getConfig_nimbusConfig_languages | null)[] | null;
+  types: (getConfig_nimbusConfig_types | null)[] | null;
 }
 
 export interface getConfig {

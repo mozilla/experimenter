@@ -427,6 +427,22 @@ An example using PYTEST_ARGS to run one test.
 make integration_test_legacy PYTEST_ARGS="-k test_addon_rollout_experiment_e2e"
 ```
 
+#### make integration_sdk_shell
+
+This builds and sets up the mobile sdk for use in testing.
+
+Navigate to `app/tests/tools`
+
+To test a targeting expression, first add an app context named `app_context.json` to the `app/tests/tools` directory.
+
+You can then invoke the script with the `--targeting-string` flag:
+```bash
+python sdk_eval_check.py --targeting-string "(app_version|versionCompare('106.*') <= 0) && (is_already_enrolled)"
+```
+The script should return the results, either `True`, `False`, or an error.
+
+Note that you can change the `app_context` live, and run the script again after.
+
 ## Accessing Remote Settings locally
 
 In development you may wish to approve or reject changes to experiments as if they were on Remote Settings. You can do so here: `http://localhost:8888/v1/admin/`

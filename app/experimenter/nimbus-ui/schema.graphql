@@ -196,6 +196,7 @@ type NimbusConfigurationType {
   owners: [NimbusUserType]
   targetingConfigs: [NimbusExperimentTargetingConfigType]
   conclusionRecommendations: [NimbusLabelValueType]
+  types: [NimbusLabelValueType]
 }
 
 type NimbusCountryType {
@@ -359,7 +360,12 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_10301
   FIREFOX_104
   FIREFOX_105
+  FIREFOX_10501
+  FIREFOX_10502
+  FIREFOX_10503
   FIREFOX_106
+  FIREFOX_10601
+  FIREFOX_10602
   FIREFOX_107
   FIREFOX_108
   FIREFOX_109

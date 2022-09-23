@@ -82,6 +82,10 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: NimbusExperimentApplicationEnum.FENIX,
     },
   ],
+  types: [
+    { label: "Experiment", value: "EXPERIMENT" },
+    { label: "Rollout", value: "ROLLOUT" },
+  ],
   channels: [
     {
       label: "Desktop Beta",
@@ -690,7 +694,7 @@ export function mockSingleDirectoryExperiment(
     name: "Open-architected background installation",
     status: NimbusExperimentStatusEnum.COMPLETE,
     statusNext: null,
-    populationPercent: "100.0",
+    populationPercent: "100",
     channel: NimbusExperimentChannelEnum.NIGHTLY,
     publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     featureConfig: MOCK_CONFIG.allFeatureConfigs![0],

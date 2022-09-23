@@ -28,6 +28,7 @@ class TestNimbusConfigurationSerializer(TestCase):
 
         assertChoices(config["applications"], NimbusExperiment.Application)
         assertChoices(config["channels"], NimbusExperiment.Channel)
+        assertChoices(config["types"], NimbusExperiment.Type)
         assertChoices(
             config["conclusionRecommendations"], NimbusExperiment.ConclusionRecommendation
         )
