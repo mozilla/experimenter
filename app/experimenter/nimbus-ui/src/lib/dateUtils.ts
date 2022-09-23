@@ -33,7 +33,7 @@ export function addDaysToDate(datestring: string, days: number): string {
 /**
  *  Renders period of enrollment depend on what's available
  *  If startDate is set, it will return a range of dates
- *      e.g. Dec 2 - Dec 4
+ *      e.g. Dec 2, 2011 - Dec 4, 2011
  *  If startDate is not set, it will return a number of days
  *      e.g. 2 days
  */
@@ -42,7 +42,7 @@ export function getProposedEnrollmentRange(
 ): string {
   const { startDate, proposedEnrollment } = experiment;
   if (startDate) {
-    return `${humanDate(startDate)} to ${humanDate(
+    return `${humanDate(startDate)} - ${humanDate(
       addDaysToDate(startDate, proposedEnrollment),
     )}`;
   } else {

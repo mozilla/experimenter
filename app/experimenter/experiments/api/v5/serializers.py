@@ -1425,7 +1425,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             and min_version < NimbusExperiment.Version.parse(rollout_version_supported)
         ):
             raise serializers.ValidationError(
-                {"is_rollout": NimbusConstants.ERROR_ROLLOUT_VERSION_SUPPORT}
+                {
+                    "is_rollout": f"Rollouts are not supported for this application \
+                                below version {rollout_version_supported}"
+                }
             )
 
         return data
