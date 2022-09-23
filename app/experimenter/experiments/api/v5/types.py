@@ -44,6 +44,11 @@ class NimbusExperimentApplicationEnum(graphene.Enum):
         enum = NimbusConstants.Application
 
 
+class NimbusTypeEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Type
+
+
 class NimbusExperimentChannelEnum(graphene.Enum):
     class Meta:
         enum = NimbusConstants.Channel
@@ -253,6 +258,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     owners = graphene.List(NimbusUserType)
     targeting_configs = graphene.List(NimbusExperimentTargetingConfigType)
     conclusion_recommendations = graphene.List(NimbusLabelValueType)
+    types = graphene.List(NimbusLabelValueType)
 
     def _text_choices_to_label_value_list(root, text_choices):
         return [
@@ -343,6 +349,9 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_languages(root, info):
         return Language.objects.all().order_by("name")
+
+    def resolve_types(root, info):
+        return root._text_choices_to_label_value_list(NimbusExperiment.Type)
 
 
 class NimbusExperimentType(DjangoObjectType):
