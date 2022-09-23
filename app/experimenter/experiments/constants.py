@@ -333,7 +333,12 @@ class NimbusConstants(object):
         FIREFOX_10301 = "103.0.1"
         FIREFOX_104 = "104.!"
         FIREFOX_105 = "105.!"
+        FIREFOX_10501 = "105.0.1"
+        FIREFOX_10502 = "105.0.2"
+        FIREFOX_10503 = "105.0.3"
         FIREFOX_106 = "106.!"
+        FIREFOX_10601 = "106.0.1"
+        FIREFOX_10602 = "106.0.2"
         FIREFOX_107 = "107.!"
         FIREFOX_108 = "108.!"
         FIREFOX_109 = "109.!"
@@ -403,9 +408,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     # Serializer validation errors
     ERROR_DUPLICATE_BRANCH_NAME = "Branch names must be unique."
     ERROR_SINGLE_BRANCH_FOR_ROLLOUT = "A rollout may have only a single reference branch"
-    ERROR_ROLLOUT_VERSION_SUPPORT = (
-        "Rollouts are not supported for the given application and version number."
-    )
     ERROR_DUPLICATE_BRANCH_FEATURE_VALUE = (
         "A branch can not have multiple configurations for the same feature"
     )
