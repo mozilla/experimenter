@@ -80,6 +80,10 @@ export const GET_CONFIG_QUERY = gql`
         id
         name
       }
+      types {
+        label
+        value
+      }
     }
   }
 `;

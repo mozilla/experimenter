@@ -82,6 +82,10 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: NimbusExperimentApplicationEnum.FENIX,
     },
   ],
+  types: [
+    { label: "Experiment", value: "EXPERIMENT" },
+    { label: "Rollout", value: "ROLLOUT" },
+  ],
   channels: [
     {
       label: "Desktop Beta",

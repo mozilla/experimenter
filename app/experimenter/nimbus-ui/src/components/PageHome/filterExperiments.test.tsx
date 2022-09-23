@@ -14,7 +14,8 @@ import {
 } from "./mocks";
 import { filterValueKeys } from "./types";
 
-const { owners, applications, allFeatureConfigs, channels } = MOCK_CONFIG!;
+const { owners, applications, allFeatureConfigs, channels, types } =
+  MOCK_CONFIG!;
 
 describe("getFilterValueFromParams", () => {
   it("converts comma-separated list representation from filter params into a filter value", () => {
@@ -23,11 +24,13 @@ describe("getFilterValueFromParams", () => {
     params.set("applications", "DESKTOP,FENIX");
     params.set("allFeatureConfigs", "IOS:foo-lila-sat");
     params.set("channels", "BETA");
+    params.set("types", "EXPERIMENT");
     expect(getFilterValueFromParams(MOCK_CONFIG, params)).toEqual({
       owners: [owners![0], owners![1]],
       applications: [applications![0], applications![3]],
       allFeatureConfigs: [allFeatureConfigs![2]],
       channels: [channels![0]],
+      types: [types![0]],
     });
   });
 });
@@ -41,6 +44,7 @@ describe("updateParamsFromFilterValue", () => {
       applications: [applications![0], applications![3]],
       allFeatureConfigs: [allFeatureConfigs![2], allFeatureConfigs![3]],
       channels: [channels![0], channels![1]],
+      types: [types![0], types![1]],
     });
     expect(params.get("owners")).toEqual(
       "alpha-example@mozilla.com,beta-example@mozilla.com",
@@ -50,6 +54,7 @@ describe("updateParamsFromFilterValue", () => {
       "IOS:foo-lila-sat,FENIX:foo-lila-sat",
     );
     expect(params.get("channels")).toEqual("BETA,NIGHTLY");
+    expect(params.get("types")).toEqual("EXPERIMENT,ROLLOUT");
   });
 
   it("handles a roundtrip encoding with everything filtered", () => {
@@ -105,6 +110,9 @@ describe("filterExperiments", () => {
             expect(experiment.channel).toEqual(
               MOCK_CONFIG!.channels![0]!.value,
             );
+            break;
+          case "types":
+            expect(experiment.isRollout).toEqual(false);
             break;
         }
       }
