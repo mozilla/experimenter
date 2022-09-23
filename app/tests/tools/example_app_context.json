@@ -1,0 +1,26 @@
+{
+"app_context": {
+    "app_name": "fenix",
+    "app_id": "org.mozilla.firefox",
+    "channel": "release",
+    "app_version": "100.1.2",
+    "app_build": "2015879543",
+    "architecture": "arm64-v8a",
+    "device_manufacturer": "samsung",
+    "device_model": "SM-G998U",
+    "locale": "en-US ",
+    "language":"en",
+    "os": "Android",
+    "os_version": "12",
+    "android_sdk_version": "31",
+    "debug_tag": null,
+    "installation_date": 1612674000,
+    "home_directory": null,
+    "custom_targeting_attributes": {},
+    "additional_targeting": {
+        "is_already_enrolled": true,
+        "days_since_install": 5,
+        "days_since_update": 2
+    }
+  }
+}
