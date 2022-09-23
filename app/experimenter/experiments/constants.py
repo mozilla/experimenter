@@ -17,11 +17,6 @@ class Channel(models.TextChoices):
     AURORA = "aurora"
 
 
-class Type(models.TextChoices):
-    EXPERIMENT = "Experiment"
-    ROLLOUT = "Rollout"
-
-
 class BucketRandomizationUnit(models.TextChoices):
     NORMANDY = "normandy_id"
     NIMBUS = "nimbus_id"
@@ -174,7 +169,9 @@ class NimbusConstants(object):
 
     Application = Application
 
-    Type = Type
+    class Type(models.TextChoices):
+        EXPERIMENT = "Experiment"
+        ROLLOUT = "Rollout"
 
     VALID_STATUS_TRANSITIONS = {
         Status.DRAFT: (Status.PREVIEW,),
