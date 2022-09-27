@@ -237,6 +237,17 @@ MAC_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NO_DISTRIBUTIONS = NimbusTargetingConfig(
+    name="No distribution builds",
+    slug="no_distribution_builds",
+    description="Exclude users with distribution builds",
+    targeting="!distributionId",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_ENTERPRISE = NimbusTargetingConfig(
     name="No enterprise users",
     slug="no_enterprise_users",
