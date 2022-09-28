@@ -368,3 +368,34 @@ def trigger_experiment_loader(selenium):
             )
 
     return _trigger_experiment_loader
+
+
+@pytest.fixture(name="experiment_default_data")
+def fixture_experiment_default_data():
+    return {
+        "hypothesis": "Test Hypothesis",
+        "application": "DESKTOP",
+        "changelogMessage": "test updates",
+        "targetingConfigSlug": "no_targeting",
+        "publicDescription": "Some sort of Fancy Words",
+        "riskRevenue": False,
+        "riskPartnerRelated": False,
+        "riskBrand": False,
+        "featureConfigId": 1,
+        "referenceBranch": {
+            "description": "reference branch",
+            "name": "Branch 1",
+            "ratio": 50,
+            "featureEnabled": True,
+            "featureValue": "{}",
+        },
+        "treatmentBranches": [
+            {
+                "description": "treatment branch",
+                "name": "Branch 2",
+                "ratio": 50,
+                "featureEnabled": False,
+                "featureValue": "",
+            }
+        ],
+    }

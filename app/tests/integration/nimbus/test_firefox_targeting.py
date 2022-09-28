@@ -74,7 +74,7 @@ def targeting_config_slug(request):
 
 
 @pytest.mark.run_targeting
-def test_check_targeting(
+def test_check_advanced_targeting(
     selenium,
     slugify,
     experiment_name,
@@ -117,6 +117,61 @@ def test_check_targeting(
         "desktop",
         targeting_config_slug,
         data,
+    )
+    experiment_data = load_experiment_data(experiment_slug)
+    targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
+    recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
+
+    # Inject filter expression
+    selenium.get("about:blank")
+    with open("nimbus/utils/filter_expression.js") as js:
+        result = Browser.execute_script(
+            selenium,
+            targeting,
+            json.dumps({"experiment": recipe}),
+            script=js.read(),
+            context="chrome",
+        )
+    assert result is not None, "Invalid Targeting, or bad recipe"
+
+
+@pytest.mark.parametrize(
+    "audience_field",
+    [
+        {"channel": "NIGHTLY"},
+        {"firefoxMinVersion": "FIREFOX_100"},
+        {"firefoxMaxVersion": "FIREFOX_120"},
+        {"locales": [37]},
+        {"countries": [42]},
+        {"proposedEnrollment": "14"},
+        {"proposedDuration": "30"},
+    ],
+    ids=[
+        "channel",
+        "min_version",
+        "max_version",
+        "locales",
+        "countries",
+        "proposed_enrollment",
+        "proposed_duration",
+    ],
+)
+@pytest.mark.run_targeting
+def test_check_audience_targeting(
+    selenium,
+    slugify,
+    experiment_name,
+    create_desktop_experiment,
+    audience_field,
+    experiment_default_data,
+):
+    experiment_slug = str(slugify(experiment_name))
+    experiment_default_data.update(audience_field)
+    create_desktop_experiment(
+        experiment_slug,
+        "desktop",
+        "no_targeting",
+        experiment_default_data,
     )
     experiment_data = load_experiment_data(experiment_slug)
     targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
