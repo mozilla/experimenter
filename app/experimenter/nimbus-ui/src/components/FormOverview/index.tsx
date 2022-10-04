@@ -270,7 +270,7 @@ const FormOverview = ({
               </LinkExternal>
             </InputRadios>
 
-            <Form.Group controlId="documentationLinks">
+            <Form.Group controlId="documentationLinks" id="documentation-links">
               <Form.Label>
                 Additional Links
                 <Info
