@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@rescripts/cli": "^0.0.16",
-    "@testing-library/dom": "^8.17.1",
+    "@testing-library/dom": "^8.18.1",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/react-hooks": "^7.0.0",
