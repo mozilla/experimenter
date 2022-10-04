@@ -93,7 +93,7 @@
     "prettier": "^2.7.1",
     "prettier-plugin-organize-imports": "^2.3.2",
     "react-select-event": "^5.5.0",
-    "sass": "^1.54.0",
+    "sass": "^1.55.0",
     "stylelint": "^13.13.1",
     "stylelint-config-prettier": "^8.0.2"
   },
