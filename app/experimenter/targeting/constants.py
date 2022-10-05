@@ -628,6 +628,16 @@ RALLY_CORE_ADDON_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+BACKGROUND_TASK_NOTIFICATION = NimbusTargetingConfig(
+    name="Background task notification",
+    slug="Background_task_notification",
+    description="Firefox running a background task",
+    targeting="isBackgroundTaskMode",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
 
 WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_ = NimbusTargetingConfig(
     name="Lapsed users background task notification",
