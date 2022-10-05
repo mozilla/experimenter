@@ -56,7 +56,11 @@ export const FormDocumentationLink = ({
     );
 
   return (
-    <Form.Group className="mb-0" data-testid="DocumentationLink">
+    <Form.Group
+      className="mb-0"
+      data-testid="DocumentationLink"
+      id="documentation-link"
+    >
       <Form.Row>
         <Form.Group as={Col} sm={4} md={3}>
           <Form.Control as="select" {...formControlAttrs("title")}>
