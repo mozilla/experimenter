@@ -28,7 +28,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 }) => {
   return (
     <Navbar variant="light" bg="light" className="nav-fill mt-4 mb-4">
-      <Nav className="w-100">
+      <Nav className="w-100 flex-column">
         <FilterSelect
           fieldLabel="Feature"
           fieldOptions={options.allFeatureConfigs!}
@@ -109,7 +109,7 @@ const FilterSelect = <
   const fieldValue = filterValue[filterValueName];
 
   return (
-    <Nav.Item className="m-1 mw-25 text-left flex-basis-0 flex-grow-1 flex-shrink-1">
+    <Nav.Item className="m-1 text-left flex-basis-0 flex-grow-1 flex-shrink-1">
       <label className="ml-1 mr-1" htmlFor={`filter-${filterValueName}`}>
         {fieldLabel}
       </label>
