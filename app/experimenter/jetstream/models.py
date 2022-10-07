@@ -98,9 +98,11 @@ class JetstreamData(BaseModel):
     def append_population_percentages(self):
         total_population = 0
         branches = {}
+        # __root__ should already be filtered to the current segment
+        segment = self.__root__[0].segment or Segment.ALL
         for jetstream_data_point in self.__root__:
-            if jetstream_data_point.segment != Segment.ALL:
-                continue
+            # if jetstream_data_point.segment != self.segment:
+            #     continue
 
             if jetstream_data_point.metric == Metric.USER_COUNT:
                 if jetstream_data_point.point is not None:
@@ -118,6 +120,7 @@ class JetstreamData(BaseModel):
                     statistic=Statistic.PERCENT,
                     branch=branch_name,
                     point=point,
+                    segment=segment,
                 )
             )
 
@@ -173,11 +176,13 @@ class MetricData(BaseModel):
 
 
 class ResultsObjectModelBase(BaseModel):
-    def __init__(self, result_metrics, data, experiment, window="overall"):
+    def __init__(
+        self, result_metrics, data, experiment, window="overall", segment=Segment.ALL
+    ):
         super(ResultsObjectModelBase, self).__init__()
 
         for jetstream_data_point in data:
-            if jetstream_data_point.segment != Segment.ALL:
+            if jetstream_data_point.segment != segment:
                 continue
 
             branch = jetstream_data_point.branch

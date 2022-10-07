@@ -10,6 +10,7 @@ from experimenter.jetstream.models import (
     Group,
     JetstreamData,
     Metric,
+    Segment,
     Statistic,
     create_results_object_model,
 )
@@ -137,7 +138,11 @@ def get_other_metrics_names_and_map(data, RESULTS_METRICS_MAP):
 def get_experiment_data(experiment):
     recipe_slug = experiment.slug.replace("-", "_")
     windows = ["daily", "weekly", "overall"]
-    raw_data = {}
+    raw_data = {
+        "daily": {},
+        "weekly": {},
+        "overall": {},
+    }
 
     experiment_metadata = get_metadata(recipe_slug)
     outcomes_metadata = (
@@ -152,33 +157,46 @@ def get_experiment_data(experiment):
     }
 
     for window in windows:
-        data = raw_data[window] = JetstreamData(
-            __root__=(get_data(recipe_slug, window) or [])
-        )
-        result_metrics, primary_metrics_set, other_metrics = get_results_metrics_map(
-            data,
-            experiment.primary_outcomes,
-            experiment.secondary_outcomes,
-            outcomes_metadata,
+        experiment_data[window] = {"segments": {}}
+        data_from_jetstream = get_data(recipe_slug, window) or []
+        segments = experiment_data[window]["segments"] = list(
+            set(point["segment"] for point in data_from_jetstream)
         )
 
-        if data and window == "overall":
-            # Append some values onto Jetstream data
-            data.append_population_percentages()
-            data.append_retention_data(raw_data["weekly"])
+        for segment in segments:
+            segment_data = [d for d in data_from_jetstream if d["segment"] == segment]
+            data = raw_data[window][segment] = JetstreamData(__root__=(segment_data))
+            (
+                result_metrics,
+                primary_metrics_set,
+                other_metrics,
+            ) = get_results_metrics_map(
+                data,
+                experiment.primary_outcomes,
+                experiment.secondary_outcomes,
+                outcomes_metadata,
+            )
+            if data and window == "overall":
+                # Append some values onto Jetstream data
+                data.append_population_percentages()
+                data.append_retention_data(raw_data["weekly"][segment])
 
-            ResultsObjectModel = create_results_object_model(data)
-            data = ResultsObjectModel(result_metrics, data, experiment)
-            data.append_conversion_count(primary_metrics_set)
+                ResultsObjectModel = create_results_object_model(data)
+                data = ResultsObjectModel(
+                    result_metrics, data, experiment, segment=segment
+                )
+                data.append_conversion_count(primary_metrics_set)
 
-            experiment_data["other_metrics"] = other_metrics
-        elif data and window == "weekly":
-            ResultsObjectModel = create_results_object_model(data)
-            data = ResultsObjectModel(result_metrics, data, experiment, window)
+                if segment == Segment.ALL:
+                    experiment_data["other_metrics"] = other_metrics
+            elif data and window == "weekly":
+                ResultsObjectModel = create_results_object_model(data)
+                data = ResultsObjectModel(
+                    result_metrics, data, experiment, window, segment=segment
+                )
 
-        transformed_data = data.dict(exclude_none=True) or None
-
-        experiment_data[window] = transformed_data
+            transformed_data = data.dict(exclude_none=True) or None
+            experiment_data[window][segment] = transformed_data
 
     errors_by_metric = {}
     errors_experiment_overall = []
