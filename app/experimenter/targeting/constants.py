@@ -640,8 +640,8 @@ RALLY_PILOT_USER = NimbusTargetingConfig(
             'beyond-the-paywall@rally.mozilla.org',
             'search-engine-usage@rally.mozilla.org',
             'princeton-political-and-covid-19-news-study@rally.mozilla.org'
-        ] intersect addonsInfo.addons | keys
-    ) | length > 0
+        ] intersect addonsInfo.addons|keys
+    )|length > 0
     """,
     desktop_telemetry="",
     sticky_required=False,
