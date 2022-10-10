@@ -12,6 +12,8 @@ export enum NimbusChangeLogOldStatus {
   DRAFT = "DRAFT",
   LIVE = "LIVE",
   PREVIEW = "PREVIEW",
+  PUBLISHED = "PUBLISHED",
+  UNPUBLISHED = "UNPUBLISHED",
 }
 
 export enum NimbusChangeLogOldStatusNext {
@@ -19,6 +21,8 @@ export enum NimbusChangeLogOldStatusNext {
   DRAFT = "DRAFT",
   LIVE = "LIVE",
   PREVIEW = "PREVIEW",
+  PUBLISHED = "PUBLISHED",
+  UNPUBLISHED = "UNPUBLISHED",
 }
 
 export enum NimbusDocumentationLinkTitle {
@@ -199,6 +203,13 @@ export enum NimbusExperimentStatusEnum {
   DRAFT = "DRAFT",
   LIVE = "LIVE",
   PREVIEW = "PREVIEW",
+  PUBLISHED = "PUBLISHED",
+  UNPUBLISHED = "UNPUBLISHED",
+}
+
+export enum NimbusRolloutDataStatusEnum {
+  CLEAN = "CLEAN",
+  DIRTY = "DIRTY",
 }
 
 export interface BranchFeatureValueInput {
@@ -230,6 +241,7 @@ export interface ExperimentInput {
   status?: NimbusExperimentStatusEnum | null;
   statusNext?: NimbusExperimentStatusEnum | null;
   publishStatus?: NimbusExperimentPublishStatusEnum | null;
+  dataStatus?: NimbusRolloutDataStatusEnum | null;
   name?: string | null;
   hypothesis?: string | null;
   application?: NimbusExperimentApplicationEnum | null;

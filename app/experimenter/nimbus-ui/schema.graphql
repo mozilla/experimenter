@@ -46,6 +46,7 @@ input ExperimentInput {
   status: NimbusExperimentStatusEnum
   statusNext: NimbusExperimentStatusEnum
   publishStatus: NimbusExperimentPublishStatusEnum
+  dataStatus: NimbusRolloutDataStatusEnum
   name: String
   hypothesis: String
   application: NimbusExperimentApplicationEnum
@@ -135,6 +136,8 @@ enum NimbusChangeLogNewStatus {
   PREVIEW
   LIVE
   COMPLETE
+  PUBLISHED
+  UNPUBLISHED
 }
 
 enum NimbusChangeLogNewStatusNext {
@@ -142,6 +145,8 @@ enum NimbusChangeLogNewStatusNext {
   PREVIEW
   LIVE
   COMPLETE
+  PUBLISHED
+  UNPUBLISHED
 }
 
 enum NimbusChangeLogOldPublishStatus {
@@ -156,6 +161,8 @@ enum NimbusChangeLogOldStatus {
   PREVIEW
   LIVE
   COMPLETE
+  PUBLISHED
+  UNPUBLISHED
 }
 
 enum NimbusChangeLogOldStatusNext {
@@ -163,6 +170,8 @@ enum NimbusChangeLogOldStatusNext {
   PREVIEW
   LIVE
   COMPLETE
+  PUBLISHED
+  UNPUBLISHED
 }
 
 type NimbusChangeLogType {
@@ -394,6 +403,8 @@ enum NimbusExperimentStatusEnum {
   PREVIEW
   LIVE
   COMPLETE
+  PUBLISHED
+  UNPUBLISHED
 }
 
 type NimbusExperimentTargetingConfigType {
@@ -548,6 +559,11 @@ type NimbusReviewType {
   message: ObjectField
   warnings: ObjectField
   ready: Boolean
+}
+
+enum NimbusRolloutDataStatusEnum {
+  CLEAN
+  DIRTY
 }
 
 type NimbusSignoffRecommendationsType {

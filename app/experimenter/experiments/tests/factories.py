@@ -5,7 +5,6 @@ import json
 import random
 from collections.abc import Iterable
 from enum import Enum
-from experimenter.experiments.constants_rollouts import NimbusRolloutConstants
 
 import factory
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -210,138 +209,138 @@ class Lifecycles(Enum):
 
 class RolloutsLifecycleStates(Enum):
     DRAFT_IDLE = {
-        "status": NimbusRolloutConstants.Status.DRAFT,
+        "status": NimbusExperiment.Status.DRAFT,
         "status_next": None,
-        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
-        "data_status": NimbusRolloutConstants.DataStatus.DIRTY
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "data_status": NimbusExperiment.DataStatus.DIRTY
         # "feature": EditableState.EDITABLE,
         # "population": EditableState.EDITABLE,
     }
     PREVIEW_IDLE = {
-        "status": NimbusRolloutConstants.Status.PREVIEW,
+        "status": NimbusExperiment.Status.PREVIEW,
         "status_next": None,
-        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "data_status": NimbusExperiment.DataStatus.CLEAN
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE,
     }
     DRAFT_REVIEW = {
-        "status": NimbusRolloutConstants.Status.DRAFT,
-        "status_next": NimbusRolloutConstants.Status.LIVE,
-        "publish_status": NimbusRolloutConstants.PublishStatus.REVIEW,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        "status": NimbusExperiment.Status.DRAFT,
+        "status_next": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+        "data_status": NimbusExperiment.DataStatus.CLEAN
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE,
     }
     DRAFT_APPROVED = {
-        "status": NimbusRolloutConstants.Status.DRAFT,
-        "status_next": NimbusRolloutConstants.Status.PUBLISHED,
-        "publish_status": NimbusRolloutConstants.PublishStatus.APPROVED,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        "status": NimbusExperiment.Status.DRAFT,
+        "status_next": NimbusExperiment.Status.PUBLISHED,
+        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+        "data_status": NimbusExperiment.DataStatus.CLEAN
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE,
     }
     DRAFT_WAITING = {
-        "status": NimbusRolloutConstants.Status.DRAFT,
-        "status_next": NimbusRolloutConstants.Status.PUBLISHED,
-        "publish_status": NimbusRolloutConstants.PublishStatus.WAITING,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        "status": NimbusExperiment.Status.DRAFT,
+        "status_next": NimbusExperiment.Status.PUBLISHED,
+        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+        "data_status": NimbusExperiment.DataStatus.CLEAN
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE,
     }
     PUBLISHED_IDLE = {
-        "status": NimbusRolloutConstants.Status.PUBLISHED,
+        "status": NimbusExperiment.Status.PUBLISHED,
         "status_next": None,
-        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "data_status": NimbusExperiment.DataStatus.CLEAN
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.EDITABLE, -> moves to dirty state
     }
     PUBLISHED_IDLE_EDITING = {
-        "status": NimbusRolloutConstants.Status.PUBLISHED,
+        "status": NimbusExperiment.Status.PUBLISHED,
         "status_next": None,
-        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
-        "data_status": NimbusRolloutConstants.DataStatus.DIRTY
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "data_status": NimbusExperiment.DataStatus.DIRTY
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.EDITABLE
     }
     PUBLISHED_REVIEW = {
-        "status": NimbusRolloutConstants.Status.PUBLISHED,
+        "status": NimbusExperiment.Status.PUBLISHED,
         "status_next": None,
-        "publish_status": NimbusRolloutConstants.PublishStatus.REVIEW,
-        "data_status": NimbusRolloutConstants.DataStatus.DIRTY 
+        "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+        "data_status": NimbusExperiment.DataStatus.DIRTY 
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
     PUBLISHED_IDLE_REJECT = {
-        "status": NimbusRolloutConstants.Status.PUBLISHED,
-        "status_next": NimbusRolloutConstants.Status.PUBLISHED, # or None?
-        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # revert to published, delete any changes 
+        "status": NimbusExperiment.Status.PUBLISHED,
+        "status_next": NimbusExperiment.Status.PUBLISHED, # or None?
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "data_status": NimbusExperiment.DataStatus.CLEAN # revert to published, delete any changes 
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
     PUBLISHED_APPROVED = {
-        "status": NimbusRolloutConstants.Status.LIVE,
-        "status_next": NimbusRolloutConstants.Status.LIVE,
-        "publish_status": NimbusRolloutConstants.PublishStatus.APPROVED,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # changes have been approved 
+        "status": NimbusExperiment.Status.PUBLISHED,
+        "status_next": NimbusExperiment.Status.PUBLISHED,
+        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+        "data_status": NimbusExperiment.DataStatus.CLEAN # changes have been approved 
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
     PUBLISHED_WAITING = {
-        "status": NimbusRolloutConstants.Status.PUBLISHED,
-        "status_next": NimbusRolloutConstants.Status.PUBLISHED,
-        "publish_status": NimbusRolloutConstants.PublishStatus.WAITING,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # changes have been approved?
+        "status": NimbusExperiment.Status.PUBLISHED,
+        "status_next": NimbusExperiment.Status.PUBLISHED,
+        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+        "data_status": NimbusExperiment.DataStatus.CLEAN # changes have been approved?
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE # ?
     }
     UNPUBLISHED_IDLE = {
-        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
+        "status": NimbusExperiment.Status.UNPUBLISHED,
         "status_next": None,
-        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "data_status": NimbusExperiment.DataStatus.CLEAN
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.EDITABLE, -> moves to dirty state
     }
     UNPUBLISHED_IDLE_EDITING = {
-        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
+        "status": NimbusExperiment.Status.UNPUBLISHED,
         "status_next": None,
-        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
-        "data_status": NimbusRolloutConstants.DataStatus.DIRTY
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "data_status": NimbusExperiment.DataStatus.DIRTY
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.EDITABLE
     }
     UNPUBLISHED_REVIEW = {
-        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
+        "status": NimbusExperiment.Status.UNPUBLISHED,
         "status_next": None,
-        "publish_status": NimbusRolloutConstants.PublishStatus.REVIEW,
-        "data_status": NimbusRolloutConstants.DataStatus.DIRTY 
+        "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+        "data_status": NimbusExperiment.DataStatus.DIRTY 
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
     UNPUBLISHED_IDLE_REJECT = {
-        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
-        "status_next": NimbusRolloutConstants.Status.UNPUBLISHED, # or None?
-        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # revert to published, delete any changes 
+        "status": NimbusExperiment.Status.UNPUBLISHED,
+        "status_next": NimbusExperiment.Status.UNPUBLISHED, # or None?
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "data_status": NimbusExperiment.DataStatus.CLEAN # revert to published, delete any changes 
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
     UNPUBLISHED_APPROVED = { # not sure about this one ?? once it's approved, it should be published
-        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
-        "status_next": NimbusRolloutConstants.Status.PUBLISHED,
-        "publish_status": NimbusRolloutConstants.PublishStatus.APPROVED,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # changes have been approved ("saved")
+        "status": NimbusExperiment.Status.UNPUBLISHED,
+        "status_next": NimbusExperiment.Status.PUBLISHED,
+        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+        "data_status": NimbusExperiment.DataStatus.CLEAN # changes have been approved ("saved")
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
     UNPUBLISHED_WAITING = {
-        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
-        "status_next": NimbusRolloutConstants.Status.PUBLISHED, # ? not sure
-        "publish_status": NimbusRolloutConstants.PublishStatus.WAITING,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # changes have been approved?
+        "status": NimbusExperiment.Status.UNPUBLISHED,
+        "status_next": NimbusExperiment.Status.PUBLISHED, # ? not sure
+        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+        "data_status": NimbusExperiment.DataStatus.CLEAN # changes have been approved?
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE # ?
     }
@@ -374,12 +373,12 @@ class RolloutsLifecycles(Enum):
         RolloutsLifecycleStates.PUBLISHED_IDLE_REJECT,
     )
     UNPUBLISH_APPROVE_TIMEOUT = UNPUBLISH_APPROVE_WAITING + (RolloutsLifecycleStates.PUBLISHED_REVIEW,)
-    UNPUBLISH_APPROVE_APPROVE_WITHOUT_PAUSE = LIVE_ENROLLING + (
-        RolloutsLifecycleStates.LIVE_REVIEW_ENDING,
-        RolloutsLifecycleStates.LIVE_APPROVED_ENDING,
-        RolloutsLifecycleStates.LIVE_WAITING_ENDING,
-        RolloutsLifecycleStates.COMPLETE_IDLE,
-    )
+    # UNPUBLISH_APPROVE_APPROVE_WITHOUT_PAUSE = LIVE_ENROLLING + (
+    #     RolloutsLifecycleStates.LIVE_REVIEW_ENDING,
+    #     RolloutsLifecycleStates.LIVE_APPROVED_ENDING,
+    #     RolloutsLifecycleStates.LIVE_WAITING_ENDING,
+    #     RolloutsLifecycleStates.COMPLETE_IDLE,
+    # )
 
 
 class NimbusExperimentFactory(factory.django.DjangoModelFactory):
