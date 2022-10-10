@@ -1,6 +1,7 @@
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.branches import BranchesPage
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 
 
 class OverviewPage(ExperimenterBase):
@@ -33,3 +34,21 @@ class OverviewPage(ExperimenterBase):
     def select_risk_partner_false(self):
         el = self.find_element(*self._risk_partner_locator)
         el.click()
+
+    @property
+    def additional_links(self):
+        el = self.find_element(By.CSS_SELECTOR, "#documentation-link select")
+        select = Select(el)
+        return select.first_selected_option
+
+    def set_additional_links(self, value=None, url="http://www.nimbus-rocks.com"):
+        els = self.find_elements(By.CSS_SELECTOR, "#documentation-link")
+        for item in els:
+            if item.find_element(
+                By.CSS_SELECTOR, "input").get_attribute("value") == "":
+                item.find_element(By.CSS_SELECTOR, "input").send_keys(url)
+                select = Select(item.find_element(By.CSS_SELECTOR, "select"))
+                select.select_by_value(value)
+
+    def add_additional_links(self):
+        self.find_element(By.CSS_SELECTOR, "#documentation-links button.btn-outline-primary").click()

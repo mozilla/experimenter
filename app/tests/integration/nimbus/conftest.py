@@ -194,6 +194,11 @@ def create_experiment(base_url, default_data):
         overview.select_risk_brand_false()
         overview.select_risk_revenue_false()
         overview.select_risk_partner_false()
+        overview.set_additional_links(value="DESIGN_DOC")
+        overview.add_additional_links()
+        overview.set_additional_links(value="DS_JIRA", url="https://jira.jira.com")
+        overview.add_additional_links()
+        overview.set_additional_links(value="ENG_TICKET", url="https://www.smarter-engineering.eng")
 
         # Fill Branches page
         branches = overview.save_and_continue()
