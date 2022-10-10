@@ -58,17 +58,3 @@ class NimbusRolloutConstants(object):
         DataStatus.CLEAN: (DataStatus.CLEAN, DataStatus.DIRTY),
         DataStatus.DIRTY: (DataStatus.CLEAN, DataStatus.DIRTY),
     }
-
-    STATUS_UPDATE_EXEMPT_FIELDS = ( # these can be the same for now
-        "is_archived",
-        "publish_status",
-        "status_next",
-        "status",
-        "takeaways_summary",
-        "conclusion_recommendation",
-    )
-
-    ARCHIVE_UPDATE_EXEMPT_FIELDS = (
-        "is_archived",
-        "changelog_message",
-    )

@@ -35,16 +35,6 @@ class NimbusExperimentPublishStatusEnum(graphene.Enum):
         enum = NimbusConstants.PublishStatus
 
 
-class NimbusRolloutStatusEnum(graphene.Enum):
-    class Meta:
-        enum = NimbusRolloutConstants.Status
-
-
-class NimbusRolloutPublishStatusEnum(graphene.Enum):
-    class Meta:
-        enum = NimbusRolloutConstants.PublishStatus
-
-
 class NimbusRolloutDataStatusEnum(graphene.Enum):
     class Meta:
         enum = NimbusRolloutConstants.DataStatus

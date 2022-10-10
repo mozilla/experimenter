@@ -9,6 +9,7 @@ from experimenter.experiments.api.v5.types import (
     NimbusExperimentFirefoxVersionEnum,
     NimbusExperimentPublishStatusEnum,
     NimbusExperimentStatusEnum,
+    NimbusRolloutDataStatusEnum,
 )
 
 
@@ -55,9 +56,10 @@ class TreatmentBranchInput(BranchInput):
 class ExperimentInput(graphene.InputObjectType):
     id = graphene.Int()
     is_archived = graphene.Boolean()
-    status = NimbusExperimentStatusEnum()
-    status_next = NimbusExperimentStatusEnum()
-    publish_status = NimbusExperimentPublishStatusEnum()
+    status = NimbusExperimentStatusEnum() # how do we change this for rollouts?
+    status_next = NimbusExperimentStatusEnum() # how do we change this for rollouts?
+    publish_status = NimbusExperimentPublishStatusEnum() # how do we change this for rollouts?
+    data_status = NimbusRolloutDataStatusEnum() # how do we change this for rollouts?
     name = graphene.String()
     hypothesis = graphene.String()
     application = NimbusExperimentApplicationEnum()

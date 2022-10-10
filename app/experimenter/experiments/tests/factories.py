@@ -374,12 +374,12 @@ class RolloutsLifecycles(Enum):
         RolloutsLifecycleStates.PUBLISHED_IDLE_REJECT,
     )
     UNPUBLISH_APPROVE_TIMEOUT = UNPUBLISH_APPROVE_WAITING + (RolloutsLifecycleStates.PUBLISHED_REVIEW,)
-    # UNPUBLISH_APPROVE_APPROVE_WITHOUT_PAUSE = LIVE_ENROLLING + (
-    #     RolloutsLifecycleStates.LIVE_REVIEW_ENDING,
-    #     RolloutsLifecycleStates.LIVE_APPROVED_ENDING,
-    #     RolloutsLifecycleStates.LIVE_WAITING_ENDING,
-    #     RolloutsLifecycleStates.COMPLETE_IDLE,
-    # )
+    UNPUBLISH_APPROVE_APPROVE_WITHOUT_PAUSE = LIVE_ENROLLING + (
+        RolloutsLifecycleStates.LIVE_REVIEW_ENDING,
+        RolloutsLifecycleStates.LIVE_APPROVED_ENDING,
+        RolloutsLifecycleStates.LIVE_WAITING_ENDING,
+        RolloutsLifecycleStates.COMPLETE_IDLE,
+    )
 
 
 class NimbusExperimentFactory(factory.django.DjangoModelFactory):
