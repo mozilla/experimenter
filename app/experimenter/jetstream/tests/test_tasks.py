@@ -56,9 +56,9 @@ class TestFetchJetstreamDataTask(TestCase):
         )
 
         FULL_DATA = {
-            "daily": DAILY_DATA,
-            "weekly": WEEKLY_DATA,
-            "overall": OVERALL_DATA,
+            "daily": {"all": DAILY_DATA},
+            "weekly": {"all": WEEKLY_DATA},
+            "overall": {"all": OVERALL_DATA},
             "other_metrics": {
                 Group.OTHER: {
                     "some_count": "Some Count",
@@ -182,9 +182,9 @@ class TestFetchJetstreamDataTask(TestCase):
         ) = ZeroJetstreamTestData.get_test_data(primary_outcomes)
 
         FULL_DATA = {
-            "daily": DAILY_DATA,
-            "weekly": WEEKLY_DATA,
-            "overall": OVERALL_DATA,
+            "daily": {"all": DAILY_DATA},
+            "weekly": {"all": WEEKLY_DATA},
+            "overall": {"all": OVERALL_DATA},
             "other_metrics": {
                 Group.OTHER: {
                     "some_count": "Some Count",

@@ -157,11 +157,9 @@ def get_experiment_data(experiment):
     }
 
     for window in windows:
-        experiment_data[window] = {"segments": {}}
+        experiment_data[window] = {}
         data_from_jetstream = get_data(recipe_slug, window) or []
-        segments = experiment_data[window]["segments"] = list(
-            set(point["segment"] for point in data_from_jetstream)
-        )
+        segments = list(set(point["segment"] for point in data_from_jetstream))
 
         for segment in segments:
             segment_data = [d for d in data_from_jetstream if d["segment"] == segment]

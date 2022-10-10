@@ -6,6 +6,7 @@ from experimenter.jetstream.models import (
     JetstreamDataPoint,
     Metric,
     MetricData,
+    Segment,
     Significance,
     SignificanceData,
     Statistic,
@@ -44,6 +45,7 @@ class JetstreamTestData:
             metric=Metric.USER_COUNT,
             statistic=Statistic.COUNT,
             window_index="1",
+            segment=Segment.ALL,
         )
 
     @classmethod
@@ -185,6 +187,7 @@ class JetstreamTestData:
                         branch=branch,
                         statistic="binomial",
                         window_index="1",
+                        segment=Segment.ALL,
                     ).dict(exclude_none=True)
                 )
 
@@ -219,6 +222,7 @@ class JetstreamTestData:
                         branch=branch,
                         statistic="mean",
                         window_index="1",
+                        segment=Segment.ALL,
                     ).dict(exclude_none=True)
                 )
 
@@ -464,6 +468,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
             metric=Metric.USER_COUNT,
             statistic=Statistic.COUNT,
             window_index="1",
+            segment=Segment.ALL,
         )
 
     @classmethod
@@ -596,6 +601,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
                         branch=branch,
                         statistic="binomial",
                         window_index="1",
+                        segment=Segment.ALL,
                     ).dict(exclude_none=True)
                 )
 
@@ -610,6 +616,7 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
             metric=Metric.USER_COUNT,
             statistic=Statistic.COUNT,
             window_index=None,
+            segment=Segment.ALL,
         )
 
     @classmethod
