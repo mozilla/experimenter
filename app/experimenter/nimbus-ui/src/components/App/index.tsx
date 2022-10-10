@@ -53,6 +53,13 @@ const App = () => {
             <PageEditMetrics path="metrics" />
             <PageEditAudience path="audience" />
           </Root>
+          <Root path="edit-rollout">
+            <Redirect from="/" to="overview" noThrow />
+            <PageEditOverview path="overview" />
+            <PageEditBranches path="branches" />
+            <PageEditMetrics path="metrics" />
+            <PageEditAudience path="audience" />
+          </Root>
           <PageResults path="results" />
         </ExperimentRoot>
       </Router>

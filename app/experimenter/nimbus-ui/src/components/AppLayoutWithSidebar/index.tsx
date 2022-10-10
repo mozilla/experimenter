@@ -4,6 +4,7 @@
 
 import { RouteComponentProps, useParams } from "@reach/router";
 import React from "react";
+import { Button } from "react-bootstrap";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
@@ -117,6 +118,18 @@ export const AppLayoutWithSidebar = ({
                   </LinkNav>
                 </ul>
               </li>
+
+              {experiment.isRollout && (
+                <li>
+                  <Button
+                    data-testid="edit-rollout-button"
+                    id="edit-rollout-button"
+                    className="mr-2 btn btn-primary w-100"
+                  >
+                    Edit Rollout
+                  </Button>
+                </li>
+              )}
 
               <p className="edit-divider position-relative small my-2">
                 <span className="position-relative bg-light pl-1 pr-2 text-muted">

@@ -5,6 +5,7 @@ import json
 import random
 from collections.abc import Iterable
 from enum import Enum
+from experimenter.experiments.constants_rollouts import NimbusRolloutConstants
 
 import factory
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -166,8 +167,165 @@ class LifecycleStates(Enum):
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
 
+class RolloutsLifecycleStates(Enum):
+    DRAFT_IDLE = {
+        "status": NimbusRolloutConstants.Status.DRAFT,
+        "status_next": None,
+        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
+        "data_status": NimbusRolloutConstants.DataStatus.DIRTY
+        # "feature": EditableState.EDITABLE,
+        # "population": EditableState.EDITABLE,
+    }
+    PREVIEW_IDLE = {
+        "status": NimbusRolloutConstants.Status.PREVIEW,
+        "status_next": None,
+        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE,
+    }
+    DRAFT_REVIEW = {
+        "status": NimbusRolloutConstants.Status.DRAFT,
+        "status_next": NimbusRolloutConstants.Status.LIVE,
+        "publish_status": NimbusRolloutConstants.PublishStatus.REVIEW,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE,
+    }
+    DRAFT_APPROVED = {
+        "status": NimbusRolloutConstants.Status.DRAFT,
+        "status_next": NimbusRolloutConstants.Status.PUBLISHED,
+        "publish_status": NimbusRolloutConstants.PublishStatus.APPROVED,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE,
+    }
+    DRAFT_WAITING = {
+        "status": NimbusRolloutConstants.Status.DRAFT,
+        "status_next": NimbusRolloutConstants.Status.PUBLISHED,
+        "publish_status": NimbusRolloutConstants.PublishStatus.WAITING,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE,
+    }
+    PUBLISHED_IDLE = {
+        "status": NimbusRolloutConstants.Status.PUBLISHED,
+        "status_next": None,
+        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.EDITABLE, -> moves to dirty state
+    }
+    PUBLISHED_IDLE_EDITING = {
+        "status": NimbusRolloutConstants.Status.PUBLISHED,
+        "status_next": None,
+        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
+        "data_status": NimbusRolloutConstants.DataStatus.DIRTY
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.EDITABLE
+    }
+    PUBLISHED_REVIEW_PAUSING = { # is this state sending it back through review?
+        "status": NimbusRolloutConstants.Status.PUBLISHED,
+        "status_next": NimbusRolloutConstants.Status.PUBLISHED,
+        "publish_status": NimbusRolloutConstants.PublishStatus.REVIEW,
+        "is_paused": True,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.EDITABLE
+    }
+    LIVE_IDLE_REJECT_PAUSING = {
+        "status": NimbusRolloutConstants.Status.LIVE,
+        "status_next": None,
+        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
+        "is_paused": False,
+    }
+    LIVE_APPROVED_PAUSING = {
+        "status": NimbusRolloutConstants.Status.LIVE,
+        "status_next": NimbusRolloutConstants.Status.LIVE,
+        "publish_status": NimbusRolloutConstants.PublishStatus.APPROVED,
+        "is_paused": True,
+    }
+    LIVE_WAITING_PAUSING = {
+        "status": NimbusRolloutConstants.Status.LIVE,
+        "status_next": NimbusRolloutConstants.Status.LIVE,
+        "publish_status": NimbusRolloutConstants.PublishStatus.WAITING,
+        "is_paused": True,
+    }
+    LIVE_IDLE_PAUSED = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "is_paused": True,
+    }
+    LIVE_REVIEW_ENDING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.COMPLETE,
+        "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+    }
+    LIVE_IDLE_REJECT_ENDING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+    }
+    LIVE_APPROVED_ENDING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.COMPLETE,
+        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+    }
+    LIVE_WAITING_ENDING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.COMPLETE,
+        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+    }
+    COMPLETE_IDLE = {
+        "status": NimbusExperiment.Status.COMPLETE,
+        "status_next": None,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+    }
+
 
 class Lifecycles(Enum):
+    CREATED = (LifecycleStates.DRAFT_IDLE,)
+    PREVIEW = CREATED + (LifecycleStates.PREVIEW_IDLE,)
+    LAUNCH_REVIEW_REQUESTED = CREATED + (LifecycleStates.DRAFT_REVIEW,)
+    LAUNCH_REJECT = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_IDLE,)
+    LAUNCH_APPROVE = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_APPROVED,)
+    LAUNCH_APPROVE_WAITING = LAUNCH_APPROVE + (LifecycleStates.DRAFT_WAITING,)
+    LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
+    LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
+    LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE_ENROLLING,)
+    LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
+    PAUSING_REVIEW_REQUESTED = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
+    PAUSING_REJECT = PAUSING_REVIEW_REQUESTED + (
+        LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
+    )
+    PAUSING_APPROVE = PAUSING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_PAUSING,)
+    PAUSING_APPROVE_WAITING = PAUSING_APPROVE + (LifecycleStates.LIVE_WAITING_PAUSING,)
+    PAUSING_APPROVE_APPROVE = PAUSING_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
+    PAUSING_APPROVE_REJECT = PAUSING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
+    )
+    PAUSING_APPROVE_TIMEOUT = PAUSING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_REVIEW_PAUSING,
+    )
+    ENDING_REVIEW_REQUESTED = LIVE_PAUSED + (LifecycleStates.LIVE_REVIEW_ENDING,)
+    ENDING_APPROVE = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_ENDING,)
+    ENDING_APPROVE_WAITING = ENDING_APPROVE + (LifecycleStates.LIVE_WAITING_ENDING,)
+    ENDING_APPROVE_APPROVE = ENDING_APPROVE_WAITING + (LifecycleStates.COMPLETE_IDLE,)
+    ENDING_APPROVE_REJECT = ENDING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_IDLE_REJECT_ENDING,
+    )
+    ENDING_APPROVE_TIMEOUT = ENDING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_REVIEW_ENDING,
+    )
+    ENDING_APPROVE_APPROVE_WITHOUT_PAUSE = LIVE_ENROLLING + (
+        LifecycleStates.LIVE_REVIEW_ENDING,
+        LifecycleStates.LIVE_APPROVED_ENDING,
+        LifecycleStates.LIVE_WAITING_ENDING,
+        LifecycleStates.COMPLETE_IDLE,
+    )
+
+class RolloutsLifecycles(Enum):
     CREATED = (LifecycleStates.DRAFT_IDLE,)
     PREVIEW = CREATED + (LifecycleStates.PREVIEW_IDLE,)
     LAUNCH_REVIEW_REQUESTED = CREATED + (LifecycleStates.DRAFT_REVIEW,)
