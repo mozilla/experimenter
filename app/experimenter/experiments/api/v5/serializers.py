@@ -736,6 +736,15 @@ class NimbusExperimentSerializer(
             )
         ],
     )
+    data_status = serializers.ChoiceField(
+        choices=NimbusExperiment.DataStatus.choices,
+        required=False,
+        validators=[
+            NimbusStatusTransitionValidator(
+                transitions=NimbusConstants.ROLLOUT_VALID_DATA_STATUS_TRANSITIONS
+            )
+        ],
+    )
     changelog_message = serializers.CharField(
         min_length=0, max_length=1024, required=True, allow_blank=False
     )
