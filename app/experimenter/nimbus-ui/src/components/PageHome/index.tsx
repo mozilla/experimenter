@@ -30,7 +30,7 @@ import { FilterOptions, FilterValue } from "./types";
 
 type PageHomeProps = Record<string, any> & RouteComponentProps;
 
-const PageHome: React.FunctionComponent<PageHomeProps> = () => {
+export const Body = () => {
   const config = useConfig();
   const [searchParams, updateSearchParams] = useSearchParamsState("PageHome");
   const { data, loading, error, refetch } = useQuery<{
@@ -43,10 +43,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     (nextTab) => updateSearchParams((params) => params.set("tab", nextTab)),
     [updateSearchParams],
   );
-
   const filterValue = getFilterValueFromParams(config, searchParams);
-  const onFilterChange = (newFilterValue: FilterValue) =>
-    updateParamsFromFilterValue(updateSearchParams, newFilterValue);
 
   if (loading) {
     return <PageLoading />;
@@ -60,6 +57,42 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     return <div>No experiments found.</div>;
   }
 
+  const { live, complete, preview, review, draft, archived } = sortByStatus(
+    filterExperiments(data.experiments, filterValue),
+  );
+
+  return (
+    <>
+      <Tabs activeKey={selectedTab} onSelect={onSelectTab}>
+        <Tab eventKey="live" title={`Live (${live.length})`}>
+          <DirectoryTable experiments={live} />
+        </Tab>
+        <Tab eventKey="review" title={`Review (${review.length})`}>
+          <DirectoryTable experiments={review} />
+        </Tab>
+        <Tab eventKey="preview" title={`Preview (${preview.length})`}>
+          <DirectoryTable experiments={preview} />
+        </Tab>
+        <Tab eventKey="completed" title={`Completed (${complete.length})`}>
+          <DirectoryTable experiments={complete} />
+        </Tab>
+        <Tab eventKey="drafts" title={`Draft (${draft.length})`}>
+          <DirectoryTable experiments={draft} />
+        </Tab>
+        <Tab eventKey="archived" title={`Archived (${archived.length})`}>
+          <DirectoryTable experiments={archived} />
+        </Tab>
+      </Tabs>
+    </>
+  );
+};
+
+const PageHome: React.FunctionComponent<PageHomeProps> = () => {
+  const config = useConfig();
+  const [searchParams, updateSearchParams] = useSearchParamsState("PageHome");
+  const filterValue = getFilterValueFromParams(config, searchParams);
+  const onFilterChange = (newFilterValue: FilterValue) =>
+    updateParamsFromFilterValue(updateSearchParams, newFilterValue);
   const filterOptions: FilterOptions = {
     applications: config!.applications!,
     allFeatureConfigs: config!.allFeatureConfigs!,
@@ -68,15 +101,38 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     channels: config!.channels,
     types: config!.types,
   };
-
-  const { live, complete, preview, review, draft, archived } = sortByStatus(
-    filterExperiments(data.experiments, filterValue),
-  );
-
   return (
     <AppLayout testid="PageHome">
       <Head title="Experiments" />
-      <h2 className="mb-3 text-center">Nimbus Experiments </h2>
+
+      <h2 className="mb-3 text-left">Nimbus Experiments </h2>
+      <Alert variant="primary" className="mb-4">
+        <div>
+          <span role="img" aria-label="book emoji">
+            📖
+          </span>{" "}
+          Not sure where to start? Check out the{" "}
+          <LinkExternal href="https://experimenter.info">
+            Experimenter documentation hub.
+          </LinkExternal>
+        </div>
+        <div>
+          <span role="img" aria-label="magnifying emoji">
+            🔍
+          </span>{" "}
+          Looking for the old Experimenter?{" "}
+          <LinkExternal href="/legacy" id="legacy_page_link">
+            It&lsquo;s still here!
+          </LinkExternal>
+          <span role="img" aria-label="magnifying emoji">
+            💡
+          </span>{" "}
+          Have feedback?{" "}
+          <LinkExternal href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&amp;issuetype=10097">
+            Please file it here!
+          </LinkExternal>
+        </div>
+      </Alert>
       <Row>
         <Col
           md="3"
@@ -86,6 +142,14 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
         >
           <div className="d-flex mb-4 justify-content-between flex-column">
             <div>
+              <Link
+                to="new"
+                data-sb-kind="pages/New"
+                className="btn btn-primary btn-small ml-2"
+                id="create-new-button"
+              >
+                Create new
+              </Link>
               <a
                 href={`/api/v5/csv`}
                 className="btn btn-secondary btn-small ml-2"
@@ -101,44 +165,8 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
                 />
                 <span> Reports</span>
               </a>
-              <Link
-                to="new"
-                data-sb-kind="pages/New"
-                className="btn btn-primary btn-small ml-2"
-                id="create-new-button"
-              >
-                Create new
-              </Link>
             </div>
           </div>
-
-          <Alert variant="primary" className="mb-4">
-            <div>
-              <span role="img" aria-label="book emoji">
-                📖
-              </span>{" "}
-              Not sure where to start? Check out the{" "}
-              <LinkExternal href="https://experimenter.info">
-                Experimenter documentation hub.
-              </LinkExternal>
-            </div>
-            <div>
-              <span role="img" aria-label="magnifying emoji">
-                🔍
-              </span>{" "}
-              Looking for the old Experimenter?{" "}
-              <LinkExternal href="/legacy" id="legacy_page_link">
-                It&lsquo;s still here!
-              </LinkExternal>
-              <span role="img" aria-label="magnifying emoji">
-                💡
-              </span>{" "}
-              Have feedback?{" "}
-              <LinkExternal href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&amp;issuetype=10097">
-                Please file it here!
-              </LinkExternal>
-            </div>
-          </Alert>
           <FilterBar
             {...{
               options: filterOptions,
@@ -148,31 +176,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
           />
         </Col>
         <Col md="9" lg="9" xl="10">
-          <Tabs activeKey={selectedTab} onSelect={onSelectTab}>
-            <Tab eventKey="live" title={`Live (${live.length})`}>
-              <DirectoryTable experiments={live} />
-            </Tab>
-
-            <Tab eventKey="review" title={`Review (${review.length})`}>
-              <DirectoryTable experiments={review} />
-            </Tab>
-
-            <Tab eventKey="preview" title={`Preview (${preview.length})`}>
-              <DirectoryTable experiments={preview} />
-            </Tab>
-
-            <Tab eventKey="completed" title={`Completed (${complete.length})`}>
-              <DirectoryTable experiments={complete} />
-            </Tab>
-
-            <Tab eventKey="drafts" title={`Draft (${draft.length})`}>
-              <DirectoryTable experiments={draft} />
-            </Tab>
-
-            <Tab eventKey="archived" title={`Archived (${archived.length})`}>
-              <DirectoryTable experiments={archived} />
-            </Tab>
-          </Tabs>
+          <Body />
         </Col>
       </Row>
     </AppLayout>
