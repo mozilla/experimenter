@@ -1,4 +1,5 @@
 import json
+from experimenter.experiments.constants_rollouts import NimbusRolloutConstants
 
 import graphene
 from django.contrib.auth import get_user_model
@@ -32,6 +33,21 @@ class NimbusExperimentStatusEnum(graphene.Enum):
 class NimbusExperimentPublishStatusEnum(graphene.Enum):
     class Meta:
         enum = NimbusConstants.PublishStatus
+
+
+class NimbusRolloutStatusEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusRolloutConstants.Status
+
+
+class NimbusRolloutPublishStatusEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusRolloutConstants.PublishStatus
+
+
+class NimbusRolloutDataStatusEnum(graphene.Enum):
+    class Meta:
+        enum = NimbusRolloutConstants.DataStatus
 
 
 class NimbusExperimentFirefoxVersionEnum(graphene.Enum):
