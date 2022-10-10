@@ -30,7 +30,16 @@ class NimbusRolloutConstants(object):
         Status.DRAFT: (Status.PREVIEW,),
         Status.PREVIEW: (Status.DRAFT,),
     }
-    STATUS_ALLOWS_UPDATE = (Status.DRAFT, Status.UNPUBLISHED)
+    STATUS_ALLOWS_UPDATE = (
+        Status.DRAFT, 
+        Status.PUBLISHED, # we're allowed to make edits from a published state
+        Status.UNPUBLISHED,
+    )
+
+    PUBLISH_STATUS_ALLOWS_UPDATE = (
+        PublishStatus.IDLE, 
+        PublishStatus.APPROVED, # regular experiments only have idle, should this also be APPROVED?
+    )
 
     # Valid status_next values for given status values
     VALID_STATUS_NEXT_VALUES = {
@@ -49,8 +58,6 @@ class NimbusRolloutConstants(object):
         DataStatus.CLEAN: (DataStatus.CLEAN, DataStatus.DIRTY),
         DataStatus.DIRTY: (DataStatus.CLEAN, DataStatus.DIRTY),
     }
-
-    PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
 
     STATUS_UPDATE_EXEMPT_FIELDS = ( # these can be the same for now
         "is_archived",
