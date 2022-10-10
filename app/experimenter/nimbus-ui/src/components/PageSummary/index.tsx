@@ -258,7 +258,7 @@ const PageSummary = (props: RouteComponentProps) => {
       )}
 
       <h2 className="mt-3 mb-4 h4">Summary</h2>
-      <Summary {...{ experiment, refetch, withFullDetails: false }} />
+      <Summary {...{ experiment, refetch }} />
     </AppLayoutWithExperiment>
   );
 };

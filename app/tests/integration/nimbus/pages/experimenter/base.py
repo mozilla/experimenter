@@ -38,16 +38,6 @@ class ExperimenterBase(Base):
         element = self.wait_for_and_find_element(self._save_btn_locator, "save button")
         element.click()
 
-    def navigate_to_details(self):
-        # Avoid circular import
-        from nimbus.pages.experimenter.summary_detail import SummaryDetailPage
-
-        element = self.wait_for_and_find_element(
-            self._sidebar_details_link, "details link"
-        )
-        element.click()
-        return SummaryDetailPage(self.driver, self.base_url).wait_for_page_to_load()
-
     def navigate_to_branches(self):
         # Avoid circular import
         from nimbus.pages.experimenter.branches import BranchesPage
