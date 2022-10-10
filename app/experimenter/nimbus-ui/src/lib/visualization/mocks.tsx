@@ -1098,8 +1098,8 @@ export const mockIncompleteAnalysis = (modifications = {}) =>
       metadata: MOCK_METADATA,
       show_analysis: true,
       errors: { experiment: [] },
-      daily: {},
-      weekly: {},
+      daily: { all: [] },
+      weekly: { all: {} },
       overall: {
         all: {
           control: {
@@ -1866,7 +1866,7 @@ export const mockAnalysisWithErrors = (modifications = {}) =>
           },
         ],
       },
-      daily: {},
+      daily: { all: [] },
       weekly: { all: weeklyMockAnalysis() },
       overall: null,
     },
@@ -1928,7 +1928,7 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
           },
         ],
       },
-      daily: {},
+      daily: { all: [] },
       weekly: { all: weeklyMockAnalysis() },
       overall: {
         all: {
