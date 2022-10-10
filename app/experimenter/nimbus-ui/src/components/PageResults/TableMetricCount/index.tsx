@@ -34,6 +34,7 @@ type TableMetricCountProps = {
   outcomeDefaultName: string;
   group: string;
   metricType?: MetricTypes;
+  segment?: string;
 };
 
 const getStatistics = (slug: string): Array<CountMetricStatistic> => {
@@ -53,6 +54,7 @@ const TableMetricCount = ({
   outcomeDefaultName,
   group,
   metricType = METRIC_TYPE.DEFAULT_SECONDARY,
+  segment = "all",
 }: TableMetricCountProps) => {
   const countMetricStatistics = getStatistics(outcomeSlug);
   const {
@@ -60,13 +62,14 @@ const TableMetricCount = ({
     sortedBranchNames,
     controlBranchName,
   } = useContext(ResultsContext);
-  const overallResults = overall!;
+  const overallResults = overall![segment]!;
 
   const bounds = getExtremeBounds(
     sortedBranchNames,
-    overallResults,
+    overall!,
     outcomeSlug,
     group,
+    segment,
   );
   const outcomeName =
     metadata?.metrics[outcomeSlug]?.friendly_name || outcomeDefaultName;
@@ -127,7 +130,7 @@ const TableMetricCount = ({
             })}
         </tbody>
       </table>
-      {weekly && (
+      {weekly?.all && (
         <GraphsWeekly
           weeklyResults={weekly}
           {...{ outcomeSlug, outcomeName, group }}

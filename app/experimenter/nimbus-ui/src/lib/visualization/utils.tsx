@@ -38,7 +38,7 @@ export const getControlBranchName = (analysis: AnalysisData) => {
   if (external_config?.reference_branch) {
     return external_config.reference_branch;
   }
-  const results = analysis.overall || analysis.weekly;
+  const results = analysis.overall?.all || analysis.weekly?.all;
   for (const [branchName, branchData] of Object.entries(results!)) {
     if (branchData.is_control) {
       return branchName;
@@ -49,7 +49,7 @@ export const getControlBranchName = (analysis: AnalysisData) => {
 // Returns [control/reference branch name, treatment branch names]
 export const getSortedBranchNames = (analysis: AnalysisData) => {
   const controlBranchName = getControlBranchName(analysis)!;
-  const results = analysis.overall || analysis.weekly || {};
+  const results = analysis.overall?.all || analysis.weekly?.all || {};
   return [
     controlBranchName,
     ...Object.keys(results).filter((branch) => branch !== controlBranchName),
@@ -68,13 +68,14 @@ export const getExtremeBounds = (
   results: AnalysisDataOverall,
   outcomeSlug: string,
   group: string,
+  segment: string,
 ) => {
   let extreme = 0;
   sortedBranchNames.forEach((branch) => {
-    if (results[branch].branch_data[group][outcomeSlug]) {
-      results[branch].branch_data[group][outcomeSlug][BRANCH_COMPARISON.UPLIFT][
-        "all"
-      ].forEach((dataPoint: FormattedAnalysisPoint) => {
+    if (results![segment]![branch].branch_data[group][outcomeSlug]) {
+      results![segment]![branch].branch_data[group][outcomeSlug][
+        BRANCH_COMPARISON.UPLIFT
+      ]["all"].forEach((dataPoint: FormattedAnalysisPoint) => {
         const { lower, upper } = dataPoint;
         const max = Math.max(Math.abs(lower!), Math.abs(upper!));
         extreme = max > extreme ? max : extreme;

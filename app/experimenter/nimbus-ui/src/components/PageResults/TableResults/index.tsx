@@ -23,6 +23,7 @@ import TooltipWithMarkdown from "../TooltipWithMarkdown";
 export type TableResultsProps = {
   experiment: getExperiment_experimentBySlug;
   branchComparison?: BranchComparisonValues;
+  segment?: string;
 };
 
 const getResultMetrics = (outcomes: OutcomesList) => {
@@ -47,6 +48,7 @@ const getResultMetrics = (outcomes: OutcomesList) => {
 const TableResults = ({
   experiment,
   branchComparison = BRANCH_COMPARISON.UPLIFT,
+  segment = "all",
 }: TableResultsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
   const resultsMetricsList = getResultMetrics(primaryOutcomes);
@@ -55,7 +57,7 @@ const TableResults = ({
     sortedBranchNames,
     controlBranchName,
   } = useContext(ResultsContext);
-  const overallResults = overall!;
+  const overallResults = overall![segment]!;
 
   return (
     <table
