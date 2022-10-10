@@ -8,6 +8,8 @@ class OverviewPage(ExperimenterBase):
     """Experiment Overview Page."""
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditOverview")
+    _additional_link_root_locator = (By.CSS_SELECTOR, "#documentation-link")
+    _additional_link_type_locator = (By.CSS_SELECTOR, "#documentation-link select")
     _additional_links_button_locator = (By.CSS_SELECTOR, "#documentation-links button.btn-outline-primary")
     _public_description_locator = (By.CSS_SELECTOR, "#publicDescription")
     _risk_brand_locator = (By.CSS_SELECTOR, "#riskBrand-false")
@@ -38,12 +40,12 @@ class OverviewPage(ExperimenterBase):
 
     @property
     def additional_links(self):
-        el = self.find_element(By.CSS_SELECTOR, "#documentation-link select")
+        el = self.find_element(*self._additional_link_type_locator)
         select = Select(el)
         return select.first_selected_option
 
     def set_additional_links(self, value=None, url="http://www.nimbus-rocks.com"):
-        els = self.find_elements(By.CSS_SELECTOR, "#documentation-link")
+        els = self.find_elements(*self._additional_link_root_locator)
         for item in els:
             if item.find_element(By.CSS_SELECTOR, "input").get_attribute("value") == "":
                 item.find_element(By.CSS_SELECTOR, "input").send_keys(url)
