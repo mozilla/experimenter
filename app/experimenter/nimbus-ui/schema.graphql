@@ -124,6 +124,11 @@ type NimbusBucketRangeType {
   count: Int!
 }
 
+enum NimbusChangeLogNewDataStatus {
+  CLEAN
+  DIRTY
+}
+
 enum NimbusChangeLogNewPublishStatus {
   IDLE
   REVIEW
@@ -147,6 +152,11 @@ enum NimbusChangeLogNewStatusNext {
   COMPLETE
   PUBLISHED
   UNPUBLISHED
+}
+
+enum NimbusChangeLogOldDataStatus {
+  CLEAN
+  DIRTY
 }
 
 enum NimbusChangeLogOldPublishStatus {
@@ -181,9 +191,11 @@ type NimbusChangeLogType {
   oldStatus: NimbusChangeLogOldStatus
   oldStatusNext: NimbusChangeLogOldStatusNext
   oldPublishStatus: NimbusChangeLogOldPublishStatus
+  oldDataStatus: NimbusChangeLogOldDataStatus
   newStatus: NimbusChangeLogNewStatus!
   newStatusNext: NimbusChangeLogNewStatusNext
   newPublishStatus: NimbusChangeLogNewPublishStatus!
+  newDataStatus: NimbusChangeLogNewDataStatus!
   message: String
   experimentData: JSONString
   publishedDtoChanged: Boolean!
@@ -425,6 +437,7 @@ type NimbusExperimentType {
   status: NimbusExperimentStatusEnum
   statusNext: NimbusExperimentStatusEnum
   publishStatus: NimbusExperimentPublishStatusEnum
+  dataStatus: NimbusRolloutDataStatusEnum
   name: String!
   slug: String!
   publicDescription: String!

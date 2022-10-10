@@ -583,7 +583,9 @@ class NimbusStatusValidationMixin:
                     modifying_fields = set(data.keys()) - set(
                         NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS
                     )
-                    is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
+                    is_modifying_locked_fields = set(data.keys()).issubset(
+                        modifying_fields
+                    )
                     if is_locked and is_modifying_locked_fields:
                         raise serializers.ValidationError(
                             {
@@ -619,7 +621,9 @@ class NimbusStatusValidationMixin:
                     modifying_fields = set(data.keys()) - set(
                         NimbusRolloutConstants.STATUS_UPDATE_EXEMPT_FIELDS
                     )
-                    is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
+                    is_modifying_locked_fields = set(data.keys()).issubset(
+                        modifying_fields
+                    )
                     if is_locked and is_modifying_locked_fields:
                         raise serializers.ValidationError(
                             {

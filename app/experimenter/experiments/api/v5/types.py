@@ -1,5 +1,4 @@
 import json
-from experimenter.experiments.constants_rollouts import NimbusRolloutConstants
 
 import graphene
 from django.contrib.auth import get_user_model
@@ -10,6 +9,7 @@ from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.constants_rollouts import NimbusRolloutConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -368,6 +368,7 @@ class NimbusExperimentType(DjangoObjectType):
     status = NimbusExperimentStatusEnum()
     status_next = NimbusExperimentStatusEnum()
     publish_status = NimbusExperimentPublishStatusEnum()
+    data_status = NimbusRolloutDataStatusEnum()
     application = NimbusExperimentApplicationEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()

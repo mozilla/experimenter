@@ -166,6 +166,7 @@ class LifecycleStates(Enum):
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
 
+
 class Lifecycles(Enum):
     CREATED = (LifecycleStates.DRAFT_IDLE,)
     PREVIEW = CREATED + (LifecycleStates.PREVIEW_IDLE,)
@@ -206,6 +207,7 @@ class Lifecycles(Enum):
         LifecycleStates.LIVE_WAITING_ENDING,
         LifecycleStates.COMPLETE_IDLE,
     )
+
 
 class RolloutsLifecycleStates(Enum):
     DRAFT_IDLE = {
@@ -268,15 +270,15 @@ class RolloutsLifecycleStates(Enum):
         "status": NimbusExperiment.Status.PUBLISHED,
         "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.REVIEW,
-        "data_status": NimbusExperiment.DataStatus.DIRTY 
+        "data_status": NimbusExperiment.DataStatus.DIRTY
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
     PUBLISHED_IDLE_REJECT = {
         "status": NimbusExperiment.Status.PUBLISHED,
-        "status_next": NimbusExperiment.Status.PUBLISHED, # or None?
+        "status_next": NimbusExperiment.Status.PUBLISHED,  # or None?
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
-        "data_status": NimbusExperiment.DataStatus.CLEAN # revert to published, delete any changes 
+        "data_status": NimbusExperiment.DataStatus.CLEAN  # revert to published, delete any changes
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
@@ -284,7 +286,7 @@ class RolloutsLifecycleStates(Enum):
         "status": NimbusExperiment.Status.PUBLISHED,
         "status_next": NimbusExperiment.Status.PUBLISHED,
         "publish_status": NimbusExperiment.PublishStatus.APPROVED,
-        "data_status": NimbusExperiment.DataStatus.CLEAN # changes have been approved 
+        "data_status": NimbusExperiment.DataStatus.CLEAN  # changes have been approved
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
@@ -292,7 +294,7 @@ class RolloutsLifecycleStates(Enum):
         "status": NimbusExperiment.Status.PUBLISHED,
         "status_next": NimbusExperiment.Status.PUBLISHED,
         "publish_status": NimbusExperiment.PublishStatus.WAITING,
-        "data_status": NimbusExperiment.DataStatus.CLEAN # changes have been approved?
+        "data_status": NimbusExperiment.DataStatus.CLEAN  # changes have been approved?
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE # ?
     }
@@ -316,36 +318,36 @@ class RolloutsLifecycleStates(Enum):
         "status": NimbusExperiment.Status.UNPUBLISHED,
         "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.REVIEW,
-        "data_status": NimbusExperiment.DataStatus.DIRTY 
+        "data_status": NimbusExperiment.DataStatus.DIRTY
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
     UNPUBLISHED_IDLE_REJECT = {
         "status": NimbusExperiment.Status.UNPUBLISHED,
-        "status_next": NimbusExperiment.Status.UNPUBLISHED, # or None?
+        "status_next": NimbusExperiment.Status.UNPUBLISHED,  # or None?
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
-        "data_status": NimbusExperiment.DataStatus.CLEAN # revert to published, delete any changes 
+        "data_status": NimbusExperiment.DataStatus.CLEAN  # revert to published, delete any changes
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
-    UNPUBLISHED_APPROVED = { # not sure about this one ?? once it's approved, it should be published
+    UNPUBLISHED_APPROVED = {  # not sure about this one ?? once it's approved, it should be published
         "status": NimbusExperiment.Status.UNPUBLISHED,
         "status_next": NimbusExperiment.Status.PUBLISHED,
         "publish_status": NimbusExperiment.PublishStatus.APPROVED,
-        "data_status": NimbusExperiment.DataStatus.CLEAN # changes have been approved ("saved")
+        "data_status": NimbusExperiment.DataStatus.CLEAN  # changes have been approved ("saved")
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE
     }
     UNPUBLISHED_WAITING = {
         "status": NimbusExperiment.Status.UNPUBLISHED,
-        "status_next": NimbusExperiment.Status.PUBLISHED, # ? not sure
+        "status_next": NimbusExperiment.Status.PUBLISHED,  # ? not sure
         "publish_status": NimbusExperiment.PublishStatus.WAITING,
-        "data_status": NimbusExperiment.DataStatus.CLEAN # changes have been approved?
+        "data_status": NimbusExperiment.DataStatus.CLEAN  # changes have been approved?
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.NOT_EDITABLE # ?
     }
     # We may want to add a "Complete" state at some point
-    # COMPLETE_IDLE = { 
+    # COMPLETE_IDLE = {
     #     "status": NimbusRolloutConstants.Status.COMPLETE,
     #     "status_next": None,
     #     "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
@@ -360,19 +362,35 @@ class RolloutsLifecycles(Enum):
     LAUNCH_REVIEW_REQUESTED = CREATED + (RolloutsLifecycleStates.DRAFT_REVIEW,)
     LAUNCH_REJECT = LAUNCH_REVIEW_REQUESTED + (RolloutsLifecycleStates.DRAFT_IDLE,)
     LAUNCH_APPROVE = LAUNCH_REVIEW_REQUESTED + (RolloutsLifecycleStates.DRAFT_APPROVED,)
-    LAUNCH_APPROVE_WAITING = LAUNCH_APPROVE + (RolloutsLifecycleStates.DRAFT_WAITING,) # what is this one for?
-    LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (RolloutsLifecycleStates.PUBLISHED_IDLE,)
+    LAUNCH_APPROVE_WAITING = LAUNCH_APPROVE + (
+        RolloutsLifecycleStates.DRAFT_WAITING,
+    )  # what is this one for?
+    LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (
+        RolloutsLifecycleStates.PUBLISHED_IDLE,
+    )
     PUBLISHED_APPROVE = LAUNCH_APPROVE_APPROVE
-    LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_APPROVE + (RolloutsLifecycleStates.DRAFT_REVIEW,) # what is this one for?
+    LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_APPROVE + (
+        RolloutsLifecycleStates.DRAFT_REVIEW,
+    )  # what is this one for?
     # LIVE_PAUSED = LIVE_ENROLLING + (RolloutsLifecycleStates.LIVE_IDLE_PAUSED,)
-    UNPUBLISH_REVIEW_REQUESTED = PUBLISHED_APPROVE + (RolloutsLifecycleStates.PUBLISHED_REVIEW,)
-    UNPUBLISH_APPROVE = UNPUBLISH_REVIEW_REQUESTED + (RolloutsLifecycleStates.PUBLISHED_APPROVED,)
-    UNPUBLISH_APPROVE_WAITING = UNPUBLISH_APPROVE + (RolloutsLifecycleStates.PUBLISHED_WAITING,)
-    UNPUBLISH_APPROVE_APPROVE = UNPUBLISH_APPROVE + (RolloutsLifecycleStates.PUBLISHED_APPROVED,)
+    UNPUBLISH_REVIEW_REQUESTED = PUBLISHED_APPROVE + (
+        RolloutsLifecycleStates.PUBLISHED_REVIEW,
+    )
+    UNPUBLISH_APPROVE = UNPUBLISH_REVIEW_REQUESTED + (
+        RolloutsLifecycleStates.PUBLISHED_APPROVED,
+    )
+    UNPUBLISH_APPROVE_WAITING = UNPUBLISH_APPROVE + (
+        RolloutsLifecycleStates.PUBLISHED_WAITING,
+    )
+    UNPUBLISH_APPROVE_APPROVE = UNPUBLISH_APPROVE + (
+        RolloutsLifecycleStates.PUBLISHED_APPROVED,
+    )
     UNPUBLISH_APPROVE_REJECT = UNPUBLISH_APPROVE_WAITING + (
         RolloutsLifecycleStates.PUBLISHED_IDLE_REJECT,
     )
-    UNPUBLISH_APPROVE_TIMEOUT = UNPUBLISH_APPROVE_WAITING + (RolloutsLifecycleStates.PUBLISHED_REVIEW,)
+    UNPUBLISH_APPROVE_TIMEOUT = UNPUBLISH_APPROVE_WAITING + (
+        RolloutsLifecycleStates.PUBLISHED_REVIEW,
+    )
     # UNPUBLISH_APPROVE_APPROVE_WITHOUT_PAUSE = LIVE_ENROLLING + (
     #     RolloutsLifecycleStates.LIVE_REVIEW_ENDING,
     #     RolloutsLifecycleStates.LIVE_APPROVED_ENDING,

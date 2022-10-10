@@ -149,12 +149,12 @@ class Application(models.TextChoices):
 
 class NimbusConstants(object):
     class Status(models.TextChoices):
-        DRAFT = "Draft" # Rollouts ok
-        PREVIEW = "Preview" # Rollouts o
+        DRAFT = "Draft"  # Rollouts ok
+        PREVIEW = "Preview"  # Rollouts ok
         LIVE = "Live"
-        COMPLETE = "Complete" 
-        PUBLISHED = "Published" # Rollouts only
-        UNPUBLISHED = "Unpublished" # Rollouts only
+        COMPLETE = "Complete"
+        PUBLISHED = "Published"  # Rollouts only
+        UNPUBLISHED = "Unpublished"  # Rollouts only
 
     class PublishStatus(models.TextChoices):
         IDLE = "Idle"
@@ -183,7 +183,7 @@ class NimbusConstants(object):
         Status.DRAFT: (Status.PREVIEW,),
         Status.PREVIEW: (Status.DRAFT,),
     }
-    
+
     STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
 
     # Valid status_next values for given status values
@@ -200,32 +200,37 @@ class NimbusConstants(object):
             PublishStatus.APPROVED,
         ),
     }
-    
+
     PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
 
     ROLLOUT_STATUS_ALLOWS_UPDATE = (
-        Status.DRAFT, 
-        Status.PUBLISHED, # we're allowed to make edits from a published state
+        Status.DRAFT,
+        Status.PUBLISHED,  # we're allowed to make edits from a published state
         Status.UNPUBLISHED,
     )
 
     ROLLOUT_PUBLISH_STATUS_ALLOWS_UPDATE = (
-        PublishStatus.IDLE, 
-        PublishStatus.APPROVED, # regular experiments only have idle, should this also be APPROVED?
+        PublishStatus.IDLE,
+        PublishStatus.APPROVED,  # regular experiments only have idle, should this also be APPROVED?
     )
 
     ROLLOUT_VALID_STATUS_NEXT_VALUES = {
         Status.DRAFT: (None, Status.PUBLISHED),
-        Status.PREVIEW: (None, Status.PUBLISHED), # does preview have to go back to draft?
-        Status.PUBLISHED: (None, Status.PUBLISHED, Status.UNPUBLISHED), 
-        Status.UNPUBLISHED: (None, Status.PUBLISHED, Status.UNPUBLISHED)
+        Status.PREVIEW: (
+            None,
+            Status.PUBLISHED,
+        ),  # does preview have to go back to draft?
+        Status.PUBLISHED: (None, Status.PUBLISHED, Status.UNPUBLISHED),
+        Status.UNPUBLISHED: (None, Status.PUBLISHED, Status.UNPUBLISHED),
     }
 
-    ROLLOUT_VALID_PUBLISH_STATUS_TRANSITIONS = { # do our publish statuses change? the review process should be the same
-        PublishStatus.IDLE: (PublishStatus.REVIEW, PublishStatus.APPROVED),
-        PublishStatus.REVIEW: (PublishStatus.IDLE, PublishStatus.APPROVED),
-    }
-    
+    ROLLOUT_VALID_PUBLISH_STATUS_TRANSITIONS = (
+        {  # do our publish statuses change? the review process should be the same
+            PublishStatus.IDLE: (PublishStatus.REVIEW, PublishStatus.APPROVED),
+            PublishStatus.REVIEW: (PublishStatus.IDLE, PublishStatus.APPROVED),
+        }
+    )
+
     ROLLOUT_VALID_DATA_STATUS_TRANSITIONS = {
         DataStatus.CLEAN: (DataStatus.CLEAN, DataStatus.DIRTY),
         DataStatus.DIRTY: (DataStatus.CLEAN, DataStatus.DIRTY),
