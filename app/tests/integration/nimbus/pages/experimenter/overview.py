@@ -44,11 +44,12 @@ class OverviewPage(ExperimenterBase):
     def set_additional_links(self, value=None, url="http://www.nimbus-rocks.com"):
         els = self.find_elements(By.CSS_SELECTOR, "#documentation-link")
         for item in els:
-            if item.find_element(
-                By.CSS_SELECTOR, "input").get_attribute("value") == "":
+            if item.find_element(By.CSS_SELECTOR, "input").get_attribute("value") == "":
                 item.find_element(By.CSS_SELECTOR, "input").send_keys(url)
                 select = Select(item.find_element(By.CSS_SELECTOR, "select"))
                 select.select_by_value(value)
 
     def add_additional_links(self):
-        self.find_element(By.CSS_SELECTOR, "#documentation-links button.btn-outline-primary").click()
+        self.find_element(
+            By.CSS_SELECTOR, "#documentation-links button.btn-outline-primary"
+        ).click()
