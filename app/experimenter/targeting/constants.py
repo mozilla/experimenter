@@ -633,15 +633,13 @@ RALLY_PILOT_USER = NimbusTargetingConfig(
     description="Users who have installed \
     the Mozilla Rally Core Add-on or one of the Rally pilot studies",
     targeting="""
-    (
-        [
-            'rally-core@mozilla.org',
-            'facebook-pixel-hunt@rally.mozilla.org',
-            'beyond-the-paywall@rally.mozilla.org',
-            'search-engine-usage@rally.mozilla.org',
+        addonsInfo.addons['rally-core@mozilla.org'] != null ||
+        addonsInfo.addons['facebook-pixel-hunt@rally.mozilla.org'] != null ||
+        addonsInfo.addons['beyond-the-paywall@rally.mozilla.org'] != null ||
+        addonsInfo.addons['search-engine-usage@rally.mozilla.org'] != null ||
+        addonsInfo.addons[
             'princeton-political-and-covid-19-news-study@rally.mozilla.org'
-        ] intersect addonsInfo.addons|keys
-    )|length > 0
+        ] != null
     """,
     desktop_telemetry="",
     sticky_required=False,
