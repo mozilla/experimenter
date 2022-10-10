@@ -224,64 +224,94 @@ class RolloutsLifecycleStates(Enum):
         # "feature": EditableState.NOT_EDITABLE,
         # "population": EditableState.EDITABLE
     }
-    PUBLISHED_REVIEW_PAUSING = { # is this state sending it back through review?
+    PUBLISHED_REVIEW = {
         "status": NimbusRolloutConstants.Status.PUBLISHED,
-        "status_next": NimbusRolloutConstants.Status.PUBLISHED,
-        "publish_status": NimbusRolloutConstants.PublishStatus.REVIEW,
-        "is_paused": True,
-        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
-        # "feature": EditableState.NOT_EDITABLE,
-        # "population": EditableState.EDITABLE
-    }
-    LIVE_IDLE_REJECT_PAUSING = {
-        "status": NimbusRolloutConstants.Status.LIVE,
         "status_next": None,
-        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
-        "is_paused": False,
+        "publish_status": NimbusRolloutConstants.PublishStatus.REVIEW,
+        "data_status": NimbusRolloutConstants.DataStatus.DIRTY 
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE
     }
-    LIVE_APPROVED_PAUSING = {
+    PUBLISHED_IDLE_REJECT = {
+        "status": NimbusRolloutConstants.Status.PUBLISHED,
+        "status_next": NimbusRolloutConstants.Status.PUBLISHED, # or None?
+        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # revert to published, delete any changes 
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE
+    }
+    PUBLISHED_APPROVED = {
         "status": NimbusRolloutConstants.Status.LIVE,
         "status_next": NimbusRolloutConstants.Status.LIVE,
         "publish_status": NimbusRolloutConstants.PublishStatus.APPROVED,
-        "is_paused": True,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # changes have been approved 
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE
     }
-    LIVE_WAITING_PAUSING = {
-        "status": NimbusRolloutConstants.Status.LIVE,
-        "status_next": NimbusRolloutConstants.Status.LIVE,
+    PUBLISHED_WAITING = {
+        "status": NimbusRolloutConstants.Status.PUBLISHED,
+        "status_next": NimbusRolloutConstants.Status.PUBLISHED,
         "publish_status": NimbusRolloutConstants.PublishStatus.WAITING,
-        "is_paused": True,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # changes have been approved?
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE # ?
     }
-    LIVE_IDLE_PAUSED = {
-        "status": NimbusExperiment.Status.LIVE,
+    UNPUBLISHED_IDLE = {
+        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
         "status_next": None,
-        "publish_status": NimbusExperiment.PublishStatus.IDLE,
-        "is_paused": True,
+        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.EDITABLE, -> moves to dirty state
     }
-    LIVE_REVIEW_ENDING = {
-        "status": NimbusExperiment.Status.LIVE,
-        "status_next": NimbusExperiment.Status.COMPLETE,
-        "publish_status": NimbusExperiment.PublishStatus.REVIEW,
-    }
-    LIVE_IDLE_REJECT_ENDING = {
-        "status": NimbusExperiment.Status.LIVE,
+    UNPUBLISHED_IDLE_EDITING = {
+        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
         "status_next": None,
-        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
+        "data_status": NimbusRolloutConstants.DataStatus.DIRTY
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.EDITABLE
     }
-    LIVE_APPROVED_ENDING = {
-        "status": NimbusExperiment.Status.LIVE,
-        "status_next": NimbusExperiment.Status.COMPLETE,
-        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
-    }
-    LIVE_WAITING_ENDING = {
-        "status": NimbusExperiment.Status.LIVE,
-        "status_next": NimbusExperiment.Status.COMPLETE,
-        "publish_status": NimbusExperiment.PublishStatus.WAITING,
-    }
-    COMPLETE_IDLE = {
-        "status": NimbusExperiment.Status.COMPLETE,
+    UNPUBLISHED_REVIEW = {
+        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
         "status_next": None,
-        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "publish_status": NimbusRolloutConstants.PublishStatus.REVIEW,
+        "data_status": NimbusRolloutConstants.DataStatus.DIRTY 
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE
     }
+    UNPUBLISHED_IDLE_REJECT = {
+        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
+        "status_next": NimbusRolloutConstants.Status.UNPUBLISHED, # or None?
+        "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # revert to published, delete any changes 
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE
+    }
+    UNPUBLISHED_APPROVED = { # not sure about this one ?? once it's approved, it should be published
+        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
+        "status_next": NimbusRolloutConstants.Status.PUBLISHED,
+        "publish_status": NimbusRolloutConstants.PublishStatus.APPROVED,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # changes have been approved ("saved")
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE
+    }
+    UNPUBLISHED_WAITING = {
+        "status": NimbusRolloutConstants.Status.UNPUBLISHED,
+        "status_next": NimbusRolloutConstants.Status.PUBLISHED, # ? not sure
+        "publish_status": NimbusRolloutConstants.PublishStatus.WAITING,
+        "data_status": NimbusRolloutConstants.DataStatus.CLEAN # changes have been approved?
+        # "feature": EditableState.NOT_EDITABLE,
+        # "population": EditableState.NOT_EDITABLE # ?
+    }
+    # We may want to add a "Complete" state at some point
+    # COMPLETE_IDLE = { 
+    #     "status": NimbusRolloutConstants.Status.COMPLETE,
+    #     "status_next": None,
+    #     "publish_status": NimbusRolloutConstants.PublishStatus.IDLE,
+    #     # "feature": EditableState.NOT_EDITABLE,
+    #     # "population": EditableState.NOT_EDITABLE
+    # }
 
 
 class Lifecycles(Enum):
