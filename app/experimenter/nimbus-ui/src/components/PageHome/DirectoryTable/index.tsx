@@ -344,6 +344,7 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
       {experiments.length ? (
         <Table
           data-testid="DirectoryTable"
+          className="directory-table"
           size="sm"
           responsive
           hover
