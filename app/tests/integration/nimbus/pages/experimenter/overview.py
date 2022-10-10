@@ -8,6 +8,7 @@ class OverviewPage(ExperimenterBase):
     """Experiment Overview Page."""
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditOverview")
+    _additional_links_button_locator = (By.CSS_SELECTOR, "#documentation-links button.btn-outline-primary")
     _public_description_locator = (By.CSS_SELECTOR, "#publicDescription")
     _risk_brand_locator = (By.CSS_SELECTOR, "#riskBrand-false")
     _risk_revenue_locator = (By.CSS_SELECTOR, "#riskRevenue-false")
@@ -50,6 +51,4 @@ class OverviewPage(ExperimenterBase):
                 select.select_by_value(value)
 
     def add_additional_links(self):
-        self.find_element(
-            By.CSS_SELECTOR, "#documentation-links button.btn-outline-primary"
-        ).click()
+        self.find_element(*self._additional_links_button_locator).click()
