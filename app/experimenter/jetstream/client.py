@@ -180,18 +180,14 @@ def get_experiment_data(experiment):
                 data.append_retention_data(raw_data["weekly"][segment])
 
                 ResultsObjectModel = create_results_object_model(data)
-                data = ResultsObjectModel(
-                    result_metrics, data, experiment, segment=segment
-                )
+                data = ResultsObjectModel(result_metrics, data, experiment)
                 data.append_conversion_count(primary_metrics_set)
 
                 if segment == Segment.ALL:
                     experiment_data["other_metrics"] = other_metrics
             elif data and window == "weekly":
                 ResultsObjectModel = create_results_object_model(data)
-                data = ResultsObjectModel(
-                    result_metrics, data, experiment, window, segment=segment
-                )
+                data = ResultsObjectModel(result_metrics, data, experiment, window)
 
             transformed_data = data.dict(exclude_none=True) or None
             experiment_data[window][segment] = transformed_data

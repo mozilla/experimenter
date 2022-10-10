@@ -78,6 +78,12 @@ class JetstreamDataPoint(BaseModel):
 
 
 class JetstreamData(BaseModel):
+    """
+    Parameters:
+        __root__: List[JetstreamDataPoint] = []
+            The list should be filtered as needed coming in (e.g., by a given segment).
+    """
+
     __root__: List[JetstreamDataPoint] = []
 
     def __iter__(self):
@@ -95,15 +101,17 @@ class JetstreamData(BaseModel):
     def dict(self, exclude_none):
         return [item.dict(exclude_none=exclude_none) for item in self.__root__]
 
+    def get_segment(self):
+        if self.__root__ and len(self.__root__) > 0:
+            return self.__root__[0].segment or Segment.ALL
+
+        return Segment.ALL
+
     def append_population_percentages(self):
         total_population = 0
         branches = {}
-        # __root__ should already be filtered to the current segment
-        segment = self.__root__[0].segment or Segment.ALL
-        for jetstream_data_point in self.__root__:
-            # if jetstream_data_point.segment != self.segment:
-            #     continue
 
+        for jetstream_data_point in self.__root__:
             if jetstream_data_point.metric == Metric.USER_COUNT:
                 if jetstream_data_point.point is not None:
                     total_population += jetstream_data_point.point
@@ -120,7 +128,7 @@ class JetstreamData(BaseModel):
                     statistic=Statistic.PERCENT,
                     branch=branch_name,
                     point=point,
-                    segment=segment,
+                    segment=self.get_segment(),
                 )
             )
 
@@ -176,15 +184,10 @@ class MetricData(BaseModel):
 
 
 class ResultsObjectModelBase(BaseModel):
-    def __init__(
-        self, result_metrics, data, experiment, window="overall", segment=Segment.ALL
-    ):
+    def __init__(self, result_metrics, data, experiment, window="overall"):
         super(ResultsObjectModelBase, self).__init__()
 
         for jetstream_data_point in data:
-            if jetstream_data_point.segment != segment:
-                continue
-
             branch = jetstream_data_point.branch
             metric = jetstream_data_point.metric
             statistic = jetstream_data_point.statistic
