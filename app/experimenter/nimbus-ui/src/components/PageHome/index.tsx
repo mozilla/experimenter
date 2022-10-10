@@ -5,7 +5,7 @@
 import { useQuery } from "@apollo/client";
 import { Link, RouteComponentProps } from "@reach/router";
 import React, { useCallback } from "react";
-import { Alert, Col, Row, Tab, Tabs } from "react-bootstrap";
+import { Alert, Col, Container, Row, Tab, Tabs } from "react-bootstrap";
 import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
 import {
   useConfig,
@@ -133,52 +133,54 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
           </LinkExternal>
         </div>
       </Alert>
-      <Row>
-        <Col
-          md="3"
-          lg="3"
-          xl="2"
-          className="bg-light pt-2 border-right shadow-sm"
-        >
-          <div className="d-flex mb-4 justify-content-between flex-column">
-            <div>
-              <Link
-                to="new"
-                data-sb-kind="pages/New"
-                className="btn btn-primary btn-small ml-3"
-                id="create-new-button"
-              >
-                Create new
-              </Link>
-              <a
-                href={`/api/v5/csv`}
-                className="btn btn-secondary btn-small ml-2"
-                data-testid="reports-anchor"
-              >
-                <DownloadIcon
-                  width="20"
-                  height="20"
-                  fill="white"
-                  dominantBaseline="start"
-                  role="img"
-                  aria-label="download icon"
-                />
-                <span> Reports</span>
-              </a>
+      <Container fluid className="h-100vh">
+        <Row className="h-md-100">
+          <Col
+            md="3"
+            lg="3"
+            xl="2"
+            className="bg-light pt-2 border-right shadow-sm"
+          >
+            <div className="d-flex mb-4 justify-content-between flex-column">
+              <div>
+                <Link
+                  to="new"
+                  data-sb-kind="pages/New"
+                  className="btn btn-primary btn-small ml-3"
+                  id="create-new-button"
+                >
+                  Create new
+                </Link>
+                <a
+                  href={`/api/v5/csv`}
+                  className="btn btn-secondary btn-small ml-2"
+                  data-testid="reports-anchor"
+                >
+                  <DownloadIcon
+                    width="20"
+                    height="20"
+                    fill="white"
+                    dominantBaseline="start"
+                    role="img"
+                    aria-label="download icon"
+                  />
+                  <span> Reports</span>
+                </a>
+              </div>
             </div>
-          </div>
-          <FilterBar
-            {...{
-              options: filterOptions,
-              value: filterValue,
-              onChange: onFilterChange,
-            }}
-          />
-        </Col>
-        <Col md="9" lg="9" xl="10">
-          <Body />
-        </Col>
-      </Row>
+            <FilterBar
+              {...{
+                options: filterOptions,
+                value: filterValue,
+                onChange: onFilterChange,
+              }}
+            />
+          </Col>
+          <Col md="9" lg="9" xl="10">
+            <Body />
+          </Col>
+        </Row>
+      </Container>
     </AppLayout>
   );
 };
