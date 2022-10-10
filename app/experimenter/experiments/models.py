@@ -1032,21 +1032,12 @@ class NimbusChangeLog(FilterMixin, models.Model):
         null=True,
         choices=NimbusExperiment.PublishStatus.choices,
     )
-    old_data_status = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=NimbusExperiment.DataStatus.choices,
-    )
     new_status = models.CharField(max_length=255, choices=NimbusExperiment.Status.choices)
     new_status_next = models.CharField(
         max_length=255, blank=True, null=True, choices=NimbusExperiment.Status.choices
     )
     new_publish_status = models.CharField(
         max_length=255, choices=NimbusExperiment.PublishStatus.choices
-    )
-    new_data_status = models.CharField(
-        max_length=255, choices=NimbusExperiment.DataStatus.choices
     )
     message = models.TextField(blank=True, null=True)
     experiment_data = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
