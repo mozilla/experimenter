@@ -10,7 +10,10 @@ class OverviewPage(ExperimenterBase):
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditOverview")
     _additional_link_root_locator = (By.CSS_SELECTOR, "#documentation-link")
     _additional_link_type_locator = (By.CSS_SELECTOR, "#documentation-link select")
-    _additional_links_button_locator = (By.CSS_SELECTOR, "#documentation-links button.btn-outline-primary")
+    _additional_links_button_locator = (
+        By.CSS_SELECTOR,
+        "#documentation-links button.btn-outline-primary",
+    )
     _public_description_locator = (By.CSS_SELECTOR, "#publicDescription")
     _risk_brand_locator = (By.CSS_SELECTOR, "#riskBrand-false")
     _risk_revenue_locator = (By.CSS_SELECTOR, "#riskRevenue-false")
