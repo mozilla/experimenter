@@ -180,7 +180,9 @@ MOBILE_NEW_USER = NimbusTargetingConfig(
 MOBILE_FIRST_RUN_USER = NimbusTargetingConfig(
     name="First run Users on Mobile",
     slug="mobile_first_run",
-    description=("New users on mobile who installed the app less than a week ago"),
+    description=(
+        "First run users on mobile who installed the app less than a 3 days ago"
+    ),
     targeting="days_since_install < 3",
     desktop_telemetry="",
     sticky_required=True,
