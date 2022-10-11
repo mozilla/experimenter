@@ -102,10 +102,7 @@ class JetstreamData(BaseModel):
         return [item.dict(exclude_none=exclude_none) for item in self.__root__]
 
     def get_segment(self):
-        if self.__root__ and len(self.__root__) > 0:
-            return self.__root__[0].segment or Segment.ALL
-
-        return Segment.ALL
+        return self.__root__[0].segment or Segment.ALL
 
     def append_population_percentages(self):
         total_population = 0
