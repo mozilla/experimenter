@@ -26,6 +26,7 @@ import TableVisualizationRow from "../TableVisualizationRow";
 export type TableHighlightsProps = {
   experiment: getExperiment_experimentBySlug;
   branchComparison?: BranchComparisonValues;
+  segment?: string;
 };
 
 type Branch =
@@ -70,6 +71,7 @@ const getBranchDescriptions = (
 const TableHighlights = ({
   experiment,
   branchComparison = BRANCH_COMPARISON.UPLIFT,
+  segment = "all",
 }: TableHighlightsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
   const highlightMetricsList = getHighlightMetrics(primaryOutcomes);
@@ -82,7 +84,7 @@ const TableHighlights = ({
     sortedBranchNames,
     controlBranchName,
   } = useContext(ResultsContext);
-  const overallResults = overall!;
+  const overallResults = overall![segment]!;
 
   return (
     <table data-testid="table-highlights" className="table mb-0 pt-2">

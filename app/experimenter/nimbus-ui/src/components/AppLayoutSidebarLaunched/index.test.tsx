@@ -47,8 +47,8 @@ const Subject = ({
     (withAnalysis
       ? {
           show_analysis: true,
-          daily: [],
-          weekly: {},
+          daily: { all: [] },
+          weekly: { all: {} },
           overall: mockAnalysis().overall,
           errors: mockAnalysis().errors,
           metadata: mockAnalysis().metadata,

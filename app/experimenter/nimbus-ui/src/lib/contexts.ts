@@ -16,9 +16,9 @@ export type ResultsContextType = {
 
 export const defaultResultsContext = {
   analysis: {
-    daily: [],
-    weekly: {},
-    overall: {},
+    daily: { all: [] },
+    weekly: { all: {} },
+    overall: { all: {} },
     errors: { experiment: [] },
     metadata: { metrics: {}, outcomes: {}, external_config: null },
     show_analysis: false,
