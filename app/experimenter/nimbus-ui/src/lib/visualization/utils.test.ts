@@ -43,7 +43,7 @@ describe("getSortedBranchNames", () => {
 
   it("returns a list of branch names with many branches, the control branch first", () => {
     expect(
-      getSortedBranchNames(mockAnalysis({ overall: MOCK_OVERALL })),
+      getSortedBranchNames(mockAnalysis({ overall: { all: MOCK_OVERALL } })),
     ).toEqual(["fum", "fee", "fi", "fo", "englishman"]);
   });
 
@@ -51,7 +51,7 @@ describe("getSortedBranchNames", () => {
     expect(
       getSortedBranchNames(
         mockAnalysis({
-          overall: MOCK_OVERALL,
+          overall: { all: MOCK_OVERALL },
           metadata: { external_config: { reference_branch: "englishman" } },
         }),
       ),

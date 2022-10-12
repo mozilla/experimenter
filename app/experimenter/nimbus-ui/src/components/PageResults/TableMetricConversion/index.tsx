@@ -24,6 +24,7 @@ type ConversionMetricStatistic = {
 
 type TableMetricConversionProps = {
   outcome: getConfig_nimbusConfig_outcomes;
+  segment?: string;
 };
 
 const getStatistics = (slug: string): Array<ConversionMetricStatistic> => {
@@ -40,20 +41,24 @@ const getStatistics = (slug: string): Array<ConversionMetricStatistic> => {
   return conversionMetricStatisticsList;
 };
 
-const TableMetricConversion = ({ outcome }: TableMetricConversionProps) => {
+const TableMetricConversion = ({
+  outcome,
+  segment = "all",
+}: TableMetricConversionProps) => {
   const {
     analysis: { overall },
     sortedBranchNames,
     controlBranchName,
   } = useContext(ResultsContext);
-  const overallResults = overall!;
+  const overallResults = overall![segment]!;
   const conversionMetricStatistics = getStatistics(outcome.slug!);
   const metricKey = `${outcome.slug}_ever_used`;
   const bounds = getExtremeBounds(
     sortedBranchNames,
-    overallResults,
+    overall!,
     outcome.slug!,
     GROUP.OTHER,
+    segment,
   );
 
   return (
