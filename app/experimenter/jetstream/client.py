@@ -1,5 +1,6 @@
 import json
 import os
+from collections import defaultdict
 from itertools import chain
 
 from django.conf import settings
@@ -23,6 +24,12 @@ ERRORS_FOLDER = "errors"
 ALL_STATISTICS = set(
     [Statistic.BINOMIAL, Statistic.MEAN, Statistic.COUNT, Statistic.PERCENT]
 )
+
+
+class AnalysisWindow:
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    OVERALL = "overall"
 
 
 def load_data_from_gcs(path):
@@ -137,11 +144,11 @@ def get_other_metrics_names_and_map(data, RESULTS_METRICS_MAP):
 
 def get_experiment_data(experiment):
     recipe_slug = experiment.slug.replace("-", "_")
-    windows = ["daily", "weekly", "overall"]
+    windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
     raw_data = {
-        "daily": {},
-        "weekly": {},
-        "overall": {},
+        AnalysisWindow.DAILY: {},
+        AnalysisWindow.WEEKLY: {},
+        AnalysisWindow.OVERALL: {},
     }
 
     experiment_metadata = get_metadata(recipe_slug)
@@ -159,10 +166,12 @@ def get_experiment_data(experiment):
     for window in windows:
         experiment_data[window] = {}
         data_from_jetstream = get_data(recipe_slug, window) or []
-        segments = list(set(point["segment"] for point in data_from_jetstream))
 
-        for segment in segments:
-            segment_data = [d for d in data_from_jetstream if d["segment"] == segment]
+        segment_points = defaultdict(list)
+        for point in data_from_jetstream:
+            segment_points[point["segment"]].append(point)
+
+        for segment, segment_data in segment_points.items():
             data = raw_data[window][segment] = JetstreamData(__root__=(segment_data))
             (
                 result_metrics,
@@ -174,10 +183,10 @@ def get_experiment_data(experiment):
                 experiment.secondary_outcomes,
                 outcomes_metadata,
             )
-            if data and window == "overall":
+            if data and window == AnalysisWindow.OVERALL:
                 # Append some values onto Jetstream data
                 data.append_population_percentages()
-                data.append_retention_data(raw_data["weekly"][segment])
+                data.append_retention_data(raw_data[AnalysisWindow.WEEKLY][segment])
 
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment)
@@ -185,7 +194,7 @@ def get_experiment_data(experiment):
 
                 if segment == Segment.ALL:
                     experiment_data["other_metrics"] = other_metrics
-            elif data and window == "weekly":
+            elif data and window == AnalysisWindow.WEEKLY:
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
 
