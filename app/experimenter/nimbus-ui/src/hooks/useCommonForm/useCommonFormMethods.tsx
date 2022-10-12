@@ -6,7 +6,6 @@ import classNames from "classnames";
 import React from "react";
 import Form from "react-bootstrap/Form";
 import { FieldError, RegisterOptions, UseFormMethods } from "react-hook-form";
-import { camelToSnakeCase } from "../../lib/caseConversions";
 
 // TODO: 'any' type on `onChange={(selectedOptions) => ...`,
 // it wants this, but can't seem to coerce it into SelectOption type
@@ -34,9 +33,9 @@ export function useCommonFormMethods<FieldNames extends string>(
   reviewWarnings: SerializerMessages = {},
 ) {
   const hideSubmitError = <K extends FieldNames>(name: K) => {
-    if (submitErrors && submitErrors[camelToSnakeCase(name)]) {
+    if (submitErrors && submitErrors[name]) {
       const modifiedSubmitErrors = { ...submitErrors };
-      delete modifiedSubmitErrors[camelToSnakeCase(name)];
+      delete modifiedSubmitErrors[name];
       setSubmitErrors(modifiedSubmitErrors);
     }
   };
@@ -49,7 +48,7 @@ export function useCommonFormMethods<FieldNames extends string>(
     setDefaultValue = true,
     prefix?: string,
   ) => {
-    const snakeCaseName = camelToSnakeCase(name);
+    const snakeCaseName = name;
     const fieldName = prefix ? `${prefix}.${name}` : name;
     const hasReviewMessage = (reviewMessages[snakeCaseName] || []).length > 0;
     const hasReviewWarning = (reviewWarnings[snakeCaseName] || []).length > 0;
@@ -83,7 +82,7 @@ export function useCommonFormMethods<FieldNames extends string>(
     name: K;
     prefix?: string;
   }) => {
-    const snakeCaseName = camelToSnakeCase(name);
+    const snakeCaseName = name;
     const fieldName = prefix ? `${prefix}.${name}` : name;
     const fieldReviewMessages =
       (
@@ -149,10 +148,9 @@ export function useCommonFormMethods<FieldNames extends string>(
       hideSubmitError(name);
     },
     className: classNames(
-      (submitErrors![camelToSnakeCase(name)] ||
-        (touched[name] && errors[name])) &&
+      (submitErrors![name] || (touched[name] && errors[name])) &&
         "is-invalid border border-danger rounded",
-      (reviewMessages[camelToSnakeCase(name)] || []).length > 0 &&
+      (reviewMessages[name] || []).length > 0 &&
         "is-warning border-feedback-warning rounded",
     ),
   });

@@ -217,8 +217,8 @@ export const FormBranches = ({
             // due to a state conflict between `react-hook-form` and our internal branch state mangement
             className={classNames({
               "is-warning":
-                fieldMessages.feature_config?.length > 0 ||
-                fieldWarnings.feature_config?.length > 0,
+                fieldMessages.featureConfig?.length > 0 ||
+                fieldWarnings.featureConfig?.length > 0,
             })}
             onChange={onFeatureConfigChange}
             value={
@@ -243,18 +243,18 @@ export const FormBranches = ({
                 ),
             )}
           </Form.Control>
-          {fieldMessages.feature_config?.length > 0 && (
+          {fieldMessages.featureConfig?.length > 0 && (
             // @ts-ignore This component doesn't technically support type="warning", but
             // all it's doing is using the string in a class, so we can safely override.
             <Form.Control.Feedback type="warning" data-for="featureConfig">
-              {(fieldMessages.feature_config as SerializerMessage).join(", ")}
+              {(fieldMessages.featureConfig as SerializerMessage).join(", ")}
             </Form.Control.Feedback>
           )}
-          {fieldWarnings.feature_config?.length > 0 && (
+          {fieldWarnings.featureConfig?.length > 0 && (
             // @ts-ignore This component doesn't technically support type="warning", but
             // all it's doing is using the string in a class, so we can safely override.
             <Form.Control.Feedback type="warning" data-for="featureConfig">
-              {(fieldWarnings.feature_config as SerializerMessage).join(", ")}
+              {(fieldWarnings.featureConfig as SerializerMessage).join(", ")}
             </Form.Control.Feedback>
           )}
         </Form.Group>
@@ -266,8 +266,8 @@ export const FormBranches = ({
               onChange={handleIsRollout}
               checked={!!isRollout}
               type="checkbox"
-              isInvalid={!!fieldMessages?.is_rollout}
-              feedback={fieldMessages?.is_rollout}
+              isInvalid={!!fieldMessages?.isRollout}
+              feedback={fieldMessages?.isRollout}
               label="This is a rollout (single branch)"
             />
           </Form.Group>
@@ -311,8 +311,8 @@ export const FormBranches = ({
                   {}) as FormBranchProps["touched"],
                 isReference: true,
                 branch: { ...referenceBranch, key: "branch-reference" },
-                reviewErrors: fieldMessages.reference_branch as SerializerSet,
-                reviewWarnings: fieldWarnings.reference_branch as SerializerSet,
+                reviewErrors: fieldMessages.referenceBranch as SerializerSet,
+                reviewWarnings: fieldWarnings.referenceBranch as SerializerSet,
                 onAddScreenshot: handleAddScreenshot(REFERENCE_BRANCH_IDX),
                 onRemoveScreenshot:
                   handleRemoveScreenshot(REFERENCE_BRANCH_IDX),
@@ -326,10 +326,10 @@ export const FormBranches = ({
             treatmentBranches.map((branch, idx) => {
               const reviewErrors = (
                 fieldMessages as SerializerMessages<SerializerSet[]>
-              ).treatment_branches?.[idx];
+              ).treatmentBranches?.[idx];
               const reviewWarnings = (
                 fieldWarnings as SerializerMessages<SerializerSet[]>
-              ).treatment_branches?.[idx];
+              ).treatmentBranches?.[idx];
 
               return (
                 <FormBranch

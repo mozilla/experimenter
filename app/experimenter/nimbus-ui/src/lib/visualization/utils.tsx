@@ -35,8 +35,8 @@ export const getTableDisplayType = (
 
 export const getControlBranchName = (analysis: AnalysisData) => {
   const { external_config } = analysis.metadata || {};
-  if (external_config?.reference_branch) {
-    return external_config.reference_branch;
+  if (external_config?.referenceBranch) {
+    return external_config.referenceBranch;
   }
   const results = analysis.overall?.all || analysis.weekly?.all || {};
   if (Object.keys(results).length > 0) {

@@ -124,7 +124,7 @@ describe("FormOverview", () => {
     for (const [labelText, fieldValue] of [
       ["Public name", expected.name],
       ["Hypothesis", expected.hypothesis],
-      ["Public description", expected.publicDescription],
+      ["Public Description", expected.publicDescription],
       ["documentationLinks", expected.documentationLinks],
     ]) {
       if (labelText === "documentationLinks") {
@@ -231,7 +231,7 @@ describe("FormOverview", () => {
 
     const onSubmit = jest.fn();
     render(<Subject {...{ onSubmit, experiment }} />);
-    const descriptionField = screen.getByLabelText("Public description");
+    const descriptionField = screen.getByLabelText("Public Description");
     const submitButton = screen.getByTestId("submit-button");
 
     fireEvent.change(descriptionField, { target: { value: "" } });
@@ -393,11 +393,11 @@ describe("FormOverview", () => {
       name: ["That's not your real name"],
       hypothesis: ["You really think that's gonna happen?"],
       application: ["Firefox for Palm Trio"],
-      public_description: ["Give Carly Rae Jepson a sword"],
-      risk_brand: ["Be nice to Foxy!"],
-      risk_revenue: ["Racks on racks on racks.", "Yuh, yuh, yuh, let's go"],
-      risk_partner_related: ["Be noice to your friends"],
-      documentation_links: [
+      publicDescription: ["Give Carly Rae Jepson a sword"],
+      riskBrand: ["Be nice to Foxy!"],
+      riskRevenue: ["Racks on racks on racks.", "Yuh, yuh, yuh, let's go"],
+      riskPartnerRelated: ["Be noice to your friends"],
+      documentationLinks: [
         {
           title: ["Stop being so en-title-d"],
           link: ["Link it up bro"],

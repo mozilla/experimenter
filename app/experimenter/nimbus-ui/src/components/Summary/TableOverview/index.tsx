@@ -55,7 +55,7 @@ const TableOverview = ({
           </td>
         </tr>
         <tr>
-          <th>Public description</th>
+          <th>Public Description</th>
           <td data-testid="experiment-description">
             {experiment.publicDescription ? (
               experiment.publicDescription

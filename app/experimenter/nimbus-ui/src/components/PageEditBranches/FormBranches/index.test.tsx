@@ -73,7 +73,7 @@ describe("FormBranches", () => {
   it("displays submit errors set by onSave handler", async () => {
     const expectedErrors = {
       "*": ["Global error alert"],
-      reference_branch: {
+      referenceBranch: {
         name: ["Bad name"],
       },
     };
@@ -89,14 +89,14 @@ describe("FormBranches", () => {
       );
       expect(
         container.querySelector('*[data-for="referenceBranch.name"]'),
-      ).toHaveTextContent(expectedErrors["reference_branch"]["name"][0]);
+      ).toHaveTextContent(expectedErrors["referenceBranch"]["name"][0]);
     });
   });
 
   it("can clear submit errors after set by onSave handler", async () => {
     const expectedErrors = {
       "*": ["Global error alert"],
-      reference_branch: {
+      referenceBranch: {
         name: ["Bad name"],
       },
     };
@@ -306,8 +306,8 @@ describe("FormBranches", () => {
             readyForReview: {
               ready: false,
               message: {
-                reference_branch: {
-                  feature_enabled: [FEATURE_ENABLE_WARNING],
+                referenceBranch: {
+                  featureEnabled: [FEATURE_ENABLE_WARNING],
                 },
               },
               warnings: {},
@@ -410,7 +410,7 @@ describe("FormBranches", () => {
             readyForReview: {
               ready: false,
               message: {
-                is_rollout: [ROLLOUT_WARNING],
+                isRollout: [ROLLOUT_WARNING],
               },
               warnings: {},
             },
@@ -520,15 +520,15 @@ describe("FormBranches", () => {
 
   it("can display server review-readiness messages", async () => {
     await assertSerializerMessages(SubjectBranches, {
-      feature_config: [SERVER_ERRORS.FEATURE_CONFIG],
-      reference_branch: {
+      featureConfig: [SERVER_ERRORS.FEATURE_CONFIG],
+      referenceBranch: {
         name: ["Drop a heart", "and break a name"],
         description: [
           "We're always sleeping in and sleeping",
           "For the wrong team",
         ],
       },
-      treatment_branches: [
+      treatmentBranches: [
         {
           name: ["We're going down"],
           description: ["Down in an earlier round"],
@@ -540,7 +540,7 @@ describe("FormBranches", () => {
     expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(1);
   });
 
-  it("doesn't display feature_config review-readiness message on an unsaved branch", async () => {
+  it("doesn't display featureConfig review-readiness message on an unsaved branch", async () => {
     Object.defineProperty(window, "location", {
       value: {
         search: "?show-errors",
@@ -558,14 +558,14 @@ describe("FormBranches", () => {
             readyForReview: {
               ready: false,
               message: {
-                feature_config: [SERVER_ERRORS.FEATURE_CONFIG],
-                reference_branch: {
+                featureConfig: [SERVER_ERRORS.FEATURE_CONFIG],
+                referenceBranch: {
                   description: [SERVER_ERRORS.BLANK_DESCRIPTION],
                 },
               },
               warnings: {
-                reference_branch: {
-                  feature_value: [FEATURE_VALUE_WARNING],
+                referenceBranch: {
+                  featureValue: [FEATURE_VALUE_WARNING],
                 },
               },
             },

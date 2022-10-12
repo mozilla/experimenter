@@ -283,10 +283,10 @@ describe("formBranchesReducer", () => {
   describe("setSubmitErrors", () => {
     const submitErrors = {
       "*": ["This is bad"],
-      reference_branch: {
+      referenceBranch: {
         name: ["This is really bad"],
       },
-      treatment_branches: [
+      treatmentBranches: [
         {
           name: ["This is really bad"],
         },
@@ -323,12 +323,12 @@ describe("formBranchesReducer", () => {
         globalErrors: submitErrors["*"],
         referenceBranch: {
           ...MOCK_STATE.referenceBranch,
-          errors: submitErrors["reference_branch"],
+          errors: submitErrors["referenceBranch"],
         },
         treatmentBranches: [
           ...MOCK_STATE.treatmentBranches!.map((branch, idx) => ({
             ...branch,
-            errors: submitErrors["treatment_branches"][idx],
+            errors: submitErrors["treatmentBranches"][idx],
           })),
         ],
       });
@@ -342,7 +342,7 @@ describe("formBranchesReducer", () => {
         type: "setSubmitErrors",
         submitErrors: {
           ...submitErrors,
-          treatment_branches: [null, null],
+          treatmentBranches: [null, null],
         },
       });
       expect(newState).toEqual({
@@ -350,7 +350,7 @@ describe("formBranchesReducer", () => {
         globalErrors: submitErrors["*"],
         referenceBranch: {
           ...MOCK_STATE.referenceBranch,
-          errors: submitErrors["reference_branch"],
+          errors: submitErrors["referenceBranch"],
         },
         treatmentBranches: [
           ...MOCK_STATE.treatmentBranches!.map((branch) => ({
