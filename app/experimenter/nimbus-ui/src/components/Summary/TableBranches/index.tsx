@@ -100,17 +100,19 @@ const TableBranch = ({
                 <Col>
                   <a href={`#${slug}`}>#</a> {name}
                 </Col>
-                <Col className="text-right">
-                  <Button
-                    data-testid="promote-rollout"
-                    variant="outline-primary"
-                    size="sm"
-                    onClick={cloneDialogProps.onShow}
-                  >
-                    Promote to Rollout
-                  </Button>
-                  <CloneDialog {...cloneDialogProps} />
-                </Col>
+                {!experiment.isRollout && (
+                  <Col className="text-right">
+                    <Button
+                      data-testid="promote-rollout"
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={cloneDialogProps.onShow}
+                    >
+                      Promote to Rollout
+                    </Button>
+                    <CloneDialog {...cloneDialogProps} />
+                  </Col>
+                )}
               </Row>
             </Container>
           </th>
