@@ -177,6 +177,8 @@ def default_data(application, experiment_name, load_experiment_outcomes):
             primary_outcomes=[load_experiment_outcomes["firefox_ios"][0]],
             secondary_outcomes=[load_experiment_outcomes["firefox_ios"][1]],
         )
+    else:
+        metrics_data = BaseExperimentMetricsDataClass(primary_outcomes=[],secondary_outcomes=[])
 
     return BaseExperimentDataClass(
         public_name=experiment_name,
@@ -209,7 +211,7 @@ def default_data(application, experiment_name, load_experiment_outcomes):
 
 
 @pytest.fixture
-def create_experiment(base_url, default_data):
+def create_experiment(base_url, application, default_data):
     def _create_experiment(selenium):
         home = HomePage(selenium, base_url).open()
         experiment = home.create_new_button()
@@ -246,10 +248,11 @@ def create_experiment(base_url, default_data):
 
         # Fill Metrics page
         metrics = branches.save_and_continue()
-        metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
-        assert metrics.primary_outcomes.text != "", "The primary outcome was not set"
-        metrics.set_secondary_outcomes(values=default_data.metrics.secondary_outcomes[0])
-        assert metrics.secondary_outcomes.text != "", "The seconday outcome was not set"
+        if "focus" not in str(application).lower():
+            metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
+            assert metrics.primary_outcomes.text != "", "The primary outcome was not set"
+            metrics.set_secondary_outcomes(values=default_data.metrics.secondary_outcomes[0])
+            assert metrics.secondary_outcomes.text != "", "The seconday outcome was not set"
 
         # Fill Audience page
         audience = metrics.save_and_continue()

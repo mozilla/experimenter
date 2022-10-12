@@ -22,7 +22,7 @@ class MetricsPage(ExperimenterBase):
 
     @property
     def primary_outcomes(self):
-        root_locator = self.find_element(*self._outcome_root_locator)
+        root_locator = self.find_element(*self._primary_outcome_root_locator)
         multifeature_el = root_locator.find_element(*self._multifeature_element_locator)
         return multifeature_el.find_element(By.CSS_SELECTOR, "div")
 
