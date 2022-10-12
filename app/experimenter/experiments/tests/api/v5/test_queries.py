@@ -7,12 +7,14 @@ from graphene_django.utils.testing import GraphQLTestCase
 from parameterized import parameterized
 
 from experimenter.base.models import Country, Language, Locale
+from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
+from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 
 
@@ -20,24 +22,56 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
     maxDiff = None
 
-    def test_experiments(self):
+    def test_get_all_experiments_returns_experiment_data(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-        )
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        for lifecycle in NimbusExperimentFactory.Lifecycles:
+            NimbusExperimentFactory.create_with_lifecycle(
+                lifecycle, application=application, feature_configs=[feature_config]
+            )
 
         response = self.query(
             """
             query {
                 experiments {
                     isArchived
-                    canEdit
-                    canArchive
+                    isRollout
                     name
+                    owner {
+                        username
+                    }
+                    featureConfig {
+                        slug
+                        name
+                    }
+                    featureConfigs {
+                        id
+                        slug
+                        name
+                        description
+                        application
+                        ownerEmail
+                        schema
+                    }
                     slug
-                    publicDescription
-                    riskMitigationLink
-                    warnFeatureSchema
+                    application
+                    firefoxMinVersion
+                    firefoxMaxVersion
+                    startDate
+                    isEnrollmentPausePending
+                    isEnrollmentPaused
+                    proposedDuration
+                    proposedEnrollment
+                    computedEndDate
+                    status
+                    statusNext
+                    publishStatus
+                    monitoringDashboardUrl
+                    rolloutMonitoringDashboardUrl
+                    resultsReady
+                    channel
+                    populationPercent
                 }
             }
             """,
@@ -46,23 +80,77 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiments = content["data"]["experiments"]
-        self.assertEqual(len(experiments), 1)
-        experiment_data = experiments[0]
-        self.assertEqual(experiment_data["isArchived"], experiment.is_archived)
-        self.assertEqual(experiment_data["canArchive"], experiment.can_archive)
-        self.assertEqual(experiment_data["name"], experiment.name)
-        self.assertEqual(experiment_data["slug"], experiment.slug)
-        self.assertEqual(
-            experiment_data["publicDescription"], experiment.public_description
-        )
-        self.assertEqual(
-            experiment_data["riskMitigationLink"], experiment.risk_mitigation_link
-        )
-        self.assertEqual(experiment_data["canEdit"], experiment.can_edit)
-        self.assertEqual(
-            experiment_data["warnFeatureSchema"],
-            experiment.warn_feature_schema,
-        )
+        self.assertEqual(len(experiments), NimbusExperiment.objects.all().count())
+
+        for experiment_data in experiments:
+            experiment = NimbusExperiment.objects.get(slug=experiment_data["slug"])
+            feature_config = experiment.feature_configs.get()
+            self.assertEqual(
+                experiment_data,
+                {
+                    "isArchived": experiment.is_archived,
+                    "isRollout": experiment.is_rollout,
+                    "name": experiment.name,
+                    "owner": {
+                        "username": experiment.owner.username,
+                    },
+                    "featureConfig": {
+                        "slug": feature_config.slug,
+                        "name": feature_config.name,
+                    },
+                    "featureConfigs": [
+                        {
+                            "id": feature_config.id,
+                            "slug": feature_config.slug,
+                            "name": feature_config.name,
+                            "description": feature_config.description,
+                            "application": NimbusExperiment.Application(
+                                feature_config.application
+                            ).name,
+                            "ownerEmail": feature_config.owner_email,
+                            "schema": feature_config.schema,
+                        }
+                    ],
+                    "slug": experiment.slug,
+                    "application": NimbusExperiment.Application(
+                        experiment.application
+                    ).name,
+                    "firefoxMinVersion": NimbusExperiment.Version(
+                        experiment.firefox_min_version
+                    ).name,
+                    "firefoxMaxVersion": NimbusExperiment.Version(
+                        experiment.firefox_max_version
+                    ).name,
+                    "startDate": (
+                        str(experiment.start_date) if experiment.start_date else None
+                    ),
+                    "isEnrollmentPausePending": experiment.is_paused_pending,
+                    "isEnrollmentPaused": experiment.is_paused_published,
+                    "proposedDuration": experiment.proposed_duration,
+                    "proposedEnrollment": experiment.proposed_enrollment,
+                    "computedEndDate": (
+                        str(experiment.computed_end_date)
+                        if experiment.computed_end_date
+                        else None
+                    ),
+                    "status": NimbusExperiment.Status(experiment.status).name,
+                    "statusNext": (
+                        NimbusExperiment.Status(experiment.status_next).name
+                        if experiment.status_next
+                        else None
+                    ),
+                    "publishStatus": NimbusExperiment.PublishStatus(
+                        experiment.publish_status
+                    ).name,
+                    "monitoringDashboardUrl": experiment.monitoring_dashboard_url,
+                    "rolloutMonitoringDashboardUrl": (
+                        experiment.rollout_monitoring_dashboard_url
+                    ),
+                    "resultsReady": experiment.results_ready,
+                    "channel": NimbusExperiment.Channel(experiment.channel).name,
+                    "populationPercent": str(experiment.population_percent),
+                },
+            )
 
     def test_experiments_with_no_branches_returns_empty_reference_treatment_values(self):
         user_email = "user@example.com"
@@ -434,6 +522,382 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
 
 class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
+    maxDiff = None
+
+    @parameterized.expand(
+        [(lifecycle,) for lifecycle in NimbusExperimentFactory.Lifecycles]
+    )
+    def test_get_experiment_by_slug_returns_experiment_data(self, lifecycle):
+        user = UserFactory.create()
+        application = NimbusExperiment.Application.DESKTOP
+        feature_config = NimbusFeatureConfigFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            application=application,
+            feature_configs=[feature_config],
+        )
+        review_serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(experiment).data,
+        )
+        ready_for_review = review_serializer.is_valid()
+        review_request = experiment.changes.latest_review_request()
+        review_rejection = experiment.changes.latest_rejection()
+        review_timeout = experiment.changes.latest_timeout()
+        recipe_json = json.dumps(
+            experiment.published_dto or NimbusExperimentSerializer(experiment).data,
+            indent=2,
+            sort_keys=True,
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    id
+                    isRollout
+                    isArchived
+                    canEdit
+                    canArchive
+                    name
+                    slug
+                    status
+                    statusNext
+                    publishStatus
+                    monitoringDashboardUrl
+                    rolloutMonitoringDashboardUrl
+                    resultsReady
+                    hypothesis
+                    application
+                    publicDescription
+                    conclusionRecommendation
+                    takeawaysSummary
+                    owner {
+                        email
+                    }
+                    parent {
+                        name
+                        slug
+                    }
+                    warnFeatureSchema
+                    referenceBranch {
+                        id
+                        name
+                        slug
+                        description
+                        ratio
+                        featureValue
+                        featureEnabled
+                        screenshots {
+                        id
+                        description
+                        image
+                        }
+                    }
+                    treatmentBranches {
+                        id
+                        name
+                        slug
+                        description
+                        ratio
+                        featureValue
+                        featureEnabled
+                        screenshots {
+                        id
+                        description
+                        image
+                        }
+                    }
+                    featureConfigs {
+                        id
+                        slug
+                        name
+                        description
+                        application
+                        ownerEmail
+                        schema
+                    }
+                    primaryOutcomes
+                    secondaryOutcomes
+                    channel
+                    firefoxMinVersion
+                    firefoxMaxVersion
+                    targetingConfigSlug
+                    targetingConfig {
+                        label
+                        value
+                        applicationValues
+                        description
+                        stickyRequired
+                        isFirstRunRequired
+                    }
+                    isSticky
+                    isFirstRun
+                    jexlTargetingExpression
+                    populationPercent
+                    totalEnrolledClients
+                    proposedEnrollment
+                    proposedDuration
+                    readyForReview {
+                        ready
+                        message
+                        warnings
+                    }
+                    startDate
+                    computedEndDate
+                    computedEnrollmentDays
+                    computedDurationDays
+                    riskMitigationLink
+                    riskRevenue
+                    riskBrand
+                    riskPartnerRelated
+                    signoffRecommendations {
+                        qaSignoff
+                        vpSignoff
+                        legalSignoff
+                    }
+                    documentationLinks {
+                        title
+                        link
+                    }
+                    isEnrollmentPausePending
+                    isEnrollmentPaused
+                    enrollmentEndDate
+                    canReview
+                    reviewRequest {
+                        changedOn
+                        changedBy {
+                        email
+                        }
+                    }
+                    rejection {
+                        message
+                        oldStatus
+                        oldStatusNext
+                        changedOn
+                        changedBy {
+                        email
+                        }
+                    }
+                    timeout {
+                        changedOn
+                        changedBy {
+                        email
+                        }
+                    }
+                    recipeJson
+                    reviewUrl
+                    locales {
+                        id
+                        name
+                    }
+                    countries {
+                        id
+                        name
+                    }
+                    languages {
+                        id
+                        name
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user.email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+
+        self.assertEqual(
+            experiment_data,
+            {
+                "id": experiment.id,
+                "isRollout": experiment.is_rollout,
+                "isArchived": experiment.is_archived,
+                "canEdit": experiment.can_edit,
+                "canArchive": experiment.can_archive,
+                "canReview": experiment.can_review(user),
+                "name": experiment.name,
+                "slug": experiment.slug,
+                "status": NimbusExperiment.Status(experiment.status).name,
+                "statusNext": (
+                    NimbusExperiment.Status(experiment.status_next).name
+                    if experiment.status_next
+                    else None
+                ),
+                "publishStatus": NimbusExperiment.PublishStatus(
+                    experiment.publish_status
+                ).name,
+                "monitoringDashboardUrl": experiment.monitoring_dashboard_url,
+                "rolloutMonitoringDashboardUrl": (
+                    experiment.rollout_monitoring_dashboard_url
+                ),
+                "resultsReady": experiment.results_ready,
+                "hypothesis": experiment.hypothesis,
+                "application": NimbusExperiment.Application(experiment.application).name,
+                "publicDescription": experiment.public_description,
+                "conclusionRecommendation": experiment.conclusion_recommendation,
+                "takeawaysSummary": experiment.takeaways_summary,
+                "owner": {"email": experiment.owner.email},
+                "parent": experiment.parent,
+                "warnFeatureSchema": experiment.warn_feature_schema,
+                "referenceBranch": {
+                    "id": experiment.reference_branch.id,
+                    "name": experiment.reference_branch.name,
+                    "slug": experiment.reference_branch.slug,
+                    "description": experiment.reference_branch.description,
+                    "ratio": experiment.reference_branch.ratio,
+                    "featureValue": (
+                        experiment.reference_branch.feature_values.get().value
+                    ),
+                    "featureEnabled": (
+                        experiment.reference_branch.feature_values.get().enabled
+                    ),
+                    "screenshots": [
+                        {
+                            "id": screenshot.id,
+                            "description": screenshot.description,
+                            "image": screenshot.image.url,
+                        }
+                        for screenshot in experiment.reference_branch.screenshots.all()
+                    ],
+                },
+                "treatmentBranches": [
+                    {
+                        "id": treatment_branch.id,
+                        "name": treatment_branch.name,
+                        "slug": treatment_branch.slug,
+                        "description": treatment_branch.description,
+                        "ratio": treatment_branch.ratio,
+                        "featureValue": treatment_branch.feature_values.get().value,
+                        "featureEnabled": treatment_branch.feature_values.get().enabled,
+                        "screenshots": [
+                            {
+                                "id": screenshot.id,
+                                "description": screenshot.description,
+                                "image": screenshot.image.url,
+                            }
+                            for screenshot in treatment_branch.screenshots.all()
+                        ],
+                    }
+                    for treatment_branch in experiment.treatment_branches
+                ],
+                "featureConfigs": [
+                    {
+                        "id": feature_config.id,
+                        "slug": feature_config.slug,
+                        "name": feature_config.name,
+                        "description": feature_config.description,
+                        "application": NimbusExperiment.Application(
+                            feature_config.application
+                        ).name,
+                        "ownerEmail": feature_config.owner_email,
+                        "schema": feature_config.schema,
+                    }
+                ],
+                "primaryOutcomes": experiment.primary_outcomes,
+                "secondaryOutcomes": experiment.secondary_outcomes,
+                "channel": NimbusExperiment.Channel(experiment.channel).name,
+                "firefoxMinVersion": NimbusExperiment.Version(
+                    experiment.firefox_min_version
+                ).name,
+                "firefoxMaxVersion": NimbusExperiment.Version(
+                    experiment.firefox_max_version
+                ).name,
+                "targetingConfigSlug": experiment.targeting_config_slug,
+                "targetingConfig": [
+                    {
+                        "label": experiment.targeting_config.name,
+                        "value": experiment.targeting_config.slug,
+                        "applicationValues": list(
+                            experiment.targeting_config.application_choice_names
+                        ),
+                        "description": experiment.targeting_config.description,
+                        "stickyRequired": experiment.targeting_config.sticky_required,
+                        "isFirstRunRequired": (
+                            experiment.targeting_config.is_first_run_required
+                        ),
+                    }
+                ],
+                "isSticky": experiment.is_sticky,
+                "isFirstRun": experiment.is_first_run,
+                "jexlTargetingExpression": experiment.targeting,
+                "populationPercent": str(experiment.population_percent),
+                "totalEnrolledClients": experiment.total_enrolled_clients,
+                "proposedEnrollment": experiment.proposed_enrollment,
+                "proposedDuration": experiment.proposed_duration,
+                "readyForReview": {
+                    "ready": ready_for_review,
+                    "message": dict(review_serializer.errors),
+                    "warnings": dict(review_serializer.warnings),
+                },
+                "startDate": (
+                    str(experiment.start_date) if experiment.start_date else None
+                ),
+                "computedEndDate": (
+                    str(experiment.computed_end_date)
+                    if experiment.computed_end_date
+                    else None
+                ),
+                "computedEnrollmentDays": experiment.computed_enrollment_days,
+                "computedDurationDays": experiment.computed_duration_days,
+                "riskMitigationLink": experiment.risk_mitigation_link,
+                "riskRevenue": experiment.risk_revenue,
+                "riskBrand": experiment.risk_brand,
+                "riskPartnerRelated": experiment.risk_partner_related,
+                "signoffRecommendations": experiment.signoff_recommendations,
+                "documentationLinks": [
+                    {"title": documentation_link.title, "link": documentation_link.link}
+                    for documentation_link in (
+                        experiment.documentation_links.all().order_by("title")
+                    )
+                ],
+                "isEnrollmentPausePending": experiment.is_paused_pending,
+                "isEnrollmentPaused": experiment.is_paused_published,
+                "enrollmentEndDate": (
+                    str(experiment.proposed_enrollment_end_date)
+                    if experiment.proposed_enrollment_end_date
+                    else None
+                ),
+                "reviewRequest": (
+                    {
+                        "changedOn": str(review_request.changed_on).replace(" ", "T"),
+                        "changedBy": {"email": review_request.changed_by.email},
+                    }
+                    if review_request
+                    else None
+                ),
+                "rejection": (
+                    {
+                        "changedOn": str(review_rejection.changed_on).replace(" ", "T"),
+                        "changedBy": {"email": review_rejection.changed_by.email},
+                        "message": review_rejection.message,
+                        "oldStatus": NimbusExperiment.Status(
+                            review_rejection.old_status
+                        ).name,
+                        "oldStatusNext": NimbusExperiment.Status(
+                            review_rejection.old_status_next
+                        ).name,
+                    }
+                    if review_rejection
+                    else None
+                ),
+                "timeout": (
+                    {
+                        "changedOn": str(review_timeout.changed_on).replace(" ", "T"),
+                        "changedBy": {"email": review_timeout.changed_by.email},
+                    }
+                    if review_timeout
+                    else None
+                ),
+                "recipeJson": recipe_json,
+                "reviewUrl": experiment.review_url,
+                "locales": [],
+                "countries": [],
+                "languages": [],
+            },
+        )
 
     def test_experiment_by_slug_ready_for_review(self):
         user_email = "user@example.com"

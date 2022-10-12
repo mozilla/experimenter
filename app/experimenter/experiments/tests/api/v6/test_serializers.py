@@ -22,6 +22,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_95,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
             primary_outcomes=["foo", "bar", "baz"],
@@ -60,6 +61,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "targeting": (
                     '(browserSettings.update.channel == "nightly") '
                     "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                    "&& (version|versionCompare('95.*') <= 0) "
                     "&& (version|versionCompare('94.!') >= 0)"
                 ),
                 "userFacingDescription": experiment.public_description,
@@ -112,6 +114,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=application,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_96,
             feature_configs=[feature1, feature2],
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             channel=NimbusExperiment.Channel.NIGHTLY,
@@ -151,6 +154,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "targeting": (
                     '(browserSettings.update.channel == "nightly") '
                     "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
+                    "&& (version|versionCompare('96.*') <= 0) "
                     "&& (version|versionCompare('95.!') >= 0)"
                 ),
                 "userFacingDescription": experiment.public_description,
@@ -390,7 +394,8 @@ class TestNimbusExperimentSerializer(TestCase):
             publish_status=NimbusExperiment.PublishStatus.APPROVED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             application=NimbusExperiment.Application.FENIX,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_94,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
         )
 
         serializer = NimbusExperimentSerializer(experiment)

@@ -108,7 +108,7 @@ type NimbusBranchType {
   slug: String!
   description: String!
   ratio: Int!
-  screenshots: [NimbusBranchScreenshotType!]
+  screenshots: [NimbusBranchScreenshotType]
   id: Int
   featureEnabled: Boolean!
   featureValue: String
@@ -144,9 +144,9 @@ type NimbusConfigurationType {
   maxPrimaryOutcomes: Int
   outcomes: [NimbusOutcomeType]
   owners: [NimbusUserType]
+  types: [NimbusLabelValueType]
   targetingConfigs: [NimbusExperimentTargetingConfigType]
   conclusionRecommendations: [NimbusLabelValueType]
-  types: [NimbusLabelValueType]
 }
 
 type NimbusCountryType {
@@ -374,7 +374,7 @@ type NimbusExperimentType {
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum
   populationPercent: String
-  documentationLinks: [NimbusDocumentationLinkType!]
+  documentationLinks: [NimbusDocumentationLinkType]
   referenceBranch: NimbusBranchType
   treatmentBranches: [NimbusBranchType]
   targetingConfigSlug: String

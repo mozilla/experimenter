@@ -418,7 +418,7 @@ class NimbusExperimentType(DjangoObjectType):
     publishStatus = NimbusExperimentPublishStatusEnum(source="publish_status")
     application = NimbusExperimentApplicationEnum()
     firefoxMinVersion = NimbusExperimentFirefoxVersionEnum(source="firefox_min_version")
-    firefoxMaxVersion = NimbusExperimentFirefoxVersionEnum(source="firefox_min_version")
+    firefoxMaxVersion = NimbusExperimentFirefoxVersionEnum(source="firefox_max_version")
     populationPercent = graphene.String(source="population_percent")
     channel = NimbusExperimentChannelEnum()
     documentationLinks = graphene.List(NimbusDocumentationLinkType)
@@ -440,7 +440,7 @@ class NimbusExperimentType(DjangoObjectType):
     startDate = graphene.DateTime(source="start_date")
     computedEndDate = graphene.DateTime(source="computed_end_date")
     isEnrollmentPaused = graphene.Boolean(source="is_paused_published")
-    isEnrollmentPausePending = graphene.Boolean()
+    isEnrollmentPausePending = graphene.Boolean(source="is_paused_pending")
     enrollmentEndDate = graphene.DateTime(source="proposed_enrollment_end_date")
     computedEnrollmentDays = graphene.Int(source="computed_enrollment_days")
     computedDurationDays = graphene.Int(source="computed_duration_days")
@@ -589,9 +589,6 @@ class NimbusExperimentType(DjangoObjectType):
             )
         ]
 
-    def resolve_isEnrollmentPausePending(self, info):
-        return self.is_paused and not self.is_paused_published
-
     def resolve_canReview(self, info):
         return self.can_review(info.context.user)
 
@@ -612,4 +609,4 @@ class NimbusExperimentType(DjangoObjectType):
         )
 
     def resolve_documentationLinks(self, info):
-        return self.documentation_links.all()
+        return self.documentation_links.all().order_by("title")
