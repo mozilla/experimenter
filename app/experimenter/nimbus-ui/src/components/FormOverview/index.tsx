@@ -228,7 +228,7 @@ const FormOverview = ({
           <>
             <Form.Group controlId="publicDescription">
               <Form.Label className="d-flex align-items-center">
-                Public description
+                Public Description
               </Form.Label>
               <Form.Control
                 as="textarea"
@@ -292,10 +292,10 @@ const FormOverview = ({
                       fieldNamePrefix: `documentationLinks[${index}]`,
                       submitErrors:
                         (submitErrors as SerializerMessages<SerializerSet[]>)
-                          .documentation_links?.[index] || {},
+                          .documentationLinks?.[index] || {},
                       reviewMessages:
                         (fieldMessages as SerializerMessages<SerializerSet[]>)
-                          .documentation_links?.[index] || {},
+                          .documentationLinks?.[index] || {},
                       //@ts-ignore react-hook-form types seem broken for nested fields
                       errors: (errors?.documentationLinks?.[index] ||
                         {}) as FormDocumentationLinkProps["errors"],

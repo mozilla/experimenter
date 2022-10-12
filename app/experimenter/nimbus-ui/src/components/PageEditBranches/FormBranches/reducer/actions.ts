@@ -204,25 +204,25 @@ function setSubmitErrors(
     return state;
   }
 
-  for (const name of ["*", "feature_config"]) {
+  for (const name of ["*", "featureConfig"]) {
     if (Array.isArray(submitErrors[name])) {
       globalErrors.push(...submitErrors[name]);
     }
   }
 
-  if (referenceBranch && submitErrors["reference_branch"]) {
+  if (referenceBranch && submitErrors["referenceBranch"]) {
     referenceBranch = {
       ...referenceBranch,
       // TODO: EXP-614 submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
-      errors: (submitErrors["reference_branch"] ||
+      errors: (submitErrors["referenceBranch"] ||
         {}) as AnnotatedBranch["errors"],
     };
   }
 
-  if (treatmentBranches && submitErrors["treatment_branches"]) {
+  if (treatmentBranches && submitErrors["treatmentBranches"]) {
     treatmentBranches = treatmentBranches.map((treatmentBranch, idx) => ({
       ...treatmentBranch,
-      errors: submitErrors["treatment_branches"][idx] || {},
+      errors: submitErrors["treatmentBranches"][idx] || {},
     }));
   }
 

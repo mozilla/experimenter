@@ -45,9 +45,9 @@ export const ExternalConfigAlert = ({
           <strong>{externalConfig.enrollment_period} days</strong>
         </li>
       )}
-      {externalConfig.reference_branch && (
+      {externalConfig.referenceBranch && (
         <li className="ml-3" data-testid="external-config-reference-branch">
-          Baseline branch → <strong>{externalConfig.reference_branch}</strong>
+          Baseline branch → <strong>{externalConfig.referenceBranch}</strong>
         </li>
       )}
     </ul>

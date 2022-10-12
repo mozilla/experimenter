@@ -13,33 +13,33 @@ import { useReviewCheck } from "./useReviewCheck";
 
 describe("hooks/useReviewCheck", () => {
   const readyMessages = {
-    public_description: [SERVER_ERRORS.NULL_FIELD],
-    proposed_duration: [SERVER_ERRORS.NULL_FIELD],
-    proposed_enrollment: [SERVER_ERRORS.NULL_FIELD],
-    firefox_min_version: [SERVER_ERRORS.NULL_FIELD],
-    targeting_config_slug: [SERVER_ERRORS.NULL_FIELD],
-    reference_branch: [SERVER_ERRORS.NULL_FIELD],
+    publicDescription: [SERVER_ERRORS.NULL_FIELD],
+    proposedDuration: [SERVER_ERRORS.NULL_FIELD],
+    proposedEnrollment: [SERVER_ERRORS.NULL_FIELD],
+    firefoxMinVersion: [SERVER_ERRORS.NULL_FIELD],
+    targetingConfigSlug: [SERVER_ERRORS.NULL_FIELD],
+    referenceBranch: [SERVER_ERRORS.NULL_FIELD],
     channel: [SERVER_ERRORS.NULL_FIELD],
-    population_percent: [
+    populationPercent: [
       "Ensure this value is greater than or equal to 0.0001.",
     ],
-    risk_brand: [SERVER_ERRORS.NULL_FIELD],
-    risk_revenue: [SERVER_ERRORS.NULL_FIELD],
-    risk_partner_related: [SERVER_ERRORS.NULL_FIELD],
+    riskBrand: [SERVER_ERRORS.NULL_FIELD],
+    riskRevenue: [SERVER_ERRORS.NULL_FIELD],
+    riskPartnerRelated: [SERVER_ERRORS.NULL_FIELD],
   };
 
   const pageNames = {
-    public_description: "overview",
-    proposed_duration: "audience",
-    proposed_enrollment: "audience",
-    firefox_min_version: "audience",
-    targeting_config_slug: "audience",
-    reference_branch: "branches",
+    publicDescription: "overview",
+    proposedDuration: "audience",
+    proposedEnrollment: "audience",
+    firefoxMinVersion: "audience",
+    targetingConfigSlug: "audience",
+    referenceBranch: "branches",
     channel: "audience",
-    population_percent: "audience",
-    risk_brand: "overview",
-    risk_revenue: "overview",
-    risk_partner_related: "overview",
+    populationPercent: "audience",
+    riskBrand: "overview",
+    riskRevenue: "overview",
+    riskPartnerRelated: "overview",
   };
 
   beforeAll(() => {
@@ -88,7 +88,7 @@ describe("hooks/useReviewCheck", () => {
       readyForReview: {
         ready: true,
         message: {},
-        warnings: { reference_branch: ["JSON is on fire"] },
+        warnings: { referenceBranch: ["JSON is on fire"] },
       },
     });
 
@@ -109,8 +109,8 @@ describe("hooks/useReviewCheck", () => {
       readyForReview: {
         ready: false,
         message: {
-          public_description: [SERVER_ERRORS.NULL_FIELD],
-          reference_branch: [SERVER_ERRORS.NULL_FIELD],
+          publicDescription: [SERVER_ERRORS.NULL_FIELD],
+          referenceBranch: [SERVER_ERRORS.NULL_FIELD],
           channel: [SERVER_ERRORS.EMPTY_LIST],
         },
         warnings: {},

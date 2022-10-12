@@ -142,7 +142,7 @@ describe("PageEditBranches", () => {
     );
 
     mockMutation.result.data.updateExperiment.message = {
-      reference_branch: {
+      referenceBranch: {
         name: ["This name stinks."],
       },
     };

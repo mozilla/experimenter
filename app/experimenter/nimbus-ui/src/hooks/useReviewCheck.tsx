@@ -12,27 +12,27 @@ export type ReviewCheck = ReturnType<typeof useReviewCheck>;
 
 const fieldPageMap: { [page: string]: string[] } = {
   overview: [
-    "public_description",
-    "risk_brand",
-    "risk_revenue",
-    "risk_partner_related",
+    "publicDescription",
+    "riskBrand",
+    "riskRevenue",
+    "riskPartnerRelated",
   ],
   branches: [
-    "reference_branch",
-    "treatment_branches",
-    "feature_config",
-    "is_rollout",
+    "referenceBranch",
+    "treatmentBranches",
+    "featureConfig",
+    "isRollout",
   ],
   audience: [
     "channel",
-    "firefox_min_version",
+    "firefoxMinVersion",
     "languages",
     "countries",
-    "targeting_config_slug",
-    "proposed_enrollment",
-    "proposed_duration",
-    "population_percent",
-    "total_enrolled_clients",
+    "targetingConfigSlug",
+    "proposedEnrollment",
+    "proposedDuration",
+    "populationPercent",
+    "totalEnrolledClients",
   ],
 };
 

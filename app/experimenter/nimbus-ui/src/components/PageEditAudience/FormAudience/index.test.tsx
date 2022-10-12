@@ -11,7 +11,6 @@ import {
 } from "@testing-library/react";
 import React from "react";
 import { filterAndSortTargetingConfigs } from ".";
-import { snakeToCamelCase } from "../../../lib/caseConversions";
 import {
   EXTERNAL_URLS,
   FIELD_MESSAGES,
@@ -654,20 +653,20 @@ describe("FormAudience", () => {
     const submitErrors = {
       "*": ["Big bad server thing happened"],
       channel: ["Cannot tune in this channel"],
-      firefox_min_version: ["Bad min version"],
-      firefox_max_version: ["Bad max version"],
-      targeting_config_slug: ["This slug is icky"],
+      firefoxMinVersion: ["Bad min version"],
+      firefoxMaxVersion: ["Bad max version"],
+      targetingConfigSlug: ["This slug is icky"],
       countries: ["This place doesn't even exist"],
       locales: ["We don't have that locale"],
-      population_percent: ["This is not a percentage"],
-      total_enrolled_clients: ["Need a number here, bud."],
-      proposed_enrollment: ["Emoji are not numbers"],
-      proposed_duration: ["No negative numbers"],
+      populationPercent: ["This is not a percentage"],
+      totalEnrolledClients: ["Need a number here, bud."],
+      proposedEnrollment: ["Emoji are not numbers"],
+      proposedDuration: ["No negative numbers"],
     };
     render(<Subject submitErrors={submitErrors} />);
     await screen.findByTestId("FormAudience");
     for (const [submitErrorName, [error]] of Object.entries(submitErrors)) {
-      const fieldName = snakeToCamelCase(submitErrorName);
+      const fieldName = submitErrorName;
       if (fieldName === "*") {
         expect(screen.getByTestId("submit-error")).toHaveTextContent(error);
       } else {
@@ -867,14 +866,14 @@ describe("FormAudience", () => {
 
   it("can display server review-readiness messages on all fields", async () => {
     await assertSerializerMessages(Subject, {
-      population_percent: ["When it feels like the world is on your shoulders"],
-      proposed_duration: ["And all the madness has got you goin' crazy"],
-      proposed_enrollment: ["It's time to get out"],
-      total_enrolled_clients: ["Step out into the street"],
-      firefox_min_version: [
+      populationPercent: ["When it feels like the world is on your shoulders"],
+      proposedDuration: ["And all the madness has got you goin' crazy"],
+      proposedEnrollment: ["It's time to get out"],
+      totalEnrolledClients: ["Step out into the street"],
+      firefoxMinVersion: [
         "Where all of the action is right there at your feet.",
       ],
-      targeting_config_slug: [
+      targetingConfigSlug: [
         "Well, I know a place",
         "Where we can dance the whole night away",
       ],

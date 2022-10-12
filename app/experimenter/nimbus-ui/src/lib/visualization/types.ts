@@ -66,7 +66,7 @@ export interface MetadataExternalConfig {
   start_date: string | null;
   end_date: string | null;
   enrollment_period: number | null;
-  reference_branch: string | null;
+  referenceBranch: string | null;
   skip: boolean;
   url: string;
 }

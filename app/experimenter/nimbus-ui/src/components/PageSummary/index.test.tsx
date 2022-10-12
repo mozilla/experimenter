@@ -272,7 +272,7 @@ describe("PageSummary", () => {
       readyForReview: {
         ready: false,
         message: {
-          targeting_config_slug: [
+          targetingConfigSlug: [
             '"urlbar_firefox_suggest_us_en" is not a valid choice.',
           ],
         },

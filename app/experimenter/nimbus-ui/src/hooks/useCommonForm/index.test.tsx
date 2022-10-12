@@ -73,7 +73,7 @@ describe("hooks/useCommonForm", () => {
 
     it("clears submit error onChange of multiselect", async () => {
       const submitErrors = {
-        primary_outcomes: ["Your primary outcomes stink."],
+        primaryOutcomes: ["Your primary outcomes stink."],
       };
       const { experiment } = mockExperimentQuery("boo", {
         primaryOutcomes: [],
@@ -83,7 +83,7 @@ describe("hooks/useCommonForm", () => {
       );
 
       const primaryOutcomes = screen.getByTestId("primary-outcomes");
-      const errorFeedback = screen.getByText(submitErrors.primary_outcomes[0]);
+      const errorFeedback = screen.getByText(submitErrors.primaryOutcomes[0]);
       expect(errorFeedback).toBeInTheDocument();
       expect(
         container.querySelector("[for='primaryOutcomes'] + div"),
@@ -204,7 +204,7 @@ describe("hooks/useCommonForm", () => {
         },
       } = renderHook(() =>
         useCommonForm<"spiceLevel">({}, true, {}, jest.fn(), {
-          spice_level: [feedback],
+          spiceLevel: [feedback],
         }),
       );
 
@@ -233,7 +233,7 @@ describe("hooks/useCommonForm", () => {
           jest.fn(),
           {},
           {
-            spice_level: [feedback],
+            spiceLevel: [feedback],
           },
         ),
       );

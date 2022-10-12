@@ -16,7 +16,6 @@ import {
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { SearchParamsStateProvider } from "../hooks";
-import { snakeToCamelCase } from "./caseConversions";
 import { ExperimentContext, ExperimentContextType } from "./contexts";
 import { getStatus } from "./experiment";
 import { MockedCache, mockExperimentQuery, MOCK_EXPERIMENT } from "./mocks";
@@ -135,7 +134,7 @@ export const Route = (
 
 const assertFieldErrors = async (errors: string[], selector: string) => {
   await screen.findByText(errors.join(", "), {
-    selector: `[data-for="${snakeToCamelCase(selector)}"]`,
+    selector: `[data-for="${selector}"]`,
   });
 };
 
@@ -167,9 +166,9 @@ export const assertSerializerMessages = async (
     // - an object containing this same thing
     // - an array of objects containing this same thing
 
-    // Skip `feature_config` because it's displayed on the branches page and accounted
+    // Skip `featureConfig` because it's displayed on the branches page and accounted
     // for in branch-specific tests
-    if (field !== "feature_config") {
+    if (field !== "featureConfig") {
       // First we'll see if the errors are an array
       if (Array.isArray(errors)) {
         // Then check if the errors are objects, indicating nested fields
@@ -186,7 +185,7 @@ export const assertSerializerMessages = async (
           }
           // Otherwise we know the array is strings for the top-level field
         } else {
-          await assertFieldErrors(errors as string[], snakeToCamelCase(field));
+          await assertFieldErrors(errors as string[], field);
         }
         // If the errors aren't an array we know there are child fields
       } else {

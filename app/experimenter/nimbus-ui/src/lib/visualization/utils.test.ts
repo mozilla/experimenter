@@ -52,7 +52,7 @@ describe("getSortedBranchNames", () => {
       getSortedBranchNames(
         mockAnalysis({
           overall: { all: MOCK_OVERALL },
-          metadata: { external_config: { reference_branch: "englishman" } },
+          metadata: { external_config: { referenceBranch: "englishman" } },
         }),
       ),
     ).toEqual(["englishman", "fee", "fi", "fo", "fum"]);

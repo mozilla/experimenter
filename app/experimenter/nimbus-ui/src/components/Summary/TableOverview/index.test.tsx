@@ -107,7 +107,7 @@ describe("TableOverview", () => {
       ).not.toBeInTheDocument();
     });
 
-    describe("renders 'Public description' row as expected", () => {
+    describe("renders 'Public Description' row as expected", () => {
       it("when set", () => {
         const { experiment } = mockExperimentQuery("demo-slug");
         render(<Subject {...{ experiment }} />);

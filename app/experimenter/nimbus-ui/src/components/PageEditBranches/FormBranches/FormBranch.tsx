@@ -178,11 +178,11 @@ export const FormBranch = ({
                 type="switch"
                 label={featureEnabled ? "On" : "Off"}
               />
-              {reviewErrors?.feature_enabled && (
+              {reviewErrors?.featureEnabled && (
                 // @ts-ignore This component doesn't technically support type="warning", but
                 // all it's doing is using the string in a class, so we can safely override.
                 <Form.Control.Feedback type="warning" data-for="featureEnabled">
-                  {reviewErrors.feature_enabled}
+                  {reviewErrors.featureEnabled}
                 </Form.Control.Feedback>
               )}
             </Form.Group>

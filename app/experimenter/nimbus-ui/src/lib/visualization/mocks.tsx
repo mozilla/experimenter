@@ -68,7 +68,7 @@ export const MOCK_METADATA_EXTERNAL_CONFIG = {
   start_date: "2021-05-26",
   end_date: "2021-06-06",
   enrollment_period: 9,
-  reference_branch: "treatment",
+  referenceBranch: "treatment",
   skip: true,
   url: "https://github.com/mozilla/jetstream-config/",
 };

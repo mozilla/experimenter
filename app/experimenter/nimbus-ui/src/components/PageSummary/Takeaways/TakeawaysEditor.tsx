@@ -120,7 +120,7 @@ export const TakeawaysEditor = ({
             >
               <Form.Label
                 className={classNames("font-weight-bold", {
-                  "is-invalid": !!submitErrors["conclusion_recommendation"],
+                  "is-invalid": !!submitErrors["conclusionRecommendation"],
                 })}
               >
                 Recommendation:

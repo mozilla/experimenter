@@ -183,8 +183,8 @@ describe("TakeawaysEditor", () => {
   it("displays server submission errors", async () => {
     const submitErrors = {
       "*": ["Meteor fell on the server!"],
-      takeaways_summary: ["Too many mentions of chickens!"],
-      conclusion_recommendation: ["'Ship it' is an invalid recommendation."],
+      takeawaysSummary: ["Too many mentions of chickens!"],
+      conclusionRecommendation: ["'Ship it' is an invalid recommendation."],
     };
     const { container } = render(
       <Subject
@@ -202,12 +202,12 @@ describe("TakeawaysEditor", () => {
     );
     expect(
       container.querySelector('.invalid-feedback[data-for="takeawaysSummary"]'),
-    ).toHaveTextContent(submitErrors.takeaways_summary[0]);
+    ).toHaveTextContent(submitErrors.takeawaysSummary[0]);
     expect(
       container.querySelector(
         '.invalid-feedback[data-for="conclusionRecommendation"]',
       ),
-    ).toHaveTextContent(submitErrors.conclusion_recommendation[0]);
+    ).toHaveTextContent(submitErrors.conclusionRecommendation[0]);
   });
 });
 
@@ -296,8 +296,8 @@ describe("useTakeaways", () => {
     ];
     const submitErrors = {
       "*": ["Meteor fell on the server!"],
-      takeaways_summary: ["Too many mentions of chickens!"],
-      conclusion_recommendation: ["'Ship it' is an invalid recommendation."],
+      takeawaysSummary: ["Too many mentions of chickens!"],
+      conclusionRecommendation: ["'Ship it' is an invalid recommendation."],
     };
     mocks[0].result.data.updateExperiment.message = submitErrors;
     const refetch = jest.fn();

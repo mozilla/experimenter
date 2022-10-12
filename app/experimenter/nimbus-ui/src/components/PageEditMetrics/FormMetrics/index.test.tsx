@@ -189,8 +189,8 @@ describe("FormMetrics", () => {
 
   it("can display server review-readiness messages on all fields", async () => {
     await assertSerializerMessages(Subject, {
-      primary_outcomes: ["Primarily, tell me what's up."],
-      secondary_outcomes: ["On second thought..."],
+      primaryOutcomes: ["Primarily, tell me what's up."],
+      secondaryOutcomes: ["On second thought..."],
     });
   });
 });
