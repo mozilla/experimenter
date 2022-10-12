@@ -6,6 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
 from graphene_file_upload.django.testing import GraphQLFileUploadTestCase
+from parameterized import parameterized
 
 from experimenter.base.tests.factories import (
     CountryFactory,
@@ -153,8 +154,6 @@ class TestUpdateExperimentMutationSingleFeature(
                     "riskBrand": True,
                     "riskRevenue": True,
                     "riskPartnerRelated": True,
-                    "conclusionRecommendation": "RERUN",
-                    "takeawaysSummary": "the test worked",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -172,11 +171,54 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.risk_brand, True)
         self.assertEqual(experiment.risk_revenue, True)
         self.assertEqual(experiment.risk_partner_related, True)
-        self.assertEqual(
-            experiment.conclusion_recommendation,
-            NimbusExperiment.ConclusionRecommendation.RERUN,
+
+    @parameterized.expand(
+        [
+            ("name", "name", "new name"),
+            ("hypothesis", "hypothesis", "new hypothesis"),
+            ("publicDescription", "public_description", "new public description"),
+            ("riskBrand", "risk_brand", True),
+            ("riskRevenue", "risk_revenue", True),
+            ("riskPartnerRelated", "risk_partner_related", True),
+        ]
+    )
+    def test_update_experiment_overview_single_field(
+        self, data_field, model_field, value
+    ):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            slug="old slug",
+            name="old name",
+            hypothesis="old hypothesis",
+            public_description="old public description",
+            risk_brand=None,
+            risk_revenue=None,
+            risk_partner_related=None,
         )
-        self.assertEqual(experiment.takeaways_summary, "the test worked")
+        data = {
+            "id": experiment.id,
+            "name": experiment.name,
+            "hypothesis": experiment.hypothesis,
+            "publicDescription": experiment.public_description,
+            "riskBrand": None,
+            "riskRevenue": None,
+            "riskPartnerRelated": None,
+            "changelogMessage": "test changelog message",
+        }
+        data[data_field] = value
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={"input": data},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+
+        experiment = NimbusExperiment.objects.first()
+        self.assertEqual(getattr(experiment, model_field), value)
 
     def test_update_experiment_error(self):
         user_email = "user@example.com"
