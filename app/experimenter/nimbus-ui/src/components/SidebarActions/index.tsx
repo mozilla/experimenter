@@ -156,6 +156,17 @@ export const SidebarActions = ({
           </LinkExternal>
         )}
 
+        {status.launched && experiment.rolloutMonitoringDashboardUrl && (
+          <LinkExternal
+            href={experiment.rolloutMonitoringDashboardUrl!}
+            data-testid="link-rollout-monitoring-dashboard"
+            className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
+          >
+            <ExternalIcon className="sidebar-icon-external-link" />
+            Rollouts OpsMon Dashboard
+          </LinkExternal>
+        )}
+
         {status.launched && !analysisUnavailable(analysis) && (
           <LinkExternal
             href={EXTERNAL_URLS.DETAILED_ANALYSIS_TEMPLATE(slug)}
