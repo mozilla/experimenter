@@ -743,7 +743,9 @@ class NimbusExperimentSerializer(
         required=False,
     )
     warnFeatureSchema = serializers.BooleanField(
-        source="warn_feature_schema", required=False
+        source="warn_feature_schema",
+        allow_null=True,
+        required=False,
     )
     firefoxMinVersion = serializers.ChoiceField(
         source="firefox_min_version",
@@ -763,44 +765,53 @@ class NimbusExperimentSerializer(
     )
     isArchived = serializers.BooleanField(
         source="is_archived",
+        allow_null=True,
         required=False,
     )
     isSticky = serializers.BooleanField(
         source="is_sticky",
+        allow_null=True,
         required=False,
     )
     isFirstRun = serializers.BooleanField(
         source="is_first_run",
+        allow_null=True,
         required=False,
     )
     proposedDuration = serializers.IntegerField(
         source="proposed_duration",
+        allow_null=True,
         required=False,
     )
     proposedEnrollment = serializers.IntegerField(
         source="proposed_enrollment",
+        allow_null=True,
         required=False,
     )
     riskBrand = serializers.BooleanField(
         source="risk_brand",
+        allow_null=True,
         required=False,
     )
     riskPartnerRelated = serializers.BooleanField(
         source="risk_partner_related",
+        allow_null=True,
         required=False,
     )
     riskRevenue = serializers.BooleanField(
         source="risk_revenue",
+        allow_null=True,
         required=False,
     )
     statusNext = serializers.ChoiceField(
         source="status_next",
         choices=NimbusExperiment.Status.choices,
-        required=False,
         allow_null=True,
+        required=False,
     )
     takeawaysSummary = serializers.CharField(
         source="takeaways_summary",
+        allow_null=True,
         required=False,
     )
     targetingConfigSlug = serializers.CharField(
@@ -809,6 +820,7 @@ class NimbusExperimentSerializer(
     )
     totalEnrolledClients = serializers.IntegerField(
         source="total_enrolled_clients",
+        allow_null=True,
         required=False,
     )
 
