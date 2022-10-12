@@ -257,6 +257,68 @@ describe("TableBranches", () => {
     });
   });
 
+  it("shows promote to rollout buttons for non-rollout experiments", async () => {
+    const expected = {
+      id: 456,
+      name: "expected name",
+      slug: "expected-slug",
+      description: "expected description",
+      ratio: 42,
+      featureValue: '{ "thing": true }',
+      screenshots: [],
+    };
+
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          isRollout: false,
+          treatmentBranches: [
+            {
+              ...expected,
+              featureEnabled: true,
+            },
+            ...MOCK_EXPERIMENT.treatmentBranches!,
+          ],
+        }}
+      />,
+    );
+
+    const promoteButtons = screen.queryAllByTestId("promote-rollout");
+    expect(promoteButtons).toHaveLength(3);
+  });
+
+  it("hides promote to rollout buttons for rollouts", async () => {
+    const expected = {
+      id: 456,
+      name: "expected name",
+      slug: "expected-slug",
+      description: "expected description",
+      ratio: 42,
+      featureValue: '{ "thing": true }',
+      screenshots: [],
+    };
+
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          isRollout: true,
+          treatmentBranches: [
+            {
+              ...expected,
+              featureEnabled: true,
+            },
+            ...MOCK_EXPERIMENT.treatmentBranches!,
+          ],
+        }}
+      />,
+    );
+
+    const promoteButtons = screen.queryAllByTestId("promote-rollout");
+    expect(promoteButtons).toHaveLength(0);
+  });
+
   it("hides branches without 'slug' set, displays not set for missing branch properties", () => {
     render(
       <Subject
