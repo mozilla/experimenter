@@ -6,6 +6,7 @@ from experimenter.jetstream.models import (
     JetstreamDataPoint,
     Metric,
     MetricData,
+    Segment,
     Significance,
     SignificanceData,
     Statistic,
@@ -44,6 +45,7 @@ class JetstreamTestData:
             metric=Metric.USER_COUNT,
             statistic=Statistic.COUNT,
             window_index="1",
+            segment=Segment.ALL,
         )
 
     @classmethod
@@ -185,6 +187,7 @@ class JetstreamTestData:
                         branch=branch,
                         statistic="binomial",
                         window_index="1",
+                        segment=Segment.ALL,
                     ).dict(exclude_none=True)
                 )
 
@@ -219,6 +222,7 @@ class JetstreamTestData:
                         branch=branch,
                         statistic="mean",
                         window_index="1",
+                        segment=Segment.ALL,
                     ).dict(exclude_none=True)
                 )
 
@@ -244,8 +248,10 @@ class JetstreamTestData:
         VARIANT_DATA_ROW = DATA_IDENTITY_ROW.copy()
         VARIANT_DATA_ROW.branch = "variant"
 
-        SEGMENTED_ROW = VARIANT_DATA_ROW.copy()
-        SEGMENTED_ROW.segment = "some_segment"
+        SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.copy()
+        SEGMENTED_ROW_VARIANT.segment = "some_segment"
+        SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.copy()
+        SEGMENTED_ROW_CONTROL.segment = "some_segment"
 
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.copy()
         VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.metric = "some_count"
@@ -271,12 +277,15 @@ class JetstreamTestData:
         DAILY_DATA = [
             CONTROL_DATA_ROW.dict(exclude_none=True),
             VARIANT_DATA_ROW.dict(exclude_none=True),
-            SEGMENTED_ROW.dict(exclude_none=True),
             VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
             VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
             VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
             VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
             CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
+        ]
+        SEGMENT_DATA = [
+            SEGMENTED_ROW_VARIANT.dict(exclude_none=True),
+            SEGMENTED_ROW_CONTROL.dict(exclude_none=True),
         ]
 
         (
@@ -451,7 +460,7 @@ class JetstreamTestData:
             primary_outcomes,
         )
 
-        return (DAILY_DATA, WEEKLY_DATA, OVERALL_DATA, ERRORS)
+        return (DAILY_DATA, WEEKLY_DATA, OVERALL_DATA, ERRORS, SEGMENT_DATA)
 
 
 class ZeroJetstreamTestData(JetstreamTestData):
@@ -464,6 +473,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
             metric=Metric.USER_COUNT,
             statistic=Statistic.COUNT,
             window_index="1",
+            segment=Segment.ALL,
         )
 
     @classmethod
@@ -596,6 +606,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
                         branch=branch,
                         statistic="binomial",
                         window_index="1",
+                        segment=Segment.ALL,
                     ).dict(exclude_none=True)
                 )
 
@@ -610,6 +621,7 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
             metric=Metric.USER_COUNT,
             statistic=Statistic.COUNT,
             window_index=None,
+            segment=Segment.ALL,
         )
 
     @classmethod

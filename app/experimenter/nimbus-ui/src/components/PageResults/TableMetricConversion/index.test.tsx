@@ -25,7 +25,7 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );
@@ -42,7 +42,7 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );
@@ -62,7 +62,7 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );
@@ -78,7 +78,7 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );
@@ -100,7 +100,7 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );
@@ -122,7 +122,7 @@ describe("TableMetricConversion", () => {
     render(
       <MockResultsContextProvider>
         <RouterSlugProvider mocks={[mock]}>
-          <TableMetricConversion outcome={primaryOutcomes![0]!} />
+          <TableMetricConversion outcome={primaryOutcomes![0]!} segment="all" />
         </RouterSlugProvider>
       </MockResultsContextProvider>,
     );

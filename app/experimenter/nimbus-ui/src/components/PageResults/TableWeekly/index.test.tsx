@@ -37,7 +37,7 @@ describe("TableWeekly", () => {
     };
 
     const analysis = mockAnalysis({
-      weekly: weeklyMockAnalysis(modifications),
+      weekly: { all: weeklyMockAnalysis(modifications) },
     });
 
     render(
