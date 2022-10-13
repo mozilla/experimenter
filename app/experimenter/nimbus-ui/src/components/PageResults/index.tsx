@@ -5,7 +5,9 @@
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
+import Select from "react-select";
 import { useConfig } from "../../hooks";
+import { ReactComponent as Info } from "../../images/info.svg";
 import { ReactComponent as CollapseMinus } from "../../images/minus.svg";
 import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
 import {
@@ -28,6 +30,7 @@ import MetricHeader from "./TableMetricCount/MetricHeader";
 import TableResults from "./TableResults";
 import TableResultsWeekly from "./TableResultsWeekly";
 import TableWithTabComparison from "./TableWithTabComparison";
+import TooltipWithMarkdown from "./TooltipWithMarkdown";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { experiment, analysis, useRedirectCondition, useAnalysisRequired } =
@@ -62,6 +65,14 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   };
 
   const { external_config: externalConfig } = analysis.metadata || {};
+
+  const allSegments = Object.keys(analysis?.overall || {}).sort();
+  const segmentOptions = allSegments.map((segment) => ({
+    value: segment,
+    label: segment,
+  }));
+  const segmentHelpMarkdown =
+    "Select the **analysis segment** whose results you want to see. See [defining segments](https://experimenter.info/jetstream/configuration/#defining-segments) in the docs for more info.";
 
   const getErrorsForOutcomes = (
     outcomes: (string | null)[] | null,
@@ -139,6 +150,32 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
           )}
 
         {externalConfig && <ExternalConfigAlert {...{ externalConfig }} />}
+
+        {allSegments.length > 1 && (
+          <>
+            <h6>
+              Segment:
+              <span className="align-middle">
+                <Info
+                  className="align-baseline"
+                  data-tip
+                  data-for="segments-help"
+                />
+              </span>
+              <TooltipWithMarkdown
+                tooltipId="segments-help"
+                markdown={segmentHelpMarkdown}
+              />
+            </h6>
+            <Select
+              onChange={(option) => setSelectedSegment(option!.value)}
+              options={segmentOptions}
+              value={segmentOptions.find(
+                (option) => option.value === selectedSegment,
+              )}
+            />
+          </>
+        )}
 
         <h3 className="h4 mb-3 mt-4" id="overview">
           Overview
