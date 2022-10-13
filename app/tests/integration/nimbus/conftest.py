@@ -219,7 +219,7 @@ def default_data(application, experiment_name, load_experiment_outcomes):
 
 
 @pytest.fixture
-def create_experiment(base_url, application, default_data):
+def create_experiment(base_url, default_data):
     def _create_experiment(selenium):
         home = HomePage(selenium, base_url).open()
         experiment = home.create_new_button()
