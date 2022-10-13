@@ -162,21 +162,27 @@ def fixture_load_experiment_outcomes():
 def default_data(application, experiment_name, load_experiment_outcomes):
     feature_config_id = APPLICATION_FEATURE_IDS[application]
 
-    if "firefox_desktop" in str(application).lower():
-        metrics_data = BaseExperimentMetricsDataClass(
+    outcomes = {
+        "firefox_desktop": BaseExperimentMetricsDataClass(
             primary_outcomes=[load_experiment_outcomes["firefox_desktop"][0]],
             secondary_outcomes=[load_experiment_outcomes["firefox_desktop"][1]],
-        )
-    elif "fenix" in str(application).lower():
-        metrics_data = BaseExperimentMetricsDataClass(
+        ),
+        "fenix": BaseExperimentMetricsDataClass(
             primary_outcomes=[load_experiment_outcomes["fenix"][0]],
             secondary_outcomes=[load_experiment_outcomes["fenix"][1]],
-        )
-    elif "ios" in str(application).lower():
-        metrics_data = BaseExperimentMetricsDataClass(
+        ),
+        "ios": BaseExperimentMetricsDataClass(
             primary_outcomes=[load_experiment_outcomes["firefox_ios"][0]],
             secondary_outcomes=[load_experiment_outcomes["firefox_ios"][1]],
-        )
+        ),
+    }
+
+    application_str = str(application).lower()
+
+    for _ in list(outcomes):
+        if _ in application_str and "focus" not in application_str:
+            metrics_data = outcomes[_]
+            break
     else:
         metrics_data = BaseExperimentMetricsDataClass(
             primary_outcomes=[], secondary_outcomes=[]
@@ -250,7 +256,7 @@ def create_experiment(base_url, application, default_data):
 
         # Fill Metrics page
         metrics = branches.save_and_continue()
-        if "focus" not in str(application).lower():
+        if default_data.metrics.primary_outcomes:
             metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
             assert metrics.primary_outcomes.text != "", "The primary outcome was not set"
             metrics.set_secondary_outcomes(
