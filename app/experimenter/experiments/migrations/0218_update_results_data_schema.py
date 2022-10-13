@@ -8,7 +8,7 @@ def update_results_data_schema(apps, schema_editor):
     windows = ["daily", "weekly", "overall"]
     for experiment in NimbusExperiment.objects.all():
         data = experiment.results_data
-        if data:
+        if data is not None:
             for key, value in data.items():
                 if key in windows and "all" not in value:
                     data[key] = {}
