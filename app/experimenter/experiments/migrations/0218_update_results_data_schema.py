@@ -8,15 +8,16 @@ def update_results_data_schema(apps, schema_editor):
     windows = ["daily", "weekly", "overall"]
     for experiment in NimbusExperiment.objects.all():
         data = experiment.results_data
-        for key, value in data.items():
-            if key in windows and "all" not in value:
-                data[key] = {}
-                data[key]["all"] = value
-            else:
-                data[key] = value
+        if data:
+            for key, value in data.items():
+                if key in windows and "all" not in value:
+                    data[key] = {}
+                    data[key]["all"] = value
+                else:
+                    data[key] = value
 
-        experiment.results_data = data
-        experiment.save()
+            experiment.results_data = data
+            experiment.save()
 
 
 class Migration(migrations.Migration):
