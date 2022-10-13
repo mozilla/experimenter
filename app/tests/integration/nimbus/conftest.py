@@ -175,18 +175,13 @@ def default_data(application, experiment_name, load_experiment_outcomes):
             primary_outcomes=[load_experiment_outcomes["firefox_ios"][0]],
             secondary_outcomes=[load_experiment_outcomes["firefox_ios"][1]],
         ),
-    }
-
-    application_str = str(application).lower()
-
-    for _ in list(outcomes):
-        if _ in application_str and "focus" not in application_str:
-            metrics_data = outcomes[_]
-            break
-    else:
-        metrics_data = BaseExperimentMetricsDataClass(
+        "focus_ios": BaseExperimentMetricsDataClass(
             primary_outcomes=[], secondary_outcomes=[]
-        )
+        ),
+        "focus_android": BaseExperimentMetricsDataClass(
+            primary_outcomes=[], secondary_outcomes=[]
+        ),
+    }
 
     return BaseExperimentDataClass(
         public_name=experiment_name,
@@ -204,7 +199,7 @@ def default_data(application, experiment_name, load_experiment_outcomes):
                 description="treatment description",
             ),
         ],
-        metrics=metrics_data,
+        metrics=outcomes[str(application).lower().rsplit(".")[-1]],
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.RELEASE,
             min_version=80,
