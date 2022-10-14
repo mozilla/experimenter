@@ -187,38 +187,42 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
           <b>Hypothesis</b>: {experiment.hypothesis}
         </p>
 
-        {analysis.overall?.[selectedSegment] && (
-          <TableWithTabComparison
-            {...{ experiment }}
-            Table={TableHighlights}
-            className="mb-2 border-top-0"
-            segment={selectedSegment}
-          />
-        )}
+        {analysis.overall?.[selectedSegment] &&
+          Object.keys(analysis.overall?.[selectedSegment]).length > 0 && (
+            <TableWithTabComparison
+              {...{ experiment }}
+              Table={TableHighlights}
+              className="mb-2 border-top-0"
+              segment={selectedSegment}
+            />
+          )}
         <TableHighlightsOverview {...{ experiment }} />
 
         <div id="results_summary">
           <h2 className="h4 mb-3">Results Summary</h2>
-          {analysis.overall?.[selectedSegment] && (
-            <TableWithTabComparison
-              {...{ experiment }}
-              Table={TableResults}
-              className="rounded-bottom mb-3 border-top-0"
-              segment={selectedSegment}
-            />
-          )}
+          {analysis.overall?.[selectedSegment] &&
+            Object.keys(analysis.overall?.[selectedSegment]).length > 0 && (
+              <TableWithTabComparison
+                {...{ experiment }}
+                Table={TableResults}
+                className="rounded-bottom mb-3 border-top-0"
+                segment={selectedSegment}
+              />
+            )}
 
-          {analysis.weekly?.[selectedSegment] && (
-            <TableWithTabComparison
-              Table={TableResultsWeekly}
-              segment={selectedSegment}
-            />
-          )}
+          {analysis.weekly?.[selectedSegment] &&
+            Object.keys(analysis.weekly?.[selectedSegment]).length > 0 && (
+              <TableWithTabComparison
+                Table={TableResultsWeekly}
+                segment={selectedSegment}
+              />
+            )}
         </div>
 
         <div>
           <h2 className="h4 mb-3">Outcome Metrics</h2>
-          {analysis.overall?.[selectedSegment]
+          {analysis.overall?.[selectedSegment] &&
+          Object.keys(analysis.overall?.[selectedSegment]).length > 0
             ? experiment.primaryOutcomes?.map((slug) => {
                 const outcome = configOutcomes!.find((set) => {
                   return set?.slug === slug;
@@ -267,7 +271,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
               analysis?.errors &&
               Object.keys(analysis.errors).length > 1 &&
               getErrorsForOutcomes(experiment.primaryOutcomes, true)}
-          {analysis.overall?.[selectedSegment]
+          {analysis.overall?.[selectedSegment] &&
+          Object.keys(analysis.overall?.[selectedSegment]).length > 0
             ? experiment.secondaryOutcomes?.map((slug) => {
                 const outcome = configOutcomes!.find((set) => {
                   return set?.slug === slug;
@@ -323,6 +328,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   <Collapse in={open}>
                     <div>
                       {analysis.overall?.[selectedSegment] &&
+                        Object.keys(analysis.overall?.[selectedSegment])
+                          .length > 0 &&
                         analysis.other_metrics?.[group] &&
                         Object.keys(analysis.other_metrics[group]).map(
                           (metric: string) => (
