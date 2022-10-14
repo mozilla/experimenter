@@ -67,6 +67,22 @@ class TestMigration(MigratorTestCase):
             status=NimbusConstants.Status.DRAFT,
         )
 
+        # create experiment with empty results_data
+        NimbusExperiment.objects.create(
+            owner=user,
+            name="empty results experiment",
+            slug="empty-results-experiment",
+            application=Experiment.Application.DESKTOP,
+            status=NimbusConstants.Status.DRAFT,
+            results_data={
+                "daily": None,
+                "weekly": None,
+                "overall": None,
+                "metadata": None,
+                "show_analysis": True,
+            },
+        )
+
     def test_migration(self):
         """Run the test itself."""
         NimbusExperiment = self.new_state.apps.get_model(
@@ -94,3 +110,14 @@ class TestMigration(MigratorTestCase):
         empty_data = NimbusExperiment.objects.get(slug="empty-experiment")
 
         self.assertIsNone(empty_data.results_data)
+
+        empty_results_data = NimbusExperiment.objects.get(slug="empty-results-experiment")
+
+        results = {
+            "daily": None,
+            "weekly": None,
+            "overall": None,
+            "metadata": None,
+            "show_analysis": True,
+        }
+        self.assertEquals(empty_results_data.results_data, results)
