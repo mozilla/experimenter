@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
 import { act } from "react-dom/test-utils";
@@ -18,6 +24,7 @@ import {
   mockAnalysis,
   mockAnalysisWithErrors,
   mockAnalysisWithErrorsAndResults,
+  mockAnalysisWithSegments,
   MOCK_METADATA_WITH_CONFIG,
   MOCK_UNAVAILABLE_ANALYSIS,
 } from "../../lib/visualization/mocks";
@@ -81,6 +88,48 @@ describe("PageResults", () => {
         ),
       ),
     );
+  });
+
+  it("hides the analysis segment selector when there are no custom segments", async () => {
+    render(<Subject />);
+
+    expect(screen.queryByText("Segment:")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("segment-results-selector"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("displays the analysis segment selector and values properly", async () => {
+    const { container } = render(
+      <Subject mockAnalysisData={mockAnalysisWithSegments} />,
+    );
+
+    const defaultSegment = "all";
+    const otherSegment = "a_different_segment";
+
+    expect(screen.getByText("Segment:"));
+    const segmentSelectParent = screen.getByTestId("segment-results-selector");
+    expect(within(segmentSelectParent).getByText(defaultSegment));
+
+    let curSegment = container.getElementsByClassName(
+      "segmentation__single-value",
+    );
+    expect(curSegment).toHaveLength(1);
+    expect(curSegment[0]).toHaveTextContent(defaultSegment);
+
+    const segmentSelect = container.getElementsByClassName(
+      "segmentation__control",
+    )[0];
+
+    expect(segmentSelect).not.toBeNull();
+
+    fireEvent.keyDown(segmentSelect, { keyCode: 40 });
+    await waitFor(() => within(segmentSelectParent).getByText(otherSegment));
+    fireEvent.click(within(segmentSelectParent).getByText(otherSegment));
+
+    curSegment = container.getElementsByClassName("segmentation__single-value");
+    expect(curSegment).toHaveLength(1);
+    expect(curSegment[0]).toHaveTextContent(otherSegment);
   });
 
   it("displays analysis errors", async () => {
