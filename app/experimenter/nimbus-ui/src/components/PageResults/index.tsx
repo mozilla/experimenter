@@ -167,13 +167,16 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                 markdown={segmentHelpMarkdown}
               />
             </h6>
-            <Select
-              onChange={(option) => setSelectedSegment(option!.value)}
-              options={segmentOptions}
-              value={segmentOptions.find(
-                (option) => option.value === selectedSegment,
-              )}
-            />
+            <span data-testid="segment-results-selector">
+              <Select
+                classNamePrefix="segmentation"
+                onChange={(option) => setSelectedSegment(option!.value)}
+                options={segmentOptions}
+                value={segmentOptions.find(
+                  (option) => option.value === selectedSegment,
+                )}
+              />
+            </span>
           </>
         )}
 
