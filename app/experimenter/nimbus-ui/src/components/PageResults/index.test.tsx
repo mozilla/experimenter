@@ -120,14 +120,12 @@ describe("PageResults", () => {
     const segmentSelect = container.getElementsByClassName(
       "segmentation__control",
     )[0];
-    // const segmentSelect =
-    //   within(segmentSelectParent).getByDisplayValue(defaultSegment);
 
     expect(segmentSelect).not.toBeNull();
 
-    fireEvent.change(segmentSelect!, {
-      target: { value: otherSegment },
-    });
+    fireEvent.keyDown(segmentSelect, { keyCode: 40 });
+    await waitFor(() => within(segmentSelectParent).getByText(otherSegment));
+    fireEvent.click(within(segmentSelectParent).getByText(otherSegment));
 
     curSegment = container.getElementsByClassName("segmentation__single-value");
     expect(curSegment).toHaveLength(1);
