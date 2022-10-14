@@ -70,8 +70,8 @@ class TestMigration(MigratorTestCase):
         # create experiment with empty results_data
         NimbusExperiment.objects.create(
             owner=user,
-            name="empty experiment",
-            slug="empty-experiment",
+            name="empty results experiment",
+            slug="empty-results-experiment",
             application=Experiment.Application.DESKTOP,
             status=NimbusConstants.Status.DRAFT,
             results_data={
@@ -110,3 +110,14 @@ class TestMigration(MigratorTestCase):
         empty_data = NimbusExperiment.objects.get(slug="empty-experiment")
 
         self.assertIsNone(empty_data.results_data)
+
+        empty_results_data = NimbusExperiment.objects.get(slug="empty-results-experiment")
+
+        results = {
+            "daily": None,
+            "weekly": None,
+            "overall": None,
+            "metadata": None,
+            "show_analysis": True,
+        }
+        self.assertEquals(empty_results_data.results_data, results)
