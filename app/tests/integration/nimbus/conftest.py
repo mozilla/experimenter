@@ -143,9 +143,45 @@ def experiment_name(request):
     return f"{request.node.name[:75]}-{str(uuid.uuid4())[:4]}"
 
 
+@pytest.fixture(name="load_experiment_outcomes")
+def fixture_load_experiment_outcomes():
+    """Fixture to create a list of outcomes based on the current configs."""
+    outcomes = {"firefox_desktop": "", "fenix": "", "firefox_ios": ""}
+    base_path = "/code/app/experimenter/outcomes/jetstream-config-main/outcomes"
+
+    for k in list(outcomes):
+        outcomes[k] = [
+            name.split("_")[0].rsplit(".")[0]
+            for name in os.listdir(f"{base_path}/{k}")
+            if "example" not in name
+        ]
+    return outcomes
+
+
 @pytest.fixture
-def default_data(application, experiment_name):
+def default_data(application, experiment_name, load_experiment_outcomes):
     feature_config_id = APPLICATION_FEATURE_IDS[application]
+
+    outcomes = {
+        "firefox_desktop": BaseExperimentMetricsDataClass(
+            primary_outcomes=[load_experiment_outcomes["firefox_desktop"][0]],
+            secondary_outcomes=[load_experiment_outcomes["firefox_desktop"][1]],
+        ),
+        "fenix": BaseExperimentMetricsDataClass(
+            primary_outcomes=[load_experiment_outcomes["fenix"][0]],
+            secondary_outcomes=[load_experiment_outcomes["fenix"][1]],
+        ),
+        "ios": BaseExperimentMetricsDataClass(
+            primary_outcomes=[load_experiment_outcomes["firefox_ios"][0]],
+            secondary_outcomes=[load_experiment_outcomes["firefox_ios"][1]],
+        ),
+        "focus_ios": BaseExperimentMetricsDataClass(
+            primary_outcomes=[], secondary_outcomes=[]
+        ),
+        "focus_android": BaseExperimentMetricsDataClass(
+            primary_outcomes=[], secondary_outcomes=[]
+        ),
+    }
 
     return BaseExperimentDataClass(
         public_name=experiment_name,
@@ -163,9 +199,7 @@ def default_data(application, experiment_name):
                 description="treatment description",
             ),
         ],
-        metrics=BaseExperimentMetricsDataClass(
-            primary_outcomes=[], secondary_outcomes=[]
-        ),
+        metrics=outcomes[str(application).lower().rsplit(".")[-1]],
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.RELEASE,
             min_version=80,
@@ -217,6 +251,15 @@ def create_experiment(base_url, default_data):
 
         # Fill Metrics page
         metrics = branches.save_and_continue()
+        if default_data.metrics.primary_outcomes:
+            metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
+            assert metrics.primary_outcomes.text != "", "The primary outcome was not set"
+            metrics.set_secondary_outcomes(
+                values=default_data.metrics.secondary_outcomes[0]
+            )
+            assert (
+                metrics.secondary_outcomes.text != ""
+            ), "The seconday outcome was not set"
 
         # Fill Audience page
         audience = metrics.save_and_continue()
