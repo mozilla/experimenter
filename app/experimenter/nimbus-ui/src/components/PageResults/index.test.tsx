@@ -51,6 +51,20 @@ describe("PageResults", () => {
     });
   });
 
+  it("renders properly when results are empty", async () => {
+    render(
+      <Subject
+        mockAnalysisData={mockAnalysis({
+          weekly: { all: {} },
+          overall: { all: {} },
+        })}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
+    });
+  });
+
   it("fetches analysis data and displays expected tables when analysis is ready", async () => {
     render(<Subject />);
 
