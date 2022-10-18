@@ -83,11 +83,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
           },
         ]}
       />
-    ) : (
-      false
-    );
-
-  console.log(controlBranchError);
+    ) : null;
 
   const { external_config: externalConfig } = analysis.metadata || {};
 
@@ -246,7 +242,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
         <div>
           <h2 className="h4 mb-3">Outcome Metrics</h2>
-          {controlBranchError && controlBranchError}
+          {controlBranchError}
           {analysis.overall?.[selectedSegment] &&
           Object.keys(analysis.overall?.[selectedSegment]).length > 0
             ? experiment.primaryOutcomes?.map((slug) => {
