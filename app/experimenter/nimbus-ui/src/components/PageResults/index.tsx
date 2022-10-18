@@ -71,7 +71,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
         errors={[
           {
             metric: null,
-            message: "Analysis could not be performed",
+            message: "No control branch found in analysis results.",
             filename: null,
             exception: null,
             func_name: null,
