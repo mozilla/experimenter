@@ -61,8 +61,33 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const resultsContextValue: ResultsContextType = {
     analysis,
     sortedBranchNames,
-    controlBranchName: sortedBranchNames[0],
+    controlBranchName:
+      sortedBranchNames.length > 0 ? sortedBranchNames[0] : undefined,
   };
+
+  const controlBranchError =
+    sortedBranchNames.length === 0 ? (
+      <AnalysisErrorAlert
+        errors={[
+          {
+            metric: null,
+            message: "Analysis could not be performed",
+            filename: null,
+            exception: null,
+            func_name: null,
+            log_level: null,
+            statistic: null,
+            timestamp: null,
+            experiment: null,
+            exception_type: null,
+          },
+        ]}
+      />
+    ) : (
+      false
+    );
+
+  console.log(controlBranchError);
 
   const { external_config: externalConfig } = analysis.metadata || {};
 
@@ -221,6 +246,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
         <div>
           <h2 className="h4 mb-3">Outcome Metrics</h2>
+          {controlBranchError && controlBranchError}
           {analysis.overall?.[selectedSegment] &&
           Object.keys(analysis.overall?.[selectedSegment]).length > 0
             ? experiment.primaryOutcomes?.map((slug) => {
