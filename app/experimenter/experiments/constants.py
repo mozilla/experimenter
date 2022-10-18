@@ -159,6 +159,7 @@ class NimbusConstants(object):
         REVIEW = "Review"
         APPROVED = "Approved"
         WAITING = "Waiting"
+        DIRTY = "Dirty"
 
     class ConclusionRecommendation(models.TextChoices):
         RERUN = "RERUN", "Rerun"
@@ -187,13 +188,31 @@ class NimbusConstants(object):
     }
 
     VALID_PUBLISH_STATUS_TRANSITIONS = {
-        PublishStatus.IDLE: (PublishStatus.REVIEW, PublishStatus.APPROVED),
+        PublishStatus.IDLE: (
+            PublishStatus.REVIEW, 
+            PublishStatus.DIRTY,
+            # PublishStatus.APPROVED, // no arrow in diagram
+        ),
         PublishStatus.REVIEW: (
             PublishStatus.IDLE,
             PublishStatus.APPROVED,
+            PublishStatus.DIRTY,
         ),
+        PublishStatus.DIRTY: (
+            PublishStatus.REVIEW,
+            PublishStatus.IDLE,
+            PublishStatus.DIRTY,
+            # PublishStatus.WAITING, // is this possible?
+         ),
+        PublishStatus.WAITING: (
+            PublishStatus.WAITING,
+            PublishStatus.IDLE,
+        )
     }
-    PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
+    PUBLISH_STATUS_ALLOWS_UPDATE = (
+        PublishStatus.IDLE,
+        PublishStatus.DIRTY,
+    )
 
     STATUS_UPDATE_EXEMPT_FIELDS = (
         "is_archived",
