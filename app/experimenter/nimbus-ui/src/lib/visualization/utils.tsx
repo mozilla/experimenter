@@ -49,8 +49,7 @@ export const getControlBranchName = (analysis: AnalysisData) => {
   // last option - try to find a unique branch name in the daily results
   const daily = analysis.daily?.all || [];
   if (daily.length > 0) {
-    const branches = new Set();
-    daily.forEach((point) => branches.add(point.branch));
+    const branches = new Set(daily.map((point) => point.branch));
     if (branches.size === 1) {
       return branches.values().next().value; // return the first and only value
     }
