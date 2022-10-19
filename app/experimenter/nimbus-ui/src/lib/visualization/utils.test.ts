@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { mockAnalysis, MOCK_METADATA_WITH_CONFIG } from "./mocks";
-import { getSortedBranchNames } from "./utils";
+import { getControlBranchName, getSortedBranchNames } from "./utils";
 
 describe("getSortedBranchNames", () => {
   const MOCK_OVERALL = {
@@ -56,5 +56,58 @@ describe("getSortedBranchNames", () => {
         }),
       ),
     ).toEqual(["englishman", "fee", "fi", "fo", "fum"]);
+  });
+});
+
+describe("getControlBranchName", () => {
+  const MOCK_ANALYSIS_DAILY = {
+    daily: {
+      all: [
+        {
+          point: 1,
+          branch: "test",
+          metric: "test_metric",
+          statistic: "count",
+        },
+      ],
+    },
+    weekly: { all: {} },
+    overall: { all: {} },
+    show_analysis: true,
+    errors: { experiment: [] },
+  };
+
+  it("returns the branch from daily if there are no other branches", () => {
+    expect(getControlBranchName(MOCK_ANALYSIS_DAILY)).toEqual("test");
+  });
+
+  it("throws an error if it cannot determine the control branch and there are multiple branches in daily", () => {
+    expect(() =>
+      getControlBranchName({
+        ...MOCK_ANALYSIS_DAILY,
+        daily: {
+          all: [
+            {
+              point: 1,
+              branch: "test",
+              metric: "test_metric",
+              statistic: "count",
+            },
+            {
+              point: 11,
+              branch: "not-test",
+              metric: "test_metric",
+              statistic: "binomial",
+            },
+          ],
+        },
+      }),
+    ).toThrow("no branch name");
+  });
+
+  it("throws an error if it cannot find a branch in the results", () => {
+    expect(() =>
+      getControlBranchName({ ...MOCK_ANALYSIS_DAILY, daily: { all: [] } }),
+    ).toThrow("no branch name");
   });
 });

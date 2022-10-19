@@ -38,22 +38,40 @@ export const getControlBranchName = (analysis: AnalysisData) => {
   if (external_config?.reference_branch) {
     return external_config.reference_branch;
   }
-  const results = analysis.overall?.all || analysis.weekly?.all;
-  for (const [branchName, branchData] of Object.entries(results!)) {
-    if (branchData.is_control) {
-      return branchName;
+  const results = analysis.overall?.all || analysis.weekly?.all || {};
+  if (Object.keys(results).length > 0) {
+    for (const [branchName, branchData] of Object.entries(results)) {
+      if (branchData.is_control) {
+        return branchName;
+      }
     }
   }
+  // last option - try to find a unique branch name in the daily results
+  const daily = analysis.daily?.all || [];
+  if (daily.length > 0) {
+    const branches = new Set(daily.map((point) => point.branch));
+    if (branches.size === 1) {
+      return branches.values().next().value; // return the first and only value
+    }
+  }
+
+  throw new Error(
+    "Invalid argument 'analysis': no branch name could be found in the results.",
+  );
 };
 
 // Returns [control/reference branch name, treatment branch names]
 export const getSortedBranchNames = (analysis: AnalysisData) => {
-  const controlBranchName = getControlBranchName(analysis)!;
-  const results = analysis.overall?.all || analysis.weekly?.all || {};
-  return [
-    controlBranchName,
-    ...Object.keys(results).filter((branch) => branch !== controlBranchName),
-  ];
+  try {
+    const controlBranchName = getControlBranchName(analysis)!;
+    const results = analysis.overall?.all || analysis.weekly?.all || {};
+    return [
+      controlBranchName,
+      ...Object.keys(results).filter((branch) => branch !== controlBranchName),
+    ];
+  } catch (_e) {
+    return [];
+  }
 };
 
 /**
