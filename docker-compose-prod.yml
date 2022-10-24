@@ -59,7 +59,7 @@ services:
       - "6379:6379"
 
   kinto:
-    image: mozilla/remote-settings:latest
+    image: mozilla/remote-settings:29.2.0
     environment:
       KINTO_INI: /etc/kinto.ini
     ports:
