@@ -82,33 +82,30 @@ An experiment now has two distinct states:
 - Its lifecycle state
 - Its publish state
 
-![](diagrams/states.png)
+![](diagrams/states-v2.png)
 
 ### Lifecycle States
 
 #### States
 
-- Draft: An experiment in draft has been created, and can be edited.
-- Preview: An experiment in preview can not be edited and is automatically published to the `nimbus-preview` collection
-- Live: An experiment in live can not be edited and is published to the collection corresponding to its target application after it has been reviewed in Experimenter and in Remote Settings
-- Complete: An experiment in complete can not be edited and is no longer published in Remote Settings
-
-#### Parameters
-
-None
+- **Draft**: An experiment in draft has been created, and can be edited.
+- **Preview**: An experiment in preview can not be edited and is automatically published to the `nimbus-preview` collection
+- **Live**: An experiment in live can not be edited and is published to the collection corresponding to its target application after it has been reviewed in Experimenter and in Remote Settings
+- **Complete**: An experiment in complete can not be edited and is no longer published in Remote Settings
 
 ### Publish States
 
 #### States
 
-- Idle: An experiment has no changes that require review or modification in Remote Settings
-- Review: An experiment has changes that require review in Experimenter before they can be published to Remote Settings
-- Approved: An experiment has changes that have been approved in Experimenter and must be published to Remote Settings
-- Waiting: An experiment has changes that have been published to Remote Settings and are awaiting further review in Remote Settings
+- **Idle**: An experiment has no changes that require review or modification in Remote Settings
+- **Dirty**: An experiment has changes that require review or modification in Remote Settings
+- **Review**: An experiment has changes that require review in Experimenter before they can be published to Remote Settings
+- **Approved**: An experiment has changes that have been approved in Experimenter and must be published to Remote Settings
+- **Waiting**: An experiment has changes that have been published to Remote Settings and are awaiting further review in Remote Settings
 
 #### Parameters
 
-- Next: A lifecycle status which the experiment will move to if it is successfully approved and updated in Remote Settings
+- **Next**: A lifecycle status which the experiment will move to if it is successfully approved and updated in Remote Settings
 
 In theory an experiment can occupy any combination of these two states, but in practice it will only have a publish state other than Idle in Draft and in Live. Preview experiments can be modified in Remote Settings without any review, and Complete experiments will never be published to Remote Settings.
 
