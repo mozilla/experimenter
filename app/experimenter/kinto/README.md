@@ -127,15 +127,22 @@ The following actors are involved:
 - Remote Settings UI: The frontend application surface that Remote Settings users interact with and is only accessible via allow listed VPN access
 - Remote Settings Backend: The backend server that hosts the Remote Settings API and database and is only accessible via allow listed VPN access
 
+### Draft (Create)
+
+A new experiment or rollout which has yet to be sent for review or put into preview is marked for Draft.
+![draft](diagrams/create_draft_idle.png)
+
 ### Preview
 
 A draft experiment that has been validly completed is marked for Preview, is published to the preview collection in Remote Settings, and is then accessible to specially configured clients.
-![](diagrams/preview.png)
+![draft to preview](diagrams/draft-to-preview.png)
 
 ### Publish (Approve/Approve)
 
-A draft experiment that has been validly completed is reviewed and approved in Experimenter, is reviewed and approved in Remote Settings, and is then accessible to clients.
-![](diagrams/publish_approve_approve.png)
+A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, is reviewed and approved in Remote Settings, and is then accessible to clients.
+![review approved in experimenter](diagrams/draft-to-live-1.png)
+![review approved in remote settings](diagrams/draft-to-live-2.png)
+![published](diagrams/draft-to-live-3.png)
 
 ### Publish (Reject/------)
 
