@@ -155,8 +155,8 @@ These updated changes must be reviewed in order to be published to the user, fol
 
 ### Publish (Reject/------)
 
-A draft experiment that has been validly completed is rejected by a reviewer in Experimenter. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
-![](diagrams/publish_reject.png)
+A draft experiment/rollout that has been validly completed (no errors) is rejected by a reviewer in Experimenter. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
+![review draft in experimenter](diagrams/publish-reject-in-exp.png)
 
 ### Publish (Approve/Reject)
 
