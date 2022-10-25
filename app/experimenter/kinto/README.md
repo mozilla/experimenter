@@ -165,10 +165,10 @@ A draft experiment that has been validly completed is reviewed and approved in E
 ![review rejected in remote settings](diagrams/publish-reject-in-rs-2.png)
 ![rolled back to draft](diagrams/publish-reject-in-rs-3.png)
 
-### Publish (Approve/Reject+Rollback)
+### Publish (Approve/Reject + Manual Rollback)
 
-A draft experiment that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer manually rolls back the Remote Settings collection. A rejection reason is captured in Remote Settings and but unable to be recovered by Experimenter because the collection as manually rolled back before Experimenter could query its status, and so Experimenter shows a generic rejection reason.
-![](diagrams/publish_approve_reject_rollback.png)
+A draft experiment that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer manually rolls back the Remote Settings collection. A rejection reason is captured in Remote Settings and but **unable to be recovered by Experimenter** because the collection as manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason.
+![manually rolled back](diagrams/reject-in-rs-rollback.png)
 
 ### Publish (Approve/Timeout)
 
