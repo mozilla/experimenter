@@ -82,7 +82,7 @@ An experiment now has two distinct states:
 - Its lifecycle state
 - Its publish state
 
-![](diagrams/states-v2.png)
+![](diagrams/states-v2.svg)
 
 ### Lifecycle States
 
