@@ -173,7 +173,8 @@ A draft experiment that has been validly completed is reviewed and approved in E
 ### Publish (Approve/Timeout)
 
 A draft experiment that has been validly completed is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
-![](diagrams/publish_approve_timeout.png)
+![send to remote settings](diagrams/timeout-in-rs-1.png)
+![timeout in remote settings](diagrams/timeout-in-rs-2.png)
 
 ### End Enrollment (Approve/Approve)
 
