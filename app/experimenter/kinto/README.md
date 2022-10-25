@@ -161,7 +161,9 @@ A draft experiment/rollout that has been validly completed (no errors) is reject
 ### Publish (Approve/Reject)
 
 A draft experiment that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the experiment owner in Experimenter.
-![](diagrams/publish_approve_reject.png)
+![review approved in experimenter](diagrams/publish-reject-in-rs-1.png)
+![review rejected in remote settings](diagrams/publish-reject-in-rs-2.png)
+![rolled back to draft](diagrams/publish-reject-in-rs-3.png)
 
 ### Publish (Approve/Reject+Rollback)
 
