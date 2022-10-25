@@ -178,7 +178,11 @@ class NimbusConstants(object):
         Status.DRAFT: (Status.PREVIEW,),
         Status.PREVIEW: (Status.DRAFT,),
     }
-    STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
+
+    STATUS_ALLOWS_UPDATE = (
+        Status.DRAFT,
+        Status.LIVE,
+    )
 
     # Valid status_next values for given status values
     VALID_STATUS_NEXT_VALUES = {
@@ -191,24 +195,23 @@ class NimbusConstants(object):
         PublishStatus.IDLE: (
             PublishStatus.REVIEW, 
             PublishStatus.DIRTY,
-            # PublishStatus.APPROVED, // no arrow in diagram
+        ),
+        PublishStatus.DIRTY: (
+            PublishStatus.REVIEW,
+            PublishStatus.DIRTY,
         ),
         PublishStatus.REVIEW: (
             PublishStatus.IDLE,
             PublishStatus.APPROVED,
             PublishStatus.DIRTY,
         ),
-        PublishStatus.DIRTY: (
-            PublishStatus.REVIEW,
-            PublishStatus.IDLE,
-            PublishStatus.DIRTY,
-            # PublishStatus.WAITING, // is this possible?
-         ),
         PublishStatus.WAITING: (
-            PublishStatus.WAITING,
+            PublishStatus.DIRTY,
             PublishStatus.IDLE,
+            PublishStatus.REVIEW,
         )
     }
+
     PUBLISH_STATUS_ALLOWS_UPDATE = (
         PublishStatus.IDLE,
         PublishStatus.DIRTY,
