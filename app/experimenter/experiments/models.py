@@ -357,6 +357,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             sticky_clause = "is_already_enrolled"
             if is_desktop:
                 sticky_clause = "experiment.slug in activeExperiments"
+                if self.is_rollout:
+                    sticky_clause = "experiment.slug in activeRollouts"
 
             sticky_expressions_joined = " && ".join(
                 [f"({expression})" for expression in sticky_expressions]
