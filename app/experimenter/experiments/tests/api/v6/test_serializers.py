@@ -73,6 +73,7 @@ class TestNimbusExperimentSerializer(TestCase):
                     {"priority": "secondary", "slug": "xyzzy"},
                 ],
                 "featureIds": [experiment.feature_configs.get().slug],
+                "featureValidationOptOut": experiment.is_client_schema_disabled,
             },
         )
         self.assertEqual(
@@ -163,6 +164,7 @@ class TestNimbusExperimentSerializer(TestCase):
                     {"priority": "secondary", "slug": "quux"},
                     {"priority": "secondary", "slug": "xyzzy"},
                 ],
+                "featureValidationOptOut": experiment.is_client_schema_disabled,
             },
         )
 
