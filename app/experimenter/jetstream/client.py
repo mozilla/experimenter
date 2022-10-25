@@ -1,5 +1,6 @@
 import json
 import os
+from collections import defaultdict
 from itertools import chain
 
 from django.conf import settings
@@ -10,6 +11,7 @@ from experimenter.jetstream.models import (
     Group,
     JetstreamData,
     Metric,
+    Segment,
     Statistic,
     create_results_object_model,
 )
@@ -22,6 +24,12 @@ ERRORS_FOLDER = "errors"
 ALL_STATISTICS = set(
     [Statistic.BINOMIAL, Statistic.MEAN, Statistic.COUNT, Statistic.PERCENT]
 )
+
+
+class AnalysisWindow:
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    OVERALL = "overall"
 
 
 def load_data_from_gcs(path):
@@ -136,8 +144,12 @@ def get_other_metrics_names_and_map(data, RESULTS_METRICS_MAP):
 
 def get_experiment_data(experiment):
     recipe_slug = experiment.slug.replace("-", "_")
-    windows = ["daily", "weekly", "overall"]
-    raw_data = {}
+    windows = [AnalysisWindow.DAILY, AnalysisWindow.WEEKLY, AnalysisWindow.OVERALL]
+    raw_data = {
+        AnalysisWindow.DAILY: {},
+        AnalysisWindow.WEEKLY: {},
+        AnalysisWindow.OVERALL: {},
+    }
 
     experiment_metadata = get_metadata(recipe_slug)
     outcomes_metadata = (
@@ -152,33 +164,42 @@ def get_experiment_data(experiment):
     }
 
     for window in windows:
-        data = raw_data[window] = JetstreamData(
-            __root__=(get_data(recipe_slug, window) or [])
-        )
-        result_metrics, primary_metrics_set, other_metrics = get_results_metrics_map(
-            data,
-            experiment.primary_outcomes,
-            experiment.secondary_outcomes,
-            outcomes_metadata,
-        )
+        experiment_data[window] = {}
+        data_from_jetstream = get_data(recipe_slug, window) or []
 
-        if data and window == "overall":
-            # Append some values onto Jetstream data
-            data.append_population_percentages()
-            data.append_retention_data(raw_data["weekly"])
+        segment_points = defaultdict(list)
+        for point in data_from_jetstream:
+            segment_points[point["segment"]].append(point)
 
-            ResultsObjectModel = create_results_object_model(data)
-            data = ResultsObjectModel(result_metrics, data, experiment)
-            data.append_conversion_count(primary_metrics_set)
+        for segment, segment_data in segment_points.items():
+            data = raw_data[window][segment] = JetstreamData(__root__=(segment_data))
+            (
+                result_metrics,
+                primary_metrics_set,
+                other_metrics,
+            ) = get_results_metrics_map(
+                data,
+                experiment.primary_outcomes,
+                experiment.secondary_outcomes,
+                outcomes_metadata,
+            )
+            if data and window == AnalysisWindow.OVERALL:
+                # Append some values onto Jetstream data
+                data.append_population_percentages()
+                data.append_retention_data(raw_data[AnalysisWindow.WEEKLY][segment])
 
-            experiment_data["other_metrics"] = other_metrics
-        elif data and window == "weekly":
-            ResultsObjectModel = create_results_object_model(data)
-            data = ResultsObjectModel(result_metrics, data, experiment, window)
+                ResultsObjectModel = create_results_object_model(data)
+                data = ResultsObjectModel(result_metrics, data, experiment)
+                data.append_conversion_count(primary_metrics_set)
 
-        transformed_data = data.dict(exclude_none=True) or None
+                if segment == Segment.ALL:
+                    experiment_data["other_metrics"] = other_metrics
+            elif data and window == AnalysisWindow.WEEKLY:
+                ResultsObjectModel = create_results_object_model(data)
+                data = ResultsObjectModel(result_metrics, data, experiment, window)
 
-        experiment_data[window] = transformed_data
+            transformed_data = data.dict(exclude_none=True) or None
+            experiment_data[window][segment] = transformed_data
 
     errors_by_metric = {}
     errors_experiment_overall = []

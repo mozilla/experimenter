@@ -616,12 +616,45 @@ PIP_NEVER_USED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-
 RALLY_CORE_ADDON_USER = NimbusTargetingConfig(
     name="Mozilla Rally Core Add-on User",
     slug="rally_core_addon_user",
     description="Users who have installed the Mozilla Rally Core Add-on",
     targeting="addonsInfo.addons['rally-core@mozilla.org'] != null",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+RALLY_PILOT_USER = NimbusTargetingConfig(
+    name="Mozilla Rally Pilot User",
+    slug="rally_pilot_user",
+    description="Users who have installed \
+    the Mozilla Rally Core Add-on or one of the Rally pilot studies",
+    targeting="""
+        addonsInfo.addons['rally-core@mozilla.org'] != null ||
+        addonsInfo.addons['facebook-pixel-hunt@rally.mozilla.org'] != null ||
+        addonsInfo.addons['beyond-the-paywall@rally.mozilla.org'] != null ||
+        addonsInfo.addons['search-engine-usage@rally.mozilla.org'] != null ||
+        addonsInfo.addons[
+            'princeton-political-and-covid-19-news-study@rally.mozilla.org'
+        ] != null
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+RALLY_ATTENTION_STREAM_USER = NimbusTargetingConfig(
+    name="Mozilla Rally Attention Stream User",
+    slug="rally_attention_stream_user",
+    description="Users who have installed \
+    the Mozilla Rally (f.k.a Attention Stream) Add-on",
+    targeting="""
+        addonsInfo.addons['attention-stream@rally.mozilla.org'] != null
+    """,
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
