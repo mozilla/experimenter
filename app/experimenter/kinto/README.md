@@ -144,6 +144,15 @@ A draft experiment/rollout that has been validly completed is reviewed and appro
 ![review approved in remote settings](diagrams/draft-to-live-2.png)
 ![published](diagrams/draft-to-live-3.png)
 
+### Publish update (Approve/Approve)
+
+A live rollout can have updates pushed to its state while remaining Live.
+![live dirty](diagrams/live-dirty.png)
+
+These updated changes must be reviewed in order to be published to the user, following the same flow to be approved in both experimenter and remote settings.
+![review dirty in experimenter](diagrams/live-rollout-dirty-approve-1.png)
+![review dirty in remote settings](diagrams/live-rollout-dirty-approve-2.png)
+
 ### Publish (Reject/------)
 
 A draft experiment that has been validly completed is rejected by a reviewer in Experimenter. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
