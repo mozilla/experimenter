@@ -28,14 +28,9 @@ import TableOverview from "./TableOverview";
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
   refetch?: () => Promise<unknown>;
-  withFullDetails?: boolean;
 };
 
-const Summary = ({
-  experiment,
-  refetch,
-  withFullDetails = true,
-}: SummaryProps) => {
+const Summary = ({ experiment, refetch }: SummaryProps) => {
   const status = getStatus(experiment);
   const {
     isLoading,
@@ -113,13 +108,13 @@ const Summary = ({
       <div className="d-flex flex-row justify-content-between">
         <h3 className="h5 mb-3">Overview</h3>
       </div>
-      <TableOverview {...{ experiment, withFullDetails }} />
+      <TableOverview {...{ experiment }} />
 
       <h3 className="h5 mb-3">Audience</h3>
-      <TableAudience {...{ experiment, withFullDetails }} />
+      <TableAudience {...{ experiment }} />
 
       {/* Branches title is inside its table */}
-      {withFullDetails && <TableBranches {...{ experiment }} />}
+      <TableBranches {...{ experiment }} />
 
       {status.launched && (
         <>

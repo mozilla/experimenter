@@ -15,15 +15,11 @@ import NotSet from "../../NotSet";
 
 type TableAudienceProps = {
   experiment: getExperiment_experimentBySlug;
-  withFullDetails?: boolean;
 };
 
 // `<tr>`s showing optional fields that are not set are not displayed.
 
-const TableAudience = ({
-  experiment,
-  withFullDetails = true,
-}: TableAudienceProps) => {
+const TableAudience = ({ experiment }: TableAudienceProps) => {
   const { firefoxVersions, channels, targetingConfigs } = useConfig();
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
@@ -147,8 +143,7 @@ const TableAudience = ({
             {experiment.isFirstRun ? "True" : "False"}
           </td>
         </tr>
-        {withFullDetails &&
-        experiment.jexlTargetingExpression &&
+        {experiment.jexlTargetingExpression &&
         experiment.jexlTargetingExpression !== "" ? (
           <tr>
             <th>Full targeting expression</th>
@@ -163,7 +158,7 @@ const TableAudience = ({
             </td>
           </tr>
         ) : null}
-        {withFullDetails && experiment.recipeJson && (
+        {experiment.recipeJson && (
           <tr id="recipe-json">
             <th>
               Recipe JSON <a href={`#recipe-json`}>#</a>

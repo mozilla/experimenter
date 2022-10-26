@@ -28,18 +28,6 @@ describe("Summary", () => {
     );
   });
 
-  it("hides expected content when withFullDetails = false", () => {
-    render(<Subject withFullDetails={false} />);
-    expect(screen.getByTestId("summary-timeline")).toBeInTheDocument();
-    expect(screen.queryByTestId("experiment-end")).not.toBeInTheDocument();
-    expect(
-      screen.queryByTestId("link-monitoring-dashboard"),
-    ).not.toBeInTheDocument();
-    expect(screen.getByTestId("table-overview")).toBeInTheDocument();
-    expect(screen.getByTestId("table-audience")).toBeInTheDocument();
-    expect(screen.queryAllByTestId("table-branch")).toHaveLength(0);
-  });
-
   it("renders signoff table if experiment has been launched", async () => {
     render(
       <Subject

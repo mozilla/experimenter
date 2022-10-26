@@ -155,20 +155,9 @@ describe("TableAudience", () => {
     });
   });
 
-  it("hides details when withFullDetails = false", () => {
-    const { experiment } = mockExperimentQuery("demo-slug");
-    render(<Subject {...{ experiment, withFullDetails: false }} />);
-    expect(
-      screen.queryByTestId("experiment-recipe-json"),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByTestId("experiment-target-expression"),
-    ).not.toBeInTheDocument();
-  });
-
   it("Renders show button for recipe json", () => {
     const { experiment } = mockExperimentQuery("demo-slug");
-    render(<Subject {...{ experiment, withFullDetails: true }} />);
+    render(<Subject {...{ experiment }} />);
     expect(screen.queryByTestId("experiment-recipe-json")).toBeInTheDocument();
     expect(screen.queryByTestId("experiment-recipe-json")).toHaveTextContent(
       "{",
@@ -339,12 +328,10 @@ describe("TableAudience", () => {
 
 const Subject = ({
   experiment,
-  withFullDetails = true,
 }: {
   experiment: getExperiment_experimentBySlug;
-  withFullDetails?: boolean;
 }) => (
   <MockedCache>
-    <TableAudience {...{ experiment, withFullDetails }} />
+    <TableAudience {...{ experiment }} />
   </MockedCache>
 );

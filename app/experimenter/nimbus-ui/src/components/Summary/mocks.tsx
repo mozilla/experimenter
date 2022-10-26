@@ -44,12 +44,10 @@ export function createMutationMock(
 export const Subject = ({
   props = {},
   mocks = [],
-  withFullDetails = true,
   refetch = () => Promise.resolve(),
 }: {
   props?: Partial<getExperiment_experimentBySlug | null>;
   mocks?: MockedResponse<Record<string, any>>[];
-  withFullDetails?: boolean;
   refetch?: () => Promise<unknown>;
 }) => {
   const { experiment, mock } = mockExperimentQuery("demo-slug", props);
@@ -57,7 +55,7 @@ export const Subject = ({
   return (
     <AppLayout>
       <RouterSlugProvider mocks={[mock, ...mocks]}>
-        <Summary {...{ experiment, refetch, withFullDetails }} />
+        <Summary {...{ experiment, refetch }} />
       </RouterSlugProvider>
     </AppLayout>
   );
