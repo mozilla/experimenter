@@ -27,7 +27,7 @@ describe("PageHome", () => {
     render(<Subject />);
 
     expect(screen.getByTestId("PageHome")).toBeInTheDocument();
-    expect(screen.getByText("Create new")).toBeInTheDocument();
+    expect(screen.getByText("Create New")).toBeInTheDocument();
   });
 
   it("displays loading when experiments are still loading", () => {
