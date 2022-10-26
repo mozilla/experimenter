@@ -5,7 +5,7 @@
 import { Link } from "@reach/router";
 import classNames from "classnames";
 import React, { useCallback, useMemo } from "react";
-import { Button, Table } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import {
   UpdateSearchParams,
   useConfig,
@@ -340,16 +340,12 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
   }
 
   return (
-    <>
+    <div
+      className="directory-table pb-2 mt-4"
+      style={{ width: "auto", maxWidth: "100%" }}
+    >
       {experiments.length ? (
-        <Table
-          data-testid="DirectoryTable"
-          className="directory-table"
-          size="sm"
-          responsive
-          hover
-          style={{ width: "100%" }}
-        >
+        <table className="table" data-testid="DirectoryTable">
           <thead>
             <tr>
               {columns.map((column, i) => (
@@ -369,11 +365,11 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
               </tr>
             ))}
           </tbody>
-        </Table>
+        </table>
       ) : (
         <p data-testid="no-experiments">No experiments found.</p>
       )}
-    </>
+    </div>
   );
 };
 

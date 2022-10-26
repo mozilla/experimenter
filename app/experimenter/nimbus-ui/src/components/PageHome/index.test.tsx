@@ -27,7 +27,7 @@ describe("PageHome", () => {
     render(<Subject />);
 
     expect(screen.getByTestId("PageHome")).toBeInTheDocument();
-    expect(screen.getByText("Create New")).toBeInTheDocument();
+    expect(screen.getByText("Create new")).toBeInTheDocument();
   });
 
   it("displays loading when experiments are still loading", () => {
@@ -111,7 +111,7 @@ describe("PageHome", () => {
   it("supports filtering by feature", async () => {
     await renderAndWaitForLoaded();
     const expectedFeatureConfigName = "Picture-in-Picture";
-    await selectEvent.select(screen.getByText("All Features"), [
+    await selectEvent.select(screen.getByLabelText("Feature"), [
       expectedFeatureConfigName,
     ]);
     await waitFor(() => {

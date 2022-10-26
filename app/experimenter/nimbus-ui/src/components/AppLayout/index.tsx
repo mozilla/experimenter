@@ -15,7 +15,7 @@ export const AppLayout = ({ children, testid = "main" }: AppLayoutProps) => {
     <Container
       fluid
       as="main"
-      className="h-100 pt-3"
+      className="h-100 pt-5"
       data-testid={testid}
       id={testid + "-page"}
     >
