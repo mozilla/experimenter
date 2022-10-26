@@ -38,22 +38,40 @@ export const getControlBranchName = (analysis: AnalysisData) => {
   if (external_config?.reference_branch) {
     return external_config.reference_branch;
   }
-  const results = analysis.overall || analysis.weekly;
-  for (const [branchName, branchData] of Object.entries(results!)) {
-    if (branchData.is_control) {
-      return branchName;
+  const results = analysis.overall?.all || analysis.weekly?.all || {};
+  if (Object.keys(results).length > 0) {
+    for (const [branchName, branchData] of Object.entries(results)) {
+      if (branchData.is_control) {
+        return branchName;
+      }
     }
   }
+  // last option - try to find a unique branch name in the daily results
+  const daily = analysis.daily?.all || [];
+  if (daily.length > 0) {
+    const branches = new Set(daily.map((point) => point.branch));
+    if (branches.size === 1) {
+      return branches.values().next().value; // return the first and only value
+    }
+  }
+
+  throw new Error(
+    "Invalid argument 'analysis': no branch name could be found in the results.",
+  );
 };
 
 // Returns [control/reference branch name, treatment branch names]
 export const getSortedBranchNames = (analysis: AnalysisData) => {
-  const controlBranchName = getControlBranchName(analysis)!;
-  const results = analysis.overall || analysis.weekly || {};
-  return [
-    controlBranchName,
-    ...Object.keys(results).filter((branch) => branch !== controlBranchName),
-  ];
+  try {
+    const controlBranchName = getControlBranchName(analysis)!;
+    const results = analysis.overall?.all || analysis.weekly?.all || {};
+    return [
+      controlBranchName,
+      ...Object.keys(results).filter((branch) => branch !== controlBranchName),
+    ];
+  } catch (_e) {
+    return [];
+  }
 };
 
 /**
@@ -68,13 +86,14 @@ export const getExtremeBounds = (
   results: AnalysisDataOverall,
   outcomeSlug: string,
   group: string,
+  segment: string,
 ) => {
   let extreme = 0;
   sortedBranchNames.forEach((branch) => {
-    if (results[branch].branch_data[group][outcomeSlug]) {
-      results[branch].branch_data[group][outcomeSlug][BRANCH_COMPARISON.UPLIFT][
-        "all"
-      ].forEach((dataPoint: FormattedAnalysisPoint) => {
+    if (results![segment]![branch].branch_data[group][outcomeSlug]) {
+      results![segment]![branch].branch_data[group][outcomeSlug][
+        BRANCH_COMPARISON.UPLIFT
+      ]["all"].forEach((dataPoint: FormattedAnalysisPoint) => {
         const { lower, upper } = dataPoint;
         const max = Math.max(Math.abs(lower!), Math.abs(upper!));
         extreme = max > extreme ? max : extreme;

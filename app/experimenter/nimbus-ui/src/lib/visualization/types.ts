@@ -5,9 +5,26 @@
 import { BRANCH_COMPARISON } from "./constants";
 
 export interface AnalysisData {
-  daily: AnalysisPoint[] | null;
-  weekly: { [branch: string]: BranchDescription } | null;
-  overall: { [branch: string]: BranchDescription } | null;
+  daily: {
+    [segment: string]: AnalysisPoint[] | null;
+    all: AnalysisPoint[] | null;
+  } | null;
+  weekly: {
+    [segment: string]: {
+      [branch: string]: BranchDescription;
+    };
+    all: {
+      [branch: string]: BranchDescription;
+    };
+  } | null;
+  overall: {
+    [segment: string]: {
+      [branch: string]: BranchDescription;
+    };
+    all: {
+      [branch: string]: BranchDescription;
+    };
+  } | null;
   show_analysis: boolean;
   errors: AnalysisErrorGroup | null;
   metadata?: Metadata;

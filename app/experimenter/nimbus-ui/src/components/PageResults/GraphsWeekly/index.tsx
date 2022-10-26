@@ -92,7 +92,7 @@ type GraphsWeeklyProps = {
 };
 
 const GraphsWeekly = ({
-  weeklyResults = {},
+  weeklyResults = { all: {} },
   outcomeSlug,
   outcomeName,
   group,
@@ -100,7 +100,7 @@ const GraphsWeekly = ({
   const mergedBranchData = getMergedBranchData(
     outcomeSlug,
     group,
-    weeklyResults,
+    weeklyResults.all!,
   );
 
   const [open, setOpen] = useState(false);
