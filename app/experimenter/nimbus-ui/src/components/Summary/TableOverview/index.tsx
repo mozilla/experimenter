@@ -13,17 +13,13 @@ import RichText from "../../RichText";
 
 type TableOverviewProps = {
   experiment: getExperiment_experimentBySlug;
-  withFullDetails?: boolean;
 };
 
 // `<tr>`s showing optional fields that are not set are not displayed.
 
 const getRiskLabel = (answer: boolean) => (answer ? "Yes" : "No");
 
-const TableOverview = ({
-  experiment,
-  withFullDetails = true,
-}: TableOverviewProps) => {
+const TableOverview = ({ experiment }: TableOverviewProps) => {
   const { applications } = useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
@@ -64,91 +60,88 @@ const TableOverview = ({
             )}
           </td>
         </tr>
-        {withFullDetails && (
-          <>
-            <tr>
-              <th>Risk mitigation question (1):</th>
-              <td data-testid="experiment-risk-mitigation-question-1">
-                {RISK_QUESTIONS.BRAND} —{" "}
-                {experiment.riskBrand !== null ? (
-                  getRiskLabel(experiment.riskBrand)
-                ) : (
-                  <NotSet />
-                )}
-              </td>
-            </tr>
-            <tr>
-              <th>Risk mitigation question (2):</th>
-              <td data-testid="experiment-risk-mitigation-question-2">
-                {RISK_QUESTIONS.REVENUE} —{" "}
-                {experiment.riskRevenue !== null ? (
-                  getRiskLabel(experiment.riskRevenue)
-                ) : (
-                  <NotSet />
-                )}
-              </td>
-            </tr>
-            <tr>
-              <th>Risk mitigation question (3):</th>
-              <td data-testid="experiment-risk-mitigation-question-3">
-                {RISK_QUESTIONS.PARTNER} —{" "}
-                {experiment.riskPartnerRelated !== null ? (
-                  getRiskLabel(experiment.riskPartnerRelated)
-                ) : (
-                  <NotSet />
-                )}
-              </td>
-            </tr>
-            <tr>
-              <th>Feature config</th>
-              <td data-testid="experiment-feature-config">
-                {experiment.featureConfigs?.length ? (
-                  experiment.featureConfigs.map((f, idx) => (
-                    <React.Fragment key={f?.id || idx}>
-                      <p>
-                        {f?.name}
-                        {f?.description?.length ? `- ${f.description}` : ""}
-                      </p>
-                    </React.Fragment>
-                  ))
-                ) : (
-                  <NotSet />
-                )}
-              </td>
-            </tr>
-            <tr>
-              <th>Advanced Targeting</th>
-              <td data-testid="experiment-targeting-config">
-                {experiment.targetingConfig?.length ? (
-                  experiment.targetingConfig.map((t) => (
-                    <p key={t?.label}>{`${t?.label} - ${t?.description}`}</p>
-                  ))
-                ) : (
-                  <NotSet />
-                )}
-              </td>
-            </tr>
-            {primaryOutcomes.length > 0 && (
-              <tr>
-                <th>Primary outcomes</th>
-                <td data-testid="experiment-outcome-primary">
-                  {primaryOutcomes
-                    .map((outcome) => outcome?.friendlyName)
-                    .join(", ")}
-                </td>
-              </tr>
+
+        <tr>
+          <th>Risk mitigation question (1):</th>
+          <td data-testid="experiment-risk-mitigation-question-1">
+            {RISK_QUESTIONS.BRAND} —{" "}
+            {experiment.riskBrand !== null ? (
+              getRiskLabel(experiment.riskBrand)
+            ) : (
+              <NotSet />
             )}
-            {secondaryOutcomes.length > 0 && (
-              <tr>
-                <th>Secondary outcomes</th>
-                <td data-testid="experiment-outcome-secondary">
-                  {secondaryOutcomes
-                    .map((outcome) => outcome?.friendlyName)
-                    .join(", ")}
-                </td>
-              </tr>
+          </td>
+        </tr>
+        <tr>
+          <th>Risk mitigation question (2):</th>
+          <td data-testid="experiment-risk-mitigation-question-2">
+            {RISK_QUESTIONS.REVENUE} —{" "}
+            {experiment.riskRevenue !== null ? (
+              getRiskLabel(experiment.riskRevenue)
+            ) : (
+              <NotSet />
             )}
-          </>
+          </td>
+        </tr>
+        <tr>
+          <th>Risk mitigation question (3):</th>
+          <td data-testid="experiment-risk-mitigation-question-3">
+            {RISK_QUESTIONS.PARTNER} —{" "}
+            {experiment.riskPartnerRelated !== null ? (
+              getRiskLabel(experiment.riskPartnerRelated)
+            ) : (
+              <NotSet />
+            )}
+          </td>
+        </tr>
+        <tr>
+          <th>Feature config</th>
+          <td data-testid="experiment-feature-config">
+            {experiment.featureConfigs?.length ? (
+              experiment.featureConfigs.map((f, idx) => (
+                <React.Fragment key={f?.id || idx}>
+                  <p>
+                    {f?.name}
+                    {f?.description?.length ? `- ${f.description}` : ""}
+                  </p>
+                </React.Fragment>
+              ))
+            ) : (
+              <NotSet />
+            )}
+          </td>
+        </tr>
+        <tr>
+          <th>Advanced Targeting</th>
+          <td data-testid="experiment-targeting-config">
+            {experiment.targetingConfig?.length ? (
+              experiment.targetingConfig.map((t) => (
+                <p key={t?.label}>{`${t?.label} - ${t?.description}`}</p>
+              ))
+            ) : (
+              <NotSet />
+            )}
+          </td>
+        </tr>
+        {primaryOutcomes.length > 0 && (
+          <tr>
+            <th>Primary outcomes</th>
+            <td data-testid="experiment-outcome-primary">
+              {primaryOutcomes
+                .map((outcome) => outcome?.friendlyName)
+                .join(", ")}
+            </td>
+          </tr>
+        )}
+        {secondaryOutcomes.length > 0 && (
+          <tr>
+            <th>Secondary outcomes</th>
+            <td data-testid="experiment-outcome-secondary">
+              {secondaryOutcomes
+                .map((outcome) => outcome?.friendlyName)
+                .join(", ")}
+            </td>
+          </tr>
         )}
       </tbody>
     </Table>
