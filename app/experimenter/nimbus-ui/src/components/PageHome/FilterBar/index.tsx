@@ -28,7 +28,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 }) => {
   return (
     <Navbar variant="light" bg="light" className="nav-fill mt-4 mb-4">
-      <Nav className="w-100">
+      <Nav className="w-100 flex-column">
+        <h5 className="ml-1">{"Filters"}</h5>
         <FilterSelect
           fieldLabel="Feature"
           fieldOptions={options.allFeatureConfigs!}
@@ -109,16 +110,14 @@ const FilterSelect = <
   const fieldValue = filterValue[filterValueName];
 
   return (
-    <Nav.Item className="m-1 mw-25 text-left flex-basis-0 flex-grow-1 flex-shrink-1">
-      <label className="ml-1 mr-1" htmlFor={`filter-${filterValueName}`}>
-        {fieldLabel}
-      </label>
+    <Nav.Item className="m-1 text-left flex-basis-0 flex-grow-1 flex-shrink-1 w-100">
       <Select
         {...{
           name: `filter-${filterValueName}`,
           inputId: `filter-${filterValueName}`,
           isMulti: true,
           value: fieldValue,
+          placeholder: "All " + fieldLabel + "s",
           getOptionLabel: (item: OptionTypeBase) =>
             item[optionLabelName as string],
           getOptionValue: (item: OptionTypeBase) =>
