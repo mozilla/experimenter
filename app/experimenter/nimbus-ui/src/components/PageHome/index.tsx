@@ -13,6 +13,7 @@ import {
   useSearchParamsState,
 } from "../../hooks";
 import { ReactComponent as DownloadIcon } from "../../images/download.svg";
+import { ReactComponent as CreateNewIcon } from "../../images/pencil.svg";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 import AppLayout from "../AppLayout";
 import Head from "../Head";
@@ -141,33 +142,42 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
             xl="2"
             className="bg-light pt-2 border-right shadow-sm"
           >
-            <div className="d-flex mb-4 justify-content-between flex-column">
-              <div>
-                <Link
-                  to="new"
-                  data-sb-kind="pages/New"
-                  className="btn btn-primary btn-small ml-3"
-                  id="create-new-button"
-                >
-                  Create new
-                </Link>
-                <a
-                  href={`/api/v5/csv`}
-                  className="btn btn-secondary btn-small ml-2"
-                  data-testid="reports-anchor"
-                >
-                  <DownloadIcon
-                    width="20"
-                    height="20"
-                    fill="white"
-                    dominantBaseline="start"
-                    role="img"
-                    aria-label="download icon"
-                  />
-                  <span> Reports</span>
-                </a>
-              </div>
-            </div>
+            <Row>
+              <Link
+                to="new"
+                data-sb-kind="pages/New"
+                className="btn btn-primary btn-small mx-4 mt-2 w-100"
+                id="create-new-button"
+              >
+                <CreateNewIcon
+                  width="20"
+                  height="20"
+                  fill="white"
+                  dominantBaseline="start"
+                  role="img"
+                  aria-label="download icon"
+                />
+                <span className="ml-1">Create new </span>
+              </Link>
+            </Row>
+            <Row>
+              <a
+                href={`/api/v5/csv`}
+                className="btn btn-secondary btn-small mx-4 mt-3 w-100"
+                data-testid="reports-anchor"
+              >
+                <DownloadIcon
+                  width="20"
+                  height="20"
+                  fill="white"
+                  dominantBaseline="start"
+                  role="img"
+                  aria-label="download icon"
+                />
+                <span> Reports</span>
+              </a>
+            </Row>
+
             <FilterBar
               {...{
                 options: filterOptions,

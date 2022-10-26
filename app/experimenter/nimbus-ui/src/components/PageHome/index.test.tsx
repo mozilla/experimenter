@@ -111,7 +111,7 @@ describe("PageHome", () => {
   it("supports filtering by feature", async () => {
     await renderAndWaitForLoaded();
     const expectedFeatureConfigName = "Picture-in-Picture";
-    await selectEvent.select(screen.getByLabelText("Feature"), [
+    await selectEvent.select(screen.getByText("All Features"), [
       expectedFeatureConfigName,
     ]);
     await waitFor(() => {
