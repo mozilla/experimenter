@@ -54,9 +54,8 @@ def test_promote_to_rollout(
     create_experiment,
 ):
     summary = create_experiment(selenium)
-    summary_detail = summary.navigate_to_details()
-    summary_detail.promote_first_branch_to_rollout()
-    summary_detail.wait_for_clone_parent_link_visible()
+    summary.promote_first_branch_to_rollout()
+    summary.wait_for_clone_parent_link_visible()
 
 
 @pytest.mark.run_once
@@ -107,9 +106,9 @@ def test_branch_screenshot(
     branches.screenshot_description_field().send_keys(expected_description)
 
     branches.save()
-    summary_details = branches.navigate_to_details()
+    summary = branches.navigate_to_summary()
 
-    assert summary_details.branch_screenshot_description == expected_description
+    assert summary.branch_screenshot_description == expected_description
     # TODO: Maybe compare uploaded image to example image, but probably
     # good enough for now to assert that an image is displayed
-    assert summary_details.branch_screenshot_image is not None
+    assert summary.branch_screenshot_image is not None
