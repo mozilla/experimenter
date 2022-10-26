@@ -8,7 +8,7 @@ class ExperimenterBase(Base):
 
     _save_btn_locator = (By.CSS_SELECTOR, "#save-button")
     _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-button")
-    _sidebar_details_link = (By.CSS_SELECTOR, 'a[data-testid="nav-details"]')
+    _sidebar_summary_link = (By.CSS_SELECTOR, 'a[data-testid="nav-summary"]')
     _sidebar_edit_branches_link = (By.CSS_SELECTOR, 'a[data-testid="nav-edit-branches"]')
     NEXT_PAGE = None
     PAGE_TITLE = ""
@@ -37,6 +37,16 @@ class ExperimenterBase(Base):
     def save(self):
         element = self.wait_for_and_find_element(self._save_btn_locator, "save button")
         element.click()
+
+    def navigate_to_summary(self):
+        # Avoid circular import
+        from nimbus.pages.experimenter.summary import SummaryPage
+
+        element = self.wait_for_and_find_element(
+            self._sidebar_summary_link, "summary link"
+        )
+        element.click()
+        return SummaryPage(self.driver, self.base_url).wait_for_page_to_load()
 
     def navigate_to_branches(self):
         # Avoid circular import

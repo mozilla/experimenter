@@ -106,7 +106,7 @@ def test_branch_screenshot(
     branches.screenshot_description_field().send_keys(expected_description)
 
     branches.save()
-    summary_details = branches.navigate_to_details()
+    summary_details = branches.navigate_to_summary()
 
     assert summary_details.branch_screenshot_description == expected_description
     # TODO: Maybe compare uploaded image to example image, but probably
