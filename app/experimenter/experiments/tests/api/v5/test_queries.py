@@ -1291,6 +1291,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         application
                         ownerEmail
                         schema
+                        setsPrefs
                     }
                     firefoxVersions {
                         label
@@ -1414,6 +1415,11 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                     ).name,
                     "ownerEmail": feature_config.owner_email,
                     "schema": feature_config.schema,
+                    "setsPrefs": (
+                        len(feature_config.sets_prefs) > 0
+                        if feature_config.sets_prefs is not None
+                        else False
+                    ),
                 },
                 config["allFeatureConfigs"],
             )

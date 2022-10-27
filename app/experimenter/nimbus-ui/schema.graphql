@@ -489,6 +489,7 @@ type NimbusFeatureConfigType {
   ownerEmail: String
   schema: String
   readOnly: Boolean!
+  setsPrefs: Boolean
   nimbusexperimentSet: [NimbusExperimentType!]!
   nimbusbranchfeaturevalueSet: [NimbusBranchFeatureValueType!]!
 }

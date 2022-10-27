@@ -77,6 +77,7 @@ class FeatureConfigDataClass:
     application: str
     ownerEmail: str
     schema: str
+    setsPrefs: bool
 
 
 @dataclass
@@ -192,6 +193,7 @@ class NimbusConfigurationDataClass:
                 application=NimbusExperiment.Application(f.application).name,
                 ownerEmail=f.owner_email,
                 schema=f.schema,
+                setsPrefs=bool(f.sets_prefs),
             )
             for f in NimbusFeatureConfig.objects.all().order_by("name")
         ]

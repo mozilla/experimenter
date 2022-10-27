@@ -129,10 +129,13 @@ class NimbusExperimentTargetingConfigType(graphene.ObjectType):
 class NimbusFeatureConfigType(DjangoObjectType):
     id = graphene.Int()
     application = NimbusExperimentApplicationEnum()
+    sets_prefs = graphene.Boolean()
 
     class Meta:
         model = NimbusFeatureConfig
-        exclude = ("sets_prefs",)
+
+    def resolve_sets_prefs(root, info):
+        return bool(root.sets_prefs)
 
 
 class NimbusBranchScreenshotType(DjangoObjectType):
