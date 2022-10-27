@@ -235,4 +235,20 @@ describe("SidebarActions", () => {
       expect(screen.queryByTestId("CloneDialog")).not.toBeInTheDocument();
     });
   });
+
+  it("scrolls to json when preview recipe json button is clicked", async () => {
+    const experiment = mockExperiment({ isArchived: false, canArchive: true });
+    const refetch = jest.fn();
+    render(<Subject {...{ experiment, refetch }} />);
+
+    const jsonButton = await screen.findByTestId("button-recipe-json");
+
+    fireEvent.click(jsonButton);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("button-recipe-json"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
