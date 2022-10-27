@@ -1,11 +1,10 @@
-from re import T
 from django.test import TestCase
+from parameterized import parameterized
 
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
-from parameterized import parameterized
 
 
 class TestNimbusStatusValidationMixin(TestCase):
@@ -62,13 +61,33 @@ class TestNimbusStatusValidationMixin(TestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.PublishStatus.IDLE, True],
-            [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.PublishStatus.DIRTY, True],
-            [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.PublishStatus.REVIEW, True],
-            [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.PublishStatus.APPROVED, False],
-            [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.PublishStatus.WAITING, False],
+            [
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                NimbusExperiment.PublishStatus.DIRTY,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.CREATED,
+                NimbusExperiment.PublishStatus.WAITING,
+                False,
+            ],
         ]
-    )    
+    )
     def test_update_publish_status_errors_for_create(self, lifecycle, status, valid):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
@@ -82,16 +101,36 @@ class TestNimbusStatusValidationMixin(TestCase):
             context={"user": self.user},
         )
         self.assertEquals(serializer.is_valid(), valid)
-    
+
     @parameterized.expand(
         [
-            [NimbusExperimentFactory.Lifecycles.PREVIEW, NimbusExperiment.PublishStatus.IDLE, True],
-            [NimbusExperimentFactory.Lifecycles.PREVIEW, NimbusExperiment.PublishStatus.DIRTY, True], # should this be False? 
-            [NimbusExperimentFactory.Lifecycles.PREVIEW, NimbusExperiment.PublishStatus.REVIEW, True],
-            [NimbusExperimentFactory.Lifecycles.PREVIEW, NimbusExperiment.PublishStatus.APPROVED, False],
-            [NimbusExperimentFactory.Lifecycles.PREVIEW, NimbusExperiment.PublishStatus.WAITING, False],
+            [
+                NimbusExperimentFactory.Lifecycles.PREVIEW,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.PREVIEW,
+                NimbusExperiment.PublishStatus.DIRTY,
+                True,
+            ],  # should this be False?
+            [
+                NimbusExperimentFactory.Lifecycles.PREVIEW,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.PREVIEW,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.PREVIEW,
+                NimbusExperiment.PublishStatus.WAITING,
+                False,
+            ],
         ]
-    )    
+    )
     def test_update_publish_status_errors_for_preview(self, lifecycle, status, valid):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
@@ -108,13 +147,33 @@ class TestNimbusStatusValidationMixin(TestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperimentFactory.Lifecycles.LIVE_IDLE, NimbusExperiment.PublishStatus.IDLE, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_IDLE, NimbusExperiment.PublishStatus.DIRTY, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_IDLE, NimbusExperiment.PublishStatus.REVIEW, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_IDLE, NimbusExperiment.PublishStatus.APPROVED, False],
-            [NimbusExperimentFactory.Lifecycles.LIVE_IDLE, NimbusExperiment.PublishStatus.WAITING, False],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_IDLE,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_IDLE,
+                NimbusExperiment.PublishStatus.DIRTY,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_IDLE,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_IDLE,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_IDLE,
+                NimbusExperiment.PublishStatus.WAITING,
+                False,
+            ],
         ]
-    )    
+    )
     def test_update_publish_status_errors_for_live_idle(self, lifecycle, status, valid):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
@@ -131,13 +190,33 @@ class TestNimbusStatusValidationMixin(TestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperimentFactory.Lifecycles.LIVE_DIRTY, NimbusExperiment.PublishStatus.IDLE, False],
-            [NimbusExperimentFactory.Lifecycles.LIVE_DIRTY, NimbusExperiment.PublishStatus.DIRTY, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_DIRTY, NimbusExperiment.PublishStatus.REVIEW, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_DIRTY, NimbusExperiment.PublishStatus.APPROVED, False],
-            [NimbusExperimentFactory.Lifecycles.LIVE_DIRTY, NimbusExperiment.PublishStatus.WAITING, False],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+                NimbusExperiment.PublishStatus.DIRTY,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+                NimbusExperiment.PublishStatus.WAITING,
+                False,
+            ],
         ]
-    )    
+    )
     def test_update_publish_status_errors_for_live_dirty(self, lifecycle, status, valid):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
@@ -154,13 +233,33 @@ class TestNimbusStatusValidationMixin(TestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED, NimbusExperiment.PublishStatus.IDLE, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED, NimbusExperiment.PublishStatus.DIRTY, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED, NimbusExperiment.PublishStatus.REVIEW, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED, NimbusExperiment.PublishStatus.APPROVED, False],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED, NimbusExperiment.PublishStatus.WAITING, False],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED,
+                NimbusExperiment.PublishStatus.DIRTY,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED,
+                NimbusExperiment.PublishStatus.WAITING,
+                False,
+            ],
         ]
-    )    
+    )
     def test_update_publish_status_errors_for_live_review(self, lifecycle, status, valid):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
@@ -177,14 +276,36 @@ class TestNimbusStatusValidationMixin(TestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED, NimbusExperiment.PublishStatus.IDLE, False],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED, NimbusExperiment.PublishStatus.DIRTY, False],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED, NimbusExperiment.PublishStatus.REVIEW, False],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED, NimbusExperiment.PublishStatus.APPROVED, False],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED, NimbusExperiment.PublishStatus.WAITING, False],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED,
+                NimbusExperiment.PublishStatus.IDLE,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED,
+                NimbusExperiment.PublishStatus.DIRTY,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED,
+                NimbusExperiment.PublishStatus.REVIEW,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED,
+                NimbusExperiment.PublishStatus.WAITING,
+                False,
+            ],
         ]
-    )    
-    def test_update_publish_status_errors_for_live_approved(self, lifecycle, status, valid):
+    )
+    def test_update_publish_status_errors_for_live_approved(
+        self, lifecycle, status, valid
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
         )
@@ -200,14 +321,36 @@ class TestNimbusStatusValidationMixin(TestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING, NimbusExperiment.PublishStatus.IDLE, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING, NimbusExperiment.PublishStatus.DIRTY, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING, NimbusExperiment.PublishStatus.REVIEW, True],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING, NimbusExperiment.PublishStatus.APPROVED, False],
-            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING, NimbusExperiment.PublishStatus.WAITING, True], # This should be false
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING,
+                NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING,
+                NimbusExperiment.PublishStatus.DIRTY,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING,
+                NimbusExperiment.PublishStatus.REVIEW,
+                True,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING,
+                NimbusExperiment.PublishStatus.APPROVED,
+                False,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING,
+                NimbusExperiment.PublishStatus.WAITING,
+                True,
+            ],  # This should be false
         ]
-    )    
-    def test_update_publish_status_errors_for_live_waiting(self, lifecycle, status, valid):
+    )
+    def test_update_publish_status_errors_for_live_waiting(
+        self, lifecycle, status, valid
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
         )

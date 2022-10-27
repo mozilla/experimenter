@@ -193,7 +193,7 @@ class NimbusConstants(object):
 
     VALID_PUBLISH_STATUS_TRANSITIONS = {
         PublishStatus.IDLE: (
-            PublishStatus.REVIEW, 
+            PublishStatus.REVIEW,
             PublishStatus.DIRTY,
         ),
         PublishStatus.DIRTY: (
@@ -209,7 +209,7 @@ class NimbusConstants(object):
             PublishStatus.DIRTY,
             PublishStatus.IDLE,
             PublishStatus.REVIEW,
-        )
+        ),
     }
 
     PUBLISH_STATUS_ALLOWS_UPDATE = (
