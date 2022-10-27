@@ -596,7 +596,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
 
     def test_status_restriction(self):
-        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.LIVE)
+        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.COMPLETE)
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
@@ -968,7 +968,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertIn("publish_status", serializer.errors)
 
-    def test_can_review_for_requesting_user_when_idle(self):
+    def test_cannot_approve_for_requesting_user_when_idle(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
         )
@@ -977,6 +977,23 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             data={
                 "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": experiment.owner},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("publish_status", serializer.errors)
+
+    def test_can_review_for_requesting_user_when_idle(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
                 "changelog_message": "test changelog message",
             },
             context={"user": experiment.owner},

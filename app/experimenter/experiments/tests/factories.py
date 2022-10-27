@@ -211,9 +211,9 @@ class Lifecycles(Enum):
     
     LIVE_IDLE = (LifecycleStates.LIVE_IDLE,) # why didn't we have this one before?
     LIVE_DIRTY = (LifecycleStates.LIVE_DIRTY,)
-    LIVE_REVIEW_REQUESTED = LIVE_DIRTY + (LifecycleStates.LIVE_REVIEW)
-    LIVE_REVIEW_APPROVED = LIVE_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED)
-    LIVE_REVIEW_WAITING = LIVE_REVIEW_APPROVED + (LifecycleStates.LIVE_WAITING)
+    LIVE_REVIEW_REQUESTED = LifecycleStates.LIVE_REVIEW
+    LIVE_REVIEW_APPROVED = (LifecycleStates.LIVE_APPROVED)
+    LIVE_REVIEW_WAITING = (LifecycleStates.LIVE_WAITING)
     
     PAUSING_REVIEW_REQUESTED = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
     PAUSING_REJECT = PAUSING_REVIEW_REQUESTED + (
