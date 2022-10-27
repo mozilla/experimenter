@@ -972,6 +972,9 @@ class NimbusFeatureConfig(models.Model):
     owner_email = models.EmailField(blank=True, null=True)
     schema = models.TextField(blank=True, null=True)
     read_only = models.BooleanField(default=False)
+    sets_prefs = ArrayField(
+        models.CharField(max_length=255, null=False), blank=True, null=True
+    )
 
     class Meta:
         verbose_name = "Nimbus Feature Config"

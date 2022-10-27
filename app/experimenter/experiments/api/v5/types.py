@@ -132,6 +132,7 @@ class NimbusFeatureConfigType(DjangoObjectType):
 
     class Meta:
         model = NimbusFeatureConfig
+        exclude = ("sets_prefs",)
 
 
 class NimbusBranchScreenshotType(DjangoObjectType):
