@@ -150,17 +150,15 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
                   className="btn btn-primary btn-small mt-2 w-100"
                   id="create-new-button"
                 >
-                  <div style={{ float: "left" }}>
-                    <CreateNewIcon
-                      width="20"
-                      height="20"
-                      fill="white"
-                      dominantBaseline="start"
-                      role="img"
-                      aria-label="download icon"
-                    />
-                    <span className="ml-1 pl-1">Create New </span>
-                  </div>
+                  <CreateNewIcon
+                    width="20"
+                    height="20"
+                    fill="white"
+                    dominantBaseline="start"
+                    role="img"
+                    aria-label="download icon"
+                  />
+                  <span className="ml-1 pl-1">Create New </span>
                 </Link>
               </Col>
             </Row>
@@ -171,17 +169,15 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
                   className="btn btn-secondary btn-small mt-3 w-100"
                   data-testid="reports-anchor"
                 >
-                  <div style={{ float: "left" }}>
-                    <DownloadIcon
-                      width="20"
-                      height="20"
-                      fill="white"
-                      dominantBaseline="start"
-                      role="img"
-                      aria-label="download icon"
-                    />
-                    <span> Reports</span>
-                  </div>
+                  <DownloadIcon
+                    width="20"
+                    height="20"
+                    fill="white"
+                    dominantBaseline="start"
+                    role="img"
+                    aria-label="download icon"
+                  />
+                  <span> Reports</span>
                 </a>
               </Col>
             </Row>
