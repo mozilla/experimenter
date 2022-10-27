@@ -7,6 +7,7 @@ import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
+import { FieldError } from "react-hook-form";
 import Select from "react-select";
 import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig, useReviewCheck } from "../../../hooks";
@@ -32,6 +33,8 @@ type FormAudienceProps = {
   isServerValid: boolean;
   isLoading: boolean;
   onSubmit: (data: Record<string, any>, next: boolean) => void;
+  touched: Record<string, boolean>;
+  errors: Record<string, FieldError>;
 };
 
 type AudienceFieldName = typeof audienceFieldNames[number];
@@ -103,12 +106,40 @@ export const FormAudience = ({
       applicationConfig?.application === experiment.application,
   );
 
+  function parsePercent(value: any) {
+    if (value !== null) {
+      return parseFloat(value).toFixed(1);
+    } else {
+      return 0;
+    }
+  }
+
+  const [populationPercent, setPopulationPercent] = useState(
+    parsePercent(experiment.populationPercent),
+  );
+
+  // const onPopPercentChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+  //   return handlePopPercentChange(
+  //     ...POSITIVE_NUMBER_WITH_ONE_DECIMAL_FIELD(ev.target.value),
+  //   );
+  // };
+
+  // const handlePopPercentChange = (value: any) => {};
+
+  // function formatString(s: string | null) {
+  //   if (s == null) {
+  //     return null;
+  //   }
+  //   const ind = s.indexOf(".");
+  //   return s.slice(0, ind);
+  // }
+
   const defaultValues = {
     channel: experiment.channel,
     firefoxMinVersion: experiment.firefoxMinVersion,
     firefoxMaxVersion: experiment.firefoxMaxVersion,
     targetingConfigSlug: experiment.targetingConfigSlug,
-    populationPercent: experiment.populationPercent,
+    populationPercent: parsePercent(experiment.populationPercent),
     totalEnrolledClients: experiment.totalEnrolledClients,
     proposedEnrollment: experiment.proposedEnrollment,
     proposedDuration: experiment.proposedDuration,
@@ -126,6 +157,8 @@ export const FormAudience = ({
     isValid,
     handleSubmit,
     isSubmitted,
+    touched,
+    formMethods,
   } = useCommonForm<AudienceFieldName>(
     defaultValues,
     isServerValid,
@@ -134,6 +167,21 @@ export const FormAudience = ({
     fieldMessages,
     fieldWarnings,
   );
+
+  const { trigger } = formMethods;
+
+  // how do I register two form items (slider and form.control) to one state?
+  const popControlAttrs = formControlAttrs("populationPercent");
+
+  const populationPercentOnChange = (
+    ev: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    popControlAttrs.onChange!();
+    // HACK: Explicitly trigger update because `mode: "all"` in
+    // useReactHookForm() seems to stop after one update
+    trigger(["populationPercent"]);
+    // trigger(["populationSlider"]);
+  };
 
   type DefaultValues = typeof defaultValues;
   const [handleSave, handleSaveNext] = useMemo(
@@ -146,6 +194,7 @@ export const FormAudience = ({
               {
                 ...dataIn,
                 isSticky,
+                populationVal: populationPercent,
                 isFirstRun,
                 locales,
                 countries,
@@ -160,6 +209,7 @@ export const FormAudience = ({
       onSubmit,
       handleSubmit,
       isSticky,
+      populationPercent,
       isFirstRun,
       locales,
       countries,
@@ -186,6 +236,7 @@ export const FormAudience = ({
       checkRequired?.isFirstRunRequired || experiment.isFirstRun || false,
     );
     setisFirstRunRequiredRequiredWarning(!!checkRequired?.isFirstRunRequired);
+    // setPopulationVal(populationVal);
   };
 
   const isDesktop =
@@ -353,11 +404,29 @@ export const FormAudience = ({
                   "populationPercent",
                   POSITIVE_NUMBER_FIELD,
                 )}
+                type="hidden"
+                value={populationPercent}
+              />
+              <Form.Control
+                aria-describedby="populationPercent-unit"
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                value={populationPercent}
+                onChange={(e) =>
+                  setPopulationPercent(parseFloat(e.target.value))
+                }
+              />
+              <Form.Control
                 aria-describedby="populationPercent-unit"
                 type="number"
                 min="0"
                 max="100"
-                step="1"
+                value={populationPercent}
+                onChange={(e) =>
+                  setPopulationPercent(parseFloat(e.target.value))
+                }
               />
               <InputGroup.Append>
                 <InputGroup.Text id="populationPercent-unit">%</InputGroup.Text>

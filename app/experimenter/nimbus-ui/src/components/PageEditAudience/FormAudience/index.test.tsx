@@ -8,6 +8,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import React from "react";
 import { filterAndSortTargetingConfigs } from ".";
@@ -361,7 +362,6 @@ describe("FormAudience", () => {
 
     expect(screen.getByTestId("isSticky")).toBeChecked();
     for (const fieldName of [
-      "populationPercent",
       "totalEnrolledClients",
       "proposedEnrollment",
       "proposedDuration",
@@ -374,6 +374,16 @@ describe("FormAudience", () => {
       });
       expect(screen.getByTestId("isSticky")).toBeChecked();
     }
+
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("audience-values") as HTMLElement,
+      ).getByTestId("population-percent-input");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: "123" } });
+    });
+
+    expect(screen.getByTestId("isSticky")).toBeChecked();
   });
 
   it("sticky enrollment doesn't change when clicking save or save and continue", async () => {
@@ -685,7 +695,7 @@ describe("FormAudience", () => {
     for (const [fieldName, expected] of [
       ["firefoxMinVersion", NimbusExperimentFirefoxVersionEnum.NO_VERSION],
       ["firefoxMaxVersion", NimbusExperimentFirefoxVersionEnum.NO_VERSION],
-      ["populationPercent", "0.0"],
+      ["population-percent-input", "0.0"],
       ["proposedDuration", "0"],
       ["proposedEnrollment", "0"],
       ["targetingConfigSlug", ""],
@@ -796,7 +806,6 @@ describe("FormAudience", () => {
     });
 
     for (const fieldName of [
-      "populationPercent",
       "totalEnrolledClients",
       "proposedEnrollment",
       "proposedDuration",
@@ -839,6 +848,71 @@ describe("FormAudience", () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it("requires positive numbers in population percentage field", async () => {
+    const onSubmit = jest.fn();
+    const { container } = render(<Subject {...{ onSubmit }} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("audience-values") as HTMLElement,
+      ).getByTestId("population-percent-input");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: "-123" } });
+    });
+    expect(
+      within(screen.queryByTestId("audience-values") as HTMLElement)
+        .findByText("This field", {
+          selector: `.invalid-feedback[data-for={populationPercent}]`,
+        })
+        .then(() => {}),
+    ).toBeTruthy();
+  });
+
+  it("allows multiple changes to population percentage field", async () => {
+    const onSubmit = jest.fn();
+    const expectedValue = "75";
+
+    const { container } = render(<Subject {...{ onSubmit }} />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("audience-values") as HTMLElement,
+      ).getByTestId("population-percent-input");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: "50" } });
+    });
+
+    expect(
+      within(screen.queryByTestId("audience-values") as HTMLElement)
+        .findByText("50", {
+          selector: `[data-for={populationPercent}]`,
+        })
+        .then(() => {}),
+    ).toBeTruthy();
+
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("audience-values") as HTMLElement,
+      ).getByTestId("population-percent-input");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: "75" } });
+    });
+
+    expect(
+      within(screen.queryByTestId("audience-values") as HTMLElement)
+        .findByText(expectedValue, {
+          selector: `[data-for={populationPercent}]`,
+        })
+        .then(() => {}),
+    ).toBeTruthy();
+  });
+
   it("displays expected message on number-based inputs when invalid", async () => {
     const onSubmit = jest.fn();
     const { container } = render(<Subject {...{ onSubmit }} />);
@@ -847,7 +921,6 @@ describe("FormAudience", () => {
     });
 
     for (const fieldName of [
-      "populationPercent",
       "totalEnrolledClients",
       "proposedEnrollment",
       "proposedDuration",
@@ -863,6 +936,33 @@ describe("FormAudience", () => {
         container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
       ).toHaveTextContent(FIELD_MESSAGES.POSITIVE_NUMBER);
     }
+  });
+
+  it("displays expected message on population percent when invalid", async () => {
+    const onSubmit = jest.fn();
+    const { container } = render(<Subject {...{ onSubmit }} />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("audience-values") as HTMLElement,
+      ).getByTestId("population-percent-input");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: "hi" } });
+    });
+
+    await waitFor(() => {
+      expect(
+        within(screen.queryByTestId("audience-values") as HTMLElement)
+          .findByText("This field", {
+            selector: `.invalid-feedback[data-for={populationPercent}]`,
+          })
+          .then(() => {}),
+      ).toBeTruthy();
+    });
   });
 
   it("can display server review-readiness messages on all fields", async () => {

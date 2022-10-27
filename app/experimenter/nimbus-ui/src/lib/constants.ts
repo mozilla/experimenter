@@ -155,6 +155,15 @@ export const POSITIVE_NUMBER_WITH_COMMAS_FIELD = {
     (!isNaN(value) && value >= 0) || FIELD_MESSAGES.POSITIVE_NUMBER,
 } as RegisterOptions;
 
+export const POSITIVE_NUMBER_WITH_ONE_DECIMAL_FIELD = {
+  setValueAs: (value) =>
+    parseFloat("" + value)
+      .toFixed(1)
+      .trim(),
+  validate: (value) =>
+    (!isNaN(value) && value >= 0) || FIELD_MESSAGES.POSITIVE_NUMBER,
+} as RegisterOptions;
+
 export const URL_FIELD = {
   pattern: {
     value: /^(http|https):\/\/[^ "]+$/,
