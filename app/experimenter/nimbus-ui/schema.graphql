@@ -58,6 +58,7 @@ input ExperimentInput {
   documentationLinks: [DocumentationLinkInput]
   referenceBranch: ReferenceBranchInput
   treatmentBranches: [TreatmentBranchInput]
+  preventPrefConflicts: Boolean
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
   channel: NimbusExperimentChannelEnum
@@ -449,6 +450,7 @@ type NimbusExperimentType {
   isClientSchemaDisabled: Boolean!
   StartDate: Date
   EndDate: Date
+  preventPrefConflicts: Boolean
   nimbusexperimentSet: [NimbusExperimentType!]!
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType

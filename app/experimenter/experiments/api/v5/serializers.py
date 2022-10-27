@@ -657,6 +657,7 @@ class NimbusExperimentSerializer(
     )
     reference_branch = NimbusBranchSerializer(required=False)
     treatment_branches = NimbusBranchSerializer(many=True, required=False)
+    prevent_pref_conflicts = serializers.BooleanField(required=False)
     feature_config = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
         allow_null=True,
@@ -749,6 +750,7 @@ class NimbusExperimentSerializer(
             "name",
             "population_percent",
             "primary_outcomes",
+            "prevent_pref_conflicts",
             "proposed_duration",
             "proposed_enrollment",
             "public_description",

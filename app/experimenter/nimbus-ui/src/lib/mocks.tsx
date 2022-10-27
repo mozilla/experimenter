@@ -211,6 +211,16 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       schema: '{ "sample": "schema" }',
       setsPrefs: false,
     },
+    {
+      id: 5,
+      name: "Set Prefs",
+      slug: "set-prefs-desktop",
+      description: "Set some prefs.",
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      ownerEmail: "dude23@yahoocom",
+      schema: '{ "sample": "schema" }',
+      setsPrefs: true,
+    },
   ],
   firefoxVersions: [
     {

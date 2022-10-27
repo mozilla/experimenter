@@ -1251,6 +1251,36 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 experiment_data["treatmentBranches"],
             )
 
+    def test_query_prevent_pref_conflicts(self):
+        user_email = "user@example.com"
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            sets_prefs=["foo.bar.baz"],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature],
+            prevent_pref_conflicts=True,
+        )
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    preventPrefConflicts
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["preventPrefConflicts"], True)
+
 
 class TestNimbusConfigQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
@@ -1415,11 +1445,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                     ).name,
                     "ownerEmail": feature_config.owner_email,
                     "schema": feature_config.schema,
-                    "setsPrefs": (
-                        len(feature_config.sets_prefs) > 0
-                        if feature_config.sets_prefs is not None
-                        else False
-                    ),
+                    "setsPrefs": bool(feature_config.sets_prefs),
                 },
                 config["allFeatureConfigs"],
             )

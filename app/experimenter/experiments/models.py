@@ -203,6 +203,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     _start_date = models.DateField(blank=True, null=True)
     _end_date = models.DateField(blank=True, null=True)
 
+    prevent_pref_conflicts = models.BooleanField(blank=True, null=True, default=False)
+
     objects = NimbusExperimentManager()
 
     class Meta:
@@ -310,6 +312,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return expressions
 
+    def _get_targeting_pref_conflicts(self):
+        prefs = []
+
+        if self.prevent_pref_conflicts:
+            for config in self.feature_configs.all():
+                prefs.extend(config.sets_prefs)
+
+        return prefs
+
     # This is the full JEXL expression processed by clients
     @property
     def targeting(self):
@@ -365,6 +376,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             expressions.append(sticky_expression)
         else:
             expressions.extend(sticky_expressions)
+
+        if prefs := self._get_targeting_pref_conflicts():
+            expressions.extend(f"!('{pref}'|preferenceIsUserSet)" for pref in prefs)
 
         #  If there is no targeting defined all clients should match, so we return "true"
         if len(expressions) == 0:
