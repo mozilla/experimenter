@@ -150,15 +150,17 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
                   className="btn btn-primary btn-small mt-2 w-100"
                   id="create-new-button"
                 >
-                  <CreateNewIcon
-                    width="20"
-                    height="20"
-                    fill="white"
-                    dominantBaseline="start"
-                    role="img"
-                    aria-label="download icon"
-                  />
-                  <span className="ml-1">Create New </span>
+                  <div style={{ float: "left" }}>
+                    <CreateNewIcon
+                      width="20"
+                      height="20"
+                      fill="white"
+                      dominantBaseline="start"
+                      role="img"
+                      aria-label="download icon"
+                    />
+                    <span className="ml-1 pl-1">Create New </span>
+                  </div>
                 </Link>
               </Col>
             </Row>
@@ -169,26 +171,31 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
                   className="btn btn-secondary btn-small mt-3 w-100"
                   data-testid="reports-anchor"
                 >
-                  <DownloadIcon
-                    width="20"
-                    height="20"
-                    fill="white"
-                    dominantBaseline="start"
-                    role="img"
-                    aria-label="download icon"
-                  />
-                  <span> Reports</span>
+                  <div style={{ float: "left" }}>
+                    <DownloadIcon
+                      width="20"
+                      height="20"
+                      fill="white"
+                      dominantBaseline="start"
+                      role="img"
+                      aria-label="download icon"
+                    />
+                    <span> Reports</span>
+                  </div>
                 </a>
               </Col>
             </Row>
-
-            <FilterBar
-              {...{
-                options: filterOptions,
-                value: filterValue,
-                onChange: onFilterChange,
-              }}
-            />
+            <Row>
+              <Col>
+                <FilterBar
+                  {...{
+                    options: filterOptions,
+                    value: filterValue,
+                    onChange: onFilterChange,
+                  }}
+                />
+              </Col>
+            </Row>
           </Col>
           <Col md="9" lg="9" xl="10">
             <Body />
