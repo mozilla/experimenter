@@ -142,49 +142,56 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
             xl="2"
             className="bg-light pt-2 border-right shadow-sm"
           >
-            <Row className="mx-4">
-              <Link
-                to="new"
-                data-sb-kind="pages/New"
-                className="btn btn-primary btn-small mt-2 w-100"
-                id="create-new-button"
-              >
-                <CreateNewIcon
-                  width="20"
-                  height="20"
-                  fill="white"
-                  dominantBaseline="start"
-                  role="img"
-                  aria-label="download icon"
-                />
-                <span className="ml-1">Create New </span>
-              </Link>
+            <Row>
+              <Col>
+                <Link
+                  to="new"
+                  data-sb-kind="pages/New"
+                  className="btn btn-primary btn-small mt-2 w-100"
+                  id="create-new-button"
+                >
+                  <CreateNewIcon
+                    width="20"
+                    height="20"
+                    fill="white"
+                    dominantBaseline="start"
+                    role="img"
+                    aria-label="download icon"
+                  />
+                  <span className="ml-1 pl-1">Create New </span>
+                </Link>
+              </Col>
             </Row>
-            <Row className="mx-4">
-              <a
-                href={`/api/v5/csv`}
-                className="btn btn-secondary btn-small mt-3 w-100"
-                data-testid="reports-anchor"
-              >
-                <DownloadIcon
-                  width="20"
-                  height="20"
-                  fill="white"
-                  dominantBaseline="start"
-                  role="img"
-                  aria-label="download icon"
-                />
-                <span> Reports</span>
-              </a>
+            <Row>
+              <Col>
+                <a
+                  href={`/api/v5/csv`}
+                  className="btn btn-secondary btn-small mt-3 w-100"
+                  data-testid="reports-anchor"
+                >
+                  <DownloadIcon
+                    width="20"
+                    height="20"
+                    fill="white"
+                    dominantBaseline="start"
+                    role="img"
+                    aria-label="download icon"
+                  />
+                  <span> Reports</span>
+                </a>
+              </Col>
             </Row>
-
-            <FilterBar
-              {...{
-                options: filterOptions,
-                value: filterValue,
-                onChange: onFilterChange,
-              }}
-            />
+            <Row>
+              <Col>
+                <FilterBar
+                  {...{
+                    options: filterOptions,
+                    value: filterValue,
+                    onChange: onFilterChange,
+                  }}
+                />
+              </Col>
+            </Row>
           </Col>
           <Col md="9" lg="9" xl="10">
             <Body />
