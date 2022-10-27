@@ -1,3 +1,4 @@
+from re import T
 from django.test import TestCase
 
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
@@ -151,38 +152,71 @@ class TestNimbusStatusValidationMixin(TestCase):
         )
         self.assertEquals(serializer.is_valid(), valid)
 
-    
-    # @parameterized.expand(
-    #     [
-            # [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.PublishStatus.IDLE],
-    #         [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.PublishStatus.DIRTY],
-    #         [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.PublishStatus.REVIEW],
-    #         [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.PublishStatus.APPROVED],
-    #         [NimbusExperimentFactory.Lifecycles.CREATED, NimbusExperiment.PublishStatus.WAITING],
-    #         [NimbusExperimentFactory.Lifecycles.PREVIEW],
-    #         [NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE],
-    #         [NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE],
-    #         [NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED],
-    #         [NimbusExperimentFactory.Lifecycles.LAUNCH_REJECT],
-    #         [NimbusExperimentFactory.Lifecycles.LIVE_IDLE],
-    #         [NimbusExperimentFactory.Lifecycles.LIVE_DIRTY],
-    #         [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED],
-    #         [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED],
-    #         [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING],
-    #     ]
-    # )    
-    # def test_upd(self, lifecycle, publishStatus):
-    #     experiment = NimbusExperimentFactory.create(
-    #         lifecycle=lifecycle,
-    #         publish_status=lifecycle,
-    #     )
-    #     serializer = NimbusExperimentSerializer(
-    #         experiment,
-    #         data={
-    #             "publish_status": NimbusExperiment.PublishStatus.APPROVED,
-    #             "changelog_message": "test changelog message",
-    #         },
-    #         context={"user": self.user},
-    #     )
-    #     self.assertFalse(serializer.is_valid())
-    #     self.assertIn("experiment", serializer.errors)
+    @parameterized.expand(
+        [
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED, NimbusExperiment.PublishStatus.IDLE, True],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED, NimbusExperiment.PublishStatus.DIRTY, True],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED, NimbusExperiment.PublishStatus.REVIEW, True],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED, NimbusExperiment.PublishStatus.APPROVED, False],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED, NimbusExperiment.PublishStatus.WAITING, False],
+        ]
+    )    
+    def test_update_publish_status_errors_for_live_review(self, lifecycle, status, valid):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEquals(serializer.is_valid(), valid)
+
+    @parameterized.expand(
+        [
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED, NimbusExperiment.PublishStatus.IDLE, False],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED, NimbusExperiment.PublishStatus.DIRTY, False],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED, NimbusExperiment.PublishStatus.REVIEW, False],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED, NimbusExperiment.PublishStatus.APPROVED, False],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_APPROVED, NimbusExperiment.PublishStatus.WAITING, False],
+        ]
+    )    
+    def test_update_publish_status_errors_for_live_approved(self, lifecycle, status, valid):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEquals(serializer.is_valid(), valid)
+
+    @parameterized.expand(
+        [
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING, NimbusExperiment.PublishStatus.IDLE, True],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING, NimbusExperiment.PublishStatus.DIRTY, True],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING, NimbusExperiment.PublishStatus.REVIEW, True],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING, NimbusExperiment.PublishStatus.APPROVED, False],
+            [NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_WAITING, NimbusExperiment.PublishStatus.WAITING, True], # This should be false
+        ]
+    )    
+    def test_update_publish_status_errors_for_live_waiting(self, lifecycle, status, valid):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEquals(serializer.is_valid(), valid)
