@@ -17,7 +17,6 @@ import PageLoading from "../PageLoading";
 import PageNew from "../PageNew";
 import PageResults from "../PageResults";
 import PageSummary from "../PageSummary";
-import PageSummaryDetail from "../PageSummaryDetails";
 import ExperimentRoot from "./ExperimentRoot";
 
 type RootProps = {
@@ -45,7 +44,6 @@ const App = () => {
         <PageNew path="new" />
         <ExperimentRoot path=":slug">
           <PageSummary path="/" />
-          <PageSummaryDetail path="details" />
           <Root path="edit">
             <Redirect from="/" to="overview" noThrow />
             <PageEditOverview path="overview" />
