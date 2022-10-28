@@ -126,6 +126,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     proposedDuration = serializers.ReadOnlyField(source="proposed_duration")
     proposedEnrollment = serializers.ReadOnlyField(source="proposed_enrollment")
     referenceBranch = serializers.SerializerMethodField()
+    featureValidationOptOut = serializers.ReadOnlyField(
+        source="is_client_schema_disabled"
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -154,6 +157,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "proposedDuration",
             "proposedEnrollment",
             "referenceBranch",
+            "featureValidationOptOut",
         )
 
     def get_application(self, obj):
