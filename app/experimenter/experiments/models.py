@@ -198,6 +198,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     )
     takeaways_summary = models.TextField(blank=True, null=True)
     is_first_run = models.BooleanField(default=False)
+    is_client_schema_disabled = models.BooleanField(default=False)
 
     _start_date = models.DateField(blank=True, null=True)
     _end_date = models.DateField(blank=True, null=True)
