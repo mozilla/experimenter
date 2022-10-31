@@ -327,9 +327,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if self.channel:
                 expressions.append(f'browserSettings.update.channel == "{self.channel}"')
 
-            # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
-            expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
-
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())
 
