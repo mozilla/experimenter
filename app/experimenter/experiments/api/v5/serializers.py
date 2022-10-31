@@ -387,10 +387,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 
         return data
 
-    def create(self, data):
-        data["slug"] = slugify(data["name"])
-        return super().create(data)
-
     def _save_feature_values(
         self, feature_enabled, feature_value, feature_values, branch
     ):
@@ -449,9 +445,10 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         feature_value = self.validated_data.pop("feature_value", None)
         feature_values = self.validated_data.pop("feature_values", None)
         screenshots = self.validated_data.pop("screenshots", None)
+        slug = slugify(self.validated_data["name"])
 
         with transaction.atomic():
-            branch = super().save(*args, **kwargs)
+            branch = super().save(*args, slug=slug, **kwargs)
 
             self._save_feature_values(
                 feature_enabled, feature_value, feature_values, branch
