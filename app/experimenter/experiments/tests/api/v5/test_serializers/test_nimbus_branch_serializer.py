@@ -90,6 +90,7 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
 
         branch = branch_serializer.save(experiment=experiment)
         self.assertEqual(branch.name, "new control")
+        self.assertEqual(branch.slug, "new-control")
         self.assertEqual(branch.description, "a new control")
         self.assertEqual(branch.ratio, 2)
 
