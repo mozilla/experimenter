@@ -225,8 +225,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "('app.shield.optoutstudies.enabled'|preferenceValue) "
-                "&& (version|versionCompare('95.*') <= 0) "
+                "(version|versionCompare('95.*') <= 0) "
                 "&& (os.isMac) "
                 "&& (version|versionCompare('83.!') >= 0)"
             ),
@@ -423,7 +422,6 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 '(browserSettings.update.channel == "nightly") '
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
                 "&& (version|versionCompare('95.*') <= 0) "
                 "&& (os.isMac)"
             ),
@@ -449,7 +447,6 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 '(browserSettings.update.channel == "nightly") '
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
                 "&& (os.isMac) "
                 "&& (version|versionCompare('83.!') >= 0)"
             ),
@@ -470,7 +467,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            "('app.shield.optoutstudies.enabled'|preferenceValue) && (os.isMac)",
+            "(os.isMac)",
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -490,11 +487,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            (
-                "('app.shield.optoutstudies.enabled'|preferenceValue) "
-                "&& (os.isMac) "
-                "&& (locale in ['en-CA', 'en-US'])"
-            ),
+            ("(os.isMac) && (locale in ['en-CA', 'en-US'])"),
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -514,11 +507,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(
             experiment.targeting,
-            (
-                "('app.shield.optoutstudies.enabled'|preferenceValue) "
-                "&& (os.isMac) "
-                "&& (region in ['CA', 'US'])"
-            ),
+            ("(os.isMac) && (region in ['CA', 'US'])"),
         )
         JEXLParser().parse(experiment.targeting)
 
@@ -541,8 +530,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             (
-                "('app.shield.optoutstudies.enabled'|preferenceValue) "
-                "&& (os.isMac) "
+                "(os.isMac) "
                 "&& (locale in ['en-CA', 'en-US']) "
                 "&& (region in ['CA', 'US'])"
             ),
@@ -602,7 +590,6 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 '(browserSettings.update.channel == "release") '
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
                 "&& (version|versionCompare('101.*') <= 0) "
                 f"&& {sticky_expression}"
             ),
@@ -643,7 +630,6 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 '(browserSettings.update.channel == "release") '
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
                 "&& (version|versionCompare('101.*') <= 0) "
                 f"&& {sticky_expression}"
             ),
@@ -702,10 +688,7 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(
             experiment.targeting,
-            (
-                '(browserSettings.update.channel == "release") '
-                "&& ('app.shield.optoutstudies.enabled'|preferenceValue)"
-            ),
+            '(browserSettings.update.channel == "release")',
         )
         JEXLParser().parse(experiment.targeting)
 
