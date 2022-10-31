@@ -59,7 +59,6 @@ class TestNimbusExperimentSerializer(TestCase):
                 "slug": experiment.slug,
                 "targeting": (
                     '(browserSettings.update.channel == "nightly") '
-                    "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
                     "&& (version|versionCompare('94.!') >= 0)"
                 ),
                 "userFacingDescription": experiment.public_description,
@@ -151,7 +150,6 @@ class TestNimbusExperimentSerializer(TestCase):
                 "slug": experiment.slug,
                 "targeting": (
                     '(browserSettings.update.channel == "nightly") '
-                    "&& ('app.shield.optoutstudies.enabled'|preferenceValue) "
                     "&& (version|versionCompare('95.!') >= 0)"
                 ),
                 "userFacingDescription": experiment.public_description,
