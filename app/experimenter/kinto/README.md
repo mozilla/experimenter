@@ -35,7 +35,7 @@
 
 ## Overview
 
-Experimenter uses [Remote Settings](https://remote-settings.readthedocs.io/en/latest/) to publish [Experiment Data Transfer Objects (DTOs)](https://github.com/mozilla/nimbus-shared/blob/main/types/experiments.ts) to clients. Interactions with Remote Settings are managed using [Celery Workers](https://docs.celeryproject.org/en/stable/getting-started/introduction.html). The Celery tasks are scheduled on a timer, and when invoked, check for pending changes in Experimenter to synchronize for new experiments to publish, live experiments to update, and ending experiments to delete. The following documentation and diagrams describe those interactions.
+Experimenter uses [Remote Settings](https://remote-settings.readthedocs.io/en/latest/) to publish [Experiment Data Transfer Objects (DTOs)](https://github.com/mozilla/nimbus-shared/blob/main/types/experiments.ts) to clients. Interactions with Remote Settings are managed using [Celery Workers](https://docs.celeryproject.org/en/stable/getting-started/introduction.html). The Celery tasks are scheduled on a timer, and when invoked, check for pending changes in Experimenter to synchronize for new experiments/rollouts to publish, live experiments/rollouts to update, and ending experiments to delete. The following documentation and diagrams describe those interactions.
 
 ## Remote Settings
 
@@ -75,9 +75,9 @@ For a collection that requires reviews where multiple records are modified, ther
 
 ## Experiment States
 
-Historically, we have tracked only a single state for an experiment which incorporated stages from both its overall lifecycle and its publish state, however by adding the requirement of reviewing an experiment in both Experimenter as well as Remote Settings, it is necessary to track additional states. In addition, where previously an experiment was only reviewed once at launch time, experiments can now be reviewed at three stages of its lifecycle: at launch, while live, and while ending. The experiment moves through the same set of publish specific states during each of these three stages and so it is possible to extract them into their own publish workflow specific state.
+Historically, we have tracked only a single state for an experiment/rollout which incorporated stages from both its overall lifecycle and its publish state, however by adding the requirement of reviewing an experiment/rollout in both Experimenter as well as Remote Settings, it is necessary to track additional states. In addition, where previously an experiment was only reviewed once at launch time, experiments and rollouts can now be reviewed at three stages of its lifecycle: at launch, while live (for rollouts), and while ending. The experiment/rollout moves through the same set of "publish"-specific states during each of these three stages and so it is possible to extract them into their own "publish workflow"-specific state.
 
-An experiment now has two distinct states:
+An experiment/rollout now has two distinct states:
 
 - Its lifecycle state
 - Its publish state
@@ -88,30 +88,30 @@ An experiment now has two distinct states:
 
 #### States
 
-- **Draft**: An experiment in draft has been created, and can be edited.
-- **Preview**: An experiment in preview can not be edited and is automatically published to the `nimbus-preview` collection
-- **Live**: An experiment in live can not be edited and is published to the collection corresponding to its target application after it has been reviewed in Experimenter and in Remote Settings
-- **Complete**: An experiment in complete can not be edited and is no longer published in Remote Settings
+- **Draft**: An experiment/rollout in draft has been created, and can be edited.
+- **Preview**: An experiment/rollout in preview can not be edited and is automatically published to the `nimbus-preview` collection
+- **Live**: An experiment in live can not be edited and is published to the collection corresponding to its target application after it has been reviewed in Experimenter and in Remote Settings. A rollout in the live state has certain editable fields (i.e. population size). Like experiments, a rollout is published to the collection corresponding to its target application after being reviewed in Experimenter and in Remote Settings. The same review cycle is adhered to when updates to a live rollout are made.
+- **Complete**: An experiment in complete can not be edited and is no longer published in Remote Settings. Rollouts do not have a complete state.
 
 ### Publish States
 
 #### States
 
-- **Idle**: An experiment has no changes that require review or modification in Remote Settings
-- **Dirty**: An experiment has changes that require review or modification in Remote Settings
-- **Review**: An experiment has changes that require review in Experimenter before they can be published to Remote Settings
-- **Approved**: An experiment has changes that have been approved in Experimenter and must be published to Remote Settings
-- **Waiting**: An experiment has changes that have been published to Remote Settings and are awaiting further review in Remote Settings
+- **Idle**: An experiment/rollout has no changes that require review or modification in Remote Settings.
+- **Dirty**: A rollout has changes that require review or modification in Experimenter before they can be published to Remote Settings. Experiments do not have a dirty state as they are non-editable after moving to the Live lifecycle state.
+- **Review**: An experiment/rollout has changes that require review in Experimenter before they can be published to Remote Settings.
+- **Approved**: An experiment/rollout has changes that have been approved in Experimenter and must be published to Remote Settings.
+- **Waiting**: An experiment/rollout has changes that have been published to Remote Settings and are awaiting further review in Remote Settings.
 
 #### Parameters
 
-- **Next**: A lifecycle status which the experiment will move to if it is successfully approved and updated in Remote Settings
+- **Next**: A lifecycle status which the experiment/rollout will move to if it is successfully approved and updated in Remote Settings
 
-In theory an experiment can occupy any combination of these two states, but in practice it will only have a publish state other than Idle in Draft and in Live. Preview experiments can be modified in Remote Settings without any review, and Complete experiments will never be published to Remote Settings.
+In theory an experiment/rollout can occupy any combination of these two states, but in practice an experiment will only have a publish state other than Idle when the experiment is in the Draft or Live lifecycle state. For rollouts, the publish state can become dirty when in the Live state to allow updates to the rollout; this moves the rollout through the review flow and back to the Idle publish state. Preview experiments can be modified in Remote Settings without any review, and Complete experiments will never be published to Remote Settings.
 
 ## Workflows
 
-The following diagrams describe every interaction between Experimenter and Remote Settings. An experiment's state is denoted as:
+The following diagrams describe every interaction between Experimenter and Remote Settings. An experiment/rollout's state is denoted as:
 
 `lifecycle state/publish state(next lifecycle state)`
 
@@ -134,7 +134,7 @@ A new experiment or rollout which has yet to be sent for review or put into prev
 
 ### Preview
 
-A draft experiment that has been validly completed is marked for Preview, is published to the preview collection in Remote Settings, and is then accessible to specially configured clients.
+A draft experiment/rollout that has been validly completed is marked for Preview, is published to the preview collection in Remote Settings, and is then accessible to specially configured clients.
 ![draft to preview](diagrams/draft-to-preview.png)
 
 ### Publish (Approve/Approve)
@@ -146,24 +146,24 @@ A draft experiment/rollout that has been validly completed is reviewed and appro
 
 ### Publish (Reject/------)
 
-A draft experiment/rollout that has been validly completed (no errors) is rejected by a reviewer in Experimenter. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
+A draft experiment/rollout that has been validly completed (no errors) is rejected by a reviewer in Experimenter. A rejection reason is captured in Experimenter and is displayed to the owner in Experimenter.
 ![review draft in experimenter](diagrams/publish-reject-in-exp.png)
 
 ### Publish (Approve/Reject)
 
-A draft experiment that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the experiment owner in Experimenter.
+A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter.
 ![review approved in experimenter](diagrams/publish-reject-in-rs-1.png)
 ![review rejected in remote settings](diagrams/publish-reject-in-rs-2.png)
 ![rolled back to draft](diagrams/publish-reject-in-rs-3.png)
 
 ### Publish (Approve/Reject + Manual Rollback)
 
-A draft experiment that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer manually rolls back the Remote Settings collection. A rejection reason is captured in Remote Settings and but **unable to be recovered by Experimenter** because the collection as manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason.
+A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer manually rolls back the Remote Settings collection. A rejection reason is captured in Remote Settings and but **unable to be recovered by Experimenter** because the collection as manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason.
 ![manually rolled back](diagrams/reject-in-rs-rollback.png)
 
 ### Publish (Approve/Timeout)
 
-A draft experiment that has been validly completed is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
+A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
 ![send to remote settings](diagrams/timeout-in-rs-1.png)
 ![timeout in remote settings](diagrams/timeout-in-rs-2.png)
 
@@ -172,7 +172,7 @@ A draft experiment that has been validly completed is reviewed and approved in E
 A live rollout can have updates pushed to its state while remaining Live.
 ![live dirty](diagrams/live-dirty.png)
 
-These updated changes must be reviewed in order to be published to the user, following the same flow to be approved in both experimenter and remote settings.
+These updated changes must be reviewed in order to be published to the user, following the same flow to be approved in both Experimenter and Remote Settings.
 ![review dirty in experimenter](diagrams/live-rollout-dirty-approve-1.png)
 ![review dirty in remote settings](diagrams/live-rollout-dirty-approve-2.png)
 
