@@ -110,7 +110,6 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       </div>
       <TableOverview {...{ experiment }} />
 
-      <h3 className="h5 mb-3">Audience</h3>
       <TableAudience {...{ experiment }} />
 
       {/* Branches title is inside its table */}
