@@ -177,6 +177,22 @@ MOBILE_NEW_USER = NimbusTargetingConfig(
         Application.KLAR_IOS.name,
     ),
 )
+MOBILE_FIRST_RUN_USER = NimbusTargetingConfig(
+    name="First run Users on Mobile",
+    slug="mobile_first_run",
+    description=(
+        "First-run users on Fenix and Firefox for iOS \
+            who installed the app less than 3 days ago"
+    ),
+    targeting="isFirstRun == 'true'",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=True,
+    application_choice_names=(
+        Application.FENIX.name,
+        Application.IOS.name,
+    ),
+)
 
 MOBILE_RECENTLY_UPDATED = NimbusTargetingConfig(
     name="Recently Updated Users",
