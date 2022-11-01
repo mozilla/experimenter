@@ -77,7 +77,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
 
-  integration_nimbus_desktop_e2e:
+  integration_nimbus_remote_settings:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
       docker_layer_caching: true
@@ -85,71 +85,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_per_app
-    steps:
-      - checkout
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
-  integration_nimbus_fenix:
-    machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
-      docker_layer_caching: true
-    resource_class: xlarge
-    working_directory: ~/experimenter
-    environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FENIX -m run_per_app
-    steps:
-      - checkout
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
-  integration_nimbus_ios:
-    machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
-      docker_layer_caching: true
-    resource_class: xlarge
-    working_directory: ~/experimenter
-    environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k IOS -m run_per_app
-    steps:
-      - checkout
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
-  integration_nimbus_focus_android:
-    machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
-      docker_layer_caching: true
-    resource_class: xlarge
-    working_directory: ~/experimenter
-    environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FOCUS_ANDROID -m run_per_app
-    steps:
-      - checkout
-      - run:
-          name: Run integration tests
-          command: |
-            cp .env.integration-tests .env
-            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
-  integration_nimbus_focus_ios:
-    machine:
-      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
-      docker_layer_caching: true
-    resource_class: xlarge
-    working_directory: ~/experimenter
-    environment:
-      FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FOCUS_IOS -m run_per_app
+      PYTEST_ARGS: -m remote_settings
     steps:
       - checkout
       - run:
@@ -165,7 +101,8 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_once --dist=loadgroup -n=2
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m nimbus_integration --dist=loadgroup -n=2
+      UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
       - run:
@@ -182,6 +119,23 @@ jobs:
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 2
+      UPDATE_FIREFOX_VERSION: true
+    steps:
+      - checkout
+      - run:
+          name: Run integration tests
+          command: |
+            cp .env.integration-tests .env
+            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
+  integration_nimbus_desktop_ui:
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    resource_class: xlarge
+    working_directory: ~/experimenter
+    environment:
+      FIREFOX_VERSION: nimbus-firefox-release
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m nimbus_ui -n 2
     steps:
       - checkout
       - run:
@@ -212,7 +166,6 @@ jobs:
           command: |
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus_rust PYTEST_ARGS="$PYTEST_ARGS"
-
   integration_legacy:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
@@ -385,43 +338,31 @@ workflows:
       - check:
           name: check
       - integration_nimbus_desktop_release:
-          name: Integration Test Desktop (Release Firefox)
+          name: Integration Test Desktop Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
       - integration_nimbus_desktop_beta:
-          name: Integration Test Desktop (Beta Firefox)
+          name: Integration Test Desktop Targeting (Beta Firefox)
           filters:
             branches:
               ignore:
                 - main
-      - integration_nimbus_desktop_e2e:
-          name: Integration Test Desktop End-to-End (Release Firefox)
+      - integration_nimbus_desktop_nightly_targeting:
+          name: Targeting Test Desktop Targeting (Nightly Firefox)
           filters:
             branches:
               ignore:
                 - main
-      - integration_nimbus_fenix:
-          name: Integration Test Fenix (Release Firefox)
+      - integration_nimbus_desktop_ui:
+          name: Integration Test Desktop Nimbus UI (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
-      - integration_nimbus_ios:
-          name: Integration Test iOS (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_focus_android:
-          name: Integration Test Focus Android (Release Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
-      - integration_nimbus_focus_ios:
-          name: Integration Test Focus iOS (Release Firefox)
+      - integration_nimbus_remote_settings:
+          name: Integration Test Nimbus Remote Settings (Release Firefox)
           filters:
             branches:
               ignore:
@@ -432,14 +373,8 @@ workflows:
             branches:
               ignore:
                 - main
-      - integration_nimbus_desktop_nightly_targeting:
-          name: Targeting Test Desktop (Nightly Firefox)
-          filters:
-            branches:
-              ignore:
-                - main
       - integration_nimbus_sdk:
-          name: Integration Test SDK (Release Firefox)
+          name: Integration Test SDK Targeting (Release Firefox)
           filters:
             branches:
               ignore:

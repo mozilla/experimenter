@@ -2,7 +2,7 @@ import pytest
 from nimbus.pages.experimenter.summary import SummaryPage
 
 
-@pytest.mark.run_per_app
+@pytest.mark.remote_settings
 def test_create_new_experiment_approve_remote_settings(
     selenium,
     experiment_url,
@@ -16,8 +16,8 @@ def test_create_new_experiment_approve_remote_settings(
     SummaryPage(selenium, experiment_url).open().wait_for_live_status()
 
 
-@pytest.mark.run_once
-@pytest.mark.xdist_group(name="group2")
+@pytest.mark.remote_settings
+
 def test_create_new_experiment_reject_remote_settings(
     selenium,
     experiment_url,
@@ -31,8 +31,8 @@ def test_create_new_experiment_reject_remote_settings(
     SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
 
 
-@pytest.mark.run_once
-@pytest.mark.xdist_group(name="group2")
+@pytest.mark.nimbus_ui
+
 def test_create_new_experiment_timeout_remote_settings(
     selenium,
     create_experiment,
@@ -42,8 +42,8 @@ def test_create_new_experiment_timeout_remote_settings(
     summary.wait_for_timeout_alert()
 
 
-@pytest.mark.run_once
-@pytest.mark.xdist_group(name="group2")
+@pytest.mark.remote_settings
+
 def test_end_experiment_and_approve_end(
     selenium,
     experiment_url,
@@ -63,8 +63,7 @@ def test_end_experiment_and_approve_end(
     SummaryPage(selenium, experiment_url).open().wait_for_complete_status()
 
 
-@pytest.mark.run_once
-@pytest.mark.xdist_group(name="group2")
+@pytest.mark.remote_settings
 def test_end_experiment_and_reject_end(
     selenium,
     experiment_url,
