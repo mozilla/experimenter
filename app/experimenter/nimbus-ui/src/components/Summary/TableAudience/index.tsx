@@ -27,7 +27,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
   const [expand, setExpand] = useState(false);
 
   return (
-    <Card>
+    <Card border="light" bg="light">
       <Card.Header as="h5">Audience</Card.Header>
       <Card.Body>
         <Table data-testid="table-audience" className="table-fixed">
@@ -44,6 +44,8 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                   firefoxVersions,
                 )}
               </td>
+            </tr>
+            <tr>
               <th>Maximum version</th>
               <td data-testid="experiment-ff-max">
                 {displayConfigLabelOrNotSet(
@@ -51,9 +53,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                   firefoxVersions,
                 )}
               </td>
-            </tr>
 
-            <tr>
               <th>Population %</th>
               <td data-testid="experiment-population">
                 {experiment.populationPercent ? (
@@ -62,6 +62,8 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                   <NotSet />
                 )}
               </td>
+            </tr>
+            <tr>
               {(isDesktop || experiment.locales.length > 0) && (
                 <>
                   <th>Locales</th>
@@ -108,34 +110,34 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                 )}
               </td>
             </tr>
-
-            {experiment.totalEnrolledClients > 0 && (
-              <tr>
-                <th>Expected enrolled clients</th>
-                <td data-testid="experiment-total-enrolled">
-                  {experiment.totalEnrolledClients.toLocaleString()}
-                </td>
-              </tr>
-            )}
-            {experiment.targetingConfigSlug && (
-              <tr>
-                <th>Advanced Targeting</th>
-                <td data-testid="experiment-target">
-                  {displayConfigLabelOrNotSet(
-                    experiment.targetingConfigSlug,
-                    targetingConfigs,
-                  )}
-                </td>
-              </tr>
-            )}
+            <tr>
+              {experiment.totalEnrolledClients > 0 && (
+                <>
+                  <th>Expected enrolled clients</th>
+                  <td data-testid="experiment-total-enrolled">
+                    {experiment.totalEnrolledClients.toLocaleString()}
+                  </td>
+                </>
+              )}
+              {experiment.targetingConfigSlug && (
+                <>
+                  <th>Advanced Targeting</th>
+                  <td data-testid="experiment-target">
+                    {displayConfigLabelOrNotSet(
+                      experiment.targetingConfigSlug,
+                      targetingConfigs,
+                    )}
+                  </td>
+                </>
+              )}
+            </tr>
 
             <tr>
               <th>Sticky Enrollment</th>
               <td data-testid="experiment-is-sticky">
                 {experiment.isSticky ? "True" : "False"}
               </td>
-            </tr>
-            <tr>
+
               <th>First Run Experiment</th>
               <td data-testid="experiment-is-first-run">
                 {experiment.isFirstRun ? "True" : "False"}
@@ -146,7 +148,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
               <tr>
                 <th>Full targeting expression</th>
                 <td
-                  colSpan={"3"}
+                  colSpan={3}
                   data-testid="experiment-target-expression"
                   className="text-monospace"
                 >
@@ -162,7 +164,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                 <th>
                   Recipe JSON <a href={`#recipe-json`}>#</a>
                 </th>
-                <td colSpan={"3"} data-testid="experiment-recipe-json">
+                <td colSpan={3} data-testid="experiment-recipe-json">
                   <Accordion>
                     <Accordion.Toggle
                       as={Accordion}

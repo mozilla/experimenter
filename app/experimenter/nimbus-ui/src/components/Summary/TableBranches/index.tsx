@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { Card } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
@@ -31,9 +32,10 @@ const TableTitle = ({
   branchCount: number;
   hasOneBranchNameSet?: boolean;
 }) => (
-  <h3 className="h5 mb-3" data-testid="branches-section-title">
+  <Card.Header as="h5" data-testid="branches-section-title">
+    {" "}
     Branches {branchCount > 0 && hasOneBranchNameSet && `(${branchCount})`}
-  </h3>
+  </Card.Header>
 );
 
 const TableBranches = ({
@@ -50,18 +52,18 @@ const TableBranches = ({
   const hasOneBranchNameSet = Boolean(savedBranches);
 
   return (
-    <>
+    <Card className="mt-4" border="light">
       <TableTitle {...{ branchCount, hasOneBranchNameSet }} />
       {branchCount === 0 || !hasOneBranchNameSet ? (
         <NotSet copy={NO_BRANCHES_COPY} />
       ) : (
-        <>
+        <Card.Body>
           {savedBranches.map((branch, key) => (
             <TableBranch key={key} {...{ experiment, branch }} />
           ))}
-        </>
+        </Card.Body>
       )}
-    </>
+    </Card>
   );
 };
 
@@ -83,97 +85,100 @@ const TableBranch = ({
   } = branch;
   const cloneDialogProps = useCloneDialog(experiment, branch);
   return (
-    <Table
-      data-testid="table-branch"
-      className="mb-4 table-fixed border rounded"
-      id={slug}
-    >
-      <colgroup>
-        <col className="w-25" />
-        <col />
-      </colgroup>
-      <thead className="thead-light">
-        <tr>
-          <th colSpan={2} className="bg-light" data-testid="branch-name">
-            <Container>
-              <Row>
-                <Col>
-                  <a href={`#${slug}`}>#</a> {name}
-                </Col>
-                {!experiment.isRollout && (
-                  <Col className="text-right">
-                    <Button
-                      data-testid="promote-rollout"
-                      variant="outline-primary"
-                      size="sm"
-                      onClick={cloneDialogProps.onShow}
+    <Card className="mb-3" border="light" bg="light">
+      <Card.Body>
+        <Table data-testid="table-branch" className="table-fixed" id={slug}>
+          <colgroup>
+            <col className="w-25" />
+            <col />
+          </colgroup>
+          <thead className="thead-light">
+            <tr>
+              <th colSpan={4} className="bg-light" data-testid="branch-name">
+                <Container>
+                  <Row>
+                    <Col>
+                      <a href={`#${slug}`}>#</a> {name}
+                    </Col>
+                    {!experiment.isRollout && (
+                      <Col className="text-right">
+                        <Button
+                          data-testid="promote-rollout"
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={cloneDialogProps.onShow}
+                        >
+                          Promote to Rollout
+                        </Button>
+                        <CloneDialog {...cloneDialogProps} />
+                      </Col>
+                    )}
+                  </Row>
+                </Container>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Slug</th>
+              <td data-testid="branch-slug">{slug ? slug : <NotSet />}</td>
+              <th>Ratio</th>
+              <td data-testid="branch-ratio">{ratio ? ratio : <NotSet />}</td>
+            </tr>
+            <tr>
+              <th>Enabled</th>
+              <td data-testid="branch-enabled">
+                {featureEnabled ? "True" : "False"}
+              </td>
+
+              <th>Description</th>
+              <td data-testid="branch-description">
+                {description ? description : <NotSet />}
+              </td>
+            </tr>
+            <tr>
+              {featureEnabled && (
+                <>
+                  <th>Value</th>
+                  <td colSpan={3} data-testid="branch-featureValue">
+                    {featureValue ? (
+                      <Code codeString={featureValue} />
+                    ) : (
+                      <NotSet />
+                    )}
+                  </td>
+                </>
+              )}
+            </tr>
+            {screenshots && screenshots.length > 0 && (
+              <tr>
+                <th>Screenshots</th>
+                <td colSpan={3} data-testid="branch-screenshots">
+                  {screenshots.map((screenshot, idx) => (
+                    <Figure
+                      data-testid="branch-screenshot"
+                      className="d-block"
+                      key={idx}
                     >
-                      Promote to Rollout
-                    </Button>
-                    <CloneDialog {...cloneDialogProps} />
-                  </Col>
-                )}
-              </Row>
-            </Container>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>Slug</th>
-          <td data-testid="branch-slug">{slug ? slug : <NotSet />}</td>
-        </tr>
-        <tr>
-          <th>Description</th>
-          <td data-testid="branch-description">
-            {description ? description : <NotSet />}
-          </td>
-        </tr>
-        <tr>
-          <th>Ratio</th>
-          <td data-testid="branch-ratio">{ratio ? ratio : <NotSet />}</td>
-        </tr>
-        <tr>
-          <th>Enabled</th>
-          <td data-testid="branch-enabled">
-            {featureEnabled ? "True" : "False"}
-          </td>
-        </tr>
-        {featureEnabled && (
-          <tr>
-            <th>Value</th>
-            <td data-testid="branch-featureValue">
-              {featureValue ? <Code codeString={featureValue} /> : <NotSet />}
-            </td>
-          </tr>
-        )}
-        {screenshots && screenshots.length > 0 && (
-          <tr>
-            <th>Screenshots</th>
-            <td data-testid="branch-screenshots">
-              {screenshots.map((screenshot, idx) => (
-                <Figure
-                  data-testid="branch-screenshot"
-                  className="d-block"
-                  key={idx}
-                >
-                  <Figure.Caption>{screenshot.description}</Figure.Caption>
-                  {screenshot.image ? (
-                    <Figure.Image
-                      fluid
-                      src={screenshot.image}
-                      alt={screenshot.description || ""}
-                    />
-                  ) : (
-                    <NotSet />
-                  )}
-                </Figure>
-              ))}
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </Table>
+                      <Figure.Caption>{screenshot.description}</Figure.Caption>
+                      {screenshot.image ? (
+                        <Figure.Image
+                          fluid
+                          src={screenshot.image}
+                          alt={screenshot.description || ""}
+                        />
+                      ) : (
+                        <NotSet />
+                      )}
+                    </Figure>
+                  ))}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      </Card.Body>
+    </Card>
   );
 };
 

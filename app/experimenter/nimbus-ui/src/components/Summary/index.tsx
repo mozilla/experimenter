@@ -105,9 +105,6 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
         <PreviewURL {...experiment} status={status} />
       )}
 
-      <div className="d-flex flex-row justify-content-between">
-        <h3 className="h5 mb-3">Overview</h3>
-      </div>
       <TableOverview {...{ experiment }} />
 
       <TableAudience {...{ experiment }} />
