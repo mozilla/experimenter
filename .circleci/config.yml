@@ -85,7 +85,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -m remote_settings
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m remote_settings
     steps:
       - checkout
       - run:
