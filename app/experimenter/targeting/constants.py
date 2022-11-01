@@ -184,7 +184,7 @@ MOBILE_FIRST_RUN_USER = NimbusTargetingConfig(
         "First-run users on Fenix and Firefox for iOS \
             who installed the app less than 3 days ago"
     ),
-    targeting="days_since_install < 3",
+    targeting="isFirstRun == 'true'",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=True,
