@@ -17,7 +17,6 @@ def test_create_new_experiment_approve_remote_settings(
 
 
 @pytest.mark.remote_settings
-
 def test_create_new_experiment_reject_remote_settings(
     selenium,
     experiment_url,
@@ -32,7 +31,6 @@ def test_create_new_experiment_reject_remote_settings(
 
 
 @pytest.mark.nimbus_ui
-
 def test_create_new_experiment_timeout_remote_settings(
     selenium,
     create_experiment,
@@ -43,7 +41,6 @@ def test_create_new_experiment_timeout_remote_settings(
 
 
 @pytest.mark.remote_settings
-
 def test_end_experiment_and_approve_end(
     selenium,
     experiment_url,

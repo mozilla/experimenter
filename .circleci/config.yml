@@ -93,6 +93,70 @@ jobs:
           command: |
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
+  integration_nimbus_fenix:
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    resource_class: xlarge
+    working_directory: ~/experimenter
+    environment:
+      FIREFOX_VERSION: nimbus-firefox-release
+      PYTEST_ARGS: -k FENIX -m remote_settings
+    steps:
+      - checkout
+      - run:
+          name: Run integration tests
+          command: |
+            cp .env.integration-tests .env
+            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
+  integration_nimbus_ios:
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    resource_class: xlarge
+    working_directory: ~/experimenter
+    environment:
+      FIREFOX_VERSION: nimbus-firefox-release
+      PYTEST_ARGS: -k IOS -m remote_settings
+    steps:
+      - checkout
+      - run:
+          name: Run integration tests
+          command: |
+            cp .env.integration-tests .env
+            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
+  integration_nimbus_focus_android:
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    resource_class: xlarge
+    working_directory: ~/experimenter
+    environment:
+      FIREFOX_VERSION: nimbus-firefox-release
+      PYTEST_ARGS: -k FOCUS_ANDROID -m remote_settings
+    steps:
+      - checkout
+      - run:
+          name: Run integration tests
+          command: |
+            cp .env.integration-tests .env
+            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
+  integration_nimbus_focus_ios:
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    resource_class: xlarge
+    working_directory: ~/experimenter
+    environment:
+      FIREFOX_VERSION: nimbus-firefox-release
+      PYTEST_ARGS: -k FOCUS_IOS -m remote_settings
+    steps:
+      - checkout
+      - run:
+          name: Run integration tests
+          command: |
+            cp .env.integration-tests .env
+            make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
   integration_nimbus_desktop_nightly_integration:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
@@ -364,6 +428,30 @@ workflows:
                 - main
       - integration_nimbus_remote_settings:
           name: Integration Test Nimbus and Remote Settings (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+      - integration_nimbus_fenix:
+          name: Integration Test Fenix (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+      - integration_nimbus_ios:
+          name: Integration Test iOS (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+      - integration_nimbus_focus_android:
+          name: Integration Test Focus Android (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
+      - integration_nimbus_focus_ios:
+          name: Integration Test Focus iOS (Release Firefox)
           filters:
             branches:
               ignore:
