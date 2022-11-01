@@ -463,7 +463,7 @@ workflows:
               ignore:
                 - main
       - integration_nimbus_sdk:
-          name: Integration Test SDK Targeting (Release Firefox)
+          name: Test SDK Targeting (Release Firefox)
           filters:
             branches:
               ignore:
