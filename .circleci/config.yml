@@ -110,6 +110,7 @@ jobs:
           command: |
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
+          no_output_timeout: 30m
   integration_nimbus_desktop_nightly_targeting:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
@@ -338,31 +339,31 @@ workflows:
       - check:
           name: check
       - integration_nimbus_desktop_release:
-          name: Integration Test Desktop Targeting (Release Firefox)
+          name: Test Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
       - integration_nimbus_desktop_beta:
-          name: Integration Test Desktop Targeting (Beta Firefox)
+          name: Test Targeting (Beta Firefox)
           filters:
             branches:
               ignore:
                 - main
       - integration_nimbus_desktop_nightly_targeting:
-          name: Targeting Test Desktop Targeting (Nightly Firefox)
+          name: Test Targeting (Nightly Firefox)
           filters:
             branches:
               ignore:
                 - main
       - integration_nimbus_desktop_ui:
-          name: Integration Test Desktop Nimbus UI (Release Firefox)
+          name: Test Desktop Nimbus UI (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
       - integration_nimbus_remote_settings:
-          name: Integration Test Nimbus Remote Settings (Release Firefox)
+          name: Integration Test Nimbus and Remote Settings (Release Firefox)
           filters:
             branches:
               ignore:
