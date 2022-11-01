@@ -5,7 +5,11 @@
 import { Link, RouteComponentProps } from "@reach/router";
 import React from "react";
 import ReactTooltip from "react-tooltip";
-import { useChangeOperationMutation, useConfig } from "../../hooks";
+import {
+  useChangeOperationMutation,
+  useConfig,
+  useScrollToLocationHash,
+} from "../../hooks";
 import { ReactComponent as BookIcon } from "../../images/book.svg";
 import { ReactComponent as FeedbackIcon } from "../../images/chat-square-text.svg";
 import { ReactComponent as ExternalIcon } from "../../images/external.svg";
@@ -51,7 +55,7 @@ export const SidebarActions = ({
     riskMitigationLink,
   } = experiment;
   const { documentationLink: configDocumentationLinks } = useConfig();
-
+  const scrollIntoView = useScrollToLocationHash();
   const {
     isLoading: archiveIsLoading,
     callbacks: [onUpdateArchived],
@@ -156,6 +160,17 @@ export const SidebarActions = ({
           </LinkExternal>
         )}
 
+        {status.launched && experiment.rolloutMonitoringDashboardUrl && (
+          <LinkExternal
+            href={experiment.rolloutMonitoringDashboardUrl!}
+            data-testid="link-rollout-monitoring-dashboard"
+            className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
+          >
+            <ExternalIcon className="sidebar-icon-external-link" />
+            Rollouts OpsMon Dashboard
+          </LinkExternal>
+        )}
+
         {status.launched && !analysisUnavailable(analysis) && (
           <LinkExternal
             href={EXTERNAL_URLS.DETAILED_ANALYSIS_TEMPLATE(slug)}
@@ -169,8 +184,10 @@ export const SidebarActions = ({
 
         {recipeJson && (
           <Link
-            to={`${BASE_PATH}/${slug}/details#recipe-json`}
+            to={`${BASE_PATH}/${slug}#recipe-json`}
+            onClick={() => scrollIntoView}
             className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
+            data-testid="button-recipe-json"
           >
             <CogIcon className="sidebar-icon" />
             Preview Recipe JSON

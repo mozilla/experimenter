@@ -18,15 +18,17 @@ import TableWeekly from "../TableWeekly";
 
 export type TableResultsWeeklyProps = {
   branchComparison?: BranchComparisonValues;
+  segment?: string;
 };
 
 const TableResultsWeekly = ({
   branchComparison = BRANCH_COMPARISON.UPLIFT,
+  segment = "all",
 }: TableResultsWeeklyProps) => {
   const {
     analysis: { overall },
   } = useContext(ResultsContext);
-  const hasOverallResults = !!overall;
+  const hasOverallResults = !!overall?.all;
   const [open, setOpen] = useState(!hasOverallResults);
 
   return (
@@ -74,6 +76,7 @@ const TableResultsWeekly = ({
                   metricName={metric.name}
                   group={metric.group}
                   {...{ branchComparison }}
+                  segment={segment}
                 />
               </div>
             );

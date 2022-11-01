@@ -78,6 +78,12 @@ class JetstreamDataPoint(BaseModel):
 
 
 class JetstreamData(BaseModel):
+    """
+    Parameters:
+        __root__: List[JetstreamDataPoint] = []
+            The list should be filtered as needed coming in (e.g., by a given segment).
+    """
+
     __root__: List[JetstreamDataPoint] = []
 
     def __iter__(self):
@@ -95,13 +101,14 @@ class JetstreamData(BaseModel):
     def dict(self, exclude_none):
         return [item.dict(exclude_none=exclude_none) for item in self.__root__]
 
+    def get_segment(self):
+        return self.__root__[0].segment or Segment.ALL
+
     def append_population_percentages(self):
         total_population = 0
         branches = {}
-        for jetstream_data_point in self.__root__:
-            if jetstream_data_point.segment != Segment.ALL:
-                continue
 
+        for jetstream_data_point in self.__root__:
             if jetstream_data_point.metric == Metric.USER_COUNT:
                 if jetstream_data_point.point is not None:
                     total_population += jetstream_data_point.point
@@ -118,6 +125,7 @@ class JetstreamData(BaseModel):
                     statistic=Statistic.PERCENT,
                     branch=branch_name,
                     point=point,
+                    segment=self.get_segment(),
                 )
             )
 
@@ -177,9 +185,6 @@ class ResultsObjectModelBase(BaseModel):
         super(ResultsObjectModelBase, self).__init__()
 
         for jetstream_data_point in data:
-            if jetstream_data_point.segment != Segment.ALL:
-                continue
-
             branch = jetstream_data_point.branch
             metric = jetstream_data_point.metric
             statistic = jetstream_data_point.statistic

@@ -1,3 +1,6 @@
+import random
+import string
+
 from nimbus.pages.experimenter.base import ExperimenterBase
 from pypom import Region
 from selenium.webdriver.common.by import By
@@ -9,6 +12,7 @@ class SummaryPage(ExperimenterBase):
     """Experiment Summary Page."""
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary")
+    _promote_rollout_locator = (By.CSS_SELECTOR, 'button[data-testid="promote-rollout"]')
     _header_slug = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-slug"]')
     _approve_request_button_locator = (By.CSS_SELECTOR, "#approve-request-button")
     _launch_to_preview_locator = (By.CSS_SELECTOR, "#launch-to-preview-button")
@@ -35,6 +39,14 @@ class SummaryPage(ExperimenterBase):
     )
     _clone_save_locator = (By.CSS_SELECTOR, ".modal .btn-primary")
     _clone_parent_locator = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-parent"]')
+    _branch_screenshot_description_locator = (
+        By.CSS_SELECTOR,
+        'figure[data-testid="branch-screenshot"] figcaption',
+    )
+    _branch_screenshot_image_locator = (
+        By.CSS_SELECTOR,
+        'figure[data-testid="branch-screenshot"] img',
+    )
     _takeaways_edit_button = (By.CSS_SELECTOR, 'button[data-testid="edit-takeaways"]')
     _takeaways_save_button = (
         By.CSS_SELECTOR,
@@ -217,6 +229,22 @@ class SummaryPage(ExperimenterBase):
         self.clone_save.click()
 
     @property
+    def promote_to_rollout_buttons(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._promote_rollout_locator),
+            message="Summary Page: could not find promote to rollout buttons",
+        )
+        return self.find_elements(*self._promote_rollout_locator)
+
+    def promote_first_branch_to_rollout(self):
+        self.promote_to_rollout_buttons[0].click()
+        random_chars = "".join(
+            random.choices(string.ascii_uppercase + string.digits, k=6)
+        )
+        self.clone_name = f"Rollout {random_chars}"
+        self.clone_save.click()
+
+    @property
     def takeaways_edit_button(self):
         self.wait.until(
             EC.presence_of_all_elements_located(self._takeaways_edit_button),
@@ -275,3 +303,15 @@ class SummaryPage(ExperimenterBase):
             message="Summary Page: could not find takeaways summary text",
         )
         return self.find_element(*self._takeaways_summary_text).text
+
+    @property
+    def branch_screenshot_description(self):
+        return self.wait_for_and_find_elements(
+            self._branch_screenshot_description_locator, "branch screenshot description"
+        )[0].text
+
+    @property
+    def branch_screenshot_image(self):
+        return self.wait_for_and_find_elements(
+            self._branch_screenshot_image_locator, "branch screenshot image"
+        )[0]

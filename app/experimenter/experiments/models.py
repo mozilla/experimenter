@@ -198,6 +198,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     )
     takeaways_summary = models.TextField(blank=True, null=True)
     is_first_run = models.BooleanField(default=False)
+    is_client_schema_disabled = models.BooleanField(default=False)
 
     _start_date = models.DateField(blank=True, null=True)
     _end_date = models.DateField(blank=True, null=True)
@@ -326,9 +327,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if self.channel:
                 expressions.append(f'browserSettings.update.channel == "{self.channel}"')
 
-            # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
-            expressions.append("'app.shield.optoutstudies.enabled'|preferenceValue")
-
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())
 
@@ -357,6 +355,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             sticky_clause = "is_already_enrolled"
             if is_desktop:
                 sticky_clause = "experiment.slug in activeExperiments"
+                if self.is_rollout:
+                    sticky_clause = "experiment.slug in activeRollouts"
 
             sticky_expressions_joined = " && ".join(
                 [f"({expression})" for expression in sticky_expressions]

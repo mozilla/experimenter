@@ -55,6 +55,27 @@ describe("SidebarActions", () => {
     ).toHaveAttribute("href", expect.stringContaining("https://mozilla.org"));
   });
 
+  it("displays ops mon link when rollout and launched", async () => {
+    render(
+      <Subject
+        {...{
+          experiment: {
+            slug: "demo-slug-1",
+            status: NimbusExperimentStatusEnum.LIVE,
+            isRollout: true,
+            rolloutMonitoringDashboardUrl: "https://mozilla.org/linklinklink",
+          },
+        }}
+      />,
+    );
+    expect(
+      screen.queryByTestId("link-rollout-monitoring-dashboard"),
+    ).toHaveAttribute(
+      "href",
+      expect.stringContaining("https://mozilla.org/linklinklink"),
+    );
+  });
+
   it("does not render risk mitigation link when not set", () => {
     render(<Subject {...{ experiment: { riskMitigationLink: undefined } }} />);
     expect(
@@ -72,6 +93,20 @@ describe("SidebarActions", () => {
     );
     expect(
       screen.queryByTestId("link-monitoring-dashboard"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not render ops mon URL if experiment has not been launched and not rollout", () => {
+    render(
+      <Subject
+        experiment={{
+          status: NimbusExperimentStatusEnum.DRAFT,
+          isRollout: false,
+        }}
+      />,
+    );
+    expect(
+      screen.queryByTestId("link-rollout-monitoring-dashboard"),
     ).not.toBeInTheDocument();
   });
 
@@ -198,6 +233,22 @@ describe("SidebarActions", () => {
     fireEvent.click(cancelButton);
     await waitFor(() => {
       expect(screen.queryByTestId("CloneDialog")).not.toBeInTheDocument();
+    });
+  });
+
+  it("scrolls to json when preview recipe json button is clicked", async () => {
+    const experiment = mockExperiment({ isArchived: false, canArchive: true });
+    const refetch = jest.fn();
+    render(<Subject {...{ experiment, refetch }} />);
+
+    const jsonButton = await screen.findByTestId("button-recipe-json");
+
+    fireEvent.click(jsonButton);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("button-recipe-json"),
+      ).not.toBeInTheDocument();
     });
   });
 });

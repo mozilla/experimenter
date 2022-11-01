@@ -21,6 +21,7 @@ type TableWeeklyProps = {
   metricName: string;
   group: string;
   branchComparison: BranchComparisonValues;
+  segment?: string;
 };
 
 const getWeekIndexList = (
@@ -52,13 +53,14 @@ const TableWeekly = ({
   metricName,
   group,
   branchComparison,
+  segment = "all",
 }: TableWeeklyProps) => {
   const {
     analysis: { weekly },
     sortedBranchNames,
     controlBranchName,
   } = useContext(ResultsContext);
-  const weeklyResults = weekly!;
+  const weeklyResults = weekly![segment]!;
   const weekIndexList = getWeekIndexList(metricKey, group, weeklyResults);
   const tableLabel = TABLE_LABEL.RESULTS;
 

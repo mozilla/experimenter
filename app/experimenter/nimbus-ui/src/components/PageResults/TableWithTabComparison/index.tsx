@@ -20,18 +20,24 @@ export type TableWithTabComparisonProps = {
   experiment?: getExperiment_experimentBySlug;
   Table: TablesWithExperiment | TablesWithoutExperiment;
   className?: string;
+  segment?: string;
 };
 
 export const TableWithTabComparison = ({
   experiment,
   Table,
   className = "rounded-bottom mb-5",
+  segment = "all",
 }: TableWithTabComparisonProps) => (
   <Tabs defaultActiveKey={BRANCH_COMPARISON.UPLIFT} className="border-bottom-0">
     <Tab eventKey={BRANCH_COMPARISON.UPLIFT} title="Relative uplift comparison">
       <div className={`border ${className}`}>
-        {/* @ts-ignore - TODO, assert Table is TablesWithoutExperiment if `experiment` not provided */}
-        {experiment ? <Table {...{ experiment }} /> : <Table />}
+        {experiment ? (
+          <Table {...{ experiment }} segment={segment} />
+        ) : (
+          /* @ts-ignore - TODO, assert Table is TablesWithoutExperiment if `experiment` not provided */
+          <Table segment={segment} />
+        )}
       </div>
     </Tab>
     <Tab eventKey={BRANCH_COMPARISON.ABSOLUTE} title="Absolute comparison">
@@ -40,11 +46,15 @@ export const TableWithTabComparison = ({
           <Table
             {...{ experiment }}
             branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+            segment={segment}
           />
         ) : (
           <>
             {/* @ts-ignore - TODO, assert Table is TablesWithoutExperiment if `experiment` not provided */}
-            <Table branchComparison={BRANCH_COMPARISON.ABSOLUTE} />
+            <Table
+              branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+              segment={segment}
+            />
           </>
         )}
       </div>

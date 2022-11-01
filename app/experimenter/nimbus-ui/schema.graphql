@@ -446,6 +446,7 @@ type NimbusExperimentType {
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
   isFirstRun: Boolean!
+  isClientSchemaDisabled: Boolean!
   StartDate: Date
   EndDate: Date
   nimbusexperimentSet: [NimbusExperimentType!]!

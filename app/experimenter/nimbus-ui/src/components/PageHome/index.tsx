@@ -5,7 +5,7 @@
 import { useQuery } from "@apollo/client";
 import { Link, RouteComponentProps } from "@reach/router";
 import React, { useCallback } from "react";
-import { Alert, Tab, Tabs } from "react-bootstrap";
+import { Alert, Col, Container, Row, Tab, Tabs } from "react-bootstrap";
 import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
 import {
   useConfig,
@@ -13,6 +13,7 @@ import {
   useSearchParamsState,
 } from "../../hooks";
 import { ReactComponent as DownloadIcon } from "../../images/download.svg";
+import { ReactComponent as CreateNewIcon } from "../../images/pencil.svg";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 import AppLayout from "../AppLayout";
 import Head from "../Head";
@@ -43,10 +44,7 @@ export const Body = () => {
     (nextTab) => updateSearchParams((params) => params.set("tab", nextTab)),
     [updateSearchParams],
   );
-
   const filterValue = getFilterValueFromParams(config, searchParams);
-  const onFilterChange = (newFilterValue: FilterValue) =>
-    updateParamsFromFilterValue(updateSearchParams, newFilterValue);
 
   if (loading) {
     return <PageLoading />;
@@ -60,28 +58,12 @@ export const Body = () => {
     return <div>No experiments found.</div>;
   }
 
-  const filterOptions: FilterOptions = {
-    applications: config!.applications!,
-    allFeatureConfigs: config!.allFeatureConfigs!,
-    firefoxVersions: config!.firefoxVersions!,
-    owners: config!.owners!,
-    channels: config!.channels,
-    types: config!.types,
-  };
-
   const { live, complete, preview, review, draft, archived } = sortByStatus(
     filterExperiments(data.experiments, filterValue),
   );
 
   return (
     <>
-      <FilterBar
-        {...{
-          options: filterOptions,
-          value: filterValue,
-          onChange: onFilterChange,
-        }}
-      />
       <Tabs activeKey={selectedTab} onSelect={onSelectTab}>
         <Tab eventKey="live" title={`Live (${live.length})`}>
           <DirectoryTable experiments={live} />
@@ -107,39 +89,24 @@ export const Body = () => {
 };
 
 const PageHome: React.FunctionComponent<PageHomeProps> = () => {
+  const config = useConfig();
+  const [searchParams, updateSearchParams] = useSearchParamsState("PageHome");
+  const filterValue = getFilterValueFromParams(config, searchParams);
+  const onFilterChange = (newFilterValue: FilterValue) =>
+    updateParamsFromFilterValue(updateSearchParams, newFilterValue);
+  const filterOptions: FilterOptions = {
+    applications: config!.applications!,
+    allFeatureConfigs: config!.allFeatureConfigs!,
+    firefoxVersions: config!.firefoxVersions!,
+    owners: config!.owners!,
+    channels: config!.channels,
+    types: config!.types,
+  };
   return (
     <AppLayout testid="PageHome">
       <Head title="Experiments" />
 
-      <div className="d-flex mb-4 justify-content-between">
-        <h2 className="mb-0 mr-1">Nimbus Experiments </h2>
-        <div>
-          <a
-            href={`/api/v5/csv`}
-            className="btn btn-secondary btn-small ml-2"
-            data-testid="reports-anchor"
-          >
-            <DownloadIcon
-              width="20"
-              height="20"
-              fill="white"
-              dominantBaseline="start"
-              role="img"
-              aria-label="download icon"
-            />
-            <span> Reports</span>
-          </a>
-          <Link
-            to="new"
-            data-sb-kind="pages/New"
-            className="btn btn-primary btn-small ml-2"
-            id="create-new-button"
-          >
-            Create new
-          </Link>
-        </div>
-      </div>
-
+      <h2 className="mb-3 text-left">Nimbus Experiments </h2>
       <Alert variant="primary" className="mb-4">
         <div>
           <span role="img" aria-label="book emoji">
@@ -167,7 +134,70 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
           </LinkExternal>
         </div>
       </Alert>
-      <Body />
+      <Container fluid className="h-100vh">
+        <Row className="h-md-100">
+          <Col
+            md="3"
+            lg="3"
+            xl="2"
+            className="bg-light pt-2 border-right shadow-sm"
+          >
+            <Row>
+              <Col>
+                <Link
+                  to="new"
+                  data-sb-kind="pages/New"
+                  className="btn btn-primary btn-small mt-2 w-100"
+                  id="create-new-button"
+                >
+                  <CreateNewIcon
+                    width="20"
+                    height="20"
+                    fill="white"
+                    dominantBaseline="start"
+                    role="img"
+                    aria-label="download icon"
+                  />
+                  <span className="ml-1 pl-1">Create New </span>
+                </Link>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <a
+                  href={`/api/v5/csv`}
+                  className="btn btn-secondary btn-small mt-3 w-100"
+                  data-testid="reports-anchor"
+                >
+                  <DownloadIcon
+                    width="20"
+                    height="20"
+                    fill="white"
+                    dominantBaseline="start"
+                    role="img"
+                    aria-label="download icon"
+                  />
+                  <span> Reports</span>
+                </a>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <FilterBar
+                  {...{
+                    options: filterOptions,
+                    value: filterValue,
+                    onChange: onFilterChange,
+                  }}
+                />
+              </Col>
+            </Row>
+          </Col>
+          <Col md="9" lg="9" xl="10">
+            <Body />
+          </Col>
+        </Row>
+      </Container>
     </AppLayout>
   );
 };
