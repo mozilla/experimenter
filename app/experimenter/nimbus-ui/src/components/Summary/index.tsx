@@ -69,19 +69,6 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
 
   return (
     <div data-testid="summary" className="mb-5">
-      <h3 className="h5 mb-3">
-        Timeline
-        {status.live && <StatusPills {...{ experiment }} />}
-      </h3>
-
-      <SummaryTimeline {...{ experiment }} />
-
-      {submitError && (
-        <Alert data-testid="submit-error" variant="warning">
-          {submitError}
-        </Alert>
-      )}
-
       {status.live &&
         !status.approved &&
         !status.review &&
@@ -101,6 +88,19 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
           {...{ isLoading, onSubmit: onConfirmCancelReviewClicked }}
         />
       )}
+      <h3 className="h5 mb-3">
+        Timeline
+        {status.live && <StatusPills {...{ experiment }} />}
+      </h3>
+
+      <SummaryTimeline {...{ experiment }} />
+
+      {submitError && (
+        <Alert data-testid="submit-error" variant="warning">
+          {submitError}
+        </Alert>
+      )}
+
       {(status.live || status.preview) && (
         <PreviewURL {...experiment} status={status} />
       )}
