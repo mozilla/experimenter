@@ -77,6 +77,7 @@ class FeatureConfigDataClass:
     application: str
     ownerEmail: str
     schema: str
+    setsPrefs: bool
 
 
 @dataclass
@@ -192,6 +193,7 @@ class NimbusConfigurationDataClass:
                 application=NimbusExperiment.Application(f.application).name,
                 ownerEmail=f.owner_email,
                 schema=f.schema,
+                setsPrefs=bool(f.sets_prefs),
             )
             for f in NimbusFeatureConfig.objects.all().order_by("name")
         ]
@@ -655,6 +657,7 @@ class NimbusExperimentSerializer(
     )
     reference_branch = NimbusBranchSerializer(required=False)
     treatment_branches = NimbusBranchSerializer(many=True, required=False)
+    prevent_pref_conflicts = serializers.BooleanField(required=False)
     feature_config = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
         allow_null=True,
@@ -747,6 +750,7 @@ class NimbusExperimentSerializer(
             "name",
             "population_percent",
             "primary_outcomes",
+            "prevent_pref_conflicts",
             "proposed_duration",
             "proposed_enrollment",
             "public_description",

@@ -265,6 +265,10 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.slug, "the-thing")
 
     def test_saves_existing_experiment_with_changelog(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            sets_prefs=["foo.bar.baz"],
+        )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.FENIX,
@@ -281,6 +285,8 @@ class TestNimbusExperimentSerializer(TestCase):
             "name": "New Name",
             "public_description": "New public description",
             "changelog_message": "test changelog message",
+            "feature_configs": [feature_config.id],
+            "prevent_pref_conflicts": True,
         }
 
         serializer = NimbusExperimentSerializer(
@@ -296,6 +302,8 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.name, "New Name")
         self.assertEqual(experiment.slug, "existing-name")
         self.assertEqual(experiment.public_description, "New public description")
+        self.assertEqual(list(experiment.feature_configs.all()), [feature_config])
+        self.assertEqual(experiment.prevent_pref_conflicts, True)
 
     def test_saves_branches_single_feature(self):
         feature_config = NimbusFeatureConfigFactory.create(

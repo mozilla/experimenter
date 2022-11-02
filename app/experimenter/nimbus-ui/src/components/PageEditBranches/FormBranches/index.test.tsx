@@ -14,7 +14,9 @@ import {
 import {
   MOCK_BRANCH,
   MOCK_EXPERIMENT,
+  MOCK_FEATURE_CONFIG,
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+  MOCK_FEATURE_CONFIG_WITH_SETS_PREFS,
   SubjectBranches,
 } from "./mocks";
 import { extractUpdateBranch } from "./reducer/update";
@@ -64,6 +66,7 @@ describe("FormBranches", () => {
         (branch) => extractUpdateBranch(branch!),
       ),
       isRollout: false,
+      preventPrefConflicts: false,
       warnFeatureSchema: false,
     });
     expect(typeof onSaveArgs[1]).toEqual("function");
@@ -594,6 +597,92 @@ describe("FormBranches", () => {
     await waitFor(() => {
       expect(screen.getAllByText(SERVER_ERRORS.FEATURE_CONFIG)).toHaveLength(1);
       expect(screen.getAllByText(FEATURE_VALUE_WARNING)).toHaveLength(1);
+    });
+  });
+
+  describe("preventPrefConflicts checkbox", () => {
+    it("doesn't render if no feature config set", () => {
+      render(
+        <SubjectBranches
+          experiment={{ ...MOCK_EXPERIMENT, featureConfigs: [] }}
+        />,
+      );
+
+      expect(
+        screen.queryByTestId("prevent-pref-conflicts-checkbox"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("doesn't render if the set feature config does not set prefs", () => {
+      render(
+        <SubjectBranches
+          experiment={{
+            ...MOCK_EXPERIMENT,
+            featureConfigs: [MOCK_FEATURE_CONFIG],
+          }}
+        />,
+      );
+
+      expect(
+        screen.queryByTestId("prevent-pref-conflicts-checkbox"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does render if the set feature config does set prefs", () => {
+      render(
+        <SubjectBranches
+          experiment={{
+            ...MOCK_EXPERIMENT,
+            featureConfigs: [MOCK_FEATURE_CONFIG_WITH_SETS_PREFS],
+          }}
+        />,
+      );
+
+      const checkbox = screen.getByTestId(
+        "prevent-pref-conflicts-checkbox",
+      ) as HTMLInputElement;
+      expect(checkbox).toBeInTheDocument();
+      expect(checkbox.checked).toEqual(false);
+    });
+
+    it("resets when switching away from a feature config that sets prefs", () => {
+      render(
+        <SubjectBranches
+          experiment={{
+            ...MOCK_EXPERIMENT,
+            featureConfigs: [MOCK_FEATURE_CONFIG_WITH_SETS_PREFS],
+          }}
+        />,
+      );
+
+      {
+        const checkbox = screen.getByTestId(
+          "prevent-pref-conflicts-checkbox",
+        ) as HTMLInputElement;
+
+        expect(checkbox).toBeInTheDocument();
+        expect(checkbox.checked).toEqual(false);
+
+        fireEvent.click(checkbox);
+        expect(checkbox.checked).toEqual(true);
+      }
+
+      selectFeatureConfig(MOCK_FEATURE_CONFIG.id);
+
+      expect(
+        screen.queryByTestId("prevent-pref-conflicts-checkbox"),
+      ).not.toBeInTheDocument();
+
+      selectFeatureConfig(MOCK_FEATURE_CONFIG_WITH_SETS_PREFS.id);
+
+      {
+        const checkbox = screen.getByTestId(
+          "prevent-pref-conflicts-checkbox",
+        ) as HTMLInputElement;
+
+        expect(checkbox).toBeInTheDocument();
+        expect(checkbox.checked).toEqual(false);
+      }
     });
   });
 });
