@@ -117,7 +117,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k IOS -m remote_settings
+      PYTEST_ARGS: -k 'not (FOCUS_IOS or DESKTOP or FENIX or FOCUS_ANDROID)' -m remote_settings
     steps:
       - checkout
       - run:
