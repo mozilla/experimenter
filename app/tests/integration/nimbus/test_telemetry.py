@@ -49,7 +49,6 @@ def firefox_options(firefox_options):
         "app.normandy.user_id", "7ef5ab6d-42d6-4c4e-877d-c3174438050a"
     )
     firefox_options.set_preference("messaging-system.log", "debug")
-    firefox_options.set_preference("app.shield.optoutstudies.enabled", True)
     firefox_options.set_preference("toolkit.telemetry.scheduler.tickInterval", 30)
     firefox_options.set_preference("toolkit.telemetry.collectInterval", 1)
     firefox_options.set_preference("toolkit.telemetry.eventping.minimumFrequency", 30000)
