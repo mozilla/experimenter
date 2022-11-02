@@ -403,19 +403,19 @@ workflows:
       - check:
           name: check
       - integration_nimbus_desktop_release:
-          name: Test Targeting (Release Firefox)
+          name: Test Desktop Targeting (Release Firefox)
           filters:
             branches:
               ignore:
                 - main
       - integration_nimbus_desktop_beta:
-          name: Test Targeting (Beta Firefox)
+          name: Test Desktop Targeting (Beta Firefox)
           filters:
             branches:
               ignore:
                 - main
       - integration_nimbus_desktop_nightly_targeting:
-          name: Test Targeting (Nightly Firefox)
+          name: Test Desktop Targeting (Nightly Firefox)
           filters:
             branches:
               ignore:
@@ -457,7 +457,7 @@ workflows:
               ignore:
                 - main
       - integration_nimbus_desktop_nightly_integration:
-          name: Integration Test Desktop (Nightly Firefox)
+          name: Integration Test Desktop Enrollment (Nightly Firefox)
           filters:
             branches:
               ignore:
