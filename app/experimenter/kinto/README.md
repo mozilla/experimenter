@@ -111,11 +111,7 @@ In theory an experiment/rollout can occupy any combination of these two states, 
 
 ## Workflows
 
-The following diagrams describe every interaction between Experimenter and Remote Settings. An experiment/rollout's state is denoted as:
-
-`lifecycle state/publish state(next lifecycle state)`
-
-Any change which requires creating a changelog includes `+changelog`.
+The following diagrams describe every interaction between Experimenter and Remote Settings. Any change which requires creating a changelog includes `+changelog`.
 
 The following actors are involved:
 
@@ -142,7 +138,6 @@ A draft experiment/rollout that has been validly completed is marked for Preview
 A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, is reviewed and approved in Remote Settings, and is then accessible to clients.
 ![review approved in experimenter](diagrams/draft-to-live-1.png)
 ![review approved in remote settings](diagrams/draft-to-live-2.png)
-![published](diagrams/draft-to-live-3.png)
 
 ### Publish (Reject/------)
 
@@ -154,7 +149,6 @@ A draft experiment/rollout that has been validly completed (no errors) is reject
 A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter.
 ![review approved in experimenter](diagrams/publish-reject-in-rs-1.png)
 ![review rejected in remote settings](diagrams/publish-reject-in-rs-2.png)
-![rolled back to draft](diagrams/publish-reject-in-rs-3.png)
 
 ### Publish (Approve/Reject + Manual Rollback)
 
