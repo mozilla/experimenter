@@ -24,7 +24,7 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
   return (
-    <Card border="light" className="mb-4" bg="light">
+    <Card className="mb-4">
       <Card.Header as="h5">Overview</Card.Header>
       <Card.Body>
         <Table data-testid="table-overview">

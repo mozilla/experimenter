@@ -26,7 +26,6 @@ import FormLaunchDraftToPreview from "./FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "./FormLaunchDraftToReview";
 import FormLaunchPreviewToReview from "./FormLaunchPreviewToReview";
 import TableSignoff from "./TableSignoff";
-import Takeaways, { useTakeaways } from "./Takeaways";
 
 const PageSummary = (props: RouteComponentProps) => {
   const { experiment, refetch, useExperimentPolling } =
@@ -35,7 +34,6 @@ const PageSummary = (props: RouteComponentProps) => {
 
   const [showLaunchToReview, setShowLaunchToReview] = useState(false);
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
-  const takeawaysProps = useTakeaways(experiment, refetch);
 
   const status = getStatus(experiment);
 
@@ -177,8 +175,6 @@ const PageSummary = (props: RouteComponentProps) => {
 
   return (
     <AppLayoutWithExperiment testId="PageSummary" setHead={false}>
-      {status.complete && <Takeaways {...takeawaysProps} />}
-
       <Head title={`${experiment.name} – ${summaryTitle}`} />
 
       {submitError && (
@@ -258,6 +254,7 @@ const PageSummary = (props: RouteComponentProps) => {
       )}
 
       <h2 className="mt-3 mb-4 h4">Summary</h2>
+
       <Summary {...{ experiment, refetch }} />
     </AppLayoutWithExperiment>
   );

@@ -16,6 +16,7 @@ import {
 } from "../../types/globalTypes";
 import NotSet from "../NotSet";
 import TableSignoff from "../PageSummary/TableSignoff";
+import Takeaways, { useTakeaways } from "../PageSummary/Takeaways";
 import PreviewURL from "../PreviewURL";
 import CancelReview from "./CancelReview";
 import EndEnrollment from "./EndEnrollment";
@@ -31,6 +32,7 @@ type SummaryProps = {
 };
 
 const Summary = ({ experiment, refetch }: SummaryProps) => {
+  const takeawaysProps = useTakeaways(experiment, refetch);
   const status = getStatus(experiment);
   const {
     isLoading,
@@ -75,6 +77,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       </h3>
 
       <SummaryTimeline {...{ experiment }} />
+      {status.complete && <Takeaways {...takeawaysProps} />}
 
       {submitError && (
         <Alert data-testid="submit-error" variant="warning">

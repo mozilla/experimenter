@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from "react";
+import { Card } from "react-bootstrap";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -42,43 +43,47 @@ export const Takeaways = (props: TakeawaysProps) => {
   )?.label;
 
   return (
-    <section id="takeaways" data-testid="Takeaways">
-      <h3 className="h4 mb-3 mt-4">
-        <Row>
-          <Col>
-            Takeaways
-            {conclusionRecommendationLabel && (
-              <Badge
-                className="ml-2 border rounded-pill px-2 bg-white border-primary text-primary font-weight-normal"
-                data-testid="conclusion-recommendation-status"
-              >
-                {conclusionRecommendationLabel}
-              </Badge>
-            )}
-          </Col>
-          <Col className="text-right">
-            {!isArchived && (
-              <Button
-                onClick={onClickEdit}
-                variant="outline-primary"
-                size="sm"
-                className="mx-1"
-                data-testid="edit-takeaways"
-              >
-                Edit
-              </Button>
-            )}
-          </Col>
-        </Row>
-      </h3>
-      {takeawaysSummary ? (
-        <div data-testid="takeaways-summary-rendered">
-          <ReactMarkdown source={takeawaysSummary} />
-        </div>
-      ) : (
-        <NotSet />
-      )}
-    </section>
+    <Card className="mb-4">
+      <section id="takeaways" data-testid="Takeaways">
+        <Card.Header as="h5">
+          <Row>
+            <Col>
+              Takeaways
+              {conclusionRecommendationLabel && (
+                <Badge
+                  className="ml-2 border rounded-pill px-2 bg-white border-primary text-primary font-weight-normal"
+                  data-testid="conclusion-recommendation-status"
+                >
+                  {conclusionRecommendationLabel}
+                </Badge>
+              )}
+            </Col>
+            <Col className="text-right">
+              {!isArchived && (
+                <Button
+                  onClick={onClickEdit}
+                  variant="outline-primary"
+                  size="sm"
+                  className="mx-1"
+                  data-testid="edit-takeaways"
+                >
+                  Edit
+                </Button>
+              )}
+            </Col>
+          </Row>
+        </Card.Header>
+        <Card.Body>
+          {takeawaysSummary ? (
+            <div data-testid="takeaways-summary-rendered">
+              <ReactMarkdown source={takeawaysSummary} />
+            </div>
+          ) : (
+            <NotSet />
+          )}
+        </Card.Body>
+      </section>
+    </Card>
   );
 };
 

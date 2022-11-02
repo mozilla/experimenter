@@ -52,7 +52,7 @@ const TableBranches = ({
   const hasOneBranchNameSet = Boolean(savedBranches);
 
   return (
-    <Card className="mt-4" border="light">
+    <Card className="mt-4">
       <TableTitle {...{ branchCount, hasOneBranchNameSet }} />
       {branchCount === 0 || !hasOneBranchNameSet ? (
         <NotSet copy={NO_BRANCHES_COPY} />
@@ -85,100 +85,98 @@ const TableBranch = ({
   } = branch;
   const cloneDialogProps = useCloneDialog(experiment, branch);
   return (
-    <Card className="mb-3" border="light" bg="light">
-      <Card.Body>
-        <Table data-testid="table-branch" className="table-fixed" id={slug}>
-          <colgroup>
-            <col className="w-25" />
-            <col />
-          </colgroup>
-          <thead className="thead-light">
-            <tr>
-              <th colSpan={4} className="bg-light" data-testid="branch-name">
-                <Container>
-                  <Row>
-                    <Col>
-                      <a href={`#${slug}`}>#</a> {name}
+    <Card.Body>
+      <Table data-testid="table-branch" className="table-fixed" id={slug}>
+        <colgroup>
+          <col className="w-25" />
+          <col />
+        </colgroup>
+        <thead className="thead-light">
+          <tr>
+            <th colSpan={4} className="bg-light" data-testid="branch-name">
+              <Container>
+                <Row>
+                  <Col>
+                    <a href={`#${slug}`}>#</a> {name}
+                  </Col>
+                  {!experiment.isRollout && (
+                    <Col className="text-right">
+                      <Button
+                        data-testid="promote-rollout"
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={cloneDialogProps.onShow}
+                      >
+                        Promote to Rollout
+                      </Button>
+                      <CloneDialog {...cloneDialogProps} />
                     </Col>
-                    {!experiment.isRollout && (
-                      <Col className="text-right">
-                        <Button
-                          data-testid="promote-rollout"
-                          variant="outline-primary"
-                          size="sm"
-                          onClick={cloneDialogProps.onShow}
-                        >
-                          Promote to Rollout
-                        </Button>
-                        <CloneDialog {...cloneDialogProps} />
-                      </Col>
-                    )}
-                  </Row>
-                </Container>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th>Slug</th>
-              <td data-testid="branch-slug">{slug ? slug : <NotSet />}</td>
-              <th>Ratio</th>
-              <td data-testid="branch-ratio">{ratio ? ratio : <NotSet />}</td>
-            </tr>
-            <tr>
-              <th>Enabled</th>
-              <td data-testid="branch-enabled">
-                {featureEnabled ? "True" : "False"}
-              </td>
+                  )}
+                </Row>
+              </Container>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Slug</th>
+            <td data-testid="branch-slug">{slug ? slug : <NotSet />}</td>
+            <th>Ratio</th>
+            <td data-testid="branch-ratio">{ratio ? ratio : <NotSet />}</td>
+          </tr>
+          <tr>
+            <th>Enabled</th>
+            <td data-testid="branch-enabled">
+              {featureEnabled ? "True" : "False"}
+            </td>
 
-              <th>Description</th>
-              <td data-testid="branch-description">
-                {description ? description : <NotSet />}
-              </td>
-            </tr>
+            <th>Description</th>
+            <td data-testid="branch-description">
+              {description ? description : <NotSet />}
+            </td>
+          </tr>
+          <tr>
+            {featureEnabled && (
+              <>
+                <th>Value</th>
+                <td colSpan={3} data-testid="branch-featureValue">
+                  {featureValue ? (
+                    <Code codeString={featureValue} />
+                  ) : (
+                    <NotSet />
+                  )}
+                </td>
+              </>
+            )}
+          </tr>
+          {screenshots && screenshots.length > 0 && (
             <tr>
-              {featureEnabled && (
-                <>
-                  <th>Value</th>
-                  <td colSpan={3} data-testid="branch-featureValue">
-                    {featureValue ? (
-                      <Code codeString={featureValue} />
+              <th>Screenshots</th>
+              <td colSpan={3} data-testid="branch-screenshots">
+                {screenshots.map((screenshot, idx) => (
+                  <Figure
+                    data-testid="branch-screenshot"
+                    className="d-block"
+                    key={idx}
+                  >
+                    <Figure.Caption>{screenshot.description}</Figure.Caption>
+                    {screenshot.image ? (
+                      <Figure.Image
+                        fluid
+                        src={screenshot.image}
+                        alt={screenshot.description || ""}
+                      />
                     ) : (
                       <NotSet />
                     )}
-                  </td>
-                </>
-              )}
+                  </Figure>
+                ))}
+              </td>
             </tr>
-            {screenshots && screenshots.length > 0 && (
-              <tr>
-                <th>Screenshots</th>
-                <td colSpan={3} data-testid="branch-screenshots">
-                  {screenshots.map((screenshot, idx) => (
-                    <Figure
-                      data-testid="branch-screenshot"
-                      className="d-block"
-                      key={idx}
-                    >
-                      <Figure.Caption>{screenshot.description}</Figure.Caption>
-                      {screenshot.image ? (
-                        <Figure.Image
-                          fluid
-                          src={screenshot.image}
-                          alt={screenshot.description || ""}
-                        />
-                      ) : (
-                        <NotSet />
-                      )}
-                    </Figure>
-                  ))}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
-      </Card.Body>
-    </Card>
+          )}
+        </tbody>
+      </Table>
+    </Card.Body>
   );
 };
 

@@ -27,7 +27,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
   const [expand, setExpand] = useState(false);
 
   return (
-    <Card border="light" bg="light">
+    <Card>
       <Card.Header as="h5">Audience</Card.Header>
       <Card.Body>
         <Table data-testid="table-audience" className="table-fixed">
