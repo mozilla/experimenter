@@ -179,6 +179,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       application: NimbusExperimentApplicationEnum.FENIX,
       ownerEmail: "sheila43@yahoo.com",
       schema: null,
+      setsPrefs: false,
     },
     {
       id: 2,
@@ -188,6 +189,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       application: NimbusExperimentApplicationEnum.DESKTOP,
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
+      setsPrefs: false,
     },
     {
       id: 3,
@@ -197,6 +199,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       application: NimbusExperimentApplicationEnum.IOS,
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
+      setsPrefs: false,
     },
     {
       id: 4,
@@ -206,6 +209,17 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       application: NimbusExperimentApplicationEnum.FENIX,
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
+      setsPrefs: false,
+    },
+    {
+      id: 5,
+      name: "Set Prefs",
+      slug: "set-prefs-desktop",
+      description: "Set some prefs.",
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      ownerEmail: "dude23@yahoocom",
+      schema: '{ "sample": "schema" }',
+      setsPrefs: true,
     },
   ],
   firefoxVersions: [

@@ -70,6 +70,7 @@ class ExperimentInput(graphene.InputObjectType):
     documentation_links = graphene.List(DocumentationLinkInput)
     reference_branch = graphene.Field(ReferenceBranchInput)
     treatment_branches = graphene.List(TreatmentBranchInput)
+    prevent_pref_conflicts = graphene.Boolean()
     primary_outcomes = graphene.List(graphene.String)
     secondary_outcomes = graphene.List(graphene.String)
     channel = NimbusExperimentChannelEnum()

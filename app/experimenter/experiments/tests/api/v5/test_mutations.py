@@ -1012,6 +1012,36 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.conclusion_recommendation, None)
         self.assertEqual(experiment.takeaways_summary, "the test worked")
 
+    def test_update_prevent_pref_conflicts(self):
+        user_email = "user@example.com"
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            sets_prefs=["foo.bar.baz"],
+        )
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature],
+            prevent_pref_conflicts=False,
+        )
+
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "preventPrefConflicts": True,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(experiment.prevent_pref_conflicts, True)
+
 
 @mock_valid_outcomes
 class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):

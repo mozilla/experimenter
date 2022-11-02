@@ -18,6 +18,7 @@ export type FormBranchesState = Pick<
   referenceBranch: null | AnnotatedBranch;
   treatmentBranches: null | AnnotatedBranch[];
   equalRatio: boolean;
+  preventPrefConflicts: boolean;
   lastId: number;
   globalErrors: string[];
 };
@@ -34,6 +35,7 @@ export type AnnotatedBranch = Omit<TreatmentBranchInput, "id"> & {
 
 export function createInitialState({
   featureConfigs,
+  preventPrefConflicts,
   warnFeatureSchema,
   isRollout,
   referenceBranch,
@@ -67,6 +69,7 @@ export function createInitialState({
     globalErrors: [],
     referenceBranch: annotatedReferenceBranch,
     treatmentBranches: annotatedTreatmentBranches,
+    preventPrefConflicts: preventPrefConflicts ?? false,
   };
 }
 

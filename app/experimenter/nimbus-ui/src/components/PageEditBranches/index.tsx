@@ -45,6 +45,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         isRollout,
         referenceBranch,
         treatmentBranches,
+        preventPrefConflicts,
       }: FormBranchesSaveState,
       setSubmitErrors,
       clearSubmitErrors,
@@ -63,6 +64,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
               isRollout,
               referenceBranch,
               treatmentBranches,
+              preventPrefConflicts,
             },
           },
         });

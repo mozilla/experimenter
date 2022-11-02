@@ -39,6 +39,8 @@ export function formBranchesActionReducer(
       return addScreenshotToBranch(state, action);
     case "removeScreenshotFromBranch":
       return removeScreenshotFromBranch(state, action);
+    case "setPreventPrefConflicts":
+      return setPreventPrefConflicts(state, action);
     default:
       return state;
   }
@@ -52,6 +54,7 @@ export type FormBranchesAction =
   | SetwarnFeatureSchemaAction
   | SetIsRolloutAction
   | SetSubmitErrorsAction
+  | SetPreventPrefConflictsAction
   | ClearSubmitErrorsAction
   | CommitFormDataAction
   | AddScreenshotToBranchAction
@@ -231,6 +234,21 @@ function setSubmitErrors(
     globalErrors,
     referenceBranch,
     treatmentBranches,
+  };
+}
+
+type SetPreventPrefConflictsAction = {
+  type: "setPreventPrefConflicts";
+  preventPrefConflicts: boolean;
+};
+
+function setPreventPrefConflicts(
+  state: FormBranchesState,
+  { preventPrefConflicts }: SetPreventPrefConflictsAction,
+): FormBranchesState {
+  return {
+    ...state,
+    preventPrefConflicts,
   };
 }
 

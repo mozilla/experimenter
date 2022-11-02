@@ -15,6 +15,7 @@ const MOCK_STATE: FormBranchesState = {
   featureConfigIds: [],
   warnFeatureSchema: false,
   isRollout: false,
+  preventPrefConflicts: false,
   referenceBranch: {
     ...MOCK_EXPERIMENT.referenceBranch!,
     screenshots: [],
@@ -605,5 +606,15 @@ describe("formBranchesReducer", () => {
         ),
       ).toBeTruthy();
     };
+  });
+
+  it("setPreventPrefConflicts sets preventPrefConflicts", () => {
+    const oldState = { ...MOCK_STATE, preventPrefConflicts: false };
+    const newState = formBranchesActionReducer(oldState, {
+      type: "setPreventPrefConflicts",
+      preventPrefConflicts: true,
+    });
+
+    expect(newState.preventPrefConflicts).toEqual(true);
   });
 });
