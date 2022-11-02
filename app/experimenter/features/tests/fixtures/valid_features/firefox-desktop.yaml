@@ -23,3 +23,19 @@ missingVariables:
   description: Some Firefox Feature
   exposureDescription: An exposure event
   isEarlyStartup: true
+prefSettingFeature:
+  description: A feature that sets prefs
+  exposureDescription: An exposure event
+  variables:
+    string:
+      type: string
+      setPref: nimbus.test.string
+      description: String property
+    int:
+      type: int
+      setPref: nimbus.test.int
+      description: Integer property
+    boolean:
+      type: boolean
+      setPref: nimbus.test.boolean
+      description: Boolean property

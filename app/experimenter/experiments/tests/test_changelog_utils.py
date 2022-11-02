@@ -58,6 +58,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "owner": owner.email,
                 "parent": None,
                 "population_percent": "0.0000",
+                "prevent_pref_conflicts": False,
                 "primary_outcomes": [],
                 "projects": [],
                 "proposed_duration": NimbusExperiment.DEFAULT_PROPOSED_DURATION,
@@ -131,6 +132,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "owner": experiment.owner.email,
                 "parent": parent_experiment.slug,
                 "population_percent": str(experiment.population_percent),
+                "prevent_pref_conflicts": False,
                 "primary_outcomes": [primary_outcome],
                 "projects": [project.slug],
                 "proposed_duration": experiment.proposed_duration,
@@ -168,6 +170,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                     "read_only": feature_config.read_only,
                     "schema": feature_config.schema,
                     "slug": feature_config.slug,
+                    "sets_prefs": feature_config.sets_prefs,
                 },
                 feature_configs_data,
             )
