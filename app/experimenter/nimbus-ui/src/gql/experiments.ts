@@ -88,6 +88,8 @@ export const GET_EXPERIMENT_QUERY = gql`
         }
       }
 
+      preventPrefConflicts
+
       featureConfigs {
         id
         slug

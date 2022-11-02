@@ -42,6 +42,7 @@ export interface getConfig_nimbusConfig_allFeatureConfigs {
   application: NimbusExperimentApplicationEnum | null;
   ownerEmail: string | null;
   schema: string | null;
+  setsPrefs: boolean | null;
 }
 
 export interface getConfig_nimbusConfig_firefoxVersions {
