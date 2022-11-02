@@ -34,6 +34,7 @@ class FeatureVariable(BaseModel):
     enum: Optional[list[str]]
     fallbackPref: Optional[str]
     type: Optional[FeatureVariableType]
+    setPref: Optional[str]
 
 
 class FeatureSchema(BaseModel):

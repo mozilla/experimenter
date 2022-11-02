@@ -22,6 +22,12 @@ class Command(BaseCommand):
             feature_config.name = feature.slug
             feature_config.description = feature.description
             feature_config.read_only = True
+            if feature.variables is not None:
+                feature_config.sets_prefs = [
+                    v.setPref for v in feature.variables.values() if v.setPref is not None
+                ]
+            else:
+                feature_config.sets_prefs = []
 
             if (schema := feature.get_jsonschema()) is not None:
                 feature_config.schema = schema

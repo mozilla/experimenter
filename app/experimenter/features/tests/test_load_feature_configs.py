@@ -52,10 +52,23 @@ class TestLoadFeatureConfigs(TestCase):
             },
         )
 
+        feature_config = NimbusFeatureConfig.objects.get(slug="prefSettingFeature")
+
+        self.assertEqual(
+            sorted(feature_config.sets_prefs),
+            sorted(["nimbus.test.string", "nimbus.test.int", "nimbus.test.boolean"]),
+        )
+
     def test_updates_existing_feature_configs(self):
         NimbusFeatureConfigFactory.create(
             name="someFeature",
             slug="someFeature",
+            application=NimbusExperiment.Application.DESKTOP,
+            schema="{}",
+        )
+        NimbusFeatureConfigFactory.create(
+            name="prefSettingFeature",
+            slug="prefSettingFeature",
             application=NimbusExperiment.Application.DESKTOP,
             schema="{}",
         )
@@ -86,6 +99,13 @@ class TestLoadFeatureConfigs(TestCase):
                 },
                 "additionalProperties": False,
             },
+        )
+
+        feature_config = NimbusFeatureConfig.objects.get(slug="prefSettingFeature")
+
+        self.assertEqual(
+            sorted(feature_config.sets_prefs),
+            sorted(["nimbus.test.string", "nimbus.test.int", "nimbus.test.boolean"]),
         )
 
     def test_handles_existing_features_with_same_slug_different_name(self):

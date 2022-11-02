@@ -54,6 +54,7 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
 
 const MOCK_STATE: FormBranchesState = {
   equalRatio: true,
+  preventPrefConflicts: false,
   lastId: 0,
   globalErrors: [],
   featureConfigIds: [],
@@ -180,3 +181,5 @@ export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {
 export const MOCK_FEATURE_CONFIG = MOCK_CONFIG.allFeatureConfigs![0]!;
 export const MOCK_FEATURE_CONFIG_WITH_SCHEMA =
   MOCK_CONFIG.allFeatureConfigs![1]!;
+export const MOCK_FEATURE_CONFIG_WITH_SETS_PREFS =
+  MOCK_CONFIG.allFeatureConfigs![4]!;

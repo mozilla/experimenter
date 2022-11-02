@@ -51,6 +51,7 @@ export const FormBranches = ({
       referenceBranch,
       treatmentBranches,
       equalRatio,
+      preventPrefConflicts,
       globalErrors,
     },
     extractSaveState,
@@ -64,6 +65,15 @@ export const FormBranches = ({
     }),
     [referenceBranch, treatmentBranches],
   );
+
+  const doFeaturesSetPrefs = (featureConfigIds: (number | null)[]) => {
+    return featureConfigIds.some(
+      (id) =>
+        (id !== null &&
+          allFeatureConfigs?.find((config) => config?.id === id)?.setsPrefs) ??
+        false,
+    );
+  };
 
   // TODO: EXP-614 submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
   const setSubmitErrors = (submitErrors: any) =>
@@ -117,6 +127,16 @@ export const FormBranches = ({
     dispatch({ type: "setEqualRatio", value: ev.target.checked });
   };
 
+  const handlePreventPrefConflictsChange = (
+    ev: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    commitFormData();
+    dispatch({
+      type: "setPreventPrefConflicts",
+      preventPrefConflicts: ev.target.checked,
+    });
+  };
+
   const handlewarnFeatureSchema = (ev: React.ChangeEvent<HTMLInputElement>) => {
     commitFormData();
     dispatch({
@@ -130,6 +150,13 @@ export const FormBranches = ({
   ) => {
     commitFormData();
     dispatch({ type: "setFeatureConfigs", value });
+
+    if (value && doFeaturesSetPrefs(value) && preventPrefConflicts) {
+      dispatch({
+        type: "setPreventPrefConflicts",
+        preventPrefConflicts: false,
+      });
+    }
   };
 
   const handleIsRollout = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -188,6 +215,10 @@ export const FormBranches = ({
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
+
+  const featureSetsPrefs =
+    experimentFeatureConfigIds &&
+    doFeaturesSetPrefs(experimentFeatureConfigIds);
 
   return (
     <FormProvider {...formMethods}>
@@ -296,6 +327,19 @@ export const FormBranches = ({
             />
           </Form.Group>
         </Form.Row>
+
+        {featureSetsPrefs && (
+          <Form.Row>
+            <Form.Group as={Col} controlId="preventPrefConflicts">
+              <Form.Check
+                data-testid="prevent-pref-conflicts-checkbox"
+                label="Prevent enrollment if users have changed any prefs set by this experiment"
+                onChange={handlePreventPrefConflictsChange}
+                checked={preventPrefConflicts}
+              />
+            </Form.Group>
+          </Form.Row>
+        )}
 
         <section>
           {referenceBranch && (

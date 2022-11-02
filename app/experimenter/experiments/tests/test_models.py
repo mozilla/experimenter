@@ -5,6 +5,7 @@ from decimal import Decimal
 import mock
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from django.db.models import Q
 from django.test import TestCase, override_settings
 from parameterized import parameterized_class
@@ -17,6 +18,7 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchScreenshot,
@@ -35,6 +37,8 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
     NimbusIsolationGroupFactory,
 )
+from experimenter.features import Features
+from experimenter.features.tests import mock_valid_features
 from experimenter.openidc.tests.factories import UserFactory
 
 
@@ -689,6 +693,71 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             experiment.targeting,
             '(browserSettings.update.channel == "release")',
+        )
+        JEXLParser().parse(experiment.targeting)
+
+    @mock_valid_features
+    def test_targeting_with_prevent_pref_conflicts_set_prefs(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.RELEASE,
+            languages=[],
+            locales=[],
+            countries=[],
+            prevent_pref_conflicts=True,
+            feature_configs=[
+                NimbusFeatureConfig.objects.get(
+                    application=NimbusConstants.Application.DESKTOP,
+                    slug="prefSettingFeature",
+                )
+            ],
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            (
+                '(browserSettings.update.channel == "release") && '
+                "(!('nimbus.test.string'|preferenceIsUserSet)) && "
+                "(!('nimbus.test.int'|preferenceIsUserSet)) && "
+                "(!('nimbus.test.boolean'|preferenceIsUserSet))"
+            ),
+        )
+        JEXLParser().parse(experiment.targeting)
+
+    @mock_valid_features
+    def test_targeting_without_prevent_pref_conflicts_sets_prefs(self):
+        Features.clear_cache()
+        call_command("load_feature_configs")
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.RELEASE,
+            languages=[],
+            locales=[],
+            countries=[],
+            prevent_pref_conflicts=False,
+            feature_configs=[
+                NimbusFeatureConfig.objects.get(
+                    application=NimbusConstants.Application.DESKTOP,
+                    slug="prefSettingFeature",
+                )
+            ],
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            ('(browserSettings.update.channel == "release")'),
         )
         JEXLParser().parse(experiment.targeting)
 

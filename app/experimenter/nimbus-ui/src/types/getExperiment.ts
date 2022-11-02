@@ -157,6 +157,7 @@ export interface getExperiment_experimentBySlug {
   warnFeatureSchema: boolean | null;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
+  preventPrefConflicts: boolean | null;
   featureConfigs: (getExperiment_experimentBySlug_featureConfigs | null)[] | null;
   primaryOutcomes: (string | null)[] | null;
   secondaryOutcomes: (string | null)[] | null;
