@@ -15,7 +15,15 @@ from experimenter.outcomes import Outcomes
 
 class TestNimbusConfigurationSerializer(TestCase):
     def test_expected_output(self):
-        feature_configs = NimbusFeatureConfigFactory.create_batch(10)
+        feature_configs = NimbusFeatureConfigFactory.create_batch(8)
+        feature_configs.append(
+            NimbusFeatureConfigFactory.create(sets_prefs=["foo.bar.baz"])
+        )
+        feature_configs.append(
+            NimbusFeatureConfigFactory.create(
+                sets_prefs=["qux.quux.corge", "grault.garply.waldo"]
+            )
+        )
         experiment = NimbusExperimentFactory.create()
 
         config = NimbusConfigurationSerializer(NimbusConfigurationDataClass()).data
@@ -84,6 +92,7 @@ class TestNimbusConfigurationSerializer(TestCase):
                     ).name,
                     "ownerEmail": feature_config.owner_email,
                     "schema": feature_config.schema,
+                    "setsPrefs": bool(feature_config.sets_prefs),
                 },
                 config["allFeatureConfigs"],
             )

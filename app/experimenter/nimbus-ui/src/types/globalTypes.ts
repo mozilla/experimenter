@@ -242,6 +242,7 @@ export interface ExperimentInput {
   documentationLinks?: (DocumentationLinkInput | null)[] | null;
   referenceBranch?: ReferenceBranchInput | null;
   treatmentBranches?: (TreatmentBranchInput | null)[] | null;
+  preventPrefConflicts?: boolean | null;
   primaryOutcomes?: (string | null)[] | null;
   secondaryOutcomes?: (string | null)[] | null;
   channel?: NimbusExperimentChannelEnum | null;

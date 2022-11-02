@@ -16,6 +16,7 @@ export type FormBranchesSaveState = Pick<
   | "isRollout"
   | "referenceBranch"
   | "treatmentBranches"
+  | "preventPrefConflicts"
 >;
 
 export class UpdateStateError extends Error {}
@@ -35,6 +36,7 @@ export function extractUpdateState(
     isRollout,
     referenceBranch,
     treatmentBranches,
+    preventPrefConflicts,
   } = state;
 
   if (!referenceBranch) {
@@ -56,6 +58,7 @@ export function extractUpdateState(
             (branch, idx) =>
               extractUpdateBranch(branch, formData.treatmentBranches?.[idx]!)!,
           ),
+    preventPrefConflicts,
   };
 }
 
