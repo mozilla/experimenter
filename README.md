@@ -389,11 +389,13 @@ For a full reference of all the common commands that can be run inside the conta
 
 Run the integration test suite for experimenter inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
 
-#### make integration_test_nimbus
+#### make FIREFOX_VERSION integration_test_nimbus
 
 Run the integration test suite for nimbus inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
 
-#### make integration_vnc_up
+FIREFOX_VERSION should either be `nimbus-firefox-release` or `nimbus-firefox-beta`. If you want to run your tests against nightly, please set the variable `UPDATE_FIREFOX_VERSION` to `true` and include it in the make command.
+
+#### make FIREFOX_VERSION integration_vnc_up
 
 First start a prod instance of Experimenter with:
 
@@ -404,18 +406,22 @@ make refresh&&make up_prod_detached
 Then start the VNC service:
 
 ```bash
-make integration_vnc_up
+make FIREFOX_VERSION integration_vnc_up
 ```
 
 Then open your VNC client (Safari does this on OSX or just use [VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/)) and open `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter:
 
 ```bash
 cd app
-sudo mkdir -m 0777 tests/integration/.tox/logs
-tox -c tests/integration/
+sudo apt get update
+sudo apt install tox
+chmod a+rwx tests/integration/.tox
+tox -c tests/integration/ -e integration-test-nimbus
 ```
 
 This should run the integration tests and watch them run in a Firefox instance you can watch and interact with.
+
+To use NoVNC, navgate to this url `http://localhost:7902` with the password `secret`. Then you can follow the same steps as above.
 
 #### Integration Test options
 
@@ -431,6 +437,8 @@ make integration_test_legacy PYTEST_ARGS="-k test_addon_rollout_experiment_e2e"
 
 This builds and sets up the mobile sdk for use in testing.
 
+### Testing Tools
+#### Targeting test tool
 Navigate to `app/tests/tools`
 
 To test a targeting expression, first add an app context named `app_context.json` to the `app/tests/tools` directory.
