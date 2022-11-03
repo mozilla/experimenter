@@ -5,7 +5,7 @@ from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
 
 
-@pytest.mark.run_once
+@pytest.mark.nimbus_ui
 @pytest.mark.xdist_group(name="group2")
 def test_archive_experiment(
     selenium,
@@ -36,7 +36,7 @@ def test_archive_experiment(
     )
 
 
-@pytest.mark.run_once
+@pytest.mark.nimbus_ui
 @pytest.mark.xdist_group(name="group2")
 def test_clone_experiment(
     selenium,
@@ -47,7 +47,7 @@ def test_clone_experiment(
     summary.wait_for_clone_parent_link_visible()
 
 
-@pytest.mark.run_once
+@pytest.mark.nimbus_ui
 @pytest.mark.xdist_group(name="group2")
 def test_promote_to_rollout(
     selenium,
@@ -58,7 +58,7 @@ def test_promote_to_rollout(
     summary.wait_for_clone_parent_link_visible()
 
 
-@pytest.mark.run_once
+@pytest.mark.remote_settings
 @pytest.mark.xdist_group(name="group2")
 def test_takeaways(
     selenium,
@@ -89,7 +89,7 @@ def test_takeaways(
     assert summary.takeaways_recommendation_badge_text == "Change course"
 
 
-@pytest.mark.run_once
+@pytest.mark.nimbus_ui
 @pytest.mark.xdist_group(name="group2")
 def test_branch_screenshot(
     selenium,
