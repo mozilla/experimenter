@@ -114,15 +114,8 @@ const FilterSelect = <
       ),
     [fieldOptions],
   );
+
   const fieldValue = filterValue[filterValueName];
-  console.log("1");
-  console.log(filterValue);
-  console.log("1=2");
-  console.log(fieldLabel);
-  console.log("3");
-  console.log(fieldOptions);
-  console.log("4");
-  console.log(optionLabelName);
   const { applications } = useConfig();
 
   return (
