@@ -87,16 +87,26 @@ FIRST_RUN_WINDOWS_1903_NEWER = NimbusTargetingConfig(
 )
 
 FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
-    name="First start-up users on Windows 10 1903 (build 18362) or newer, with a new profile, needing default",
+    name=(
+        "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
+        "new profile, needing default"
+    ),
     slug="first_run_new_profile_need_default",
-    description="First start-up users (e.g. for about:welcome) on Windows 1903+, with a new profile, needing default",
-    targeting="{first_run} && os.windowsBuildNumber >= 18362 && {new_profile} && {need_default}".format(
-        first_run=FIRST_RUN.targeting,
-        new_profile=NEW_PROFILE,
-        need_default=NEED_DEFAULT,
+    description=(
+        "First start-up users (e.g. for about:welcome) on Windows 1903+, "
+        "with a new profile, needing default"
+    ),
+    targeting=(
+        "{first_run} && os.windowsBuildNumber >= 18362 && {new_profile} && "
+        "{need_default}".format(
+            first_run=FIRST_RUN.targeting,
+            new_profile=NEW_PROFILE,
+            need_default=NEED_DEFAULT,
+        )
     ),
     desktop_telemetry=(
-        "{first_run} AND environment.system.os.windows_build_number >= 18362 AND !isDefaultBrowser AND doesAppNeedPin"
+        "{first_run} AND environment.system.os.windows_build_number >= 18362 AND "
+        "!isDefaultBrowser AND doesAppNeedPin"
     ).format(first_run=FIRST_RUN.desktop_telemetry),
     sticky_required=True,
     is_first_run_required=False,
