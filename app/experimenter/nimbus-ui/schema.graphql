@@ -449,6 +449,7 @@ type NimbusExperimentType {
   isFirstRun: Boolean!
   isClientSchemaDisabled: Boolean!
   StartDate: Date
+  EnrollmentEndDate: Date
   EndDate: Date
   preventPrefConflicts: Boolean
   nimbusexperimentSet: [NimbusExperimentType!]!

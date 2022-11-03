@@ -57,7 +57,7 @@ def firefox_options(firefox_options):
     return firefox_options
 
 
-@pytest.mark.run_once
+@pytest.mark.nimbus_integration
 @pytest.mark.xdist_group(name="group1")
 def test_check_telemetry_enrollment_unenrollment(
     base_url,
