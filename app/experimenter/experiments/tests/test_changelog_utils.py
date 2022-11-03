@@ -36,6 +36,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             data,
             {
                 "_end_date": None,
+                "_enrollment_end_date": None,
                 "_start_date": None,
                 "application": "",
                 "branches": [],
@@ -115,6 +116,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             data,
             {
                 "_end_date": "2020-02-01",
+                "_enrollment_end_date": None,
                 "_start_date": "2020-01-01",
                 "application": experiment.application,
                 "channel": experiment.channel,

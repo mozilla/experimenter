@@ -47,7 +47,6 @@ class NimbusExperimentManager(models.Manager):
                 "branches",
                 "branches__feature_values",
                 "branches__feature_values__feature_config",
-                "changes",
                 "feature_configs",
             )
         )
@@ -201,6 +200,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     is_client_schema_disabled = models.BooleanField(default=False)
 
     _start_date = models.DateField(blank=True, null=True)
+    _enrollment_end_date = models.DateField(blank=True, null=True)
     _end_date = models.DateField(blank=True, null=True)
 
     prevent_pref_conflicts = models.BooleanField(blank=True, null=True, default=False)
@@ -470,6 +470,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_enrollment_days(self):
+        if None not in (self._start_date, self._enrollment_end_date):
+            return (self._enrollment_end_date - self._start_date).days
+
         changes = self.changes.all()
         paused_changelogs = [
             c
@@ -484,6 +487,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if paused_changelogs:
             paused_change = sorted(paused_changelogs, key=lambda c: c.changed_on)[-1]
+            self._enrollment_end_date = paused_change.changed_on.date()
+            self.save()
             return (paused_change.changed_on.date() - self.start_date).days
 
         if self.end_date:
@@ -493,10 +498,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_enrollment_end_date(self):
-        start_date = self.start_date
-        computed_enrollment_days = self.computed_enrollment_days
-        if None not in (start_date, computed_enrollment_days):
-            return start_date + datetime.timedelta(days=computed_enrollment_days)
+        if None not in (self.start_date, self.computed_enrollment_days):
+            return self.start_date + datetime.timedelta(
+                days=self.computed_enrollment_days
+            )
 
     @property
     def computed_end_date(self):
