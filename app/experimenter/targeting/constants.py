@@ -90,7 +90,7 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
     name="First start-up users on Windows 10 1903 (build 18362) or newer, with a new profile, needing default",
     slug="first_run_new_profile_need_default",
     description="First start-up users (e.g. for about:welcome) on Windows 1903+, with a new profile, needing default",
-    targeting="{first_run} && os.windowsBuildNumber >= 18362 && {new_profile} && {need_default}}".format(
+    targeting="{first_run} && os.windowsBuildNumber >= 18362 && {new_profile} && {need_default}".format(
         first_run=FIRST_RUN.targeting,
         new_profile=NEW_PROFILE,
         need_default=NEED_DEFAULT,
