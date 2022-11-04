@@ -4,10 +4,15 @@
 
 import { render } from "@testing-library/react";
 import React from "react";
+import { MockedCache } from "../../../lib/mocks";
 import { EVERYTHING_SELECTED_VALUE, Subject } from "../mocks";
 
 describe("FilterBar", () => {
   it("renders as expected", () => {
-    render(<Subject value={EVERYTHING_SELECTED_VALUE} />);
+    render(
+      <MockedCache>
+        <Subject value={EVERYTHING_SELECTED_VALUE} />
+      </MockedCache>,
+    );
   });
 });
