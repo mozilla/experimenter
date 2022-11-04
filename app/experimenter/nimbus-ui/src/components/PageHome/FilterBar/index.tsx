@@ -6,6 +6,8 @@ import React, { useMemo } from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Select, { OptionsType, OptionTypeBase } from "react-select";
+import { useConfig } from "../../../hooks";
+import { displayConfigLabelOrNotSet } from "../../Summary";
 import { optionIndexKeys } from "../filterExperiments";
 import {
   FilterOptions,
@@ -112,7 +114,9 @@ const FilterSelect = <
       ),
     [fieldOptions],
   );
+
   const fieldValue = filterValue[filterValueName];
+  const { applications } = useConfig();
 
   return (
     <Nav.Item className="mb-2 text-left flex-basis-0 flex-grow-1 flex-shrink-1 w-100">
@@ -124,7 +128,13 @@ const FilterSelect = <
           value: fieldValue,
           placeholder: "All " + fieldLabel + "s",
           getOptionLabel: (item: OptionTypeBase) =>
-            item[optionLabelName as string],
+            fieldLabel === "Feature"
+              ? item[optionLabelName as string] +
+                ` (${displayConfigLabelOrNotSet(
+                  item["application"],
+                  applications,
+                )})`
+              : item[optionLabelName as string],
           getOptionValue: (item: OptionTypeBase) =>
             optionIndexKeys[filterValueName](
               // @ts-ignore because this works in practice but types disagree
