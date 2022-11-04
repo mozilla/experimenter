@@ -130,9 +130,10 @@ const FilterSelect = <
           getOptionLabel: (item: OptionTypeBase) =>
             fieldLabel === "Feature"
               ? item[optionLabelName as string] +
-                " (" +
-                displayConfigLabelOrNotSet(item["application"], applications) +
-                ")"
+                ` (${displayConfigLabelOrNotSet(
+                  item["application"],
+                  applications,
+                )})`
               : item[optionLabelName as string],
           getOptionValue: (item: OptionTypeBase) =>
             optionIndexKeys[filterValueName](
