@@ -32,6 +32,25 @@ testFeature:
       type: string
       setPref: nimbus.testing.testSetString
       description: A string pref set by Nimbus tests
+nimbus-qa-1:
+  description: A feature for testing pref-setting on the default branch.
+  owner: barret@mozilla.com
+  hasExposure: false
+  variables:
+    value:
+      type: string
+      setPref: nimbus.qa.pref-1
+      description: The value to set for the pref.
+nimbus-qa-2:
+  description: A feature for testing pref-setting on the user branch.
+  owner: barret@mozilla.com
+  isEarlyStartup: true
+  hasExposure: false
+  variables:
+    value:
+      type: string
+      setPref: nimbus.qa.pref-2
+      description: The value to set for the pref.
 search:
   description: The Search Services
   owner: search-and-suggest-program@mozilla.com
@@ -183,6 +202,10 @@ urlbar:
       description: >-
         The index of sponsored QuickSuggest results within the general group. A
         negative index is relative to the end of the group
+    showSearchTermsFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.showSearchTerms.featureGate
+      description: Gate for the show search terms feature. If false, the preference#search will not show the search terms feature checkbox, and search terms will never persist in the urlbar. If true, the preference checkbox will be shown on preferences#search, and the user can choose to persist search terms on or off in the urlbar.
 aboutwelcome:
   description: "The about:welcome page"
   owner: omc@mozilla.com
