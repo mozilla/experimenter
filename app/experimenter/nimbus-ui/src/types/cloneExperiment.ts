@@ -19,6 +19,9 @@ export interface cloneExperiment_cloneExperiment {
 }
 
 export interface cloneExperiment {
+  /**
+   * Clone an experiment.
+   */
   cloneExperiment: cloneExperiment_cloneExperiment | null;
 }
 

@@ -72,7 +72,7 @@ class TestCreateExperimentMutation(GraphQLTestCase):
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         result = content["data"]["createExperiment"]
         self.assertEqual(result["message"], "success")
@@ -132,6 +132,7 @@ class TestUpdateExperimentMutationSingleFeature(
 
     def test_update_experiment_overview(self):
         user_email = "user@example.com"
+        project = ProjectFactory.create()
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             slug="old slug",
@@ -156,6 +157,7 @@ class TestUpdateExperimentMutationSingleFeature(
                     "riskPartnerRelated": True,
                     "conclusionRecommendation": "RERUN",
                     "takeawaysSummary": "the test worked",
+                    "projects": [str(project.id)],
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -178,6 +180,7 @@ class TestUpdateExperimentMutationSingleFeature(
             NimbusExperiment.ConclusionRecommendation.RERUN,
         )
         self.assertEqual(experiment.takeaways_summary, "the test worked")
+        self.assertEqual(list(experiment.projects.all()), [project])
 
     def test_update_experiment_error(self):
         user_email = "user@example.com"
@@ -658,7 +661,6 @@ class TestUpdateExperimentMutationSingleFeature(
         country = CountryFactory.create()
         locale = LocaleFactory.create()
         language = LanguageFactory.create()
-        project = ProjectFactory.create()
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -681,15 +683,14 @@ class TestUpdateExperimentMutationSingleFeature(
                     "firefoxMinVersion": NimbusConstants.Version.FIREFOX_83.name,
                     "firefoxMaxVersion": NimbusConstants.Version.FIREFOX_95.name,
                     "populationPercent": "10",
-                    "proposedDuration": 120,
-                    "proposedEnrollment": 42,
+                    "proposedDuration": "120",
+                    "proposedEnrollment": "42",
                     "targetingConfigSlug": (TargetingConstants.TargetingConfig.FIRST_RUN),
                     "totalEnrolledClients": 100,
                     "changelogMessage": "test changelog message",
-                    "countries": [country.id],
-                    "locales": [locale.id],
-                    "languages": [language.id],
-                    "projects": [project.id],
+                    "countries": [str(country.id)],
+                    "locales": [str(locale.id)],
+                    "languages": [str(language.id)],
                     "isSticky": True,
                     "isFirstRun": True,
                 }
@@ -719,7 +720,6 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])
         self.assertEqual(list(experiment.languages.all()), [language])
-        self.assertEqual(list(experiment.projects.all()), [project])
         self.assertTrue(experiment.is_sticky)
 
     def test_update_experiment_audience_error(self):

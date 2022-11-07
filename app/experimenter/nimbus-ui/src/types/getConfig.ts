@@ -66,6 +66,9 @@ export interface getConfig_nimbusConfig_outcomes {
 }
 
 export interface getConfig_nimbusConfig_owners {
+  /**
+   * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+   */
   username: string;
 }
 
@@ -84,22 +87,22 @@ export interface getConfig_nimbusConfig_documentationLink {
 }
 
 export interface getConfig_nimbusConfig_locales {
-  id: number | null;
-  name: string | null;
+  id: string;
+  name: string;
 }
 
 export interface getConfig_nimbusConfig_countries {
-  id: number | null;
-  name: string | null;
+  id: string;
+  name: string;
 }
 
 export interface getConfig_nimbusConfig_languages {
-  id: number | null;
-  name: string | null;
+  id: string;
+  name: string;
 }
 
 export interface getConfig_nimbusConfig_projects {
-  id: number | null;
+  id: string | null;
   name: string | null;
 }
 
@@ -136,5 +139,8 @@ export interface getConfig_nimbusConfig {
 }
 
 export interface getConfig {
+  /**
+   * Nimbus Configuration Data for front-end usage.
+   */
   nimbusConfig: getConfig_nimbusConfig | null;
 }

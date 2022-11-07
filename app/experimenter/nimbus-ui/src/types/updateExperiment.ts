@@ -14,6 +14,9 @@ export interface updateExperiment_updateExperiment {
 }
 
 export interface updateExperiment {
+  /**
+   * Update a Nimbus Experiment.
+   */
   updateExperiment: updateExperiment_updateExperiment | null;
 }
 

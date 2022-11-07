@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentApplicationEnum, NimbusExperimentConclusionRecommendationEnum, NimbusExperimentChannelEnum, NimbusExperimentFirefoxVersionEnum, NimbusDocumentationLinkTitle, NimbusChangeLogOldStatus, NimbusChangeLogOldStatusNext } from "./globalTypes";
+import { NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentApplicationEnum, NimbusExperimentConclusionRecommendationEnum, NimbusExperimentChannelEnum, NimbusExperimentFirefoxVersionEnum, ExperimentsNimbusDocumentationLinkTitleChoices, ExperimentsNimbusChangeLogOldStatusChoices, ExperimentsNimbusChangeLogOldStatusNextChoices } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -84,7 +84,7 @@ export interface getExperiment_experimentBySlug_signoffRecommendations {
 }
 
 export interface getExperiment_experimentBySlug_documentationLinks {
-  title: NimbusDocumentationLinkTitle;
+  title: ExperimentsNimbusDocumentationLinkTitleChoices;
   link: string;
 }
 
@@ -103,8 +103,8 @@ export interface getExperiment_experimentBySlug_rejection_changedBy {
 
 export interface getExperiment_experimentBySlug_rejection {
   message: string | null;
-  oldStatus: NimbusChangeLogOldStatus | null;
-  oldStatusNext: NimbusChangeLogOldStatusNext | null;
+  oldStatus: ExperimentsNimbusChangeLogOldStatusChoices | null;
+  oldStatusNext: ExperimentsNimbusChangeLogOldStatusNextChoices | null;
   changedOn: DateTime;
   changedBy: getExperiment_experimentBySlug_rejection_changedBy;
 }
@@ -119,22 +119,22 @@ export interface getExperiment_experimentBySlug_timeout {
 }
 
 export interface getExperiment_experimentBySlug_locales {
-  id: number | null;
-  name: string | null;
+  id: string;
+  name: string;
 }
 
 export interface getExperiment_experimentBySlug_countries {
-  id: number | null;
-  name: string | null;
+  id: string;
+  name: string;
 }
 
 export interface getExperiment_experimentBySlug_languages {
-  id: number | null;
-  name: string | null;
+  id: string;
+  name: string;
 }
 
 export interface getExperiment_experimentBySlug_projects {
-  id: number | null;
+  id: string | null;
   name: string | null;
 }
 
@@ -154,7 +154,7 @@ export interface getExperiment_experimentBySlug {
   resultsReady: boolean | null;
   hypothesis: string | null;
   application: NimbusExperimentApplicationEnum | null;
-  publicDescription: string;
+  publicDescription: string | null;
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum | null;
   takeawaysSummary: string | null;
   owner: getExperiment_experimentBySlug_owner;
@@ -183,7 +183,7 @@ export interface getExperiment_experimentBySlug {
   computedEndDate: DateTime | null;
   computedEnrollmentDays: number | null;
   computedDurationDays: number | null;
-  riskMitigationLink: string;
+  riskMitigationLink: string | null;
   riskRevenue: boolean | null;
   riskBrand: boolean | null;
   riskPartnerRelated: boolean | null;
@@ -205,6 +205,9 @@ export interface getExperiment_experimentBySlug {
 }
 
 export interface getExperiment {
+  /**
+   * Retrieve a Nimbus experiment by its slug.
+   */
   experimentBySlug: getExperiment_experimentBySlug | null;
 }
 

@@ -8,8 +8,8 @@ import { LIFECYCLE_REVIEW_FLOWS } from "../../lib/constants";
 import { humanDate } from "../../lib/dateUtils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
-  NimbusChangeLogOldStatus,
-  NimbusChangeLogOldStatusNext,
+  ExperimentsNimbusChangeLogOldStatusChoices,
+  ExperimentsNimbusChangeLogOldStatusNextChoices,
 } from "../../types/globalTypes";
 
 export const RejectionReason = ({
@@ -21,13 +21,15 @@ export const RejectionReason = ({
     rejectionEvent!;
 
   const rejectionActionDescription = useMemo(() => {
-    if (oldStatus === NimbusChangeLogOldStatus.LIVE) {
-      if (oldStatusNext === NimbusChangeLogOldStatusNext.LIVE) {
+    if (oldStatus === ExperimentsNimbusChangeLogOldStatusChoices.LIVE) {
+      if (
+        oldStatusNext === ExperimentsNimbusChangeLogOldStatusNextChoices.LIVE
+      ) {
         return LIFECYCLE_REVIEW_FLOWS.PAUSE.description;
       }
       return LIFECYCLE_REVIEW_FLOWS.END.description;
     }
-    if (oldStatus === NimbusChangeLogOldStatus.DRAFT) {
+    if (oldStatus === ExperimentsNimbusChangeLogOldStatusChoices.DRAFT) {
       return LIFECYCLE_REVIEW_FLOWS.LAUNCH.description;
     }
   }, [oldStatus, oldStatusNext]);

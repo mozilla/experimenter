@@ -44,6 +44,9 @@ class CreateExperiment(graphene.Mutation):
 
     @classmethod
     def mutate(cls, root, info, input: ExperimentInput):
+        if "reference_branch" in input and input["reference_branch"] is None:
+            input.pop("reference_branch")
+
         serializer = NimbusExperimentSerializer(
             data=input, context={"user": info.context.user}
         )
@@ -60,10 +63,16 @@ class UpdateExperiment(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, input: ExperimentInput):
         experiment = NimbusExperiment.objects.get(id=input.id)
+
+        if "reference_branch" in input and input["reference_branch"] is None:
+            input.pop("reference_branch")
+
         if "feature_config_id" in input:
             input["feature_config"] = input.pop("feature_config_id", None)
         if "feature_config_ids" in input:
+
             input["feature_configs"] = input.pop("feature_config_ids", None)
+
         serializer = NimbusExperimentSerializer(
             experiment, data=input, partial=True, context={"user": info.context.user}
         )
