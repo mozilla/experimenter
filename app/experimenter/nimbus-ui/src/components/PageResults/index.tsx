@@ -65,6 +65,23 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
       sortedBranchNames.length > 0 ? sortedBranchNames[0] : undefined,
   };
 
+  // list of metrics (slugs) with errors that would not otherwise be displayed
+  const otherMetricErrors = Object.keys(analysis?.errors || {}).filter(
+    (key: string) => {
+      if (key === "experiment") {
+        return false;
+      }
+      if (
+        configOutcomes &&
+        configOutcomes.find((outcome) => outcome?.slug === key)
+      ) {
+        return false;
+      }
+
+      return true;
+    },
+  );
+
   const controlBranchError =
     sortedBranchNames.length === 0 ? (
       <AnalysisErrorAlert
@@ -130,7 +147,11 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   <>
                     {metricHeader}
                     <AnalysisErrorAlert
-                      errors={analysis.errors![metric.slug]}
+                      errors={analysis.errors![metric.slug].filter(
+                        (error, idx, self) =>
+                          idx ===
+                          self.findIndex((e) => e.message === error.message),
+                      )}
                     />
                   </>
                 );
@@ -371,6 +392,30 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                 </div>
               );
             })}
+          {otherMetricErrors.length > 0 && (
+            <>
+              <h3 className="h5 mb-3">
+                <i>Other Metric Errors</i>
+              </h3>
+              {otherMetricErrors.map((errorMetric) => {
+                const errorsForMetric = analysis.errors?.[errorMetric].filter(
+                  (error, idx, self) =>
+                    idx === self.findIndex((e) => e.message === error.message),
+                );
+                return (
+                  <>
+                    <MetricHeader
+                      key={errorMetric}
+                      outcomeSlug={errorMetric}
+                      outcomeDefaultName={errorMetric}
+                      metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+                    />
+                    <AnalysisErrorAlert errors={errorsForMetric || []} />
+                  </>
+                );
+              })}
+            </>
+          )}
         </div>
       </ResultsContext.Provider>
     </AppLayoutWithExperiment>
