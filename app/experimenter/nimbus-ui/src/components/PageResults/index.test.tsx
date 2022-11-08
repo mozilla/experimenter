@@ -222,6 +222,50 @@ describe("PageResults", () => {
     ).toHaveLength(3);
   });
 
+  it("displays errors for metrics that do not appear in data or outcomes", async () => {
+    render(
+      <Subject
+        mockAnalysisData={mockAnalysis({
+          errors: {
+            experiment: [],
+            bad_metric: [
+              {
+                exception:
+                  "(<class 'jetstream.errors.BadThingException'>, BadThingException('Error while computing statistic test_statistic for metric bad_metric: UH OH'), None)",
+                exception_type: "BadThingException",
+                experiment: "demo-slug",
+                filename: "statistics.py",
+                func_name: "apply",
+                log_level: "ERROR",
+                message:
+                  "Error while computing statistic test_statistic for metric bad_metric: UH OH",
+                metric: "bad_metric",
+                statistic: "test_statistic",
+                timestamp: "2022-11-04 00:00:00+00:00",
+              },
+            ],
+          },
+        })}
+        mockExperiment={
+          mockExperimentQuery("demo-slug", {
+            status: NimbusExperimentStatusEnum.COMPLETE,
+          }).experiment
+        }
+      />,
+    );
+
+    expect(screen.getByText("Other Metric Errors"));
+
+    expect(screen.getByText("BadThingException calculating test_statistic"));
+
+    expect(
+      screen.getByText(
+        "Error while computing statistic test_statistic for metric bad_metric",
+        { exact: false },
+      ),
+    );
+  });
+
   it("redirects to the edit overview page if the experiment status is draft", async () => {
     expect(
       redirectTestCommon({
