@@ -423,7 +423,7 @@ export const mockAnalysis = (modifications = {}) =>
         picture_in_picture: [
           {
             exception:
-              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric picture_in_picture: 'data' contains null values'), None)",
             exception_type: "StatisticComputationException",
             experiment: "demo-slug",
             filename: "statistics.py",
@@ -439,7 +439,7 @@ export const mockAnalysis = (modifications = {}) =>
         feature_b: [
           {
             exception:
-              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric feature_b: 'data' contains null values'), None)",
             exception_type: "StatisticComputationException",
             experiment: "demo-slug",
             filename: "statistics.py",
@@ -3094,7 +3094,7 @@ export const mockAnalysisWithErrors = (modifications = {}) =>
         picture_in_picture: [
           {
             exception:
-              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric picture_in_picture: 'data' contains null values'), None)",
             exception_type: "StatisticComputationException",
             experiment: "demo-slug",
             filename: "statistics.py",
@@ -3110,7 +3110,7 @@ export const mockAnalysisWithErrors = (modifications = {}) =>
         feature_b: [
           {
             exception:
-              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric feature_b: 'data' contains null values'), None)",
             exception_type: "StatisticComputationException",
             experiment: "demo-slug",
             filename: "statistics.py",
@@ -3156,7 +3156,7 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
         picture_in_picture: [
           {
             exception:
-              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric picture_in_picture: 'data' contains null values'), None)",
             exception_type: "StatisticComputationException",
             experiment: "demo-slug",
             filename: "statistics.py",
@@ -3172,7 +3172,7 @@ export const mockAnalysisWithErrorsAndResults = (modifications = {}) =>
         feature_b: [
           {
             exception:
-              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric search_count: 'data' contains null values'), None)",
+              "(<class 'jetstream.errors.StatisticComputationException'>, StatisticComputationException('Error while computing statistic bootstrap_mean for metric feature_b: 'data' contains null values'), None)",
             exception_type: "StatisticComputationException",
             experiment: "demo-slug",
             filename: "statistics.py",
