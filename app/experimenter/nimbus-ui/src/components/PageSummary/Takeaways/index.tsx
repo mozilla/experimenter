@@ -43,7 +43,7 @@ export const Takeaways = (props: TakeawaysProps) => {
   )?.label;
 
   return (
-    <Card className="mb-4">
+    <Card className="border-left-0 border-right-0 border-bottom-0 my-4">
       <section id="takeaways" data-testid="Takeaways">
         <Card.Header as="h5">
           <Row>

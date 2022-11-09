@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { Card } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
 import { useChangeOperationMutation } from "../../hooks";
@@ -25,6 +26,7 @@ import SummaryTimeline from "./SummaryTimeline";
 import TableAudience from "./TableAudience";
 import TableBranches from "./TableBranches";
 import TableOverview from "./TableOverview";
+import TableRiskMitigation from "./TableRiskMitigation";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
@@ -77,54 +79,78 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       </h3>
 
       <SummaryTimeline {...{ experiment }} />
-      {status.complete && <Takeaways {...takeawaysProps} />}
 
       {submitError && (
         <Alert data-testid="submit-error" variant="warning">
           {submitError}
         </Alert>
       )}
+      {!status.complete && (
+        <Card className="border-left-0 border-right-0 border-bottom-0">
+          <Card.Header as="h5">Actions</Card.Header>
+          <Card.Body>
+            {status.live &&
+              !status.approved &&
+              !status.review &&
+              status.idle &&
+              !status.pauseRequested &&
+              !experiment.isEnrollmentPaused && (
+                <EndEnrollment
+                  {...{ isLoading, onSubmit: onConfirmEndEnrollmentClicked }}
+                />
+              )}
 
-      {status.live &&
-        !status.approved &&
-        !status.review &&
-        status.idle &&
-        !status.pauseRequested &&
-        !experiment.isEnrollmentPaused && (
-          <EndEnrollment
-            {...{ isLoading, onSubmit: onConfirmEndEnrollmentClicked }}
-          />
-        )}
+            {status.live &&
+              !status.review &&
+              !status.endRequested &&
+              status.idle && (
+                <EndExperiment
+                  {...{ isLoading, onSubmit: onConfirmEndClicked }}
+                />
+              )}
+            {status.review && (
+              <CancelReview
+                {...{ isLoading, onSubmit: onConfirmCancelReviewClicked }}
+              />
+            )}
+            {(status.live || status.preview) && (
+              <PreviewURL {...experiment} status={status} />
+            )}
 
-      {status.live && !status.review && !status.endRequested && status.idle && (
-        <EndExperiment {...{ isLoading, onSubmit: onConfirmEndClicked }} />
+            {status.draft && !status.review ? "No Action needed" : ""}
+          </Card.Body>
+        </Card>
       )}
-      {status.review && (
-        <CancelReview
-          {...{ isLoading, onSubmit: onConfirmCancelReviewClicked }}
-        />
-      )}
-      {(status.live || status.preview) && (
-        <PreviewURL {...experiment} status={status} />
-      )}
+      {!status.launched && (
+        <Card className="mb-4 border-left-0 border-right-0 border-bottom-0">
+          <Card.Header as="h5" data-testid="summary-page-signoff-not-launched">
+            Recommended actions before launch
+          </Card.Header>
 
-      <TableOverview {...{ experiment }} />
-
-      <TableAudience {...{ experiment }} />
-
-      {/* Branches title is inside its table */}
-      <TableBranches {...{ experiment }} />
-
-      {status.launched && (
-        <>
-          <h3 className="h5 mb-3">
-            Actions that were recommended before launch
-          </h3>
           <TableSignoff
             signoffRecommendations={experiment.signoffRecommendations}
           />
-        </>
+        </Card>
       )}
+      {status.complete && <Takeaways {...takeawaysProps} />}
+      <TableOverview {...{ experiment }} />
+      <TableRiskMitigation {...{ experiment }} />
+
+      <TableAudience {...{ experiment }} />
+      {status.launched && (
+        <Card className="border-left-0 border-right-0 border-bottom-0">
+          <Card.Header as="h5" data-testid="summary-page-signoff-launched">
+            Actions that were recommended before launch
+          </Card.Header>
+
+          <TableSignoff
+            signoffRecommendations={experiment.signoffRecommendations}
+          />
+        </Card>
+      )}
+
+      {/* Branches title is inside its table */}
+      <TableBranches {...{ experiment }} />
     </div>
   );
 };

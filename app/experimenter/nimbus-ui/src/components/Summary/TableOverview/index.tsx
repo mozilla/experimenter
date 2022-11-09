@@ -6,7 +6,6 @@ import React from "react";
 import { Card, Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig, useOutcomes } from "../../../hooks";
-import { RISK_QUESTIONS } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import NotSet from "../../NotSet";
 import RichText from "../../RichText";
@@ -17,26 +16,27 @@ type TableOverviewProps = {
 
 // `<tr>`s showing optional fields that are not set are not displayed.
 
-const getRiskLabel = (answer: boolean) => (answer ? "Yes" : "No");
-
 const TableOverview = ({ experiment }: TableOverviewProps) => {
   const { applications } = useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
   return (
-    <Card className="mb-4">
+    <Card className="my-4 border-left-0 border-right-0 border-bottom-0">
       <Card.Header as="h5">Overview</Card.Header>
       <Card.Body>
         <Table data-testid="table-overview">
           <tbody>
             <tr>
-              <th>Slug</th>
-              <td data-testid="experiment-slug" className="text-monospace">
+              <th className="border-top-0">Slug</th>
+              <td
+                data-testid="experiment-slug"
+                className="text-monospace border-top-0"
+              >
                 {experiment.slug}
               </td>
 
-              <th>Experiment owner</th>
-              <td data-testid="experiment-owner">
+              <th className="border-top-0">Experiment owner</th>
+              <td data-testid="experiment-owner" className="border-top-0">
                 {experiment.owner ? experiment.owner.email : <NotSet />}
               </td>
             </tr>
@@ -89,50 +89,6 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
               <th>Hypothesis</th>
               <td colSpan={3} data-testid="experiment-hypothesis">
                 <RichText text={experiment.hypothesis || ""} />
-              </td>
-            </tr>
-            <tr></tr>
-
-            <tr>
-              <th>Risk mitigation question (1):</th>
-              <td
-                colSpan={3}
-                data-testid="experiment-risk-mitigation-question-1"
-              >
-                {RISK_QUESTIONS.BRAND} —{" "}
-                {experiment.riskBrand !== null ? (
-                  getRiskLabel(experiment.riskBrand)
-                ) : (
-                  <NotSet />
-                )}
-              </td>
-            </tr>
-            <tr>
-              <th>Risk mitigation question (2):</th>
-              <td
-                colSpan={3}
-                data-testid="experiment-risk-mitigation-question-2"
-              >
-                {RISK_QUESTIONS.REVENUE} —{" "}
-                {experiment.riskRevenue !== null ? (
-                  getRiskLabel(experiment.riskRevenue)
-                ) : (
-                  <NotSet />
-                )}
-              </td>
-            </tr>
-            <tr>
-              <th>Risk mitigation question (3):</th>
-              <td
-                colSpan={3}
-                data-testid="experiment-risk-mitigation-question-3"
-              >
-                {RISK_QUESTIONS.PARTNER} —{" "}
-                {experiment.riskPartnerRelated !== null ? (
-                  getRiskLabel(experiment.riskPartnerRelated)
-                ) : (
-                  <NotSet />
-                )}
               </td>
             </tr>
 

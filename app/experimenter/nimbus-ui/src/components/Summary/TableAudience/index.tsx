@@ -27,16 +27,30 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
   const [expand, setExpand] = useState(false);
 
   return (
-    <Card>
+    <Card className="border-left-0 border-right-0 border-bottom-0">
       <Card.Header as="h5">Audience</Card.Header>
       <Card.Body>
         <Table data-testid="table-audience" className="table-fixed">
           <tbody>
             <tr>
-              <th>Channel</th>
-              <td data-testid="experiment-channel">
+              <th className="border-top-0">Channel</th>
+              <td data-testid="experiment-channel" className="border-top-0">
                 {displayConfigLabelOrNotSet(experiment.channel, channels)}
               </td>
+
+              {experiment.targetingConfigSlug && (
+                <>
+                  <th className="border-top-0">Advanced Targeting</th>
+                  <td data-testid="experiment-target" className="border-top-0">
+                    {displayConfigLabelOrNotSet(
+                      experiment.targetingConfigSlug,
+                      targetingConfigs,
+                    )}
+                  </td>
+                </>
+              )}
+            </tr>
+            <tr>
               <th>Minimum version</th>
               <td data-testid="experiment-ff-min">
                 {displayConfigLabelOrNotSet(
@@ -44,22 +58,11 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                   firefoxVersions,
                 )}
               </td>
-            </tr>
-            <tr>
               <th>Maximum version</th>
               <td data-testid="experiment-ff-max">
                 {displayConfigLabelOrNotSet(
                   experiment.firefoxMaxVersion,
                   firefoxVersions,
-                )}
-              </td>
-
-              <th>Population %</th>
-              <td data-testid="experiment-population">
-                {experiment.populationPercent ? (
-                  `${experiment.populationPercent}%`
-                ) : (
-                  <NotSet />
                 )}
               </td>
             </tr>
@@ -119,17 +122,14 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
                   </td>
                 </>
               )}
-              {experiment.targetingConfigSlug && (
-                <>
-                  <th>Advanced Targeting</th>
-                  <td data-testid="experiment-target">
-                    {displayConfigLabelOrNotSet(
-                      experiment.targetingConfigSlug,
-                      targetingConfigs,
-                    )}
-                  </td>
-                </>
-              )}
+              <th>Population %</th>
+              <td data-testid="experiment-population">
+                {experiment.populationPercent ? (
+                  `${experiment.populationPercent}%`
+                ) : (
+                  <NotSet />
+                )}
+              </td>
             </tr>
 
             <tr>
