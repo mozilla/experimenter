@@ -21,6 +21,7 @@ describe("Summary", () => {
       screen.queryByTestId("link-monitoring-dashboard"),
     ).not.toBeInTheDocument();
     expect(screen.getByTestId("table-overview")).toBeInTheDocument();
+    expect(screen.getByTestId("table-risk-mitigation")).toBeInTheDocument();
     expect(screen.getByTestId("table-audience")).toBeInTheDocument();
     expect(screen.queryAllByTestId("table-branch")).toHaveLength(2);
     expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
@@ -37,10 +38,16 @@ describe("Summary", () => {
       />,
     );
 
-    await screen.findByTestId("table-signoff");
+    expect(
+      screen.queryByTestId("summary-page-signoff-launched"),
+    ).toBeInTheDocument();
+    // hides signoff not launched section if experiment is launched
+    expect(
+      screen.queryByTestId("summary-page-signoff-not-launched"),
+    ).not.toBeInTheDocument();
   });
 
-  it("does not render signoff table if experiment has not been launched", () => {
+  it("does not render signoff launch table if experiment has not been launched", () => {
     render(
       <Subject
         props={{
@@ -49,7 +56,12 @@ describe("Summary", () => {
       />,
     );
 
-    expect(screen.queryByTestId("table-signoff")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("summary-page-signoff-launched"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("summary-page-signoff-not-launched"),
+    ).toBeInTheDocument();
   });
 
   it("renders enrollment active badge if enrollment is not paused", async () => {
