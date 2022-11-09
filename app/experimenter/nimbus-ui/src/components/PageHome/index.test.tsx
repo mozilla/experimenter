@@ -110,9 +110,11 @@ describe("PageHome", () => {
   // Filtering itself is more fully covered in filterExperiments.test.tsx
   it("supports filtering by feature", async () => {
     await renderAndWaitForLoaded();
+    const expectedFeatureConfigNameWithApplication =
+      "Picture-in-Picture (Android)";
     const expectedFeatureConfigName = "Picture-in-Picture";
     await selectEvent.select(screen.getByText("All Features"), [
-      expectedFeatureConfigName,
+      expectedFeatureConfigNameWithApplication,
     ]);
     await waitFor(() => {
       const featureConfigNames = screen
