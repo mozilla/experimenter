@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { Table } from "react-bootstrap";
+import { Card, Table } from "react-bootstrap";
 import { displayConfigLabelOrNotSet } from "..";
 import { useConfig, useOutcomes } from "../../../hooks";
-import { RISK_QUESTIONS } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import NotSet from "../../NotSet";
 import RichText from "../../RichText";
@@ -17,134 +16,106 @@ type TableOverviewProps = {
 
 // `<tr>`s showing optional fields that are not set are not displayed.
 
-const getRiskLabel = (answer: boolean) => (answer ? "Yes" : "No");
-
 const TableOverview = ({ experiment }: TableOverviewProps) => {
   const { applications } = useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
 
   return (
-    <Table data-testid="table-overview" className="mb-4 border rounded">
-      <tbody>
-        <tr>
-          <th className="w-25">Slug</th>
-          <td data-testid="experiment-slug" className="text-monospace">
-            {experiment.slug}
-          </td>
-        </tr>
-        <tr>
-          <th>Experiment owner</th>
-          <td data-testid="experiment-owner">
-            {experiment.owner ? experiment.owner.email : <NotSet />}
-          </td>
-        </tr>
-        <tr>
-          <th>Application</th>
-          <td data-testid="experiment-application">
-            {displayConfigLabelOrNotSet(experiment.application, applications)}
-          </td>
-        </tr>
-        <tr>
-          <th>Hypothesis</th>
-          <td data-testid="experiment-hypothesis">
-            <RichText text={experiment.hypothesis || ""} />
-          </td>
-        </tr>
-        <tr>
-          <th>Public description</th>
-          <td data-testid="experiment-description">
-            {experiment.publicDescription ? (
-              experiment.publicDescription
-            ) : (
-              <NotSet />
-            )}
-          </td>
-        </tr>
+    <Card className="my-4 border-left-0 border-right-0 border-bottom-0">
+      <Card.Header as="h5">Overview</Card.Header>
+      <Card.Body>
+        <Table data-testid="table-overview">
+          <tbody>
+            <tr>
+              <th className="border-top-0">Slug</th>
+              <td
+                data-testid="experiment-slug"
+                className="text-monospace border-top-0"
+              >
+                {experiment.slug}
+              </td>
 
-        <tr>
-          <th>Risk mitigation question (1):</th>
-          <td data-testid="experiment-risk-mitigation-question-1">
-            {RISK_QUESTIONS.BRAND} —{" "}
-            {experiment.riskBrand !== null ? (
-              getRiskLabel(experiment.riskBrand)
-            ) : (
-              <NotSet />
+              <th className="border-top-0">Experiment owner</th>
+              <td data-testid="experiment-owner" className="border-top-0">
+                {experiment.owner ? experiment.owner.email : <NotSet />}
+              </td>
+            </tr>
+            <tr>
+              <th>Application</th>
+              <td data-testid="experiment-application">
+                {displayConfigLabelOrNotSet(
+                  experiment.application,
+                  applications,
+                )}
+              </td>
+              <th>Public description</th>
+              <td data-testid="experiment-description">
+                {experiment.publicDescription ? (
+                  experiment.publicDescription
+                ) : (
+                  <NotSet />
+                )}
+              </td>
+            </tr>
+            <tr>
+              <th>Feature config</th>
+              <td data-testid="experiment-feature-config">
+                {experiment.featureConfigs?.length ? (
+                  experiment.featureConfigs.map((f, idx) => (
+                    <React.Fragment key={f?.id || idx}>
+                      <p>
+                        {f?.name}
+                        {f?.description?.length ? `- ${f.description}` : ""}
+                      </p>
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <NotSet />
+                )}
+              </td>
+
+              <th>Advanced Targeting</th>
+              <td data-testid="experiment-targeting-config">
+                {experiment.targetingConfig?.length ? (
+                  experiment.targetingConfig.map((t) => (
+                    <p key={t?.label}>{`${t?.label} - ${t?.description}`}</p>
+                  ))
+                ) : (
+                  <NotSet />
+                )}
+              </td>
+            </tr>
+            <tr>
+              <th>Hypothesis</th>
+              <td colSpan={3} data-testid="experiment-hypothesis">
+                <RichText text={experiment.hypothesis || ""} />
+              </td>
+            </tr>
+
+            {primaryOutcomes.length > 0 && (
+              <tr>
+                <th>Primary outcomes</th>
+                <td colSpan={3} data-testid="experiment-outcome-primary">
+                  {primaryOutcomes
+                    .map((outcome) => outcome?.friendlyName)
+                    .join(", ")}
+                </td>
+              </tr>
             )}
-          </td>
-        </tr>
-        <tr>
-          <th>Risk mitigation question (2):</th>
-          <td data-testid="experiment-risk-mitigation-question-2">
-            {RISK_QUESTIONS.REVENUE} —{" "}
-            {experiment.riskRevenue !== null ? (
-              getRiskLabel(experiment.riskRevenue)
-            ) : (
-              <NotSet />
+            {secondaryOutcomes.length > 0 && (
+              <tr>
+                <th>Secondary outcomes</th>
+                <td colSpan={3} data-testid="experiment-outcome-secondary">
+                  {secondaryOutcomes
+                    .map((outcome) => outcome?.friendlyName)
+                    .join(", ")}
+                </td>
+              </tr>
             )}
-          </td>
-        </tr>
-        <tr>
-          <th>Risk mitigation question (3):</th>
-          <td data-testid="experiment-risk-mitigation-question-3">
-            {RISK_QUESTIONS.PARTNER} —{" "}
-            {experiment.riskPartnerRelated !== null ? (
-              getRiskLabel(experiment.riskPartnerRelated)
-            ) : (
-              <NotSet />
-            )}
-          </td>
-        </tr>
-        <tr>
-          <th>Feature config</th>
-          <td data-testid="experiment-feature-config">
-            {experiment.featureConfigs?.length ? (
-              experiment.featureConfigs.map((f, idx) => (
-                <React.Fragment key={f?.id || idx}>
-                  <p>
-                    {f?.name}
-                    {f?.description?.length ? `- ${f.description}` : ""}
-                  </p>
-                </React.Fragment>
-              ))
-            ) : (
-              <NotSet />
-            )}
-          </td>
-        </tr>
-        <tr>
-          <th>Advanced Targeting</th>
-          <td data-testid="experiment-targeting-config">
-            {experiment.targetingConfig?.length ? (
-              experiment.targetingConfig.map((t) => (
-                <p key={t?.label}>{`${t?.label} - ${t?.description}`}</p>
-              ))
-            ) : (
-              <NotSet />
-            )}
-          </td>
-        </tr>
-        {primaryOutcomes.length > 0 && (
-          <tr>
-            <th>Primary outcomes</th>
-            <td data-testid="experiment-outcome-primary">
-              {primaryOutcomes
-                .map((outcome) => outcome?.friendlyName)
-                .join(", ")}
-            </td>
-          </tr>
-        )}
-        {secondaryOutcomes.length > 0 && (
-          <tr>
-            <th>Secondary outcomes</th>
-            <td data-testid="experiment-outcome-secondary">
-              {secondaryOutcomes
-                .map((outcome) => outcome?.friendlyName)
-                .join(", ")}
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </Table>
+          </tbody>
+        </Table>
+      </Card.Body>
+    </Card>
   );
 };
 

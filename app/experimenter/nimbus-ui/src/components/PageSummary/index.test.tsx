@@ -70,9 +70,7 @@ describe("PageSummary", () => {
     await screen.findByTestId("PageSummary");
     await screen.findByTestId("start-launch-draft-to-review");
     expect(screen.getByTestId("summary")).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByTestId("summary-page-signoff")).toBeInTheDocument();
-    });
+
     screen.getByRole("navigation");
   });
 
@@ -112,19 +110,6 @@ describe("PageSummary", () => {
     fireEvent.click(screen.getByTestId("cancel-review-start"));
     await waitFor(() => {
       expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
-    });
-  });
-
-  it("hides signoff section if experiment is launched", async () => {
-    // this table is shown in the Summary component instead
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatusEnum.LIVE,
-    });
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(
-        screen.queryByTestId("summary-page-signoff"),
-      ).not.toBeInTheDocument();
     });
   });
 
