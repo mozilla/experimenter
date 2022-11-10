@@ -5,7 +5,6 @@
 import React from "react";
 import { Card } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
-import Badge from "react-bootstrap/Badge";
 import { useChangeOperationMutation } from "../../hooks";
 import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
@@ -22,7 +21,6 @@ import PreviewURL from "../PreviewURL";
 import CancelReview from "./CancelReview";
 import EndEnrollment from "./EndEnrollment";
 import EndExperiment from "./EndExperiment";
-import SummaryTimeline from "./SummaryTimeline";
 import TableAudience from "./TableAudience";
 import TableBranches from "./TableBranches";
 import TableOverview from "./TableOverview";
@@ -73,13 +71,6 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
 
   return (
     <div data-testid="summary" className="mb-5">
-      <h3 className="h5 mb-3">
-        Timeline
-        {status.live && <StatusPills {...{ experiment }} />}
-      </h3>
-
-      <SummaryTimeline {...{ experiment }} />
-
       {submitError && (
         <Alert data-testid="submit-error" variant="warning">
           {submitError}
@@ -164,33 +155,3 @@ export const displayConfigLabelOrNotSet = (
 };
 
 export default Summary;
-
-const StatusPills = ({
-  experiment,
-}: {
-  experiment: getExperiment_experimentBySlug;
-}) => (
-  <>
-    {experiment.isEnrollmentPaused === false && (
-      <StatusPill
-        testId="pill-enrolling-active"
-        label="Enrolling Users in Progress"
-      />
-    )}
-    {experiment.isEnrollmentPaused && experiment.enrollmentEndDate && (
-      <StatusPill
-        testId="pill-enrolling-complete"
-        label="Enrollment Complete"
-      />
-    )}
-  </>
-);
-
-const StatusPill = ({ label, testId }: { label: string; testId: string }) => (
-  <Badge
-    className="ml-2 border rounded-pill px-2 bg-white border-primary text-primary font-weight-normal"
-    data-testid={testId}
-  >
-    {label}
-  </Badge>
-);
