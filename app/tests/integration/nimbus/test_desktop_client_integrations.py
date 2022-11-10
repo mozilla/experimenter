@@ -155,7 +155,10 @@ def test_check_telemetry_enrollment_unenrollment(
     for item in requests.get("http://ping-server:5000/pings").json():
         if "experiments" in item["environment"]:
             for key in item["environment"]["experiments"]:
-                assert experiment_slug in key
+                if experiment_slug in key:
+                    break
+                else:
+                    continue
 
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
@@ -304,7 +307,10 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
     for item in requests.get("http://ping-server:5000/pings").json():
         if "experiments" in item["environment"]:
             for key in item["environment"]["experiments"]:
-                assert experiment_slug in key
+                if experiment_slug in key:
+                    break
+                else:
+                    continue
 
     selenium.get("about:config")
     search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
