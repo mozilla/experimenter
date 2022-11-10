@@ -3,11 +3,11 @@ from urllib.parse import urljoin
 
 import pytest
 import requests
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.utils import helpers
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 @pytest.fixture
@@ -197,7 +197,7 @@ def test_check_telemetry_enrollment_unenrollment(
 
 
 @pytest.mark.nimbus_integration
-@pytest.mark.xdist_group(name="group1")
+@pytest.mark.xdist_group(name="group2")
 def test_check_telemetry_enrollment_unenrollment_pref_flip(
     base_url,
     selenium,
@@ -250,13 +250,9 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
     )
     wait = WebDriverWait(selenium, 10)
     selenium.get("about:config")
-    search_bar = wait.until(
-        EC.presence_of_element_located(_search_bar_locator)
-    )
+    search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
     search_bar.send_keys("nimbus.qa.pref-1")
-    wait.until(
-        EC.presence_of_element_located(_row_locator)
-    )
+    wait.until(EC.presence_of_element_located(_row_locator))
     elements = selenium.find_elements(*_row_locator)
     for item in elements:
         if "default" in item.text:
@@ -311,13 +307,9 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
                 assert experiment_slug in key
 
     selenium.get("about:config")
-    search_bar = wait.until(
-        EC.presence_of_element_located(_search_bar_locator)
-    )
+    search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
     search_bar.send_keys("nimbus.qa.pref-1")
-    wait.until(
-        EC.presence_of_element_located(_row_locator)
-    )
+    wait.until(EC.presence_of_element_located(_row_locator))
     elements = selenium.find_elements(*_row_locator)
     for item in elements:
         if "test_string_automation" in item.text:
@@ -327,7 +319,6 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
             continue
     else:
         assert False
-    
 
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
@@ -367,17 +358,12 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
         if control is not False:
             assert False, "Experiment unenrollment was never seen in Ping Data"
     selenium.get("about:config")
-    search_bar = wait.until(
-        EC.presence_of_element_located(_search_bar_locator)
-    )
+    search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
     search_bar.send_keys("nimbus.qa.pref-1")
-    wait.until(
-        EC.presence_of_element_located(_row_locator)
-    )
+    wait.until(EC.presence_of_element_located(_row_locator))
     elements = selenium.find_elements(*_row_locator)
     for item in elements:
         if "test_string_automation" not in elements:
             assert True
         else:
             continue
-    
