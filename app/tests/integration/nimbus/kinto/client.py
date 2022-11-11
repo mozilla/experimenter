@@ -38,7 +38,9 @@ class KintoClient:
                         data={"status": KINTO_SIGN_STATUS},
                         bucket=KINTO_BUCKET_WORKSPACE,
                     )
-                except Exception as e:
+                except kinto_http.exceptions.KintoException:
+                    # This happens if there are multiple experiments that
+                    # need to be approved.
                     pass
                 else:
                     return
