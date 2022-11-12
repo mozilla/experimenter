@@ -20,7 +20,7 @@ note over Experiment Owner:<align:center>An owner is ready\nto create a new expe
 
 group #ff00ff Owner Creates in Experimenter
 Experiment Owner->Experimenter UI:Create experiment/rollout
-Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Idle**\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Idle**\n Next status: <none>\n+changelog
 end
 
 
@@ -35,7 +35,7 @@ note over Experiment Owner:<align:center>An owner is ready\nto publish their dra
 
 group #ff00ff Owner Creates in Experimenter
 Experiment Owner->Experimenter UI:Send to Preview
-Experimenter UI->Experimenter Backend:<align:center>Update to Preview\n Status: **Draft**\n Next status: **Preview**\n Publish status: **Idle**
+Experimenter UI->Experimenter Backend:<align:center>Update to Preview\n Status: **Draft**\n Publish status: **Idle**\n Next status: **Preview**
 end
 
 note over Experimenter Backend:<align:center>The scheduled background \ntask is invoked, finds all Preview \nexperiments/rollouts. Any Preview \nitems not in Remote Settings are created.\n Any non-Preview items in Remote \nSettings are deleted.
@@ -65,7 +65,7 @@ group #ff00ff Owner Launches in Experimenter
 
 Experiment Owner->Experimenter UI: Send to **review**
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **draft**\nPublish status: **review**\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\nPublish status: **Review**\n Next status: **Live**\n+changelog
 
 end
 
@@ -76,7 +76,7 @@ Reviewer<--Experimenter Backend:To review
 group #ffff00 Reviewer Approves in Experimenter
 
 Reviewer->Experimenter UI: Approve
-Experimenter UI->Experimenter Backend:<align:center>Status: **draft**\nPublish status: **approved** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\nPublish status: **Approved** \n Next status: **Live**\n+changelog
 
 end
 
@@ -86,11 +86,11 @@ note over Experimenter Backend:<align:center>The scheduled background task is\ni
 
 group #00ffff Worker Publishes to Remote Settings
 
-Experimenter Backend->Experimenter Worker:<align:center>Find experiments/rollouts:\n Status: **draft** \n Publish status: **approved**
+Experimenter Backend->Experimenter Worker:<align:center>Find experiments/rollouts:\n Status: **Draft** \n Publish status: **Approved**\n Next status: **Live**
 
 Experimenter Worker->Remote Settings Backend:<align:center>Create Record\nRS status: **to-review**
 
-Experimenter Worker->Experimenter Backend:<align:center>Status: **Draft** \n Publish status: **Waiting**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Draft** \n Publish status: **Waiting**\n Next status: **Live**\n+changelog
 
 end
 
@@ -109,9 +109,9 @@ note over Experimenter Backend:<align:center>The scheduled background task\n is 
 
 group #00ffff Worker Updates Experiment/Rollout
 
-Experimenter Worker->Remote Settings Backend:<align:center>Check collection (e.g. timeout)
+Experimenter Worker->Remote Settings Backend:<align:center>Check collection (timeout)
 
-Experimenter Worker->Experimenter Backend:<align:center>Status: **Live**\nPublish status: **Idle**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Live**\nPublish status: **Idle**\n Next status: <none>\n+changelog
 
 
 end
@@ -120,6 +120,8 @@ end
 #=======================
 ====
 #=======================
+
+
 
 # Push Updates to Published Rollout
 
@@ -130,7 +132,7 @@ group #ff00ff Owner Makes Changes in Experimenter
 
 Experiment Owner->Experimenter UI: Make updates to live rollout
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Dirty** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Dirty**\n Next status: **Live** \n+changelog
 
 end 
 
@@ -142,7 +144,7 @@ group #ff00ff Owner Launches in Experimenter
 
 Experiment Owner->Experimenter UI: Send to **review**
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Review** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Review** \n Next status: **Live**\n+changelog
 
 end
 
@@ -153,10 +155,9 @@ Reviewer<--Experimenter Backend:To review
 group #ffff00 Reviewer Approves in Experimenter
 
 Reviewer->Experimenter UI: Approve
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **approved** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Approved**\n Next status: **Live** \n+changelog
 
 end
-
 
 
 note over Experimenter Backend:<align:center>The scheduled background task is\ninvoked, finds an **approved** rollout \nwith updates to publish, \nand creates the new **published** \nrecord with the serialized DTO
@@ -164,11 +165,11 @@ note over Experimenter Backend:<align:center>The scheduled background task is\ni
 
 group #00ffff Worker Publishes to Remote Settings
 
-Experimenter Backend->Experimenter Worker:<align:center>Find rollouts:\n Status: **live** \n Publish status: **approved**
+Experimenter Backend->Experimenter Worker:<align:center>Find rollouts:\n Status: **Live** \n Publish status: **Approved**\n Next status: **Live**
 
 Experimenter Worker->Remote Settings Backend:<align:center>Update Record\nRS status: **to-review**
 
-Experimenter Worker->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Waiting**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Waiting**\n Next status: **Live**\n+changelog
 
 end
 
@@ -187,9 +188,9 @@ note over Experimenter Backend:<align:center>The scheduled background task\n is 
 
 group #00ffff Worker Updates Rollout
 
-Experimenter Worker->Remote Settings Backend:<align:center>Check collection (e.g. timeout)
+Experimenter Worker->Remote Settings Backend:<align:center>Check collection (timeout)
 
-Experimenter Worker->Experimenter Backend:<align:center>Status: **Live**\nPublish status: **Idle**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Live**\nPublish status: **Idle**\n Next status: **Live**\n+changelog
 
 
 end
@@ -198,31 +199,40 @@ end
 ====
 #=======================
 
-# Publish New Experiment (reject/----)
-# Rejected in experimenter
+# Push Updates to Published (Live) Rollout
+# Rejected in Experimenter
 
-note over Experiment Owner:<align:center>An owner is ready to launch\n their experiment/rollout and\n clicks the **launch** button
+note over Experiment Owner:<align:center>An owner is ready to **update** \n their **Live** rollout
+
+
+group #ff00ff Owner Makes Changes in Experimenter
+
+Experiment Owner->Experimenter UI: Make updates to live rollout
+
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Dirty**\n Next status: **Live** \n+changelog
+
+end 
+
+
+
+note over Experiment Owner:<align:center>The owner clicks the\n **Review** button
 
 group #ff00ff Owner Launches in Experimenter
 
-Experiment Owner->Experimenter UI:Launch Experiment/Rollout
+Experiment Owner->Experimenter UI: Send to **review**
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **review** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Review** \n Next status: **Live**\n+changelog
 
 end
 
+
 Reviewer<--Experimenter Backend:To review
-
-
-note over Reviewer:<align:center>The reviewer reviews the\n experiment/rollout details on the\n summary page and clicks the\n **reject** button
 
 
 group #ffff00 Reviewer Rejects in Experimenter
 
-Reviewer->Experimenter UI:Reject
-
-Experimenter UI->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **idle** \n+changelog
-
+Reviewer->Experimenter UI: Reject
+Experimenter UI->Experimenter Backend:<align:center>\nStatus: **Live**\n Publish status: **Dirty** \n Next status: <none> \n+changelog
 end
 
 
@@ -230,48 +240,55 @@ end
 ====
 #=======================
 
-# Publish New Experiment/Rollout (approve/reject)
-# Approved in experimenter, rejected in remote settings
 
-note over Experiment Owner:<align:center>An owner is ready to launch\n their experiment/rollout and\n clicks the **launch** button
+# Push Updates to Published (Live) Rollout
+# Approved in Experimenter, Rejected in Remote Settings
 
+note over Experiment Owner:<align:center>An owner is ready to **update** \n their **Live** rollout
+
+
+group #ff00ff Owner Makes Changes in Experimenter
+
+Experiment Owner->Experimenter UI: Make updates to live rollout
+
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Dirty**\n Next status: **Live** \n+changelog
+
+end 
+
+
+
+note over Experiment Owner:<align:center>The owner clicks the\n **Review** button
 
 group #ff00ff Owner Launches in Experimenter
 
-Experiment Owner->Experimenter UI:Launch Experiment/Rollout
+Experiment Owner->Experimenter UI: Send to **review**
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **review** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Review** \n Next status: **Live**\n+changelog
 
 end
-
 
 
 Reviewer<--Experimenter Backend:To review
 
 
-
-note over Reviewer:<align:center>The reviewer reviews the\nexperiment/rollout's details on the \nsummary page and clicks the\n **approve** button
-
-
-
 group #ffff00 Reviewer Approves in Experimenter
-Reviewer->Experimenter UI:Approve
-Experimenter UI->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **approved** \n+changelog
+
+Reviewer->Experimenter UI: Approve
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Approved**\n Next status: **Live** \n+changelog
+
 end
 
 
-
-note over Experimenter Backend:<align:center> The scheduled background task is\ninvoked, finds an **approved** \nexperiment/rollout to launch, and\n creates a new record with the \nserialized DTO
-
+note over Experimenter Backend:<align:center>The scheduled background task is\ninvoked, finds an **approved** rollout \nwith updates to publish, \nand creates the new **published** \nrecord with the serialized DTO
 
 
 group #00ffff Worker Publishes to Remote Settings
 
-Experimenter Backend->Experimenter Worker:<align:center>Find experiments/rollouts:\n Status: **Draft** \n Published status: **approved**
+Experimenter Backend->Experimenter Worker:<align:center>Find rollouts:\n Status: **Live** \n Publish status: **Approved**\n Next status: **Live**
 
-Experimenter Worker->Remote Settings Backend:<align:center>Create Record\nRS status: **to-review**
+Experimenter Worker->Remote Settings Backend:<align:center>Update Record\nRS status: **to-review**
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Draft** \n Publish status: **waiting**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Waiting**\n Next status: **Live**\n+changelog
 
 end
 
@@ -297,7 +314,118 @@ Experimenter Worker->Remote Settings Backend:Check collection after timeout\n RS
 Experimenter Worker->Remote Settings Backend:<align:center>Rollback\nStatus: **to-rollback**
 
 
-Experimenter Worker->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **idle**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Dirty**\n Next status: <none>\n+changelog
+
+
+end
+
+
+
+#=======================
+====
+#=======================
+
+
+# Publish New Experiment (reject/----)
+# Rejected in experimenter
+
+note over Experiment Owner:<align:center>An owner is ready to launch\n their experiment/rollout and\n clicks the **launch** button
+
+group #ff00ff Owner Launches in Experimenter
+
+Experiment Owner->Experimenter UI:Launch Experiment/Rollout
+
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Review** \n Next status: **Live** \n+changelog
+
+end
+
+Reviewer<--Experimenter Backend:To review
+
+
+note over Reviewer:<align:center>The reviewer reviews the\n experiment/rollout details on the\n summary page and clicks the\n **reject** button
+
+
+group #ffff00 Reviewer Rejects in Experimenter
+
+Reviewer->Experimenter UI:Reject
+
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Idle**\n Next status: <none> \n+changelog
+
+end
+
+
+#=======================
+====
+#=======================
+
+# Publish New Experiment/Rollout (approve/reject)
+# Approved in experimenter, rejected in remote settings
+
+note over Experiment Owner:<align:center>An owner is ready to launch\n their experiment/rollout and\n clicks the **launch** button
+
+
+group #ff00ff Owner Launches in Experimenter
+
+Experiment Owner->Experimenter UI:Launch Experiment/Rollout
+
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Review**\n Next status: **Live** \n+changelog
+
+end
+
+
+
+Reviewer<--Experimenter Backend:To review
+
+
+
+note over Reviewer:<align:center>The reviewer reviews the\nexperiment/rollout's details on the \nsummary page and clicks the\n **approve** button
+
+
+
+group #ffff00 Reviewer Approves in Experimenter
+Reviewer->Experimenter UI:Approve
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Approved** \n Next status: **Live**\n+changelog
+end
+
+
+
+note over Experimenter Backend:<align:center> The scheduled background task is\ninvoked, finds an **approved** \nexperiment/rollout to launch, and\n creates a new record with the \nserialized DTO
+
+
+
+group #00ffff Worker Publishes to Remote Settings
+
+Experimenter Backend->Experimenter Worker:<align:center>Find experiments/rollouts:\n Status: **Draft** \n Published status: **Approved**\n Next status: **Live**
+
+Experimenter Worker->Remote Settings Backend:<align:center>Create Record\nRS status: **to-review**
+
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Draft** \n Publish status: **Waiting**\n Next status: **Live**\n+changelog
+
+end
+
+
+Reviewer<--Experimenter Backend:To approval in Remote Settings
+
+
+note over Reviewer:<align:center> The reviewer opens \nRemote Settings and **rejects**\nthe change in the collection
+
+group #ffff00 Reviewer Rejects in Remote Settings
+Reviewer->Remote Settings UI:Reject
+end
+
+
+note over Experimenter Backend: <align:center>The scheduled background task\n is invoked and finds the collection\n in **work-in-progress**, collects the\n rejection message, and rolls back
+
+
+
+group #00ffff Worker Updates Experiment/Rollout
+
+Experimenter Worker->Remote Settings Backend:Check collection after timeout\n RS status: **work-in-progress**
+
+Experimenter Worker->Remote Settings Backend:<align:center>Rollback\nStatus: **to-rollback**
+
+
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Idle**\n Next status: <none> \n+changelog
 
 
 end
@@ -318,7 +446,7 @@ group #ff00ff Owner Launches in Experimenter
 
 Experiment Owner->Experimenter UI:Launch Experiment/Rollout
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **review** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Review** \n Next status: **Live**\n+changelog
 
 end
 
@@ -334,7 +462,7 @@ note over Reviewer:<align:center>The reviewer reviews the \nexperiment/rollout's
 
 group #ffff00 Reviewer Approves in Experimenter
 Reviewer->Experimenter UI:Approve
-Experimenter UI->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **approved** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Approved** \n Next status: **Live** \n+changelog
 end
 
 
@@ -345,11 +473,11 @@ note over Experimenter Backend:<align:center> The scheduled background task is\n
 
 group #00ffff Worker Publishes to Remote Settings
 
-Experimenter Backend->Experimenter Worker:<align:center>Find experiments/rollouts:\n Status: **Draft** \n Published status: **approved**
+Experimenter Backend->Experimenter Worker:<align:center>Find experiments/rollouts:\n Status: **Draft** \n Published status: **Approved**\n Next status: **Live**
 
 Experimenter Worker->Remote Settings Backend:<align:center>Create Record\nRS status: **to-review**
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Draft** \n Publish status: **waiting**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Draft** \n Publish status: **Waiting**\n Next status: **Live**\n+changelog
 
 end
 
@@ -372,7 +500,7 @@ group #00ffff Worker Updates Experiment/Rollout
 
 Experimenter Worker->Remote Settings Backend:<align:center>Check collection after timeout\n RS status: **to-sign**
 
-Experimenter Worker->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **idle**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Idle**\n Next status: <none>\n+changelog
 
 
 end
@@ -391,7 +519,7 @@ group #ff00ff Owner Launches in Experimenter
 
 Experiment Owner->Experimenter UI:Launch experiment/rollout
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **review** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Review** \n Next status: **Live** \n+changelog
 
 end 
 
@@ -403,7 +531,7 @@ Reviewer<--Experimenter Backend:To review
 group #ffff00 Reviewer Approves in Experimenter
 
 Reviewer->Experimenter UI: Approve
-Experimenter UI->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **approved** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Approved** \n Next status: **Live** \n+changelog
 
 end
 
@@ -415,11 +543,11 @@ note over Experimenter Backend:<align:center> The scheduled background task is\n
 
 group #00ffff Worker Publishes to Remote Settings
 
-Experimenter Backend->Experimenter Worker:<align:center>Find experiments/rollouts:\n Status: **Draft** \n Published status: **approved**
+Experimenter Backend->Experimenter Worker:<align:center>Find experiments/rollouts:\n Status: **Draft**\n Publish status: **Approved** \n Next status: **Live** 
 
 Experimenter Worker->Remote Settings Backend:<align:center>Create Record\nRS status: **to-review**
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Draft** \n Publish status: **waiting**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Draft**\n Publish status: **Waiting** \n Next status: **Live** \n+changelog
 
 end
 
@@ -434,10 +562,167 @@ Experimenter Worker->Remote Settings Backend:<align:center> Check collection aft
 
 Experimenter Worker->Remote Settings Backend:<align:center> RS status: **to-rollback**
 
-Experimenter Worker->Experimenter Backend:<align:center>Status: **draft**\n Publish status: **idle**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Draft**\n Publish status: **Idle** \n Next status: <none> \n+changelog
 
 
 end
+
+
+#=======================
+====
+#=======================
+
+
+# Update rollout (approve/reject+manual rollback)
+# Approved in experimenter, rejected in remote settings, but manually rolled back before it can be automatically rolled back
+
+note over Experiment Owner:<align:center>An owner is ready to **update** \n their **Live** rollout
+
+
+group #ff00ff Owner Makes Changes in Experimenter
+
+Experiment Owner->Experimenter UI: Make updates to live rollout
+
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Dirty**\n Next status: **Live** \n+changelog
+
+end 
+
+
+
+note over Experiment Owner:<align:center>The owner clicks the\n **Review** button
+
+group #ff00ff Owner Launches in Experimenter
+
+Experiment Owner->Experimenter UI: Send to **review**
+
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Review** \n Next status: **Live**\n+changelog
+
+end
+
+
+Reviewer<--Experimenter Backend:To review
+
+
+
+
+group #ffff00 Reviewer Approves in Experimenter
+Reviewer->Experimenter UI:Approve
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Approved** \n Next status: **Live** \n+changelog
+end
+
+
+
+note over Experimenter Backend:<align:center> The scheduled background task is\ninvoked, finds an **approved** rollout\nto launch, and creates a new record\nwith the serialized DTO
+
+
+
+group #00ffff Worker Publishes to Remote Settings
+
+Experimenter Backend->Experimenter Worker:<align:center>Find experiments/rollouts:\n Status: **Live** \n Published status: **Approved**\n Next status: **Live**
+
+Experimenter Worker->Remote Settings Backend:<align:center>Create Record\nRS status: **to-review**
+
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Waiting**\n Next status: **Live**\n+changelog
+
+end
+
+
+Reviewer<--Experimenter Backend:To approval in Remote Settings
+
+
+note over Reviewer:<align:center> The reviewer opens\nRemote Settings and **rejects**\nthe change in the collection
+
+group #ffff00 Reviewer Rejects in Remote Settings
+Reviewer->Remote Settings UI:Reject
+end
+
+
+note over Experimenter Backend: <align:center>The scheduled background task\n is invoked and **finds the collection\n in to-sign** with no record of the rejection
+
+
+
+group #00ffff Worker Updates Experiment/Rollout
+
+Experimenter Worker->Remote Settings Backend:<align:center>Check collection after timeout\n RS status: **to-sign**
+
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Idle**\n Next status: <none>\n+changelog
+
+
+end
+
+
+#=======================
+====
+#=======================
+
+# Publish Update to rollout (approve/timeout)
+# The updated rollout is approved in experimenter but remote settings returns an error
+
+note over Experiment Owner:<align:center>An owner is ready to **update** \n their **Live** rollout
+
+
+group #ff00ff Owner Makes Changes in Experimenter
+
+Experiment Owner->Experimenter UI: Make updates to live rollout
+
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Dirty**\n Next status: **Live** \n+changelog
+
+end 
+
+
+
+note over Experiment Owner:<align:center>The owner clicks the\n **Review** button
+
+group #ff00ff Owner Launches in Experimenter
+
+Experiment Owner->Experimenter UI: Send to **review**
+
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Review** \n Next status: **Live**\n+changelog
+
+end
+
+
+Reviewer<--Experimenter Backend:To review
+
+
+group #ffff00 Reviewer Approves in Experimenter
+
+Reviewer->Experimenter UI: Approve
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Approved**\n Next status: **Live** \n+changelog
+
+end
+
+
+note over Experimenter Backend:<align:center>The scheduled background task is\ninvoked, finds an **approved** rollout \nwith updates to publish, \nand creates the new **published** \nrecord with the serialized DTO
+
+
+group #00ffff Worker Publishes to Remote Settings
+
+Experimenter Backend->Experimenter Worker:<align:center>Find rollouts:\n Status: **Live** \n Published status: **Approved**\n Next status: **Live** 
+
+Experimenter Worker->Remote Settings Backend:<align:center>Create Record\nRS status: **to-review**
+
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Waiting**\n Next status: **Live** \n+changelog
+
+end
+
+
+note over Experimenter Backend: <align:center>The scheduled background task\n is invoked and **finds a pending unattended\n review**, rolls back, and reverts the \nexperiment/rollout back to the **review** state.
+
+
+
+group #00ffff Worker Updates Experiment/Rollout
+
+Experimenter Worker->Remote Settings Backend:<align:center> Check collection after timeout
+
+Experimenter Worker->Remote Settings Backend:<align:center> RS status: **to-rollback**
+
+Experimenter Worker->Experimenter Backend:<align:center>Status: **Live**\n Publish status: **Review**\n Next status: **Live**\n+changelog
+
+====
+
+end
+
 
 
 #=======================
@@ -455,7 +740,7 @@ group #ff00ff Owner Ends Enrollment in Experimenter
 
 Experiment Owner->Experimenter UI:End Enrollment for Experiment
 
-Experimenter UI->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Review**\n is_paused: **True**\n+changelog
+Experimenter UI->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Review**\n Next status: **Live**\n is_paused: **True**\n+changelog
 
 end
 
@@ -469,7 +754,7 @@ group #ffff00 Reviewer Approves in Experimenter
 
 Reviewer->Experimenter UI:Approve
 
-Experimenter UI->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Approved**\n+changelog
+Experimenter UI->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Approved**\n Next status: **Live**\n+changelog
 
 end
 
@@ -479,11 +764,11 @@ note over Experimenter Backend:<align:center>The scheduled background task is\ni
 
 group #00ffff Worker Publishes to Remote Settings
 
-Experimenter Backend->Experimenter Worker:<align:center>Find experiments in:\nStatus: **Live** \n Publish status: **Approved**
+Experimenter Backend->Experimenter Worker:<align:center>Find experiments in:\nStatus: **Live** \n Publish status: **Approved**\n Next status: **Live**
 
 Experimenter Worker->Remote Settings Backend:<align:center>Update Record\nRS Status: **to-review**
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Waiting**
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Waiting**\n Next status: **Live**
 end
 
 
@@ -505,9 +790,9 @@ note over Experimenter Backend:<align:center> The scheduled background task is\n
 
 group #00ffff Worker Updates Experiment
 
-Experimenter Worker->Remote Settings Backend:Check collection (e.g. timeout)
+Experimenter Worker->Remote Settings Backend:Check collection (timeout)
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Idle**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Idle**\n Next status: <none>\n+changelog
 
 end
 
@@ -529,7 +814,7 @@ group #ff00ff Owner Ends Enrollment in Experimenter
 
 Experiment Owner->Experimenter UI:End Enrollment for Experiment
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Review** \n is_paused: **True**\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Review** \n Next status: **Live**\n is_paused: **True**\n+changelog
 
 
 end
@@ -544,7 +829,7 @@ group #ffff00 Reviewer Rejects in Experimenter
 
 Reviewer->Experimenter UI:Reject
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Idle** \n is_paused: **False**\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Idle** \n Next status: <none>\n is_paused: **False**\n+changelog
 
 end
 
@@ -568,7 +853,7 @@ group #ff00ff Owner Ends Enrollment in Experimenter
 
 Experiment Owner->Experimenter UI:End Enrollment for Experiment
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Review** \n is_paused: **True**\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Review**\n Next status: **Live** \n is_paused: **True**\n+changelog
 
 end
 
@@ -583,7 +868,7 @@ group #ffff00 Reviewer Approves in Experimenter
 
 Reviewer->Experimenter UI:Approve
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Approved** \n is_paused: **True**\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Approved** \n Next status: **Live**\n is_paused: **True**\n+changelog
 
 end
 
@@ -595,12 +880,12 @@ note over Experimenter Backend:<align:center>The scheduled background task is\ni
 
 group #00ffff Worker Publishes to Remote Settings
 
-Experimenter Backend->Experimenter Worker:<align:center>Find experiments in:\nStatus: **Live** \n Publish status: **Approved**
+Experimenter Backend->Experimenter Worker:<align:center>Find experiments in:\nStatus: **Live** \n Publish status: **Approved**\n Next status: **Live**
 
 
 Experimenter Worker->Remote Settings Backend:<align:center>Update Record\nRS Status: **to-review**
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Waiting**
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Waiting**\n Next status: **Live**
 
 end
 
@@ -623,11 +908,11 @@ note over Experimenter Backend:<align:center> The scheduled background task is \
 
 group #00ffff Worker Updates Experiment
 
-Experimenter Worker->Remote Settings Backend:Check collection (e.g. timeout)\n RS Status: **work-in-progress**
+Experimenter Worker->Remote Settings Backend:Check collection (timeout)\n RS Status: **work-in-progress**
 
 Experimenter Worker->Remote Settings Backend:<align:center>Rollback\nRS Status: **to-rollback**
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Idle**\n is_paused: **False**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Idle**\n Next status: <none>\n is_paused: **False**\n+changelog
 
 end
 
@@ -648,7 +933,7 @@ group #ff00ff Owner Ends Enrollment in Experimenter
 
 Experiment Owner->Experimenter UI:End Enrollment for Experiment
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Review** \n is_paused: **True**\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Review** \n Next status: **Live**\n is_paused: **True**\n+changelog
 
 end
 
@@ -663,7 +948,7 @@ group #ffff00 Reviewer Approves in Experimenter
 
 Reviewer->Experimenter UI:Approve
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Approved** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Approved** \n Next status: **Live**\n+changelog
 
 end
 
@@ -673,12 +958,12 @@ note over Experimenter Backend:<align:center>The scheduled background task is\ni
 
 group #00ffff Worker Publishes to Remote Settings
 
-Experimenter Backend->Experimenter Worker:<align:center>Find experiments in:\nStatus: **Live** \n Publish status: **Approved**
+Experimenter Backend->Experimenter Worker:<align:center>Find experiments in:\nStatus: **Live** \n Publish status: **Approved**\n Next status: **Live**
 
 
 Experimenter Worker->Remote Settings Backend:<align:center>Update Record\nRS Status: **to-review**
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Waiting**
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Waiting**\n Next status: **Live**
 
 end
 
@@ -708,7 +993,7 @@ Experimenter Worker->Remote Settings Backend:Check collection after timeout
 
 
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Idle**\nis_paused: **False**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Idle**\n Next status: <none>\nis_paused: **False**\n+changelog
 end
 
 
@@ -732,7 +1017,7 @@ group #ff00ff Owner Ends Enrollment in Experimenter
 
 Experiment Owner->Experimenter UI:End Enrollment for Experiment
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Review** \n is_paused: **True**\n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Review** \n Next status: **Live**\n is_paused: **True**\n+changelog
 
 end
 
@@ -748,7 +1033,7 @@ group #ffff00 Reviewer Approves in Experimenter
 
 Reviewer->Experimenter UI:Approve
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Approved** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Approved** \n Next status: **Live**\n+changelog
 
 end
 
@@ -758,11 +1043,11 @@ note over Experimenter Backend:<align:center>The scheduled background task is\ni
 
 group #00ffff Worker Publishes to Remote Settings
 
-Experimenter Backend->Experimenter Worker:<align:center>Find experiments in:\nStatus: **Live** \n Publish status: **Approved**
+Experimenter Backend->Experimenter Worker:<align:center>Find experiments in:\nStatus: **Live** \n Publish status: **Approved**\n Next status: **Live**
 
 Experimenter Worker->Remote Settings Backend:<align:center>Update Record\nRS Status: **to-review**
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Waiting**
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Waiting**\n Next status: **Live**
 
 end
 
@@ -776,7 +1061,7 @@ Experimenter Worker->Remote Settings Backend:Check collection (timeout)
 
 Experimenter Worker->Remote Settings Backend:<align:center>Rollback\nStatus: **to-rollback**
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Review**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Review**\n Next status: <none>\n+changelog
 end
 
 
@@ -852,7 +1137,7 @@ group #00ffff Worker Updates Experiment
 Experimenter Worker->Remote Settings Backend:Check collection after timeout
 
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Complete** \n Publish status: **Idle**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Complete** \n Publish status: **Idle**\n Next status: <none>\n+changelog
 
 end
 
@@ -890,7 +1175,7 @@ group #ffff00 Reviewer Rejects in Experimenter
 
 Reviewer->Experimenter UI:Reject
 
-Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Idle** \n+changelog
+Experimenter UI->Experimenter Backend:<align:center>Status: **Live** \n Publish status: **Idle**\n Next status: <none> \n+changelog
 
 end
 
@@ -969,7 +1254,7 @@ Experimenter Worker->Remote Settings Backend:Check collection (timeout)\n RS Sta
 
 Experimenter Worker->Remote Settings Backend:<align:center>Rollback\nRS Status: **to-rollback**
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Idle**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Idle**\n Next status: <none>\n+changelog
 
 end
 
@@ -1050,7 +1335,7 @@ group #00ffff Worker Updates Experiment
 
 Experimenter Worker->Remote Settings Backend:Check collection after timeout
 
-Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Idle**\n+changelog
+Experimenter Worker->Experimenter Backend:<align:center> Status: **Live** \n Publish status: **Idle**\n Next status: <none>\n+changelog
 
 
 end
@@ -1065,6 +1350,8 @@ end
 
 
 # End Experiment (approve/timeout)
+# Approved in experimenter but times out before celery task 
+
 note over Reviewer:<align:center>The experiment owner is ready\nto end their experiment and \nclicks the **end experiment** button
 
 
