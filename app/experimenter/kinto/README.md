@@ -138,6 +138,7 @@ A draft experiment/rollout that has been validly completed is marked for Preview
 A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, is reviewed and approved in Remote Settings, and is then accessible to clients.
 ![review approved in experimenter](diagrams/draft-to-live-1.png)
 ![review approved in remote settings](diagrams/draft-to-live-2.png)
+![](diagrams/draft-to-live-3.png)
 
 ### Publish (Reject/------)
 
@@ -148,27 +149,56 @@ A draft experiment/rollout that has been validly completed (no errors) is reject
 
 A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter.
 ![review approved in experimenter](diagrams/publish-reject-in-rs-1.png)
-![review rejected in remote settings](diagrams/publish-reject-in-rs-2.png)
+![revngs](diagrams/publish-reject-in-rs-2.png)
+![revngs](diagrams/publish-reject-in-rs-3.png)
 
 ### Publish (Approve/Reject + Manual Rollback)
 
-A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer manually rolls back the Remote Settings collection. A rejection reason is captured in Remote Settings and but **unable to be recovered by Experimenter** because the collection as manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason.
-![manually rolled back](diagrams/reject-in-rs-rollback.png)
+A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer **manually rolls back** the Remote Settings collection. A rejection reason is captured in Remote Settings and but **unable to be recovered by Experimenter** because the collection as manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason.
+![mack](diagrams/reject-in-rs-rollback-1.png)
+![mck](diagrams/reject-in-rs-rollback-2.png)
+![mck](diagrams/reject-in-rs-rollback-3.png)
 
 ### Publish (Approve/Timeout)
 
 A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
-![send to remote settings](diagrams/timeout-in-rs-1.png)
-![timeout in remote settings](diagrams/timeout-in-rs-2.png)
+![send to remote settings](diagrams/publish-timeout-in-rs-1.png)
+![timeout in remote settings](diagrams/publish-timeout-in-rs-2.png)
 
-### Publish update (Approve/Approve)
+### Update (Approve/Approve)
 
 A live rollout can have updates pushed to its state while remaining Live.
 ![live dirty](diagrams/live-dirty.png)
 
 These updated changes must be reviewed in order to be published to the user, following the same flow to be approved in both Experimenter and Remote Settings.
-![review dirty in experimenter](diagrams/live-rollout-dirty-approve-1.png)
-![review dirty in remote settings](diagrams/live-rollout-dirty-approve-2.png)
+![rollout updates approved in experimenter](diagrams/live-rollout-dirty-approve-1.png)
+![rollout updates approved in remote settings](diagrams/live-rollout-dirty-approve-2.png)
+
+### Update (Reject/------)
+
+A live rollout that has valid changes (making it "dirty") is reviewed and rejected in Experimenter. A rejection reason is captured in Experimenter and is displayed to the owner in Experimenter.
+
+![rollout updates rejected in experimenter](diagrams/live-rollout-reject-exp.png)
+
+### Update (Approve/Reject)
+
+A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter.
+![rollout updates approved in experimenter](diagrams/live-rollout-reject-rs-1.png)
+![rollout updates rejected in remote settings](diagrams/live-rollout-reject-rs-2.png)
+![rollout updates rolled back to review](diagrams/live-rollout-reject-rs-3.png)
+
+### Update (Approve/Reject + Manual Rollback)
+
+A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer **manually rolls back** the Remote Settings collection. A rejection reason is captured in Remote Settings and but **unable to be recovered by Experimenter** because the collection as manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason.
+![rollout update approved in experimenter](diagrams/live-rollout-dirty-approve-1.png)
+![rollout update rejected in remote settings](diagrams/live-rollout-dirty-approve-2.png)
+![manual rollback found](diagrams/live-rollout-dirty-approve-3.png)
+
+### Update (Approve/Timeout)
+
+A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
+![rollout update approved in experimenter](diagrams/live-rollout-timeout-1.png)
+![timeout in remote settings](diagrams/live-rollout-timeout-2.png)
 
 ### End Enrollment (Approve/Approve)
 
@@ -186,41 +216,46 @@ A live experiment that is published in Remote Settings has passed its planned en
 A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and approved in Experimenter, and then rejected in Remote Settings. No change is made to Remote Settings and clients will continue to enroll. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
 ![end enrollment approved in experimenter](diagrams/end-enroll-reject-in-rs-1.png)
 ![end enrollment rejected in remote settings](diagrams/end-enroll-reject-in-rs-2.png)
+![end enrollment rolled back](diagrams/end-enroll-reject-in-rs-3.png)
 
 ### End Enrollment (Approve/Reject+Manual Rollback)
 
 A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and approved in Experimenter, and then rejected in Remote Settings. No change is made to Remote Settings and clients will continue to enroll. A rejection reason is captured in Remote Settings and but is **unable to be recovered** by Experimenter because the collection as manually rolled back before Experimenter could query its status, and so Experimenter shows a generic rejection reason.
-![end enrollment approved](diagrams/end-enroll-manual-rollback-1.png)
-![manually rolled back in experimenter](diagrams/end-enroll-manual-rollback-2.png)
+![end enrollment approved in experimenter](diagrams/end-enroll-manual-rollback-1.png)
+![end enrollment rejected in experimenter](diagrams/end-enroll-manual-rollback-2.png)
+![manual rollback found](diagrams/end-enroll-manual-rollback-3.png)
 
 ### End Enrollment (Approve/Timeout)
 
 A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and approved in Experimenter, and the change is pushed to Remote Settings. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
-![end enrollment approved](diagrams/end-enroll-timeout-1.png)
-![end enrollment celery timeout](diagrams/end-enroll-timeout-2.png)
+![end enrollment approved in experimenter](diagrams/end-enroll-timeout-1.png)
+![end enrollment timeout](diagrams/end-enroll-timeout-2.png)
 
 ### End (Approve/Approve)
 
 A live experiment that is published in Remote Settings is requested to end by the owner, reviewed and approved in Experimenter, reviewed and approved in Remote Settings, is deleted from the collection, and is then no longer accessible by clients.
-![end experiment](diagrams/end-experiment-1.png)
-![end experiment approvals](diagrams/end-experiment-2.png)
+![end experiment approved in experimenter](diagrams/end-experiment-1.png)
+![end experiment approved in remote settings](diagrams/end-experiment-2.png)
+![experiment complete](diagrams/end-experiment-3.png)
 
 ### End (Reject/------)
 
 A live experiment that is published in Remote Settings is requested to end by the owner, and is then reviewed and rejected in Experimenter. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
-![end experiment reject in experimenter](diagrams/end-experiment-reject-in-exp.png)
+![end experiment rejected in experimenter](diagrams/end-experiment-reject-in-exp.png)
 
 ### End (Approve/Reject)
 
 A live experiment that is published in Remote Settings is requested to end by the owner, is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the experiment owner in Experimenter.
-![end experiment approve in experimenter](diagrams/end-experiment-reject-in-rs-1.png)
-![reject in remote settings](diagrams/end-experiment-reject-in-rs-2.png)
+![end experiment approved in experimenter](diagrams/end-experiment-reject-in-rs-1.png)
+![end experiment rejected in remote settings](diagrams/end-experiment-reject-in-rs-2.png)
+![experiment back in live](diagrams/end-experiment-reject-in-rs-3.png)
 
 ### End (Approve/Reject+Manual Rollback)
 
 A live experiment that is published in Remote Settings is requested to end by the owner, is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and but unable to be recovered by Experimenter because the collection as manually rolled back before Experimenter could query its status, and so Experimenter shows a generic rejection reason.
-![end experiment approved in experimenter](diagrams/end-experiment-approve.png)
-![reject and manual rollback](diagrams/reject-in-rs-manual-rollback.png)
+![end experiment approved in experimenter](diagrams/end-experiment-manual-rollback-1.png)
+![end experiment rejected in remote settings](diagrams/end-experiment-manual-rollback-2.png)
+![manual rollback found](diagrams/end-experiment-manual-rollback-3.png)
 
 ### End (Approve/Timeout)
 
