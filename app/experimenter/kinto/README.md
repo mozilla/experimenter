@@ -1,5 +1,20 @@
 # Remote Settings (Kinto) Integration
 
+## Mermaid Test
+
+```mermaid
+sequenceDiagram
+    autonumber
+    Alice->>John: Hello John, how are you?
+    loop Healthcheck
+        John->>John: Fight against hypochondria
+    end
+    Note right of John: Rational thoughts!
+    John-->>Alice: Great!
+    John->>Bob: How about you?
+    Bob-->>John: Jolly good!
+```
+
 ## Table of Contents
 
 - [Remote Settings (Kinto) Integration](#remote-settings--kinto--integration)
