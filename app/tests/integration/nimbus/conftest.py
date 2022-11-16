@@ -1,5 +1,6 @@
 import json
 import os
+import time
 import uuid
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
@@ -414,6 +415,12 @@ def trigger_experiment_loader(selenium):
                     ChromeUtils.import(
                         "resource://nimbus/lib/RemoteSettingsExperimentLoader.jsm"
                     ).RemoteSettingsExperimentLoader.updateRecipes();
+                    
+                    const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js");
+                    const { RemoteSettingsExperimentLoader } = ChromeUtils.import("resource://nimbus/lib/RemoteSettingsExperimentLoader.jsm");
+
+                    RemoteSettings.pollChanges();
+                    RemoteSettingsExperimentLoader.updateRecipes();
                 """
             )
 
@@ -448,4 +455,47 @@ def fixture_experiment_default_data():
                 "featureValue": "",
             }
         ],
+        "populationPercent": "100",
+        "totalEnrolledClients": 55,
     }
+
+@pytest.fixture(name="check_ping_for_experiment")
+def fixture_check_ping_for_experiment():
+    def _check_ping_for_experiment(exp=None):
+        for item in requests.get("http://ping-server:5000/pings").json():
+            if "experiments" in item["environment"]:
+                for key in item["environment"]["experiments"]:
+                    if exp in key:
+                        return True
+                    else:
+                        continue
+                else:
+                    return False
+    return _check_ping_for_experiment
+
+
+@pytest.fixture(name="telemetry_event_check")
+def fixture_telemetry_event_check(trigger_experiment_loader):
+    def _telemetry_event_check(experiment=None, event=None):
+        control = True
+        telemetry = requests.get("http://ping-server:5000/pings").json()
+        for item in reversed(telemetry):
+            if "events" in item["payload"]:
+                if "parent" in item["payload"]["events"]:
+                    for events in item["payload"]["events"]["parent"]:
+                        try:
+                            assert "normandy" in events
+                            assert event in events
+                            assert "nimbus_experiment" in events
+                            assert experiment in events
+                        except AssertionError:
+                            continue
+                        else:
+                            return False
+            else:
+                continue
+        else:
+            trigger_experiment_loader()
+            time.sleep(15)
+            return True
+    return _telemetry_event_check

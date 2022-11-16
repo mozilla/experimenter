@@ -71,6 +71,7 @@ def test_check_telemetry_enrollment_unenrollment(
     experiment_name,
     create_desktop_experiment,
     trigger_experiment_loader,
+    check_ping_for_experiment
 ):
     requests.delete("http://ping-server:5000/pings")
     targeting = helpers.load_targeting_configs()[0]
@@ -152,6 +153,7 @@ def test_check_telemetry_enrollment_unenrollment(
             assert False, "Experiment enrollment was never seen in ping Data"
 
     # check experiment exists, this means it is enrolled
+    assert check_ping_for_experiment(experiment_slug)
     for item in requests.get("http://ping-server:5000/pings").json():
         if "experiments" in item["environment"]:
             for key in item["environment"]["experiments"]:
@@ -208,7 +210,9 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
     slugify,
     experiment_name,
     create_desktop_experiment,
-    trigger_experiment_loader,
+    experiment_default_data,
+    check_ping_for_experiment,
+    telemetry_event_check
 ):
     _row_locator = (By.CSS_SELECTOR, "tr > td > span > span")
     _search_bar_locator = (By.ID, "about-config-search")
@@ -216,40 +220,29 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
     requests.delete("http://ping-server:5000/pings")
     targeting = helpers.load_targeting_configs()[0]
     experiment_slug = str(slugify(experiment_name))
-    data = {
-        "hypothesis": "Test Hypothesis",
-        "application": "DESKTOP",
-        "changelogMessage": "test updates",
-        "targetingConfigSlug": targeting,
-        "publicDescription": "Some sort of Fancy Words",
-        "riskRevenue": False,
-        "riskPartnerRelated": False,
-        "riskBrand": False,
-        "featureConfigId": 9,
-        "referenceBranch": {
-            "description": "reference branch",
-            "name": "Branch 1",
-            "ratio": 99,
-            "featureEnabled": True,
-            "featureValue": '{"value": "test_string_automation"}',
-        },
-        "treatmentBranches": [
-            {
-                "description": "treatment branch",
-                "name": "Branch 2",
-                "ratio": 1,
-                "featureEnabled": False,
-                "featureValue": "",
-            }
-        ],
-        "populationPercent": "100",
-        "totalEnrolledClients": 55,
+    experiment_default_data["targetingConfigSlug"] = targeting
+    experiment_default_data["featureConfigId"] = 9
+    experiment_default_data["referenceBranch"] = {
+        "description": "reference branch",
+        "name": "Branch 1",
+        "ratio": 99,
+        "featureEnabled": True,
+        "featureValue": '{"value": "test_string_automation"}',
     }
+    experiment_default_data["treatmentBranches"] = [
+        {
+            "description": "treatment branch",
+            "name": "Branch 2",
+            "ratio": 1,
+            "featureEnabled": False,
+            "featureValue": "",
+        }
+    ]
     create_desktop_experiment(
         experiment_slug,
         "desktop",
         targeting,
-        data,
+        experiment_default_data,
     )
     wait = WebDriverWait(selenium, 10)
     selenium.get("about:config")
@@ -257,11 +250,8 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
     search_bar.send_keys("nimbus.qa.pref-1")
     wait.until(EC.presence_of_element_located(_row_locator))
     elements = selenium.find_elements(*_row_locator)
-    for item in elements:
-        if "default" in item.text:
-            assert True
-        else:
-            continue
+    assert "default" in [element.text for element in elements]
+
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.launch_and_approve()
 
@@ -277,54 +267,20 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
     # Check their was a telemetry event for the enrollment
     control = True
     timeout = time.time() + 60 * 5
-    while control or time.time() < timeout:
-        telemetry = requests.get("http://ping-server:5000/pings").json()
-        for item in reversed(telemetry):
-            if "events" in item["payload"]:
-                if "parent" in item["payload"]["events"]:
-                    for events in item["payload"]["events"]["parent"]:
-                        try:
-                            assert "normandy" in events
-                            assert "enroll" in events
-                            assert "nimbus_experiment" in events
-                            assert experiment_slug in events
-                        except AssertionError:
-                            continue
-                        else:
-                            control = False
-                            break
-            else:
-                continue
-        # If there are no pings we have to wait
-        else:
-            trigger_experiment_loader()
-            time.sleep(15)
-    else:
-        if control is not False:
+    while control:
+        control = telemetry_event_check(experiment_slug, "enroll")
+        if time.time() > timeout:
             assert False, "Experiment enrollment was never seen in ping Data"
 
     # check experiment exists, this means it is enrolled
-    for item in requests.get("http://ping-server:5000/pings").json():
-        if "experiments" in item["environment"]:
-            for key in item["environment"]["experiments"]:
-                if experiment_slug in key:
-                    break
-                else:
-                    continue
+    assert check_ping_for_experiment(experiment_slug)
 
     selenium.get("about:config")
     search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
     search_bar.send_keys("nimbus.qa.pref-1")
     wait.until(EC.presence_of_element_located(_row_locator))
     elements = selenium.find_elements(*_row_locator)
-    for item in elements:
-        if "test_string_automation" in item.text:
-            assert True
-            break
-        else:
-            continue
-    else:
-        assert False
+    assert "test_string_automation" in [element.text for element in elements]
 
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
@@ -338,38 +294,13 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
 
     control = True
     timeout = time.time() + 60 * 5
-    while control or time.time() < timeout:
-        telemetry = requests.get("http://ping-server:5000/pings").json()
-        for item in reversed(telemetry):
-            if "events" in item["payload"]:
-                if "parent" in item["payload"]["events"]:
-                    for events in item["payload"]["events"]["parent"]:
-                        try:
-                            assert "normandy" in events
-                            assert "unenroll" in events
-                            assert "nimbus_experiment" in events
-                            assert experiment_slug in events
-                        except AssertionError:
-                            continue
-                        else:
-                            control = False
-                            break
-            else:
-                continue
-        # If there are no pings we have to wait
-        else:
-            trigger_experiment_loader()
-            time.sleep(15)
-    else:
-        if control is not False:
-            assert False, "Experiment unenrollment was never seen in Ping Data"
+    while control:
+        control = telemetry_event_check(experiment_slug, "unenroll")
+        if time.time() > timeout:
+            assert False, "Experiment enrollment was never seen in ping Data"
     selenium.get("about:config")
     search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
     search_bar.send_keys("nimbus.qa.pref-1")
     wait.until(EC.presence_of_element_located(_row_locator))
     elements = selenium.find_elements(*_row_locator)
-    for item in elements:
-        if "test_string_automation" not in elements:
-            assert True
-        else:
-            continue
+    assert "test_string_automation" not in [element.text for element in elements]
