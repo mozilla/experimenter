@@ -49,6 +49,7 @@ FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/t
 FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/fenix/main/.experimenter.yaml
 FEATURE_MANIFEST_FXIOS_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/.experimenter.yaml
 FEATURE_MANIFEST_FOCUS_ANDROID = https://raw.githubusercontent.com/mozilla-mobile/focus-android/main/.experimenter.yaml
+FEATURE_MANIFEST_FOCUS_IOS = https://raw.githubusercontent.com/mozilla-mobile/focus-ios/main/.experimenter.yaml
 
 ssl: nginx/key.pem nginx/cert.pem
 
@@ -76,6 +77,7 @@ feature_manifests:
 	curl -LJ --create-dirs -o app/experimenter/features/manifests/fenix.yaml $(FEATURE_MANIFEST_FENIX_URL)
 	curl -LJ --create-dirs -o app/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
 	curl -LJ --create-dirs -o app/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
+	curl -LJ --create-dirs -o app/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
 
 fetch_external_resources: jetstream_config feature_manifests
 	echo "External Resources Fetched"
