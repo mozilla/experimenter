@@ -12,7 +12,7 @@ Nimbus UI uses GraphQL to fetch data from the backend and it highly depends on t
 
 - Improve performance which leads to better UX Experience
 - Reduce dependency on extra packages
-- Examining the use of GraphQL currently in the application
+- Better development tooling
 - Better Maintainability of the application
 
 ## Considered Options
