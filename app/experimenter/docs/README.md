@@ -167,7 +167,7 @@ A live rollout can have updates pushed to its state while remaining Live. These 
 
 A live rollout that has valid changes (making it "dirty") is reviewed and rejected in Experimenter. A rejection reason is captured in Experimenter and is displayed to the owner in Experimenter.
 
-![rollout updates rejected in experimenter](diagrams/live-rollout-reject-exp.png)
+![rollout updates rejected in experimenter](diagrams/update-reject.png)
 
 ### Update (Approve/Reject)
 
