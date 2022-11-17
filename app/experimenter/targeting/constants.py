@@ -763,6 +763,17 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_ = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+DOESNT_PREFER_REDUCED_MOTION = NimbusTargetingConfig(
+    name="Users Who Don't Prefer Reduced Motion",
+    slug="users_who_dont_prefer_reduced_motion",
+    description="Users who don't prefer reduced motion",
+    targeting="!userPrefersReducedMotion",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
