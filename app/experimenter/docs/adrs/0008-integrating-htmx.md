@@ -6,17 +6,18 @@
 
 ## Context and Problem Statement
 
-Nimbus UI uses GraphQL to fetch data from the backend and it highly depends on the two packages i.e. [graphene-django](https://github.com/graphql-python/graphene-django) and [graphene](https://github.com/graphql-python/graphene). We have found out that using GraphQL significantly hinders the performance of the Experimenter as it adds extra overhead while making the call and the benefit of using GraphQL is not something we are making use of. As our application is growing so what steps we should take to improve the performance and better maintainability of the application?
+Nimbus UI uses GraphQL to fetch data from the backend and it highly depends on the three packages i.e. [graphene-django](https://github.com/graphql-python/graphene-django), [graphene](https://github.com/graphql-python/graphene) and [apollo-client](https://github.com/apollographql/apollo-client). We have found out that using GraphQL significantly hinders the performance of the Experimenter as it adds extra overhead while making the call and the benefit of using GraphQL is not something we are making use of. We also have to significantly maintain the burden to implement most of the API in both DRF (Django Rest Framework) and GraphQL, and additional testing and tools are required to support that. As our application is growing so what steps we should take to improve the performance and better maintainability of the application?
 
 ## Decision Drivers
 
 - Improve performance which leads to better UX Experience
-- Dependency of using extra packages
+- Reduce dependency on extra packages
 - Examining the use of GraphQL currently in the application
+- Better Maintainability of the application
 
 ## Considered Options
 
-- Get rid of GraphQL and transition to REST Api's
+- Get rid of GraphQL and transition to REST Api's and keeping the Typescript/React frontend
 - Designing new pages with HTMX, and keep the existing UI (React and GraphQL) and eventually move to HTMX
 
 ## Decision Outcome
@@ -31,13 +32,13 @@ Chosen option: After careful consideration, we have decided to choose the option
 
 ### Negative Consequences
 
-- If new pages didn't succeed, we need to re-write those pages in React and instead of GraphQL we will be working on the transition to Rest API.
+- We'd be looking for to determine whether the new pages aren't successful. The one possible solution would be to re-write those pages in Typescript/React and instead of GraphQL and transition to Rest API.
 
 ## Pros and Cons of the Options
 
-### Get rid of GraphQL and transition to REST Api's
+### Get rid of GraphQL and transition to REST Api's and keeping the Typescript/React frontend
 
-We are currently dependant on the two packages mentioned above to use GraphQL in the project. For the time being (around one year)these packages were not releasing new versions which was one of the major factors of the performance, and recently they released new versions. We are highly dependent on the two packages and not getting the new version for the while worries us. All the API calls are using GraphQL and which increases the response time and decreases the performance of the platform. So the solution is to get rid of GraphQL and use REST API. This requires a lot of work for example changing Nimbus UI GraphQL call to REST API call, modifying frontend test cases and as well integration test cases, supporting backend for Rest API, and changing backend test as well
+We are currently dependant on the three packages mentioned above to use GraphQL in the project. For the time being (around one year)these packages were not releasing new versions which was one of the major factors of the performance, and recently they released new versions. We are highly dependent on the three packages and not getting the new version for the while worries us. All the API calls are using GraphQL and which increases the response time and decreases the performance of the platform. So the solution is to get rid of GraphQL and use REST API and keep the existing Typescript/React frontend. This requires a lot of work for example changing Nimbus UI GraphQL call to REST API call, modifying frontend test cases and as well integration test cases, supporting backend for Rest API, and changing backend test as well
 Pros:
 
 - We can keep using React with Rest Api
@@ -58,12 +59,16 @@ Pros:
 - Easy HTMX testing
 - Better performance
 - Hybrid HTMX and React architecture
-- More close to python
 - HTMX-Very small library (9kB) compared to the React framework
 - Feel like no javascript to write, more python focused
+- Improved maintainability
+- Lower testing surface
+- Fewer package dependencies
 - No API's call needed
 - We can consider using [Tailwind](https://tailwindcss.com/) instead of Bootstrap
-  Cons:
+
+Cons:
+
 - New framework, involves little learning curve
 - Need to set up testing for HTMX pages
 - Can create complexity during the transition between React and HTMX
