@@ -73,6 +73,10 @@ export const FormAudience = ({
   const config = useConfig();
   const { fieldMessages, fieldWarnings } = useReviewCheck(experiment);
 
+  const [populationPercent, setPopulationPercent] = useState<number>(
+    parseFloat(experiment!.populationPercent || "0"),
+  );
+
   const [locales, setLocales] = useState<string[]>(
     experiment!.locales.map((v) => "" + v.id!),
   );
@@ -354,10 +358,34 @@ export const FormAudience = ({
                   POSITIVE_NUMBER_FIELD,
                 )}
                 aria-describedby="populationPercent-unit"
+                type="hidden"
+                min="0"
+                max="100"
+                step="1"
+                value={populationPercent}
+              />
+              <Form.Control
+                aria-describedby="populationPercent-unit"
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={populationPercent}
+                onChange={(e) =>
+                  setPopulationPercent(parseFloat(e.target.value))
+                }
+                className="mb-3"
+              />
+              <Form.Control
+                aria-describedby="populationPercent-unit"
                 type="number"
                 min="0"
                 max="100"
                 step="1"
+                value={populationPercent}
+                onChange={(e) =>
+                  setPopulationPercent(parseFloat(e.target.value))
+                }
               />
               <InputGroup.Append>
                 <InputGroup.Text id="populationPercent-unit">%</InputGroup.Text>
