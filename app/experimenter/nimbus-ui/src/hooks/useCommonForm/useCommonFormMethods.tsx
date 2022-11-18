@@ -76,35 +76,6 @@ export function useCommonFormMethods<FieldNames extends string>(
     };
   };
 
-  const formControlAttrs2 = <K extends FieldNames>(
-    name: K,
-    registerOptions: RegisterOptions = {},
-    prefix?: string,
-  ) => {
-    const snakeCaseName = camelToSnakeCase(name);
-    const fieldName = prefix ? `${prefix}.${name}` : name;
-    const hasReviewMessage = (reviewMessages[snakeCaseName] || []).length > 0;
-    const hasReviewWarning = (reviewWarnings[snakeCaseName] || []).length > 0;
-    return {
-      ref: register(registerOptions),
-      className: classNames({
-        "is-warning": hasReviewMessage || hasReviewWarning,
-      }),
-      // setting `setDefaultValue = false` is handy when an input needs a default
-      // value via `value` instead of `defaultValue` or if the value is boolean,
-      // usually for hidden form fields or checkbox inputs
-      ...{
-        onChange: () => hideSubmitError(name),
-        isInvalid: Boolean(
-          submitErrors![snakeCaseName] || (touched[name] && errors[name]),
-        ),
-        isValid: Boolean(
-          !submitErrors![snakeCaseName] && touched[name] && !errors[name],
-        ),
-      },
-    };
-  };
-
   const FormErrors = <K extends FieldNames>({
     name,
     prefix,

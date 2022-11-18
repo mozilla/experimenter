@@ -26,7 +26,7 @@ export const Subject = ({
   return (
     <div className="p-5">
       <MockedCache {...{ config }}>
-        {/* <FormAudience
+        <FormAudience
           submitErrors={submitErrorsDefault}
           {...{
             experiment,
@@ -35,7 +35,7 @@ export const Subject = ({
             isServerValid,
             onSubmit,
           }}
-        /> */}
+        />
       </MockedCache>
     </div>
   );
