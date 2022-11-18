@@ -377,7 +377,7 @@ describe("FormAudience", () => {
 
     await act(async () => {
       const field = within(
-        screen.queryByTestId("audience-values") as HTMLElement,
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-input");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: "123" } });
@@ -695,7 +695,7 @@ describe("FormAudience", () => {
     for (const [fieldName, expected] of [
       ["firefoxMinVersion", NimbusExperimentFirefoxVersionEnum.NO_VERSION],
       ["firefoxMaxVersion", NimbusExperimentFirefoxVersionEnum.NO_VERSION],
-      ["population-percent-input", "0.0"],
+      ["population-percent-input", "0"],
       ["proposedDuration", "0"],
       ["proposedEnrollment", "0"],
       ["targetingConfigSlug", ""],
@@ -744,7 +744,7 @@ describe("FormAudience", () => {
       firefoxMinVersion: MOCK_EXPERIMENT.firefoxMinVersion,
       firefoxMaxVersion: MOCK_EXPERIMENT.firefoxMaxVersion,
       targetingConfigSlug: MOCK_EXPERIMENT.targetingConfigSlug,
-      populationPercent: "" + MOCK_EXPERIMENT.populationPercent,
+      populationPercent: parseFloat(MOCK_EXPERIMENT.populationPercent || "0"),
       totalEnrolledClients: MOCK_EXPERIMENT.totalEnrolledClients,
       proposedEnrollment: "" + MOCK_EXPERIMENT.proposedEnrollment,
       proposedDuration: "" + MOCK_EXPERIMENT.proposedDuration,
@@ -856,15 +856,40 @@ describe("FormAudience", () => {
     });
     await act(async () => {
       const field = within(
-        screen.queryByTestId("audience-values") as HTMLElement,
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-input");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: "-123" } });
     });
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
     expect(
-      within(screen.queryByTestId("audience-values") as HTMLElement)
+      within(screen.queryByTestId("population-percent-top-row") as HTMLElement)
         .findByText("This field", {
           selector: `.invalid-feedback[data-for={populationPercent}]`,
+        })
+        .then(() => {}),
+    ).toBeTruthy();
+  });
+
+  it("allows the population percentage slider to be slid", async () => {
+    const onSubmit = jest.fn();
+    const { container } = render(<Subject {...{ onSubmit }} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+    await act(async () => {
+      const slider = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-slider");
+      fireEvent.change(slider, { target: { value: "100" } });
+    });
+    expect(
+      within(screen.queryByTestId("population-percent-top-row") as HTMLElement)
+        .findByText("100", {
+          selector: `[data-for={populationPercent}]`,
         })
         .then(() => {}),
     ).toBeTruthy();
@@ -882,14 +907,14 @@ describe("FormAudience", () => {
 
     await act(async () => {
       const field = within(
-        screen.queryByTestId("audience-values") as HTMLElement,
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-input");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: "50" } });
     });
 
     expect(
-      within(screen.queryByTestId("audience-values") as HTMLElement)
+      within(screen.queryByTestId("population-percent-top-row") as HTMLElement)
         .findByText("50", {
           selector: `[data-for={populationPercent}]`,
         })
@@ -898,7 +923,7 @@ describe("FormAudience", () => {
 
     await act(async () => {
       const field = within(
-        screen.queryByTestId("audience-values") as HTMLElement,
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-input");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: "75" } });
@@ -921,6 +946,7 @@ describe("FormAudience", () => {
     });
 
     for (const fieldName of [
+      "populationPercent",
       "totalEnrolledClients",
       "proposedEnrollment",
       "proposedDuration",
@@ -946,17 +972,25 @@ describe("FormAudience", () => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
     });
 
+    // await waitFor(() => {
     await act(async () => {
       const field = within(
-        screen.queryByTestId("audience-values") as HTMLElement,
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-input");
       fireEvent.click(field);
-      fireEvent.change(field, { target: { value: "hi" } });
+      fireEvent.change(field, { target: { value: "6666666" } });
+    });
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
     });
 
     await waitFor(() => {
       expect(
-        within(screen.queryByTestId("audience-values") as HTMLElement)
+        within(
+          screen.queryByTestId("population-percent-top-row") as HTMLElement,
+        )
           .findByText("This field", {
             selector: `.invalid-feedback[data-for={populationPercent}]`,
           })
@@ -1098,7 +1132,7 @@ const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
         firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.NO_VERSION,
         firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.NO_VERSION,
         channel: NimbusExperimentChannelEnum.NO_CHANNEL,
-        populationPercent: "0.0",
+        populationPercent: "0",
         proposedDuration: 0,
         proposedEnrollment: 0,
         targetingConfigSlug: "",

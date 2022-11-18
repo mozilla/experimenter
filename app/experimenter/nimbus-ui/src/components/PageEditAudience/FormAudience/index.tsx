@@ -355,11 +355,12 @@ export const FormAudience = ({
           </LinkExternal>
         </p>
 
-        <Form.Row>
+        <Form.Row data-testid="population-percent-top-row">
           <Form.Group
             as={Col}
             className="mt-2 mb-0"
             controlId="populationPercent"
+            data-testid="population-percent-top"
           >
             <InputGroup className="mx-0 d-flex">
               <Form.Label
@@ -389,18 +390,19 @@ export const FormAudience = ({
                 className="pb-4"
                 value={populationPercent}
                 onChange={(e) =>
-                  setPopulationPercent(parseFloat(e.target.value))
+                  setPopulationPercent(parsePercent(e.target.value))
                 }
+                data-testid="population-percent-slider"
               />
               <Form.Control
                 aria-describedby="populationPercent-unit"
-                type="number"
                 min="0"
                 max="100"
                 value={populationPercent}
                 onChange={(e) =>
-                  setPopulationPercent(parseFloat(e.target.value))
+                  setPopulationPercent(parsePercent(e.target.value))
                 }
+                data-testid="population-percent-input"
               />
               <InputGroup.Append>
                 <InputGroup.Text id="populationPercent-unit">%</InputGroup.Text>
