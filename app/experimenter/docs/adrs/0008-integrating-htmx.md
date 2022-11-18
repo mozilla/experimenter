@@ -58,7 +58,7 @@ Pros:
 - Don't need JEST framework for frontend testing
 - Easy HTMX testing
 - Better performance
-- Hybrid HTMX and React architecture
+- Hybrid HTMX and React architecture enables incremental changes
 - HTMX-Very small library (9kB) compared to the React framework
 - Feel like no javascript to write, more python focused
 - Improved maintainability
