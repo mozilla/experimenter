@@ -7,7 +7,6 @@ import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
-import { FieldError } from "react-hook-form";
 import Select from "react-select";
 import ReactTooltip from "react-tooltip";
 import { useCommonForm, useConfig, useReviewCheck } from "../../../hooks";
@@ -33,8 +32,6 @@ type FormAudienceProps = {
   isServerValid: boolean;
   isLoading: boolean;
   onSubmit: (data: Record<string, any>, next: boolean) => void;
-  touched: Record<string, boolean>;
-  errors: Record<string, FieldError>;
 };
 
 type AudienceFieldName = typeof audienceFieldNames[number];
@@ -107,32 +104,12 @@ export const FormAudience = ({
   );
 
   function parsePercent(value: any) {
-    if (value !== null) {
-      return parseFloat(value).toFixed(1);
-    } else {
-      return 0;
-    }
+    return parseFloat(value || "0");
   }
 
   const [populationPercent, setPopulationPercent] = useState(
-    parsePercent(experiment.populationPercent),
+    parsePercent(experiment!.populationPercent),
   );
-
-  // const onPopPercentChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-  //   return handlePopPercentChange(
-  //     ...POSITIVE_NUMBER_WITH_ONE_DECIMAL_FIELD(ev.target.value),
-  //   );
-  // };
-
-  // const handlePopPercentChange = (value: any) => {};
-
-  // function formatString(s: string | null) {
-  //   if (s == null) {
-  //     return null;
-  //   }
-  //   const ind = s.indexOf(".");
-  //   return s.slice(0, ind);
-  // }
 
   const defaultValues = {
     channel: experiment.channel,
@@ -157,8 +134,6 @@ export const FormAudience = ({
     isValid,
     handleSubmit,
     isSubmitted,
-    touched,
-    formMethods,
   } = useCommonForm<AudienceFieldName>(
     defaultValues,
     isServerValid,
@@ -167,21 +142,6 @@ export const FormAudience = ({
     fieldMessages,
     fieldWarnings,
   );
-
-  const { trigger } = formMethods;
-
-  // how do I register two form items (slider and form.control) to one state?
-  const popControlAttrs = formControlAttrs("populationPercent");
-
-  const populationPercentOnChange = (
-    ev: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    popControlAttrs.onChange!();
-    // HACK: Explicitly trigger update because `mode: "all"` in
-    // useReactHookForm() seems to stop after one update
-    trigger(["populationPercent"]);
-    // trigger(["populationSlider"]);
-  };
 
   type DefaultValues = typeof defaultValues;
   const [handleSave, handleSaveNext] = useMemo(
@@ -194,7 +154,7 @@ export const FormAudience = ({
               {
                 ...dataIn,
                 isSticky,
-                populationVal: populationPercent,
+                populationPercent,
                 isFirstRun,
                 locales,
                 countries,
@@ -236,7 +196,7 @@ export const FormAudience = ({
       checkRequired?.isFirstRunRequired || experiment.isFirstRun || false,
     );
     setisFirstRunRequiredRequiredWarning(!!checkRequired?.isFirstRunRequired);
-    // setPopulationVal(populationVal);
+    setPopulationPercent(populationPercent);
   };
 
   const isDesktop =
@@ -396,8 +356,21 @@ export const FormAudience = ({
         </p>
 
         <Form.Row>
-          <Form.Group as={Col} className="mx-5" controlId="populationPercent">
-            <Form.Label>Percent of clients</Form.Label>
+          <Form.Group
+            as={Col}
+            className="mt-2 mb-0"
+            controlId="populationPercent"
+          >
+            <InputGroup className="mx-0 d-flex">
+              <Form.Label
+                style={{
+                  display: "inline-block",
+                  marginBottom: 0,
+                }}
+              >
+                Percent of clients
+              </Form.Label>
+            </InputGroup>
             <InputGroup>
               <Form.Control
                 {...formControlAttrs(
@@ -413,6 +386,7 @@ export const FormAudience = ({
                 min="0"
                 max="100"
                 step="5"
+                className="pb-4"
                 value={populationPercent}
                 onChange={(e) =>
                   setPopulationPercent(parseFloat(e.target.value))
@@ -437,10 +411,12 @@ export const FormAudience = ({
 
           <Form.Group
             as={Col}
-            className="mx-5"
+            className="mx-5 pt-4"
             controlId="totalEnrolledClients"
           >
-            <Form.Label>Expected number of clients</Form.Label>
+            <Form.Label className="mb-2 mt-3">
+              Expected number of clients
+            </Form.Label>
             <Form.Control
               {...formControlAttrs(
                 "totalEnrolledClients",
@@ -452,7 +428,7 @@ export const FormAudience = ({
         </Form.Row>
 
         <Form.Row>
-          <Form.Group as={Col} className="mx-5" controlId="proposedEnrollment">
+          <Form.Group as={Col} className="mt-2" controlId="proposedEnrollment">
             <Form.Label className="d-flex align-items-center">
               Enrollment period
             </Form.Label>
@@ -475,7 +451,11 @@ export const FormAudience = ({
             </InputGroup>
           </Form.Group>
 
-          <Form.Group as={Col} className="mx-5" controlId="proposedDuration">
+          <Form.Group
+            as={Col}
+            className="mx-5 pt-2"
+            controlId="proposedDuration"
+          >
             <Form.Label className="d-flex align-items-center">
               Experiment duration
               <Info
