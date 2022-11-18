@@ -72,6 +72,7 @@ Cons:
 - New framework, involves little learning curve
 - Need to set up testing for HTMX pages
 - Can create complexity during the transition between React and HTMX
+- Complex user interactions might be more difficult (like if we want interactive data visualizations on the Results page)
 
 ## Links
 
