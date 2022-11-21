@@ -411,15 +411,19 @@ def trigger_experiment_loader(selenium):
     def _trigger_experiment_loader():
         with selenium.context(selenium.CONTEXT_CHROME):
             selenium.execute_script(
-                """ 
-                    const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js");
-                    const { RemoteSettingsExperimentLoader } = ChromeUtils.import("resource://nimbus/lib/RemoteSettingsExperimentLoader.jsm");
+                """
+                    const { RemoteSettings } = ChromeUtils.import(
+                        "resource://services-settings/remote-settings.js"
+                    );
+                    const { RemoteSettingsExperimentLoader } = ChromeUtils.import(
+                        "resource://nimbus/lib/RemoteSettingsExperimentLoader.jsm"
+                    );
 
                     RemoteSettings.pollChanges();
                     RemoteSettingsExperimentLoader.updateRecipes();
                 """
             )
-
+        time.sleep(5)
     return _trigger_experiment_loader
 
 
@@ -496,7 +500,5 @@ def fixture_telemetry_event_check(trigger_experiment_loader):
                 raise AssertionError
         except (AssertionError, TypeError):
             trigger_experiment_loader()
-            time.sleep(5)
             return False
-
     return _telemetry_event_check

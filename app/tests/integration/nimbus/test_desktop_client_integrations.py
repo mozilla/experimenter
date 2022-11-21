@@ -272,7 +272,7 @@ def test_check_telemetry_pref_flip(
         if time.time() > timeout:
             assert False, "Experiment enrollment was never seen in ping Data"
     # check experiment exists, this means it is enrolled
-    assert check_ping_for_experiment(experiment_slug)
+    assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
     selenium.get("about:config")
     search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
@@ -292,7 +292,7 @@ def test_check_telemetry_pref_flip(
     time.sleep(5)
 
     control = False
-    timeout = time.time() + 60 * 10
+    timeout = time.time() + 60 * 5
     while control is not True:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
