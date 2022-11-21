@@ -103,8 +103,14 @@ export const FormAudience = ({
       applicationConfig?.application === experiment.application,
   );
 
-  function parsePercent(value: any) {
-    return parseFloat(value || "0");
+  function parsePercent(value: number | string | null): number {
+    if (typeof value === "string") {
+      return parseFloat(value ?? 0);
+    } else if (typeof value === "number") {
+      return value;
+    } else {
+      return 0;
+    }
   }
 
   const [populationPercent, setPopulationPercent] = useState(

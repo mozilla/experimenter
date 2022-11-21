@@ -380,7 +380,7 @@ describe("FormAudience", () => {
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-input");
       fireEvent.click(field);
-      fireEvent.change(field, { target: { value: "123" } });
+      fireEvent.change(field, { target: { value: "23" } });
     });
 
     expect(screen.getByTestId("isSticky")).toBeChecked();
@@ -695,7 +695,7 @@ describe("FormAudience", () => {
     for (const [fieldName, expected] of [
       ["firefoxMinVersion", NimbusExperimentFirefoxVersionEnum.NO_VERSION],
       ["firefoxMaxVersion", NimbusExperimentFirefoxVersionEnum.NO_VERSION],
-      ["population-percent-input", "0"],
+      ["populationPercent", "0"],
       ["proposedDuration", "0"],
       ["proposedEnrollment", "0"],
       ["targetingConfigSlug", ""],
@@ -798,6 +798,196 @@ describe("FormAudience", () => {
     );
   });
 
+  it("using the population percent text box sets form value", async () => {
+    const enteredValue = "45";
+    const expectedValue = 45;
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await screen.findByTestId("FormAudience");
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-input");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: enteredValue } });
+      fireEvent.blur(field);
+    });
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
+  });
+
+  it("using the population percent slider sets form value", async () => {
+    const enteredValue = "45";
+    const expectedValue = 45;
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await screen.findByTestId("FormAudience");
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-slider");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: enteredValue } });
+      fireEvent.blur(field);
+    });
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
+  });
+
+  it("population percentage text input handles number value", async () => {
+    const numberValue = 45;
+    const expectedValue = 45;
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await screen.findByTestId("FormAudience");
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-slider");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: numberValue } });
+      fireEvent.blur(field);
+    });
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
+  });
+
+  it("population percentage text input handles string number value", async () => {
+    const stringValue = "45";
+    const expectedValue = 45;
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await screen.findByTestId("FormAudience");
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-slider");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: stringValue } });
+      fireEvent.blur(field);
+    });
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
+  });
+
+  it("population percentage text input handles decimals", async () => {
+    const value = "45.1";
+    const expectedValue = 45.1;
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await screen.findByTestId("FormAudience");
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-slider");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: value } });
+      fireEvent.blur(field);
+    });
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
+  });
+
+  it("population percentage text input handles null value", async () => {
+    const initialValue = "45";
+    const expectedValue = 45;
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await screen.findByTestId("FormAudience");
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-slider");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: initialValue } });
+      fireEvent.blur(field);
+    });
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
+
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-slider");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: null } });
+      fireEvent.blur(field);
+    });
+
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(2);
+    expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
+  });
+
+  it("population percentage slider shows default when handling null value", async () => {
+    const onSubmit = jest.fn();
+    const { container } = render(<Subject {...{ onSubmit }} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    const nullValue = null;
+
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-input");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: null } });
+    });
+
+    const slider = within(
+      screen.queryByTestId("population-percent-top-row") as HTMLElement,
+    ).getByTestId("population-percent-slider");
+
+    expect((slider as HTMLInputElement).value).toEqual("50");
+  });
+
   it("requires positive numbers in numeric fields (EXP-956)", async () => {
     const onSubmit = jest.fn();
     const { container } = render(<Subject {...{ onSubmit }} />);
@@ -895,6 +1085,29 @@ describe("FormAudience", () => {
     ).toBeTruthy();
   });
 
+  it("population percentage text input updates slider value", async () => {
+    const onSubmit = jest.fn();
+    const { container } = render(<Subject {...{ onSubmit }} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    const expected = "50";
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-input");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: expected } });
+    });
+
+    const slider = within(
+      screen.queryByTestId("population-percent-top-row") as HTMLElement,
+    ).getByTestId("population-percent-slider");
+
+    expect((slider as HTMLInputElement).value).toEqual(expected);
+  });
+
   it("allows multiple changes to population percentage field", async () => {
     const onSubmit = jest.fn();
     const expectedValue = "75";
@@ -922,11 +1135,10 @@ describe("FormAudience", () => {
     ).toBeTruthy();
 
     await act(async () => {
-      const field = within(
+      const slider = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-input");
-      fireEvent.click(field);
-      fireEvent.change(field, { target: { value: "75" } });
+      ).getByTestId("population-percent-slider");
+      fireEvent.change(slider, { target: { value: "75" } });
     });
 
     expect(
