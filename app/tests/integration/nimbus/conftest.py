@@ -424,6 +424,7 @@ def trigger_experiment_loader(selenium):
                 """
             )
         time.sleep(5)
+
     return _trigger_experiment_loader
 
 
@@ -501,4 +502,5 @@ def fixture_telemetry_event_check(trigger_experiment_loader):
         except (AssertionError, TypeError):
             trigger_experiment_loader()
             return False
+
     return _telemetry_event_check
