@@ -408,7 +408,7 @@ export const FormAudience = ({
                 onChange={(e) =>
                   setPopulationPercent(parsePercent(e.target.value))
                 }
-                data-testid="population-percent-input"
+                data-testid="population-percent-text"
               />
               <InputGroup.Append>
                 <InputGroup.Text id="populationPercent-unit">%</InputGroup.Text>

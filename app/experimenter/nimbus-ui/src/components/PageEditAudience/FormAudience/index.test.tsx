@@ -378,7 +378,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-input");
+      ).getByTestId("population-percent-text");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: "23" } });
     });
@@ -808,7 +808,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-input");
+      ).getByTestId("population-percent-text");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: enteredValue } });
       fireEvent.blur(field);
@@ -976,7 +976,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-input");
+      ).getByTestId("population-percent-text");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: null } });
     });
@@ -1047,7 +1047,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-input");
+      ).getByTestId("population-percent-text");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: "-123" } });
     });
@@ -1096,7 +1096,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-input");
+      ).getByTestId("population-percent-text");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: expected } });
     });
@@ -1121,7 +1121,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-input");
+      ).getByTestId("population-percent-text");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: "50" } });
     });
@@ -1188,7 +1188,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-input");
+      ).getByTestId("population-percent-text");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: "6666666" } });
     });
