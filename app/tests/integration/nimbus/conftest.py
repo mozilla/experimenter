@@ -411,11 +411,7 @@ def trigger_experiment_loader(selenium):
     def _trigger_experiment_loader():
         with selenium.context(selenium.CONTEXT_CHROME):
             selenium.execute_script(
-                """
-                    ChromeUtils.import(
-                        "resource://nimbus/lib/RemoteSettingsExperimentLoader.jsm"
-                    ).RemoteSettingsExperimentLoader.updateRecipes();
-                    
+                """ 
                     const { RemoteSettings } = ChromeUtils.import("resource://services-settings/remote-settings.js");
                     const { RemoteSettingsExperimentLoader } = ChromeUtils.import("resource://nimbus/lib/RemoteSettingsExperimentLoader.jsm");
 
@@ -459,43 +455,48 @@ def fixture_experiment_default_data():
         "totalEnrolledClients": 55,
     }
 
+
 @pytest.fixture(name="check_ping_for_experiment")
 def fixture_check_ping_for_experiment():
-    def _check_ping_for_experiment(exp=None):
-        for item in requests.get("http://ping-server:5000/pings").json():
-            if "experiments" in item["environment"]:
-                for key in item["environment"]["experiments"]:
-                    if exp in key:
-                        return True
-                    else:
-                        continue
-                else:
-                    return False
+    def _check_ping_for_experiment(experiment=None):
+        control = True
+        while control:
+            data = requests.get("http://ping-server:5000/pings").json()
+            experiments_data = [
+                item["environment"]["experiments"]
+                for item in data
+                if "experiments" in item["environment"]
+            ]
+            for item in experiments_data:
+                if experiment in item.keys():
+                    control = False
+                    break
+            time.sleep(5)
+        return True
+
     return _check_ping_for_experiment
 
 
 @pytest.fixture(name="telemetry_event_check")
 def fixture_telemetry_event_check(trigger_experiment_loader):
     def _telemetry_event_check(experiment=None, event=None):
-        control = True
         telemetry = requests.get("http://ping-server:5000/pings").json()
-        for item in reversed(telemetry):
-            if "events" in item["payload"]:
-                if "parent" in item["payload"]["events"]:
-                    for events in item["payload"]["events"]["parent"]:
-                        try:
-                            assert "normandy" in events
-                            assert event in events
-                            assert "nimbus_experiment" in events
-                            assert experiment in events
-                        except AssertionError:
-                            continue
-                        else:
-                            return False
+        events = [
+            event["payload"]["events"]["parent"]
+            for event in telemetry
+            if "events" in event["payload"] and "parent" in event["payload"]["events"]
+        ]
+
+        try:
+            for _event in events:
+                for item in _event:
+                    if (experiment and event) in item:
+                        return True
             else:
-                continue
-        else:
+                raise AssertionError
+        except (AssertionError, TypeError):
             trigger_experiment_loader()
-            time.sleep(15)
-            return True
+            time.sleep(5)
+            return False
+
     return _telemetry_event_check

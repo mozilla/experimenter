@@ -71,7 +71,7 @@ def test_check_telemetry_enrollment_unenrollment(
     experiment_name,
     create_desktop_experiment,
     trigger_experiment_loader,
-    check_ping_for_experiment
+    check_ping_for_experiment,
 ):
     requests.delete("http://ping-server:5000/pings")
     targeting = helpers.load_targeting_configs()[0]
@@ -203,7 +203,7 @@ def test_check_telemetry_enrollment_unenrollment(
 
 @pytest.mark.nimbus_integration
 @pytest.mark.xdist_group(name="group2")
-def test_check_telemetry_enrollment_unenrollment_pref_flip(
+def test_check_telemetry_pref_flip(
     base_url,
     selenium,
     kinto_client,
@@ -212,7 +212,7 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
     create_desktop_experiment,
     experiment_default_data,
     check_ping_for_experiment,
-    telemetry_event_check
+    telemetry_event_check,
 ):
     _row_locator = (By.CSS_SELECTOR, "tr > td > span > span")
     _search_bar_locator = (By.ID, "about-config-search")
@@ -264,14 +264,13 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
     requests.get("http://ping-server:5000/pings")
     time.sleep(5)
 
-    # Check their was a telemetry event for the enrollment
-    control = True
+    # Check there was a telemetry event for the enrollment
+    control = False
     timeout = time.time() + 60 * 5
-    while control:
+    while control is not True:
         control = telemetry_event_check(experiment_slug, "enroll")
         if time.time() > timeout:
             assert False, "Experiment enrollment was never seen in ping Data"
-
     # check experiment exists, this means it is enrolled
     assert check_ping_for_experiment(experiment_slug)
 
@@ -292,12 +291,12 @@ def test_check_telemetry_enrollment_unenrollment_pref_flip(
     requests.get("http://ping-server:5000/pings")
     time.sleep(5)
 
-    control = True
-    timeout = time.time() + 60 * 5
-    while control:
+    control = False
+    timeout = time.time() + 60 * 10
+    while control is not True:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
-            assert False, "Experiment enrollment was never seen in ping Data"
+            assert False, "Experiment unenrollment was never seen in ping Data"
     selenium.get("about:config")
     search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
     search_bar.send_keys("nimbus.qa.pref-1")
