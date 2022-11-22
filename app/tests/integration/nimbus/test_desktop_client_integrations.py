@@ -229,15 +229,6 @@ def test_check_telemetry_pref_flip(
         "featureEnabled": True,
         "featureValue": '{"value": "test_string_automation"}',
     }
-    experiment_default_data["treatmentBranches"] = [
-        {
-            "description": "treatment branch",
-            "name": "Branch 2",
-            "ratio": 1,
-            "featureEnabled": False,
-            "featureValue": "",
-        }
-    ]
     create_desktop_experiment(
         experiment_slug,
         "desktop",
