@@ -11,7 +11,7 @@ class AudiencePage(ExperimenterBase):
     _channel_select_locator = (By.CSS_SELECTOR, "#channel")
     _min_version_select_locator = (By.CSS_SELECTOR, "#minVersion")
     _targeting_select_locator = (By.CSS_SELECTOR, "#targeting")
-    _population_fill_locator = (By.CSS_SELECTOR, "#populationPercent")
+    _population_fill_locator = (By.CSS_SELECTOR, '[data-testid="population-percent-text"]')
     _expected_clients_locator = (By.CSS_SELECTOR, "#totalEnrolledClients")
     _enrollment_period_locator = (By.CSS_SELECTOR, "#proposedEnrollment")
     _duration_locator = (By.CSS_SELECTOR, "#proposedDuration")
@@ -53,9 +53,8 @@ class AudiencePage(ExperimenterBase):
         return self.find_element(*self._population_fill_locator).text
 
     @percentage.setter
-    def percentage(self, text: float) -> None:
+    def percentage(self, text):
         name = self.find_element(*self._population_fill_locator)
-        name.clear()
         name.send_keys(f"{text}")
 
     @property

@@ -1184,7 +1184,6 @@ describe("FormAudience", () => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
     });
 
-    // await waitFor(() => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
