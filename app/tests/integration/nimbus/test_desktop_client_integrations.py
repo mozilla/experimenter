@@ -226,6 +226,7 @@ def test_check_telemetry_pref_flip(
                     EC.presence_of_element_located(_search_bar_locator)
                 )
                 search_bar.send_keys("nimbus.qa.pref-1")
+                time.sleep(2)
                 wait.until(EC.presence_of_element_located(_row_locator))
                 elements = selenium.find_elements(*_row_locator)
                 assert wait_string in [element.text for element in elements]
