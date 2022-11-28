@@ -216,6 +216,23 @@ def test_check_telemetry_pref_flip(
 ):
     _row_locator = (By.CSS_SELECTOR, "tr > td > span > span")
     _search_bar_locator = (By.ID, "about-config-search")
+    wait = WebDriverWait(selenium, 30)
+
+    def wait_function(selenium, wait_string):
+        def _wait_function(selenium=selenium, wait_string=wait_string):
+            try:
+                selenium.get("about:config")
+                search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
+                search_bar.send_keys("nimbus.qa.pref-1")
+                wait.until(EC.presence_of_element_located(_row_locator))
+                elements = selenium.find_elements(*_row_locator)
+                assert wait_string in [element.text for element in elements]
+            except AssertionError:
+                time.sleep(2)
+                return False
+            else:
+                return True
+        return _wait_function
 
     requests.delete("http://ping-server:5000/pings")
     targeting = helpers.load_targeting_configs()[0]
@@ -235,13 +252,8 @@ def test_check_telemetry_pref_flip(
         targeting,
         experiment_default_data,
     )
-    wait = WebDriverWait(selenium, 10)
-    selenium.get("about:config")
-    search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
-    search_bar.send_keys("nimbus.qa.pref-1")
-    wait.until(EC.presence_of_element_located(_row_locator))
-    elements = selenium.find_elements(*_row_locator)
-    assert "default" in [element.text for element in elements]
+    
+    wait.until(wait_function(selenium, "default"))
 
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.launch_and_approve()
@@ -265,12 +277,7 @@ def test_check_telemetry_pref_flip(
     # check experiment exists, this means it is enrolled
     assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
-    selenium.get("about:config")
-    search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
-    search_bar.send_keys("nimbus.qa.pref-1")
-    wait.until(EC.presence_of_element_located(_row_locator))
-    elements = selenium.find_elements(*_row_locator)
-    assert "test_string_automation" in [element.text for element in elements]
+    wait.until(wait_function(selenium, "test_string_automation"))
 
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
@@ -288,9 +295,6 @@ def test_check_telemetry_pref_flip(
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
             assert False, "Experiment unenrollment was never seen in ping Data"
-    selenium.get("about:config")
-    search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
-    search_bar.send_keys("nimbus.qa.pref-1")
-    wait.until(EC.presence_of_element_located(_row_locator))
-    elements = selenium.find_elements(*_row_locator)
-    assert "test_string_automation" not in [element.text for element in elements]
+
+    wait.until(wait_function(selenium, "default"))
+
