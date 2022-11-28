@@ -220,6 +220,7 @@ def test_check_telemetry_pref_flip(
 
     def wait_function(selenium, wait_string):
         """This function refreshes about:config waiting for the pref to flip"""
+
         def _wait_function(selenium=selenium, wait_string=wait_string):
             try:
                 selenium.get("about:config")
