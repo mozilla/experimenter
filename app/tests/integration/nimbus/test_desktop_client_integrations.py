@@ -216,7 +216,7 @@ def test_check_telemetry_pref_flip(
 ):
     _row_locator = (By.CSS_SELECTOR, "tr > td > span > span")
     _search_bar_locator = (By.ID, "about-config-search")
-    wait = WebDriverWait(selenium, 30)
+    wait = WebDriverWait(selenium, 60)
 
     def wait_function(selenium, wait_string):
         def _wait_function(selenium=selenium, wait_string=wait_string):
