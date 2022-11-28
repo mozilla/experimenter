@@ -222,16 +222,19 @@ def test_check_telemetry_pref_flip(
         def _wait_function(selenium=selenium, wait_string=wait_string):
             try:
                 selenium.get("about:config")
-                search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
+                search_bar = wait.until(
+                    EC.presence_of_element_located(_search_bar_locator)
+                )
                 search_bar.send_keys("nimbus.qa.pref-1")
                 wait.until(EC.presence_of_element_located(_row_locator))
                 elements = selenium.find_elements(*_row_locator)
                 assert wait_string in [element.text for element in elements]
-            except AssertionError:
+            except Exception:
                 time.sleep(2)
                 return False
             else:
                 return True
+
         return _wait_function
 
     requests.delete("http://ping-server:5000/pings")
@@ -252,7 +255,7 @@ def test_check_telemetry_pref_flip(
         targeting,
         experiment_default_data,
     )
-    
+
     wait.until(wait_function(selenium, "default"))
 
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
@@ -297,4 +300,3 @@ def test_check_telemetry_pref_flip(
             assert False, "Experiment unenrollment was never seen in ping Data"
 
     wait.until(wait_function(selenium, "default"))
-
