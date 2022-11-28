@@ -154,7 +154,7 @@ describe("hooks/useCommonForm", () => {
     it("FormAudience", () => {
       render(<AudienceSubject />);
       const filteredAudienceFieldNames = audienceFieldNames.filter(
-        (e) => e !== "languages" && e !== "populationPercent",
+        (e) => e !== "languages",
       );
       filteredAudienceFieldNames.forEach((name) => {
         expect(screen.queryByTestId(`${name}-form-errors`)).toBeInTheDocument();
