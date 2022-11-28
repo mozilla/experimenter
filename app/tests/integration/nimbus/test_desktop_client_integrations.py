@@ -219,6 +219,7 @@ def test_check_telemetry_pref_flip(
     wait = WebDriverWait(selenium, 60)
 
     def wait_function(selenium, wait_string):
+        """This function refreshes about:config waiting for the pref to flip"""
         def _wait_function(selenium=selenium, wait_string=wait_string):
             try:
                 selenium.get("about:config")
@@ -231,7 +232,6 @@ def test_check_telemetry_pref_flip(
                 assert wait_string in [element.text for element in elements]
             except Exception:
                 time.sleep(2)
-                print([element.text for element in elements])
                 return False
             else:
                 return True
