@@ -265,7 +265,6 @@ def test_check_telemetry_pref_flip(
     # check experiment exists, this means it is enrolled
     assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
-    wait = WebDriverWait(selenium, 10)
     selenium.get("about:config")
     search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
     search_bar.send_keys("nimbus.qa.pref-1")
@@ -289,7 +288,6 @@ def test_check_telemetry_pref_flip(
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
             assert False, "Experiment unenrollment was never seen in ping Data"
-    wait = WebDriverWait(selenium, 10)
     selenium.get("about:config")
     search_bar = wait.until(EC.presence_of_element_located(_search_bar_locator))
     search_bar.send_keys("nimbus.qa.pref-1")
