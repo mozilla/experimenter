@@ -103,12 +103,20 @@ export const FormAudience = ({
       applicationConfig?.application === experiment.application,
   );
 
+  function parsePercent(value: string | null): number {
+    return parseFloat(value ?? "0");
+  }
+
+  const [populationPercent, setPopulationPercent] = useState(
+    parsePercent(experiment!.populationPercent),
+  );
+
   const defaultValues = {
     channel: experiment.channel,
     firefoxMinVersion: experiment.firefoxMinVersion,
     firefoxMaxVersion: experiment.firefoxMaxVersion,
     targetingConfigSlug: experiment.targetingConfigSlug,
-    populationPercent: experiment.populationPercent,
+    populationPercent: parsePercent(experiment.populationPercent),
     totalEnrolledClients: experiment.totalEnrolledClients,
     proposedEnrollment: experiment.proposedEnrollment,
     proposedDuration: experiment.proposedDuration,
@@ -146,6 +154,7 @@ export const FormAudience = ({
               {
                 ...dataIn,
                 isSticky,
+                populationPercent,
                 isFirstRun,
                 locales,
                 countries,
@@ -160,6 +169,7 @@ export const FormAudience = ({
       onSubmit,
       handleSubmit,
       isSticky,
+      populationPercent,
       isFirstRun,
       locales,
       countries,
@@ -186,6 +196,7 @@ export const FormAudience = ({
       checkRequired?.isFirstRunRequired || experiment.isFirstRun || false,
     );
     setisFirstRunRequiredRequiredWarning(!!checkRequired?.isFirstRunRequired);
+    setPopulationPercent(populationPercent);
   };
 
   const isDesktop =
@@ -344,20 +355,54 @@ export const FormAudience = ({
           </LinkExternal>
         </p>
 
-        <Form.Row>
-          <Form.Group as={Col} className="mx-5" controlId="populationPercent">
-            <Form.Label>Percent of clients</Form.Label>
+        <Form.Row data-testid="population-percent-top-row">
+          <Form.Group
+            as={Col}
+            className="mt-2 mb-0"
+            controlId="populationPercent"
+            data-testid="population-percent-top"
+          >
+            <InputGroup className="mx-0 d-flex">
+              <Form.Label
+                style={{
+                  display: "inline-block",
+                  marginBottom: 0,
+                }}
+              >
+                Percent of clients
+              </Form.Label>
+            </InputGroup>
             <InputGroup>
               <Form.Control
                 {...formControlAttrs(
                   "populationPercent",
                   POSITIVE_NUMBER_FIELD,
                 )}
+                type="hidden"
+                value={populationPercent}
+              />
+              <Form.Control
                 aria-describedby="populationPercent-unit"
-                type="number"
+                type="range"
                 min="0"
                 max="100"
-                step="1"
+                step="5"
+                className="pb-4"
+                value={populationPercent}
+                onChange={(e) =>
+                  setPopulationPercent(parsePercent(e.target.value))
+                }
+                data-testid="population-percent-slider"
+              />
+              <Form.Control
+                aria-describedby="populationPercent-unit"
+                min="0"
+                max="100"
+                value={populationPercent}
+                onChange={(e) =>
+                  setPopulationPercent(parsePercent(e.target.value))
+                }
+                data-testid="population-percent-text"
               />
               <InputGroup.Append>
                 <InputGroup.Text id="populationPercent-unit">%</InputGroup.Text>
@@ -368,10 +413,12 @@ export const FormAudience = ({
 
           <Form.Group
             as={Col}
-            className="mx-5"
+            className="mx-5 pt-4"
             controlId="totalEnrolledClients"
           >
-            <Form.Label>Expected number of clients</Form.Label>
+            <Form.Label className="mb-2 mt-3">
+              Expected number of clients
+            </Form.Label>
             <Form.Control
               {...formControlAttrs(
                 "totalEnrolledClients",
@@ -383,7 +430,7 @@ export const FormAudience = ({
         </Form.Row>
 
         <Form.Row>
-          <Form.Group as={Col} className="mx-5" controlId="proposedEnrollment">
+          <Form.Group as={Col} className="mt-2" controlId="proposedEnrollment">
             <Form.Label className="d-flex align-items-center">
               Enrollment period
             </Form.Label>
@@ -406,7 +453,11 @@ export const FormAudience = ({
             </InputGroup>
           </Form.Group>
 
-          <Form.Group as={Col} className="mx-5" controlId="proposedDuration">
+          <Form.Group
+            as={Col}
+            className="mx-5 pt-2"
+            controlId="proposedDuration"
+          >
             <Form.Label className="d-flex align-items-center">
               Experiment duration
               <Info
