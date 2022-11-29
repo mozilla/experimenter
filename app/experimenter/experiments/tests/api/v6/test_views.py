@@ -38,7 +38,7 @@ class TestNimbusExperimentViewSet(TestCase):
 
     def test_get_nimbus_experiment_returns_expected_data(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             slug="test-rest-detail",
         )
 

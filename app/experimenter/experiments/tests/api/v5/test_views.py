@@ -23,7 +23,7 @@ class TestNimbusExperimentCsvListView(TestCase):
         application = NimbusConstants.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             start_date=datetime.date(2022, 5, 1),
             name="Experiment 1",
             application=application,
@@ -31,7 +31,7 @@ class TestNimbusExperimentCsvListView(TestCase):
         )
 
         experiment_2 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             start_date=datetime.date(2020, 5, 1),
             name="Experiment 2",
             application=application,
@@ -39,7 +39,7 @@ class TestNimbusExperimentCsvListView(TestCase):
         )
 
         experiment_3 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             start_date=datetime.date(2019, 5, 1),
             name="Experiment 3",
             application=application,
@@ -47,7 +47,7 @@ class TestNimbusExperimentCsvListView(TestCase):
         )
 
         experiment_4 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             start_date=datetime.date(2021, 5, 1),
             name="Experiment 4",
             application=application,

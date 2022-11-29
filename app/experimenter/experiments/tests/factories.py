@@ -104,7 +104,7 @@ class LifecycleStates(Enum):
         "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
-    LIVE_IDLE_ENROLLING = {
+    LIVE_IDLE_UNPAUSED = {
         "status": NimbusExperiment.Status.LIVE,
         "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
@@ -116,7 +116,12 @@ class LifecycleStates(Enum):
         "publish_status": NimbusExperiment.PublishStatus.REVIEW,
         "is_paused": True,
     }
-    LIVE_IDLE_REJECT_PAUSING = {
+    LIVE_REVIEW = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+    }
+    LIVE_IDLE_REJECT_UNPAUSED = {
         "status": NimbusExperiment.Status.LIVE,
         "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
@@ -128,11 +133,10 @@ class LifecycleStates(Enum):
         "publish_status": NimbusExperiment.PublishStatus.APPROVED,
         "is_paused": True,
     }
-    LIVE_WAITING_PAUSING = {
+    LIVE_APPROVED_WAITING = {
         "status": NimbusExperiment.Status.LIVE,
         "status_next": NimbusExperiment.Status.LIVE,
         "publish_status": NimbusExperiment.PublishStatus.WAITING,
-        "is_paused": True,
     }
     LIVE_IDLE_PAUSED = {
         "status": NimbusExperiment.Status.LIVE,
@@ -144,11 +148,6 @@ class LifecycleStates(Enum):
         "status": NimbusExperiment.Status.LIVE,
         "status_next": NimbusExperiment.Status.COMPLETE,
         "publish_status": NimbusExperiment.PublishStatus.REVIEW,
-    }
-    LIVE_IDLE_REJECT_ENDING = {
-        "status": NimbusExperiment.Status.LIVE,
-        "status_next": None,
-        "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
     LIVE_APPROVED_ENDING = {
         "status": NimbusExperiment.Status.LIVE,
@@ -168,39 +167,67 @@ class LifecycleStates(Enum):
 
 
 class Lifecycles(Enum):
-    CREATED = (LifecycleStates.DRAFT_IDLE,)
-    PREVIEW = CREATED + (LifecycleStates.PREVIEW_IDLE,)
-    LAUNCH_REVIEW_REQUESTED = CREATED + (LifecycleStates.DRAFT_REVIEW,)
-    LAUNCH_REJECT = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_IDLE,)
-    LAUNCH_APPROVE = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_APPROVED,)
-    LAUNCH_APPROVE_WAITING = LAUNCH_APPROVE + (LifecycleStates.DRAFT_WAITING,)
-    LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
-    LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
-    LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE_ENROLLING,)
-    LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
-    PAUSING_REVIEW_REQUESTED = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
-    PAUSING_REJECT = PAUSING_REVIEW_REQUESTED + (
-        LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
+    DRAFT_CREATED = (LifecycleStates.DRAFT_IDLE,)
+    PREVIEW = DRAFT_CREATED + (LifecycleStates.PREVIEW_IDLE,)
+    PUBLISH_REVIEW_REQUESTED = DRAFT_CREATED + (LifecycleStates.DRAFT_REVIEW,)
+    PUBLISH_REJECT = PUBLISH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_IDLE,)
+    PUBLISH_APPROVE = PUBLISH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_APPROVED,)
+    PUBLISH_APPROVE_WAITING = PUBLISH_APPROVE + (LifecycleStates.DRAFT_WAITING,)
+    PUBLISH_APPROVE_APPROVE = PUBLISH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
+    PUBLISH_APPROVE_REJECT = PUBLISH_APPROVE_WAITING + (LifecycleStates.DRAFT_IDLE,)
+    PUBLISH_APPROVE_TIMEOUT = PUBLISH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
+    PUBLISH_APPROVE_REJECT_ROLLBACK = PUBLISH_APPROVE_WAITING + (
+        LifecycleStates.DRAFT_IDLE,
     )
-    PAUSING_APPROVE = PAUSING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_PAUSING,)
-    PAUSING_APPROVE_WAITING = PAUSING_APPROVE + (LifecycleStates.LIVE_WAITING_PAUSING,)
+
+    LIVE_ENROLLING = PUBLISH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE,)
+    LIVE_ENROLLING_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
+
+    PAUSING_REVIEW = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
+    PAUSING_REJECT = PAUSING_REVIEW + (LifecycleStates.LIVE_IDLE_REJECT_UNPAUSED,)
+    PAUSING_APPROVE = PAUSING_REVIEW + (LifecycleStates.LIVE_APPROVED_PAUSING,)
+    PAUSING_APPROVE_WAITING = PAUSING_APPROVE + (LifecycleStates.LIVE_APPROVED_WAITING,)
     PAUSING_APPROVE_APPROVE = PAUSING_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
     PAUSING_APPROVE_REJECT = PAUSING_APPROVE_WAITING + (
-        LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
+        LifecycleStates.LIVE_IDLE_REJECT_UNPAUSED,
     )
     PAUSING_APPROVE_TIMEOUT = PAUSING_APPROVE_WAITING + (
         LifecycleStates.LIVE_REVIEW_PAUSING,
     )
-    ENDING_REVIEW_REQUESTED = LIVE_PAUSED + (LifecycleStates.LIVE_REVIEW_ENDING,)
+
+    END_ENROLL_REVIEW_REQUESTED = PUBLISH_APPROVE_APPROVE + (LifecycleStates.LIVE_REVIEW,)
+    # END_ENROLL_REQUESTED = PUBLISH_APPROVE_APPROVE + (
+    # LifecycleStates.LIVE_REVIEW_PAUSING)
+    # END_ENROLL_APPROVE = END_ENROLL_REQUESTED + (LifecycleStates.LIVE_REVIEW)
+    # END_ENROLL_APPROVE_WAITING = END_ENROLL_APPROVE + (
+    #     LifecycleStates.LIVE_APPROVED_WAITING
+    # )
+    # END_ENROLL_APPROVE_APPROVE = END_ENROLL_APPROVE_WAITING + (
+    # LifecycleStates.LIVE_IDLE)
+    # END_ENROLL_REJECT = END_ENROLL_REQUESTED + (
+    # LifecycleStates.LIVE_IDLE_REJECT_UNPAUSED)
+    # END_ENROLL_APPROVE_REJECT = END_ENROLL_REQUESTED + (
+    #     LifecycleStates.LIVE_IDLE_REJECT_UNPAUSED
+    # )
+    # END_ENROLL_APPROVE_TIMEOUT = END_ENROLL_APPROVE_WAITING + (
+    #     LifecycleStates.LIVE_IDLE_PAUSED
+    # )
+    # END_ENROLL_APPROVE_REJECT_ROLLBACK = END_ENROLL_APPROVE_REJECT + (
+    #     LifecycleStates.LIVE_IDLE_REJECT_UNPAUSED
+    # )
+
+    ENDING_REVIEW_REQUESTED = LIVE_ENROLLING_PAUSED + (
+        LifecycleStates.LIVE_REVIEW_ENDING,
+    )
     ENDING_APPROVE = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_ENDING,)
     ENDING_APPROVE_WAITING = ENDING_APPROVE + (LifecycleStates.LIVE_WAITING_ENDING,)
     ENDING_APPROVE_APPROVE = ENDING_APPROVE_WAITING + (LifecycleStates.COMPLETE_IDLE,)
-    ENDING_APPROVE_REJECT = ENDING_APPROVE_WAITING + (
-        LifecycleStates.LIVE_IDLE_REJECT_ENDING,
-    )
+    ENDING_REJECT = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_IDLE,)
+    ENDING_APPROVE_REJECT = ENDING_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
     ENDING_APPROVE_TIMEOUT = ENDING_APPROVE_WAITING + (
         LifecycleStates.LIVE_REVIEW_ENDING,
     )
+    ENDING_APPROVE_REJECT_ROLLBACK = ENDING_APPROVE_REJECT + (LifecycleStates.LIVE_IDLE,)
     ENDING_APPROVE_APPROVE_WITHOUT_PAUSE = LIVE_ENROLLING + (
         LifecycleStates.LIVE_REVIEW_ENDING,
         LifecycleStates.LIVE_APPROVED_ENDING,
@@ -263,12 +290,12 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     # EXP-1527: lifecycle states that do not assume an experiment currently
     # exists in Remote Settings
     LocalLifecycles = [
-        Lifecycles.CREATED,
+        Lifecycles.DRAFT_CREATED,
         # Preview should be okay because the Celery task will synchronize
         Lifecycles.PREVIEW,
-        Lifecycles.LAUNCH_REVIEW_REQUESTED,
-        Lifecycles.LAUNCH_REJECT,
-        Lifecycles.LAUNCH_APPROVE_TIMEOUT,
+        Lifecycles.PUBLISH_REVIEW_REQUESTED,
+        Lifecycles.PUBLISH_REJECT,
+        Lifecycles.PUBLISH_APPROVE_TIMEOUT,
         Lifecycles.ENDING_APPROVE_APPROVE,
     ]
 

@@ -24,7 +24,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
     def test_experiments(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         response = self.query(
@@ -68,7 +68,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
     def test_experiments_with_no_branches_returns_empty_reference_treatment_values(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
         )
         experiment.delete_branches()
 
@@ -111,7 +111,8 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             application=NimbusExperiment.Application.DESKTOP
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED, feature_configs=[feature_config]
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            feature_configs=[feature_config],
         )
         screenshot = experiment.reference_branch.screenshots.first()
         screenshot.image = None
@@ -205,7 +206,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             application=NimbusExperiment.Application.DESKTOP
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature_config1, feature_config2],
         )
@@ -333,7 +334,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
     def test_experiments_with_documentation_links_return_link_data(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
         )
         documentation_links = experiment.documentation_links.all()
         self.assert_(len(documentation_links) > 0)
@@ -467,7 +468,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_by_slug_ready_for_review(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
@@ -512,7 +513,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         parent_experiment = NimbusExperimentFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED, parent=parent_experiment
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED, parent=parent_experiment
         )
 
         response = self.query(
@@ -538,7 +539,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_by_slug_without_parent(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         response = self.query(
@@ -563,7 +564,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_by_slug_not_ready_for_review(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             hypothesis=NimbusExperiment.HYPOTHESIS_DEFAULT,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
@@ -603,7 +604,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_by_slug_not_found(self):
         user_email = "user@example.com"
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
         )
 
         response = self.query(
@@ -627,7 +628,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_jexl_targeting_expression(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
             application=NimbusExperiment.Application.DESKTOP,
         )
@@ -650,7 +651,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_computed_end_date_proposed(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             proposed_duration=10,
         )
         response = self.query(
@@ -699,7 +700,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_in_review_can_review(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED
+            NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED
         )
         response = self.query(
             """
@@ -720,7 +721,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_no_rejection_data(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         response = self.query(
@@ -746,7 +747,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_with_rejection(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_REJECT,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_REJECT,
         )
         response = self.query(
             """
@@ -773,7 +774,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_no_review_request_data(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         response = self.query(
@@ -799,7 +800,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_with_review_request(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED,
         )
         response = self.query(
             """
@@ -826,7 +827,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_without_timeout_returns_none(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,
         )
         response = self.query(
             """
@@ -851,7 +852,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_experiment_with_timeout_returns_changelog(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_TIMEOUT,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_TIMEOUT,
         )
         response = self.query(
             """
@@ -878,7 +879,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_recipe_json_returns_serialized_data_for_unpublished_experiment(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
         )
         response = self.query(
             """
@@ -905,7 +906,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         user_email = "user@example.com"
         published_dto = {"field": "value"}
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED, published_dto=published_dto
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED, published_dto=published_dto
         )
         response = self.query(
             """
@@ -929,7 +930,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_paused_experiment_returns_date(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_PAUSED,
             start_date=datetime.date(2021, 1, 1),
             proposed_enrollment=7,
         )
@@ -954,7 +955,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED, False, True],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW, False, True],
             [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE, False, True],
             [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING, False, True],
             [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_TIMEOUT, False, True],
@@ -987,7 +988,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_signoff_recommendations(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             risk_brand=True,
             risk_revenue=True,
             risk_partner_related=True,
@@ -1018,7 +1019,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_targeting_config_slug_for_valid_targeting_config_returns_name(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
         )
@@ -1045,7 +1046,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_targeting_config(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
         )
@@ -1100,7 +1101,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_targeting_config_slug_for_deprecated_targeting_config_returns_slug(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             targeting_config_slug="deprecated_targeting",
         )
@@ -1127,7 +1128,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
     def test_feature_config_with_single_feature(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
@@ -1169,7 +1170,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         )
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature_config1, feature_config2],
         )
@@ -1207,7 +1208,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             slug="b",
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature_config1, feature_config2],
         )
@@ -1287,7 +1288,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             sets_prefs=["foo.bar.baz"],
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[feature],
             prevent_pref_conflicts=True,

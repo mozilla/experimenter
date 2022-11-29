@@ -173,26 +173,29 @@ class NimbusConstants(object):
         EXPERIMENT = "Experiment"
         ROLLOUT = "Rollout"
 
-    VALID_STATUS_TRANSITIONS = {
-        Status.DRAFT: (Status.PREVIEW,),
-        Status.PREVIEW: (Status.DRAFT,),
-    }
     STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
 
     # Valid status_next values for given status values
     VALID_STATUS_NEXT_VALUES = {
-        Status.DRAFT: (None, Status.LIVE),
-        Status.PREVIEW: (None, Status.LIVE),
-        Status.LIVE: (None, Status.LIVE, Status.COMPLETE),
+        Status.DRAFT: (None, Status.LIVE, Status.PREVIEW),
+        Status.PREVIEW: (None, Status.DRAFT),
+        Status.LIVE: (None, Status.COMPLETE),
+        Status.COMPLETE: (None),
     }
 
     VALID_PUBLISH_STATUS_TRANSITIONS = {
-        PublishStatus.IDLE: (PublishStatus.REVIEW, PublishStatus.APPROVED),
+        PublishStatus.IDLE: (PublishStatus.REVIEW,),
         PublishStatus.REVIEW: (
             PublishStatus.IDLE,
             PublishStatus.APPROVED,
         ),
+        PublishStatus.APPROVED: (PublishStatus.WAITING,),
+        PublishStatus.WAITING: (
+            PublishStatus.IDLE,
+            PublishStatus.REVIEW,
+        ),
     }
+
     PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
 
     STATUS_UPDATE_EXEMPT_FIELDS = (

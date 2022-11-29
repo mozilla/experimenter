@@ -68,7 +68,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_valid_experiment_with_single_feature(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
                 NimbusFeatureConfigFactory(
@@ -89,7 +89,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_valid_experiment_with_multiple_features(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
                 NimbusFeatureConfigFactory(
@@ -113,7 +113,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_invalid_experiment_default_hypothesis(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
                 NimbusFeatureConfigFactory(
@@ -140,7 +140,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_invalid_experiment_requires_reference_branch(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
                 NimbusFeatureConfigFactory(
@@ -167,7 +167,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_invalid_experiment_reference_branch_requires_description(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
                 NimbusFeatureConfigFactory(
@@ -194,7 +194,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_invalid_experiment_requires_min_version_less_than_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_83,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_95,
             is_sticky=True,
@@ -219,7 +219,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_valid_experiment_min_dot_version_less_than_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_9830,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_99,
@@ -261,7 +261,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     ):
 
         experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
@@ -280,7 +280,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         # selected languages
         language = LanguageFactory.create()
         experiment_2 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
@@ -320,7 +320,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     )
     def test_valid_experiments_with_all_languages(self, application, firefox_version):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
@@ -362,7 +362,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     ):
         language = LanguageFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
@@ -407,7 +407,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     ):
 
         experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
@@ -451,7 +451,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         # selected countries
         country = CountryFactory.create()
         experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
@@ -493,7 +493,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self, application, firefox_version
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
@@ -536,7 +536,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     ):
         country = CountryFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=application,
             channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
@@ -588,7 +588,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self, targeting_config, is_sticky, serializer_result, errors
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             targeting_config_slug=targeting_config,
             channel=NimbusExperiment.Channel.RELEASE,
             is_sticky=is_sticky,
@@ -610,7 +610,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_valid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_83,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             is_sticky=True,
@@ -628,7 +628,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_invalid_experiment_requires_non_zero_population_percent(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             population_percent=0.0,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
@@ -654,7 +654,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_valid_experiment_minimum_population_percent(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             population_percent=0.0001,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
@@ -676,7 +676,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_invalid_experiment_treatment_branch_requires_description(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[
                 NimbusFeatureConfigFactory(
@@ -706,7 +706,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_invalid_experiment_missing_feature_config(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
             is_sticky=True,
@@ -727,7 +727,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_invalid_experiment_risk_questions(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             risk_partner_related=None,
             risk_revenue=None,
             risk_brand=None,
@@ -770,7 +770,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     )
     def test_channel_required_for_mobile(self, expected_valid, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=application,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
@@ -792,7 +792,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_serializer_feature_config_validation_application_mismatches_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.RELEASE,
@@ -825,7 +825,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_serializer_feature_config_validation_missing_feature_config(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             feature_configs=[],
@@ -849,7 +849,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_serializer_feature_config_validation_bad_json_value(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -892,7 +892,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_serializer_feature_config_validation_reference_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -936,7 +936,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_serializer_feature_config_validation_reference_value_schema_warn(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -981,7 +981,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_serializer_feature_config_validation_treatment_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -1025,7 +1025,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_serializer_feature_config_validation_treatment_value_schema_warn(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -1071,7 +1071,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_serializer_feature_config_validation_supports_ref_json_schema(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -1108,7 +1108,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_serializer_feature_config_validation_treatment_value_no_schema(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -1132,7 +1132,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_valid_branches_for_rollout(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
@@ -1160,7 +1160,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_no_treatment_branches_for_rollout(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             feature_configs=[
@@ -1202,7 +1202,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_rollout_valid_version_support(self):
         desktop = NimbusExperiment.Application.DESKTOP
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=desktop,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
@@ -1233,7 +1233,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
     def test_rollout_invalid_version_support(self):
         desktop = NimbusExperiment.Application.DESKTOP
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=desktop,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_50,
@@ -1265,7 +1265,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_invalid_experiment_with_branch_missing_feature_value(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -1303,7 +1303,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_invalid_experiment_with_branch_branch_missing_feature_enabled(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -1355,7 +1355,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
     def test_serializer_feature_config_validation_application_mismatches_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             channel=NimbusExperiment.Channel.RELEASE,
@@ -1392,7 +1392,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
     def test_serializer_feature_config_validation_missing_feature_config(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
             feature_configs=[],
@@ -1418,7 +1418,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
     def test_serializer_feature_config_validation_bad_json_value(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -1499,7 +1499,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         self, application, firefox_version, feature_enabled, expected_valid
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             firefox_min_version=firefox_version,
             application=application,
@@ -1568,7 +1568,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         self, application, firefox_version, feature_enabled, expected_valid
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             firefox_min_version=firefox_version,
             application=application,
@@ -1609,7 +1609,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
     def test_serializer_feature_config_validation_reference_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -1662,7 +1662,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
     def test_serializer_feature_config_validation_treatment_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -1722,7 +1722,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,

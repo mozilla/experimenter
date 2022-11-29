@@ -29,7 +29,7 @@ class TestFetchJetstreamDataTask(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,),
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
@@ -277,7 +277,7 @@ class TestFetchJetstreamDataTask(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,),
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
@@ -466,7 +466,7 @@ class TestFetchJetstreamDataTask(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,),
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
@@ -527,7 +527,7 @@ class TestFetchJetstreamDataTask(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,),
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
         ]
     )
@@ -602,7 +602,7 @@ class TestFetchJetstreamDataTask(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,),
         ]
     )
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")

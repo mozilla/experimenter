@@ -253,7 +253,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_does_not_delete_branches_when_other_fields_specified(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
         )
         branch_count = experiment.branches.count()
         response = self.query(
@@ -280,7 +280,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_does_not_clear_feature_config_when_other_fields_specified(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
         )
         expected_feature_config = experiment.feature_configs.get()
 
@@ -802,7 +802,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_reject_draft_experiment(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED
+            NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -935,7 +935,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_reject_end_enrollment(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED
+            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW
         )
         self.assertEqual(experiment.is_paused, True)
 
@@ -965,7 +965,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_update_is_archived(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             is_archived=False,
         )
 

@@ -62,15 +62,15 @@ class TestNimbusExperimentManager(TestCase):
 
     def test_launch_queue_returns_queued_experiments_with_correct_application(self):
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE,
             application=NimbusExperiment.Application.FENIX,
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
         self.assertEqual(
@@ -88,7 +88,7 @@ class TestNimbusExperimentManager(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             status_next=NimbusExperiment.Status.COMPLETE,
             application=NimbusExperiment.Application.FENIX,
         )
@@ -98,7 +98,7 @@ class TestNimbusExperimentManager(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE,
             status_next=NimbusExperiment.Status.COMPLETE,
             application=NimbusExperiment.Application.DESKTOP,
         )
@@ -124,7 +124,7 @@ class TestNimbusExperimentManager(TestCase):
 
         # Shouldn't update, correct application
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
@@ -139,11 +139,11 @@ class TestNimbusExperimentManager(TestCase):
 
     def test_waiting_returns_any_waiting_experiments(self):
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.IOS,
         )
         desktop_live_waiting = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
         )
         self.assertEqual(
@@ -155,15 +155,15 @@ class TestNimbusExperimentManager(TestCase):
 
     def test_waiting_to_launch_only_returns_launching_experiments(self):
         launching = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,
             name="launching",
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             name="created",
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             name="launch approve approve",
         )
         NimbusExperimentFactory.create_with_lifecycle(
@@ -187,12 +187,12 @@ class TestNimbusExperimentManager(TestCase):
             name="pausing",
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=application,
             name="created",
         )
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=application,
             name="launch approve approve",
         )
@@ -240,7 +240,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_empty_targeting_for_mobile(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
@@ -267,7 +267,7 @@ class TestNimbusExperiment(TestCase):
     )
     def test_targeting_omits_version_for_unsupported_clients(self, application, version):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=application,
             firefox_min_version=version,
             firefox_max_version=version,
@@ -295,7 +295,7 @@ class TestNimbusExperiment(TestCase):
         self, application, version
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=application,
             firefox_min_version=version,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -312,7 +312,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_targeting_min_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -329,7 +329,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_targeting_max_version_check_supports_semver_comparison(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_100,
@@ -359,7 +359,7 @@ class TestNimbusExperiment(TestCase):
         self, application, version
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=application,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=version,
@@ -390,7 +390,7 @@ class TestNimbusExperiment(TestCase):
         self, application, version
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=application,
             firefox_min_version=version,
             firefox_max_version=version,
@@ -413,7 +413,7 @@ class TestNimbusExperiment(TestCase):
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_95,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -438,7 +438,7 @@ class TestNimbusExperiment(TestCase):
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -461,7 +461,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_targeting_without_channel_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -481,7 +481,7 @@ class TestNimbusExperiment(TestCase):
         locale_ca = LocaleFactory.create(code="en-CA")
         locale_us = LocaleFactory.create(code="en-US")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -501,7 +501,7 @@ class TestNimbusExperiment(TestCase):
         country_ca = CountryFactory.create(code="CA")
         country_us = CountryFactory.create(code="US")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -523,7 +523,7 @@ class TestNimbusExperiment(TestCase):
         country_ca = CountryFactory.create(code="CA")
         country_us = CountryFactory.create(code="US")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -548,7 +548,7 @@ class TestNimbusExperiment(TestCase):
         language_fr = LanguageFactory.create(code="fr")
         language_es = LanguageFactory.create(code="es")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -587,7 +587,7 @@ class TestNimbusExperiment(TestCase):
         locale_en = LocaleFactory.create(code="en")
         country_ca = CountryFactory.create(code="CA")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
@@ -627,7 +627,7 @@ class TestNimbusExperiment(TestCase):
         locale_en = LocaleFactory.create(code="en")
         country_ca = CountryFactory.create(code="CA")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
@@ -667,7 +667,7 @@ class TestNimbusExperiment(TestCase):
         language_en = LanguageFactory.create(code="en")
         country_ca = CountryFactory.create(code="CA")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
@@ -701,7 +701,7 @@ class TestNimbusExperiment(TestCase):
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -725,7 +725,7 @@ class TestNimbusExperiment(TestCase):
         call_command("load_feature_configs")
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -760,7 +760,7 @@ class TestNimbusExperiment(TestCase):
         call_command("load_feature_configs")
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
@@ -818,13 +818,13 @@ class TestNimbusExperiment(TestCase):
 
     def test_start_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         self.assertIsNone(experiment.start_date)
 
     def test_end_date_returns_None_for_not_ended_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         self.assertIsNone(experiment.end_date)
 
@@ -926,7 +926,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_enrollment_duration_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         self.assertEqual(experiment.enrollment_duration, experiment.proposed_duration)
@@ -951,13 +951,13 @@ class TestNimbusExperiment(TestCase):
 
     def test_proposed_end_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         self.assertIsNone(experiment.proposed_end_date)
 
     def test_proposed_end_date_returns_start_date_plus_duration(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             proposed_duration=10,
             with_latest_change_now=True,
         )
@@ -968,7 +968,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_should_end_returns_False_before_proposed_end_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             proposed_duration=10,
             with_latest_change_now=True,
         )
@@ -976,7 +976,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_should_end_returns_True_after_proposed_end_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
             proposed_duration=10,
         )
@@ -986,7 +986,7 @@ class TestNimbusExperiment(TestCase):
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             proposed_enrollment=10,
             with_latest_change_now=True,
         )
@@ -994,7 +994,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_should_end_enrollment_returns_True_after_proposed_enrollment_end_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             start_date=datetime.date.today() - datetime.timedelta(days=10),
             proposed_enrollment=10,
         )
@@ -1032,7 +1032,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_computed_enrollment_days_returns_fallback(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         self.assertEqual(
@@ -1042,7 +1042,7 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,),
+            (NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW,),
             (NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,),
             (NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,),
         ]
@@ -1069,7 +1069,7 @@ class TestNimbusExperiment(TestCase):
     def test_computed_enrollment_days_returns_duration_if_is_paused_missing(self):
         expected_days = 99
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_PAUSED,
             proposed_enrollment=expected_days,
         )
         experiment.changes.filter(experiment_data__is_paused=True).update(
@@ -1083,7 +1083,7 @@ class TestNimbusExperiment(TestCase):
     def test_computed_enrollment_days_returns_duration_if_experiment_data_is_none(self):
         expected_days = 99
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_PAUSED,
             proposed_enrollment=expected_days,
         )
         experiment.changes.filter(experiment_data__is_paused=True).update(
@@ -1114,7 +1114,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_computed_enrollment_end_date_returns_fallback(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         self.assertIsNone(experiment.computed_enrollment_end_date)
@@ -1134,7 +1134,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_computed_duration_days_returns_fallback(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         self.assertEqual(
@@ -1144,7 +1144,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_computed_end_date_returns_proposed(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LIVE_PAUSED,
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_PAUSED,
         )
 
         self.assertEqual(
@@ -1253,7 +1253,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_rollouts_monitoring_dashboard_returns_correct_formatted_url(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             slug="rollout-1-slug",
             is_rollout=True,
             status=NimbusExperiment.Status.LIVE,
@@ -1273,10 +1273,10 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (False, NimbusExperimentFactory.Lifecycles.CREATED),
+            (False, NimbusExperimentFactory.Lifecycles.DRAFT_CREATED),
             (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
             (True, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING),
-            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (True, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE),
             (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
         ]
     )
@@ -1313,7 +1313,7 @@ class TestNimbusExperiment(TestCase):
         ):
             expected = "https://settings-writer.stage.mozaws.net/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
             experiment = NimbusExperimentFactory.create_with_lifecycle(
-                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE,
                 application=NimbusExperiment.Application.DESKTOP,
             )
             self.assertEqual(experiment.review_url, expected)
@@ -1324,14 +1324,14 @@ class TestNimbusExperiment(TestCase):
         ):
             expected = "http://localhost:8888/v1/admin#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
             experiment = NimbusExperimentFactory.create_with_lifecycle(
-                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
+                NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE,
                 application=NimbusExperiment.Application.DESKTOP,
             )
             self.assertEqual(experiment.review_url, expected)
 
     def test_clear_branches_deletes_branches_without_deleting_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         self.assertIsNotNone(experiment.reference_branch)
         self.assertEqual(experiment.branches.count(), 2)
@@ -1347,7 +1347,7 @@ class TestNimbusExperiment(TestCase):
     def test_allocate_buckets_generates_bucket_range(self):
         feature = NimbusFeatureConfigFactory(slug="feature")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
@@ -1362,7 +1362,8 @@ class TestNimbusExperiment(TestCase):
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED, population_percent=Decimal("50.0")
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            population_percent=Decimal("50.0"),
         )
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 5000)
@@ -1375,7 +1376,7 @@ class TestNimbusExperiment(TestCase):
         feature = NimbusFeatureConfigFactory(slug="feature")
 
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
@@ -1384,7 +1385,7 @@ class TestNimbusExperiment(TestCase):
         experiment1.allocate_bucket_range()
 
         experiment2 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
@@ -1406,7 +1407,7 @@ class TestNimbusExperiment(TestCase):
         feature = NimbusFeatureConfigFactory(slug="feature")
 
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
@@ -1415,7 +1416,7 @@ class TestNimbusExperiment(TestCase):
         experiment1.allocate_bucket_range()
 
         experiment2 = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
@@ -1436,7 +1437,7 @@ class TestNimbusExperiment(TestCase):
     def test_bucket_namespace_changes_for_rollout(self):
         feature = NimbusFeatureConfigFactory(slug="feature")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
@@ -1455,13 +1456,13 @@ class TestNimbusExperiment(TestCase):
 
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         self.assertIsNone(experiment.proposed_enrollment_end_date)
 
     def test_proposed_enrollment_end_date_with_start_date_returns_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             proposed_enrollment=10,
             with_latest_change_now=True,
         )
@@ -1472,7 +1473,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_can_review_false_for_requesting_user(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
@@ -1490,7 +1491,7 @@ class TestNimbusExperiment(TestCase):
     )
     def test_can_review_true_for_non_requesting_user(self, last_publish_status):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         for publish_status in (
             NimbusExperiment.PublishStatus.REVIEW,
@@ -1523,12 +1524,12 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (True, NimbusExperimentFactory.Lifecycles.CREATED),
+            (True, NimbusExperimentFactory.Lifecycles.DRAFT_CREATED),
             (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED),
+            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING),
+            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE),
             (False, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
         ]
     )
@@ -1538,12 +1539,12 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (True, NimbusExperimentFactory.Lifecycles.CREATED),
+            (True, NimbusExperimentFactory.Lifecycles.DRAFT_CREATED),
             (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED),
+            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING),
+            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE),
             (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
         ]
     )
@@ -1558,7 +1559,7 @@ class TestNimbusExperiment(TestCase):
     ):
         user = UserFactory.create(email=email)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             owner=user,
         )
         experiment.apply_lifecycle_state(
@@ -1572,7 +1573,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_can_review_false_for_non_review_publish_status(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         experiment.apply_lifecycle_state(
             NimbusExperimentFactory.LifecycleStates.DRAFT_REVIEW
@@ -1590,9 +1591,9 @@ class TestNimbusExperiment(TestCase):
     @parameterized.expand(
         [
             (
-                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,
-                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
-                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_TIMEOUT,
+                NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE,
+                NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,
+                NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_TIMEOUT,
             ),
             (
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
@@ -1626,7 +1627,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_has_state_true(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,
         )
         self.assertTrue(
             experiment.has_filter(
@@ -1639,7 +1640,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_has_state_false(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,
         )
         self.assertFalse(
             experiment.has_filter(
@@ -1680,10 +1681,10 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            [False, 60, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING],
+            [False, 60, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING],
             [False, 60, NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING],
             [False, 60, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING],
-            [True, 0, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING],
+            [True, 0, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING],
             [True, 0, NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING],
             [True, 0, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING],
         ]
@@ -2033,13 +2034,13 @@ class TestNimbusIsolationGroup(TestCase):
 class TestNimbusChangeLogManager(TestCase):
     def test_latest_review_request_returns_none_for_no_review_request(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         self.assertIsNone(experiment.changes.latest_review_request())
 
     def test_latest_review_request_returns_change_for_idle_to_review(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -2052,7 +2053,7 @@ class TestNimbusChangeLogManager(TestCase):
     def test_latest_review_request_returns_most_recent_review_request(self):
         reviewer = UserFactory()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
         experiment.save()
@@ -2074,13 +2075,13 @@ class TestNimbusChangeLogManager(TestCase):
 
     def test_latest_rejection_returns_none_for_no_rejection(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         self.assertIsNone(experiment.changes.latest_rejection())
 
     def test_latest_rejection_returns_rejection_for_review_to_idle(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         changes = []
@@ -2099,7 +2100,7 @@ class TestNimbusChangeLogManager(TestCase):
 
     def test_latest_rejection_returns_rejection_for_waiting_to_idle(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
 
         changes = []
@@ -2120,7 +2121,7 @@ class TestNimbusChangeLogManager(TestCase):
 
     def test_launch_to_live_is_not_considered_latest_rejection(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
         )
 
         experiment.status = NimbusExperiment.Status.LIVE
@@ -2132,7 +2133,7 @@ class TestNimbusChangeLogManager(TestCase):
 
     def test_stale_timeout_not_returned(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         for publish_status in (
             NimbusExperiment.PublishStatus.REVIEW,
@@ -2149,7 +2150,7 @@ class TestNimbusChangeLogManager(TestCase):
 
     def test_stale_rejection_not_returned(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         for publish_status in (
             NimbusExperiment.PublishStatus.REVIEW,
@@ -2203,7 +2204,7 @@ class TestNimbusFeatureConfig(TestCase):
 class TestNimbusBranchScreenshot(TestCase):
     def setUp(self):
         self.experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
         )
         self.branch = self.experiment.branches.first()
         self.image = SimpleUploadedFile("Capture.PNG", b"this is not a real image")
