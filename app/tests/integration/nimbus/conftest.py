@@ -465,7 +465,8 @@ def fixture_experiment_default_data():
 def fixture_check_ping_for_experiment():
     def _check_ping_for_experiment(experiment=None):
         control = True
-        while control:
+        timeout = time.time() + 60 * 5
+        while control and time.time() < timeout:
             data = requests.get("http://ping-server:5000/pings").json()
             experiments_data = [
                 item["environment"]["experiments"]
@@ -474,10 +475,10 @@ def fixture_check_ping_for_experiment():
             ]
             for item in experiments_data:
                 if experiment in item.keys():
-                    control = False
-                    break
+                    return True
             time.sleep(5)
-        return True
+        else:
+            return False
 
     return _check_ping_for_experiment
 
