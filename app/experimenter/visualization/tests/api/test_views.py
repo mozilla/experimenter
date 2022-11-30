@@ -16,12 +16,12 @@ class TestVisualizationView(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,),
-            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.DRAFT_CREATED, 200),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE, 200),
         ]
     )
     @patch("django.core.files.storage.default_storage.exists")
-    def test_analysis_results_view_200(self, lifecycle, mock_exists):
+    def test_analysis_results_view_200(self, lifecycle, response_status, mock_exists):
         user_email = "user@example.com"
 
         mock_exists.return_value = False
@@ -34,10 +34,9 @@ class TestVisualizationView(TestCase):
             reverse("visualization-analysis-data", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, response_status)
 
-    @parameterized.expand([NimbusExperiment.Status.DRAFT])
-    def test_analysis_results_view_404(self, status):
+    def test_analysis_results_view_404(self):
         user_email = "user@example.com"
         response = self.client.get(
             reverse("visualization-analysis-data", kwargs={"slug": "fake_experiment"}),

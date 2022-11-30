@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
+from parameterized import parameterized
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import (
@@ -71,9 +72,14 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
     def test_check_with_no_approved_publish_status_pushes_nothing(self):
         for lifecycle in [
             NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
             NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_REJECT,
             NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,
             NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_REJECT,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_TIMEOUT,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_REJECT_ROLLBACK,
             NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW,
             NimbusExperimentFactory.Lifecycles.ENDING_REVIEW_REQUESTED,
         ]:
@@ -93,12 +99,19 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         self.mock_update_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
+    @parameterized.expand(
+        [
+            [NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,],
+            [NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,],
+        ]
+    )
     @override_settings(KINTO_REVIEW_TIMEOUT=60)
     def test_check_with_pending_review_before_timeout_aborts_early(
-        self,
+        self, lifecycle
     ):
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,
+            lifecycle=lifecycle,
             application=NimbusExperiment.Application.DESKTOP,
             with_latest_change_now=True,
         )
