@@ -603,7 +603,7 @@ class TestNimbusExperimentSerializer(TestCase):
             {
                 "status_next": [
                     "Invalid choice for status_next: 'Complete' - with status 'Draft',"
-                    " the only valid choices are 'None, Live'"
+                    " the only valid choices are 'None, Preview, Live'"
                 ]
             },
             serializer.errors,

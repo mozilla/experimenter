@@ -15,13 +15,13 @@ class TestNimbusStatusTransitionValidator(TestCase):
         self.user = UserFactory()
 
     def test_update_experiment_status_error(self):
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
         )
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "status": NimbusExperiment.Status.LIVE,
+                "status": NimbusExperiment.Status.COMPLETE,
                 "changelog_message": "test changelog message",
             },
             context={"user": self.user},
@@ -29,7 +29,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["status"][0],
-            "Nimbus Experiment status cannot transition from Draft to Live.",
+            "Nimbus Experiment status cannot transition from Draft to Complete.",
         )
 
     def test_update_publish_status_from_approved_to_review_error(self):

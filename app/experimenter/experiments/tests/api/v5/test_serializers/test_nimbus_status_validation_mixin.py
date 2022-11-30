@@ -56,7 +56,7 @@ class TestNimbusStatusValidationMixin(TestCase):
             ],
             [
                 NimbusExperiment.PublishStatus.APPROVED,
-                True,
+                False,
             ],
             [
                 NimbusExperiment.PublishStatus.WAITING,
@@ -92,7 +92,7 @@ class TestNimbusStatusValidationMixin(TestCase):
             ],
             [
                 NimbusExperiment.PublishStatus.APPROVED,
-                True,
+                False,
             ],
             [
                 NimbusExperiment.PublishStatus.WAITING,
@@ -124,7 +124,7 @@ class TestNimbusStatusValidationMixin(TestCase):
             ],
             [
                 NimbusExperiment.PublishStatus.APPROVED,
-                True,
+                False,
             ],
             [
                 NimbusExperiment.PublishStatus.WAITING,
@@ -158,7 +158,7 @@ class TestNimbusStatusValidationMixin(TestCase):
             ],
             [
                 NimbusExperiment.PublishStatus.APPROVED,
-                True,
+                False,
             ],
             [
                 NimbusExperiment.PublishStatus.WAITING,

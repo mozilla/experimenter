@@ -854,8 +854,8 @@ class TestUpdateExperimentMutationSingleFeature(
 
     def test_end_experiment(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.LIVE,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -877,15 +877,15 @@ class TestUpdateExperimentMutationSingleFeature(
 
     def test_launch_experiment_valid_with_preview_status(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.PREVIEW,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.PREVIEW
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
-                    "status": NimbusExperiment.Status.DRAFT.name,
+                    "status": NimbusExperiment.Status.PREVIEW.name,
                     "statusNext": NimbusExperiment.Status.LIVE.name,
                     "publishStatus": NimbusExperiment.PublishStatus.REVIEW.name,
                     "changelogMessage": "test changelog message",

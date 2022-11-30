@@ -177,9 +177,9 @@ class NimbusConstants(object):
 
     # Valid status_next values for given status values
     VALID_STATUS_NEXT_VALUES = {
-        Status.DRAFT: (None, Status.LIVE, Status.PREVIEW),
-        Status.PREVIEW: (None, Status.DRAFT),
-        Status.LIVE: (None, Status.COMPLETE),
+        Status.DRAFT: (None, Status.PREVIEW, Status.LIVE),
+        Status.PREVIEW: (None, Status.DRAFT, Status.LIVE),
+        Status.LIVE: (None, Status.LIVE, Status.COMPLETE),
         Status.COMPLETE: (None),
     }
 
