@@ -101,7 +101,6 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     owners: config!.owners!,
     channels: config!.channels,
     types: config!.types,
-    targetingConfigs: config!.targetingConfigs,
   };
   return (
     <AppLayout testid="PageHome">
