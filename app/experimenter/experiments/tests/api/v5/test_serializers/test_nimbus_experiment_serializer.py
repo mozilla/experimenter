@@ -603,7 +603,7 @@ class TestNimbusExperimentSerializer(TestCase):
             serializer.errors,
         )
 
-    def test_status_restriction(self):
+    def test_status_restrictions(self):
         experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.LIVE)
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -984,7 +984,7 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
-                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
                 "changelog_message": "test changelog message",
             },
             context={"user": experiment.owner},
