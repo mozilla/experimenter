@@ -6,7 +6,6 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from parameterized import parameterized
 
-from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 
 

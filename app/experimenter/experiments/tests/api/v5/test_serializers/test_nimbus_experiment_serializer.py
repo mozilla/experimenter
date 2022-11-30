@@ -1092,12 +1092,18 @@ class TestNimbusExperimentSerializer(TestCase):
     @parameterized.expand(
         [
             (True, NimbusExperimentFactory.Lifecycles.DRAFT_CREATED),
+            (True, NimbusExperimentFactory.Lifecycles.PUBLISH_REJECT),
+            (True, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_REJECT),
+            (True, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_REJECT_ROLLBACK),
+            (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
             (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
             (False, NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED),
             (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE),
             (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING),
             (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE),
-            (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_TIMEOUT),
+            (False, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING),
+            (False, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_PAUSED),
         ]
     )
     def test_can_update_is_archived(self, can_update, lifecycle):
@@ -1134,6 +1140,22 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
             is_archived=True,
+            is_rollout=False,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            {"is_archived": False, "changelog_message": "unarchiving"},
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertFalse(experiment.is_archived)
+
+    def test_can_unarchive_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            is_archived=True,
+            is_rollout=True,
         )
         serializer = NimbusExperimentSerializer(
             experiment,

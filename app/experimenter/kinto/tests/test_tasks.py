@@ -101,15 +101,19 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,],
-            [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,],
-            [NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,],
+            [
+                NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,
+            ],
         ]
     )
     @override_settings(KINTO_REVIEW_TIMEOUT=60)
-    def test_check_with_pending_review_before_timeout_aborts_early(
-        self, lifecycle
-    ):
+    def test_check_with_pending_review_before_timeout_aborts_early(self, lifecycle):
         NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=lifecycle,
             application=NimbusExperiment.Application.DESKTOP,
