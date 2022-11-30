@@ -27,7 +27,6 @@ export const optionIndexKeys: {
   firefoxVersions: (option) => option.value,
   channels: (option) => option.value,
   types: (option) => option.value,
-  targetingConfigs: (option) => option.value,
 };
 
 type ExperimentFilter<K extends FilterValueKeys> = (
@@ -63,15 +62,6 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
       (experiment.isRollout && option.value === "ROLLOUT") ||
       (!experiment.isRollout && option.value === "EXPERIMENT")
     );
-  },
-  targetingConfigs: (option, experiment) => {
-    let targetingConfigMatch = false;
-    if (experiment.targetingConfig?.length) {
-      targetingConfigMatch =
-        experiment.targetingConfig.filter((f) => f?.value === option.value)
-          .length > 0;
-    }
-    return targetingConfigMatch;
   },
 };
 
@@ -122,13 +112,6 @@ export function getFilterValueFromParams(
         break;
       case "types":
         filterValue[key] = selectFilterOptions<"types">(
-          options[key],
-          optionIndexKeys[key],
-          values,
-        );
-        break;
-      case "targetingConfigs":
-        filterValue[key] = selectFilterOptions<"targetingConfigs">(
           options[key],
           optionIndexKeys[key],
           values,
@@ -199,12 +182,6 @@ export function updateParamsFromFilterValue(
             optionIndexKeys[key],
           );
           break;
-        case "targetingConfigs":
-          values = indexFilterOptions<"targetingConfigs">(
-            filterValue[key],
-            optionIndexKeys[key],
-          );
-          break;
       }
       if (values && values.length) {
         params.set(key, values.join(","));
@@ -268,13 +245,6 @@ export function filterExperiments(
         break;
       case "types":
         filteredExperiments = filterExperimentsByOptions<"types">(
-          filterState[key],
-          experimentFilters[key],
-          filteredExperiments,
-        );
-        break;
-      case "targetingConfigs":
-        filteredExperiments = filterExperimentsByOptions<"targetingConfigs">(
           filterState[key],
           experimentFilters[key],
           filteredExperiments,

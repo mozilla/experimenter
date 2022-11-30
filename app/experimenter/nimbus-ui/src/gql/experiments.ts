@@ -214,14 +214,6 @@ export const GET_EXPERIMENTS_QUERY = gql`
         ownerEmail
         schema
       }
-      targetingConfig {
-        label
-        value
-        description
-        applicationValues
-        stickyRequired
-        isFirstRunRequired
-      }
       slug
       application
       firefoxMinVersion
