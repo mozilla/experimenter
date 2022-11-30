@@ -81,6 +81,10 @@ export const GET_CONFIG_QUERY = gql`
         id
         name
       }
+      projects {
+        id
+        name
+      }
       types {
         label
         value

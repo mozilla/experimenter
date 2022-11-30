@@ -40,6 +40,7 @@ from experimenter.experiments.tests.factories import (
 from experimenter.features import Features
 from experimenter.features.tests import mock_valid_features
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.projects.tests.factories import ProjectFactory
 
 
 class TestNimbusExperimentManager(TestCase):
@@ -224,6 +225,7 @@ class TestNimbusExperiment(TestCase):
             locales=[],
             countries=[],
             languages=[],
+            projects=[],
         )
 
         self.assertEqual(
@@ -559,6 +561,27 @@ class TestNimbusExperiment(TestCase):
             "(days_since_install < 7) && (language in ['en', 'es', 'fr'])",
         )
         JEXLParser().parse(experiment.targeting)
+
+    def test_with_projects(self):
+
+        project_mdn = ProjectFactory.create(slug="mdn")
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.FENIX,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            projects=[
+                project_mdn,
+            ],
+        )
+        for project in experiment.projects.all():
+            self.assertEqual(
+                {"slug": project.slug, "name": project.name},
+                {"slug": project_mdn.slug, "name": project_mdn.name},
+            )
 
     def test_targeting_with_sticky_desktop_experiment(self):
         locale_en = LocaleFactory.create(code="en")
@@ -1714,6 +1737,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.locales.all().count(), 0)
         self.assertEqual(child.countries.all().count(), 0)
         self.assertEqual(child.languages.all().count(), 0)
+        self.assertEqual(child.projects.all().count(), 0)
         self.assertEqual(child.branches.all().count(), 0)
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
@@ -1804,6 +1828,10 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(
             set(child.languages.all().values_list("code", flat=True)),
             set(parent.languages.all().values_list("code", flat=True)),
+        )
+        self.assertEqual(
+            set(child.projects.all().values_list("slug", flat=True)),
+            set(parent.projects.all().values_list("slug", flat=True)),
         )
 
         self.assertEqual(child.is_rollout, parent.is_rollout)
