@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urljoin
 
 import pytest
 from nimbus.pages.experimenter.home import HomePage
@@ -91,3 +92,18 @@ def test_create_new_experiment_timeout_remote_settings(
     summary = create_experiment(selenium)
     summary.launch_and_approve()
     summary.wait_for_timeout_alert()
+
+
+@pytest.mark.nimbus_ui
+def test_check_live_status_on_home_page(
+    selenium, base_url, create_experiment, kinto_client, experiment_name, slugify
+):
+    experiment_slug = str(slugify(experiment_name))
+
+    summary = create_experiment(selenium)
+    summary.launch_and_approve()
+    kinto_client.approve()
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary.wait_for_live_status()
+    home = HomePage(selenium, base_url).open()
+    assert True in [experiment_name in item.text for item in home.tables[0].experiments]
