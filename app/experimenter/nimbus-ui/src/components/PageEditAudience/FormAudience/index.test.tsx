@@ -823,6 +823,22 @@ describe("FormAudience", () => {
     expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
   });
 
+  it("population percent text box shows default value", async () => {
+    const expectedValue = "0";
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await screen.findByTestId("FormAudience");
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
+  });
+
   it("using the population percent slider sets form value", async () => {
     const enteredValue = "45";
     const expectedValue = "45";
