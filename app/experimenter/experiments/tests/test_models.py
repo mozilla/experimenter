@@ -562,7 +562,7 @@ class TestNimbusExperiment(TestCase):
         )
         JEXLParser().parse(experiment.targeting)
 
-    def test_with_projects(self):
+    def test_targeting_with_projects(self):
 
         project_mdn = ProjectFactory.create(slug="mdn")
 
