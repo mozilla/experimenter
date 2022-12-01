@@ -744,7 +744,7 @@ describe("FormAudience", () => {
       firefoxMinVersion: MOCK_EXPERIMENT.firefoxMinVersion,
       firefoxMaxVersion: MOCK_EXPERIMENT.firefoxMaxVersion,
       targetingConfigSlug: MOCK_EXPERIMENT.targetingConfigSlug,
-      populationPercent: parseFloat(MOCK_EXPERIMENT.populationPercent || "0"),
+      populationPercent: MOCK_EXPERIMENT.populationPercent,
       totalEnrolledClients: MOCK_EXPERIMENT.totalEnrolledClients,
       proposedEnrollment: "" + MOCK_EXPERIMENT.proposedEnrollment,
       proposedDuration: "" + MOCK_EXPERIMENT.proposedDuration,
@@ -800,7 +800,7 @@ describe("FormAudience", () => {
 
   it("using the population percent text box sets form value", async () => {
     const enteredValue = "45";
-    const expectedValue = 45;
+    const expectedValue = "45";
 
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -825,7 +825,7 @@ describe("FormAudience", () => {
 
   it("using the population percent slider sets form value", async () => {
     const enteredValue = "45";
-    const expectedValue = 45;
+    const expectedValue = "45";
 
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -850,7 +850,7 @@ describe("FormAudience", () => {
 
   it("population percentage text input handles string number value", async () => {
     const stringValue = "45";
-    const expectedValue = 45;
+    const expectedValue = "45";
 
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -875,7 +875,7 @@ describe("FormAudience", () => {
 
   it("population percentage text input handles decimals", async () => {
     const value = "45.1";
-    const expectedValue = 45.1;
+    const expectedValue = "45.1";
 
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -883,7 +883,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-slider");
+      ).getByTestId("population-percent-text");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: value } });
       fireEvent.blur(field);
@@ -900,7 +900,7 @@ describe("FormAudience", () => {
 
   it("population percentage text input handles null value", async () => {
     const initialValue = "45";
-    const expectedValue = 45;
+    const expectedValue = "45";
 
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -925,7 +925,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-slider");
+      ).getByTestId("population-percent-text");
       fireEvent.click(field);
       fireEvent.change(field, { target: { value: null } });
       fireEvent.blur(field);
@@ -945,8 +945,6 @@ describe("FormAudience", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
     });
-
-    const nullValue = null;
 
     await act(async () => {
       const field = within(
@@ -1133,7 +1131,6 @@ describe("FormAudience", () => {
     });
 
     for (const fieldName of [
-      "populationPercent",
       "totalEnrolledClients",
       "proposedEnrollment",
       "proposedDuration",
