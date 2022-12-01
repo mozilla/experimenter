@@ -95,6 +95,15 @@ class NimbusLocaleType(DjangoObjectType):
         model = Locale
 
 
+class NimbusProjectType(DjangoObjectType):
+    id = graphene.Int()
+    slug = graphene.String()
+    name = graphene.String()
+
+    class Meta:
+        model = Project
+
+
 class NimbusLanguageType(DjangoObjectType):
     id = graphene.Int()
     code = graphene.String()
@@ -257,6 +266,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     hypothesis_default = graphene.String()
     locales = graphene.List(NimbusLocaleType)
     languages = graphene.List(NimbusLanguageType)
+    projects = graphene.List(NimbusProjectType)
     max_primary_outcomes = graphene.Int()
     outcomes = graphene.List(NimbusOutcomeType)
     owners = graphene.List(NimbusUserType)
@@ -353,6 +363,9 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_languages(root, info):
         return Language.objects.all().order_by("name")
+
+    def resolve_projects(root, info):
+        return Project.objects.all().order_by("name")
 
     def resolve_types(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Type)

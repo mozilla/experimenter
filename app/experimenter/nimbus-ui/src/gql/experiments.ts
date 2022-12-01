@@ -192,6 +192,10 @@ export const GET_EXPERIMENT_QUERY = gql`
         id
         name
       }
+      projects {
+        id
+        name
+      }
     }
   }
 `;

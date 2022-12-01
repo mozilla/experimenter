@@ -393,6 +393,20 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       id: 3,
     },
   ],
+  projects: [
+    {
+      name: "Pocket",
+      id: 1,
+    },
+    {
+      name: "Mdn",
+      id: 2,
+    },
+    {
+      name: "VPN",
+      id: 3,
+    },
+  ],
 };
 
 // Disabling this rule for now because we'll eventually
@@ -579,6 +593,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   locales: [{ name: "Quebecois", id: 1 }],
   countries: [{ name: "Canada", id: 1 }],
   languages: [{ name: "English", id: 1 }],
+  projects: [{ name: "Pocket", id: 1 }],
 };
 
 export function mockExperiment<

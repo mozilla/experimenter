@@ -11,6 +11,7 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
 )
 from experimenter.outcomes import Outcomes
+from experimenter.projects.models import Project
 
 
 class TestNimbusConfigurationSerializer(TestCase):
@@ -130,3 +131,9 @@ class TestNimbusConfigurationSerializer(TestCase):
             self.assertIn(
                 {"code": language.code, "name": language.name}, config["languages"]
             )
+
+        for project in Project.objects.all():
+            self.assertIn(
+                {"id": project.id, "name": project.name, "slug": project.slug},
+                [dict(i) for i in config["projects"]],
+            ),

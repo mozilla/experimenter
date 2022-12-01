@@ -91,6 +91,7 @@ class ExperimentInput(graphene.InputObjectType):
     countries = graphene.List(graphene.Int)
     locales = graphene.List(graphene.Int)
     languages = graphene.List(graphene.Int)
+    projects = graphene.List(graphene.Int)
     conclusion_recommendation = NimbusExperimentConclusionRecommendationEnum()
     takeaways_summary = graphene.String()
 

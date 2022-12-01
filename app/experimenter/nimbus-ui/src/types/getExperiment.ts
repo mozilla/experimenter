@@ -133,6 +133,11 @@ export interface getExperiment_experimentBySlug_languages {
   name: string | null;
 }
 
+export interface getExperiment_experimentBySlug_projects {
+  id: number | null;
+  name: string;
+}
+
 export interface getExperiment_experimentBySlug {
   id: number | null;
   isRollout: boolean | null;
@@ -196,6 +201,7 @@ export interface getExperiment_experimentBySlug {
   locales: getExperiment_experimentBySlug_locales[];
   countries: getExperiment_experimentBySlug_countries[];
   languages: getExperiment_experimentBySlug_languages[];
+  projects: getExperiment_experimentBySlug_projects[];
 }
 
 export interface getExperiment {
