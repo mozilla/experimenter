@@ -21,6 +21,7 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
+from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.targeting.constants import TargetingConstants
 
 CREATE_EXPERIMENT_MUTATION = """\
@@ -657,6 +658,7 @@ class TestUpdateExperimentMutationSingleFeature(
         country = CountryFactory.create()
         locale = LocaleFactory.create()
         language = LanguageFactory.create()
+        project = ProjectFactory.create()
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -687,6 +689,7 @@ class TestUpdateExperimentMutationSingleFeature(
                     "countries": [country.id],
                     "locales": [locale.id],
                     "languages": [language.id],
+                    "projects": [project.id],
                     "isSticky": True,
                     "isFirstRun": True,
                 }
@@ -716,6 +719,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])
         self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertEqual(list(experiment.projects.all()), [project])
         self.assertTrue(experiment.is_sticky)
 
     def test_update_experiment_audience_error(self):

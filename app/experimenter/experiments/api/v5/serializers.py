@@ -32,6 +32,7 @@ from experimenter.kinto.tasks import (
     nimbus_synchronize_preview_experiments_in_kinto,
 )
 from experimenter.outcomes import Outcomes
+from experimenter.projects.models import Project
 
 
 class NestedRefResolver(jsonschema.RefResolver):
@@ -66,6 +67,13 @@ class GeoDataClass:
     id: int
     name: str
     code: str
+
+
+@dataclass
+class ProjectDataClass:
+    id: int
+    name: str
+    slug: str
 
 
 @dataclass
@@ -120,6 +128,7 @@ class NimbusConfigurationDataClass:
     countries: typing.List[GeoDataClass]
     locales: typing.List[GeoDataClass]
     languages: typing.List[GeoDataClass]
+    projects: typing.List[ProjectDataClass]
     documentationLink: typing.List[LabelValueDataClass]
     allFeatureConfigs: typing.List[FeatureConfigDataClass]
     firefoxVersions: typing.List[LabelValueDataClass]
@@ -142,6 +151,9 @@ class NimbusConfigurationDataClass:
         self.languages = self._geo_model_to_dataclass(
             Language.objects.all().order_by("name")
         )
+        self.projects = self._project_model_to_dataclass(
+            Project.objects.all().order_by("name")
+        )
         self.documentationLink = self._enum_to_label_value(
             NimbusExperiment.DocumentationLink
         )
@@ -157,6 +169,9 @@ class NimbusConfigurationDataClass:
 
     def _geo_model_to_dataclass(self, queryset):
         return [GeoDataClass(id=i.id, name=i.name, code=i.code) for i in queryset]
+
+    def _project_model_to_dataclass(self, queryset):
+        return [ProjectDataClass(id=i.id, name=i.name, slug=i.slug) for i in queryset]
 
     def _enum_to_label_value(self, text_choices):
         return [
@@ -719,6 +734,12 @@ class NimbusExperimentSerializer(
         required=False,
         many=True,
     )
+    projects = serializers.PrimaryKeyRelatedField(
+        queryset=Project.objects.all(),
+        allow_null=True,
+        required=False,
+        many=True,
+    )
     conclusion_recommendation = serializers.ChoiceField(
         choices=NimbusExperiment.ConclusionRecommendation.choices,
         allow_null=True,
@@ -747,6 +768,7 @@ class NimbusExperimentSerializer(
             "is_first_run",
             "locales",
             "languages",
+            "projects",
             "name",
             "population_percent",
             "primary_outcomes",
@@ -1368,8 +1390,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if sticky_required and (not is_sticky):
             raise serializers.ValidationError(
                 {
-                    "is_sticky": "Selected targeting expression requires sticky enrollment to function\
-                    correctly"
+                    "is_sticky": "Selected targeting expression requires sticky\
+                    enrollment to function correctly"
                 }
             )
 

@@ -263,6 +263,7 @@ export interface ExperimentInput {
   countries?: (number | null)[] | null;
   locales?: (number | null)[] | null;
   languages?: (number | null)[] | null;
+  projects?: (number | null)[] | null;
   conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   takeawaysSummary?: string | null;
 }

@@ -21,6 +21,7 @@ from experimenter.experiments.tests.factories import (
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.outcomes import Outcomes
 from experimenter.outcomes.tests import mock_valid_outcomes
+from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.targeting.constants import TargetingConstants
 
 
@@ -158,6 +159,7 @@ class TestNimbusExperimentSerializer(TestCase):
             "countries": [],
             "locales": [],
             "languages": [],
+            "projects": [],
         }
 
         serializer = NimbusExperimentSerializer(
@@ -192,6 +194,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(list(experiment.countries.all()), [])
         self.assertEqual(list(experiment.locales.all()), [])
         self.assertEqual(list(experiment.languages.all()), [])
+        self.assertEqual(list(experiment.projects.all()), [])
 
     def test_serializer_rejects_bad_name(self):
         data = {
@@ -456,6 +459,7 @@ class TestNimbusExperimentSerializer(TestCase):
         country = CountryFactory.create()
         locale = LocaleFactory.create()
         language = LanguageFactory.create()
+        project = ProjectFactory.create()
 
         experiment = NimbusExperimentFactory(
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -482,6 +486,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "countries": [country.id],
                 "locales": [locale.id],
                 "languages": [language.id],
+                "projects": [project.id],
                 "is_sticky": True,
             },
             context={"user": self.user},
@@ -505,6 +510,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(list(experiment.countries.all()), [country])
         self.assertEqual(list(experiment.locales.all()), [locale])
         self.assertEqual(list(experiment.languages.all()), [language])
+        self.assertEqual(list(experiment.projects.all()), [project])
         self.assertTrue(experiment.is_sticky)
 
     @parameterized.expand(
