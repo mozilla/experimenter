@@ -368,7 +368,6 @@ describe("FormAudience", () => {
     ]) {
       await act(async () => {
         const field = screen.getByTestId(fieldName);
-        fireEvent.click(field);
         fireEvent.change(field, { target: { value: "123" } });
         fireEvent.blur(field);
       });
@@ -379,7 +378,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: "23" } });
     });
 
@@ -782,7 +780,6 @@ describe("FormAudience", () => {
     await screen.findByTestId("FormAudience");
     await act(async () => {
       const field = screen.getByTestId("totalEnrolledClients");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: enteredValue } });
       fireEvent.blur(field);
     });
@@ -809,7 +806,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: enteredValue } });
       fireEvent.blur(field);
     });
@@ -850,7 +846,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-slider");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: enteredValue } });
       fireEvent.blur(field);
     });
@@ -875,7 +870,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-slider");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: stringValue } });
       fireEvent.blur(field);
     });
@@ -900,7 +894,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: value } });
       fireEvent.blur(field);
     });
@@ -925,7 +918,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-slider");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: initialValue } });
       fireEvent.blur(field);
     });
@@ -942,7 +934,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: null } });
       fireEvent.blur(field);
     });
@@ -966,7 +957,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: null } });
     });
 
@@ -991,7 +981,6 @@ describe("FormAudience", () => {
     ]) {
       await act(async () => {
         const field = screen.getByTestId(fieldName);
-        fireEvent.click(field);
         fireEvent.change(field, { target: { value: "-123" } });
         fireEvent.blur(field);
       });
@@ -1037,7 +1026,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: "-123" } });
     });
     const submitButton = screen.getByTestId("submit-button");
@@ -1063,7 +1051,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: "sdfds" } });
     });
     const submitButton = screen.getByTestId("submit-button");
@@ -1112,7 +1099,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: expected } });
     });
 
@@ -1137,7 +1123,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: "50" } });
     });
 
@@ -1179,7 +1164,6 @@ describe("FormAudience", () => {
     ]) {
       await act(async () => {
         const field = screen.getByTestId(fieldName);
-        fireEvent.click(field);
         fireEvent.change(field, { target: { value: "hi" } });
         fireEvent.blur(field);
       });
@@ -1202,7 +1186,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: "6666666" } });
     });
 
