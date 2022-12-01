@@ -1053,6 +1053,32 @@ describe("FormAudience", () => {
     ).toBeTruthy();
   });
 
+  it("requires numbers in population percentage field", async () => {
+    const onSubmit = jest.fn();
+    const { container } = render(<Subject {...{ onSubmit }} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-text");
+      fireEvent.click(field);
+      fireEvent.change(field, { target: { value: "sdfds" } });
+    });
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+    expect(
+      within(screen.queryByTestId("population-percent-top-row") as HTMLElement)
+        .findByText("This field", {
+          selector: `.invalid-feedback[data-for={populationPercent}]`,
+        })
+        .then(() => {}),
+    ).toBeTruthy();
+  });
+
   it("allows the population percentage slider to be slid", async () => {
     const onSubmit = jest.fn();
     const { container } = render(<Subject {...{ onSubmit }} />);
