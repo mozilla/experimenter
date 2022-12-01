@@ -32,12 +32,18 @@ class KintoClient:
     def approve(self):
         for i in range(60):
             if self._has_pending_review():
-                self.kinto_http_client.patch_collection(
-                    id=self.collection,
-                    data={"status": KINTO_SIGN_STATUS},
-                    bucket=KINTO_BUCKET_WORKSPACE,
-                )
-                return
+                try:
+                    self.kinto_http_client.patch_collection(
+                        id=self.collection,
+                        data={"status": KINTO_SIGN_STATUS},
+                        bucket=KINTO_BUCKET_WORKSPACE,
+                    )
+                except kinto_http.exceptions.KintoException:
+                    # This happens if there are multiple experiments that
+                    # need to be approved.
+                    pass
+                else:
+                    return
             time.sleep(1)
         raise Exception("Unable to approve kinto review")
 
