@@ -395,7 +395,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   ],
   projects: [
     {
-      name: "Pockets",
+      name: "Pocket",
       id: 1,
     },
     {
