@@ -732,6 +732,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.application == self.Application.DESKTOP:
             cloned.locales.add(*self.locales.all())
         cloned.languages.add(*self.languages.all())
+        cloned.projects.add(*self.projects.all())
 
         if rollout_branch_slug:
             generate_nimbus_changelog(

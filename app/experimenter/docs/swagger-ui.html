@@ -3248,6 +3248,28 @@
               ]
             }
           },
+          "projects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "slug"
+              ]
+            }
+          },
           "documentationLink": {
             "type": "array",
             "items": {
@@ -3480,6 +3502,7 @@
           "countries",
           "locales",
           "languages",
+          "projects",
           "documentationLink",
           "allFeatureConfigs",
           "firefoxVersions",

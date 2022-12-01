@@ -98,6 +98,11 @@ export interface getConfig_nimbusConfig_languages {
   name: string | null;
 }
 
+export interface getConfig_nimbusConfig_projects {
+  id: number | null;
+  name: string | null;
+}
+
 export interface getConfig_nimbusConfig_types {
   label: string | null;
   value: string | null;
@@ -119,6 +124,7 @@ export interface getConfig_nimbusConfig {
   locales: (getConfig_nimbusConfig_locales | null)[] | null;
   countries: (getConfig_nimbusConfig_countries | null)[] | null;
   languages: (getConfig_nimbusConfig_languages | null)[] | null;
+  projects: (getConfig_nimbusConfig_projects | null)[] | null;
   types: (getConfig_nimbusConfig_types | null)[] | null;
 }
 
