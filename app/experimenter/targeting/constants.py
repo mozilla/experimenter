@@ -106,7 +106,32 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
     ),
     desktop_telemetry=(
         "{first_run} AND environment.system.os.windows_build_number >= 18362 AND "
-        "!isDefaultBrowser AND doesAppNeedPin"
+        "!isDefaultBrowser AND {new_profile}"
+    ).format(first_run=FIRST_RUN.desktop_telemetry, new_profile=NEW_PROFILE),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903_PREFER_MOTION = NimbusTargetingConfig(
+    name=(
+        "First start-up users on Windows 10 1903 needing default and no prefer "
+        "reduced motion"
+    ),
+    slug="first_run_new_profile_need_default_prefers_motion",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Windows 1903+, "
+        "with a new profile, needing default, preferring motion"
+    ),
+    targeting=(
+        "{first_run} && !userPrefersReducedMotion".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
+        )
+    ),
+    desktop_telemetry=(
+        "{first_run} AND !userPrefersReducedMotion".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
+        )
     ).format(first_run=FIRST_RUN.desktop_telemetry),
     sticky_required=True,
     is_first_run_required=False,

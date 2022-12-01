@@ -15,12 +15,13 @@ import { createMutationMock, Subject } from "./mocks";
 describe("Summary", () => {
   it("renders expected components", () => {
     render(<Subject />);
-    expect(screen.getByTestId("summary-timeline")).toBeInTheDocument();
+
     expect(screen.queryByTestId("experiment-end")).not.toBeInTheDocument();
     expect(
       screen.queryByTestId("link-monitoring-dashboard"),
     ).not.toBeInTheDocument();
     expect(screen.getByTestId("table-overview")).toBeInTheDocument();
+    expect(screen.getByTestId("table-risk-mitigation")).toBeInTheDocument();
     expect(screen.getByTestId("table-audience")).toBeInTheDocument();
     expect(screen.queryAllByTestId("table-branch")).toHaveLength(2);
     expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
@@ -37,10 +38,16 @@ describe("Summary", () => {
       />,
     );
 
-    await screen.findByTestId("table-signoff");
+    expect(
+      screen.queryByTestId("summary-page-signoff-launched"),
+    ).toBeInTheDocument();
+    // hides signoff not launched section if experiment is launched
+    expect(
+      screen.queryByTestId("summary-page-signoff-not-launched"),
+    ).not.toBeInTheDocument();
   });
 
-  it("does not render signoff table if experiment has not been launched", () => {
+  it("does not render signoff launch table if experiment has not been launched", () => {
     render(
       <Subject
         props={{
@@ -49,32 +56,12 @@ describe("Summary", () => {
       />,
     );
 
-    expect(screen.queryByTestId("table-signoff")).not.toBeInTheDocument();
-  });
-
-  it("renders enrollment active badge if enrollment is not paused", async () => {
-    render(
-      <Subject
-        props={{
-          status: NimbusExperimentStatusEnum.LIVE,
-          isEnrollmentPaused: false,
-        }}
-      />,
-    );
-    await screen.findByTestId("pill-enrolling-active");
-  });
-
-  it("renders enrollment complete badge if enrollment is not paused", async () => {
-    render(
-      <Subject
-        props={{
-          status: NimbusExperimentStatusEnum.LIVE,
-          isEnrollmentPaused: true,
-          enrollmentEndDate: new Date().toISOString(),
-        }}
-      />,
-    );
-    await screen.findByTestId("pill-enrolling-complete");
+    expect(
+      screen.queryByTestId("summary-page-signoff-launched"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("summary-page-signoff-not-launched"),
+    ).toBeInTheDocument();
   });
 
   it("renders the end experiment button if the experiment is live and idle", async () => {
@@ -178,36 +165,6 @@ describe("Summary", () => {
         expect(refetch).toHaveBeenCalled();
         expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
       });
-    });
-
-    it("verify cancel review doesn't change enrollment days", async () => {
-      const refetch = jest.fn();
-      const { experiment } = mockExperimentQuery("demo-slug", {
-        status: NimbusExperimentStatusEnum.LIVE,
-        publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
-      });
-      const mutationMock = createMutationMock(
-        experiment.id!,
-        NimbusExperimentPublishStatusEnum.IDLE,
-        {
-          statusNext: NimbusExperimentStatusEnum.LIVE,
-          changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
-          isEnrollmentPaused: false,
-        },
-      );
-      render(
-        <Subject props={experiment} mocks={[mutationMock]} {...{ refetch }} />,
-      );
-
-      await screen.findByTestId("cancel-review-start");
-      fireEvent.click(screen.getByTestId("cancel-review-start"));
-      await waitFor(() => {
-        expect(refetch).toHaveBeenCalled();
-        expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
-      });
-      expect(screen.queryByTestId("label-enrollment-days")).toHaveTextContent(
-        "1 day",
-      );
     });
 
     it("handles submission with server API error", async () => {

@@ -70,9 +70,8 @@ describe("PageSummary", () => {
     await screen.findByTestId("PageSummary");
     await screen.findByTestId("start-launch-draft-to-review");
     expect(screen.getByTestId("summary")).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByTestId("summary-page-signoff")).toBeInTheDocument();
-    });
+    expect(screen.getByTestId("summary-timeline")).toBeInTheDocument();
+
     screen.getByRole("navigation");
   });
 
@@ -93,6 +92,31 @@ describe("PageSummary", () => {
     render(<Subject mocks={[mock]} />);
     await screen.findByText("Cancel Review");
   });
+  it("verify cancel review doesn't change enrollment days", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+    });
+    const mutationMock = createMutationMock(
+      experiment.id!,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      {
+        statusNext: NimbusExperimentStatusEnum.LIVE,
+        changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
+        isEnrollmentPaused: false,
+      },
+    );
+    render(<Subject mocks={[mock, mutationMock]} />);
+
+    await screen.findByTestId("cancel-review-start");
+    fireEvent.click(screen.getByTestId("cancel-review-start"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("label-enrollment-days")).toHaveTextContent(
+      "1 day",
+    );
+  });
 
   it("can cancel review when the experiment is in the review state", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
@@ -112,19 +136,6 @@ describe("PageSummary", () => {
     fireEvent.click(screen.getByTestId("cancel-review-start"));
     await waitFor(() => {
       expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
-    });
-  });
-
-  it("hides signoff section if experiment is launched", async () => {
-    // this table is shown in the Summary component instead
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatusEnum.LIVE,
-    });
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(
-        screen.queryByTestId("summary-page-signoff"),
-      ).not.toBeInTheDocument();
     });
   });
 
@@ -499,5 +510,24 @@ describe("PageSummary", () => {
     await waitFor(() =>
       expect(screen.getByTestId("in-review-label")).toBeInTheDocument(),
     );
+  });
+  it("renders enrollment complete badge if enrollment is not paused", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      isEnrollmentPaused: true,
+      enrollmentEndDate: new Date().toISOString(),
+    });
+    const mutationMock = createStatusMutationMock(experiment.id!);
+    render(<Subject mocks={[mock, mutationMock]} />);
+    await screen.findByTestId("pill-enrolling-complete");
+  });
+  it("renders enrollment active badge if enrollment is not paused", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      isEnrollmentPaused: false,
+    });
+    const mutationMock = createStatusMutationMock(experiment.id!);
+    render(<Subject mocks={[mock, mutationMock]} />);
+    await screen.findByTestId("pill-enrolling-active");
   });
 });

@@ -205,7 +205,7 @@ def default_data(application, experiment_name, load_experiment_outcomes):
             channel=BaseExperimentAudienceChannels.RELEASE,
             min_version=80,
             targeting="no_targeting",
-            percentage=50.0,
+            percentage=50,
             expected_clients=50,
             locale=None,
             countries=None,
