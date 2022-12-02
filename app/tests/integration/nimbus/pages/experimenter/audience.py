@@ -56,8 +56,9 @@ class AudiencePage(ExperimenterBase):
         return self.find_element(*self._population_fill_locator).text
 
     @percentage.setter
-    def percentage(self, text):
+    def percentage(self, text) -> None:
         name = self.find_element(*self._population_fill_locator)
+        name.clear()
         name.send_keys(f"{text}")
 
     @property

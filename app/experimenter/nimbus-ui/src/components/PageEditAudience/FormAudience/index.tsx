@@ -103,12 +103,8 @@ export const FormAudience = ({
       applicationConfig?.application === experiment.application,
   );
 
-  function parsePercent(value: string | null): number {
-    return parseFloat(value ?? "0");
-  }
-
   const [populationPercent, setPopulationPercent] = useState(
-    parsePercent(experiment!.populationPercent),
+    experiment!.populationPercent?.toString(),
   );
 
   const defaultValues = {
@@ -116,7 +112,7 @@ export const FormAudience = ({
     firefoxMinVersion: experiment.firefoxMinVersion,
     firefoxMaxVersion: experiment.firefoxMaxVersion,
     targetingConfigSlug: experiment.targetingConfigSlug,
-    populationPercent: parsePercent(experiment.populationPercent),
+    populationPercent: experiment.populationPercent,
     totalEnrolledClients: experiment.totalEnrolledClients,
     proposedEnrollment: experiment.proposedEnrollment,
     proposedDuration: experiment.proposedDuration,
@@ -374,10 +370,7 @@ export const FormAudience = ({
             </InputGroup>
             <InputGroup>
               <Form.Control
-                {...formControlAttrs(
-                  "populationPercent",
-                  POSITIVE_NUMBER_FIELD,
-                )}
+                {...formControlAttrs("populationPercent")}
                 type="hidden"
                 value={populationPercent}
               />
@@ -389,19 +382,14 @@ export const FormAudience = ({
                 step="5"
                 className="pb-4"
                 value={populationPercent}
-                onChange={(e) =>
-                  setPopulationPercent(parsePercent(e.target.value))
-                }
+                onChange={(e) => setPopulationPercent(e.target.value)}
                 data-testid="population-percent-slider"
               />
               <Form.Control
                 aria-describedby="populationPercent-unit"
-                min="0"
-                max="100"
+                defaultValue={"0"}
                 value={populationPercent}
-                onChange={(e) =>
-                  setPopulationPercent(parsePercent(e.target.value))
-                }
+                onChange={(e) => setPopulationPercent(e.target.value)}
                 data-testid="population-percent-text"
               />
               <InputGroup.Append>
