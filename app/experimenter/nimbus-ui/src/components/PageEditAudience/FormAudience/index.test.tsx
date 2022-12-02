@@ -368,7 +368,6 @@ describe("FormAudience", () => {
     ]) {
       await act(async () => {
         const field = screen.getByTestId(fieldName);
-        fireEvent.click(field);
         fireEvent.change(field, { target: { value: "123" } });
         fireEvent.blur(field);
       });
@@ -379,7 +378,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: "23" } });
     });
 
@@ -744,7 +742,7 @@ describe("FormAudience", () => {
       firefoxMinVersion: MOCK_EXPERIMENT.firefoxMinVersion,
       firefoxMaxVersion: MOCK_EXPERIMENT.firefoxMaxVersion,
       targetingConfigSlug: MOCK_EXPERIMENT.targetingConfigSlug,
-      populationPercent: parseFloat(MOCK_EXPERIMENT.populationPercent || "0"),
+      populationPercent: MOCK_EXPERIMENT.populationPercent,
       totalEnrolledClients: MOCK_EXPERIMENT.totalEnrolledClients,
       proposedEnrollment: "" + MOCK_EXPERIMENT.proposedEnrollment,
       proposedDuration: "" + MOCK_EXPERIMENT.proposedDuration,
@@ -782,7 +780,6 @@ describe("FormAudience", () => {
     await screen.findByTestId("FormAudience");
     await act(async () => {
       const field = screen.getByTestId("totalEnrolledClients");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: enteredValue } });
       fireEvent.blur(field);
     });
@@ -800,7 +797,7 @@ describe("FormAudience", () => {
 
   it("using the population percent text box sets form value", async () => {
     const enteredValue = "45";
-    const expectedValue = 45;
+    const expectedValue = "45";
 
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -809,7 +806,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: enteredValue } });
       fireEvent.blur(field);
     });
@@ -823,9 +819,25 @@ describe("FormAudience", () => {
     expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
   });
 
+  it("population percent text box shows default value", async () => {
+    const expectedValue = "0";
+
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await screen.findByTestId("FormAudience");
+
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0][0].populationPercent).toEqual(expectedValue);
+  });
+
   it("using the population percent slider sets form value", async () => {
     const enteredValue = "45";
-    const expectedValue = 45;
+    const expectedValue = "45";
 
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -834,7 +846,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-slider");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: enteredValue } });
       fireEvent.blur(field);
     });
@@ -850,7 +861,7 @@ describe("FormAudience", () => {
 
   it("population percentage text input handles string number value", async () => {
     const stringValue = "45";
-    const expectedValue = 45;
+    const expectedValue = "45";
 
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -859,7 +870,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-slider");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: stringValue } });
       fireEvent.blur(field);
     });
@@ -875,7 +885,7 @@ describe("FormAudience", () => {
 
   it("population percentage text input handles decimals", async () => {
     const value = "45.1";
-    const expectedValue = 45.1;
+    const expectedValue = "45.1";
 
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -883,8 +893,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-slider");
-      fireEvent.click(field);
+      ).getByTestId("population-percent-text");
       fireEvent.change(field, { target: { value: value } });
       fireEvent.blur(field);
     });
@@ -900,7 +909,7 @@ describe("FormAudience", () => {
 
   it("population percentage text input handles null value", async () => {
     const initialValue = "45";
-    const expectedValue = 45;
+    const expectedValue = "45";
 
     const onSubmit = jest.fn();
     renderSubjectWithDefaultValues(onSubmit);
@@ -909,7 +918,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-slider");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: initialValue } });
       fireEvent.blur(field);
     });
@@ -925,8 +933,7 @@ describe("FormAudience", () => {
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
-      ).getByTestId("population-percent-slider");
-      fireEvent.click(field);
+      ).getByTestId("population-percent-text");
       fireEvent.change(field, { target: { value: null } });
       fireEvent.blur(field);
     });
@@ -946,13 +953,10 @@ describe("FormAudience", () => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
     });
 
-    const nullValue = null;
-
     await act(async () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: null } });
     });
 
@@ -977,7 +981,6 @@ describe("FormAudience", () => {
     ]) {
       await act(async () => {
         const field = screen.getByTestId(fieldName);
-        fireEvent.click(field);
         fireEvent.change(field, { target: { value: "-123" } });
         fireEvent.blur(field);
       });
@@ -1023,8 +1026,32 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: "-123" } });
+    });
+    const submitButton = screen.getByTestId("submit-button");
+    await act(async () => {
+      fireEvent.click(submitButton);
+    });
+    expect(
+      within(screen.queryByTestId("population-percent-top-row") as HTMLElement)
+        .findByText("This field", {
+          selector: `.invalid-feedback[data-for={populationPercent}]`,
+        })
+        .then(() => {}),
+    ).toBeTruthy();
+  });
+
+  it("requires numbers in population percentage field", async () => {
+    const onSubmit = jest.fn();
+    const { container } = render(<Subject {...{ onSubmit }} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+    await act(async () => {
+      const field = within(
+        screen.queryByTestId("population-percent-top-row") as HTMLElement,
+      ).getByTestId("population-percent-text");
+      fireEvent.change(field, { target: { value: "sdfds" } });
     });
     const submitButton = screen.getByTestId("submit-button");
     await act(async () => {
@@ -1072,7 +1099,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: expected } });
     });
 
@@ -1097,7 +1123,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: "50" } });
     });
 
@@ -1133,14 +1158,12 @@ describe("FormAudience", () => {
     });
 
     for (const fieldName of [
-      "populationPercent",
       "totalEnrolledClients",
       "proposedEnrollment",
       "proposedDuration",
     ]) {
       await act(async () => {
         const field = screen.getByTestId(fieldName);
-        fireEvent.click(field);
         fireEvent.change(field, { target: { value: "hi" } });
         fireEvent.blur(field);
       });
@@ -1163,7 +1186,6 @@ describe("FormAudience", () => {
       const field = within(
         screen.queryByTestId("population-percent-top-row") as HTMLElement,
       ).getByTestId("population-percent-text");
-      fireEvent.click(field);
       fireEvent.change(field, { target: { value: "6666666" } });
     });
 
