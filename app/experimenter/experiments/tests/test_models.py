@@ -567,7 +567,7 @@ class TestNimbusExperiment(TestCase):
         project_mdn = ProjectFactory.create(slug="mdn")
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
