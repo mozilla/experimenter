@@ -792,7 +792,9 @@ NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
     name="Newtab has Sponsored TopSites enabled ",
     slug="newtab_sponsored_topsites_enabled",
     description="Users with Sponsored TopSites enabled on the newtab",
-    targeting="'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue",
+    targeting="""
+        'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+    """,
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
