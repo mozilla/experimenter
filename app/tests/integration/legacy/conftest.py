@@ -249,8 +249,8 @@ def fill_design_page_multi_prefs(
         for pref_num, item in enumerate(branch.preferences):  # Fill in multi prefs
             prefs[pref_num].pref_branch = item.preference_branch_type
             prefs[pref_num].pref_type = item.preference_type
-            prefs[pref_num].pref_name = item.preference_branch_name
             prefs[pref_num].pref_value = item.preference_value
+            prefs[pref_num].pref_name = item.preference_branch_name
     design.save_btn()
     return design
 
