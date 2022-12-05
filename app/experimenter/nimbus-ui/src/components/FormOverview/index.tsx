@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { FormProvider } from "react-hook-form";
+import Select from "react-select";
 import ReactTooltip from "react-tooltip";
 import { useCommonForm, useExitWarning, useReviewCheck } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
@@ -41,7 +42,10 @@ type FormOverviewProps = {
 
 export const DOCUMENTATION_LINKS_TOOLTIP =
   "Any additional links you would like to add, for example, Jira DS Ticket, Jira QA ticket, or experiment brief.";
-
+type SelectIdItems = {
+  id: number;
+  name: string;
+}[];
 export const overviewFieldNames = [
   "name",
   "hypothesis",
@@ -51,7 +55,14 @@ export const overviewFieldNames = [
   "riskBrand",
   "riskRevenue",
   "riskPartnerRelated",
+  "projects",
 ] as const;
+
+const selectOptions = (items: SelectIdItems) =>
+  items?.map((item) => ({
+    label: item.name!,
+    value: item.id!,
+  }));
 
 type OverviewFieldName = typeof overviewFieldNames[number];
 
@@ -65,8 +76,11 @@ const FormOverview = ({
   onCancel,
 }: FormOverviewProps) => {
   const { applications, hypothesisDefault } = useConfig();
+  const config = useConfig();
   const { fieldMessages, fieldWarnings } = useReviewCheck(experiment);
-
+  const [projects, setProjects] = useState<string[]>(
+    experiment!?.projects!?.map((v) => "" + v.id!),
+  );
   const defaultValues = {
     name: experiment?.name || "",
     hypothesis: experiment?.hypothesis || (hypothesisDefault as string).trim(),
@@ -75,11 +89,13 @@ const FormOverview = ({
     riskBrand: optionalBoolString(experiment?.riskBrand),
     riskRevenue: optionalBoolString(experiment?.riskRevenue),
     riskPartnerRelated: optionalBoolString(experiment?.riskPartnerRelated),
+    projects: selectOptions(experiment?.projects as SelectIdItems),
   };
 
   const {
     FormErrors,
     formControlAttrs,
+    formSelectAttrs,
     isValid,
     isDirtyUnsaved,
     handleSubmit,
@@ -113,10 +129,13 @@ const FormOverview = ({
         handleSubmit(
           (dataIn: DefaultValues) =>
             !isLoading &&
-            onSubmit(stripInvalidDocumentationLinks(dataIn), next),
+            onSubmit(
+              { ...stripInvalidDocumentationLinks(dataIn), projects },
+              next,
+            ),
         ),
       ),
-    [isLoading, onSubmit, handleSubmit],
+    [handleSubmit, isLoading, onSubmit, projects],
   );
 
   const handleCancel = useCallback(
@@ -223,6 +242,18 @@ const FormOverview = ({
           </Form.Text>
           <FormErrors name="application" />
         </Form.Group>
+        {experiment && (
+          <Form.Group controlId="projects" data-testid="projects">
+            <Form.Label>Team Projects</Form.Label>
+            <Select
+              placeholder="Select Team..."
+              isMulti
+              {...formSelectAttrs("projects", setProjects)}
+              options={selectOptions(config.projects as SelectIdItems)}
+            />
+            <FormErrors name="projects" />
+          </Form.Group>
+        )}
 
         {experiment && (
           <>
