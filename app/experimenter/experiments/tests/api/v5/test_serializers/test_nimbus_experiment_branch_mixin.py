@@ -20,7 +20,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
     def test_serializer_sets_feature_config_and_creates_branches(self):
         feature_config = NimbusFeatureConfigFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED, feature_configs=[]
+            NimbusExperimentFactory.Lifecycles.CREATED, feature_configs=[]
         )
         experiment.delete_branches()
 
@@ -81,7 +81,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
     def test_serializer_replace_branches(self):
         feature_config = NimbusFeatureConfigFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED, feature_configs=[]
+            NimbusExperimentFactory.Lifecycles.CREATED, feature_configs=[]
         )
         branch_ids = set(experiment.branches.all().values_list("id", flat=True))
 
@@ -148,7 +148,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
     def test_serializer_update_branches_with_ids(self):
         feature_config = NimbusFeatureConfigFactory.create()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED, feature_configs=[]
+            NimbusExperimentFactory.Lifecycles.CREATED, feature_configs=[]
         )
         branch_ids = set(experiment.branches.all().values_list("id", flat=True))
 
@@ -213,7 +213,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
 
     def test_does_not_delete_branches_when_other_fields_specified(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
         )
         branch_count = experiment.branches.count()
 
@@ -276,7 +276,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
         feature_config1 = NimbusFeatureConfigFactory.create(application=application)
         feature_config2 = NimbusFeatureConfigFactory.create(application=application)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             feature_configs=[],
         )
@@ -348,7 +348,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
         feature_config1 = NimbusFeatureConfigFactory.create(application=application)
         feature_config2 = NimbusFeatureConfigFactory.create(application=application)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             feature_configs=[],
         )
@@ -426,7 +426,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
         feature_config1 = NimbusFeatureConfigFactory.create(application=application)
         feature_config2 = NimbusFeatureConfigFactory.create(application=application)
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
             feature_configs=[feature_config1, feature_config2],
         )

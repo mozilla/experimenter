@@ -16,7 +16,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
 
     def test_update_experiment_status_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -53,7 +53,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
     def test_launch_request_while_disabled_error(self):
         SiteFlag(name=SiteFlagNameChoices.LAUNCHING_DISABLED.name, value=True).save()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
         serializer = NimbusExperimentSerializer(
             experiment,

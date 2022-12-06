@@ -265,7 +265,7 @@ class TestGenerateNimbusChangeLog(TestCase):
 
     def test_generate_nimbus_changelog_with_prior_change(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
 
         self.assertEqual(experiment.changes.count(), 1)
@@ -319,7 +319,7 @@ class TestGenerateNimbusChangeLog(TestCase):
 
     def test_generates_changelog_with_out_of_date_latest_change(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
         NimbusChangeLogFactory.create(
             experiment=experiment, experiment_data={"some_old": "data"}

@@ -167,20 +167,20 @@ class LifecycleStates(Enum):
 
 
 class Lifecycles(Enum):
-    DRAFT_CREATED = (LifecycleStates.DRAFT_IDLE,)
-    PREVIEW = DRAFT_CREATED + (LifecycleStates.PREVIEW_IDLE,)
-    PUBLISH_REVIEW_REQUESTED = DRAFT_CREATED + (LifecycleStates.DRAFT_REVIEW,)
-    PUBLISH_REJECT = PUBLISH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_IDLE,)
-    PUBLISH_APPROVE = PUBLISH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_APPROVED,)
-    PUBLISH_APPROVE_WAITING = PUBLISH_APPROVE + (LifecycleStates.DRAFT_WAITING,)
-    PUBLISH_APPROVE_APPROVE = PUBLISH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
-    PUBLISH_APPROVE_REJECT = PUBLISH_APPROVE_WAITING + (LifecycleStates.DRAFT_IDLE,)
-    PUBLISH_APPROVE_TIMEOUT = PUBLISH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
-    PUBLISH_APPROVE_REJECT_ROLLBACK = PUBLISH_APPROVE_WAITING + (
+    CREATED = (LifecycleStates.DRAFT_IDLE,)
+    PREVIEW = CREATED + (LifecycleStates.PREVIEW_IDLE,)
+    LAUNCH_REVIEW_REQUESTED = CREATED + (LifecycleStates.DRAFT_REVIEW,)
+    LAUNCH_REJECT = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_IDLE,)
+    LAUNCH_APPROVE = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_APPROVED,)
+    LAUNCH_APPROVE_WAITING = LAUNCH_APPROVE + (LifecycleStates.DRAFT_WAITING,)
+    LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
+    LAUNCH_APPROVE_REJECT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_IDLE,)
+    LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
+    LAUNCH_APPROVE_REJECT_ROLLBACK = LAUNCH_APPROVE_WAITING + (
         LifecycleStates.DRAFT_IDLE,
     )
 
-    LIVE_ENROLLING = PUBLISH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE,)
+    LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE,)
     LIVE_ENROLLING_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
 
     PAUSING_REVIEW = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
@@ -269,12 +269,12 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     # EXP-1527: lifecycle states that do not assume an experiment currently
     # exists in Remote Settings
     LocalLifecycles = [
-        Lifecycles.DRAFT_CREATED,
+        Lifecycles.CREATED,
         # Preview should be okay because the Celery task will synchronize
         Lifecycles.PREVIEW,
-        Lifecycles.PUBLISH_REVIEW_REQUESTED,
-        Lifecycles.PUBLISH_REJECT,
-        Lifecycles.PUBLISH_APPROVE_TIMEOUT,
+        Lifecycles.LAUNCH_REVIEW_REQUESTED,
+        Lifecycles.LAUNCH_REJECT,
+        Lifecycles.LAUNCH_APPROVE_TIMEOUT,
         Lifecycles.ENDING_APPROVE_APPROVE,
     ]
 

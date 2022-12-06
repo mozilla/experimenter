@@ -138,7 +138,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_allows_empty_values_for_all_fields_existing_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
         )
         data = {
             "name": "",
@@ -213,7 +213,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_returns_error_for_non_unique_slug(self):
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             name="non unique slug",
             slug="non-unique-slug",
         )
@@ -273,7 +273,7 @@ class TestNimbusExperimentSerializer(TestCase):
             sets_prefs=["foo.bar.baz"],
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.FENIX,
             hypothesis="Existing hypothesis",
             name="Existing Name",
@@ -313,7 +313,7 @@ class TestNimbusExperimentSerializer(TestCase):
             application=NimbusExperiment.Application.DESKTOP
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
         )
@@ -375,7 +375,7 @@ class TestNimbusExperimentSerializer(TestCase):
             application=NimbusExperiment.Application.DESKTOP
         )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
         )
@@ -625,7 +625,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_preview_status_generates_bucket_allocation(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             population_percent=Decimal("50.0"),
         )
 
@@ -648,7 +648,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_publish_status_approved_generates_bucket_allocation(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             population_percent=Decimal("50.0"),
         )
 
@@ -698,7 +698,7 @@ class TestNimbusExperimentSerializer(TestCase):
     @parameterized.expand(
         [
             [
-                NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+                NimbusExperimentFactory.Lifecycles.CREATED,
                 NimbusExperiment.Status.PREVIEW,
             ],
             [NimbusExperimentFactory.Lifecycles.PREVIEW, NimbusExperiment.Status.DRAFT],
@@ -727,7 +727,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_set_status_already_draft_doesnt_invoke_kinto_task(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             population_percent=Decimal("50.0"),
         )
 
@@ -753,7 +753,7 @@ class TestNimbusExperimentSerializer(TestCase):
     )
     def test_update_publish_status_doesnt_invoke_push_task(self, publish_status):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
 
         serializer = NimbusExperimentSerializer(
@@ -773,7 +773,7 @@ class TestNimbusExperimentSerializer(TestCase):
     @parameterized.expand(list(NimbusExperiment.Application))
     def test_update_publish_status_to_approved_invokes_push_task(self, application):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED,
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
             application=application,
         )
 
@@ -798,7 +798,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_updates_outcomes_on_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[],
             secondary_outcomes=[],
@@ -827,7 +827,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_rejects_invalid_outcome_slugs(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[],
             secondary_outcomes=[],
@@ -848,7 +848,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_rejects_outcomes_for_wrong_application(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.FENIX,
             primary_outcomes=[],
             secondary_outcomes=[],
@@ -875,7 +875,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_rejects_duplicate_outcomes(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[],
             secondary_outcomes=[],
@@ -904,7 +904,7 @@ class TestNimbusExperimentSerializer(TestCase):
         NimbusConstants.MAX_PRIMARY_OUTCOMES = 1
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             primary_outcomes=[],
             secondary_outcomes=[],
@@ -947,7 +947,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_can_review_for_non_requesting_user(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED,
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
         )
 
         serializer = NimbusExperimentSerializer(
@@ -967,7 +967,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_cant_review_for_requesting_user(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
         )
 
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -989,7 +989,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_can_review_for_requesting_user_when_idle(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
         )
 
         serializer = NimbusExperimentSerializer(
@@ -1005,7 +1005,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_can_update_publish_status_for_non_approved_state(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
         )
 
         experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
@@ -1028,7 +1028,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_targeting_config_for_correct_application(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
         )
         data = {
@@ -1044,7 +1044,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_targeting_config_for_wrong_application(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.IOS,
         )
         data = {
@@ -1068,7 +1068,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_enrollment_must_be_less_or_equal_experiment_duration(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
         data = {
             "proposed_duration": 3,
@@ -1091,17 +1091,17 @@ class TestNimbusExperimentSerializer(TestCase):
 
     @parameterized.expand(
         [
-            (True, NimbusExperimentFactory.Lifecycles.DRAFT_CREATED),
-            (True, NimbusExperimentFactory.Lifecycles.PUBLISH_REJECT),
-            (True, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_REJECT),
-            (True, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_REJECT_ROLLBACK),
+            (True, NimbusExperimentFactory.Lifecycles.CREATED),
+            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_REJECT),
+            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_REJECT),
+            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_REJECT_ROLLBACK),
             (True, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
             (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
-            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED),
-            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE),
-            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_WAITING),
-            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE),
-            (False, NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_TIMEOUT),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
+            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_TIMEOUT),
             (False, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING),
             (False, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING_PAUSED),
         ]
@@ -1125,7 +1125,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_cant_update_other_fields_while_archived(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             is_archived=True,
         )
         serializer = NimbusExperimentSerializer(
@@ -1138,7 +1138,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_can_unarchive_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             is_archived=True,
             is_rollout=False,
         )
@@ -1153,7 +1153,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_can_unarchive_rollout(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             is_archived=True,
             is_rollout=True,
         )

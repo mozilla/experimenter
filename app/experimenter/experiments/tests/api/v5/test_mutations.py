@@ -253,7 +253,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_does_not_delete_branches_when_other_fields_specified(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
         branch_count = experiment.branches.count()
         response = self.query(
@@ -280,7 +280,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_does_not_clear_feature_config_when_other_fields_specified(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED
         )
         expected_feature_config = experiment.feature_configs.get()
 
@@ -802,7 +802,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_reject_draft_experiment(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PUBLISH_REVIEW_REQUESTED
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -855,7 +855,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_end_experiment(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle=NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE
+            lifecycle=NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -965,7 +965,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_update_is_archived(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             is_archived=False,
         )
 

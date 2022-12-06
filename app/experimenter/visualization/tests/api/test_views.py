@@ -15,7 +15,7 @@ class TestVisualizationView(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.DRAFT_CREATED, 200),
+            (NimbusExperimentFactory.Lifecycles.CREATED, 200),
             (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE, 200),
         ]
     )

@@ -44,7 +44,7 @@ class TestNimbusExperimentCsvSerializer(TestCase):
         feature_config = NimbusFeatureConfigFactory.create(application=application)
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PUBLISH_APPROVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             application=application,
             feature_configs=[feature_config],
         )

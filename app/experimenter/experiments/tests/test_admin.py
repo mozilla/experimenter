@@ -72,7 +72,7 @@ class TestNimbusExperimentAdminForm(TestCase):
 
     def test_form_saves_outcomes(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.DRAFT_CREATED,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             primary_outcomes=[],
             secondary_outcomes=[],
         )
