@@ -19,6 +19,7 @@ import {
   RISK_QUESTIONS,
 } from "../../lib/constants";
 import { optionalBoolString } from "../../lib/utils";
+import { getConfig_nimbusConfig } from "../../types/getConfig";
 import { getExperiment } from "../../types/getExperiment";
 import InputRadios from "../InputRadios";
 import LinkExternal from "../LinkExternal";
@@ -42,10 +43,6 @@ type FormOverviewProps = {
 
 export const DOCUMENTATION_LINKS_TOOLTIP =
   "Any additional links you would like to add, for example, Jira DS Ticket, Jira QA ticket, or experiment brief.";
-type SelectIdItems = {
-  id: number;
-  name: string;
-}[];
 export const overviewFieldNames = [
   "name",
   "hypothesis",
@@ -58,10 +55,10 @@ export const overviewFieldNames = [
   "projects",
 ] as const;
 
-const selectOptions = (items: SelectIdItems) =>
+const selectOptions = (items: getConfig_nimbusConfig["projects"]) =>
   items?.map((item) => ({
-    label: item.name!,
-    value: item.id!,
+    label: item?.name!,
+    value: item?.id!,
   }));
 
 type OverviewFieldName = typeof overviewFieldNames[number];
@@ -89,7 +86,9 @@ const FormOverview = ({
     riskBrand: optionalBoolString(experiment?.riskBrand),
     riskRevenue: optionalBoolString(experiment?.riskRevenue),
     riskPartnerRelated: optionalBoolString(experiment?.riskPartnerRelated),
-    projects: selectOptions(experiment?.projects as SelectIdItems),
+    projects: selectOptions(
+      experiment?.projects as getConfig_nimbusConfig["projects"],
+    ),
   };
 
   const {
@@ -249,7 +248,9 @@ const FormOverview = ({
               placeholder="Select Team..."
               isMulti
               {...formSelectAttrs("projects", setProjects)}
-              options={selectOptions(config.projects as SelectIdItems)}
+              options={selectOptions(
+                config.projects as getConfig_nimbusConfig["projects"],
+              )}
             />
             <FormErrors name="projects" />
           </Form.Group>
