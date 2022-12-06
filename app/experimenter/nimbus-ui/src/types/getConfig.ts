@@ -104,7 +104,6 @@ export interface getConfig_nimbusConfig_projects {
   id: number | null;
   name: string | null;
 }
-[];
 
 export interface getConfig_nimbusConfig_types {
   label: string | null;
