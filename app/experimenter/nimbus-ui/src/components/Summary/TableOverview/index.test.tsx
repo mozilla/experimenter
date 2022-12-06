@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import React from "react";
 import TableOverview from ".";
 import {
@@ -28,6 +28,9 @@ describe("TableOverview", () => {
     );
     expect(screen.getByTestId("experiment-hypothesis")).toHaveTextContent(
       "Realize material say pretty.",
+    );
+    expect(screen.getByTestId("experiment-team-projects")).toHaveTextContent(
+      "Pocket",
     );
   });
 
@@ -141,6 +144,39 @@ describe("TableOverview", () => {
       render(<Subject {...{ experiment }} />);
       expect(
         screen.getByTestId("experiment-targeting-config"),
+      ).toHaveTextContent("Not set");
+    });
+  });
+
+  describe("renders 'Team Projects' row as expected", () => {
+    it("with one team project", () => {
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getByTestId("experiment-team-projects")).toHaveTextContent(
+        "Pocket",
+      );
+    });
+    it("with multiple projects", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        projects: [
+          { id: 1, name: "Pocket" },
+          { id: 2, name: "VPN" },
+        ],
+      });
+      render(<Subject {...{ experiment }} />);
+      experiment.projects.forEach((team) =>
+        within(screen.getByTestId("experiment-team-projects")).findByText(
+          team.name,
+        ),
+      );
+    });
+    it("when not set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        projects: [],
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.queryByTestId("experiment-team-projects"),
       ).toHaveTextContent("Not set");
     });
   });
