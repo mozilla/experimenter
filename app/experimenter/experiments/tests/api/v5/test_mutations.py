@@ -875,18 +875,19 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
 
-    def test_launch_experiment_valid_with_preview_status(self):
+    def test_launch_experiment_valid_with_preview_status_back_to_draft(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.PREVIEW
         )
+        # goes back to draft then live
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
                     "status": NimbusExperiment.Status.PREVIEW.name,
-                    "statusNext": NimbusExperiment.Status.LIVE.name,
+                    "statusNext": NimbusExperiment.Status.DRAFT.name,
                     "publishStatus": NimbusExperiment.PublishStatus.REVIEW.name,
                     "changelogMessage": "test changelog message",
                 }
