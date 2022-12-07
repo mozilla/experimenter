@@ -6,7 +6,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
 import { FIELD_MESSAGES, RISK_QUESTIONS } from "../../lib/constants";
-import { mockExperimentQuery } from "../../lib/mocks";
+import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { assertSerializerMessages } from "../../lib/test-utils";
 import { optionalBoolString } from "../../lib/utils";
 import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
@@ -176,6 +176,7 @@ describe("FormOverview", () => {
       riskBrand: optionalBoolString(experiment.riskBrand),
       riskRevenue: optionalBoolString(experiment.riskRevenue),
       riskPartnerRelated: optionalBoolString(experiment.riskPartnerRelated),
+      projects: experiment.projects.map((v) => "" + v.id),
     };
 
     const { container } = render(<Subject {...{ onSubmit, experiment }} />);
@@ -224,6 +225,85 @@ describe("FormOverview", () => {
         [expected, true],
       ]);
     });
+  });
+
+  it("Renders selected single project value", async () => {
+    const { experiment } = mockExperimentQuery("boo", {
+      projects: [
+        {
+          name: "Pocket",
+          id: 1,
+        },
+      ],
+    });
+
+    const config = {
+      ...MOCK_CONFIG,
+      projects: [
+        {
+          name: "Pocket",
+          id: 1,
+        },
+        {
+          name: "Mdn",
+          id: 2,
+        },
+        {
+          name: "VPN",
+          id: 3,
+        },
+      ],
+    };
+
+    const onSubmit = jest.fn();
+    render(<Subject {...{ onSubmit, experiment, config }} />);
+
+    const projects = await screen.findByTestId("projects");
+    const display = projects.children[0];
+    expect(display.textContent).toBe("Team Projects");
+    expect(projects).toHaveTextContent("Pocket");
+  });
+
+  it("Renders selected multiple projects value", async () => {
+    const { experiment } = mockExperimentQuery("boo", {
+      projects: [
+        {
+          name: "Pocket",
+          id: 1,
+        },
+        {
+          name: "VPN",
+          id: 3,
+        },
+      ],
+    });
+
+    const config = {
+      ...MOCK_CONFIG,
+      projects: [
+        {
+          name: "Pocket",
+          id: 1,
+        },
+        {
+          name: "Mdn",
+          id: 2,
+        },
+        {
+          name: "VPN",
+          id: 3,
+        },
+      ],
+    };
+
+    const onSubmit = jest.fn();
+    render(<Subject {...{ onSubmit, experiment, config }} />);
+
+    const projects = await screen.findByTestId("projects");
+    const display = projects.children[0];
+    expect(display.textContent).toBe("Team Projects");
+    expect(projects).toHaveTextContent("Pocket");
+    expect(projects).toHaveTextContent("VPN");
   });
 
   it("with missing public description, still allows submit", async () => {
