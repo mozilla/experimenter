@@ -180,8 +180,8 @@ class NimbusConstants(object):
     }
     STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
 
-    # Valid status_next values for given status values in the 
-    # UI only. This does not represent the full list of 
+    # Valid status_next values for given status values in the
+    # UI only. This does not represent the full list of
     # status_next values.
     VALID_STATUS_NEXT_VALUES = {
         Status.DRAFT: (None, Status.LIVE),
@@ -189,16 +189,19 @@ class NimbusConstants(object):
         Status.LIVE: (None, Status.LIVE, Status.COMPLETE),
     }
 
-    # Valid publish_status transitions for given status 
+    # Valid publish_status transitions for given status
     # values in the UI only. This does not represent the
     #  full list of publish_status transitions.
     VALID_PUBLISH_STATUS_TRANSITIONS = {
         PublishStatus.IDLE: (
-            PublishStatus.REVIEW, 
-            PublishStatus.APPROVED
+            PublishStatus.DIRTY,
+            PublishStatus.REVIEW,
+            PublishStatus.APPROVED,
         ),
+        PublishStatus.DIRTY: (PublishStatus.REVIEW,),
         PublishStatus.REVIEW: (
             PublishStatus.IDLE,
+            PublishStatus.DIRTY,
             PublishStatus.APPROVED,
         ),
     }
