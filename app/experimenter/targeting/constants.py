@@ -233,9 +233,7 @@ MOBILE_NEW_USER = NimbusTargetingConfig(
 MOBILE_FIRST_RUN_USER = NimbusTargetingConfig(
     name="First run Users on Mobile",
     slug="mobile_first_run",
-    description=(
-        "First-run users on Fenix and Firefox for iOS"
-    ),
+    description="First-run users on Fenix and Firefox for iOS",
     targeting="isFirstRun == 'true'",
     desktop_telemetry="",
     sticky_required=True,
