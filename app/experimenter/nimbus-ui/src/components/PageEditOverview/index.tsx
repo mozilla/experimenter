@@ -44,6 +44,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
         riskBrand,
         riskRevenue,
         riskPartnerRelated,
+        projects,
       }: Record<string, any>,
       next: boolean,
     ) => {
@@ -57,6 +58,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
               hypothesis,
               publicDescription,
               documentationLinks,
+              projects,
               riskBrand: optionalStringBool(riskBrand),
               riskRevenue: optionalStringBool(riskRevenue),
               riskPartnerRelated: optionalStringBool(riskPartnerRelated),

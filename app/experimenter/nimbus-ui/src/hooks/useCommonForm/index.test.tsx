@@ -130,6 +130,7 @@ describe("hooks/useCommonForm", () => {
               "riskBrand",
               "riskRevenue",
               "riskPartnerRelated",
+              "projects",
             ].includes(name)
           ) {
             expect(
