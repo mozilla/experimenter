@@ -177,22 +177,22 @@ class NimbusConstants(object):
 
     # Valid status_next values for given status values
     VALID_STATUS_NEXT_VALUES = {
-        Status.DRAFT: (None, Status.PREVIEW, Status.LIVE),
-        Status.PREVIEW: (None, Status.DRAFT),
+        Status.DRAFT: (None, Status.LIVE),
+        Status.PREVIEW: (None, Status.LIVE),
         Status.LIVE: (None, Status.LIVE, Status.COMPLETE),
-        Status.COMPLETE: (None),
+    }
+
+    # Valid status transitions for given status values
+    VALID_STATUS_TRANSITIONS = {
+        Status.DRAFT: (Status.PREVIEW,),
+        Status.PREVIEW: (Status.DRAFT),
     }
 
     VALID_PUBLISH_STATUS_TRANSITIONS = {
-        PublishStatus.IDLE: (PublishStatus.REVIEW,),
+        PublishStatus.IDLE: (PublishStatus.REVIEW, PublishStatus.APPROVED,),
         PublishStatus.REVIEW: (
             PublishStatus.IDLE,
             PublishStatus.APPROVED,
-        ),
-        PublishStatus.APPROVED: (PublishStatus.WAITING,),
-        PublishStatus.WAITING: (
-            PublishStatus.IDLE,
-            PublishStatus.REVIEW,
         ),
     }
 

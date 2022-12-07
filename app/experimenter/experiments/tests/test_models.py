@@ -1042,7 +1042,7 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW,),
+            (NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,),
             (NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,),
             (NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,),
         ]

@@ -700,7 +700,7 @@ class NimbusExperimentSerializer(
         required=False,
         validators=[
             NimbusStatusTransitionValidator(
-                transitions=NimbusConstants.VALID_STATUS_NEXT_VALUES,
+                transitions=NimbusConstants.VALID_STATUS_TRANSITIONS,
             )
         ],
     )

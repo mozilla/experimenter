@@ -955,7 +955,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW, False, True],
+            [NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED, False, True],
             [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE, False, True],
             [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING, False, True],
             [NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_TIMEOUT, False, True],

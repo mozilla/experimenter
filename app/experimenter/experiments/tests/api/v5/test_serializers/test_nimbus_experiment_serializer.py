@@ -603,7 +603,7 @@ class TestNimbusExperimentSerializer(TestCase):
             {
                 "status_next": [
                     "Invalid choice for status_next: 'Complete' - with status 'Draft',"
-                    " the only valid choices are 'None, Preview, Live'"
+                    " the only valid choices are 'None, Live'"
                 ]
             },
             serializer.errors,
@@ -675,7 +675,7 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_live_experiment_does_not_allocate_buckets(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW,
+            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,
             population_percent=Decimal("50.0"),
         )
 

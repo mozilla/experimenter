@@ -80,7 +80,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_REJECT,
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_TIMEOUT,
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_REJECT_ROLLBACK,
-            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW,
+            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,
             NimbusExperimentFactory.Lifecycles.ENDING_REVIEW_REQUESTED,
         ]:
             NimbusExperimentFactory.create_with_lifecycle(

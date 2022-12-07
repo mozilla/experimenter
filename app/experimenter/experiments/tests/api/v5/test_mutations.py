@@ -875,7 +875,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
         self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
 
-    def test_launch_experiment_valid_with_preview_status_back_to_draft(self):
+    def test_launch_experiment_valid_with_preview_status(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.PREVIEW
@@ -886,8 +886,8 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "status": NimbusExperiment.Status.PREVIEW.name,
-                    "statusNext": NimbusExperiment.Status.DRAFT.name,
+                    "status": NimbusExperiment.Status.DRAFT.name,
+                    "statusNext": NimbusExperiment.Status.LIVE.name,
                     "publishStatus": NimbusExperiment.PublishStatus.REVIEW.name,
                     "changelogMessage": "test changelog message",
                 }
@@ -936,7 +936,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_reject_end_enrollment(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW
+            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED
         )
         self.assertEqual(experiment.is_paused, True)
 
