@@ -191,11 +191,10 @@ class NimbusConstants(object):
         PublishStatus.IDLE: (PublishStatus.REVIEW, PublishStatus.APPROVED),
         PublishStatus.REVIEW: (
             PublishStatus.IDLE,
-            PublishStatus.DIRTY,
             PublishStatus.APPROVED,
         ),
     }
-    
+
     PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
 
     STATUS_UPDATE_EXEMPT_FIELDS = (

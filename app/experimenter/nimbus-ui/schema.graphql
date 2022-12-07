@@ -127,6 +127,7 @@ type NimbusBucketRangeType {
 
 enum NimbusChangeLogNewPublishStatus {
   IDLE
+  DIRTY
   REVIEW
   APPROVED
   WAITING
@@ -148,6 +149,7 @@ enum NimbusChangeLogNewStatusNext {
 
 enum NimbusChangeLogOldPublishStatus {
   IDLE
+  DIRTY
   REVIEW
   APPROVED
   WAITING
@@ -387,6 +389,7 @@ enum NimbusExperimentFirefoxVersionEnum {
 
 enum NimbusExperimentPublishStatusEnum {
   IDLE
+  DIRTY
   REVIEW
   APPROVED
   WAITING
