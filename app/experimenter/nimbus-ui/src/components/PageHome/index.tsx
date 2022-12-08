@@ -112,7 +112,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
         fill="white"
         dominantBaseline="start"
         role="img"
-        aria-label="download icon"
+        aria-label="nimbus logo"
         className="float-left pb-1"
       />
       <h2 className="mb-3 text-left pt-4">Nimbus Experiments </h2>
