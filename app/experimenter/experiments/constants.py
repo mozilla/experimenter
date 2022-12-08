@@ -206,7 +206,10 @@ class NimbusConstants(object):
         ),
     }
 
-    PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
+    PUBLISH_STATUS_ALLOWS_UPDATE = (
+        PublishStatus.IDLE,
+        PublishStatus.DIRTY,
+    )
 
     STATUS_UPDATE_EXEMPT_FIELDS = (
         "is_archived",
