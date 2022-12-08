@@ -13,6 +13,7 @@ import {
   useSearchParamsState,
 } from "../../hooks";
 import { ReactComponent as DownloadIcon } from "../../images/download.svg";
+import { ReactComponent as CreateNewLogo } from "../../images/logo.svg";
 import { ReactComponent as CreateNewIcon } from "../../images/pencil.svg";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 import AppLayout from "../AppLayout";
@@ -28,7 +29,6 @@ import {
 } from "./filterExperiments";
 import sortByStatus from "./sortByStatus";
 import { FilterOptions, FilterValue } from "./types";
-
 type PageHomeProps = Record<string, any> & RouteComponentProps;
 
 export const Body = () => {
@@ -106,8 +106,17 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     <AppLayout testid="PageHome">
       <Head title="Experiments" />
 
-      <h2 className="mb-3 text-left">Nimbus Experiments </h2>
-      <Alert variant="primary" className="mb-4">
+      <CreateNewLogo
+        width="100"
+        height="85"
+        fill="white"
+        dominantBaseline="start"
+        role="img"
+        aria-label="download icon"
+        className="float-left"
+      />
+      <h2 className="mb-3 text-left pt-4">Nimbus Experiments </h2>
+      <Alert variant="primary" className="mb-4 mt-4">
         <div>
           <span role="img" aria-label="book emoji">
             📖
