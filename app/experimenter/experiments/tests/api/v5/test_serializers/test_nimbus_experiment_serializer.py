@@ -609,26 +609,12 @@ class TestNimbusExperimentSerializer(TestCase):
             serializer.errors,
         )
 
-    def test_status_restrictions_not_allowed(self):
+    def test_status_restrictions(self):
         experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.LIVE)
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
                 "name": "new name",
-                "changelog_message": "test changelog message",
-            },
-            context={"user": self.user},
-        )
-        self.assertEqual(experiment.changes.count(), 0)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("experiment", serializer.errors)
-
-    def test_status_restrictions_allowed(self):
-        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.LIVE)
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            data={
-                "status": NimbusExperiment.Status.COMPLETE,
                 "changelog_message": "test changelog message",
             },
             context={"user": self.user},
