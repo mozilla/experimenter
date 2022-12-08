@@ -104,12 +104,6 @@ class LifecycleStates(Enum):
         "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
-    LIVE_IDLE_ENROLLING = {
-        "status": NimbusExperiment.Status.LIVE,
-        "status_next": None,
-        "publish_status": NimbusExperiment.PublishStatus.IDLE,
-        "is_paused": False,
-    }
     LIVE_DIRTY = {
         "status": NimbusExperiment.Status.LIVE,
         "status_next": None,
@@ -181,11 +175,6 @@ class LifecycleStates(Enum):
         "status": NimbusExperiment.Status.LIVE,
         "status_next": NimbusExperiment.Status.COMPLETE,
         "publish_status": NimbusExperiment.PublishStatus.REVIEW,
-    }
-    LIVE_IDLE_REJECT_ENDING = {
-        "status": NimbusExperiment.Status.LIVE,
-        "status_next": None,
-        "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
     LIVE_APPROVED_ENDING = {
         "status": NimbusExperiment.Status.LIVE,
