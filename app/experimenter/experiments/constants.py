@@ -156,6 +156,7 @@ class NimbusConstants(object):
 
     class PublishStatus(models.TextChoices):
         IDLE = "Idle"
+        DIRTY = "Dirty"
         REVIEW = "Review"
         APPROVED = "Approved"
         WAITING = "Waiting"
@@ -193,6 +194,7 @@ class NimbusConstants(object):
             PublishStatus.APPROVED,
         ),
     }
+
     PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
 
     STATUS_UPDATE_EXEMPT_FIELDS = (
