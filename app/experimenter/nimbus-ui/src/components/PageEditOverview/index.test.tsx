@@ -57,6 +57,7 @@ describe("PageEditOverview", () => {
       riskBrand: experiment.riskBrand!,
       riskRevenue: experiment.riskRevenue!,
       riskPartnerRelated: experiment.riskPartnerRelated!,
+      projects: String(experiment.projects.map((v) => "" + v.id)),
     };
     mockSubmitData = {
       ...mockMutationData,

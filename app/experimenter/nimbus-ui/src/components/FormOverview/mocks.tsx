@@ -4,7 +4,8 @@
 
 import React, { useState } from "react";
 import FormOverview from ".";
-import { MockedCache } from "../../lib/mocks";
+import { MockedCache, MOCK_CONFIG } from "../../lib/mocks";
+import { getConfig_nimbusConfig } from "../../types/getConfig";
 
 export const Subject = ({
   isLoading = false,
@@ -13,11 +14,14 @@ export const Subject = ({
   onSubmit = () => {},
   onCancel,
   experiment,
-}: Partial<React.ComponentProps<typeof FormOverview>>) => {
+  config = MOCK_CONFIG,
+}: {
+  config?: getConfig_nimbusConfig;
+} & Partial<React.ComponentProps<typeof FormOverview>>) => {
   const [submitErrorsDefault, setSubmitErrors] =
     useState<Record<string, any>>(submitErrors);
   return (
-    <MockedCache>
+    <MockedCache {...{ config }}>
       <FormOverview
         submitErrors={submitErrorsDefault}
         {...{
