@@ -106,14 +106,14 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     <AppLayout testid="PageHome">
       <Head title="Experiments" />
 
-      <CreateNewLogo
+      <Logo
         width="100"
         height="85"
         fill="white"
         dominantBaseline="start"
         role="img"
         aria-label="download icon"
-        className="float-left"
+        className="float-left pb-1"
       />
       <h2 className="mb-3 text-left pt-4">Nimbus Experiments </h2>
       <Alert variant="primary" className="mb-4 mt-4">
