@@ -13,7 +13,7 @@ import {
   useSearchParamsState,
 } from "../../hooks";
 import { ReactComponent as DownloadIcon } from "../../images/download.svg";
-import { ReactComponent as CreateNewLogo } from "../../images/logo.svg";
+import { ReactComponent as Logo } from "../../images/logo.svg";
 import { ReactComponent as CreateNewIcon } from "../../images/pencil.svg";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 import AppLayout from "../AppLayout";
