@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
+from parameterized import parameterized
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import (
@@ -93,12 +94,23 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         self.mock_update_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
+    @parameterized.expand(
+        [
+            [
+                NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+            ],
+            [
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,
+            ],
+        ]
+    )
     @override_settings(KINTO_REVIEW_TIMEOUT=60)
-    def test_check_with_pending_review_before_timeout_aborts_early(
-        self,
-    ):
+    def test_check_with_pending_review_before_timeout_aborts_early(self, lifecycle):
         NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,
+            lifecycle=lifecycle,
             application=NimbusExperiment.Application.DESKTOP,
             with_latest_change_now=True,
         )
