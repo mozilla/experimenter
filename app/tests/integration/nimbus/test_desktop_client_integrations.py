@@ -215,31 +215,6 @@ def test_check_telemetry_pref_flip(
     check_ping_for_experiment,
     telemetry_event_check,
 ):
-    # _row_locator = (By.CSS_SELECTOR, "tr > td > span > span")
-    # _search_bar_locator = (By.ID, "about-config-search")
-    # wait = WebDriverWait(selenium, 60)
-
-    # def wait_function(selenium, wait_string):
-    #     """This function refreshes about:config waiting for the pref to flip"""
-
-    #     def _wait_function(selenium=selenium, wait_string=wait_string):
-    #         try:
-    #             selenium.get("about:config")
-    #             search_bar = wait.until(
-    #                 EC.presence_of_element_located(_search_bar_locator)
-    #             )
-    #             search_bar.send_keys("nimbus.qa.pref-1")
-    #             wait.until(EC.presence_of_element_located(_row_locator))
-    #             elements = selenium.find_elements(*_row_locator)
-    #             assert wait_string in [element.text for element in elements]
-    #         except Exception:
-    #             time.sleep(2)
-    #             return False
-    #         else:
-    #             return True
-
-    #     return _wait_function
-
     about_config = AboutConfig(selenium)
 
     requests.delete("http://ping-server:5000/pings")

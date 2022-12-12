@@ -7,7 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-
 class Browser:
     def execute_script(selenium, *args, script=None, context=None):
         if "chrome" in context:
@@ -15,6 +14,7 @@ class Browser:
                 return selenium.execute_script(script, *args)
         else:
             return selenium.execute_script
+
 
 class AboutConfig(Page):
 
