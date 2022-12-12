@@ -743,6 +743,7 @@ class TestNimbusExperimentSerializer(TestCase):
     @parameterized.expand(
         [
             [NimbusExperiment.PublishStatus.IDLE],
+            [NimbusExperiment.PublishStatus.DIRTY],
             [NimbusExperiment.PublishStatus.REVIEW],
         ]
     )

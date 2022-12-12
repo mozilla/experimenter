@@ -809,6 +809,22 @@ EXISTING_WINDOWS_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_WINDOWS_USER_NO_FX_ACCOUNT = NimbusTargetingConfig(
+    name="Existing Windows 7+ user without Fx account",
+    slug="existing_windows_user_no_fx_account",
+    description="Windows 7+ users not logged into FxA with profiles older than 28 days",
+    targeting=(
+        f"{PROFILE28DAYS} "
+        "&& os.isWindows "
+        "&& os.windowsVersion >= 7"
+        "&& !('services.sync.username'|preferenceIsUserSet)"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
