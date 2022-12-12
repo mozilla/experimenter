@@ -11,7 +11,7 @@ RUN chmod -R 555 /app \
 
 
 # Dev image
-FROM python:3.10 AS dev
+FROM python:3.11.1 AS dev
 
 WORKDIR /app
 
@@ -82,7 +82,7 @@ COPY --from=file-loader /app/experimenter/nimbus-ui/ /app/experimenter/nimbus-ui
 RUN yarn workspace @experimenter/nimbus-ui build
 
 # Deploy image
-FROM python:3.10-slim AS deploy
+FROM python:3.11.1-slim AS deploy
 
 WORKDIR /app
 EXPOSE 7001
