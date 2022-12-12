@@ -29,12 +29,12 @@ class AboutConfig(Page):
         self.wait.until(EC.presence_of_element_located(self._search_bar_locator))
         return self
 
-    def wait_for_pref_flip(self, pref=None):
+    def wait_for_pref_flip(self, pref=None, pref_value=None):
         timeout = time.time() + 60 * 5
         while time.time() < timeout:
             try:
                 search_bar = self.find_element(*self._search_bar_locator)
-                search_bar.send_keys("nimbus.qa.pref-1")
+                search_bar.send_keys(pref)
                 self.wait.until(EC.presence_of_element_located(self._row_locator))
                 elements = self.find_elements(*self._row_locator)
                 assert pref in [element.text for element in elements]
