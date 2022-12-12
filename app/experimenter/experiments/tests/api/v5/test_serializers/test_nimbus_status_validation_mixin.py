@@ -51,6 +51,10 @@ class TestNimbusStatusValidationMixin(TestCase):
                 True,
             ],
             [
+                NimbusExperiment.PublishStatus.DIRTY,
+                True,
+            ],
+            [
                 NimbusExperiment.PublishStatus.REVIEW,
                 True,
             ],
@@ -87,6 +91,10 @@ class TestNimbusStatusValidationMixin(TestCase):
                 True,
             ],
             [
+                NimbusExperiment.PublishStatus.DIRTY,
+                True,
+            ],
+            [
                 NimbusExperiment.PublishStatus.REVIEW,
                 True,
             ],
@@ -116,6 +124,10 @@ class TestNimbusStatusValidationMixin(TestCase):
         [
             [
                 NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ],
+            [
+                NimbusExperiment.PublishStatus.DIRTY,
                 True,
             ],
             [
@@ -150,6 +162,10 @@ class TestNimbusStatusValidationMixin(TestCase):
         [
             [
                 NimbusExperiment.PublishStatus.IDLE,
+                True,
+            ],
+            [
+                NimbusExperiment.PublishStatus.DIRTY,
                 True,
             ],
             [
