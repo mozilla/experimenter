@@ -29,7 +29,7 @@ class AboutConfig(Page):
         self.wait.until(EC.presence_of_element_located(self._search_bar_locator))
         return self
 
-    def wait_for_pref_flip(self, pref=None, pref_value=None):
+    def wait_for_pref_flip(self, pref, pref_value):
         timeout = time.time() + 60 * 5
         while time.time() < timeout:
             try:
@@ -37,7 +37,7 @@ class AboutConfig(Page):
                 search_bar.send_keys(pref)
                 self.wait.until(EC.presence_of_element_located(self._row_locator))
                 elements = self.find_elements(*self._row_locator)
-                assert pref in [element.text for element in elements]
+                assert pref_value in [element.text for element in elements]
             except Exception:
                 time.sleep(2)
                 return False
