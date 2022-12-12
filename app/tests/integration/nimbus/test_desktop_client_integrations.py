@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 
 import pytest
 import requests
+from nimbus.pages.browser import AboutConfig
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.utils import helpers
 from selenium.webdriver.common.by import By
@@ -214,30 +215,32 @@ def test_check_telemetry_pref_flip(
     check_ping_for_experiment,
     telemetry_event_check,
 ):
-    _row_locator = (By.CSS_SELECTOR, "tr > td > span > span")
-    _search_bar_locator = (By.ID, "about-config-search")
-    wait = WebDriverWait(selenium, 60)
+    # _row_locator = (By.CSS_SELECTOR, "tr > td > span > span")
+    # _search_bar_locator = (By.ID, "about-config-search")
+    # wait = WebDriverWait(selenium, 60)
 
-    def wait_function(selenium, wait_string):
-        """This function refreshes about:config waiting for the pref to flip"""
+    # def wait_function(selenium, wait_string):
+    #     """This function refreshes about:config waiting for the pref to flip"""
 
-        def _wait_function(selenium=selenium, wait_string=wait_string):
-            try:
-                selenium.get("about:config")
-                search_bar = wait.until(
-                    EC.presence_of_element_located(_search_bar_locator)
-                )
-                search_bar.send_keys("nimbus.qa.pref-1")
-                wait.until(EC.presence_of_element_located(_row_locator))
-                elements = selenium.find_elements(*_row_locator)
-                assert wait_string in [element.text for element in elements]
-            except Exception:
-                time.sleep(2)
-                return False
-            else:
-                return True
+    #     def _wait_function(selenium=selenium, wait_string=wait_string):
+    #         try:
+    #             selenium.get("about:config")
+    #             search_bar = wait.until(
+    #                 EC.presence_of_element_located(_search_bar_locator)
+    #             )
+    #             search_bar.send_keys("nimbus.qa.pref-1")
+    #             wait.until(EC.presence_of_element_located(_row_locator))
+    #             elements = selenium.find_elements(*_row_locator)
+    #             assert wait_string in [element.text for element in elements]
+    #         except Exception:
+    #             time.sleep(2)
+    #             return False
+    #         else:
+    #             return True
 
-        return _wait_function
+    #     return _wait_function
+
+    about_config = AboutConfig(selenium)
 
     requests.delete("http://ping-server:5000/pings")
     targeting = helpers.load_targeting_configs()[0]
@@ -267,7 +270,8 @@ def test_check_telemetry_pref_flip(
         experiment_default_data,
     )
 
-    wait.until(wait_function(selenium, "default"))
+    about_config = about_config.open().wait_for_page_to_load()
+    about_config.wait_for_pref_flip("default")
 
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.launch_and_approve()
@@ -291,7 +295,8 @@ def test_check_telemetry_pref_flip(
     # check experiment exists, this means it is enrolled
     assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
-    wait.until(wait_function(selenium, "test_string_automation"))
+    about_config = about_config.open().wait_for_page_to_load()
+    about_config.wait_for_pref_flip("test_string_automation")
 
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
@@ -310,4 +315,5 @@ def test_check_telemetry_pref_flip(
         if time.time() > timeout:
             assert False, "Experiment unenrollment was never seen in ping Data"
 
-    wait.until(wait_function(selenium, "default"))
+    about_config = about_config.open().wait_for_page_to_load()
+    about_config.wait_for_pref_flip("default")
