@@ -1097,7 +1097,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             ],
         )
 
-    def test_targeting_config_retuns_empty_if_slug_not_found(self):
+    def test_targeting_config_returns_empty_if_slug_not_found(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
