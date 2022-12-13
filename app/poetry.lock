@@ -351,7 +351,7 @@ Django = ">=3.2"
 
 [[package]]
 name = "django-countries"
-version = "7.4.2"
+version = "7.5"
 description = "Provides a country field for Django models."
 category = "main"
 optional = false
@@ -874,11 +874,11 @@ python-versions = "*"
 
 [[package]]
 name = "isort"
-version = "5.10.0"
+version = "5.11.0"
 description = "A Python utility / library to sort Python imports."
 category = "main"
 optional = false
-python-versions = ">=3.6.1,<4.0"
+python-versions = ">=3.7.0"
 
 [package.extras]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
@@ -1788,7 +1788,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "4dc96a6ba7b6bf7a330d92f79ea093546170a8f1b3456ea63271b85f38749302"
+content-hash = "785d10268865519a6aa6221f3c1b7ac851bf408332e0c036c08f859d575977a1"
 
 [metadata.files]
 amqp = [
@@ -2000,8 +2000,8 @@ django-cors-headers = [
     {file = "django_cors_headers-3.13.0-py3-none-any.whl", hash = "sha256:37e42883b5f1f2295df6b4bba96eb2417a14a03270cb24b2a07f021cd4487cf4"},
 ]
 django-countries = [
-    {file = "django-countries-7.4.2.tar.gz", hash = "sha256:9d553531de8eaf384fec7fdd5867f3cb9b922d384984c3e613b6b29031e5c3c2"},
-    {file = "django_countries-7.4.2-py3-none-any.whl", hash = "sha256:2eadbe91578fe7b5a0c7782c07487b2ceb4bde9bc5c76eb43458929969f25c62"},
+    {file = "django-countries-7.5.tar.gz", hash = "sha256:979676b1147ebbc10e8cdd67857ffffbcba8d7a92abf7ca70696ecd57d8f3d4f"},
+    {file = "django_countries-7.5-py3-none-any.whl", hash = "sha256:5097d9c16eb5f8a8c195f55e647a1cf1ce8a88fdeb27b104de089424013845a6"},
 ]
 django-filter = [
     {file = "django-filter-2.4.0.tar.gz", hash = "sha256:84e9d5bb93f237e451db814ed422a3a625751cbc9968b484ecc74964a8696b06"},
@@ -2170,8 +2170,8 @@ ipython-genutils = [
     {file = "ipython_genutils-0.2.0.tar.gz", hash = "sha256:eb2e116e75ecef9d4d228fdc66af54269afa26ab4463042e33785b887c628ba8"},
 ]
 isort = [
-    {file = "isort-5.10.0-py3-none-any.whl", hash = "sha256:1a18ccace2ed8910bd9458b74a3ecbafd7b2f581301b0ab65cfdd4338272d76f"},
-    {file = "isort-5.10.0.tar.gz", hash = "sha256:e52ff6d38012b131628cf0f26c51e7bd3a7c81592eefe3ac71411e692f1b9345"},
+    {file = "isort-5.11.0-py3-none-any.whl", hash = "sha256:1b8631908ecc1b7108801801e510c4bf908962b77bd44882a3873566542f7255"},
+    {file = "isort-5.11.0.tar.gz", hash = "sha256:7aa325a6cbbc086cb74db2e9cc838a8089f8a6e1da26780d8d6d6b24e37f4e5f"},
 ]
 jedi = [
     {file = "jedi-0.18.0-py2.py3-none-any.whl", hash = "sha256:18456d83f65f400ab0c2d3319e48520420ef43b23a086fdc05dff34132f0fb93"},

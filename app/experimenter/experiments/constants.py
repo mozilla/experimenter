@@ -156,6 +156,7 @@ class NimbusConstants(object):
 
     class PublishStatus(models.TextChoices):
         IDLE = "Idle"
+        DIRTY = "Dirty"
         REVIEW = "Review"
         APPROVED = "Approved"
         WAITING = "Waiting"
@@ -179,20 +180,32 @@ class NimbusConstants(object):
     }
     STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
 
-    # Valid status_next values for given status values
+    # Valid status_next values for given status values in the
+    # UI only. This does not represent the full list of
+    # status_next values.
     VALID_STATUS_NEXT_VALUES = {
         Status.DRAFT: (None, Status.LIVE),
         Status.PREVIEW: (None, Status.LIVE),
         Status.LIVE: (None, Status.LIVE, Status.COMPLETE),
     }
 
+    # Valid publish_status transitions for given status
+    # values in the UI only. This does not represent the
+    #  full list of publish_status transitions.
     VALID_PUBLISH_STATUS_TRANSITIONS = {
-        PublishStatus.IDLE: (PublishStatus.REVIEW, PublishStatus.APPROVED),
+        PublishStatus.IDLE: (
+            PublishStatus.DIRTY,
+            PublishStatus.REVIEW,
+            PublishStatus.APPROVED,
+        ),
+        PublishStatus.DIRTY: (PublishStatus.REVIEW,),
         PublishStatus.REVIEW: (
             PublishStatus.IDLE,
+            PublishStatus.DIRTY,
             PublishStatus.APPROVED,
         ),
     }
+
     PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
 
     STATUS_UPDATE_EXEMPT_FIELDS = (
