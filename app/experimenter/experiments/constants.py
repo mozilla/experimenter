@@ -178,7 +178,6 @@ class NimbusConstants(object):
         Status.DRAFT: (Status.PREVIEW,),
         Status.PREVIEW: (Status.DRAFT,),
     }
-    STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
 
     # Valid status_next values for given status values in the
     # UI only. This does not represent the full list of
@@ -205,6 +204,8 @@ class NimbusConstants(object):
             PublishStatus.APPROVED,
         ),
     }
+
+    STATUS_ALLOWS_UPDATE = (Status.DRAFT, Status.LIVE)
 
     PUBLISH_STATUS_ALLOWS_UPDATE = (
         PublishStatus.IDLE,
