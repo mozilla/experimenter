@@ -14,7 +14,10 @@ import {
   METRICS_TIPS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { BranchComparisonValues } from "../../../lib/visualization/types";
+import {
+  AnalysisBases,
+  BranchComparisonValues,
+} from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import {
   getExperiment_experimentBySlug,
@@ -26,6 +29,7 @@ import TableVisualizationRow from "../TableVisualizationRow";
 export type TableHighlightsProps = {
   experiment: getExperiment_experimentBySlug;
   branchComparison?: BranchComparisonValues;
+  analysisBasis?: AnalysisBases;
   segment?: string;
 };
 
@@ -71,6 +75,7 @@ const getBranchDescriptions = (
 const TableHighlights = ({
   experiment,
   branchComparison = BRANCH_COMPARISON.UPLIFT,
+  analysisBasis = "enrollments",
   segment = "all",
 }: TableHighlightsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
@@ -84,7 +89,7 @@ const TableHighlights = ({
     sortedBranchNames,
     controlBranchName,
   } = useContext(ResultsContext);
-  const overallResults = overall![segment]!;
+  const overallResults = overall![analysisBasis]?.[segment]!;
 
   return (
     <table data-testid="table-highlights" className="table mb-0 pt-2">

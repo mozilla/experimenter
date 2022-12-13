@@ -7,11 +7,11 @@ from experimenter.experiments.models import NimbusExperiment as Experiment
 class TestMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0217_auto_20220901_1914",
+        "0221_nimbusexperiment__enrollment_end_date",
     )
     migrate_to = (
         "experiments",
-        "0218_update_results_data_schema",
+        "0222_analysis_add_basis",
     )
 
     def prepare(self):
@@ -22,7 +22,7 @@ class TestMigration(MigratorTestCase):
         )
         user = User.objects.create(email="test@example.com")
 
-        # create experiment without segments
+        # create experiment without analysis_basis
         NimbusExperiment.objects.create(
             owner=user,
             name="test experiment",
@@ -30,9 +30,9 @@ class TestMigration(MigratorTestCase):
             application=Experiment.Application.DESKTOP,
             status=NimbusConstants.Status.DRAFT,
             results_data={
-                "daily": {"control": [], "treatment": []},
-                "weekly": {"control": {}, "treatment": {}},
-                "overall": {"control": {}, "treatment": {}},
+                "daily": {"all": {"control": [], "treatment": []}},
+                "weekly": {"all": {"control": {}, "treatment": {}}},
+                "overall": {"all": {"control": {}, "treatment": {}}},
                 "other_metrics": {},
                 "metadata": {},
                 "show_analysis": True,
@@ -40,7 +40,7 @@ class TestMigration(MigratorTestCase):
             },
         )
 
-        # create experiment with segments
+        # create experiment with analysis_basis
         NimbusExperiment.objects.create(
             owner=user,
             name="another experiment",
@@ -48,9 +48,9 @@ class TestMigration(MigratorTestCase):
             application=Experiment.Application.DESKTOP,
             status=NimbusConstants.Status.DRAFT,
             results_data={
-                "daily": {"all": {"control": [], "treatment": []}},
-                "weekly": {"all": {"control": {}, "treatment": {}}},
-                "overall": {"all": {"control": {}, "treatment": {}}},
+                "daily": {"enrollments": {"all": {"control": [], "treatment": []}}},
+                "weekly": {"enrollments": {"all": {"control": {}, "treatment": {}}}},
+                "overall": {"enrollments": {"all": {"control": {}, "treatment": {}}}},
                 "other_metrics": {},
                 "metadata": {},
                 "show_analysis": True,
@@ -91,21 +91,23 @@ class TestMigration(MigratorTestCase):
 
         changed_data = NimbusExperiment.objects.get(slug="test-experiment").results_data
 
-        self.assertTrue("all" in changed_data["daily"])
-        self.assertFalse("control" in changed_data["daily"])
-        self.assertTrue("all" in changed_data["weekly"])
-        self.assertFalse("control" in changed_data["weekly"])
-        self.assertTrue("all" in changed_data["overall"])
-        self.assertFalse("control" in changed_data["overall"])
-        self.assertFalse("all" in changed_data["metadata"])
+        default_analysis_basis = "enrollments"
+
+        self.assertTrue(default_analysis_basis in changed_data["daily"])
+        self.assertFalse("all" in changed_data["daily"])
+        self.assertTrue(default_analysis_basis in changed_data["weekly"])
+        self.assertFalse("all" in changed_data["weekly"])
+        self.assertTrue(default_analysis_basis in changed_data["overall"])
+        self.assertFalse("all" in changed_data["overall"])
+        self.assertFalse(default_analysis_basis in changed_data["metadata"])
 
         unchanged_data = NimbusExperiment.objects.get(
             slug="another-experiment"
         ).results_data
 
-        self.assertTrue("all" in unchanged_data["daily"])
-        self.assertFalse("control" in unchanged_data["daily"])
-        self.assertFalse("all" in unchanged_data["other_metrics"])
+        self.assertTrue(default_analysis_basis in unchanged_data["daily"])
+        self.assertFalse("all" in unchanged_data["daily"])
+        self.assertFalse(default_analysis_basis in unchanged_data["other_metrics"])
 
         empty_data = NimbusExperiment.objects.get(slug="empty-experiment")
 

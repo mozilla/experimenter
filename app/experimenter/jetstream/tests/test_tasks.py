@@ -57,130 +57,278 @@ class TestFetchJetstreamDataTask(TestCase):
             OVERALL_DATA,
             ERRORS,
             SEGMENT_DATA,
+            DAILY_EXPOSURES_DATA,
+            SEGMENT_EXPOSURES_DATA,
         ) = JetstreamTestData.get_test_data(primary_outcomes)
 
         FULL_DATA = {
             "daily": {
-                "all": DAILY_DATA,
-                "some_segment": SEGMENT_DATA,
+                "enrollments": {
+                    "all": DAILY_DATA,
+                    "some_segment": SEGMENT_DATA,
+                },
+                "exposures": {
+                    "all": DAILY_EXPOSURES_DATA,
+                    "some_segment": SEGMENT_EXPOSURES_DATA,
+                },
             },
             "weekly": {
-                "all": WEEKLY_DATA,
-                "some_segment": {
-                    "control": {
-                        "branch_data": {
-                            "other_metrics": {
-                                "identity": {
-                                    "absolute": {
-                                        "all": [
-                                            {
+                "enrollments": {
+                    "all": WEEKLY_DATA,
+                    "some_segment": {
+                        "control": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                    "window_index": "1",
+                                                }
+                                            ],
+                                            "first": {
                                                 "lower": 10.0,
                                                 "point": 12.0,
                                                 "upper": 13.0,
                                                 "window_index": "1",
-                                            }
-                                        ],
-                                        "first": {
-                                            "lower": 10.0,
-                                            "point": 12.0,
-                                            "upper": 13.0,
-                                            "window_index": "1",
+                                            },
                                         },
-                                    },
-                                    "difference": {"all": [], "first": {}},
-                                    "relative_uplift": {"all": [], "first": {}},
-                                    "significance": {"overall": {}, "weekly": {}},
-                                }
+                                        "difference": {"all": [], "first": {}},
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
                             },
-                            "search_metrics": {},
-                            "usage_metrics": {},
+                            "is_control": True,
                         },
-                        "is_control": True,
+                        "variant": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                    "window_index": "1",
+                                                }
+                                            ],
+                                            "first": {
+                                                "lower": 10.0,
+                                                "point": 12.0,
+                                                "upper": 13.0,
+                                                "window_index": "1",
+                                            },
+                                        },
+                                        "difference": {"all": [], "first": {}},
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
+                            },
+                            "is_control": False,
+                        },
                     },
-                    "variant": {
-                        "branch_data": {
-                            "other_metrics": {
-                                "identity": {
-                                    "absolute": {
-                                        "all": [
-                                            {
+                },
+                "exposures": {
+                    "all": WEEKLY_DATA,
+                    "some_segment": {
+                        "control": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                    "window_index": "1",
+                                                }
+                                            ],
+                                            "first": {
                                                 "lower": 10.0,
                                                 "point": 12.0,
                                                 "upper": 13.0,
                                                 "window_index": "1",
-                                            }
-                                        ],
-                                        "first": {
-                                            "lower": 10.0,
-                                            "point": 12.0,
-                                            "upper": 13.0,
-                                            "window_index": "1",
+                                            },
                                         },
-                                    },
-                                    "difference": {"all": [], "first": {}},
-                                    "relative_uplift": {"all": [], "first": {}},
-                                    "significance": {"overall": {}, "weekly": {}},
-                                }
+                                        "difference": {"all": [], "first": {}},
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
                             },
-                            "search_metrics": {},
-                            "usage_metrics": {},
+                            "is_control": True,
                         },
-                        "is_control": False,
+                        "variant": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                    "window_index": "1",
+                                                }
+                                            ],
+                                            "first": {
+                                                "lower": 10.0,
+                                                "point": 12.0,
+                                                "upper": 13.0,
+                                                "window_index": "1",
+                                            },
+                                        },
+                                        "difference": {"all": [], "first": {}},
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
+                            },
+                            "is_control": False,
+                        },
                     },
                 },
             },
             "overall": {
-                "all": OVERALL_DATA,
-                "some_segment": {
-                    "control": {
-                        "branch_data": {
-                            "other_metrics": {
-                                "identity": {
-                                    "absolute": {
-                                        "all": [
-                                            {"lower": 10.0, "point": 12.0, "upper": 13.0}
-                                        ],
-                                        "first": {
-                                            "lower": 10.0,
-                                            "point": 12.0,
-                                            "upper": 13.0,
+                "enrollments": {
+                    "all": OVERALL_DATA,
+                    "some_segment": {
+                        "control": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                }
+                                            ],
+                                            "first": {
+                                                "lower": 10.0,
+                                                "point": 12.0,
+                                                "upper": 13.0,
+                                            },
                                         },
-                                    },
-                                    "difference": {"all": [], "first": {}},
-                                    "percent": 50.0,
-                                    "relative_uplift": {"all": [], "first": {}},
-                                    "significance": {"overall": {}, "weekly": {}},
-                                }
+                                        "difference": {"all": [], "first": {}},
+                                        "percent": 50.0,
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
                             },
-                            "search_metrics": {},
-                            "usage_metrics": {},
+                            "is_control": True,
                         },
-                        "is_control": True,
+                        "variant": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                }
+                                            ],
+                                            "first": {
+                                                "lower": 10.0,
+                                                "point": 12.0,
+                                                "upper": 13.0,
+                                            },
+                                        },
+                                        "difference": {"all": [], "first": {}},
+                                        "percent": 50.0,
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
+                            },
+                            "is_control": False,
+                        },
                     },
-                    "variant": {
-                        "branch_data": {
-                            "other_metrics": {
-                                "identity": {
-                                    "absolute": {
-                                        "all": [
-                                            {"lower": 10.0, "point": 12.0, "upper": 13.0}
-                                        ],
-                                        "first": {
-                                            "lower": 10.0,
-                                            "point": 12.0,
-                                            "upper": 13.0,
+                },
+                "exposures": {
+                    "all": OVERALL_DATA,
+                    "some_segment": {
+                        "control": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                }
+                                            ],
+                                            "first": {
+                                                "lower": 10.0,
+                                                "point": 12.0,
+                                                "upper": 13.0,
+                                            },
                                         },
-                                    },
-                                    "difference": {"all": [], "first": {}},
-                                    "percent": 50.0,
-                                    "relative_uplift": {"all": [], "first": {}},
-                                    "significance": {"overall": {}, "weekly": {}},
-                                }
+                                        "difference": {"all": [], "first": {}},
+                                        "percent": 50.0,
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
                             },
-                            "search_metrics": {},
-                            "usage_metrics": {},
+                            "is_control": True,
                         },
-                        "is_control": False,
+                        "variant": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "lower": 10.0,
+                                                    "point": 12.0,
+                                                    "upper": 13.0,
+                                                }
+                                            ],
+                                            "first": {
+                                                "lower": 10.0,
+                                                "point": 12.0,
+                                                "upper": 13.0,
+                                            },
+                                        },
+                                        "difference": {"all": [], "first": {}},
+                                        "percent": 50.0,
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
+                            },
+                            "is_control": False,
+                        },
                     },
                 },
             },
@@ -263,7 +411,12 @@ class TestFetchJetstreamDataTask(TestCase):
                             "timestamp": "2022-08-31T04:32:03+00:00"
                         }
                     ]"""
-                return json.dumps(DAILY_DATA + SEGMENT_DATA)
+                return json.dumps(
+                    DAILY_DATA
+                    + SEGMENT_DATA
+                    + DAILY_EXPOSURES_DATA
+                    + SEGMENT_EXPOSURES_DATA
+                )
 
         def open_file(filename):
             return File(filename)
@@ -305,130 +458,138 @@ class TestFetchJetstreamDataTask(TestCase):
             OVERALL_DATA,
             _,
             SEGMENT_DATA,
+            _,
+            _,
         ) = ZeroJetstreamTestData.get_test_data(primary_outcomes)
 
         FULL_DATA = {
             "daily": {
-                "all": DAILY_DATA,
-                "some_segment": SEGMENT_DATA,
+                "enrollments": {
+                    "all": DAILY_DATA,
+                    "some_segment": SEGMENT_DATA,
+                },
             },
             "weekly": {
-                "all": WEEKLY_DATA,
-                "some_segment": {
-                    "control": {
-                        "branch_data": {
-                            "other_metrics": {
-                                "identity": {
-                                    "absolute": {
-                                        "all": [
-                                            {
+                "enrollments": {
+                    "all": WEEKLY_DATA,
+                    "some_segment": {
+                        "control": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "lower": 0.0,
+                                                    "point": 0.0,
+                                                    "upper": 0.0,
+                                                    "window_index": "1",
+                                                }
+                                            ],
+                                            "first": {
                                                 "lower": 0.0,
                                                 "point": 0.0,
                                                 "upper": 0.0,
                                                 "window_index": "1",
-                                            }
-                                        ],
-                                        "first": {
-                                            "lower": 0.0,
-                                            "point": 0.0,
-                                            "upper": 0.0,
-                                            "window_index": "1",
+                                            },
                                         },
-                                    },
-                                    "difference": {"all": [], "first": {}},
-                                    "relative_uplift": {"all": [], "first": {}},
-                                    "significance": {"overall": {}, "weekly": {}},
-                                }
+                                        "difference": {"all": [], "first": {}},
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
                             },
-                            "search_metrics": {},
-                            "usage_metrics": {},
+                            "is_control": True,
                         },
-                        "is_control": True,
-                    },
-                    "variant": {
-                        "branch_data": {
-                            "other_metrics": {
-                                "identity": {
-                                    "absolute": {
-                                        "all": [
-                                            {
+                        "variant": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {
+                                                    "lower": 0.0,
+                                                    "point": 0.0,
+                                                    "upper": 0.0,
+                                                    "window_index": "1",
+                                                }
+                                            ],
+                                            "first": {
                                                 "lower": 0.0,
                                                 "point": 0.0,
                                                 "upper": 0.0,
                                                 "window_index": "1",
-                                            }
-                                        ],
-                                        "first": {
-                                            "lower": 0.0,
-                                            "point": 0.0,
-                                            "upper": 0.0,
-                                            "window_index": "1",
+                                            },
                                         },
-                                    },
-                                    "difference": {"all": [], "first": {}},
-                                    "relative_uplift": {"all": [], "first": {}},
-                                    "significance": {"overall": {}, "weekly": {}},
-                                }
+                                        "difference": {"all": [], "first": {}},
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
                             },
-                            "search_metrics": {},
-                            "usage_metrics": {},
+                            "is_control": False,
                         },
-                        "is_control": False,
                     },
                 },
             },
             "overall": {
-                "all": OVERALL_DATA,
-                "some_segment": {
-                    "control": {
-                        "branch_data": {
-                            "other_metrics": {
-                                "identity": {
-                                    "absolute": {
-                                        "all": [
-                                            {"lower": 0.0, "point": 0.0, "upper": 0.0}
-                                        ],
-                                        "first": {
-                                            "lower": 0.0,
-                                            "point": 0.0,
-                                            "upper": 0.0,
+                "enrollments": {
+                    "all": OVERALL_DATA,
+                    "some_segment": {
+                        "control": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {"lower": 0.0, "point": 0.0, "upper": 0.0}
+                                            ],
+                                            "first": {
+                                                "lower": 0.0,
+                                                "point": 0.0,
+                                                "upper": 0.0,
+                                            },
                                         },
-                                    },
-                                    "difference": {"all": [], "first": {}},
-                                    "percent": 0.0,
-                                    "relative_uplift": {"all": [], "first": {}},
-                                    "significance": {"overall": {}, "weekly": {}},
-                                }
+                                        "difference": {"all": [], "first": {}},
+                                        "percent": 0.0,
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
                             },
-                            "search_metrics": {},
-                            "usage_metrics": {},
+                            "is_control": True,
                         },
-                        "is_control": True,
-                    },
-                    "variant": {
-                        "branch_data": {
-                            "other_metrics": {
-                                "identity": {
-                                    "absolute": {
-                                        "all": [
-                                            {"lower": 0.0, "point": 0.0, "upper": 0.0}
-                                        ],
-                                        "first": {
-                                            "lower": 0.0,
-                                            "point": 0.0,
-                                            "upper": 0.0,
+                        "variant": {
+                            "branch_data": {
+                                "other_metrics": {
+                                    "identity": {
+                                        "absolute": {
+                                            "all": [
+                                                {"lower": 0.0, "point": 0.0, "upper": 0.0}
+                                            ],
+                                            "first": {
+                                                "lower": 0.0,
+                                                "point": 0.0,
+                                                "upper": 0.0,
+                                            },
                                         },
-                                    },
-                                    "difference": {"all": [], "first": {}},
-                                    "percent": 0.0,
-                                    "relative_uplift": {"all": [], "first": {}},
-                                    "significance": {"overall": {}, "weekly": {}},
-                                }
+                                        "difference": {"all": [], "first": {}},
+                                        "percent": 0.0,
+                                        "relative_uplift": {"all": [], "first": {}},
+                                        "significance": {"overall": {}, "weekly": {}},
+                                    }
+                                },
+                                "search_metrics": {},
+                                "usage_metrics": {},
                             },
-                            "search_metrics": {},
-                            "usage_metrics": {},
+                            "is_control": False,
                         },
-                        "is_control": False,
                     },
                 },
             },
@@ -493,6 +654,8 @@ class TestFetchJetstreamDataTask(TestCase):
             DAILY_DATA,
             WEEKLY_DATA,
             OVERALL_DATA,
+            _,
+            _,
             _,
             _,
         ) = NonePointJetstreamTestData.get_test_data(primary_outcomes)
