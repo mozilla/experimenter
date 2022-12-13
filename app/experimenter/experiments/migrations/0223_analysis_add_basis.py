@@ -28,7 +28,7 @@ def analysis_add_basis(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("experiments", "0221_nimbusexperiment__enrollment_end_date"),
+        ("experiments", "0222_auto_20221207_2104"),
     ]
 
     operations = [
