@@ -167,7 +167,7 @@ export const SidebarActions = ({
             className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
           >
             <ExternalIcon className="sidebar-icon-external-link" />
-            Rollouts OpsMon Dashboard
+            Rollouts OpMon Dashboard
           </LinkExternal>
         )}
 
