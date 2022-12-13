@@ -1097,6 +1097,45 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             ],
         )
 
+    def test_targeting_config_returns_empty_if_slug_not_found(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug="test_slug_does_not_exist",
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    targetingConfig {
+                        label
+                        value
+                        description
+                        applicationValues
+                        stickyRequired
+                        isFirstRunRequired
+                    }
+                    targetingConfigSlug
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["targetingConfig"],
+            [],
+        )
+        self.assertEqual(
+            experiment_data["targetingConfigSlug"],
+            "test_slug_does_not_exist",
+        )
+
     def test_targeting_config_slug_for_deprecated_targeting_config_returns_slug(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
