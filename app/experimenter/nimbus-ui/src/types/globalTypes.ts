@@ -189,6 +189,7 @@ export enum NimbusExperimentFirefoxVersionEnum {
 
 export enum NimbusExperimentPublishStatusEnum {
   APPROVED = "APPROVED",
+  DIRTY = "DIRTY",
   IDLE = "IDLE",
   REVIEW = "REVIEW",
   WAITING = "WAITING",
@@ -263,6 +264,7 @@ export interface ExperimentInput {
   countries?: (number | null)[] | null;
   locales?: (number | null)[] | null;
   languages?: (number | null)[] | null;
+  projects?: (number | null)[] | null;
   conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
   takeawaysSummary?: string | null;
 }

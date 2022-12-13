@@ -233,10 +233,7 @@ MOBILE_NEW_USER = NimbusTargetingConfig(
 MOBILE_FIRST_RUN_USER = NimbusTargetingConfig(
     name="First run Users on Mobile",
     slug="mobile_first_run",
-    description=(
-        "First-run users on Fenix and Firefox for iOS \
-            who installed the app less than 3 days ago"
-    ),
+    description="First-run users on Fenix and Firefox for iOS",
     targeting="isFirstRun == 'true'",
     desktop_telemetry="",
     sticky_required=True,
@@ -782,6 +779,46 @@ WINDOWS_10_PLUS_BACKGROUND_TASK_NOTIFICATION_ = NimbusTargetingConfig(
         isBackgroundTaskMode
     )
     """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NEWTAB_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
+    name="Newtab has Sponsored TopSites enabled ",
+    slug="newtab_sponsored_topsites_enabled",
+    description="Users with Sponsored TopSites enabled on the newtab",
+    targeting="""
+        'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_WINDOWS_USER = NimbusTargetingConfig(
+    name="Existing Windows 7+ user",
+    slug="existing_windows_user",
+    description="Users on Windows 7+ with profiles older than 28 days",
+    targeting=f"{PROFILE28DAYS} && os.isWindows && os.windowsVersion >= 7",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_WINDOWS_USER_NO_FX_ACCOUNT = NimbusTargetingConfig(
+    name="Existing Windows 7+ user without Fx account",
+    slug="existing_windows_user_no_fx_account",
+    description="Windows 7+ users not logged into FxA with profiles older than 28 days",
+    targeting=(
+        f"{PROFILE28DAYS} "
+        "&& os.isWindows "
+        "&& os.windowsVersion >= 7"
+        "&& !('services.sync.username'|preferenceIsUserSet)"
+    ),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,

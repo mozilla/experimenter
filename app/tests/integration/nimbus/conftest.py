@@ -1,5 +1,6 @@
 import json
 import os
+import time
 import uuid
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
@@ -204,7 +205,7 @@ def default_data(application, experiment_name, load_experiment_outcomes):
             channel=BaseExperimentAudienceChannels.RELEASE,
             min_version=80,
             targeting="no_targeting",
-            percentage=50,
+            percentage="50",
             expected_clients=50,
             locale=None,
             countries=None,
@@ -411,11 +412,18 @@ def trigger_experiment_loader(selenium):
         with selenium.context(selenium.CONTEXT_CHROME):
             selenium.execute_script(
                 """
-                    ChromeUtils.import(
+                    const { RemoteSettings } = ChromeUtils.import(
+                        "resource://services-settings/remote-settings.js"
+                    );
+                    const { RemoteSettingsExperimentLoader } = ChromeUtils.import(
                         "resource://nimbus/lib/RemoteSettingsExperimentLoader.jsm"
-                    ).RemoteSettingsExperimentLoader.updateRecipes();
+                    );
+
+                    RemoteSettings.pollChanges();
+                    RemoteSettingsExperimentLoader.updateRecipes();
                 """
             )
+        time.sleep(5)
 
     return _trigger_experiment_loader
 
@@ -448,4 +456,52 @@ def fixture_experiment_default_data():
                 "featureValue": "",
             }
         ],
+        "populationPercent": "100",
+        "totalEnrolledClients": 55,
     }
+
+
+@pytest.fixture(name="check_ping_for_experiment")
+def fixture_check_ping_for_experiment():
+    def _check_ping_for_experiment(experiment=None):
+        control = True
+        timeout = time.time() + 60 * 5
+        while control and time.time() < timeout:
+            data = requests.get("http://ping-server:5000/pings").json()
+            experiments_data = [
+                item["environment"]["experiments"]
+                for item in data
+                if "experiments" in item["environment"]
+            ]
+            for item in experiments_data:
+                if experiment in item.keys():
+                    return True
+            time.sleep(5)
+        else:
+            return False
+
+    return _check_ping_for_experiment
+
+
+@pytest.fixture(name="telemetry_event_check")
+def fixture_telemetry_event_check(trigger_experiment_loader):
+    def _telemetry_event_check(experiment=None, event=None):
+        telemetry = requests.get("http://ping-server:5000/pings").json()
+        events = [
+            event["payload"]["events"]["parent"]
+            for event in telemetry
+            if "events" in event["payload"] and "parent" in event["payload"]["events"]
+        ]
+
+        try:
+            for _event in events:
+                for item in _event:
+                    if (experiment and event) in item:
+                        return True
+            else:
+                raise AssertionError
+        except (AssertionError, TypeError):
+            trigger_experiment_loader()
+            return False
+
+    return _telemetry_event_check

@@ -14,6 +14,7 @@ from experimenter.experiments.tests.factories import (
     NimbusFeatureConfigFactory,
 )
 from experimenter.outcomes import Outcomes
+from experimenter.projects.models import Project
 
 
 class TestNimbusExperimentsQuery(GraphQLTestCase):
@@ -429,6 +430,34 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             self.assertIn(
                 {"code": language.code, "name": language.name},
                 experiment_data["languages"],
+            )
+
+    def test_experiment_returns_project(self):
+        user_email = "user@example.com"
+        NimbusExperimentFactory.create(publish_status=NimbusExperiment.PublishStatus.IDLE)
+
+        response = self.query(
+            """
+            query {
+                experiments {
+
+                    projects {
+                        slug
+                        name
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experiments"][0]
+
+        for project in Project.objects.all():
+            self.assertIn(
+                {"slug": project.slug, "name": project.name},
+                experiment_data["projects"],
             )
 
 
@@ -1407,6 +1436,10 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         id
                         name
                     }
+                    projects {
+                        id
+                        name
+                    }
                     types {
                         label
                         value
@@ -1522,3 +1555,5 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             self.assertIn(
                 {"code": language.code, "name": language.name}, config["languages"]
             )
+        for project in Project.objects.all():
+            self.assertIn({"id": project.id, "name": project.name}, config["projects"])

@@ -79,6 +79,7 @@ input ExperimentInput {
   countries: [Int]
   locales: [Int]
   languages: [Int]
+  projects: [Int]
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
 }
@@ -126,6 +127,7 @@ type NimbusBucketRangeType {
 
 enum NimbusChangeLogNewPublishStatus {
   IDLE
+  DIRTY
   REVIEW
   APPROVED
   WAITING
@@ -147,6 +149,7 @@ enum NimbusChangeLogNewStatusNext {
 
 enum NimbusChangeLogOldPublishStatus {
   IDLE
+  DIRTY
   REVIEW
   APPROVED
   WAITING
@@ -192,6 +195,7 @@ type NimbusConfigurationType {
   hypothesisDefault: String
   locales: [NimbusLocaleType]
   languages: [NimbusLanguageType]
+  projects: [NimbusProjectType]
   maxPrimaryOutcomes: Int
   outcomes: [NimbusOutcomeType]
   owners: [NimbusUserType]
@@ -385,6 +389,7 @@ enum NimbusExperimentFirefoxVersionEnum {
 
 enum NimbusExperimentPublishStatusEnum {
   IDLE
+  DIRTY
   REVIEW
   APPROVED
   WAITING
@@ -547,6 +552,13 @@ type NimbusOutcomeType {
   description: String
   isDefault: Boolean
   metrics: [NimbusOutcomeMetricType]
+}
+
+type NimbusProjectType {
+  id: Int
+  name: String
+  slug: String
+  nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
 type NimbusReviewType {
