@@ -16,6 +16,7 @@ export const DEFAULT_OPTIONS: FilterOptions = {
   firefoxVersions: MOCK_CONFIG!.firefoxVersions!,
   channels: MOCK_CONFIG!.channels!,
   types: MOCK_CONFIG!.types,
+  targetingConfigs: MOCK_CONFIG!.targetingConfigs,
 };
 
 export const DEFAULT_VALUE: FilterValue = {
@@ -25,6 +26,7 @@ export const DEFAULT_VALUE: FilterValue = {
   firefoxVersions: [],
   channels: [],
   types: [],
+  targetingConfigs: [],
 };
 
 export const EVERYTHING_SELECTED_VALUE: FilterValue = DEFAULT_OPTIONS;

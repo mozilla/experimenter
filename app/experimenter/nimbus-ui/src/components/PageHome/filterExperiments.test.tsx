@@ -14,8 +14,14 @@ import {
 } from "./mocks";
 import { filterValueKeys } from "./types";
 
-const { owners, applications, allFeatureConfigs, channels, types } =
-  MOCK_CONFIG!;
+const {
+  owners,
+  applications,
+  allFeatureConfigs,
+  channels,
+  types,
+  targetingConfigs,
+} = MOCK_CONFIG!;
 
 describe("getFilterValueFromParams", () => {
   it("converts comma-separated list representation from filter params into a filter value", () => {
@@ -25,12 +31,15 @@ describe("getFilterValueFromParams", () => {
     params.set("allFeatureConfigs", "IOS:foo-lila-sat");
     params.set("channels", "BETA");
     params.set("types", "EXPERIMENT");
+    params.set("targetingConfigs", "MAC_ONLY");
+
     expect(getFilterValueFromParams(MOCK_CONFIG, params)).toEqual({
       owners: [owners![0], owners![1]],
       applications: [applications![0], applications![3]],
       allFeatureConfigs: [allFeatureConfigs![2]],
       channels: [channels![0]],
       types: [types![0]],
+      targetingConfigs: [targetingConfigs![0]],
     });
   });
 });
@@ -45,6 +54,7 @@ describe("updateParamsFromFilterValue", () => {
       allFeatureConfigs: [allFeatureConfigs![2], allFeatureConfigs![3]],
       channels: [channels![0], channels![1]],
       types: [types![0], types![1]],
+      targetingConfigs: [targetingConfigs![0], targetingConfigs![1]],
     });
     expect(params.get("owners")).toEqual(
       "alpha-example@mozilla.com,beta-example@mozilla.com",
@@ -55,6 +65,7 @@ describe("updateParamsFromFilterValue", () => {
     );
     expect(params.get("channels")).toEqual("BETA,NIGHTLY");
     expect(params.get("types")).toEqual("EXPERIMENT,ROLLOUT");
+    expect(params.get("targetingConfigs")).toEqual("MAC_ONLY,WIN_ONLY");
   });
 
   it("handles a roundtrip encoding with everything filtered", () => {
@@ -113,6 +124,54 @@ describe("filterExperiments", () => {
             break;
           case "types":
             expect(experiment.isRollout).toEqual(false);
+            break;
+          case "targetingConfigs":
+            expect(experiment.targetingConfig).toEqual([
+              MOCK_CONFIG!.targetingConfigs![0]!,
+            ]);
+            break;
+        }
+      }
+    }
+  });
+  it("filters per individual criteria as expected", () => {
+    for (const key of filterValueKeys) {
+      const filterValue = {
+        [key]: [DEFAULT_OPTIONS[key]![0]!],
+      };
+      const result = filterExperiments(MOCK_EXPERIMENTS, filterValue);
+      for (const experiment of result) {
+        switch (key) {
+          case "owners":
+            expect(experiment.owner).toEqual(MOCK_CONFIG!.owners![0]!);
+            break;
+          case "applications":
+            expect(experiment.application).toEqual(
+              MOCK_CONFIG!.applications![0]!.value,
+            );
+            break;
+          case "allFeatureConfigs":
+            expect(experiment.featureConfigs).toEqual([
+              MOCK_CONFIG!.allFeatureConfigs![0]!,
+            ]);
+            break;
+          case "firefoxVersions":
+            expect(experiment.firefoxMinVersion).toEqual(
+              MOCK_CONFIG!.firefoxVersions![0]!.value,
+            );
+            break;
+          case "channels":
+            expect(experiment.channel).toEqual(
+              MOCK_CONFIG!.channels![0]!.value,
+            );
+            break;
+          case "types":
+            expect(experiment.isRollout).toEqual(false);
+            break;
+          case "targetingConfigs":
+            expect(experiment.targetingConfig).toEqual([
+              MOCK_CONFIG!.targetingConfigs![0]!,
+            ]);
             break;
         }
       }
