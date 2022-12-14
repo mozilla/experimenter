@@ -176,7 +176,7 @@ describe("FormOverview", () => {
       riskBrand: optionalBoolString(experiment.riskBrand),
       riskRevenue: optionalBoolString(experiment.riskRevenue),
       riskPartnerRelated: optionalBoolString(experiment.riskPartnerRelated),
-      projects: experiment.projects.map((v) => "" + v.id),
+      projects: experiment.projects!.map((v) => "" + v!.id),
     };
 
     const { container } = render(<Subject {...{ onSubmit, experiment }} />);

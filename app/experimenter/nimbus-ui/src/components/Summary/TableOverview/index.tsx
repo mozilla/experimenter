@@ -116,10 +116,10 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
             <tr>
               <th>Team Projects</th>
               <td colSpan={3} data-testid="experiment-team-projects">
-                {experiment.projects.length > 0 ? (
+                {experiment.projects!.length > 0 ? (
                   <ul className="list-unstyled mb-0">
-                    {experiment.projects.map((l) => (
-                      <li key={l.id}>{l.name}</li>
+                    {experiment.projects!.map((l) => (
+                      <li key={l!.id}>{l!.name}</li>
                     ))}
                   </ul>
                 ) : (

@@ -135,7 +135,7 @@ export interface getExperiment_experimentBySlug_languages {
 
 export interface getExperiment_experimentBySlug_projects {
   id: number | null;
-  name: string;
+  name: string | null;
 }
 
 export interface getExperiment_experimentBySlug {
@@ -201,7 +201,7 @@ export interface getExperiment_experimentBySlug {
   locales: getExperiment_experimentBySlug_locales[];
   countries: getExperiment_experimentBySlug_countries[];
   languages: getExperiment_experimentBySlug_languages[];
-  projects: getExperiment_experimentBySlug_projects[];
+  projects: (getExperiment_experimentBySlug_projects | null)[] | null;
 }
 
 export interface getExperiment {
