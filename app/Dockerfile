@@ -26,7 +26,7 @@ RUN chmod +x /app/bin/wait-for-it.sh
 
 
 # Install nvm with node and npm
-ENV NODE_VERSION=14.17.1
+ENV NODE_VERSION=16.19.0
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.35.3/install.sh | bash
 ENV NVM_DIR=/root/.nvm
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
