@@ -121,7 +121,7 @@ def test_check_telemetry_enrollment_unenrollment(
     time.sleep(5)
 
     # Check their was a telemetry event for the enrollment
-    control = True
+    control = False
     timeout = time.time() + 60 * 5
     while control is not True:
         control = telemetry_event_check(experiment_slug, "enroll")
@@ -150,14 +150,12 @@ def test_check_telemetry_enrollment_unenrollment(
     requests.get("http://ping-server:5000/pings")
     time.sleep(5)
 
-    control = True
+    control = False
     timeout = time.time() + 60 * 5
     while control is not True:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
             assert False, "Experiment enrollment was never seen in ping Data"
-    # check experiment exists, this means it is enrolled
-    assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
 
 @pytest.mark.nimbus_integration
