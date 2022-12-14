@@ -36,6 +36,16 @@ class TestVisualizationView(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+        # test with results_data object
+        experiment.results_data = {"current": {}}
+        experiment.save()
+
+        response = self.client.get(
+            reverse("visualization-analysis-data", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+
     @parameterized.expand([NimbusExperiment.Status.DRAFT])
     def test_analysis_results_view_404(self, status):
         user_email = "user@example.com"

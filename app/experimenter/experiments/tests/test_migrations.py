@@ -7,11 +7,11 @@ from experimenter.experiments.models import NimbusExperiment as Experiment
 class TestMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0217_auto_20220901_1914",
+        "0222_auto_20221207_2104",
     )
     migrate_to = (
         "experiments",
-        "0218_update_results_data_schema",
+        "0223_analysis_add_schema_version",
     )
 
     def prepare(self):
@@ -22,25 +22,7 @@ class TestMigration(MigratorTestCase):
         )
         user = User.objects.create(email="test@example.com")
 
-        # create experiment without segments
-        NimbusExperiment.objects.create(
-            owner=user,
-            name="test experiment",
-            slug="test-experiment",
-            application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-            results_data={
-                "daily": {"control": [], "treatment": []},
-                "weekly": {"control": {}, "treatment": {}},
-                "overall": {"control": {}, "treatment": {}},
-                "other_metrics": {},
-                "metadata": {},
-                "show_analysis": True,
-                "errors": [],
-            },
-        )
-
-        # create experiment with segments
+        # create experiment
         NimbusExperiment.objects.create(
             owner=user,
             name="another experiment",
@@ -89,30 +71,14 @@ class TestMigration(MigratorTestCase):
             "experiments", "NimbusExperiment"
         )
 
-        changed_data = NimbusExperiment.objects.get(slug="test-experiment").results_data
-
-        self.assertTrue("all" in changed_data["daily"])
-        self.assertFalse("control" in changed_data["daily"])
-        self.assertTrue("all" in changed_data["weekly"])
-        self.assertFalse("control" in changed_data["weekly"])
-        self.assertTrue("all" in changed_data["overall"])
-        self.assertFalse("control" in changed_data["overall"])
-        self.assertFalse("all" in changed_data["metadata"])
-
-        unchanged_data = NimbusExperiment.objects.get(
-            slug="another-experiment"
-        ).results_data
-
-        self.assertTrue("all" in unchanged_data["daily"])
-        self.assertFalse("control" in unchanged_data["daily"])
-        self.assertFalse("all" in unchanged_data["other_metrics"])
+        unchanged_data = NimbusExperiment.objects.get(slug="another-experiment")
+        self.assertTrue("current" in unchanged_data.results_data)
+        self.assertFalse("daily" in unchanged_data.results_data)
 
         empty_data = NimbusExperiment.objects.get(slug="empty-experiment")
-
         self.assertIsNone(empty_data.results_data)
 
         empty_results_data = NimbusExperiment.objects.get(slug="empty-results-experiment")
-
         results = {
             "daily": None,
             "weekly": None,
@@ -120,4 +86,5 @@ class TestMigration(MigratorTestCase):
             "metadata": None,
             "show_analysis": True,
         }
-        self.assertEquals(empty_results_data.results_data, results)
+        self.assertTrue("current" in empty_results_data.results_data)
+        self.assertEquals(empty_results_data.results_data["current"], results)
