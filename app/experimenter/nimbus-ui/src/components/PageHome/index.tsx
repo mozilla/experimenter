@@ -101,6 +101,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     owners: config!.owners!,
     channels: config!.channels,
     types: config!.types,
+    projects: config!.projects!,
     targetingConfigs: config!.targetingConfigs,
   };
   return (

@@ -11,6 +11,7 @@ export const filterValueKeys = [
   "firefoxVersions",
   "channels",
   "types",
+  "projects",
   "targetingConfigs",
 ] as const;
 

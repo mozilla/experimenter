@@ -164,9 +164,9 @@ describe("TableOverview", () => {
         ],
       });
       render(<Subject {...{ experiment }} />);
-      experiment.projects.forEach((team) =>
+      experiment.projects!.forEach((team) =>
         within(screen.getByTestId("experiment-team-projects")).findByText(
-          team.name,
+          team!.name!,
         ),
       );
     });

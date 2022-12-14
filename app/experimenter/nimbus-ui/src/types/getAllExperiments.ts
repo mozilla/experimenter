@@ -37,6 +37,11 @@ export interface getAllExperiments_experiments_featureConfig {
   name: string;
 }
 
+export interface getAllExperiments_experiments_projects {
+  id: number | null;
+  name: string | null;
+}
+
 export interface getAllExperiments_experiments {
   isArchived: boolean | null;
   isRollout: boolean | null;
@@ -63,6 +68,7 @@ export interface getAllExperiments_experiments {
   featureConfig: getAllExperiments_experiments_featureConfig | null;
   channel: NimbusExperimentChannelEnum | null;
   populationPercent: string | null;
+  projects: (getAllExperiments_experiments_projects | null)[] | null;
 }
 
 export interface getAllExperiments {
