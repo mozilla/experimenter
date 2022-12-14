@@ -728,6 +728,7 @@ export function mockSingleDirectoryExperiment(
     publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     featureConfig: MOCK_CONFIG.allFeatureConfigs![0],
     featureConfigs: [MOCK_CONFIG.allFeatureConfigs![0]],
+    targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
     isEnrollmentPaused: false,
     isEnrollmentPausePending: false,
     proposedEnrollment: 7,
