@@ -1,4 +1,5 @@
 from django.test import TestCase
+from parameterized import parameterized
 
 from experimenter.base.models import SiteFlag, SiteFlagNameChoices
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
@@ -104,3 +105,147 @@ class TestNimbusStatusTransitionValidator(TestCase):
             context={"user": self.user},
         )
         self.assertTrue(serializer.is_valid())
+
+    @parameterized.expand(
+        [
+            [
+                NimbusExperiment.Status.DRAFT,
+                True,
+            ],
+            [
+                NimbusExperiment.Status.PREVIEW,
+                True,
+            ],
+            [
+                NimbusExperiment.Status.LIVE,
+                False,
+            ],
+            [
+                NimbusExperiment.Status.COMPLETE,
+                False,
+            ],
+        ]
+    )
+    def test_update_status_errors_for_status_draft(
+        self, new_status, valid
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.CREATED
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": new_status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEquals(serializer.is_valid(), valid)
+
+    @parameterized.expand(
+        [
+            [
+                NimbusExperiment.Status.DRAFT,
+                True,
+            ],
+            [
+                NimbusExperiment.Status.PREVIEW,
+                True,
+            ],
+            [
+                NimbusExperiment.Status.LIVE,
+                False,
+            ],
+            [
+                NimbusExperiment.Status.COMPLETE,
+                False,
+            ],
+        ]
+    )
+    def test_update_status_errors_for_status_preview(
+        self, new_status, valid
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.PREVIEW
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": new_status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEquals(serializer.is_valid(), valid)
+
+    @parameterized.expand(
+        [
+            [
+                NimbusExperiment.Status.DRAFT,
+                False,
+            ],
+            [
+                NimbusExperiment.Status.PREVIEW,
+                False,
+            ],
+            [
+                NimbusExperiment.Status.LIVE,
+                True,
+            ],
+            [
+                NimbusExperiment.Status.COMPLETE,
+                False,
+            ],
+        ]
+    )
+    def test_update_status_errors_for_status_live(
+        self, new_status, valid
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": new_status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEquals(serializer.is_valid(), valid)
+
+    @parameterized.expand(
+        [
+            [
+                NimbusExperiment.Status.DRAFT,
+                False,
+            ],
+            [
+                NimbusExperiment.Status.PREVIEW,
+                False,
+            ],
+            [
+                NimbusExperiment.Status.LIVE,
+                False,
+            ],
+            [
+                NimbusExperiment.Status.COMPLETE,
+                True,
+            ],
+        ]
+    )
+    def test_update_status_errors_for_status_complete(
+        self, new_status, valid
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": new_status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertEquals(serializer.is_valid(), valid)
