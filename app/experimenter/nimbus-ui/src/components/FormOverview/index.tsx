@@ -77,7 +77,7 @@ const FormOverview = ({
   const config = useConfig();
   const { fieldMessages, fieldWarnings } = useReviewCheck(experiment);
   const [projects, setProjects] = useState<string[]>(
-    experiment!?.projects!?.map((v) => "" + v.id!),
+    experiment!?.projects!?.map((v) => "" + v!.id!),
   );
   const defaultValues = {
     name: experiment?.name || "",

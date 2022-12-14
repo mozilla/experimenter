@@ -27,6 +27,7 @@ export const optionIndexKeys: {
   firefoxVersions: (option) => option.value,
   channels: (option) => option.value,
   types: (option) => option.value,
+  projects: (option) => option.name,
 };
 
 type ExperimentFilter<K extends FilterValueKeys> = (
@@ -62,6 +63,14 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
       (experiment.isRollout && option.value === "ROLLOUT") ||
       (!experiment.isRollout && option.value === "EXPERIMENT")
     );
+  },
+  projects: (option, experiment) => {
+    let teamProjectsMatch = false;
+    if (experiment.projects?.length) {
+      teamProjectsMatch =
+        experiment.projects.filter((f) => f?.name === option.name).length > 0;
+    }
+    return teamProjectsMatch;
   },
 };
 
@@ -112,6 +121,13 @@ export function getFilterValueFromParams(
         break;
       case "types":
         filterValue[key] = selectFilterOptions<"types">(
+          options[key],
+          optionIndexKeys[key],
+          values,
+        );
+        break;
+      case "projects":
+        filterValue[key] = selectFilterOptions<"projects">(
           options[key],
           optionIndexKeys[key],
           values,
@@ -182,6 +198,12 @@ export function updateParamsFromFilterValue(
             optionIndexKeys[key],
           );
           break;
+        case "projects":
+          values = indexFilterOptions<"projects">(
+            filterValue[key],
+            optionIndexKeys[key],
+          );
+          break;
       }
       if (values && values.length) {
         params.set(key, values.join(","));
@@ -245,6 +267,13 @@ export function filterExperiments(
         break;
       case "types":
         filteredExperiments = filterExperimentsByOptions<"types">(
+          filterState[key],
+          experimentFilters[key],
+          filteredExperiments,
+        );
+        break;
+      case "projects":
+        filteredExperiments = filterExperimentsByOptions<"projects">(
           filterState[key],
           experimentFilters[key],
           filteredExperiments,

@@ -14,7 +14,7 @@ import {
 } from "./mocks";
 import { filterValueKeys } from "./types";
 
-const { owners, applications, allFeatureConfigs, channels, types } =
+const { owners, applications, allFeatureConfigs, channels, types, projects } =
   MOCK_CONFIG!;
 
 describe("getFilterValueFromParams", () => {
@@ -25,12 +25,14 @@ describe("getFilterValueFromParams", () => {
     params.set("allFeatureConfigs", "IOS:foo-lila-sat");
     params.set("channels", "BETA");
     params.set("types", "EXPERIMENT");
+    params.set("projects", "Pocket");
     expect(getFilterValueFromParams(MOCK_CONFIG, params)).toEqual({
       owners: [owners![0], owners![1]],
       applications: [applications![0], applications![3]],
       allFeatureConfigs: [allFeatureConfigs![2]],
       channels: [channels![0]],
       types: [types![0]],
+      projects: [projects![0]],
     });
   });
 });
@@ -45,6 +47,7 @@ describe("updateParamsFromFilterValue", () => {
       allFeatureConfigs: [allFeatureConfigs![2], allFeatureConfigs![3]],
       channels: [channels![0], channels![1]],
       types: [types![0], types![1]],
+      projects: [projects![0], projects![1]],
     });
     expect(params.get("owners")).toEqual(
       "alpha-example@mozilla.com,beta-example@mozilla.com",
@@ -55,6 +58,7 @@ describe("updateParamsFromFilterValue", () => {
     );
     expect(params.get("channels")).toEqual("BETA,NIGHTLY");
     expect(params.get("types")).toEqual("EXPERIMENT,ROLLOUT");
+    expect(params.get("projects")).toEqual("Pocket,Mdn");
   });
 
   it("handles a roundtrip encoding with everything filtered", () => {
@@ -113,6 +117,9 @@ describe("filterExperiments", () => {
             break;
           case "types":
             expect(experiment.isRollout).toEqual(false);
+            break;
+          case "projects":
+            expect(experiment.projects).toEqual([MOCK_CONFIG!.projects![0]!]);
             break;
         }
       }

@@ -79,6 +79,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           optionLabelName="label"
           {...{ filterValue, onChange }}
         />
+        <FilterSelect
+          fieldLabel="Team Project"
+          fieldOptions={options.projects!}
+          filterValueName="projects"
+          optionLabelName="name"
+          {...{ filterValue, onChange }}
+        />
       </Nav>
     </Navbar>
   );

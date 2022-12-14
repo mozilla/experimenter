@@ -11,6 +11,7 @@ export const filterValueKeys = [
   "firefoxVersions",
   "channels",
   "types",
+  "projects",
 ] as const;
 
 export type FilterValueKeys = typeof filterValueKeys[number];

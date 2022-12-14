@@ -240,6 +240,10 @@ export const GET_EXPERIMENTS_QUERY = gql`
       }
       channel
       populationPercent
+      projects {
+        id
+        name
+      }
     }
   }
 `;
