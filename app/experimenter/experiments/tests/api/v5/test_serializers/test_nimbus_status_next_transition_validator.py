@@ -56,12 +56,8 @@ class TestNimbusStatusNextTransitionValidator(TestCase):
             ],
         ]
     )
-    def test_update_status_errors_for_status_next_live(
-        self, status, valid
-    ):
-        experiment = NimbusExperimentFactory.create(
-            status=status
-        )
+    def test_update_status_errors_for_status_next_live(self, status, valid):
+        experiment = NimbusExperimentFactory.create(status=status)
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
@@ -71,7 +67,7 @@ class TestNimbusStatusNextTransitionValidator(TestCase):
             context={"user": self.user},
         )
         self.assertEquals(serializer.is_valid(), valid)
-    
+
     @parameterized.expand(
         [
             [
@@ -92,12 +88,8 @@ class TestNimbusStatusNextTransitionValidator(TestCase):
             ],
         ]
     )
-    def test_update_status_errors_for_status_next_complete(
-        self, status, valid
-    ):
-        experiment = NimbusExperimentFactory.create(
-            status=status
-        )
+    def test_update_status_errors_for_status_next_complete(self, status, valid):
+        experiment = NimbusExperimentFactory.create(status=status)
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
@@ -107,7 +99,7 @@ class TestNimbusStatusNextTransitionValidator(TestCase):
             context={"user": self.user},
         )
         self.assertEquals(serializer.is_valid(), valid)
-        
+
     @parameterized.expand(
         [
             [
@@ -128,12 +120,8 @@ class TestNimbusStatusNextTransitionValidator(TestCase):
             ],
         ]
     )
-    def test_update_status_errors_for_status_next_draft(
-        self, status, valid
-    ):
-        experiment = NimbusExperimentFactory.create(
-            status=status
-        )
+    def test_update_status_errors_for_status_next_draft(self, status, valid):
+        experiment = NimbusExperimentFactory.create(status=status)
         serializer = NimbusExperimentSerializer(
             experiment,
             data={

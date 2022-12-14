@@ -105,9 +105,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
             ],
         ]
     )
-    def test_update_status_errors_for_status_draft(
-        self, new_status, valid
-    ):
+    def test_update_status_errors_for_status_draft(self, new_status, valid):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.CREATED
         )
@@ -141,9 +139,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
             ],
         ]
     )
-    def test_update_status_errors_for_status_preview(
-        self, new_status, valid
-    ):
+    def test_update_status_errors_for_status_preview(self, new_status, valid):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.PREVIEW
         )
@@ -177,9 +173,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
             ],
         ]
     )
-    def test_update_status_errors_for_status_live(
-        self, new_status, valid
-    ):
+    def test_update_status_errors_for_status_live(self, new_status, valid):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE
         )
@@ -213,9 +207,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
             ],
         ]
     )
-    def test_update_status_errors_for_status_complete(
-        self, new_status, valid
-    ):
+    def test_update_status_errors_for_status_complete(self, new_status, valid):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
