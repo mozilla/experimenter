@@ -591,33 +591,45 @@ class NimbusStatusValidationMixin:
         if self.instance:
             for status_field, restricted_statuses in restrictive_statuses.items():
                 current_status = getattr(self.instance, status_field)
+                # current_publish_status = getattr(self.instance, "publish_status")
+                # status_next = getattr(self.instance, "status_next")
                 is_locked = current_status not in restricted_statuses
                 is_rollout = getattr(self.instance, "is_rollout")
                 modifying_fields = set(data.keys()) - set(
                     NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS
                 )
                 is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
-                if is_locked and is_modifying_locked_fields:
-                    raise serializers.ValidationError(
-                        {
-                            "experiment": [
-                                f"Nimbus Experiment has {status_field} "
-                                f"'{current_status}', only "
-                                f"{NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS} "
-                                f"can be changed, not: {modifying_fields}"
-                            ]
-                        }
-                    )
-                elif not is_rollout and not is_locked:
-                    raise serializers.ValidationError(
-                        {
-                            "experiment": [
-                                f"Nimbus Experiment has {status_field} "
-                                f"'{current_status}', only Rollouts can be edited "
-                                f"in this status."
-                            ]
-                        }
-                    )
+# status=PREVIEW
+# publishstatus=IDLE
+# is_rollout=False
+# status_next = COMPLETE
+# field = publish_status
+
+                #    true       and     false
+                if not is_rollout:
+                    if is_locked and is_modifying_locked_fields:
+                        raise serializers.ValidationError(
+                            {
+                                "experiment": [
+                                    f"Nimbus Experiment has {status_field} "
+                                    f"'{current_status}', only "
+                                    f"{NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS} "
+                                    f"can be changed, not: {modifying_fields}"
+                                ]
+                            }
+                        )
+                    # not (False)   and   not  (False)
+                else:
+                    if current_status is not NimbusExperiment.Status.LIVE and not is_modifying_locked_fields:
+                        raise serializers.ValidationError(
+                            {
+                                "experiment": [
+                                    f"Rollout has {status_field} {current_status}, "
+                                    f"{modifying_fields} field(s) cannot"
+                                    f" be edited in this status."
+                                ]
+                            }
+                        )
 
             if (
                 SiteFlag.objects.value(SiteFlagNameChoices.LAUNCHING_DISABLED)
