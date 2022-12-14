@@ -51,7 +51,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
             "Nimbus Experiment publish_status cannot transition from Approved to Review.",
         )
 
-    def test_end_enrolment_request_while_disabled_error(self):
+    def test_end_enrollment_request_while_disabled_error(self):
         SiteFlag(name=SiteFlagNameChoices.LAUNCHING_DISABLED.name, value=True).save()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING

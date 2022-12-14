@@ -197,3 +197,19 @@ class TestNimbusStatusValidationMixin(TestCase):
             context={"user": self.user},
         )
         self.assertEquals(serializer.is_valid(), valid)
+        
+    def test_allow_dirty_from_live_status(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.LIVE,
+                "publish_status": NimbusExperiment.PublishStatus.DIRTY,
+                "status_next": NimbusExperiment.Status.LIVE,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
