@@ -80,6 +80,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {...{ filterValue, onChange }}
         />
         <FilterSelect
+          fieldLabel="Team Project"
+          fieldOptions={options.projects!}
+          filterValueName="projects"
+          optionLabelName="name"
+          {...{ filterValue, onChange }}
+        />
+        <FilterSelect
           fieldLabel="Targeting"
           fieldOptions={options.targetingConfigs!}
           filterValueName="targetingConfigs"

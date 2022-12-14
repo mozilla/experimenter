@@ -415,6 +415,7 @@ class NimbusExperimentType(DjangoObjectType):
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
     recipe_json = graphene.String()
     review_url = graphene.String()
+    projects = graphene.List(NimbusProjectType)
     conclusion_recommendation = graphene.Field(
         NimbusExperimentConclusionRecommendationEnum
     )
@@ -432,6 +433,9 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_feature_configs(self, info):
         return self.feature_configs.all()
+
+    def resolve_projects(self, info):
+        return self.projects.all()
 
     def resolve_reference_branch(self, info):
         if self.reference_branch:

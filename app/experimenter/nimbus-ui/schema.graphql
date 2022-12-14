@@ -437,7 +437,7 @@ type NimbusExperimentType {
   countries: [NimbusCountryType!]!
   languages: [NimbusLanguageType!]!
   isSticky: Boolean
-  projects: [ProjectType!]!
+  projects: [NimbusProjectType]
   hypothesis: String!
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
@@ -582,13 +582,6 @@ type NimbusUserType {
 }
 
 scalar ObjectField
-
-type ProjectType {
-  id: Int
-  name: String!
-  slug: String!
-  nimbusexperimentSet: [NimbusExperimentType!]!
-}
 
 type Query {
   experiments: [NimbusExperimentType]
