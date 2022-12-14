@@ -51,27 +51,6 @@ class TestNimbusStatusTransitionValidator(TestCase):
             "Nimbus Experiment publish_status cannot transition from Approved to Review.",
         )
 
-    def test_launch_request_while_disabled_error(self):
-        SiteFlag(name=SiteFlagNameChoices.LAUNCHING_DISABLED.name, value=True).save()
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
-        )
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            data={
-                "status": NimbusExperiment.Status.DRAFT,
-                "status_next": NimbusExperiment.Status.LIVE,
-                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
-                "changelog_message": "Review Requested for Launch",
-            },
-            context={"user": self.user},
-        )
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["status_next"][0],
-            NimbusExperiment.ERROR_LAUNCHING_DISABLED,
-        )
-
     def test_end_enrolment_request_while_disabled_error(self):
         SiteFlag(name=SiteFlagNameChoices.LAUNCHING_DISABLED.name, value=True).save()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
