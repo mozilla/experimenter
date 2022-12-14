@@ -110,11 +110,26 @@ class LifecycleStates(Enum):
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
         "is_paused": False,
     }
+    LIVE_DIRTY = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
+        "publish_status": NimbusExperiment.PublishStatus.DIRTY,
+    }
+    LIVE_REVIEW = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+    }
     LIVE_REVIEW_PAUSING = {
         "status": NimbusExperiment.Status.LIVE,
         "status_next": NimbusExperiment.Status.LIVE,
         "publish_status": NimbusExperiment.PublishStatus.REVIEW,
         "is_paused": True,
+    }
+    LIVE_APPROVED = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
     }
     LIVE_IDLE_REJECT_PAUSING = {
         "status": NimbusExperiment.Status.LIVE,
@@ -128,11 +143,33 @@ class LifecycleStates(Enum):
         "publish_status": NimbusExperiment.PublishStatus.APPROVED,
         "is_paused": True,
     }
+    LIVE_APPROVED_UNPAUSED = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+        "is_paused": False,
+    }
     LIVE_WAITING_PAUSING = {
         "status": NimbusExperiment.Status.LIVE,
         "status_next": NimbusExperiment.Status.LIVE,
         "publish_status": NimbusExperiment.PublishStatus.WAITING,
         "is_paused": True,
+    }
+    LIVE_WAITING_UNPAUSED = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+        "is_paused": False,
+    }
+    LIVE_APPROVED_WAITING = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": NimbusExperiment.Status.LIVE,
+        "publish_status": NimbusExperiment.PublishStatus.WAITING,
+    }
+    LIVE_IDLE_REJECT = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
     LIVE_IDLE_PAUSED = {
         "status": NimbusExperiment.Status.LIVE,
@@ -170,14 +207,28 @@ class LifecycleStates(Enum):
 class Lifecycles(Enum):
     CREATED = (LifecycleStates.DRAFT_IDLE,)
     PREVIEW = CREATED + (LifecycleStates.PREVIEW_IDLE,)
+
     LAUNCH_REVIEW_REQUESTED = CREATED + (LifecycleStates.DRAFT_REVIEW,)
     LAUNCH_REJECT = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_IDLE,)
     LAUNCH_APPROVE = LAUNCH_REVIEW_REQUESTED + (LifecycleStates.DRAFT_APPROVED,)
     LAUNCH_APPROVE_WAITING = LAUNCH_APPROVE + (LifecycleStates.DRAFT_WAITING,)
     LAUNCH_APPROVE_APPROVE = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
+    LAUNCH_APPROVE_REJECT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_IDLE,)
     LAUNCH_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.DRAFT_REVIEW,)
-    LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE_ENROLLING,)
+    LAUNCH_REJECT_MANUAL_ROLLBACK = LAUNCH_APPROVE_REJECT + (LifecycleStates.DRAFT_IDLE,)
+
+    LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE,)
     LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
+    LIVE_DIRTY = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_DIRTY,)
+    LIVE_REVIEW_REQUESTED = LIVE_DIRTY + (LifecycleStates.LIVE_REVIEW,)
+    LIVE_REJECT = LIVE_REVIEW_REQUESTED + (LifecycleStates.LIVE_DIRTY,)
+    LIVE_APPROVE = LIVE_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED,)
+    LIVE_APPROVE_WAITING = LIVE_APPROVE + (LifecycleStates.LIVE_APPROVED_WAITING,)
+    LIVE_APPROVE_APPROVE = LIVE_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE,)
+    LIVE_APPROVE_REJECT = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_DIRTY,)
+    LIVE_APPROVE_TIMEOUT = LAUNCH_APPROVE_WAITING + (LifecycleStates.LIVE_DIRTY,)
+    LIVE_REJECT_MANUAL_ROLLBACK = LAUNCH_APPROVE_REJECT + (LifecycleStates.LIVE_DIRTY,)
+
     PAUSING_REVIEW_REQUESTED = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
     PAUSING_REJECT = PAUSING_REVIEW_REQUESTED + (
         LifecycleStates.LIVE_IDLE_REJECT_PAUSING,
@@ -191,15 +242,18 @@ class Lifecycles(Enum):
     PAUSING_APPROVE_TIMEOUT = PAUSING_APPROVE_WAITING + (
         LifecycleStates.LIVE_REVIEW_PAUSING,
     )
+
     ENDING_REVIEW_REQUESTED = LIVE_PAUSED + (LifecycleStates.LIVE_REVIEW_ENDING,)
+    ENDING_REJECT = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_IDLE,)
     ENDING_APPROVE = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_ENDING,)
     ENDING_APPROVE_WAITING = ENDING_APPROVE + (LifecycleStates.LIVE_WAITING_ENDING,)
     ENDING_APPROVE_APPROVE = ENDING_APPROVE_WAITING + (LifecycleStates.COMPLETE_IDLE,)
-    ENDING_APPROVE_REJECT = ENDING_APPROVE_WAITING + (
-        LifecycleStates.LIVE_IDLE_REJECT_ENDING,
-    )
+    ENDING_APPROVE_REJECT = ENDING_APPROVE_WAITING + (LifecycleStates.LIVE_IDLE_REJECT,)
     ENDING_APPROVE_TIMEOUT = ENDING_APPROVE_WAITING + (
         LifecycleStates.LIVE_REVIEW_ENDING,
+    )
+    ENDING_REJECT_MANUAL_ROLLBACK = ENDING_APPROVE_REJECT + (
+        LifecycleStates.LIVE_IDLE_REJECT,
     )
     ENDING_APPROVE_APPROVE_WITHOUT_PAUSE = LIVE_ENROLLING + (
         LifecycleStates.LIVE_REVIEW_ENDING,
