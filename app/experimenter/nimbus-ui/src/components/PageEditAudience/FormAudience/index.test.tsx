@@ -1142,7 +1142,7 @@ describe("FormAudience", () => {
     });
 
     expect(
-      within(screen.queryByTestId("audience-values") as HTMLElement)
+      within(screen.queryByTestId("population-percent-top-row") as HTMLElement)
         .findByText(expectedValue, {
           selector: `[data-for={populationPercent}]`,
         })
