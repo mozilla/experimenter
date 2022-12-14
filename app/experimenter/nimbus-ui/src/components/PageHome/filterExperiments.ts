@@ -72,7 +72,7 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
         experiment.projects.filter((f) => f?.name === option.name).length > 0;
     }
     return teamProjectsMatch;
-    },
+  },
   targetingConfigs: (option, experiment) => {
     let targetingConfigMatch = false;
     if (experiment.targetingConfig?.length) {
@@ -138,11 +138,11 @@ export function getFilterValueFromParams(
         break;
       case "projects":
         filterValue[key] = selectFilterOptions<"projects">(
-        options[key],
+          options[key],
           optionIndexKeys[key],
           values,
         );
-        break;   
+        break;
       case "targetingConfigs":
         filterValue[key] = selectFilterOptions<"targetingConfigs">(
           options[key],
@@ -217,7 +217,7 @@ export function updateParamsFromFilterValue(
           break;
         case "projects":
           values = indexFilterOptions<"projects">(
-          filterValue[key],
+            filterValue[key],
             optionIndexKeys[key],
           );
           break;
@@ -297,7 +297,7 @@ export function filterExperiments(
         break;
       case "projects":
         filteredExperiments = filterExperimentsByOptions<"projects">(
-        filterState[key],
+          filterState[key],
           experimentFilters[key],
           filteredExperiments,
         );
