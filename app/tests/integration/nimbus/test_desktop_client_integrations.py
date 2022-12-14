@@ -68,10 +68,9 @@ def test_check_telemetry_enrollment_unenrollment(
     slugify,
     experiment_name,
     create_desktop_experiment,
-    trigger_experiment_loader,
+    telemetry_event_check,
     check_ping_for_experiment,
 ):
-    requests.delete("http://ping-server:5000/pings")
     targeting = helpers.load_targeting_configs()[0]
     experiment_slug = str(slugify(experiment_name))
     data = {
@@ -124,31 +123,12 @@ def test_check_telemetry_enrollment_unenrollment(
     # Check their was a telemetry event for the enrollment
     control = True
     timeout = time.time() + 60 * 5
-    while control or time.time() < timeout:
-        telemetry = requests.get("http://ping-server:5000/pings").json()
-        for item in reversed(telemetry):
-            if "events" in item["payload"]:
-                if "parent" in item["payload"]["events"]:
-                    for events in item["payload"]["events"]["parent"]:
-                        try:
-                            assert "normandy" in events
-                            assert "enroll" in events
-                            assert "nimbus_experiment" in events
-                            assert experiment_slug in events
-                        except AssertionError:
-                            continue
-                        else:
-                            control = False
-                            break
-            else:
-                continue
-        # If there are no pings we have to wait
-        else:
-            trigger_experiment_loader()
-            time.sleep(15)
-    else:
-        if control is not False:
+    while control is not True:
+        control = telemetry_event_check(experiment_slug, "enroll")
+        if time.time() > timeout:
             assert False, "Experiment enrollment was never seen in ping Data"
+    # check experiment exists, this means it is enrolled
+    assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
     # check experiment exists, this means it is enrolled
     assert check_ping_for_experiment(experiment_slug)
@@ -172,31 +152,12 @@ def test_check_telemetry_enrollment_unenrollment(
 
     control = True
     timeout = time.time() + 60 * 5
-    while control or time.time() < timeout:
-        telemetry = requests.get("http://ping-server:5000/pings").json()
-        for item in reversed(telemetry):
-            if "events" in item["payload"]:
-                if "parent" in item["payload"]["events"]:
-                    for events in item["payload"]["events"]["parent"]:
-                        try:
-                            assert "normandy" in events
-                            assert "unenroll" in events
-                            assert "nimbus_experiment" in events
-                            assert experiment_slug in events
-                        except AssertionError:
-                            continue
-                        else:
-                            control = False
-                            break
-            else:
-                continue
-        # If there are no pings we have to wait
-        else:
-            trigger_experiment_loader()
-            time.sleep(15)
-    else:
-        if control is not False:
-            assert False, "Experiment unenrollment was never seen in Ping Data"
+    while control is not True:
+        control = telemetry_event_check(experiment_slug, "unenroll")
+        if time.time() > timeout:
+            assert False, "Experiment enrollment was never seen in ping Data"
+    # check experiment exists, this means it is enrolled
+    assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
 
 @pytest.mark.nimbus_integration
@@ -214,7 +175,6 @@ def test_check_telemetry_pref_flip(
 ):
     about_config = AboutConfig(selenium)
 
-    requests.delete("http://ping-server:5000/pings")
     targeting = helpers.load_targeting_configs()[0]
     experiment_slug = str(slugify(experiment_name))
     experiment_default_data["targetingConfigSlug"] = targeting
