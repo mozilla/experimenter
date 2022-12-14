@@ -30,8 +30,8 @@ class TestNimbusStatusValidationMixin(TestCase):
         self.assertIn("experiment", serializer.errors)
 
     def test_unable_to_update_experiment_in_publish_status(self):
-        experiment = NimbusExperimentFactory.create(
-            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -71,8 +71,8 @@ class TestNimbusStatusValidationMixin(TestCase):
     def test_update_publish_status_errors_for_status_complete(
         self, publish_status, valid
     ):
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.COMPLETE
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -109,7 +109,9 @@ class TestNimbusStatusValidationMixin(TestCase):
         ]
     )
     def test_update_publish_status_errors_for_status_live(self, publish_status, valid):
-        experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.LIVE)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE
+        )
         serializer = NimbusExperimentSerializer(
             experiment,
             data={
@@ -145,8 +147,8 @@ class TestNimbusStatusValidationMixin(TestCase):
         ]
     )
     def test_update_publish_status_errors_for_status_preview(self, publish_status, valid):
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.PREVIEW
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.PREVIEW
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -183,8 +185,8 @@ class TestNimbusStatusValidationMixin(TestCase):
         ]
     )
     def test_update_publish_status_errors_for_status_draft(self, publish_status, valid):
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.CREATED
         )
         serializer = NimbusExperimentSerializer(
             experiment,
