@@ -580,6 +580,11 @@ class NimbusExperimentDocumentationLinkMixin:
 
 
 class NimbusStatusValidationMixin:
+    """
+    This will only validate certain statuses, and the validation does not
+    cover status transitions made by Remote Settings.
+    """
+
     def validate(self, data):
         data = super().validate(data)
 
@@ -621,12 +626,19 @@ class NimbusStatusValidationMixin:
 
 
 class NimbusStatusTransitionValidator:
+    """
+    This will only validate certain status transitions, and the validation does not
+    cover status transitions made by Remote Settings.
+    """
+
     requires_context = True
 
     def __init__(self, transitions):
         self.transitions = transitions
 
     def __call__(self, value, serializer_field):
+        """Validates using `NimbusConstants.VALID_STATUS_TRANSITIONS"""
+
         field_name = serializer_field.source_attrs[-1]
         instance = getattr(serializer_field.parent, "instance", None)
 
@@ -877,6 +889,9 @@ class NimbusExperimentSerializer(
         return value
 
     def validate_status_next(self, value):
+        """This validation for `status_next` does not cover any
+        transitions made by Remote Settings."""
+
         valid_status_next = NimbusExperiment.VALID_STATUS_NEXT_VALUES.get(
             self.instance.status, ()
         )
