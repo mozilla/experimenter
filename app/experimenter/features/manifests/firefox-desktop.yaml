@@ -207,6 +207,10 @@ urlbar:
       description: >-
         The index of sponsored QuickSuggest results within the general group. A
         negative index is relative to the end of the group
+    searchEngagementTelemetryEnabled:
+      type: boolean
+      fallbackPref: browser.urlbar.searchEngagementTelemetry.enabled
+      description: Whether search engagement telemetry should be enabled.
     showSearchTermsFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.showSearchTerms.featureGate
@@ -832,7 +836,7 @@ dapTelemetry:
   description: DAP Telemetry
   owner: simon@mozilla.com
   hasExposure: false
-  isEarlyStartup: true # Data is sent on startup with a trigger in BrowserGlue.jsm
+  isEarlyStartup: true # Data is sent on startup with a trigger in BrowserGlue.sys.mjs
   variables:
     enabled:
       type: boolean
