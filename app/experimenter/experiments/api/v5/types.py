@@ -466,24 +466,29 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_targeting_config(self, info):
 
-        return [
-            NimbusExperimentTargetingConfigType(
-                label=NimbusExperiment.TARGETING_CONFIGS[self.targeting_config_slug].name,
-                value=self.targeting_config_slug,
-                description=NimbusExperiment.TARGETING_CONFIGS[
-                    self.targeting_config_slug
-                ].description,
-                application_values=NimbusExperiment.TARGETING_CONFIGS[
-                    self.targeting_config_slug
-                ].application_choice_names,
-                sticky_required=NimbusExperiment.TARGETING_CONFIGS[
-                    self.targeting_config_slug
-                ].sticky_required,
-                is_first_run_required=NimbusExperiment.TARGETING_CONFIGS[
-                    self.targeting_config_slug
-                ].is_first_run_required,
-            )
-        ]
+        if self.targeting_config_slug in self.TargetingConfig:
+
+            return [
+                NimbusExperimentTargetingConfigType(
+                    label=NimbusExperiment.TARGETING_CONFIGS[
+                        self.targeting_config_slug
+                    ].name,
+                    value=self.targeting_config_slug,
+                    description=NimbusExperiment.TARGETING_CONFIGS[
+                        self.targeting_config_slug
+                    ].description,
+                    application_values=NimbusExperiment.TARGETING_CONFIGS[
+                        self.targeting_config_slug
+                    ].application_choice_names,
+                    sticky_required=NimbusExperiment.TARGETING_CONFIGS[
+                        self.targeting_config_slug
+                    ].sticky_required,
+                    is_first_run_required=NimbusExperiment.TARGETING_CONFIGS[
+                        self.targeting_config_slug
+                    ].is_first_run_required,
+                )
+            ]
+        return []
 
     def resolve_jexl_targeting_expression(self, info):
         return self.targeting

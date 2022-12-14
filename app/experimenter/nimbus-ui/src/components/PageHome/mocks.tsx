@@ -17,6 +17,7 @@ export const DEFAULT_OPTIONS: FilterOptions = {
   channels: MOCK_CONFIG!.channels!,
   types: MOCK_CONFIG!.types,
   projects: MOCK_CONFIG!.projects!,
+  targetingConfigs: MOCK_CONFIG!.targetingConfigs,
 };
 
 export const DEFAULT_VALUE: FilterValue = {
@@ -27,6 +28,7 @@ export const DEFAULT_VALUE: FilterValue = {
   channels: [],
   types: [],
   projects: [],
+  targetingConfigs: [],
 };
 
 export const EVERYTHING_SELECTED_VALUE: FilterValue = DEFAULT_OPTIONS;

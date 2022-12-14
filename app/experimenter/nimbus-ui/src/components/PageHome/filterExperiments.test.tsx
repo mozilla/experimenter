@@ -14,8 +14,15 @@ import {
 } from "./mocks";
 import { filterValueKeys } from "./types";
 
-const { owners, applications, allFeatureConfigs, channels, types, projects } =
-  MOCK_CONFIG!;
+const {
+  owners,
+  applications,
+  allFeatureConfigs,
+  channels,
+  types,
+  targetingConfigs,
+  projects,
+} = MOCK_CONFIG!;
 
 describe("getFilterValueFromParams", () => {
   it("converts comma-separated list representation from filter params into a filter value", () => {
@@ -26,6 +33,8 @@ describe("getFilterValueFromParams", () => {
     params.set("channels", "BETA");
     params.set("types", "EXPERIMENT");
     params.set("projects", "Pocket");
+    params.set("targetingConfigs", "MAC_ONLY");
+
     expect(getFilterValueFromParams(MOCK_CONFIG, params)).toEqual({
       owners: [owners![0], owners![1]],
       applications: [applications![0], applications![3]],
@@ -33,6 +42,7 @@ describe("getFilterValueFromParams", () => {
       channels: [channels![0]],
       types: [types![0]],
       projects: [projects![0]],
+      targetingConfigs: [targetingConfigs![0]],
     });
   });
 });
@@ -48,6 +58,7 @@ describe("updateParamsFromFilterValue", () => {
       channels: [channels![0], channels![1]],
       types: [types![0], types![1]],
       projects: [projects![0], projects![1]],
+      targetingConfigs: [targetingConfigs![0], targetingConfigs![1]],
     });
     expect(params.get("owners")).toEqual(
       "alpha-example@mozilla.com,beta-example@mozilla.com",
@@ -59,6 +70,7 @@ describe("updateParamsFromFilterValue", () => {
     expect(params.get("channels")).toEqual("BETA,NIGHTLY");
     expect(params.get("types")).toEqual("EXPERIMENT,ROLLOUT");
     expect(params.get("projects")).toEqual("Pocket,Mdn");
+    expect(params.get("targetingConfigs")).toEqual("MAC_ONLY,WIN_ONLY");
   });
 
   it("handles a roundtrip encoding with everything filtered", () => {
@@ -121,8 +133,13 @@ describe("filterExperiments", () => {
           case "projects":
             expect(experiment.projects).toEqual([MOCK_CONFIG!.projects![0]!]);
             break;
+          case "targetingConfigs":
+            expect(experiment.targetingConfig).toEqual([
+              MOCK_CONFIG!.targetingConfigs![0]!,
+            ]);
+            break;
         }
       }
     }
   });
-});
+

@@ -23,6 +23,15 @@ export interface getAllExperiments_experiments_featureConfigs {
   schema: string | null;
 }
 
+export interface getAllExperiments_experiments_targetingConfig {
+  label: string | null;
+  value: string | null;
+  description: string | null;
+  applicationValues: (string | null)[] | null;
+  stickyRequired: boolean | null;
+  isFirstRunRequired: boolean | null;
+}
+
 export interface getAllExperiments_experiments_featureConfig {
   slug: string;
   name: string;
@@ -39,6 +48,7 @@ export interface getAllExperiments_experiments {
   name: string;
   owner: getAllExperiments_experiments_owner;
   featureConfigs: (getAllExperiments_experiments_featureConfigs | null)[] | null;
+  targetingConfig: (getAllExperiments_experiments_targetingConfig | null)[] | null;
   slug: string;
   application: NimbusExperimentApplicationEnum | null;
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum | null;

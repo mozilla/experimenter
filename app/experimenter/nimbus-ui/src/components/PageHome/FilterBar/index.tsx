@@ -86,6 +86,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           optionLabelName="name"
           {...{ filterValue, onChange }}
         />
+        <FilterSelect
+          fieldLabel="Targeting"
+          fieldOptions={options.targetingConfigs!}
+          filterValueName="targetingConfigs"
+          optionLabelName="label"
+          {...{ filterValue, onChange }}
+        />
       </Nav>
     </Navbar>
   );

@@ -28,6 +28,7 @@ export const optionIndexKeys: {
   channels: (option) => option.value,
   types: (option) => option.value,
   projects: (option) => option.name,
+  targetingConfigs: (option) => option.value,
 };
 
 type ExperimentFilter<K extends FilterValueKeys> = (
@@ -71,6 +72,15 @@ const experimentFilters: { [key in FilterValueKeys]: ExperimentFilter<key> } = {
         experiment.projects.filter((f) => f?.name === option.name).length > 0;
     }
     return teamProjectsMatch;
+    },
+  targetingConfigs: (option, experiment) => {
+    let targetingConfigMatch = false;
+    if (experiment.targetingConfig?.length) {
+      targetingConfigMatch =
+        experiment.targetingConfig.filter((f) => f?.value === option.value)
+          .length > 0;
+    }
+    return targetingConfigMatch;
   },
 };
 
@@ -128,6 +138,13 @@ export function getFilterValueFromParams(
         break;
       case "projects":
         filterValue[key] = selectFilterOptions<"projects">(
+        options[key],
+          optionIndexKeys[key],
+          values,
+        );
+        break;   
+      case "targetingConfigs":
+        filterValue[key] = selectFilterOptions<"targetingConfigs">(
           options[key],
           optionIndexKeys[key],
           values,
@@ -200,6 +217,12 @@ export function updateParamsFromFilterValue(
           break;
         case "projects":
           values = indexFilterOptions<"projects">(
+          filterValue[key],
+            optionIndexKeys[key],
+          );
+          break;
+        case "targetingConfigs":
+          values = indexFilterOptions<"targetingConfigs">(
             filterValue[key],
             optionIndexKeys[key],
           );
@@ -274,6 +297,13 @@ export function filterExperiments(
         break;
       case "projects":
         filteredExperiments = filterExperimentsByOptions<"projects">(
+        filterState[key],
+          experimentFilters[key],
+          filteredExperiments,
+        );
+        break;
+      case "targetingConfigs":
+        filteredExperiments = filterExperimentsByOptions<"targetingConfigs">(
           filterState[key],
           experimentFilters[key],
           filteredExperiments,
