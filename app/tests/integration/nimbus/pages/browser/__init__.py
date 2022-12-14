@@ -44,4 +44,4 @@ class AboutConfig(Page):
                 error = e
             else:
                 return True
-        raise(error)
+        raise (error)
