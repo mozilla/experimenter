@@ -1,4 +1,5 @@
 from experimenter.jetstream.models import (
+    AnalysisBasis,
     BranchComparison,
     BranchComparisonData,
     DataPoint,
@@ -46,6 +47,7 @@ class JetstreamTestData:
             statistic=Statistic.COUNT,
             window_index="1",
             segment=Segment.ALL,
+            analysis_basis=AnalysisBasis.ENROLLMENTS,
         )
 
     @classmethod
@@ -157,7 +159,9 @@ class JetstreamTestData:
         ).dict(exclude_none=True)
 
     @classmethod
-    def add_outcome_data(cls, data, overall_data, weekly_data, primary_outcome):
+    def add_outcome_data(
+        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis
+    ):
         primary_metrics = ["default_browser_action"]
         range_data = DataPoint(lower=2, point=4, upper=8)
 
@@ -188,11 +192,14 @@ class JetstreamTestData:
                         statistic="binomial",
                         window_index="1",
                         segment=Segment.ALL,
+                        analysis_basis=analysis_basis,
                     ).dict(exclude_none=True)
                 )
 
     @classmethod
-    def add_outcome_data_mean(cls, data, overall_data, weekly_data, primary_outcome):
+    def add_outcome_data_mean(
+        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis
+    ):
         primary_metrics = ["mozilla_default_browser"]
         range_data = DataPoint(lower=0, point=0, upper=0)
 
@@ -223,6 +230,7 @@ class JetstreamTestData:
                         statistic="mean",
                         window_index="1",
                         segment=Segment.ALL,
+                        analysis_basis=analysis_basis,
                     ).dict(exclude_none=True)
                 )
 
@@ -233,10 +241,15 @@ class JetstreamTestData:
         overall_data,
         weekly_data,
         primary_outcomes,
+        analysis_basis,
     ):
         for primary_outcome in primary_outcomes:
-            cls.add_outcome_data(data, overall_data, weekly_data, primary_outcome)
-            cls.add_outcome_data_mean(data, overall_data, weekly_data, primary_outcome)
+            cls.add_outcome_data(
+                data, overall_data, weekly_data, primary_outcome, analysis_basis
+            )
+            cls.add_outcome_data_mean(
+                data, overall_data, weekly_data, primary_outcome, analysis_basis
+            )
 
     @classmethod
     def get_test_data(cls, primary_outcomes):
@@ -274,6 +287,56 @@ class JetstreamTestData:
             CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW,
         ) = cls.get_significance_data_row(VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW)
 
+        # exposures
+        EXPOSURES_CONTROL_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_CONTROL_DATA_ROW.branch = "control"
+        EXPOSURES_CONTROL_DATA_ROW.analysis_basis = AnalysisBasis.EXPOSURES
+
+        EXPOSURES_VARIANT_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_ROW.branch = "variant"
+        EXPOSURES_VARIANT_DATA_ROW.analysis_basis = AnalysisBasis.EXPOSURES
+
+        EXPOSURES_SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.copy()
+        EXPOSURES_SEGMENTED_ROW_VARIANT.segment = "some_segment"
+        EXPOSURES_SEGMENTED_ROW_VARIANT.analysis_basis = AnalysisBasis.EXPOSURES
+        EXPOSURES_SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.copy()
+        EXPOSURES_SEGMENTED_ROW_CONTROL.segment = "some_segment"
+        EXPOSURES_SEGMENTED_ROW_CONTROL.analysis_basis = AnalysisBasis.EXPOSURES
+
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.metric = "some_count"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.branch = "variant"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.analysis_basis = (
+            AnalysisBasis.EXPOSURES
+        )
+
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.branch = "variant"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.analysis_basis = (
+            AnalysisBasis.EXPOSURES
+        )
+
+        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.comparison = (
+            BranchComparison.DIFFERENCE
+        )
+        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.metric = Metric.SEARCH
+        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.statistic = Statistic.MEAN
+        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.branch = "variant"
+        EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.analysis_basis = (
+            AnalysisBasis.EXPOSURES
+        )
+
+        (
+            EXPOSURES_VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW,
+            EXPOSURES_CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW,
+        ) = cls.get_significance_data_row(
+            EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW
+        )
+
         DAILY_DATA = [
             CONTROL_DATA_ROW.dict(exclude_none=True),
             VARIANT_DATA_ROW.dict(exclude_none=True),
@@ -283,9 +346,22 @@ class JetstreamTestData:
             VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
             CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
         ]
+        DAILY_EXPOSURES_DATA = [
+            EXPOSURES_CONTROL_DATA_ROW.dict(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_ROW.dict(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
+            EXPOSURES_VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
+            EXPOSURES_VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
+            EXPOSURES_CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
+        ]
         SEGMENT_DATA = [
             SEGMENTED_ROW_VARIANT.dict(exclude_none=True),
             SEGMENTED_ROW_CONTROL.dict(exclude_none=True),
+        ]
+        SEGMENT_EXPOSURES_DATA = [
+            EXPOSURES_SEGMENTED_ROW_VARIANT.dict(exclude_none=True),
+            EXPOSURES_SEGMENTED_ROW_CONTROL.dict(exclude_none=True),
         ]
 
         (
@@ -458,9 +534,25 @@ class JetstreamTestData:
             OVERALL_DATA,
             WEEKLY_DATA,
             primary_outcomes,
+            AnalysisBasis.ENROLLMENTS,
+        )
+        cls.add_all_outcome_data(
+            DAILY_EXPOSURES_DATA,
+            OVERALL_DATA,
+            WEEKLY_DATA,
+            primary_outcomes,
+            AnalysisBasis.EXPOSURES,
         )
 
-        return (DAILY_DATA, WEEKLY_DATA, OVERALL_DATA, ERRORS, SEGMENT_DATA)
+        return (
+            DAILY_DATA,
+            WEEKLY_DATA,
+            OVERALL_DATA,
+            ERRORS,
+            SEGMENT_DATA,
+            DAILY_EXPOSURES_DATA,
+            SEGMENT_EXPOSURES_DATA,
+        )
 
 
 class ZeroJetstreamTestData(JetstreamTestData):
@@ -474,6 +566,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
             statistic=Statistic.COUNT,
             window_index="1",
             segment=Segment.ALL,
+            analysis_basis=AnalysisBasis.ENROLLMENTS,
         )
 
     @classmethod
@@ -576,7 +669,9 @@ class ZeroJetstreamTestData(JetstreamTestData):
         )
 
     @classmethod
-    def add_outcome_data(cls, data, overall_data, weekly_data, primary_outcome):
+    def add_outcome_data(
+        cls, data, overall_data, weekly_data, primary_outcome, analysis_basis
+    ):
         primary_metrics = ["default_browser_action"]
         range_data = DataPoint(lower=0, point=0, upper=0)
 
@@ -607,6 +702,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
                         statistic="binomial",
                         window_index="1",
                         segment=Segment.ALL,
+                        analysis_basis=analysis_basis,
                     ).dict(exclude_none=True)
                 )
 
@@ -622,6 +718,7 @@ class NonePointJetstreamTestData(ZeroJetstreamTestData):
             statistic=Statistic.COUNT,
             window_index=None,
             segment=Segment.ALL,
+            analysis_basis=AnalysisBasis.ENROLLMENTS,
         )
 
     @classmethod
