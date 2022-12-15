@@ -7,11 +7,11 @@ from experimenter.experiments.models import NimbusExperiment as Experiment
 class TestMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0222_auto_20221207_2104",
+        "0223_analysis_add_schema_version",
     )
     migrate_to = (
         "experiments",
-        "0223_analysis_add_basis",
+        "0224_analysis_add_basis",
     )
 
     def prepare(self):
