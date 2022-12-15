@@ -217,4 +217,4 @@ def get_experiment_data(experiment):
 
     experiment_data["errors"] = errors_by_metric
 
-    return experiment_data
+    return {"v1": experiment_data}

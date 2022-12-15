@@ -8,4 +8,7 @@ from experimenter.experiments.models import NimbusExperiment
 @api_view()
 def analysis_results_view(request, slug):
     experiment = get_object_or_404(NimbusExperiment.objects.filter(slug=slug))
-    return Response(experiment.results_data)
+    if experiment.results_data is not None and "v1" in experiment.results_data:
+        return Response(experiment.results_data["v1"])
+
+    return Response(None)
