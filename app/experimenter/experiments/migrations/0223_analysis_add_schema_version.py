@@ -8,7 +8,7 @@ def analysis_add_schema_version(apps, schema_editor):
 
     for experiment in NimbusExperiment.objects.all():
         if experiment.results_data is not None:
-            experiment.results_data = {"current": experiment.results_data}
+            experiment.results_data = {"v1": experiment.results_data}
             experiment.save()
 
 

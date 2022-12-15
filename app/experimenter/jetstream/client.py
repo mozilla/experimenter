@@ -218,6 +218,6 @@ def get_experiment_data(experiment):
     experiment_data["errors"] = errors_by_metric
 
     ret = {}
-    ret["current"] = experiment_data
+    ret["v1"] = experiment_data
 
     return ret

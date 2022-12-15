@@ -60,7 +60,7 @@ class TestFetchJetstreamDataTask(TestCase):
         ) = JetstreamTestData.get_test_data(primary_outcomes)
 
         FULL_DATA = {
-            "current": {
+            "v1": {
                 "daily": {
                     "all": DAILY_DATA,
                     "some_segment": SEGMENT_DATA,
@@ -318,7 +318,7 @@ class TestFetchJetstreamDataTask(TestCase):
         ) = ZeroJetstreamTestData.get_test_data(primary_outcomes)
 
         FULL_DATA = {
-            "current": {
+            "v1": {
                 "daily": {
                     "all": DAILY_DATA,
                     "some_segment": SEGMENT_DATA,
@@ -556,7 +556,7 @@ class TestFetchJetstreamDataTask(TestCase):
         self.assertEqual(
             experiment.results_data,
             {
-                "current": {
+                "v1": {
                     "daily": {},
                     "metadata": None,
                     "overall": {},
@@ -589,7 +589,7 @@ class TestFetchJetstreamDataTask(TestCase):
             lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=4)
         )
         experiment.results_data = {
-            "current": {
+            "v1": {
                 "daily": None,
                 "metadata": None,
                 "overall": None,

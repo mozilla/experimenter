@@ -72,7 +72,7 @@ class TestMigration(MigratorTestCase):
         )
 
         unchanged_data = NimbusExperiment.objects.get(slug="another-experiment")
-        self.assertTrue("current" in unchanged_data.results_data)
+        self.assertTrue("v1" in unchanged_data.results_data)
         self.assertFalse("daily" in unchanged_data.results_data)
 
         empty_data = NimbusExperiment.objects.get(slug="empty-experiment")
@@ -86,5 +86,5 @@ class TestMigration(MigratorTestCase):
             "metadata": None,
             "show_analysis": True,
         }
-        self.assertTrue("current" in empty_results_data.results_data)
-        self.assertEquals(empty_results_data.results_data["current"], results)
+        self.assertTrue("v1" in empty_results_data.results_data)
+        self.assertEquals(empty_results_data.results_data["v1"], results)
