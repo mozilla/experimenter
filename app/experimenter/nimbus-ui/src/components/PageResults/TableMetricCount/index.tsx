@@ -10,7 +10,10 @@ import {
   METRIC_TYPE,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { BranchComparisonValues } from "../../../lib/visualization/types";
+import {
+  AnalysisBases,
+  BranchComparisonValues,
+} from "../../../lib/visualization/types";
 import { getExtremeBounds } from "../../../lib/visualization/utils";
 import GraphsWeekly from "../GraphsWeekly";
 import TableVisualizationRow from "../TableVisualizationRow";
@@ -34,6 +37,7 @@ type TableMetricCountProps = {
   outcomeDefaultName: string;
   group: string;
   metricType?: MetricTypes;
+  analysisBasis?: AnalysisBases;
   segment?: string;
 };
 
@@ -54,6 +58,7 @@ const TableMetricCount = ({
   outcomeDefaultName,
   group,
   metricType = METRIC_TYPE.DEFAULT_SECONDARY,
+  analysisBasis = "enrollments",
   segment = "all",
 }: TableMetricCountProps) => {
   const countMetricStatistics = getStatistics(outcomeSlug);
@@ -62,11 +67,12 @@ const TableMetricCount = ({
     sortedBranchNames,
     controlBranchName,
   } = useContext(ResultsContext);
-  const overallResults = overall![segment]!;
+  const overallResults = overall![analysisBasis]?.[segment]!;
+  const weeklyBasis = weekly![analysisBasis];
 
   const bounds = getExtremeBounds(
     sortedBranchNames,
-    overall!,
+    overall![analysisBasis]!,
     outcomeSlug,
     group,
     segment,
@@ -130,9 +136,9 @@ const TableMetricCount = ({
             })}
         </tbody>
       </table>
-      {weekly?.all && (
+      {weeklyBasis?.all && (
         <GraphsWeekly
-          weeklyResults={weekly}
+          weeklyResults={weeklyBasis}
           {...{ outcomeSlug, outcomeName, group }}
         />
       )}
