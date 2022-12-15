@@ -205,14 +205,15 @@ class NimbusConstants(object):
         ),
     }
 
-    STATUS_ALLOWS_UPDATE = (Status.DRAFT, Status.LIVE)
+    EXPERIMENT_STATUS_ALLOWS_UPDATE = (Status.DRAFT)
+    ROLLOUT_STATUS_ALLOWS_UPDATE = (Status.DRAFT, Status.LIVE)
 
     PUBLISH_STATUS_ALLOWS_UPDATE = (
         PublishStatus.IDLE,
         PublishStatus.DIRTY,
     )
 
-    STATUS_UPDATE_EXEMPT_FIELDS = (
+    EXPERIMENT_STATUS_UPDATE_EXEMPT_FIELDS = (
         "is_archived",
         "publish_status",
         "status_next",
