@@ -8,6 +8,7 @@ from django.core.files.storage import default_storage
 
 from experimenter.jetstream.models import (
     METRIC_GROUP,
+    AnalysisBasis,
     Group,
     JetstreamData,
     Metric,
@@ -158,6 +159,10 @@ def get_experiment_data(experiment):
 
     experiment_errors = get_analysis_errors(recipe_slug)
 
+    experiment_data_old = {
+        "show_analysis": settings.FEATURE_ANALYSIS,
+        "metadata": experiment_metadata,
+    }
     experiment_data = {
         "show_analysis": settings.FEATURE_ANALYSIS,
         "metadata": experiment_metadata,
@@ -165,13 +170,21 @@ def get_experiment_data(experiment):
 
     for window in windows:
         experiment_data[window] = {}
+        experiment_data_old[window] = {}
         data_from_jetstream = get_data(recipe_slug, window) or []
 
-        segment_points = defaultdict(list)
-        for point in data_from_jetstream:
-            segment_points[point["segment"]].append(point)
+        segment_points_enrollments = defaultdict(list)
+        segment_points_exposures = defaultdict(list)
 
-        for segment, segment_data in segment_points.items():
+        for point in data_from_jetstream:
+            if point["analysis_basis"] == AnalysisBasis.ENROLLMENTS:
+                segment_points_enrollments[point["segment"]].append(point)
+                experiment_data[window][AnalysisBasis.ENROLLMENTS] = {}
+            elif point["analysis_basis"] == AnalysisBasis.EXPOSURES:
+                segment_points_exposures[point["segment"]].append(point)
+                experiment_data[window][AnalysisBasis.EXPOSURES] = {}
+
+        for segment, segment_data in segment_points_enrollments.items():
             data = raw_data[window][segment] = JetstreamData(__root__=(segment_data))
             (
                 result_metrics,
@@ -193,13 +206,43 @@ def get_experiment_data(experiment):
                 data.append_conversion_count(primary_metrics_set)
 
                 if segment == Segment.ALL:
+                    experiment_data_old["other_metrics"] = other_metrics
                     experiment_data["other_metrics"] = other_metrics
             elif data and window == AnalysisWindow.WEEKLY:
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
 
             transformed_data = data.dict(exclude_none=True) or None
-            experiment_data[window][segment] = transformed_data
+            experiment_data_old[window][segment] = transformed_data
+            experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
+
+        for segment, segment_data in segment_points_exposures.items():
+            data = raw_data[window][segment] = JetstreamData(__root__=(segment_data))
+            (
+                result_metrics,
+                primary_metrics_set,
+                other_metrics,
+            ) = get_results_metrics_map(
+                data,
+                experiment.primary_outcomes,
+                experiment.secondary_outcomes,
+                outcomes_metadata,
+            )
+            if data and window == AnalysisWindow.OVERALL:
+                # Append some values onto Jetstream data
+                data.append_population_percentages()
+                data.append_retention_data(raw_data[AnalysisWindow.WEEKLY][segment])
+
+                ResultsObjectModel = create_results_object_model(data)
+                data = ResultsObjectModel(result_metrics, data, experiment)
+                data.append_conversion_count(primary_metrics_set)
+
+            elif data and window == AnalysisWindow.WEEKLY:
+                ResultsObjectModel = create_results_object_model(data)
+                data = ResultsObjectModel(result_metrics, data, experiment, window)
+
+            transformed_data = data.dict(exclude_none=True) or None
+            experiment_data[window][AnalysisBasis.EXPOSURES][segment] = transformed_data
 
     errors_by_metric = {}
     errors_experiment_overall = []
@@ -215,6 +258,7 @@ def get_experiment_data(experiment):
 
     errors_by_metric["experiment"] = errors_experiment_overall
 
+    experiment_data_old["errors"] = errors_by_metric
     experiment_data["errors"] = errors_by_metric
 
-    return {"v1": experiment_data}
+    return {"v1": experiment_data_old, "v2": experiment_data}
