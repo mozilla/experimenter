@@ -38,8 +38,8 @@ class AboutConfig(Page):
                 search_bar.send_keys(pref)
                 self.wait.until(EC.presence_of_element_located(self._row_locator))
                 elements = self.find_elements(*self._row_locator)
-                assert pref_value in [element.text for element in elements]
-            except Exception as e:
+                assert pref_value in [element.text for element in elements], "Pref not found"
+            except (Exception, AssertionError) as e:
                 time.sleep(2)
                 error = e
             else:
