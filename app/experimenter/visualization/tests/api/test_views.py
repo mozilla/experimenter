@@ -30,11 +30,25 @@ class TestVisualizationView(TestCase):
             lifecycle, primary_outcomes=[primary_outcome]
         )
 
+        # test None object/response
         response = self.client.get(
             reverse("visualization-analysis-data", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b"")
+
+        # test with results_data object
+        experiment.results_data = {"v1": {}}
+        experiment.save()
+
+        response = self.client.get(
+            reverse("visualization-analysis-data", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        json_data = json.loads(response.content)
+        self.assertEqual(json_data, {})
 
     @parameterized.expand([NimbusExperiment.Status.DRAFT])
     def test_analysis_results_view_404(self, status):
