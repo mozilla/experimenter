@@ -14,7 +14,10 @@ import {
   RESULTS_METRICS_LIST,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { BranchComparisonValues } from "../../../lib/visualization/types";
+import {
+  AnalysisBases,
+  BranchComparisonValues,
+} from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
@@ -23,6 +26,7 @@ import TooltipWithMarkdown from "../TooltipWithMarkdown";
 export type TableResultsProps = {
   experiment: getExperiment_experimentBySlug;
   branchComparison?: BranchComparisonValues;
+  analysisBasis?: AnalysisBases;
   segment?: string;
 };
 
@@ -48,6 +52,7 @@ const getResultMetrics = (outcomes: OutcomesList) => {
 const TableResults = ({
   experiment,
   branchComparison = BRANCH_COMPARISON.UPLIFT,
+  analysisBasis = "enrollments",
   segment = "all",
 }: TableResultsProps) => {
   const { primaryOutcomes } = useOutcomes(experiment);
@@ -57,7 +62,7 @@ const TableResults = ({
     sortedBranchNames,
     controlBranchName,
   } = useContext(ResultsContext);
-  const overallResults = overall![segment]!;
+  const overallResults = overall![analysisBasis]?.[segment]!;
 
   return (
     <table

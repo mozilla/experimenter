@@ -39,7 +39,7 @@ class TestVisualizationView(TestCase):
         self.assertEqual(response.content, b"")
 
         # test with results_data object
-        experiment.results_data = {"v1": {}}
+        experiment.results_data = {"v2": {}}
         experiment.save()
 
         response = self.client.get(

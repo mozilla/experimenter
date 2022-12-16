@@ -10,7 +10,10 @@ import {
   GROUP,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
-import { BranchComparisonValues } from "../../../lib/visualization/types";
+import {
+  AnalysisBases,
+  BranchComparisonValues,
+} from "../../../lib/visualization/types";
 import { getExtremeBounds } from "../../../lib/visualization/utils";
 import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
 import TableVisualizationRow from "../TableVisualizationRow";
@@ -24,6 +27,7 @@ type ConversionMetricStatistic = {
 
 type TableMetricConversionProps = {
   outcome: getConfig_nimbusConfig_outcomes;
+  analysisBasis?: AnalysisBases;
   segment?: string;
 };
 
@@ -43,6 +47,7 @@ const getStatistics = (slug: string): Array<ConversionMetricStatistic> => {
 
 const TableMetricConversion = ({
   outcome,
+  analysisBasis = "enrollments",
   segment = "all",
 }: TableMetricConversionProps) => {
   const {
@@ -50,12 +55,12 @@ const TableMetricConversion = ({
     sortedBranchNames,
     controlBranchName,
   } = useContext(ResultsContext);
-  const overallResults = overall![segment]!;
+  const overallResults = overall![analysisBasis]?.[segment]!;
   const conversionMetricStatistics = getStatistics(outcome.slug!);
   const metricKey = `${outcome.slug}_ever_used`;
   const bounds = getExtremeBounds(
     sortedBranchNames,
-    overall!,
+    overall![analysisBasis]!,
     outcome.slug!,
     GROUP.OTHER,
     segment,
