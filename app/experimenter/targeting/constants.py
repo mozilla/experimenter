@@ -802,7 +802,7 @@ EXISTING_WINDOWS_USER = NimbusTargetingConfig(
     name="Existing Windows 7+ user",
     slug="existing_windows_user",
     description="Users on Windows 7+ with profiles older than 28 days",
-    targeting=f"{PROFILE28DAYS} && os.isWindows && os.windowsVersion >= 7",
+    targeting=f"{PROFILE28DAYS} && os.isWindows && os.windowsVersion >= 6.1",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
@@ -816,7 +816,7 @@ EXISTING_WINDOWS_USER_NO_FX_ACCOUNT = NimbusTargetingConfig(
     targeting=(
         f"{PROFILE28DAYS} "
         "&& os.isWindows "
-        "&& os.windowsVersion >= 7"
+        "&& os.windowsVersion >= 6.1"
         "&& !('services.sync.username'|preferenceIsUserSet)"
     ),
     desktop_telemetry="",
