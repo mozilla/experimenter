@@ -461,6 +461,17 @@ INFREQUENT_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NEW_USERS_WITH_INFREQUENT_USE = NimbusTargetingConfig(
+    name="New users with infrequent use",
+    slug="new_users_with_infrequent_use",
+    description="0 - 6 days activity in past 28 days and profile age <= 28 days",
+    targeting=(f"{PROFILE28DAYS} " "&& userMonthlyActivity|length <= 6"),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 CASUAL_USER_URIS = NimbusTargetingConfig(
     name="Casual user (uris)",
     slug="casual_user_uris",
