@@ -17,7 +17,7 @@ describe("GraphsWeekly", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <GraphsWeekly
-          weeklyResults={mockAnalysis().weekly}
+          weeklyResults={mockAnalysis().weekly.enrollments}
           outcomeSlug="feature_d"
           outcomeName="Feature D"
           group={GROUP.OTHER}

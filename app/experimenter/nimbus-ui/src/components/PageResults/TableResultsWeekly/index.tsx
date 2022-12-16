@@ -13,22 +13,27 @@ import {
   GENERAL_TIPS,
   HIGHLIGHTS_METRICS_LIST,
 } from "../../../lib/visualization/constants";
-import { BranchComparisonValues } from "../../../lib/visualization/types";
+import {
+  AnalysisBases,
+  BranchComparisonValues,
+} from "../../../lib/visualization/types";
 import TableWeekly from "../TableWeekly";
 
 export type TableResultsWeeklyProps = {
   branchComparison?: BranchComparisonValues;
+  analysisBasis?: AnalysisBases;
   segment?: string;
 };
 
 const TableResultsWeekly = ({
   branchComparison = BRANCH_COMPARISON.UPLIFT,
+  analysisBasis = "enrollments",
   segment = "all",
 }: TableResultsWeeklyProps) => {
   const {
     analysis: { overall },
   } = useContext(ResultsContext);
-  const hasOverallResults = !!overall?.all;
+  const hasOverallResults = !!overall?.[analysisBasis]?.all;
   const [open, setOpen] = useState(!hasOverallResults);
 
   return (
@@ -76,6 +81,7 @@ const TableResultsWeekly = ({
                   metricName={metric.name}
                   group={metric.group}
                   {...{ branchComparison }}
+                  analysisBasis={analysisBasis}
                   segment={segment}
                 />
               </div>

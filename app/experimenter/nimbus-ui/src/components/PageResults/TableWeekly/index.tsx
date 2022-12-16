@@ -9,6 +9,7 @@ import {
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import {
+  AnalysisBases,
   BranchComparisonValues,
   BranchDescription,
   FormattedAnalysisPoint,
@@ -21,6 +22,7 @@ type TableWeeklyProps = {
   metricName: string;
   group: string;
   branchComparison: BranchComparisonValues;
+  analysisBasis?: AnalysisBases;
   segment?: string;
 };
 
@@ -53,6 +55,7 @@ const TableWeekly = ({
   metricName,
   group,
   branchComparison,
+  analysisBasis = "enrollments",
   segment = "all",
 }: TableWeeklyProps) => {
   const {
@@ -60,7 +63,7 @@ const TableWeekly = ({
     sortedBranchNames,
     controlBranchName,
   } = useContext(ResultsContext);
-  const weeklyResults = weekly![segment]!;
+  const weeklyResults = weekly![analysisBasis]![segment]!;
   const weekIndexList = getWeekIndexList(metricKey, group, weeklyResults);
   const tableLabel = TABLE_LABEL.RESULTS;
 
