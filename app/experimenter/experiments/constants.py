@@ -178,7 +178,6 @@ class NimbusConstants(object):
         Status.DRAFT: (Status.PREVIEW,),
         Status.PREVIEW: (Status.DRAFT,),
     }
-    STATUS_ALLOWS_UPDATE = (Status.DRAFT,)
 
     # Valid status_next values for given status values in the
     # UI only. This does not represent the full list of
@@ -191,7 +190,7 @@ class NimbusConstants(object):
 
     # Valid publish_status transitions for given status
     # values in the UI only. This does not represent the
-    #  full list of publish_status transitions.
+    # full list of publish_status transitions.
     VALID_PUBLISH_STATUS_TRANSITIONS = {
         PublishStatus.IDLE: (
             PublishStatus.DIRTY,
@@ -206,16 +205,36 @@ class NimbusConstants(object):
         ),
     }
 
-    PUBLISH_STATUS_ALLOWS_UPDATE = (PublishStatus.IDLE,)
+    STATUS_ALLOWS_UPDATE = {
+        "all": [
+            Status.DRAFT,
+        ],
+        "experiments": [],
+        "rollouts": [
+            Status.LIVE
+        ],
+    }
 
-    STATUS_UPDATE_EXEMPT_FIELDS = (
-        "is_archived",
-        "publish_status",
-        "status_next",
-        "status",
-        "takeaways_summary",
-        "conclusion_recommendation",
-    )
+    PUBLISH_STATUS_ALLOWS_UPDATE = {
+        "all": [
+            PublishStatus.IDLE,
+        ],
+        "experiments": [],
+        "rollouts": [],
+    }
+
+    STATUS_UPDATE_EXEMPT_FIELDS = {
+        "all": [
+            "is_archived",
+            "publish_status",
+            "status_next",
+            "status",
+            "takeaways_summary",
+            "conclusion_recommendation",
+        ],
+        "experiments": [],
+        "rollouts": [],
+    }
 
     ARCHIVE_UPDATE_EXEMPT_FIELDS = (
         "is_archived",
