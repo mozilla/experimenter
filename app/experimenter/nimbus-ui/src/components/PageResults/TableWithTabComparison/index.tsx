@@ -5,6 +5,7 @@
 import React, { ComponentType } from "react";
 import { Tab, Tabs } from "react-bootstrap";
 import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
+import { AnalysisBases } from "../../../lib/visualization/types";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import { TableHighlightsProps } from "../TableHighlights";
 import { TableResultsProps } from "../TableResults";
@@ -20,6 +21,7 @@ export type TableWithTabComparisonProps = {
   experiment?: getExperiment_experimentBySlug;
   Table: TablesWithExperiment | TablesWithoutExperiment;
   className?: string;
+  analysisBasis?: AnalysisBases;
   segment?: string;
 };
 
@@ -27,16 +29,21 @@ export const TableWithTabComparison = ({
   experiment,
   Table,
   className = "rounded-bottom mb-5",
+  analysisBasis = "enrollments",
   segment = "all",
 }: TableWithTabComparisonProps) => (
   <Tabs defaultActiveKey={BRANCH_COMPARISON.UPLIFT} className="border-bottom-0">
     <Tab eventKey={BRANCH_COMPARISON.UPLIFT} title="Relative uplift comparison">
       <div className={`border ${className}`}>
         {experiment ? (
-          <Table {...{ experiment }} segment={segment} />
+          <Table
+            {...{ experiment }}
+            analysisBasis={analysisBasis}
+            segment={segment}
+          />
         ) : (
           /* @ts-ignore - TODO, assert Table is TablesWithoutExperiment if `experiment` not provided */
-          <Table segment={segment} />
+          <Table analysisBasis={analysisBasis} segment={segment} />
         )}
       </div>
     </Tab>
@@ -46,6 +53,7 @@ export const TableWithTabComparison = ({
           <Table
             {...{ experiment }}
             branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+            analysisBasis={analysisBasis}
             segment={segment}
           />
         ) : (
@@ -53,6 +61,7 @@ export const TableWithTabComparison = ({
             {/* @ts-ignore - TODO, assert Table is TablesWithoutExperiment if `experiment` not provided */}
             <Table
               branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+              analysisBasis={analysisBasis}
               segment={segment}
             />
           </>

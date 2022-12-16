@@ -24,6 +24,7 @@ import {
   mockAnalysis,
   mockAnalysisWithErrors,
   mockAnalysisWithErrorsAndResults,
+  mockAnalysisWithExposures,
   mockAnalysisWithSegments,
   MOCK_METADATA_WITH_CONFIG,
   MOCK_UNAVAILABLE_ANALYSIS,
@@ -55,8 +56,8 @@ describe("PageResults", () => {
     render(
       <Subject
         mockAnalysisData={mockAnalysis({
-          weekly: { all: {} },
-          overall: { all: {} },
+          weekly: { enrollments: { all: {} } },
+          overall: { enrollments: { all: {} } },
         })}
       />,
     );
@@ -144,6 +145,47 @@ describe("PageResults", () => {
     curSegment = container.getElementsByClassName("segmentation__single-value");
     expect(curSegment).toHaveLength(1);
     expect(curSegment[0]).toHaveTextContent(otherSegment);
+  });
+
+  it("hides the analysis basis selector when there are no exposures", async () => {
+    render(<Subject />);
+
+    expect(screen.queryByText("Analysis Basis")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("analysis-basis-results-selector"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("displays the analysis basis options properly", async () => {
+    const { container } = render(
+      <Subject mockAnalysisData={mockAnalysisWithExposures} />,
+    );
+
+    const defaultBasis = "enrollments";
+    const otherBasis = "exposures";
+
+    expect(screen.getByText("Analysis Basis"));
+    const analysisBasisSelectParent = screen.getByTestId(
+      "analysis-basis-results-selector",
+    );
+
+    // both exist
+    expect(within(analysisBasisSelectParent).getByText(defaultBasis));
+    expect(within(analysisBasisSelectParent).getByText(otherBasis));
+
+    // enrollments checked by default
+    expect(
+      within(analysisBasisSelectParent).getByTestId(`${defaultBasis}-radio`),
+    ).toBeChecked();
+
+    fireEvent.click(
+      within(analysisBasisSelectParent).getByTestId(`${otherBasis}-radio`),
+    );
+
+    // exposures checked after click
+    expect(
+      within(analysisBasisSelectParent).getByTestId(`${otherBasis}-radio`),
+    ).toBeChecked();
   });
 
   it("displays analysis errors", async () => {
