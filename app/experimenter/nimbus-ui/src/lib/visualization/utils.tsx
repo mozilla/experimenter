@@ -38,7 +38,10 @@ export const getControlBranchName = (analysis: AnalysisData) => {
   if (external_config?.reference_branch) {
     return external_config.reference_branch;
   }
-  const results = analysis.overall?.all || analysis.weekly?.all || {};
+  const results =
+    analysis.overall?.enrollments?.all ||
+    analysis.weekly?.enrollments?.all ||
+    {};
   if (Object.keys(results).length > 0) {
     for (const [branchName, branchData] of Object.entries(results)) {
       if (branchData.is_control) {
@@ -47,7 +50,7 @@ export const getControlBranchName = (analysis: AnalysisData) => {
     }
   }
   // last option - try to find a unique branch name in the daily results
-  const daily = analysis.daily?.all || [];
+  const daily = analysis.daily?.enrollments?.all || [];
   if (daily.length > 0) {
     const branches = new Set(daily.map((point) => point.branch));
     if (branches.size === 1) {
@@ -64,7 +67,10 @@ export const getControlBranchName = (analysis: AnalysisData) => {
 export const getSortedBranchNames = (analysis: AnalysisData) => {
   try {
     const controlBranchName = getControlBranchName(analysis)!;
-    const results = analysis.overall?.all || analysis.weekly?.all || {};
+    const results =
+      analysis.overall?.enrollments?.all ||
+      analysis.weekly?.enrollments?.all ||
+      {};
     return [
       controlBranchName,
       ...Object.keys(results).filter((branch) => branch !== controlBranchName),

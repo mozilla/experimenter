@@ -4,6 +4,7 @@
 
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useState } from "react";
+import { Form } from "react-bootstrap";
 import Collapse from "react-bootstrap/Collapse";
 import Select from "react-select";
 import { useConfig } from "../../hooks";
@@ -16,6 +17,7 @@ import {
   ResultsContextType,
 } from "../../lib/contexts";
 import { GROUP, METRIC_TYPE } from "../../lib/visualization/constants";
+import { AnalysisBases } from "../../lib/visualization/types";
 import {
   analysisUnavailable,
   getSortedBranchNames,
@@ -51,6 +53,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   };
 
   const [selectedSegment, setSelectedSegment] = useState<string>("all");
+
+  const [selectedAnalysisBasis, setSelectedAnalysisBasis] =
+    useState<AnalysisBases>("enrollments");
 
   // For testing - users will be redirected if the analysis is unavailable
   // before reaching this return, but tests reach this return and
@@ -104,7 +109,13 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
   const { external_config: externalConfig } = analysis.metadata || {};
 
-  const allSegments = Object.keys(analysis?.overall || {}).sort();
+  const allAnalysisBases: AnalysisBases[] = Object.keys(
+    analysis?.overall || {},
+  ).sort() as AnalysisBases[];
+  const analysisBasisHelpMarkdown =
+    "Select the **analysis basis** whose results you want to see. See [defining exposure signals](https://experimenter.info/jetstream/configuration/#defining-exposure-signals) in the docs for more info.";
+
+  const allSegments = Object.keys(analysis?.overall?.enrollments || {}).sort();
   const segmentOptions = allSegments.map((segment) => ({
     value: segment,
     label: segment,
@@ -193,6 +204,42 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
         {externalConfig && <ExternalConfigAlert {...{ externalConfig }} />}
 
+        {allAnalysisBases.length > 1 && (
+          <>
+            <span>
+              <b>Analysis Basis</b>:
+              <span className="align-middle">
+                <Info
+                  className="align-baseline"
+                  data-tip
+                  data-for="analysis-basis-help"
+                />
+              </span>
+              <TooltipWithMarkdown
+                tooltipId="analysis-basis-help"
+                markdown={analysisBasisHelpMarkdown}
+              />
+            </span>
+            <span
+              style={{ margin: 8 }}
+              data-testid="analysis-basis-results-selector"
+            >
+              {allAnalysisBases.map((basis) => (
+                <Form.Check
+                  inline
+                  radioGroup="analysis-basis-group"
+                  type="radio"
+                  key={`${basis}_radio_option`}
+                  onChange={() => setSelectedAnalysisBasis(basis)}
+                  label={basis}
+                  checked={basis === selectedAnalysisBasis}
+                  data-testid={`${basis}-radio`}
+                />
+              ))}
+            </span>
+          </>
+        )}
+
         {allSegments.length > 1 && (
           <>
             <h6>
@@ -229,12 +276,15 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
           <b>Hypothesis</b>: {experiment.hypothesis}
         </p>
 
-        {analysis.overall?.[selectedSegment] &&
-          Object.keys(analysis.overall?.[selectedSegment]).length > 0 && (
+        {analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] &&
+          Object.keys(
+            analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] || {},
+          ).length > 0 && (
             <TableWithTabComparison
               {...{ experiment }}
               Table={TableHighlights}
               className="mb-2 border-top-0"
+              analysisBasis={selectedAnalysisBasis}
               segment={selectedSegment}
             />
           )}
@@ -242,20 +292,27 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
 
         <div id="results_summary">
           <h2 className="h4 mb-3">Results Summary</h2>
-          {analysis.overall?.[selectedSegment] &&
-            Object.keys(analysis.overall?.[selectedSegment]).length > 0 && (
+          {analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] &&
+            Object.keys(
+              analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] ||
+                {},
+            ).length > 0 && (
               <TableWithTabComparison
                 {...{ experiment }}
                 Table={TableResults}
                 className="rounded-bottom mb-3 border-top-0"
+                analysisBasis={selectedAnalysisBasis}
                 segment={selectedSegment}
               />
             )}
 
-          {analysis.weekly?.[selectedSegment] &&
-            Object.keys(analysis.weekly?.[selectedSegment]).length > 0 && (
+          {analysis.weekly?.[selectedAnalysisBasis]?.[selectedSegment] &&
+            Object.keys(
+              analysis.weekly?.[selectedAnalysisBasis]?.[selectedSegment] || {},
+            ).length > 0 && (
               <TableWithTabComparison
                 Table={TableResultsWeekly}
+                analysisBasis={selectedAnalysisBasis}
                 segment={selectedSegment}
               />
             )}
@@ -264,17 +321,21 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
         <div>
           <h2 className="h4 mb-3">Outcome Metrics</h2>
           {controlBranchError}
-          {analysis.overall?.[selectedSegment] &&
-          Object.keys(analysis.overall?.[selectedSegment]).length > 0
+          {analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] &&
+          Object.keys(
+            analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] || {},
+          ).length > 0
             ? experiment.primaryOutcomes?.map((slug) => {
                 const outcome = configOutcomes!.find((set) => {
                   return set?.slug === slug;
                 });
                 return outcome?.metrics?.map((metric) => {
                   if (
-                    !analysis!.overall![selectedSegment]?.[
-                      resultsContextValue.controlBranchName
-                    ].branch_data[GROUP.OTHER][metric?.slug!]
+                    !analysis!.overall![selectedAnalysisBasis]?.[
+                      selectedSegment
+                    ]?.[resultsContextValue.controlBranchName].branch_data[
+                      GROUP.OTHER
+                    ][metric?.slug!]
                   ) {
                     // Primary metric does not have data to display. Show error if there is one.
                     if (
@@ -305,6 +366,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                       outcomeDefaultName={metric?.friendlyName!}
                       group={GROUP.OTHER}
                       metricType={METRIC_TYPE.PRIMARY}
+                      analysisBasis={selectedAnalysisBasis}
                       segment={selectedSegment}
                     />
                   );
@@ -314,8 +376,10 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
               analysis?.errors &&
               Object.keys(analysis.errors).length > 1 &&
               getErrorsForOutcomes(experiment.primaryOutcomes, true)}
-          {analysis.overall?.[selectedSegment] &&
-          Object.keys(analysis.overall?.[selectedSegment]).length > 0
+          {analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] &&
+          Object.keys(
+            analysis.overall?.[selectedAnalysisBasis]?.[selectedSegment] || {},
+          ).length > 0
             ? experiment.secondaryOutcomes?.map((slug) => {
                 const outcome = configOutcomes!.find((set) => {
                   return set?.slug === slug;
@@ -328,6 +392,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                     outcomeDefaultName={outcome!.friendlyName!}
                     group={GROUP.OTHER}
                     metricType={METRIC_TYPE.DEFAULT_SECONDARY}
+                    analysisBasis={selectedAnalysisBasis}
                     segment={selectedSegment}
                   />
                 );
@@ -370,9 +435,14 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   </span>
                   <Collapse in={open}>
                     <div>
-                      {analysis.overall?.[selectedSegment] &&
-                        Object.keys(analysis.overall?.[selectedSegment])
-                          .length > 0 &&
+                      {analysis.overall?.[selectedAnalysisBasis]?.[
+                        selectedSegment
+                      ] &&
+                        Object.keys(
+                          analysis.overall?.[selectedAnalysisBasis]?.[
+                            selectedSegment
+                          ] || {},
+                        ).length > 0 &&
                         analysis.other_metrics?.[group] &&
                         Object.keys(analysis.other_metrics[group]).map(
                           (metric: string) => (
@@ -383,6 +453,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                                 analysis.other_metrics![group][metric]
                               }
                               {...{ group }}
+                              analysisBasis={selectedAnalysisBasis}
                               segment={selectedSegment}
                             />
                           ),

@@ -5,34 +5,40 @@
 import { BRANCH_COMPARISON } from "./constants";
 
 export interface AnalysisData {
-  daily: {
-    [segment: string]: AnalysisPoint[] | null;
-    all: AnalysisPoint[] | null;
-  } | null;
-  weekly: {
-    [segment: string]: {
-      [branch: string]: BranchDescription;
-    };
-    all: {
-      [branch: string]: BranchDescription;
-    };
-  } | null;
-  overall: {
-    [segment: string]: {
-      [branch: string]: BranchDescription;
-    };
-    all: {
-      [branch: string]: BranchDescription;
-    };
-  } | null;
+  daily: AnalysisBasisData | null;
+  weekly: AggregatedAnalysisBasisData | null;
+  overall: AggregatedAnalysisBasisData | null;
   show_analysis: boolean;
   errors: AnalysisErrorGroup | null;
   metadata?: Metadata;
   other_metrics?: { [group: string]: { [metric: string]: string } };
 }
 
-export type AnalysisDataOverall = Exclude<AnalysisData["overall"], null>;
-export type AnalysisDataWeekly = Exclude<AnalysisData["weekly"], null>;
+interface AnalysisWindow {
+  [segment: string]: AnalysisPoint[] | null;
+  all: AnalysisPoint[] | null;
+}
+interface AggregatedAnalysisWindow {
+  [segment: string]: {
+    [branch: string]: BranchDescription;
+  };
+  all: {
+    [branch: string]: BranchDescription;
+  };
+}
+
+export type AnalysisBases = keyof AggregatedAnalysisBasisData;
+interface AggregatedAnalysisBasisData {
+  enrollments: AggregatedAnalysisWindow;
+  exposures?: AggregatedAnalysisWindow;
+}
+interface AnalysisBasisData {
+  enrollments: AnalysisWindow;
+  exposures?: AnalysisWindow;
+}
+
+export type AnalysisDataOverall = AggregatedAnalysisWindow;
+export type AnalysisDataWeekly = AggregatedAnalysisWindow;
 
 /**
  * Contains the analysis errors grouped by metric name, with any errors
