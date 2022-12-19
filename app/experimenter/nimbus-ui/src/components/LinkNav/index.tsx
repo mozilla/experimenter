@@ -13,7 +13,6 @@ type LinkNavProps = {
   children: React.ReactNode;
   disabled?: boolean;
   route?: string;
-  storiesOf?: string;
   testid?: string;
   className?: string;
   textColor?: string;
@@ -26,7 +25,6 @@ export const LinkNav = ({
   route,
   children,
   disabled = false,
-  storiesOf = "",
   testid = "nav-home",
   className = "mx-1 my-2",
   textColor,
@@ -57,7 +55,6 @@ export const LinkNav = ({
         <Button
           {...{ title }}
           variant="link"
-          data-sb-kind={storiesOf}
           className={classNames(
             textColor,
             "d-flex font-weight-semibold m-0 p-0 b-0 align-items-center",
@@ -70,7 +67,6 @@ export const LinkNav = ({
       ) : (
         <Link
           {...{ to, title }}
-          data-sb-kind={storiesOf}
           className={classNames(textColor, "d-flex align-items-center")}
           data-testid={testid}
           onClick={onClick}
