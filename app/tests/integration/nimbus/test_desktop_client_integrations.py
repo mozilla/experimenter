@@ -23,6 +23,7 @@ def firefox_options(firefox_options):
     firefox_options.set_preference(
         "datareporting.policy.dataSubmissionPolicyBypassNotification", False
     )
+    firefox_options.set_preference("sticky.targeting.test.pref", True)
     firefox_options.set_preference("toolkit.telemetry.log.level", "Trace")
     firefox_options.set_preference("toolkit.telemetry.log.dump", True)
     firefox_options.set_preference("toolkit.telemetry.send.overrideOfficialCheck", True)
@@ -247,3 +248,108 @@ def test_check_telemetry_pref_flip(
 
     about_config = about_config.open().wait_for_page_to_load()
     about_config.wait_for_pref_flip("nimbus.qa.pref-1", "default")
+
+
+@pytest.mark.nimbus_integration
+@pytest.mark.xdist_group(name="group1")
+def test_check_telemetry_sticky_targeting(
+    base_url,
+    selenium,
+    kinto_client,
+    slugify,
+    experiment_name,
+    create_desktop_experiment,
+    experiment_default_data,
+    check_ping_for_experiment,
+    telemetry_event_check,
+):
+    about_config = AboutConfig(selenium)
+    pref_name = "sticky.targeting.test.pref"
+
+    requests.delete("http://ping-server:5000/pings")
+    targeting = helpers.load_targeting_configs()[-1]
+    experiment_slug = str(slugify(experiment_name))
+    experiment_default_data["targetingConfigSlug"] = targeting
+    experiment_default_data["featureConfigId"] = 1
+    experiment_default_data["referenceBranch"] = {
+        "description": "reference branch",
+        "name": "Branch 1",
+        "ratio": 100,
+        "featureEnabled": True,
+        "featureValue": "{}",
+    }
+    experiment_default_data["treatmentBranches"] = [
+        {
+            "description": "treatment branch",
+            "name": "Branch 2",
+            "ratio": 0,
+            "featureEnabled": False,
+            "featureValue": "",
+        }
+    ]
+    experiment_default_data["isSticky"] = True
+    create_desktop_experiment(
+        experiment_slug,
+        "desktop",
+        targeting,
+        experiment_default_data,
+    )
+
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary.launch_and_approve()
+
+    kinto_client.approve()
+
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary.wait_for_live_status()
+
+    # Ping the server twice as it sleeps sometimes
+    requests.get("http://ping-server:5000/pings")
+    time.sleep(5)
+
+    # Check there was a telemetry event for the enrollment
+    control = False
+    timeout = time.time() + 60 * 5
+    while control is not True:
+        control = telemetry_event_check(experiment_slug, "enroll")
+        if time.time() > timeout:
+            assert False, "Experiment enrollment was never seen in ping Data"
+    # check experiment exists, this means it is enrolled
+    assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
+
+    # flip pref
+    about_config = about_config.open().wait_for_page_to_load()
+    about_config.wait_for_pref_flip(pref_name, "true")
+    about_config.flip_pref(pref_name)
+
+    assert about_config.get_pref_value(pref_name) == "false"
+
+    # check experiment doesn't unenroll after pref flip
+    control = False
+    timeout = time.time() + 60
+    while control is not True and time.time() < timeout:
+        control = telemetry_event_check(experiment_slug, "unenroll")
+        if control:
+            assert False, "Experiment unenrolled when it shouldn't have"
+    assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
+
+    # unenroll
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary.end_and_approve()
+    kinto_client.approve()
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary.wait_for_complete_status()
+
+    requests.get("http://ping-server:5000/pings")
+    time.sleep(5)
+
+    # check for unenroll event after experiment is ended
+    control = False
+    timeout = time.time() + 60 * 5
+    while control is not True:
+        control = telemetry_event_check(experiment_slug, "unenroll")
+        if time.time() > timeout:
+            assert False, "Experiment unenrollment was never seen in ping Data"
+
+    # check pref still matches user change
+    assert about_config.get_pref_value(pref_name) == "false"
