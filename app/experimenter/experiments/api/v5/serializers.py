@@ -852,7 +852,11 @@ class NimbusExperimentSerializer(
         """Validates using `NimbusConstants.VALID_PUBLISH_STATUS_TRANSITIONS`"""
 
         if publish_status == NimbusExperiment.PublishStatus.APPROVED and (
-            self.instance.publish_status != NimbusExperiment.PublishStatus.IDLE
+            self.instance.publish_status
+            not in (
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.PublishStatus.DIRTY,
+            )
             and not self.instance.can_review(self.context["user"])
         ):
             raise serializers.ValidationError(
