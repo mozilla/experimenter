@@ -747,9 +747,39 @@ class TestNimbusExperimentSerializer(TestCase):
             [NimbusExperiment.PublishStatus.REVIEW],
         ]
     )
-    def test_update_publish_status_doesnt_invoke_push_task(self, publish_status):
+    def test_update_experiment_publish_status_doesnt_invoke_push_task(
+        self, publish_status
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=False,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": publish_status,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+        self.assertEqual(experiment.publish_status, publish_status)
+        self.mock_preview_task.apply_async.assert_not_called()
+
+    @parameterized.expand(
+        [
+            [NimbusExperiment.PublishStatus.IDLE],
+            [NimbusExperiment.PublishStatus.DIRTY],
+            [NimbusExperiment.PublishStatus.REVIEW],
+        ]
+    )
+    def test_update_rollout_publish_status_doesnt_invoke_push_task(self, publish_status):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
         )
 
         serializer = NimbusExperimentSerializer(
@@ -941,6 +971,65 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
 
+    def test_rollout_can_request_review_from_live(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_rollout=True,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.LIVE,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
+    def test_rollout_can_request_review_from_live_dirty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+            is_rollout=True,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.LIVE,
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
+    def test_allow_live_rollout_to_be_dirty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_rollout=True,
+        )
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "status": NimbusExperiment.Status.LIVE,
+                "publish_status": NimbusExperiment.PublishStatus.DIRTY,
+                "status_next": NimbusExperiment.Status.LIVE,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
     def test_can_review_for_non_requesting_user(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
@@ -983,9 +1072,46 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertFalse(serializer.is_valid(), serializer.errors)
         self.assertIn("publish_status", serializer.errors)
 
-    def test_can_review_for_requesting_user_when_idle(self):
+    def test_cant_review_for_requesting_user_dirty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": experiment.owner},
+        )
+
+        self.assertFalse(serializer.is_valid(), serializer.errors)
+        self.assertIn("publish_status", serializer.errors)
+
+    @parameterized.expand([[True], [False]])
+    def test_can_review_for_requesting_user_when_idle(self, is_rollout):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=is_rollout,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": experiment.owner},
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+    @parameterized.expand([[True], [False]])
+    def test_can_review_for_requesting_user_when_dirty(self, is_rollout):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+            is_rollout=is_rollout,
         )
 
         serializer = NimbusExperimentSerializer(
