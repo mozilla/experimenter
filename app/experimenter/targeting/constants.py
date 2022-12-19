@@ -25,6 +25,7 @@ class NimbusTargetingConfig:
 HAS_PIN = "!doesAppNeedPin"
 NEED_DEFAULT = "!isDefaultBrowser"
 PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
+PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 < 28"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
 WIN1903 = "os.windowsBuildNumber >= 18362"
 
@@ -464,8 +465,8 @@ INFREQUENT_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
 NEW_USERS_WITH_INFREQUENT_USE = NimbusTargetingConfig(
     name="New users with infrequent use",
     slug="new_users_with_infrequent_use",
-    description="0 - 6 days activity in past 28 days and profile age <= 28 days",
-    targeting=(f"{PROFILE28DAYS} " "&& userMonthlyActivity|length <= 6"),
+    description="0 - 6 days activity in past 28 days and profile age < 28 days",
+    targeting=(f"{PROFILELESSTHAN28DAYS} " "&& userMonthlyActivity|length <= 6"),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
