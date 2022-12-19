@@ -831,7 +831,7 @@ TEST_STICKY_TARGETING = NimbusTargetingConfig(
     description="Config for sticky targeting",
     targeting="'sticky.targeting.test.pref'|preferenceValue",
     desktop_telemetry="",
-    sticky_required=False,
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=[a.name for a in Application],
 )
