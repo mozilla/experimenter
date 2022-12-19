@@ -614,13 +614,14 @@ class NimbusStatusValidationMixin:
                 is_locked = current_status not in restrictive_statuses
                 modifying_fields = set(data.keys()) - exempt_fields
                 is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
+
                 if is_locked and is_modifying_locked_fields:
                     raise serializers.ValidationError(
                         {
                             "experiment": [
                                 f"Nimbus Experiment has {status_field} "
                                 f"'{current_status}', only "
-                                f"{NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS} "
+                                f"{update_exempt_fields} "
                                 f"can be changed, not: {modifying_fields}"
                             ]
                         }
