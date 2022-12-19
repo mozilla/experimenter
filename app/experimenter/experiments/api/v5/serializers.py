@@ -587,22 +587,34 @@ class NimbusStatusValidationMixin:
             "status": NimbusConstants.STATUS_ALLOWS_UPDATE,
             "publish_status": NimbusConstants.PUBLISH_STATUS_ALLOWS_UPDATE,
         }
+        update_exempt_fields = NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS
 
         if self.instance:
             for status_field, restricted_statuses in restrictive_statuses.items():
                 current_status = getattr(self.instance, status_field)
-                is_locked = current_status not in restricted_statuses
-                modifying_fields = set(data.keys()) - set(
-                    NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS
+
+                restricted_stats = restricted_statuses["all"] + (
+                    (restricted_statuses["rollouts"])
+                    if self.instance.is_rollout
+                    else restricted_statuses["experiments"]
                 )
+                exempt_fields = update_exempt_fields["all"] + (
+                    (update_exempt_fields["rollouts"])
+                    if self.instance.is_rollout
+                    else update_exempt_fields["experiments"]
+                )
+
+                is_locked = current_status not in restricted_stats
+                modifying_fields = set(data.keys()) - set(exempt_fields)
                 is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
+
                 if is_locked and is_modifying_locked_fields:
                     raise serializers.ValidationError(
                         {
                             "experiment": [
                                 f"Nimbus Experiment has {status_field} "
                                 f"'{current_status}', only "
-                                f"{NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS} "
+                                f"{update_exempt_fields} "
                                 f"can be changed, not: {modifying_fields}"
                             ]
                         }

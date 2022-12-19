@@ -211,7 +211,7 @@ class NimbusConstants(object):
         ],
         "experiments": [],
         "rollouts": [
-            Status.LIVE
+            Status.LIVE,
         ],
     }
 
