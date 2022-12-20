@@ -198,7 +198,7 @@ export const AppLayoutSidebarLaunched = ({
                     key={`sidebar-${page.name}-${idx}`}
                     route={`${slug}/${page.slug}`}
                     testid={`nav-edit-${page.slug}`}
-                    // disabled={!experiment.canEdit}
+                    disabled={!experiment.isRollout}
                   >
                     {page.icon}
                     {page.name}
