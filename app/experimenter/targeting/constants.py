@@ -26,6 +26,7 @@ HAS_PIN = "!doesAppNeedPin"
 NEED_DEFAULT = "!isDefaultBrowser"
 PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
 PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 < 28"
+PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
 WIN1903 = "os.windowsBuildNumber >= 18362"
 
@@ -462,11 +463,30 @@ INFREQUENT_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NEW_USERS_WITH_INFREQUENT_USE = NimbusTargetingConfig(
-    name="New users with infrequent use",
-    slug="new_users_with_infrequent_use",
-    description="0 - 6 days activity in past 28 days and profile age < 28 days",
-    targeting=(f"{PROFILELESSTHAN28DAYS} " "&& userMonthlyActivity|length <= 6"),
+NEW_USER_WITH_INFREQUENT_USE = NimbusTargetingConfig(
+    name="New user with infrequent use",
+    slug="new_user_with_infrequent_use",
+    description="0 - 6 days activity in past 28 & profile age 8-27 days",
+    targeting=(
+        f"{PROFILELESSTHAN28DAYS} "
+        f"&& {PROFILEMORETHAN7DAYS} "
+        "&& userMonthlyActivity|length <= 6"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NEW_WITH_INFREQUENT_USE_FIVE_BOOKMARKS = NimbusTargetingConfig(
+    name="New user with infrequent use",
+    slug="new_with_infrequnt_use_5_bookmarks",
+    description="0-6 days act. in past 28, 5 bookmarks, profile 8-27 days, Mac or Win10+",
+    targeting=(
+        f"{NEW_USER_WITH_INFREQUENT_USE.targeting} "
+        "&& ((os.isWindows && os.windowsVersion >= 10) "
+        "|| os.isMac)"
+    ),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
