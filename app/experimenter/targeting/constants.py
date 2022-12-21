@@ -479,8 +479,8 @@ NEW_USER_WITH_INFREQUENT_USE = NimbusTargetingConfig(
 )
 
 NEW_WITH_INFREQUENT_USE_FIVE_BOOKMARKS = NimbusTargetingConfig(
-    name="New user with infrequent use",
-    slug="new_with_infrequnt_use_5_bookmarks",
+    name="New user, infrequent use, 5 bookmarks",
+    slug="new_with_infrequent_use_5_bookmarks",
     description="0-6 days act. in past 28, 5 bookmarks, profile 8-27 days, Mac or Win10+",
     targeting=(
         f"{NEW_USER_WITH_INFREQUENT_USE.targeting} "
