@@ -80,7 +80,6 @@ def test_check_mobile_targeting(
             "isFirstRun": "true",
         }
     )
-    print(custom_targeting_attributes)
     client = sdk_client(load_app_context(context))
     targeting_helper = client.create_targeting_helper(
         additional_context=custom_targeting_attributes
