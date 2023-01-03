@@ -34,7 +34,7 @@
     "bootstrap": "4.6.0",
     "bootstrap-select": "1.13.18",
     "fontsource-fira-sans": "4.0.0",
-    "immutable": "4.1.0",
+    "immutable": "4.2.1",
     "jquery": "3.6.0",
     "popper.js": "1.16.1",
     "prettier": "2.8.0",
