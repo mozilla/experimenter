@@ -380,7 +380,7 @@ jobs:
       docker_layer_caching: true
     steps:
       - checkout
-      - run:
+      - run: |
           docker build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f app/tests/integration/nimbus/utils/Dockerfile-rust-image .
           docker login -u $DOCKER_USER -p $DOCKER_PASS
           docker push ${DOCKERHUB_REPO}:nimbus-rust-image
