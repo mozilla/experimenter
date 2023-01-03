@@ -492,3 +492,9 @@ workflows:
               only: main
           requires:
             - check
+    # TEMP step to get the image built
+      - build_rust_image:
+          filters:
+            branches:
+              ignore:
+                - main
