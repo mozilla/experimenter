@@ -29,6 +29,8 @@ PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 
 PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
 WIN1903 = "os.windowsBuildNumber >= 18362"
+CORE_ACTIVE_USERS_TARGETING = "'{event}'|eventCountNonZero('Days', 28, 0) >= 21"
+RECENTLY_LOGGED_IN_USERS_TARGETING = "'{event}'|eventCountNonZero('Weeks', 12, 0) >= 1"
 
 NO_TARGETING = NimbusTargetingConfig(
     name="No Targeting",
@@ -866,6 +868,52 @@ TEST_STICKY_TARGETING = NimbusTargetingConfig(
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=[a.name for a in Application],
+)
+
+ANDROID_CORE_ACTIVE_USER = NimbusTargetingConfig(
+    name="Core Active Users",
+    slug="android_core_active_users",
+    description="Users who have been active at least 21 out of the last 28 days",
+    targeting=CORE_ACTIVE_USERS_TARGETING.format(event="events.app_opened"),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name, Application.FOCUS_ANDROID.name),
+)
+
+IOS_CORE_ACTIVE_USER = NimbusTargetingConfig(
+    name="Core Active Users",
+    slug="ios_core_active_users",
+    description="Users who have been active at least 21 out of the last 28 days",
+    targeting=CORE_ACTIVE_USERS_TARGETING.format(event="app_cycle.foreground"),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
+)
+
+ANDROID_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
+    name="Recently Logged In Users",
+    slug="android_recently_logged_in_users",
+    description="Users who have completed a Sync login within the last 12 weeks",
+    targeting=RECENTLY_LOGGED_IN_USERS_TARGETING.format(event="sync_auth.sign_in"),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name, Application.FOCUS_ANDROID.name),
+)
+
+IOS_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
+    name="Recently Logged In Users",
+    slug="ios_recently_logged_in_users",
+    description="Users who have completed a Sync login within the last 12 weeks",
+    targeting=RECENTLY_LOGGED_IN_USERS_TARGETING.format(
+        event="sync.login_completed_view"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
 )
 
 
