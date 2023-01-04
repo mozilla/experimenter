@@ -26,7 +26,7 @@ const LinkNavSummary = ({
   }, [status, canReview]);
 
   return (
-    <LinkNav route={slug} storiesOf={"pages/Summary"} testid={"nav-summary"}>
+    <LinkNav route={slug} testid={"nav-summary"}>
       <Airplane className="sidebar-icon align-self-start mt-1" />
       {summaryAction && showSummaryAction ? (
         <span>
