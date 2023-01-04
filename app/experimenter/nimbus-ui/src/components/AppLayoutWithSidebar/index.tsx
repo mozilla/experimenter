@@ -82,7 +82,6 @@ export const AppLayoutWithSidebar = ({
           <nav data-testid="nav-sidebar" className="navbar">
             <Nav className="flex-column font-weight-semibold w-100" as="ul">
               <LinkNav
-                storiesOf="pages/Home"
                 className="mb-3 small font-weight-bold"
                 textColor="text-secondary"
               >
@@ -115,7 +114,6 @@ export const AppLayoutWithSidebar = ({
                 <LinkNav
                   key={`sidebar-${page.name}-${idx}`}
                   route={`${slug}/edit/${page.slug}`}
-                  storiesOf={`pages/Edit${page.name}`}
                   testid={`nav-edit-${page.slug}`}
                   title={
                     experiment.canEdit
