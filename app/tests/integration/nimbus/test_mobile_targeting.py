@@ -34,7 +34,7 @@ def load_app_context():
             debug_tag=base_app_context.debug_tag,
             installation_date=base_app_context.installation_date,
             home_directory=base_app_context.home_directory,
-            custom_targeting_attributes=base_app_context.custom_targeting_attributes,
+            custom_targeting_attributes=None,
         )
 
     return _load_app_context_helper

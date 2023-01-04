@@ -22,4 +22,3 @@ class BaseAppContextDataClass:
     debug_tag: Optional[str]
     installation_date: Optional[int]
     home_directory: Optional[bool]
-    custom_targeting_attributes: Optional[dict]
