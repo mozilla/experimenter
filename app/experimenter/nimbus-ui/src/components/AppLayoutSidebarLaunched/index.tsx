@@ -27,7 +27,6 @@ export const RESULTS_WAITING_FOR_LAUNCH_TEXT =
   "Waiting for experiment to launch";
 
 const analysisLinkProps = {
-  storiesOf: "pages/Results",
   textColor: "inherit-color",
   className: "mx-1 mb-2 ml-3",
 };
@@ -112,7 +111,6 @@ export const AppLayoutSidebarLaunched = ({
         <LinkNav
           key={metrics[sidebarKey]}
           route={`${slug}/results#${sidebarKey}`}
-          storiesOf="pages/Results"
           textColor="inherit-color"
           className="font-weight-normal ml-4 mb-2"
         >
@@ -131,11 +129,7 @@ export const AppLayoutSidebarLaunched = ({
 
   const ResultsAvailableNav = () => (
     <>
-      <LinkNav
-        route={`${slug}/results`}
-        storiesOf="pages/Results"
-        testid="nav-results"
-      >
+      <LinkNav route={`${slug}/results`} testid="nav-results">
         <BarChart className="sidebar-icon" />
         Results
       </LinkNav>
@@ -177,7 +171,6 @@ export const AppLayoutSidebarLaunched = ({
               as="ul"
             >
               <LinkNav
-                storiesOf="pages/Home"
                 className="mb-3 small font-weight-bold"
                 textColor="text-secondary"
               >
