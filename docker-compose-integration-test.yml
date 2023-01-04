@@ -22,7 +22,7 @@ services:
     shm_size: 2g
     working_dir: /code
   rust-sdk:
-    image: b4handjr/nimbus-rust-image:latest
+    image: mozilla/experimenter:nimbus-rust-image
     env_file: .env
     environment:
       - PYTHONPATH

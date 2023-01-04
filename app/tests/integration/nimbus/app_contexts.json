@@ -29,8 +29,7 @@
             "android_sdk_version": "29",
             "debug_tag": null,
             "installation_date": 1641967200,
-            "home_directory": null,
-            "custom_targeting_attributes": {}
+            "home_directory": null
           }
         },
         {
@@ -50,8 +49,7 @@
             "android_sdk_version": "26",
             "debug_tag": null,
             "installation_date": 1597939200,
-            "home_directory": null,
-            "custom_targeting_attributes": {}
+            "home_directory": null
           }
         },
         {
@@ -71,8 +69,7 @@
             "android_sdk_version": "28",
             "debug_tag": null,
             "installation_date": 1650405600,
-            "home_directory": null,
-            "custom_targeting_attributes": {}
+            "home_directory": null
           }
         },
         {
@@ -92,8 +89,7 @@
             "android_sdk_version": "31",
             "debug_tag": null,
             "installation_date": 1651602600,
-            "home_directory": null,
-            "custom_targeting_attributes": {}
+            "home_directory": null
           }
         },
         {
@@ -113,8 +109,7 @@
             "android_sdk_version": "31",
             "debug_tag": null,
             "installation_date": 1612674000,
-            "home_directory": null,
-            "custom_targeting_attributes": {}
+            "home_directory": null
           }
         }
       ],
