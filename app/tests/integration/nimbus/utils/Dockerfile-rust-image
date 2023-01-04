@@ -1,5 +1,7 @@
 FROM rust:buster AS builder
 
+ARG as_version
+
 ENV SQLCIPHER_LIB_DIR=/application-services/libs/desktop/linux-x86-64/sqlcipher/lib
 ENV SQLCIPHER_INCLUDE_DIR=/application-services/libs/desktop/linux-x86-64/sqlcipher/include
 ENV NSS_DIR=/application-services/libs/desktop/linux-x86-64/nss
@@ -18,21 +20,25 @@ RUN apt-get update -qqy \
     python3-venv
 
 RUN git clone https://github.com/mozilla/application-services.git
+RUN if [[ -z "${as_version}" ]] ; then \
+    echo "No application-services version supplied, using lastest commit." \
+  ; else \
+    cd application-services && git checkout $as_version \
+  ; fi
 
-RUN cd application-services \
-  && git submodule init \
-  && git submodule update --recursive \
-  && ./libs/verify-desktop-environment.sh
+WORKDIR /application-services
 
-RUN cd application-services \
-  && cargo build
+RUN git submodule init
+RUN git submodule update --recursive
+RUN ./libs/verify-desktop-environment.sh
 
-RUN cd application-services \
-  && cargo build --manifest-path megazords/full/Cargo.toml --release \
-  && cargo uniffi-bindgen generate components/nimbus/src/nimbus.udl --language python
+RUN cargo build
 
-RUN mv application-services/components/nimbus/src/nimbus.py application-services/components/nimbus/src/nimbus_rust.py
-RUN mv application-services/target/release/libmegazord.so application-services/components/nimbus/src/libuniffi_nimbus.so
+RUN cargo build --manifest-path megazords/full/Cargo.toml --release
+RUN cargo uniffi-bindgen generate components/nimbus/src/nimbus.udl --language python
+
+RUN mv components/nimbus/src/nimbus.py components/nimbus/src/nimbus_rust.py
+RUN mv target/release/libmegazord.so components/nimbus/src/libuniffi_nimbus.so
 
 FROM python:3.11-buster
 
