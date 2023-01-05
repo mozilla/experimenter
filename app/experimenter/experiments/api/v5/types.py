@@ -419,6 +419,7 @@ class NimbusExperimentType(DjangoObjectType):
     conclusion_recommendation = graphene.Field(
         NimbusExperimentConclusionRecommendationEnum
     )
+    hypothesis = graphene.String()
 
     class Meta:
         model = NimbusExperiment
@@ -526,3 +527,6 @@ class NimbusExperimentType(DjangoObjectType):
             indent=2,
             sort_keys=True,
         )
+
+    def resolve_hypothesis(self, info):
+        return self.hypothesis
