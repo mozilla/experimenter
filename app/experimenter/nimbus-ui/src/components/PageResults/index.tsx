@@ -83,7 +83,14 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
         return false;
       }
 
-      return true;
+      const errorsForState = analysis.errors![key].filter(
+        (error) =>
+          (error.analysis_basis === selectedAnalysisBasis ||
+            error.analysis_basis === null) &&
+          (error.segment === selectedSegment || error.segment === null),
+      );
+
+      return errorsForState.length > 0;
     },
   );
 
@@ -102,6 +109,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             timestamp: null,
             experiment: null,
             exception_type: null,
+            analysis_basis: null,
+            segment: null,
           },
         ]}
       />
@@ -159,9 +168,19 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                     {metricHeader}
                     <AnalysisErrorAlert
                       errors={analysis.errors![metric.slug].filter(
+                        // de-dupe with findIndex and filter to selected analysis_basis + segment
                         (error, idx, self) =>
                           idx ===
-                          self.findIndex((e) => e.message === error.message),
+                            self.findIndex(
+                              (e) =>
+                                e.message === error.message &&
+                                e.segment === error.segment &&
+                                e.analysis_basis === error.analysis_basis,
+                            ) &&
+                          (error.analysis_basis === selectedAnalysisBasis ||
+                            error.analysis_basis === null) &&
+                          (error.segment === selectedSegment ||
+                            error.segment === null),
                       )}
                     />
                   </>
@@ -467,11 +486,23 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             <>
               <h3 className="h5 mb-3">
                 <i>Other Metric Errors</i>
+                {JSON.stringify(otherMetricErrors, null, 2)}
               </h3>
               {otherMetricErrors.map((errorMetric) => {
                 const errorsForMetric = analysis.errors?.[errorMetric].filter(
+                  // de-dupe with findIndex and filter to selected analysis_basis + segment
                   (error, idx, self) =>
-                    idx === self.findIndex((e) => e.message === error.message),
+                    idx ===
+                      self.findIndex(
+                        (e) =>
+                          e.message === error.message &&
+                          e.segment === error.segment &&
+                          e.analysis_basis === error.analysis_basis,
+                      ) &&
+                    (error.analysis_basis === selectedAnalysisBasis ||
+                      error.analysis_basis === null) &&
+                    (error.segment === selectedSegment ||
+                      error.segment === null),
                 );
                 return (
                   <>

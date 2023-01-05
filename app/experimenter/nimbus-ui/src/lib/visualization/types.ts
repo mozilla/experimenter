@@ -59,6 +59,8 @@ export interface AnalysisError {
   timestamp: string | null;
   experiment: string | null;
   exception_type: string | null;
+  analysis_basis: string | null;
+  segment: string | null;
 }
 
 export interface Metadata {
