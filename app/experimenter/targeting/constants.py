@@ -25,8 +25,12 @@ class NimbusTargetingConfig:
 HAS_PIN = "!doesAppNeedPin"
 NEED_DEFAULT = "!isDefaultBrowser"
 PROFILE28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 >= 28"
+PROFILELESSTHAN28DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 < 28"
+PROFILEMORETHAN7DAYS = "(currentDate|date - profileAgeCreated|date) / 86400000 > 7"
 NEW_PROFILE = "(currentDate|date - profileAgeCreated|date) / 3600000 <= 24"
 WIN1903 = "os.windowsBuildNumber >= 18362"
+CORE_ACTIVE_USERS_TARGETING = "'{event}'|eventCountNonZero('Days', 28, 0) >= 21"
+RECENTLY_LOGGED_IN_USERS_TARGETING = "'{event}'|eventCountNonZero('Weeks', 12, 0) >= 1"
 
 NO_TARGETING = NimbusTargetingConfig(
     name="No Targeting",
@@ -461,6 +465,36 @@ INFREQUENT_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NEW_USER_WITH_INFREQUENT_USE = NimbusTargetingConfig(
+    name="New user with infrequent use",
+    slug="new_user_with_infrequent_use",
+    description="0 - 6 days activity in past 28 & profile age 8-27 days",
+    targeting=(
+        f"{PROFILELESSTHAN28DAYS} "
+        f"&& {PROFILEMORETHAN7DAYS} "
+        "&& userMonthlyActivity|length <= 6"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NEW_WITH_INFREQUENT_USE_FIVE_BOOKMARKS = NimbusTargetingConfig(
+    name="New user, infrequent use, 5 bookmarks",
+    slug="new_with_infrequent_use_5_bookmarks",
+    description="0-6 days act. in past 28, 5 bookmarks, profile 8-27 days, Mac or Win10+",
+    targeting=(
+        f"{NEW_USER_WITH_INFREQUENT_USE.targeting} "
+        "&& ((os.isWindows && os.windowsVersion >= 10) "
+        "|| os.isMac)"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 CASUAL_USER_URIS = NimbusTargetingConfig(
     name="Casual user (uris)",
     slug="casual_user_uris",
@@ -802,7 +836,7 @@ EXISTING_WINDOWS_USER = NimbusTargetingConfig(
     name="Existing Windows 7+ user",
     slug="existing_windows_user",
     description="Users on Windows 7+ with profiles older than 28 days",
-    targeting=f"{PROFILE28DAYS} && os.isWindows && os.windowsVersion >= 7",
+    targeting=f"{PROFILE28DAYS} && os.isWindows && os.windowsVersion >= 6.1",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
@@ -816,13 +850,70 @@ EXISTING_WINDOWS_USER_NO_FX_ACCOUNT = NimbusTargetingConfig(
     targeting=(
         f"{PROFILE28DAYS} "
         "&& os.isWindows "
-        "&& os.windowsVersion >= 7"
+        "&& os.windowsVersion >= 6.1"
         "&& !('services.sync.username'|preferenceIsUserSet)"
     ),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
+)
+
+TEST_STICKY_TARGETING = NimbusTargetingConfig(
+    name="Test targeting",
+    slug="test_targeting",
+    description="Config for sticky targeting",
+    targeting="'sticky.targeting.test.pref'|preferenceValue",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=[a.name for a in Application],
+)
+
+ANDROID_CORE_ACTIVE_USER = NimbusTargetingConfig(
+    name="Core Active Users",
+    slug="android_core_active_users",
+    description="Users who have been active at least 21 out of the last 28 days",
+    targeting=CORE_ACTIVE_USERS_TARGETING.format(event="events.app_opened"),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name, Application.FOCUS_ANDROID.name),
+)
+
+IOS_CORE_ACTIVE_USER = NimbusTargetingConfig(
+    name="Core Active Users",
+    slug="ios_core_active_users",
+    description="Users who have been active at least 21 out of the last 28 days",
+    targeting=CORE_ACTIVE_USERS_TARGETING.format(event="app_cycle.foreground"),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
+)
+
+ANDROID_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
+    name="Recently Logged In Users",
+    slug="android_recently_logged_in_users",
+    description="Users who have completed a Sync login within the last 12 weeks",
+    targeting=RECENTLY_LOGGED_IN_USERS_TARGETING.format(event="sync_auth.sign_in"),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.FENIX.name, Application.FOCUS_ANDROID.name),
+)
+
+IOS_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
+    name="Recently Logged In Users",
+    slug="ios_recently_logged_in_users",
+    description="Users who have completed a Sync login within the last 12 weeks",
+    targeting=RECENTLY_LOGGED_IN_USERS_TARGETING.format(
+        event="sync.login_completed_view"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
 )
 
 

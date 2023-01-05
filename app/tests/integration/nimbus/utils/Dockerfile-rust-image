@@ -1,0 +1,51 @@
+FROM rust:buster AS builder
+
+ARG as_version
+
+ENV SQLCIPHER_LIB_DIR=/application-services/libs/desktop/linux-x86-64/sqlcipher/lib
+ENV SQLCIPHER_INCLUDE_DIR=/application-services/libs/desktop/linux-x86-64/sqlcipher/include
+ENV NSS_DIR=/application-services/libs/desktop/linux-x86-64/nss
+ENV NSS_STATIC=1
+
+RUN rustup target add x86_64-unknown-linux-musl
+RUN apt update && apt install -y musl-tools musl-dev
+RUN update-ca-certificates
+
+RUN apt-get update -qqy \
+  && apt-get -qqy install \
+    gyp \
+    ninja-build \
+    zlib1g-dev \
+    tclsh \
+    python3-venv
+
+RUN git clone https://github.com/mozilla/application-services.git
+RUN if [[ -z "${as_version}" ]] ; then \
+    echo "No application-services version supplied, using lastest commit." \
+  ; else \
+    cd application-services && git checkout $as_version \
+  ; fi
+
+WORKDIR /application-services
+
+RUN git submodule init
+RUN git submodule update --recursive
+RUN ./libs/verify-desktop-environment.sh
+
+RUN cargo build
+
+RUN cargo build --manifest-path megazords/full/Cargo.toml --release
+RUN cargo uniffi-bindgen generate components/nimbus/src/nimbus.udl --language python
+
+RUN mv components/nimbus/src/nimbus.py components/nimbus/src/nimbus_rust.py
+RUN mv target/release/libmegazord.so components/nimbus/src/libuniffi_nimbus.so
+
+FROM python:3.11-buster
+
+COPY --from=builder /application-services /application-services
+
+RUN apt-get update -qqy \
+  && apt-get -qqy install \
+    tox
+
+WORKDIR /code

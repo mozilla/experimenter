@@ -43,7 +43,9 @@ describe("getSortedBranchNames", () => {
 
   it("returns a list of branch names with many branches, the control branch first", () => {
     expect(
-      getSortedBranchNames(mockAnalysis({ overall: { all: MOCK_OVERALL } })),
+      getSortedBranchNames(
+        mockAnalysis({ overall: { enrollments: { all: MOCK_OVERALL } } }),
+      ),
     ).toEqual(["fum", "fee", "fi", "fo", "englishman"]);
   });
 
@@ -51,7 +53,7 @@ describe("getSortedBranchNames", () => {
     expect(
       getSortedBranchNames(
         mockAnalysis({
-          overall: { all: MOCK_OVERALL },
+          overall: { enrollments: { all: MOCK_OVERALL } },
           metadata: { external_config: { reference_branch: "englishman" } },
         }),
       ),
@@ -62,17 +64,19 @@ describe("getSortedBranchNames", () => {
 describe("getControlBranchName", () => {
   const MOCK_ANALYSIS_DAILY = {
     daily: {
-      all: [
-        {
-          point: 1,
-          branch: "test",
-          metric: "test_metric",
-          statistic: "count",
-        },
-      ],
+      enrollments: {
+        all: [
+          {
+            point: 1,
+            branch: "test",
+            metric: "test_metric",
+            statistic: "count",
+          },
+        ],
+      },
     },
-    weekly: { all: {} },
-    overall: { all: {} },
+    weekly: { enrollments: { all: {} } },
+    overall: { enrollments: { all: {} } },
     show_analysis: true,
     errors: { experiment: [] },
   };
@@ -86,20 +90,22 @@ describe("getControlBranchName", () => {
       getControlBranchName({
         ...MOCK_ANALYSIS_DAILY,
         daily: {
-          all: [
-            {
-              point: 1,
-              branch: "test",
-              metric: "test_metric",
-              statistic: "count",
-            },
-            {
-              point: 11,
-              branch: "not-test",
-              metric: "test_metric",
-              statistic: "binomial",
-            },
-          ],
+          enrollments: {
+            all: [
+              {
+                point: 1,
+                branch: "test",
+                metric: "test_metric",
+                statistic: "count",
+              },
+              {
+                point: 11,
+                branch: "not-test",
+                metric: "test_metric",
+                statistic: "binomial",
+              },
+            ],
+          },
         },
       }),
     ).toThrow("no branch name");
@@ -107,7 +113,10 @@ describe("getControlBranchName", () => {
 
   it("throws an error if it cannot find a branch in the results", () => {
     expect(() =>
-      getControlBranchName({ ...MOCK_ANALYSIS_DAILY, daily: { all: [] } }),
+      getControlBranchName({
+        ...MOCK_ANALYSIS_DAILY,
+        daily: { enrollments: { all: [] } },
+      }),
     ).toThrow("no branch name");
   });
 });

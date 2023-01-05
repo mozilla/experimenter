@@ -33,6 +33,11 @@ class Segment:
     ALL = "all"
 
 
+class AnalysisBasis:
+    ENROLLMENTS = "enrollments"
+    EXPOSURES = "exposures"
+
+
 # TODO: Consider a "guardrail_metrics" group containing "days_of_use",
 # "retained", and "search_count".
 class Group:
@@ -75,6 +80,7 @@ class JetstreamDataPoint(BaseModel):
     window_index: str = None
     comparison: str = None
     segment: str = Segment.ALL
+    analysis_basis: str = AnalysisBasis.ENROLLMENTS
 
 
 class JetstreamData(BaseModel):
