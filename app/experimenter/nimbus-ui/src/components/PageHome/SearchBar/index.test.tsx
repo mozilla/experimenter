@@ -22,7 +22,7 @@ describe("SearchBar", () => {
       screen.queryByTestId("ClearSearchExperiments"),
     ).not.toBeInTheDocument();
 
-    // oncce user type something, clear icon will be visible
+    // once user type something, clear icon will be visible
     userEvent.type(searchInput, "other");
     await waitFor(() => {
       expect(searchInput).toHaveValue("other");
