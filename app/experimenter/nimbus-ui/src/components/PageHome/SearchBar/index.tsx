@@ -45,22 +45,22 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
   };
   const myIndex = Fuse.createIndex(options.keys, experiments);
   const fuse = new Fuse(experiments, options, myIndex);
-  const [value, setValue] = React.useState("");
+  const [searchTerms, setSearchTerms] = React.useState("");
   const [clearIcon, setClearIcon] = React.useState(false);
   const handleClick = () => {
-    setValue("");
+    setSearchTerms("");
     setClearIcon(false);
     onChange(experiments);
   };
   const handleChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
-    setValue(event.target.value);
+    setSearchTerms(event.target.value);
     if (event.target.value) {
       setClearIcon(true);
-      const result = fuse.search(value);
+      const results = fuse.search(searchTerms);
 
-      const searchResults = result.map((character) => character.item);
+      const searchResults = results.map((character) => character.item);
       onChange(searchResults);
     } else {
       setClearIcon(false);
@@ -84,7 +84,7 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
         aria-label="Default"
         aria-describedby="inputGroup-sizing-default"
         onChange={handleChange}
-        value={value}
+        value={searchTerms}
         type="text"
         data-testid="SearchExperiments"
         placeholder="Search"

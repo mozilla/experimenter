@@ -527,6 +527,3 @@ class NimbusExperimentType(DjangoObjectType):
             indent=2,
             sort_keys=True,
         )
-
-    def resolve_hypothesis(self, info):
-        return self.hypothesis
