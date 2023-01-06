@@ -48,6 +48,7 @@ class NimbusExperimentManager(models.Manager):
                 "branches__feature_values",
                 "branches__feature_values__feature_config",
                 "feature_configs",
+                "projects",
             )
         )
 
