@@ -540,7 +540,9 @@ class TestFetchJetstreamDataTask(TestCase):
                             "message": "test-experiment-slug -> error",
                             "metric": null,
                             "statistic": null,
-                            "timestamp": "2022-08-31T04:32:03+00:00"
+                            "timestamp": "2022-08-31T04:32:03+00:00",
+                            "analysis_basis": "enrollments",
+                            "segment": "all"
                         },
                         {
                             "exception": "(<class 'StatisticComputationException'>)",
@@ -552,7 +554,9 @@ class TestFetchJetstreamDataTask(TestCase):
                             "message": "Error while computing statistic bootstrap_mean",
                             "metric": "default_browser_action",
                             "statistic": "bootstrap_mean",
-                            "timestamp": "2022-08-31T04:32:03+00:00"
+                            "timestamp": "2022-08-31T04:32:03+00:00",
+                            "analysis_basis": "enrollments",
+                            "segment": "all"
                         },
                         {
                             "exception": "(<class 'StatisticComputationException'>)",
@@ -564,7 +568,9 @@ class TestFetchJetstreamDataTask(TestCase):
                             "message": "Error while computing statistic binomial",
                             "metric": "spoc_tiles_disable_rate",
                             "statistic": "binomial",
-                            "timestamp": "2022-08-31T04:32:03+00:00"
+                            "timestamp": "2022-08-31T04:32:03+00:00",
+                            "analysis_basis": "enrollments",
+                            "segment": "all"
                         }
                     ]"""
                 return json.dumps(
