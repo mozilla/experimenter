@@ -497,6 +497,8 @@ class JetstreamTestData:
                     "metric": None,
                     "statistic": None,
                     "timestamp": "2022-08-31T04:32:03+00:00",
+                    "analysis_basis": "enrollments",
+                    "segment": "all",
                 }
             ],
             "default_browser_action": [
@@ -511,6 +513,8 @@ class JetstreamTestData:
                     "metric": "default_browser_action",
                     "statistic": "bootstrap_mean",
                     "timestamp": "2022-08-31T04:32:03+00:00",
+                    "analysis_basis": "enrollments",
+                    "segment": "all",
                 }
             ],
             "spoc_tiles_disable_rate": [
@@ -525,6 +529,8 @@ class JetstreamTestData:
                     "metric": "spoc_tiles_disable_rate",
                     "statistic": "binomial",
                     "timestamp": "2022-08-31T04:32:03+00:00",
+                    "analysis_basis": "enrollments",
+                    "segment": "all",
                 }
             ],
         }
