@@ -4,7 +4,7 @@
 
 import { useQuery } from "@apollo/client";
 import { Link, RouteComponentProps } from "@reach/router";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Col, Container, Row, Tab, Tabs } from "react-bootstrap";
 import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
 import {
@@ -27,16 +27,27 @@ import {
   getFilterValueFromParams,
   updateParamsFromFilterValue,
 } from "./filterExperiments";
+import SearchBar from "./SearchBar";
 import sortByStatus from "./sortByStatus";
 import { FilterOptions, FilterValue } from "./types";
 type PageHomeProps = Record<string, any> & RouteComponentProps;
 
-export const Body = () => {
+export type BodyProps = {
+  searchedExperiments: getAllExperiments_experiments[];
+  loading: any;
+  error: any;
+  refetch: any;
+};
+
+export const Body: React.FC<BodyProps> = ({
+  searchedExperiments,
+  loading,
+  error,
+  refetch,
+}) => {
   const config = useConfig();
   const [searchParams, updateSearchParams] = useSearchParamsState("PageHome");
-  const { data, loading, error, refetch } = useQuery<{
-    experiments: getAllExperiments_experiments[];
-  }>(GET_EXPERIMENTS_QUERY, { fetchPolicy: "network-only" });
+
   const ErrorAlert = useRefetchOnError(error, refetch);
 
   const selectedTab = searchParams.get("tab") || "live";
@@ -54,12 +65,8 @@ export const Body = () => {
     return ErrorAlert;
   }
 
-  if (!data) {
-    return <div>No experiments found.</div>;
-  }
-
   const { live, complete, preview, review, draft, archived } = sortByStatus(
-    filterExperiments(data.experiments, filterValue),
+    filterExperiments(searchedExperiments ?? [], filterValue),
   );
 
   return (
@@ -104,6 +111,13 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     projects: config!.projects!,
     targetingConfigs: config!.targetingConfigs,
   };
+  const { data, loading, error, refetch } = useQuery<{
+    experiments: getAllExperiments_experiments[];
+  }>(GET_EXPERIMENTS_QUERY, { fetchPolicy: "network-only" });
+  const [searchedData, setSearchedData] =
+    useState<getAllExperiments_experiments[]>();
+
+  useEffect(() => setSearchedData(data?.experiments), [data]);
   return (
     <AppLayout testid="PageHome">
       <Head title="Experiments" />
@@ -194,6 +208,11 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
             </Row>
             <Row>
               <Col>
+                <h5 className="mt-3">{"Filters"}</h5>
+                <SearchBar
+                  experiments={data?.experiments ?? []}
+                  onChange={setSearchedData}
+                />
                 <FilterBar
                   {...{
                     options: filterOptions,
@@ -205,7 +224,14 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
             </Row>
           </Col>
           <Col md="9" lg="9" xl="10">
-            <Body />
+            <Body
+              {...{
+                searchedExperiments: searchedData ?? [],
+                loading,
+                error,
+                refetch,
+              }}
+            />
           </Col>
         </Row>
       </Container>

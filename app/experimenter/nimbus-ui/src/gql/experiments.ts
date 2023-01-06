@@ -252,6 +252,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
         id
         name
       }
+      hypothesis
     }
   }
 `;

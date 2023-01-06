@@ -39,6 +39,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     publicDescription
                     riskMitigationLink
                     warnFeatureSchema
+                    hypothesis
                 }
             }
             """,
@@ -64,6 +65,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             experiment_data["warnFeatureSchema"],
             experiment.warn_feature_schema,
         )
+        self.assertEqual(experiment_data["hypothesis"], experiment.hypothesis)
 
     def test_experiments_with_no_branches_returns_empty_reference_treatment_values(self):
         user_email = "user@example.com"
