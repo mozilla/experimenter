@@ -17,7 +17,7 @@ import {
   ResultsContextType,
 } from "../../lib/contexts";
 import { GROUP, METRIC_TYPE } from "../../lib/visualization/constants";
-import { AnalysisBases } from "../../lib/visualization/types";
+import { AnalysisBases, AnalysisError } from "../../lib/visualization/types";
 import {
   analysisUnavailable,
   getSortedBranchNames,
@@ -83,7 +83,14 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
         return false;
       }
 
-      return true;
+      const errorsForState = analysis.errors![key].filter(
+        (error) =>
+          (error.analysis_basis === selectedAnalysisBasis ||
+            error.analysis_basis === null) &&
+          (error.segment === selectedSegment || error.segment === null),
+      );
+
+      return errorsForState.length > 0;
     },
   );
 
@@ -102,6 +109,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             timestamp: null,
             experiment: null,
             exception_type: null,
+            analysis_basis: null,
+            segment: null,
           },
         ]}
       />
@@ -122,6 +131,26 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   }));
   const segmentHelpMarkdown =
     "Select the **analysis segment** whose results you want to see. See [defining segments](https://experimenter.info/jetstream/configuration/#defining-segments) in the docs for more info.";
+
+  const filterErrors = (
+    errors: AnalysisError[],
+    analysisBasis: AnalysisBases,
+    segment: string,
+  ): AnalysisError[] =>
+    errors.filter(
+      // filter to selected analysis_basis + segment and de-dupe with findIndex
+      (error, idx, self) =>
+        (error.analysis_basis === analysisBasis ||
+          error.analysis_basis === null) &&
+        (error.segment === segment || error.segment === null) &&
+        idx ===
+          self.findIndex(
+            (e) =>
+              e.message === error.message &&
+              e.segment === error.segment &&
+              e.analysis_basis === error.analysis_basis,
+          ),
+    );
 
   const getErrorsForOutcomes = (
     outcomes: (string | null)[] | null,
@@ -158,10 +187,10 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                   <>
                     {metricHeader}
                     <AnalysisErrorAlert
-                      errors={analysis.errors![metric.slug].filter(
-                        (error, idx, self) =>
-                          idx ===
-                          self.findIndex((e) => e.message === error.message),
+                      errors={filterErrors(
+                        analysis.errors![metric.slug],
+                        selectedAnalysisBasis,
+                        selectedSegment,
                       )}
                     />
                   </>
@@ -468,23 +497,23 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
               <h3 className="h5 mb-3">
                 <i>Other Metric Errors</i>
               </h3>
-              {otherMetricErrors.map((errorMetric) => {
-                const errorsForMetric = analysis.errors?.[errorMetric].filter(
-                  (error, idx, self) =>
-                    idx === self.findIndex((e) => e.message === error.message),
-                );
-                return (
-                  <>
-                    <MetricHeader
-                      key={errorMetric}
-                      outcomeSlug={errorMetric}
-                      outcomeDefaultName={errorMetric}
-                      metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
-                    />
-                    <AnalysisErrorAlert errors={errorsForMetric || []} />
-                  </>
-                );
-              })}
+              {otherMetricErrors.map((errorMetric) => (
+                <>
+                  <MetricHeader
+                    key={errorMetric}
+                    outcomeSlug={errorMetric}
+                    outcomeDefaultName={errorMetric}
+                    metricType={METRIC_TYPE.USER_SELECTED_SECONDARY}
+                  />
+                  <AnalysisErrorAlert
+                    errors={filterErrors(
+                      analysis.errors?.[errorMetric] || [],
+                      selectedAnalysisBasis,
+                      selectedSegment,
+                    )}
+                  />
+                </>
+              ))}
             </>
           )}
         </div>

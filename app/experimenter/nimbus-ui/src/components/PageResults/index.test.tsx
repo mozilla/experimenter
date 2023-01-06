@@ -284,6 +284,8 @@ describe("PageResults", () => {
                 metric: "bad_metric",
                 statistic: "test_statistic",
                 timestamp: "2022-11-04 00:00:00+00:00",
+                analysis_basis: "enrollments",
+                segment: "all",
               },
             ],
           },
