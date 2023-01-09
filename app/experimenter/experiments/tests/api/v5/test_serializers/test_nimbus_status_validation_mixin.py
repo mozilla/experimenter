@@ -17,6 +17,7 @@ class TestNimbusStatusValidationMixin(TestCase):
     def test_update_experiment_with_invalid_status_error(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.PREVIEW,
+            is_rollout=False,
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -29,9 +30,10 @@ class TestNimbusStatusValidationMixin(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("experiment", serializer.errors)
 
-    def test_unable_to_update_experiment_in_publish_status(self):
+    def test_update_rollout_with_invalid_status_error(self):
         experiment = NimbusExperimentFactory.create(
-            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+            status=NimbusExperiment.Status.PREVIEW,
+            is_rollout=True,
         )
         serializer = NimbusExperimentSerializer(
             experiment,
