@@ -309,12 +309,33 @@ class NimbusConfigurationType(graphene.ObjectType):
         return NimbusFeatureConfig.objects.all().order_by("name")
 
     def resolve_firefox_versions(root, info):
-        return root._text_choices_to_label_value_list(NimbusExperiment.Version)
+        return NimbusConfigurationType.sort_version_choices(NimbusExperiment.Version)
 
     def resolve_conclusion_recommendations(root, info):
         return root._text_choices_to_label_value_list(
             NimbusExperiment.ConclusionRecommendation
         )
+
+    @staticmethod
+    def sort_version_choices(choices):
+        def version_key(x):
+            version_str = x
+            if not version_str:
+                return (1,)
+            return tuple(map(int, version_str.replace("!", "0").split(".")))
+
+        sorted_versions = sorted(choices, key=version_key, reverse=True)
+        sorted_versions = [
+            NimbusLabelValueType(
+                label=name.label,
+                value=name.label.replace(" ", "_").upper(),
+            )
+            for name in sorted_versions
+        ]
+        no_version_option = sorted_versions.pop()
+        sorted_versions.insert(0, no_version_option)
+
+        return sorted_versions
 
     def resolve_outcomes(root, info):
         return Outcomes.all()
