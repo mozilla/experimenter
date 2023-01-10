@@ -583,18 +583,31 @@ class NimbusStatusValidationMixin:
     def validate(self, data):
         data = super().validate(data)
 
-        restrictive_statuses = {
+        restrictions = {
             "status": NimbusConstants.STATUS_ALLOWS_UPDATE,
             "publish_status": NimbusConstants.PUBLISH_STATUS_ALLOWS_UPDATE,
         }
-
+        update_exempt_fields = NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS
+        fields = ["all"]
         if self.instance:
-            for status_field, restricted_statuses in restrictive_statuses.items():
-                current_status = getattr(self.instance, status_field)
-                is_locked = current_status not in restricted_statuses
-                modifying_fields = set(data.keys()) - set(
-                    NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS
-                )
+            restrictive_statuses = set()
+            exempt_fields = set()
+            fields.append("rollouts") if self.instance.is_rollout else fields.append(
+                "experiments"
+            )
+
+            for f in fields:
+                if update_exempt_fields[f] != []:
+                    exempt_fields = exempt_fields.union(update_exempt_fields[f])
+                for status in restrictions:
+                    restrictive_statuses = restrictive_statuses.union(
+                        restrictions[status][f]
+                    )
+
+            for status_field in restrictive_statuses:
+                current_status = getattr(self.instance, "status")
+                is_locked = current_status not in restrictive_statuses
+                modifying_fields = set(data.keys()) - exempt_fields
                 is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
                 if is_locked and is_modifying_locked_fields:
                     raise serializers.ValidationError(
@@ -607,7 +620,6 @@ class NimbusStatusValidationMixin:
                             ]
                         }
                     )
-
             if (
                 SiteFlag.objects.value(SiteFlagNameChoices.LAUNCHING_DISABLED)
                 and self.instance.status == NimbusExperiment.Status.DRAFT
