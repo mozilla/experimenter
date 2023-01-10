@@ -24,6 +24,7 @@ import {
   NimbusExperimentApplicationEnum,
   NimbusExperimentChannelEnum,
   NimbusExperimentFirefoxVersionEnum,
+  NimbusExperimentStatusEnum,
 } from "../../../types/globalTypes";
 import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
@@ -1225,6 +1226,74 @@ describe("FormAudience", () => {
       locales: ["We can shake it loose right away"],
     });
   });
+});
+
+it("disables fields when locked", async () => {
+  render(
+    <Subject
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        application: NimbusExperimentApplicationEnum.FENIX,
+        isRollout: true,
+        status: NimbusExperimentStatusEnum.LIVE,
+        targetingConfig: [
+          {
+            label: "No Targeting",
+            value: "",
+            applicationValues: [
+              NimbusExperimentApplicationEnum.DESKTOP,
+              "TOASTER",
+            ],
+            description: "No targeting configuration",
+            stickyRequired: false,
+            isFirstRunRequired: false,
+          },
+        ],
+      }}
+    />,
+  );
+  // testing one checkbox, one dropdown, and one text field
+  expect(screen.getByTestId("isSticky")).toBeDisabled();
+  expect(screen.getByTestId("firefoxMinVersion")).toBeDisabled();
+  expect(
+    within(
+      screen.queryByTestId("population-percent-top-row") as HTMLElement,
+    ).getByTestId("population-percent-text"),
+  ).toBeDisabled();
+});
+
+it("enables fields when unlocked", async () => {
+  render(
+    <Subject
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        application: NimbusExperimentApplicationEnum.FENIX,
+        isRollout: false,
+        status: NimbusExperimentStatusEnum.DRAFT,
+        targetingConfig: [
+          {
+            label: "No Targeting",
+            value: "",
+            applicationValues: [
+              NimbusExperimentApplicationEnum.DESKTOP,
+              "TOASTER",
+            ],
+            description: "No targeting configuration",
+            stickyRequired: false,
+            isFirstRunRequired: false,
+          },
+        ],
+      }}
+    />,
+  );
+  // testing one checkbox, one dropdown, and one text field
+  expect(screen.getByTestId("isSticky")).toBeEnabled();
+  expect(screen.getByTestId("firefoxMinVersion")).toBeEnabled();
+  expect(
+    within(
+      screen.queryByTestId("population-percent-top-row") as HTMLElement,
+    ).getByTestId("population-percent-text"),
+  ).toBeEnabled();
 });
 
 describe("filterAndSortTargetingConfigSlug", () => {

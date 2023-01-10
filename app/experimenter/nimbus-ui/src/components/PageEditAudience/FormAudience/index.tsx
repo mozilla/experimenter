@@ -17,6 +17,7 @@ import {
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
   TOOLTIP_DURATION,
 } from "../../../lib/constants";
+import { getStatus } from "../../../lib/experiment";
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_targetingConfigs,
@@ -197,6 +198,8 @@ export const FormAudience = ({
 
   const isDesktop =
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
+  const isLiveRollout = experiment.isRollout && getStatus(experiment).live;
+  const isLocked = isLiveRollout && !getStatus(experiment).draft;
 
   return (
     <Form
@@ -217,7 +220,11 @@ export const FormAudience = ({
             <Form.Label className="d-flex align-items-center">
               Channel
             </Form.Label>
-            <Form.Control {...formControlAttrs("channel")} as="select">
+            <Form.Control
+              {...formControlAttrs("channel")}
+              as="select"
+              disabled={isLocked!}
+            >
               <SelectOptions options={applicationConfig!.channels!} />
             </Form.Control>
             <FormErrors name="channel" />
@@ -229,6 +236,7 @@ export const FormAudience = ({
             <Form.Control
               {...formControlAttrs("firefoxMinVersion")}
               as="select"
+              disabled={isLocked!}
             >
               <SelectOptions options={config.firefoxVersions} />
             </Form.Control>
@@ -241,6 +249,7 @@ export const FormAudience = ({
             <Form.Control
               {...formControlAttrs("firefoxMaxVersion")}
               as="select"
+              disabled={isLocked!}
             >
               <SelectOptions options={config.firefoxVersions} />
             </Form.Control>
@@ -256,6 +265,7 @@ export const FormAudience = ({
                 isMulti
                 {...formSelectAttrs("locales", setLocales)}
                 options={selectOptions(config.locales as SelectIdItems)}
+                isDisabled={isLocked!}
               />
               <FormErrors name="locales" />
             </Form.Group>
@@ -268,6 +278,7 @@ export const FormAudience = ({
                 isMulti
                 {...formSelectAttrs("languages", setLanguages)}
                 options={selectOptions(config.languages as SelectIdItems)}
+                isDisabled={isLocked!}
               />
               <FormErrors name="languages" />
             </Form.Group>
@@ -279,6 +290,7 @@ export const FormAudience = ({
               isMulti
               {...formSelectAttrs("countries", setCountries)}
               options={selectOptions(config.countries as SelectIdItems)}
+              isDisabled={isLocked!}
             />
 
             <FormErrors name="countries" />
@@ -293,6 +305,7 @@ export const FormAudience = ({
               {...formControlAttrs("targetingConfigSlug")}
               as="select"
               onChange={TargetingOnChange.bind(this)}
+              disabled={isLocked!}
             >
               <TargetConfigSelectOptions options={targetingConfigSlugOptions} />
             </Form.Control>
@@ -306,7 +319,7 @@ export const FormAudience = ({
               type="checkbox"
               checked={isSticky}
               onChange={(e) => setIsSticky(e.target.checked)}
-              disabled={stickyRequiredWarning}
+              disabled={stickyRequiredWarning || isLocked!}
               label="Sticky Enrollment (Clients remain enrolled until the experiment ends)"
             />
             {stickyRequiredWarning && (
@@ -324,7 +337,7 @@ export const FormAudience = ({
               type="checkbox"
               onChange={(e) => setIsFirstRun(e.target.checked)}
               checked={isFirstRun}
-              disabled={isFirstRunRequiredWarning}
+              disabled={isFirstRunRequiredWarning || isLocked!}
               label="First Run Experiment"
             />
             {isFirstRunRequiredWarning && (
@@ -384,6 +397,7 @@ export const FormAudience = ({
                 value={populationPercent}
                 onChange={(e) => setPopulationPercent(e.target.value)}
                 data-testid="population-percent-slider"
+                disabled={isLocked!}
               />
               <Form.Control
                 aria-describedby="populationPercent-unit"
@@ -391,6 +405,7 @@ export const FormAudience = ({
                 value={populationPercent}
                 onChange={(e) => setPopulationPercent(e.target.value)}
                 data-testid="population-percent-text"
+                disabled={isLocked!}
               />
               <InputGroup.Append>
                 <InputGroup.Text id="populationPercent-unit">%</InputGroup.Text>
@@ -412,6 +427,7 @@ export const FormAudience = ({
                 "totalEnrolledClients",
                 POSITIVE_NUMBER_WITH_COMMAS_FIELD,
               )}
+              disabled={isLocked!}
             />
             <FormErrors name="totalEnrolledClients" />
           </Form.Group>
@@ -431,6 +447,7 @@ export const FormAudience = ({
                 type="number"
                 min="0"
                 aria-describedby="proposedEnrollment-unit"
+                disabled={isLocked!}
               />
               <InputGroup.Append>
                 <InputGroup.Text id="proposedEnrollment-unit">
@@ -463,6 +480,7 @@ export const FormAudience = ({
                 type="number"
                 min="0"
                 aria-describedby="proposedDuration-unit"
+                disabled={isLocked!}
               />
               <InputGroup.Append>
                 <InputGroup.Text id="proposedDuration-unit">
@@ -481,7 +499,7 @@ export const FormAudience = ({
             onClick={handleSaveNext}
             className="btn btn-secondary"
             id="save-and-continue-button"
-            disabled={isLoading}
+            disabled={isLoading || isLocked!}
             data-testid="next-button"
             data-sb-kind="pages/Summary"
           >
@@ -495,7 +513,7 @@ export const FormAudience = ({
             onClick={handleSave}
             className="btn btn-primary"
             id="save-button"
-            disabled={isLoading}
+            disabled={isLoading || isLocked!}
             data-sb-kind="pages/EditOverview"
           >
             <span>{isLoading ? "Saving" : "Save"}</span>
