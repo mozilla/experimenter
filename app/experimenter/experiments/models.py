@@ -702,6 +702,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.conclusion_recommendation = None
         cloned._start_date = None
         cloned._end_date = None
+        cloned._enrollment_end_date = None
         cloned.save()
 
         if rollout_branch_slug:
