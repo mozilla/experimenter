@@ -1792,6 +1792,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.conclusion_recommendation, None)
         self.assertEqual(child._start_date, None)
         self.assertEqual(child._end_date, None)
+        self.assertEqual(child._enrollment_end_date, None)
 
         # Cloned fields
         self.assertEqual(child.name, "Child Experiment")
