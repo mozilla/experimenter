@@ -1467,7 +1467,24 @@ class TestNimbusConfigQuery(GraphQLTestCase):
         assertChoices(
             config["conclusionRecommendations"], NimbusExperiment.ConclusionRecommendation
         )
-        assertChoices(config["firefoxVersions"], NimbusExperiment.Version)
+
+        self.assertEqual(
+            len(config["firefoxVersions"]), len(NimbusExperiment.Version.names)
+        )
+        for index, name in enumerate(NimbusExperiment.Version.names):
+            self.assertIn(
+                {"label": NimbusExperiment.Version[name].label, "value": name},
+                config["firefoxVersions"],
+            )
+
+        self.assertEqual(
+            {
+                "label": NimbusExperiment.Version.NO_VERSION.label,
+                "value": "NO_VERSION",
+            },
+            config["firefoxVersions"][0],
+        )
+
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
         self.assertEqual(len(config["allFeatureConfigs"]), 18)
 
