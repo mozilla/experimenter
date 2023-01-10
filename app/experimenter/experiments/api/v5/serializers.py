@@ -588,14 +588,13 @@ class NimbusStatusValidationMixin:
             "publish_status": NimbusConstants.PUBLISH_STATUS_ALLOWS_UPDATE,
         }
         update_exempt_fields = NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS
-
+        fields = ["all"]
         if self.instance:
             restrictive_statuses = set()
             exempt_fields = set()
-            if self.instance.is_rollout:
-                fields = ["all", "rollouts"]
-            else:
-                fields = ["all", "experiments"]
+            fields.append("rollouts") if self.instance.is_rollout else fields.append(
+                "experiments"
+            )
 
             for f in fields:
                 if update_exempt_fields[f] != []:

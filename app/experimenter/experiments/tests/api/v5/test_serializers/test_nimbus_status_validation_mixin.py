@@ -46,6 +46,101 @@ class TestNimbusStatusValidationMixin(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("experiment", serializer.errors)
 
+    def test_locked_fields_and_status_error(self):
+        fields = (
+            NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS["all"]
+            + NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS["experiments"]
+        )
+        status_allowed = (
+            NimbusExperiment.STATUS_ALLOWS_UPDATE["all"]
+            + NimbusExperiment.STATUS_ALLOWS_UPDATE["experiments"]
+        )
+
+        field_to_change = "public_description"
+        status = NimbusExperiment.Status.PREVIEW
+
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            is_rollout=True,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                field_to_change: "who knows, really",
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+
+        self.assertFalse(field_to_change in fields)
+        self.assertFalse(status in status_allowed)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("experiment", serializer.errors)
+
+    def test_locked_fields_and_valid_status_does_not_error(self):
+        fields = (
+            NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS["all"]
+            + NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS["experiments"]
+        )
+        status_allowed = (
+            NimbusExperiment.STATUS_ALLOWS_UPDATE["all"]
+            + NimbusExperiment.STATUS_ALLOWS_UPDATE["experiments"]
+        )
+
+        field_to_change = "public_description"
+        status = NimbusExperiment.Status.DRAFT
+
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            is_rollout=True,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                field_to_change: "who knows, really",
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+
+        self.assertFalse(field_to_change in fields)
+        self.assertTrue(status in status_allowed)
+        self.assertTrue(serializer.is_valid())
+
+    def test_unlocked_fields_and_valid_status_does_not_error(self):
+        fields = (
+            NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS["all"]
+            + NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS["experiments"]
+        )
+        status_allowed = (
+            NimbusExperiment.STATUS_ALLOWS_UPDATE["all"]
+            + NimbusExperiment.STATUS_ALLOWS_UPDATE["experiments"]
+        )
+
+        field_to_change = "takeaways_summary"
+        status = NimbusExperiment.Status.DRAFT
+
+        experiment = NimbusExperimentFactory.create(
+            status=status,
+            is_rollout=True,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                field_to_change: "who knows, really",
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+
+        self.assertTrue(field_to_change in fields)
+        self.assertTrue(status in status_allowed)
+        self.assertTrue(serializer.is_valid())
+
     @parameterized.expand(
         [
             [
