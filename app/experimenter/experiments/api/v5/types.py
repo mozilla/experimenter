@@ -318,13 +318,7 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     @staticmethod
     def sort_version_choices(choices):
-        def version_key(x):
-            version_str = x
-            if not version_str:
-                return (1,)
-            return tuple(map(int, version_str.replace("!", "0").split(".")))
-
-        sorted_versions = sorted(choices, key=version_key, reverse=True)
+        sorted_versions = list(choices)[::-1]
         sorted_versions = [
             NimbusLabelValueType(
                 label=name.label,
