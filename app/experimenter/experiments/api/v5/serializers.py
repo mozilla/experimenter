@@ -580,6 +580,11 @@ class NimbusExperimentDocumentationLinkMixin:
 
 
 class NimbusStatusValidationMixin:
+    """
+    This will only validate certain statuses, and the validation does not
+    cover status transitions made by Remote Settings.
+    """
+
     def validate(self, data):
         data = super().validate(data)
 
@@ -633,12 +638,19 @@ class NimbusStatusValidationMixin:
 
 
 class NimbusStatusTransitionValidator:
+    """
+    This will only validate certain statuses, and the validation does not
+    cover status transitions made by Remote Settings.
+    """
+
     requires_context = True
 
     def __init__(self, transitions):
         self.transitions = transitions
 
     def __call__(self, value, serializer_field):
+        """Validates using `NimbusConstants.VALID_STATUS_TRANSITIONS`"""
+
         field_name = serializer_field.source_attrs[-1]
         instance = getattr(serializer_field.parent, "instance", None)
 
@@ -837,8 +849,14 @@ class NimbusExperimentSerializer(
         return is_archived
 
     def validate_publish_status(self, publish_status):
+        """Validates using `NimbusConstants.VALID_PUBLISH_STATUS_TRANSITIONS`"""
+
         if publish_status == NimbusExperiment.PublishStatus.APPROVED and (
-            self.instance.publish_status != NimbusExperiment.PublishStatus.IDLE
+            self.instance.publish_status
+            not in (
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.PublishStatus.DIRTY,
+            )
             and not self.instance.can_review(self.context["user"])
         ):
             raise serializers.ValidationError(
@@ -889,6 +907,9 @@ class NimbusExperimentSerializer(
         return value
 
     def validate_status_next(self, value):
+        """This validation for `status_next` does not cover any
+        transitions made by Remote Settings."""
+
         valid_status_next = NimbusExperiment.VALID_STATUS_NEXT_VALUES.get(
             self.instance.status, ()
         )

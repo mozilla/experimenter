@@ -1,4 +1,5 @@
 from django.test import TestCase
+from parameterized import parameterized
 
 from experimenter.base.models import SiteFlag, SiteFlagNameChoices
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
@@ -14,9 +15,11 @@ class TestNimbusStatusTransitionValidator(TestCase):
         super().setUp()
         self.user = UserFactory()
 
-    def test_update_experiment_status_error(self):
+    @parameterized.expand([[True], [False]])
+    def test_update_status_error(self, is_rollout):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
+            is_rollout=is_rollout,
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -35,6 +38,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
     def test_update_publish_status_from_approved_to_review_error(self):
         experiment = NimbusExperimentFactory.create(
             publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            is_rollout=False,
         )
         serializer = NimbusExperimentSerializer(
             experiment,
@@ -71,7 +75,7 @@ class TestNimbusStatusTransitionValidator(TestCase):
             NimbusExperiment.ERROR_LAUNCHING_DISABLED,
         )
 
-    def test_end_enrolment_request_while_disabled_error(self):
+    def test_end_enrollment_request_while_disabled_error(self):
         SiteFlag(name=SiteFlagNameChoices.LAUNCHING_DISABLED.name, value=True).save()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING
