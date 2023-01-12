@@ -1,7 +1,10 @@
 from django.test import TestCase
 from parameterized import parameterized
 
-from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
+from experimenter.experiments.api.v5.serializers import (
+    NimbusExperimentSerializer,
+    TransitionConstants,
+)
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
@@ -57,12 +60,12 @@ class TestNimbusStatusValidationMixin(TestCase):
         self, field_to_change, status, field_valid, status_valid, serializer_valid
     ):
         fields = (
-            NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS["all"]
-            + NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS["experiments"]
+            TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["all"]
+            + TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["experiments"]
         )
         status_allowed = (
-            NimbusExperiment.STATUS_ALLOWS_UPDATE["all"]
-            + NimbusExperiment.STATUS_ALLOWS_UPDATE["experiments"]
+            TransitionConstants.STATUS_ALLOWS_UPDATE["all"]
+            + TransitionConstants.STATUS_ALLOWS_UPDATE["experiments"]
         )
 
         experiment = NimbusExperimentFactory.create(
