@@ -1,4 +1,5 @@
 from django.test import TestCase
+from parameterized import parameterized
 
 from experimenter.base.models import SiteFlag, SiteFlagNameChoices
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
@@ -14,29 +15,11 @@ class TestNimbusStatusTransitionValidator(TestCase):
         super().setUp()
         self.user = UserFactory()
 
-    def test_update_experiment_status_error(self):
+    @parameterized.expand([[True], [False]])
+    def test_update_status_error(self, is_rollout):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
-            is_rollout=False,
-        )
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            data={
-                "status": NimbusExperiment.Status.LIVE,
-                "changelog_message": "test changelog message",
-            },
-            context={"user": self.user},
-        )
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["status"][0],
-            "Nimbus Experiment status cannot transition from Draft to Live.",
-        )
-
-    def test_update_rollout_status_error(self):
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
-            is_rollout=True,
+            is_rollout=is_rollout,
         )
         serializer = NimbusExperimentSerializer(
             experiment,

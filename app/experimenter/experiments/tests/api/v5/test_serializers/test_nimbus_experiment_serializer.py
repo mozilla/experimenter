@@ -742,44 +742,22 @@ class TestNimbusExperimentSerializer(TestCase):
 
     @parameterized.expand(
         [
-            [NimbusExperiment.PublishStatus.IDLE],
-            [NimbusExperiment.PublishStatus.DIRTY],
-            [NimbusExperiment.PublishStatus.REVIEW],
+            [True, NimbusExperiment.PublishStatus.IDLE],
+            [False, NimbusExperiment.PublishStatus.IDLE],
+            [True, NimbusExperiment.PublishStatus.DIRTY],
+            [False, NimbusExperiment.PublishStatus.DIRTY],
+            [True, NimbusExperiment.PublishStatus.REVIEW],
+            [False, NimbusExperiment.PublishStatus.REVIEW],
         ]
     )
-    def test_update_experiment_publish_status_doesnt_invoke_push_task(
-        self, publish_status
+    def test_update_publish_status_doesnt_invoke_push_task(
+        self,
+        is_rollout,
+        publish_status,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            is_rollout=False,
-        )
-
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            data={
-                "publish_status": publish_status,
-                "changelog_message": "test changelog message",
-            },
-            context={"user": self.user},
-        )
-        self.assertTrue(serializer.is_valid())
-
-        experiment = serializer.save()
-        self.assertEqual(experiment.publish_status, publish_status)
-        self.mock_preview_task.apply_async.assert_not_called()
-
-    @parameterized.expand(
-        [
-            [NimbusExperiment.PublishStatus.IDLE],
-            [NimbusExperiment.PublishStatus.DIRTY],
-            [NimbusExperiment.PublishStatus.REVIEW],
-        ]
-    )
-    def test_update_rollout_publish_status_doesnt_invoke_push_task(self, publish_status):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            is_rollout=True,
+            is_rollout=is_rollout,
         )
 
         serializer = NimbusExperimentSerializer(
@@ -971,7 +949,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
 
-    def test_rollout_can_request_review_from_live(self):
+    def test_rollout_can_request_review_from_live_idle_to_live_review(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             is_rollout=True,
