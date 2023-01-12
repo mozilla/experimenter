@@ -69,6 +69,7 @@ export interface getAllExperiments_experiments {
   channel: NimbusExperimentChannelEnum | null;
   populationPercent: string | null;
   projects: (getAllExperiments_experiments_projects | null)[] | null;
+  hypothesis: string | null;
 }
 
 export interface getAllExperiments {

@@ -48,6 +48,7 @@ class NimbusExperimentManager(models.Manager):
                 "branches__feature_values",
                 "branches__feature_values__feature_config",
                 "feature_configs",
+                "projects",
             )
         )
 
@@ -61,8 +62,7 @@ class NimbusExperimentManager(models.Manager):
 
     def with_owner_features(self):
         return self.get_queryset().prefetch_related(
-            "owner",
-            "feature_configs",
+            "owner", "feature_configs", "projects"
         )
 
     def launch_queue(self, applications):
@@ -701,6 +701,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.conclusion_recommendation = None
         cloned._start_date = None
         cloned._end_date = None
+        cloned._enrollment_end_date = None
         cloned.save()
 
         if rollout_branch_slug:

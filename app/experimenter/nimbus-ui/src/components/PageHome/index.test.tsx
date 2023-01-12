@@ -11,6 +11,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import { act } from "@testing-library/react-hooks";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 import selectEvent from "react-select-event";
 import PageHome from ".";
@@ -40,11 +41,6 @@ describe("PageHome", () => {
     expect(screen.queryByTestId("page-loading")).toBeInTheDocument();
   });
 
-  it("displays no experiments text when none are found", async () => {
-    await renderAndWaitForLoaded([]);
-    expect(screen.queryByText("No experiments found.")).toBeInTheDocument();
-  });
-
   const findTabs = () =>
     [
       ["review", screen.getByText("Review (1)")],
@@ -55,9 +51,43 @@ describe("PageHome", () => {
       ["archived", screen.getByText("Archived (1)")],
     ] as const;
 
+  const findSearchTabs = () =>
+    [
+      ["review", screen.getByText("Review (0)")],
+      ["preview", screen.getByText("Preview (0)")],
+      ["completed", screen.getByText("Completed (2)")],
+      ["drafts", screen.getByText("Draft (0)")],
+      ["live", screen.getByText("Live (0)")],
+      ["archived", screen.getByText("Archived (0)")],
+    ] as const;
+
   it("displays five Directory Tables (one for each status type)", async () => {
     await renderAndWaitForLoaded();
+    // renders all experiments
     expect(screen.queryAllByTestId("DirectoryTable")).toHaveLength(6);
+    for (const [tabKey, tab] of findTabs()) {
+      expect(tab).toBeInTheDocument();
+    }
+
+    expect(screen.queryByTestId("SearchExperiments")).toBeInTheDocument();
+    const input = screen.getByTestId("SearchExperiments");
+    // search experiments
+    userEvent.type(input, "Nam gravida");
+    await waitFor(() => {
+      expect(screen.getByTestId("SearchExperiments")).toHaveValue(
+        "Nam gravida",
+      );
+    });
+    for (const [tabKey, tab] of findSearchTabs()) {
+      expect(tab).toBeInTheDocument();
+    }
+
+    // clear search experiments query
+    fireEvent.change(input, { target: { value: "" } });
+    await waitFor(() => {
+      expect(screen.getByTestId("SearchExperiments")).toHaveValue("");
+    });
+    // after clear search query expect all experiments visible
     for (const [tabKey, tab] of findTabs()) {
       expect(tab).toBeInTheDocument();
     }

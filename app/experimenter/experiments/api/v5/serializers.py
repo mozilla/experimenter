@@ -35,6 +35,74 @@ from experimenter.outcomes import Outcomes
 from experimenter.projects.models import Project
 
 
+class TransitionConstants:
+    VALID_STATUS_TRANSITIONS = {
+        NimbusExperiment.Status.DRAFT: (NimbusExperiment.Status.PREVIEW,),
+        NimbusExperiment.Status.PREVIEW: (NimbusExperiment.Status.DRAFT,),
+    }
+
+    # Valid status_next values for given status values in the
+    # UI only. This does not represent the full list of
+    # status_next values.
+    VALID_STATUS_NEXT_VALUES = {
+        NimbusExperiment.Status.DRAFT: (None, NimbusExperiment.Status.LIVE),
+        NimbusExperiment.Status.PREVIEW: (None, NimbusExperiment.Status.LIVE),
+        NimbusExperiment.Status.LIVE: (
+            None,
+            NimbusExperiment.Status.LIVE,
+            NimbusExperiment.Status.COMPLETE,
+        ),
+    }
+
+    # Valid publish_status transitions for given status
+    # values in the UI only. This does not represent the
+    # full list of publish_status transitions.
+    VALID_PUBLISH_STATUS_TRANSITIONS = {
+        NimbusExperiment.PublishStatus.IDLE: (
+            NimbusExperiment.PublishStatus.DIRTY,
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.APPROVED,
+        ),
+        NimbusExperiment.PublishStatus.DIRTY: (NimbusExperiment.PublishStatus.REVIEW,),
+        NimbusExperiment.PublishStatus.REVIEW: (
+            NimbusExperiment.PublishStatus.IDLE,
+            NimbusExperiment.PublishStatus.DIRTY,
+            NimbusExperiment.PublishStatus.APPROVED,
+        ),
+    }
+
+    STATUS_ALLOWS_UPDATE = {
+        "all": [
+            NimbusExperiment.Status.DRAFT,
+        ],
+        "experiments": [],
+        "rollouts": [
+            NimbusExperiment.Status.LIVE,
+        ],
+    }
+
+    PUBLISH_STATUS_ALLOWS_UPDATE = {
+        "all": [
+            NimbusExperiment.PublishStatus.IDLE,
+        ],
+        "experiments": [],
+        "rollouts": [],
+    }
+
+    STATUS_UPDATE_EXEMPT_FIELDS = {
+        "all": [
+            "is_archived",
+            "publish_status",
+            "status_next",
+            "status",
+            "takeaways_summary",
+            "conclusion_recommendation",
+        ],
+        "experiments": [],
+        "rollouts": [],
+    }
+
+
 class NestedRefResolver(jsonschema.RefResolver):
     """A custom ref resolver that handles bundled schema."""
 
@@ -580,34 +648,52 @@ class NimbusExperimentDocumentationLinkMixin:
 
 
 class NimbusStatusValidationMixin:
+    """
+    This will only validate certain statuses, and the validation does not
+    cover status transitions made by Remote Settings.
+    """
+
     def validate(self, data):
         data = super().validate(data)
 
-        restrictive_statuses = {
-            "status": NimbusConstants.STATUS_ALLOWS_UPDATE,
-            "publish_status": NimbusConstants.PUBLISH_STATUS_ALLOWS_UPDATE,
+        restrictions = {
+            "status": TransitionConstants.STATUS_ALLOWS_UPDATE,
+            "publish_status": TransitionConstants.PUBLISH_STATUS_ALLOWS_UPDATE,
         }
-
+        update_exempt_fields = TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS
+        fields = ["all"]
         if self.instance:
-            for status_field, restricted_statuses in restrictive_statuses.items():
-                current_status = getattr(self.instance, status_field)
-                is_locked = current_status not in restricted_statuses
-                modifying_fields = set(data.keys()) - set(
-                    NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS
-                )
+            restrictive_statuses = set()
+            exempt_fields = set()
+            fields.append("rollouts") if self.instance.is_rollout else fields.append(
+                "experiments"
+            )
+
+            for f in fields:
+                if update_exempt_fields[f] != []:
+                    exempt_fields = exempt_fields.union(update_exempt_fields[f])
+                for status in restrictions:
+                    restrictive_statuses = restrictive_statuses.union(
+                        restrictions[status][f]
+                    )
+
+            for status_field in restrictive_statuses:
+                current_status = getattr(self.instance, "status")
+                is_locked = current_status not in restrictive_statuses
+                modifying_fields = set(data.keys()) - exempt_fields
                 is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
+
                 if is_locked and is_modifying_locked_fields:
                     raise serializers.ValidationError(
                         {
                             "experiment": [
                                 f"Nimbus Experiment has {status_field} "
                                 f"'{current_status}', only "
-                                f"{NimbusExperiment.STATUS_UPDATE_EXEMPT_FIELDS} "
+                                f"{update_exempt_fields} "
                                 f"can be changed, not: {modifying_fields}"
                             ]
                         }
                     )
-
             if (
                 SiteFlag.objects.value(SiteFlagNameChoices.LAUNCHING_DISABLED)
                 and self.instance.status == NimbusExperiment.Status.DRAFT
@@ -621,12 +707,19 @@ class NimbusStatusValidationMixin:
 
 
 class NimbusStatusTransitionValidator:
+    """
+    This will only validate certain statuses, and the validation does not
+    cover status transitions made by Remote Settings.
+    """
+
     requires_context = True
 
     def __init__(self, transitions):
         self.transitions = transitions
 
     def __call__(self, value, serializer_field):
+        """Validates using `VALID_STATUS_TRANSITIONS`"""
+
         field_name = serializer_field.source_attrs[-1]
         instance = getattr(serializer_field.parent, "instance", None)
 
@@ -700,7 +793,7 @@ class NimbusExperimentSerializer(
         required=False,
         validators=[
             NimbusStatusTransitionValidator(
-                transitions=NimbusConstants.VALID_STATUS_TRANSITIONS,
+                transitions=TransitionConstants.VALID_STATUS_TRANSITIONS,
             )
         ],
     )
@@ -709,7 +802,7 @@ class NimbusExperimentSerializer(
         required=False,
         validators=[
             NimbusStatusTransitionValidator(
-                transitions=NimbusConstants.VALID_PUBLISH_STATUS_TRANSITIONS
+                transitions=TransitionConstants.VALID_PUBLISH_STATUS_TRANSITIONS
             )
         ],
     )
@@ -825,8 +918,14 @@ class NimbusExperimentSerializer(
         return is_archived
 
     def validate_publish_status(self, publish_status):
+        """Validates using `VALID_PUBLISH_STATUS_TRANSITIONS`"""
+
         if publish_status == NimbusExperiment.PublishStatus.APPROVED and (
-            self.instance.publish_status != NimbusExperiment.PublishStatus.IDLE
+            self.instance.publish_status
+            not in (
+                NimbusExperiment.PublishStatus.IDLE,
+                NimbusExperiment.PublishStatus.DIRTY,
+            )
             and not self.instance.can_review(self.context["user"])
         ):
             raise serializers.ValidationError(
@@ -877,7 +976,10 @@ class NimbusExperimentSerializer(
         return value
 
     def validate_status_next(self, value):
-        valid_status_next = NimbusExperiment.VALID_STATUS_NEXT_VALUES.get(
+        """This validation for `status_next` does not cover any
+        transitions made by Remote Settings."""
+
+        valid_status_next = TransitionConstants.VALID_STATUS_NEXT_VALUES.get(
             self.instance.status, ()
         )
         if value not in valid_status_next:

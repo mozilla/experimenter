@@ -737,6 +737,7 @@ export function mockSingleDirectoryExperiment(
     computedEndDate: new Date(endTime).toISOString(),
     resultsReady: false,
     projects: [MOCK_CONFIG.projects![0]],
+    hypothesis: "test hypothesis",
     ...overrides,
   };
 }

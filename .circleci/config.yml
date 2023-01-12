@@ -284,7 +284,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "6f:26:1b:06:f2:32:62:65:bd:92:be:a9:2f:7b:65:59" # for git pushes from circleci, since relies on ssh
+            - "32:8e:72:0b:9a:a1:1c:b8:7e:90:e1:53:a3:73:68:47" # for git pushes from circleci, since relies on ssh
       - checkout
       - gh/setup:
           token: GH_TOKEN # for gh commands from circleci, since relies on user token, since por que no los dos?
