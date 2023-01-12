@@ -62,8 +62,7 @@ class NimbusExperimentManager(models.Manager):
 
     def with_owner_features(self):
         return self.get_queryset().prefetch_related(
-            "owner",
-            "feature_configs",
+            "owner", "feature_configs", "projects"
         )
 
     def launch_queue(self, applications):
