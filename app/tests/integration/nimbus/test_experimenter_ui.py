@@ -35,6 +35,7 @@ def test_archive_experiment(
         "Draft", default_data.public_name
     )
 
+
 @pytest.mark.nimbus_ui
 @pytest.mark.xdist_group(name="group2")
 def test_clone_experiment(
