@@ -934,7 +934,7 @@ HAS_GOOGLE_BING_DDG_SEARCH_ENGINE = NimbusTargetingConfig(
     targeting=(
         "addonsInfo.addons['google@search.mozilla.org'] != null ||",
         "addonsInfo.addons['bing@search.mozilla.org'] != null ||",
-        "addonsInfo.addons['ddg@search.mozilla.org'] != null"
+        "addonsInfo.addons['ddg@search.mozilla.org'] != null",
     ),
     desktop_telemetry="",
     sticky_required=False,
