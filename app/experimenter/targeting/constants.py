@@ -927,6 +927,21 @@ IOS_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
 )
 
+HAS_GOOGLE_BING_DDG_SEARCH_ENGINE = NimbusTargetingConfig(
+    name="Has Google, Bing, or DuckDuckGo search engine",
+    slug="has_search_engine_google_bing_or_ddg",
+    description="Users who have the Google, Bing, or DuckDuckGo search engines installed",
+    targeting=(
+        "addonsInfo.addons['google@search.mozilla.org'] != null ||",
+        "addonsInfo.addons['bing@search.mozilla.org'] != null ||",
+        "addonsInfo.addons['ddg@search.mozilla.org'] != null"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
