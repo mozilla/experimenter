@@ -52,16 +52,27 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
     setClearIcon(false);
     onChange(experiments);
   };
+
+  const [timer, setTimer] = React.useState<NodeJS.Timeout | null>(null);
+
   const handleChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
     setSearchTerms(event.target.value);
+    if (timer) {
+      clearTimeout(timer);
+    }
     if (event.target.value) {
       setClearIcon(true);
-      const results = fuse.search(searchTerms);
 
-      const searchResults = results.map((character) => character.item);
-      onChange(searchResults);
+      const newTimer = setTimeout(() => {
+        const results = fuse.search(searchTerms);
+
+        const searchResults = results.map((character) => character.item);
+        onChange(searchResults);
+      }, 700);
+
+      setTimer(newTimer);
     } else {
       setClearIcon(false);
       onChange(experiments);

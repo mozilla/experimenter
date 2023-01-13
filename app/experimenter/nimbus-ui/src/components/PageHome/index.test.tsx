@@ -68,6 +68,7 @@ describe("PageHome", () => {
     for (const [tabKey, tab] of findTabs()) {
       expect(tab).toBeInTheDocument();
     }
+    jest.useFakeTimers();
 
     expect(screen.queryByTestId("SearchExperiments")).toBeInTheDocument();
     const input = screen.getByTestId("SearchExperiments");
@@ -78,6 +79,8 @@ describe("PageHome", () => {
         "Nam gravida",
       );
     });
+    jest.runTimersToTime(700);
+
     for (const [tabKey, tab] of findSearchTabs()) {
       expect(tab).toBeInTheDocument();
     }
