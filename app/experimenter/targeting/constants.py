@@ -932,9 +932,9 @@ HAS_GOOGLE_BING_DDG_SEARCH_ENGINE = NimbusTargetingConfig(
     slug="has_search_engine_google_bing_or_ddg",
     description="Users who have the Google, Bing, or DuckDuckGo search engines installed",
     targeting=(
-        "addonsInfo.addons['google@search.mozilla.org'] != null ||",
-        "addonsInfo.addons['bing@search.mozilla.org'] != null ||",
-        "addonsInfo.addons['ddg@search.mozilla.org'] != null",
+        "addonsInfo.addons['google@search.mozilla.org'] != null ||"
+        "addonsInfo.addons['bing@search.mozilla.org'] != null ||"
+        "addonsInfo.addons['ddg@search.mozilla.org'] != null"
     ),
     desktop_telemetry="",
     sticky_required=False,
