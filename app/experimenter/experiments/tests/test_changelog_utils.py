@@ -1,8 +1,8 @@
 import datetime
-from django.utils import timezone
 from unittest import mock
 
 from django.test import TestCase
+from django.utils import timezone
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import (
