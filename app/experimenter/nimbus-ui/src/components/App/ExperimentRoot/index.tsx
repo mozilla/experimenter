@@ -74,15 +74,17 @@ export const ExperimentRoot = ({
   // after experiment has been loaded
   const useRedirectCondition = (redirect: RedirectCondition) => {
     let redirectPath: string | undefined, redirectResult: string | void;
-    if (
-      !loading &&
-      status &&
-      (redirectResult = redirect!({ status, analysis })) != null
-    ) {
-      redirectResult = redirectResult.length
-        ? `/${redirectResult}`
-        : redirectResult;
-      redirectPath = `${BASE_PATH}/${slug}${redirectResult}`;
+    if (!experiment.isRollout) {
+      if (
+        !loading &&
+        status &&
+        (redirectResult = redirect!({ status, analysis })) != null
+      ) {
+        redirectResult = redirectResult.length
+          ? `/${redirectResult}`
+          : redirectResult;
+        redirectPath = `${BASE_PATH}/${slug}${redirectResult}`;
+      }
     }
 
     useEffect(() => {

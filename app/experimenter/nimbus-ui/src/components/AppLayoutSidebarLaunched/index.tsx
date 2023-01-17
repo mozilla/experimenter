@@ -15,6 +15,7 @@ import { OutcomesList } from "../../lib/types";
 import { AnalysisData, MetadataPoint } from "../../lib/visualization/types";
 import { analysisAvailable } from "../../lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { ReactComponent as Person } from "../AppLayoutWithSidebar/person.svg";
 import { DisabledItem } from "../DisabledItem";
 import LinkExternal from "../LinkExternal";
 import { LinkNav } from "../LinkNav";
@@ -25,6 +26,14 @@ import { ReactComponent as BarChart } from "./bar-chart.svg";
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
 export const RESULTS_WAITING_FOR_LAUNCH_TEXT =
   "Waiting for experiment to launch";
+
+export const editPages = [
+  {
+    name: "Audience",
+    slug: "audience",
+    icon: <Person className="sidebar-icon" />,
+  },
+];
 
 const analysisLinkProps = {
   textColor: "inherit-color",
@@ -182,6 +191,18 @@ export const AppLayoutSidebarLaunched = ({
                 {...{ status, slug }}
                 canReview={experiment.canReview}
               />
+
+              {experiment.isRollout &&
+                editPages.map((page, idx) => (
+                  <LinkNav
+                    key={`sidebar-${page.name}-${idx}`}
+                    route={`${slug}/${page.slug}`}
+                    testid={`nav-edit-audience`}
+                  >
+                    {page.icon}
+                    {page.name}
+                  </LinkNav>
+                ))}
 
               {analysisAvailable(analysis) ? (
                 <ResultsAvailableNav />
