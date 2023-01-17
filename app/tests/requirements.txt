@@ -295,8 +295,8 @@ backoff==2.2.1 \
 pyjexl==0.3.0 \
     --hash=sha256:da486f966546db71c3825fcb57ed2326cbb216e3e823bf4ba2bcda7ac9708a67 \
     --hash=sha256:e7aea7f4d7c3574cb630ca5d026ec0ab5e4e48f20a5f1e495e2740779d0045dd
-future==0.18.2 \
-    --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d
+future==0.18.3 \
+    --hash=sha256:34a17436ed1e96697a86f9de3d15a3b0be01d8bc8de9c1dffd59fb8234ed5307
 parsimonious==0.10.0 \
     --hash=sha256:8281600da180ec8ae35427a4ab4f7b82bfec1e3d1e52f80cb60ea82b9512501c \
     --hash=sha256:982ab435fabe86519b57f6b35610aa4e4e977e9f02a14353edf4bbc75369fc0f
