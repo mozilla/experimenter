@@ -192,13 +192,12 @@ export const AppLayoutSidebarLaunched = ({
                 canReview={experiment.canReview}
               />
 
-              {experiment &&
+              {experiment.isRollout &&
                 editPages.map((page, idx) => (
                   <LinkNav
                     key={`sidebar-${page.name}-${idx}`}
                     route={`${slug}/${page.slug}`}
-                    testid={`nav-edit-${page.slug}`}
-                    disabled={!experiment.isRollout}
+                    testid={`nav-edit-audience`}
                   >
                     {page.icon}
                     {page.name}
