@@ -209,7 +209,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             return
 
         if extracted is None:
-            extracted = [ProjectFactory.create() for i in range(3)]
+            extracted = [ProjectFactory.create() for _ in range(3)]
 
         self.projects.add(*extracted)
 
@@ -225,7 +225,7 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute
     def addon_release_url(self):
-        return "https://www.example.com/{}-release.xpi".format(slugify(self.name))
+        return f"https://www.example.com/{slugify(self.name)}-release.xpi"
 
     class Meta:
         model = ExperimentVariant

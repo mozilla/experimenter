@@ -128,11 +128,11 @@ def make_bugzilla_call(url, method, data=None):
         response = method(url, data)
         return response.json()
     except requests.exceptions.RequestException as e:
-        logging.exception("Error calling Bugzilla API: {}".format(e))
-        raise BugzillaError(*e.args)
+        logging.exception(f"Error calling Bugzilla API: {e}")
+        raise BugzillaError(*e.args) from e
     except ValueError as e:
-        logging.exception("Error parsing JSON Bugzilla response: {}".format(e))
-        raise BugzillaError(*e.args)
+        logging.exception(f"Error parsing JSON Bugzilla response: {e}")
+        raise BugzillaError(*e.args) from e
 
 
 def format_creation_bug_body(experiment, extra_fields):
@@ -150,13 +150,13 @@ def format_creation_bug_body(experiment, extra_fields):
         "priority": "P3",
         "url": experiment.experiment_url,
     }
-    bug_data.update(extra_fields)
+    bug_data |= extra_fields
     return bug_data
 
 
 def format_summary(experiment):
 
-    truncated_name = experiment.name[0:EXPERIMENT_NAME_MAX_LEN]
+    truncated_name = experiment.name[:EXPERIMENT_NAME_MAX_LEN]
 
     if truncated_name != experiment.name:
         truncated_name += "..."
@@ -188,9 +188,7 @@ def format_normandy_experiment_request(experiment):
 
     extra_fields = {"assigned_to": assigned_to, "blocks": blocks}
 
-    bug_data = format_creation_bug_body(experiment, extra_fields)
-
-    return bug_data
+    return format_creation_bug_body(experiment, extra_fields)
 
 
 def get_bugzilla_id(bug_url):

@@ -684,19 +684,17 @@ class TestExperimentReviewForm(
         form = ExperimentReviewForm(request=self.request, data={}, instance=experiment)
 
         self.assertEqual(
-            set([f.name for f in form.required_reviews]),
-            set(
-                [
-                    "review_science",
-                    "review_advisory",
-                    "review_engineering",
-                    "review_qa_requested",
-                    "review_intent_to_ship",
-                    "review_bugzilla",
-                    "review_qa",
-                    "review_relman",
-                ]
-            ),
+            {f.name for f in form.required_reviews},
+            {
+                "review_science",
+                "review_advisory",
+                "review_engineering",
+                "review_qa_requested",
+                "review_intent_to_ship",
+                "review_bugzilla",
+                "review_qa",
+                "review_relman",
+            },
         )
 
     def test_required_reviews_when_a_risk_partner_related_is_true(self):
@@ -753,16 +751,14 @@ class TestExperimentReviewForm(
         form = ExperimentReviewForm(self.request, instance=experiment)
 
         self.assertEqual(
-            set([f.name for f in form.required_reviews]),
-            set(
-                [
-                    "review_qa",
-                    "review_intent_to_ship",
-                    "review_qa_requested",
-                    "review_advisory",
-                    "review_relman",
-                ]
-            ),
+            {f.name for f in form.required_reviews},
+            {
+                "review_qa",
+                "review_intent_to_ship",
+                "review_qa_requested",
+                "review_advisory",
+                "review_relman",
+            },
         )
 
     def test_optional_reviews_for_rollout(self):
@@ -771,18 +767,16 @@ class TestExperimentReviewForm(
         form = ExperimentReviewForm(self.request, instance=experiment)
 
         self.assertEqual(
-            set([f.name for f in form.optional_reviews]),
-            set(
-                [
-                    "review_impacted_teams",
-                    "review_ux",
-                    "review_legal",
-                    "review_security",
-                    "review_vp",
-                    "review_comms",
-                    "review_data_steward",
-                ]
-            ),
+            {f.name for f in form.optional_reviews},
+            {
+                "review_impacted_teams",
+                "review_ux",
+                "review_legal",
+                "review_security",
+                "review_vp",
+                "review_comms",
+                "review_data_steward",
+            },
         )
 
     def test_cannot_check_review_relman_without_permissions(self):

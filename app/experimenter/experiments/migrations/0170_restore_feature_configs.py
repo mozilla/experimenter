@@ -7,7 +7,7 @@ def restore_feature_configs(apps, schema_editor):
     NimbusExperiment = apps.get_model("experiments", "NimbusExperiment")
     NimbusFeatureConfig = apps.get_model("experiments", "NimbusFeatureConfig")
     for experiment in NimbusExperiment.objects.all():
-        feature_slug = (
+        if feature_slug := (
             experiment.changes.all()
             .exclude(experiment_data__feature_config=None)
             .exclude(experiment_data__feature_config__slug="no-feature-firefox-desktop")
@@ -16,9 +16,7 @@ def restore_feature_configs(apps, schema_editor):
             .order_by("-changed_on")
             .values_list("experiment_data__feature_config__slug", flat=True)
             .first()
-        )
-
-        if feature_slug:
+        ):
             feature_config = NimbusFeatureConfig.objects.get(slug=feature_slug)
             experiment.feature_config = feature_config
             experiment.save()

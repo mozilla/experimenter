@@ -32,7 +32,7 @@ class TestExperimentListView(TestCase):
         # Archived experiment is ommitted
         ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=True)
 
-        for i in range(3):
+        for _ in range(3):
             ExperimentFactory.create_with_status(
                 random.choice(Experiment.STATUS_CHOICES)[0]
             )
@@ -57,7 +57,7 @@ class TestExperimentListView(TestCase):
         # Archived experiment is included
         ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=True)
 
-        for i in range(3):
+        for _ in range(3):
             ExperimentFactory.create_with_status(
                 random.choice(Experiment.STATUS_CHOICES)[0]
             )
@@ -85,7 +85,7 @@ class TestExperimentListView(TestCase):
         filtered_types = (Experiment.TYPE_PREF, Experiment.TYPE_GENERIC)
         filtered_version = Experiment.VERSION_CHOICES[1][0]
 
-        for i in range(3):
+        for _ in range(3):
             for filtered_type in filtered_types:
                 ExperimentFactory.create_with_status(
                     firefox_channel=filtered_channel,
@@ -95,7 +95,7 @@ class TestExperimentListView(TestCase):
                     type=filtered_type,
                 )
 
-        for i in range(3):
+        for _ in range(3):
             ExperimentFactory.create_with_status(
                 random.choice(Experiment.STATUS_CHOICES)[0]
             )
@@ -134,7 +134,7 @@ class TestExperimentListView(TestCase):
         user_email = "user@example.com"
 
         number_of_experiments = settings.EXPERIMENTS_PAGINATE_BY + 1
-        for i in range(number_of_experiments):
+        for _ in range(number_of_experiments):
             ExperimentFactory.create_with_status(
                 random.choice(Experiment.STATUS_CHOICES)[0]
             )

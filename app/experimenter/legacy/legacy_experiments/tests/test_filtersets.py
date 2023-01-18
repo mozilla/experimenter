@@ -28,7 +28,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             queryset=Experiment.objects.all(),
         )
         self.assertTrue(filter.is_valid())
-        self.assertEqual(set(filter.qs), set([pref, addon]))
+        self.assertEqual(set(filter.qs), {pref, addon})
         self.assertEqual(filter.get_type_display_value(), "Pref-Flip, Add-On")
 
     def test_filters_by_no_project_type(self):
@@ -65,10 +65,10 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertIn(project2.name, display_value)
 
     def test_filters_out_archived_by_default(self):
-        for i in range(3):
+        for _ in range(3):
             ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=False)
 
-        for i in range(3):
+        for _ in range(3):
             ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=True)
 
         filter = ExperimentFilterset(data={}, queryset=Experiment.objects.all())
@@ -76,10 +76,10 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertEqual(set(filter.qs), set(Experiment.objects.filter(archived=False)))
 
     def test_allows_archived_if_True(self):
-        for i in range(3):
+        for _ in range(3):
             ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=False)
 
-        for i in range(3):
+        for _ in range(3):
             ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=True)
 
         filter = ExperimentFilterset(
@@ -91,7 +91,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
     def test_filters_by_owner(self):
         owner = UserFactory.create()
 
-        for i in range(3):
+        for _ in range(3):
             ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, owner=owner)
             ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
@@ -103,7 +103,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertEqual(filter.get_owner_display_value(), str(owner))
 
     def test_filters_by_status(self):
-        for i in range(3):
+        for _ in range(3):
             ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
             ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
 
@@ -136,13 +136,13 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         filter = ExperimentFilterset(
             {"firefox_version": "59.0"}, queryset=Experiment.objects.all()
         )
-        self.assertEqual(set(filter.qs), set([exp_1, exp_2, exp_3]))
+        self.assertEqual(set(filter.qs), {exp_1, exp_2, exp_3})
 
     def test_filters_by_firefox_channel(self):
         include_channel = Experiment.CHANNEL_CHOICES[1][0]
         exclude_channel = Experiment.CHANNEL_CHOICES[2][0]
 
-        for i in range(3):
+        for _ in range(3):
             ExperimentFactory.create_with_variants(firefox_channel=include_channel)
             ExperimentFactory.create_with_variants(firefox_channel=exclude_channel)
 
@@ -219,8 +219,8 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         ).context[0]
 
-        self.assertEqual(set(first_response_context["experiments"]), set([exp_1, exp_2]))
-        self.assertEqual(set(second_response_context["experiments"]), set([exp_3]))
+        self.assertEqual(set(first_response_context["experiments"]), {exp_1, exp_2})
+        self.assertEqual(set(second_response_context["experiments"]), {exp_3})
 
     def test_filters_by_review_in_qa(self):
         exp_1 = ExperimentFactory.create_with_variants(
@@ -231,7 +231,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
 
         filter = ExperimentFilterset({"in_qa": "on"}, queryset=Experiment.objects.all())
 
-        self.assertEqual(set(filter.qs), set([exp_1]))
+        self.assertEqual(set(filter.qs), {exp_1})
 
     def test_filters_experiments_with_surveys(self):
         exp_1 = ExperimentFactory.create_with_variants(survey_required=True)
@@ -242,7 +242,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
 
         filter = ExperimentFilterset({"surveys": "on"}, queryset=Experiment.objects.all())
 
-        self.assertEqual(set(filter.qs), set([exp_1, exp_2]))
+        self.assertEqual(set(filter.qs), {exp_1, exp_2})
 
     def test_filters_for_subscribed_experiments(self):
         exp_1 = ExperimentFactory.create(name="Experiment", slug="experiment")
@@ -288,7 +288,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             {"longrunning": "on"}, request=self.request, queryset=Experiment.objects.all()
         )
 
-        self.assertEqual(set(filter.qs), set([exp_1, exp_2]))
+        self.assertEqual(set(filter.qs), {exp_1, exp_2})
 
     def test_filters_for_results_completed(self):
         exp1 = ExperimentFactory.create(results_url="https://example.com")
@@ -358,7 +358,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             }
         )
 
-        self.assertEqual(set(filter.qs), set([self.exp_1]))
+        self.assertEqual(set(filter.qs), {self.exp_1})
         self.assertEqual(
             filter.get_display_start_date_info(),
             "starting between 2019-04-01 and 2019-05-01",
@@ -375,7 +375,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             }
         )
 
-        self.assertEqual(set(filter.qs), set([self.exp_1, self.exp_2]))
+        self.assertEqual(set(filter.qs), {self.exp_1, self.exp_2})
         self.assertEqual(
             filter.get_display_start_date_info(),
             "pausing between 2019-04-01 and 2019-05-01",
@@ -392,7 +392,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             }
         )
 
-        self.assertEqual(set(filter.qs), set([self.exp_2, self.exp_4]))
+        self.assertEqual(set(filter.qs), {self.exp_2, self.exp_4})
         self.assertEqual(
             filter.get_display_start_date_info(),
             "ending between 2019-04-01 and 2019-05-01",
@@ -409,7 +409,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             }
         )
 
-        self.assertEqual(set(filter.qs), set([self.exp_1, self.exp_3]))
+        self.assertEqual(set(filter.qs), {self.exp_1, self.exp_3})
         self.assertEqual(
             filter.get_display_start_date_info(), "starting after 2019-04-01"
         )
@@ -425,7 +425,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             }
         )
 
-        self.assertEqual(set(filter.qs), set([self.exp_1, self.exp_2, self.exp_4]))
+        self.assertEqual(set(filter.qs), {self.exp_1, self.exp_2, self.exp_4})
         self.assertEqual(
             filter.get_display_start_date_info(), "starting before 2019-05-01"
         )
@@ -441,15 +441,13 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             }
         )
 
-        self.assertEqual(
-            set(filter.qs), set([self.exp_1, self.exp_2, self.exp_3, self.exp_4])
-        )
+        self.assertEqual(set(filter.qs), {self.exp_1, self.exp_2, self.exp_3, self.exp_4})
 
     def test_filters_by_analysis_owner(self):
         user = UserFactory.create()
         experiment = ExperimentFactory.create(analysis_owner=user)
         filter = ExperimentFilterset(data={"analysis_owner": user.id})
-        self.assertEqual(set(filter.qs), set([experiment]))
+        self.assertEqual(set(filter.qs), {experiment})
 
     def test_filter_by_analysis_owner_invalid_for_non_analysis_owner(self):
         user = UserFactory.create()

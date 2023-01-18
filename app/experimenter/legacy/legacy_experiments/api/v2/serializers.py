@@ -34,21 +34,22 @@ class PrefValidationMixin(object):
         if pref_type == "Firefox Pref Type":
             errors["pref_type"] = "Please select a pref type"
 
-        pref_value_error = self.validate_pref_value(pref_type, pref_value, field_name)
-        if pref_value_error:
+        if pref_value_error := self.validate_pref_value(
+            pref_type, pref_value, field_name
+        ):
             errors[field_name] = pref_value_error
         return errors
 
     def validate_pref_value(self, pref_type, pref_value, field_name):
-        if pref_type == "integer":
+        if pref_type == "boolean":
+            if pref_value not in ["true", "false"]:
+                return {field_name: "The pref value must be a boolean."}
+
+        elif pref_type == "integer":
             try:
                 int(pref_value)
             except ValueError:
                 return {field_name: "The pref value must be an integer."}
-
-        if pref_type == "boolean":
-            if pref_value not in ["true", "false"]:
-                return {field_name: "The pref value must be a boolean."}
 
         if pref_type == "json string":
             try:
@@ -58,17 +59,15 @@ class PrefValidationMixin(object):
         return {}
 
     def is_pref_valid(self, preferences):
-        unique_names = len(
-            set([slugify(pref["pref_name"]) for pref in preferences])
-        ) == len(preferences)
-
-        return unique_names
+        return len({slugify(pref["pref_name"]) for pref in preferences}) == len(
+            preferences
+        )
 
 
 class VariantsListSerializer(serializers.ListSerializer):
     def to_representation(self, data):
         data = super().to_representation(data)
-        initial_fields = set(self.child.fields) - set(["id"])
+        initial_fields = set(self.child.fields) - {"id"}
 
         if data == []:
             blank_variant = {}
@@ -127,9 +126,7 @@ class ExperimentDesignVariantPrefSerializer(ExperimentDesignVariantBaseSerialize
 class PreferenceListSerializer(serializers.ListSerializer):
     def to_representation(self, data):
         data = super().to_representation(data)
-        if data == []:
-            return [{}]
-        return data
+        return [{}] if data == [] else data
 
 
 class ExperimentDesignBasePreferenceSerializer(serializers.ModelSerializer):
@@ -184,7 +181,7 @@ class ExperimentDesignBranchMultiPrefSerializer(
         error_list = []
         for pref in preferences:
             errors = {}
-            errors.update(self.validate_pref_branch(pref["pref_branch"]))
+            errors |= self.validate_pref_branch(pref["pref_branch"])
             errors.update(self.validate_multi_preference(pref))
             error_list.append(errors)
 
@@ -202,23 +199,17 @@ class ExperimentDesignBaseSerializer(
         fields = ("variants",)
 
     def validate(self, data):
-        variants = data.get("variants")
-
-        if variants:
-            if sum([variant["ratio"] for variant in variants]) != 100:
-                error_list = []
-                for variant in variants:
-                    error_list.append({"ratio": ["All branch sizes must add up to 100."]})
-
+        if variants := data.get("variants"):
+            if sum(variant["ratio"] for variant in variants) != 100:
+                error_list = [
+                    {"ratio": ["All branch sizes must add up to 100."]} for _ in variants
+                ]
                 raise serializers.ValidationError({"variants": error_list})
 
             if not self.is_variant_valid(variants):
-                error_list = []
-                for variant in variants:
-                    error_list.append(
-                        {"name": [("All branches must have a unique name")]}
-                    )
-
+                error_list = [
+                    {"name": [("All branches must have a unique name")]} for _ in variants
+                ]
                 raise serializers.ValidationError({"variants": error_list})
 
         return data
@@ -248,22 +239,20 @@ class ExperimentDesignBaseSerializer(
                     ExperimentVariant(**variant_data).save()
 
                 # Delete removed variants
-                submitted_variant_ids = set(
-                    [v.get("id") for v in variants_data if v.get("id")]
-                )
-                removed_ids = existing_variant_ids - submitted_variant_ids
-
-                if removed_ids:
+                submitted_variant_ids = {
+                    v.get("id") for v in variants_data if v.get("id")
+                }
+                if removed_ids := existing_variant_ids - submitted_variant_ids:
                     ExperimentVariant.objects.filter(id__in=removed_ids).delete()
 
             return instance
-        except IntegrityError:
+        except IntegrityError as e:
             error_string = (
                 "Error: unable to save this change, please contact an experimenter admin"
             )
             error = [{"name": error_string}] * len(variants_data)
 
-            raise serializers.ValidationError({"variants": error})
+            raise serializers.ValidationError({"variants": error}) from e
 
     def update(self, instance, validated_data):
         instance = self.update_instance(instance, validated_data)
@@ -334,9 +323,7 @@ class ExperimentDesignPrefRolloutSerializer(
                     id=pref_id, defaults=preference_data
                 )
 
-            removed_ids = existing_preference_ids - set(submitted_preference_ids)
-
-            if removed_ids:
+            if removed_ids := existing_preference_ids - set(submitted_preference_ids):
                 RolloutPreference.objects.filter(id__in=removed_ids).delete()
 
         self.update_changelog(instance, validated_data_copy)
@@ -381,9 +368,7 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
                     pref_id = pref.get("id")
                     submitted_pref_ids.append(pref_id)
 
-        removed_ids = set(existing_pref_ids) - set(submitted_pref_ids)
-
-        if removed_ids:
+        if removed_ids := set(existing_pref_ids) - set(submitted_pref_ids):
             VariantPreferences.objects.filter(id__in=removed_ids).delete()
 
         self.update_changelog(instance, validated_data)
@@ -424,22 +409,18 @@ class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSe
 
         variants = data["variants"]
 
-        if not len(set(variant["value"] for variant in variants)) == len(variants):
-            error_list = []
-            for variant in variants:
-                error_list.append(
-                    {"value": ["All branches must have a unique pref value."]}
-                )
-
+        if len({variant["value"] for variant in variants}) != len(variants):
+            error_list = [
+                {"value": ["All branches must have a unique pref value."]}
+                for _ in variants
+            ]
             raise serializers.ValidationError({"variants": error_list})
 
-        error_list = []
         pref_type = data.get("pref_type", "")
-        for variant in variants:
-            error_list.append(
-                self.validate_pref_value(pref_type, variant["value"], "value")
-            )
-
+        error_list = [
+            self.validate_pref_value(pref_type, variant["value"], "value")
+            for variant in variants
+        ]
         if any(error_list):
             raise serializers.ValidationError({"variants": error_list})
         return data
@@ -658,30 +639,36 @@ class ExperimentTimelinePopSerializer(
     def validate(self, data):
         data = super().validate(data)
 
-        if data["proposed_enrollment"] and data["proposed_duration"]:
-            if data["proposed_enrollment"] >= data["proposed_duration"]:
-                raise serializers.ValidationError(
-                    {
-                        "proposed_enrollment": (
-                            "Enrollment duration is optional,"
-                            " but if set, must be lower than the delivery "
-                            "duration. If enrollment duration is not "
-                            "specified - users are enrolled for the"
-                            "entire delivery."
-                        )
-                    }
-                )
+        if (
+            data["proposed_enrollment"]
+            and data["proposed_duration"]
+            and data["proposed_enrollment"] >= data["proposed_duration"]
+        ):
+            raise serializers.ValidationError(
+                {
+                    "proposed_enrollment": (
+                        "Enrollment duration is optional,"
+                        " but if set, must be lower than the delivery "
+                        "duration. If enrollment duration is not "
+                        "specified - users are enrolled for the"
+                        "entire delivery."
+                    )
+                }
+            )
 
-        if data["firefox_min_version"] and data["firefox_max_version"]:
-            if float(data["firefox_min_version"]) > float(data["firefox_max_version"]):
-                raise serializers.ValidationError(
-                    {
-                        "firefox_max_version": (
-                            "The max version must be larger "
-                            "than or equal to the min version."
-                        )
-                    }
-                )
+        if (
+            data["firefox_min_version"]
+            and data["firefox_max_version"]
+            and float(data["firefox_min_version"]) > float(data["firefox_max_version"])
+        ):
+            raise serializers.ValidationError(
+                {
+                    "firefox_max_version": (
+                        "The max version must be larger "
+                        "than or equal to the min version."
+                    )
+                }
+            )
 
         return data
 
@@ -717,11 +704,9 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
         fields = ("name", "clone_url")
 
     def validate_name(self, value):
-        existing_slug_or_name = Experiment.objects.filter(
+        if existing_slug_or_name := Experiment.objects.filter(
             Q(slug=slugify(value)) | Q(name=value)
-        )
-
-        if existing_slug_or_name:
+        ):
             raise serializers.ValidationError("This experiment name already exists.")
 
         if slugify(value):

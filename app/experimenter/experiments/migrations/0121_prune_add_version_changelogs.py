@@ -9,9 +9,9 @@ class Migration(migrations.Migration):
         ("experiments", "0120_add_feature_config"),
     ]
 
-    def prune_new_changelog(apps, schema_editor):
+    def prune_new_changelog(self, schema_editor):
 
-        ExperimentChangeLog = apps.get_model("experiments", "ExperimentChangeLog")
+        ExperimentChangeLog = self.get_model("experiments", "ExperimentChangeLog")
 
         ExperimentChangeLog.objects.filter(
             message="Added Version(s)",

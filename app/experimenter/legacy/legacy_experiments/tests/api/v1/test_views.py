@@ -18,7 +18,7 @@ class TestExperimentListView(TestCase):
     def test_list_view_serializes_experiments(self):
         experiments = []
 
-        for i in range(3):
+        for _ in range(3):
             experiment = ExperimentFactory.create_with_variants()
             experiments.append(experiment)
 
@@ -37,11 +37,11 @@ class TestExperimentListView(TestCase):
         pending_experiments = []
 
         # new experiments should be excluded
-        for i in range(2):
+        for _ in range(2):
             ExperimentFactory.create_with_variants()
 
         # pending experiments should be included
-        for i in range(3):
+        for _ in range(3):
             experiment = ExperimentFactory.create_with_variants()
             experiment.status = experiment.STATUS_REVIEW
             experiment.save()

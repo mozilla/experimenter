@@ -9,8 +9,8 @@ class Migration(migrations.Migration):
 
     dependencies = [("experiments", "0068_experiment_related_to")]
 
-    def format_to_new_changelog(apps, schema_editor):
-        ExperimentChangeLog = apps.get_model("experiments", "ExperimentChangeLog")
+    def format_to_new_changelog(self, schema_editor):
+        ExperimentChangeLog = self.get_model("experiments", "ExperimentChangeLog")
         for changeLog in ExperimentChangeLog.objects.all():
             changed_values = {}
             # ensure change log has new_values

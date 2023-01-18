@@ -257,9 +257,7 @@ class TestAddExperimentComment(MockBugzillaMixin, TestCase):
             bugzilla_id="123",
             type=Experiment.TYPE_PREF,
         )
-        comment = "Start Date: {} End Date: {}".format(
-            experiment.start_date, experiment.end_date
-        )
+        comment = f"Start Date: {experiment.start_date} End Date: {experiment.end_date}"
 
         comment_id = add_experiment_comment(experiment.bugzilla_id, comment)
 
@@ -278,9 +276,7 @@ class TestAddExperimentComment(MockBugzillaMixin, TestCase):
             type=Experiment.TYPE_ADDON,
         )
 
-        comment = "Start Date: {} End Date: {}".format(
-            experiment.start_date, experiment.end_date
-        )
+        comment = f"Start Date: {experiment.start_date} End Date: {experiment.end_date}"
 
         comment_id = add_experiment_comment(experiment.bugzilla_id, comment)
 

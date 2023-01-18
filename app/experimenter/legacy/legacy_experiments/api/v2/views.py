@@ -108,7 +108,7 @@ class ExperimentTimelinePopulationView(RetrieveUpdateAPIView):
 
 class ExperimentCSVRenderer(CSVRenderer):
     header = ExperimentCSVSerializer.Meta.fields
-    labels = dict(((field, field.replace("_", " ").title()) for field in header))
+    labels = {field: field.replace("_", " ").title() for field in header}
 
 
 class ExperimentCSVListView(ListAPIView):

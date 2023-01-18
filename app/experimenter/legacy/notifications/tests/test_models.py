@@ -8,7 +8,7 @@ class TestNotificationModel(TestCase):
     def test_has_unread_false_when_all_read(self):
         user = UserFactory.create()
 
-        for i in range(3):
+        for _ in range(3):
             NotificationFactory.create(user=user, read=True)
 
         self.assertFalse(user.notifications.has_unread)
@@ -23,14 +23,12 @@ class TestNotificationModel(TestCase):
     def test_get_unread_returns_unread_and_marks_as_read(self):
         user = UserFactory.create()
 
-        unread_notifications = []
-        for i in range(3):
-            unread_notifications.append(NotificationFactory.create(user=user, read=False))
-
-        read_notifications = []
-        for i in range(3):
-            read_notifications.append(NotificationFactory.create(user=user, read=True))
-
+        unread_notifications = [
+            NotificationFactory.create(user=user, read=False) for _ in range(3)
+        ]
+        read_notifications = [
+            NotificationFactory.create(user=user, read=True) for _ in range(3)
+        ]
         self.assertTrue(user.notifications.has_unread)
 
         notifications = user.notifications.get_unread()
@@ -45,7 +43,7 @@ class TestNotificationModel(TestCase):
 
         user1_notifications = []
         user2_notifications = []
-        for i in range(3):
+        for _ in range(3):
             user1_notifications.append(NotificationFactory.create(user=user1))
             user2_notifications.append(NotificationFactory.create(user=user2))
 

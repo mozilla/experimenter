@@ -32,8 +32,8 @@ class JSONField(forms.CharField):
         if cleaned_value:
             try:
                 json.loads(cleaned_value)
-            except json.JSONDecodeError:
-                raise forms.ValidationError("This is not valid JSON.")
+            except json.JSONDecodeError as e:
+                raise forms.ValidationError("This is not valid JSON.") from e
 
         return cleaned_value
 
@@ -43,15 +43,15 @@ class DSIssueURLField(forms.URLField):
         cleaned_value = super().clean(value)
 
         if cleaned_value:
-            err_str = (
-                "Please Provide a Valid URL ex: {ds_url}DS-12345 or {ds_url}DO-12345"
-            )
-
             ds = re.match(
                 re.escape(settings.DS_ISSUE_HOST) + r"(DS|DO)-(\w+.*)", cleaned_value
             )
 
             if ds is None:
+
+                err_str = (
+                    "Please Provide a Valid URL ex: {ds_url}DS-12345 or {ds_url}DO-12345"
+                )
 
                 raise forms.ValidationError(err_str.format(ds_url=settings.DS_ISSUE_HOST))
         return cleaned_value
@@ -61,13 +61,12 @@ class BugzillaURLField(forms.URLField):
     def clean(self, value):
         cleaned_value = super().clean(value)
 
-        if cleaned_value:
+        if cleaned_value and (
+            settings.BUGZILLA_HOST not in cleaned_value
+            or get_bugzilla_id(cleaned_value) is None
+        ):
             err_str = "Please Provide a Valid URL ex: {}show_bug.cgi?id=1234"
-            if (
-                settings.BUGZILLA_HOST not in cleaned_value
-                or get_bugzilla_id(cleaned_value) is None
-            ):
-                raise forms.ValidationError(err_str.format(settings.BUGZILLA_HOST))
+            raise forms.ValidationError(err_str.format(settings.BUGZILLA_HOST))
 
         return cleaned_value
 
@@ -678,7 +677,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         reviews = set(self.fields) - set(self.instance.get_all_required_reviews())
 
         if self.instance.is_rollout:
-            reviews -= set(["review_science", "review_bugzilla", "review_engineering"])
+            reviews -= {"review_science", "review_bugzilla", "review_engineering"}
 
         return [self[r] for r in sorted(reviews)]
 
@@ -819,10 +818,7 @@ class ExperimentArchiveForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm
         return not self.instance.archived
 
     def get_changelog_message(self):
-        message = "Archived Delivery"
-        if not self.instance.archived:
-            message = "Unarchived Delivery"
-        return message
+        return "Archived Delivery" if self.instance.archived else "Unarchived Delivery"
 
     def save(self, *args, **kwargs):
         experiment = Experiment.objects.get(id=self.instance.id)
@@ -923,8 +919,8 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
             return [
                 int(i.strip()) for i in self.cleaned_data["other_normandy_ids"].split(",")
             ]
-        except ValueError:
-            raise forms.ValidationError("IDs must be numbers separated by commas.")
+        except ValueError as e:
+            raise forms.ValidationError("IDs must be numbers separated by commas.") from e
 
     class Meta:
         model = Experiment

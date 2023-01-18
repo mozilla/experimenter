@@ -334,29 +334,25 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             sticky_expressions.append(self.targeting_config.targeting)
 
         is_desktop = self.application == self.Application.DESKTOP
-        if is_desktop:
-            if self.channel:
-                expressions.append(f'browserSettings.update.channel == "{self.channel}"')
+        if is_desktop and self.channel:
+            expressions.append(f'browserSettings.update.channel == "{self.channel}"')
 
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())
 
-        locales = self.locales.all()
-        if locales:
+        if locales := self.locales.all():
             locales = [locale.code for locale in sorted(locales, key=lambda l: l.code)]
 
             sticky_expressions.append(f"locale in {locales}")
 
-        languages = self.languages.all()
-        if languages:
+        if languages := self.languages.all():
             languages = [
                 language.code for language in sorted(languages, key=lambda l: l.code)
             ]
 
             sticky_expressions.append(f"language in {languages}")
 
-        countries = self.countries.all()
-        if countries:
+        if countries := self.countries.all():
             countries = [
                 country.code for country in sorted(countries, key=lambda c: c.code)
             ]
@@ -365,10 +361,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.is_sticky and sticky_expressions:
             sticky_clause = "is_already_enrolled"
             if is_desktop:
-                sticky_clause = "experiment.slug in activeExperiments"
                 if self.is_rollout:
                     sticky_clause = "experiment.slug in activeRollouts"
-
+                else:
+                    sticky_clause = "experiment.slug in activeExperiments"
             sticky_expressions_joined = " && ".join(
                 [f"({expression})" for expression in sticky_expressions]
             )
@@ -381,10 +377,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             expressions.extend(f"!('{pref}'|preferenceIsUserSet)" for pref in prefs)
 
         #  If there is no targeting defined all clients should match, so we return "true"
-        if len(expressions) == 0:
-            return "true"
-
-        return " && ".join([f"({expression})" for expression in expressions])
+        return (
+            " && ".join([f"({expression})" for expression in expressions])
+            if expressions
+            else "true"
+        )
 
     @property
     def application_config(self):
@@ -416,14 +413,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return self._start_date
 
         if self.is_started:
-            start_changelogs = [
+            if start_changelogs := [
                 c
                 for c in self.changes.all()
                 if c.old_status == NimbusExperiment.Status.DRAFT
                 and c.new_status == NimbusExperiment.Status.LIVE
-            ]
-
-            if start_changelogs:
+            ]:
                 start_date = sorted(start_changelogs, key=lambda c: c.changed_on)[
                     -1
                 ].changed_on.date()
@@ -443,14 +438,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         if self.status == self.Status.COMPLETE:
             changes = self.changes.all()
-            end_changelogs = [
+            if end_changelogs := [
                 c
                 for c in changes
                 if c.old_status == self.Status.LIVE
                 and c.new_status == self.Status.COMPLETE
-            ]
-
-            if end_changelogs:
+            ]:
                 end_date = sorted(end_changelogs, key=lambda c: c.changed_on)[
                     -1
                 ].changed_on.date()
@@ -474,7 +467,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return (self._enrollment_end_date - self._start_date).days
 
         changes = self.changes.all()
-        paused_changelogs = [
+        if paused_changelogs := [
             c
             for c in changes
             if c.experiment_data is not None
@@ -483,9 +476,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             and c.new_status == NimbusExperiment.Status.LIVE
             and c.new_status_next is None
             and c.new_publish_status == NimbusExperiment.PublishStatus.IDLE
-        ]
-
-        if paused_changelogs:
+        ]:
             paused_change = sorted(paused_changelogs, key=lambda c: c.changed_on)[-1]
             self._enrollment_end_date = paused_change.changed_on.date()
             self.save()
@@ -505,10 +496,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_end_date(self):
-        if self.end_date:
-            return self.end_date
-        else:
-            return self.proposed_end_date
+        return self.end_date or self.proposed_end_date
 
     @property
     def enrollment_duration(self):
@@ -590,9 +578,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             self.application_config.slug,
         ]
 
-        for feature_config in self.feature_configs.all().order_by("slug"):
-            keys.append(feature_config.slug)
-
+        keys.extend(
+            feature_config.slug
+            for feature_config in self.feature_configs.all().order_by("slug")
+        )
         if self.channel:
             keys.append(self.channel)
 
@@ -833,10 +822,7 @@ class NimbusBranchScreenshot(models.Model):
         ordering = ["id"]
 
     def delete(self, *args, **kwargs):
-        old_image_name = None
-        if self.image and self.image.name:
-            old_image_name = self.image.name
-
+        old_image_name = self.image.name if self.image and self.image.name else None
         super().delete(*args, **kwargs)
 
         if old_image_name and self.image.storage.exists(old_image_name):
@@ -1104,13 +1090,10 @@ class NimbusChangeLog(FilterMixin, models.Model):
         COMPLETED = "Experiment is complete"
 
     def __str__(self):
-        if self.message:
-            return self.message
-        else:
-            return (
-                f"{self.old_status} > {self.new_status} "
-                f"by {self.changed_by} on {self.changed_on}"
-            )
+        return (
+            self.message
+            or f"{self.old_status} > {self.new_status} by {self.changed_by} on {self.changed_on}"
+        )
 
 
 class NimbusEmail(models.Model):

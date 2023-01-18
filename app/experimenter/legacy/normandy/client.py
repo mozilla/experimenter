@@ -21,22 +21,22 @@ class NormandyDecodeError(NormandyError):
     message = "Error parsing JSON Normandy Response"
 
 
-def make_normandy_call(url, params={}):
+def make_normandy_call(url, params=None):
+    if params is None:
+        params = {}
     try:
         response = requests.get(url, verify=(not settings.DEBUG), params=params)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.HTTPError as e:
-        logging.exception(
-            "Normandy API returned Nonsuccessful Response Code: {}".format(e)
-        )
-        raise NonsuccessfulNormandyCall(*e.args)
+        logging.exception(f"Normandy API returned Nonsuccessful Response Code: {e}")
+        raise NonsuccessfulNormandyCall(*e.args) from e
     except requests.exceptions.RequestException as e:
-        logging.exception("Error calling Normandy API: {}".format(e))
-        raise APINormandyError(*e.args)
+        logging.exception(f"Error calling Normandy API: {e}")
+        raise APINormandyError(*e.args) from e
     except ValueError as e:
-        logging.exception("Error parsing JSON Normandy response: {}".format(e))
-        raise NormandyDecodeError(*e.args)
+        logging.exception(f"Error parsing JSON Normandy response: {e}")
+        raise NormandyDecodeError(*e.args) from e
 
 
 def get_recipe(recipe_id):
@@ -59,8 +59,7 @@ def get_recipe_state_enabler(recipe_data):
 
     enabled_states = recipe_data.get("enabled_states", [])
     if len(enabled_states) > 0:
-        creator = enabled_states[0].get("creator")
-        if creator:
+        if creator := enabled_states[0].get("creator"):
             enabler_email = creator.get("email")
 
     enabler, _ = get_user_model().objects.get_or_create(

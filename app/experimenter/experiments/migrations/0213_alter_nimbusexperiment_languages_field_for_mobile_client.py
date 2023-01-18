@@ -10,9 +10,7 @@ def update_languages_field_for_mobile_client(apps, schema_editor):
     ):
         for locale in experiment.locales.all():
             locale_code = locale.code[:2]
-            language = Language.objects.filter(code=locale_code).first()
-            if language:
-
+            if language := Language.objects.filter(code=locale_code).first():
                 experiment.languages.add(language.id)
         experiment.locales.clear()
 

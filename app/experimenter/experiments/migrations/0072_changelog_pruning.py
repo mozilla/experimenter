@@ -12,11 +12,11 @@ class Migration(migrations.Migration):
 
     dependencies = [("experiments", "0071_auto_20190911_1515")]
 
-    def prune_new_changelog(apps, schema_editor):
+    def prune_new_changelog(self, schema_editor):
 
-        ExperimentChangeLog = apps.get_model("experiments", "ExperimentChangeLog")
+        ExperimentChangeLog = self.get_model("experiments", "ExperimentChangeLog")
 
-        Experiment = apps.get_model("experiments", "experiment")
+        Experiment = self.get_model("experiments", "experiment")
 
         for experiment in Experiment.objects.all():
             change_logs = experiment.changes.filter(old_status=None).order_by(
@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
             current_date = None
             for change in changes:
                 if change.changed_on.date() != current_date:
-                    seen_edits = set([change.changed_by.email])
+                    seen_edits = {change.changed_by.email}
                     current_date = change.changed_on.date()
                 elif change.changed_by.email in seen_edits:
                     change.delete()

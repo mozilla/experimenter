@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
             field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True),
         ),
         migrations.AlterUniqueTogether(
-            name="experimentvariant", unique_together=set([("slug", "experiment")])
+            name="experimentvariant", unique_together={("slug", "experiment")}
         ),
     ]
