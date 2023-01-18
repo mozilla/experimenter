@@ -378,13 +378,13 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def format_ndt_normandy_urls(self):
-        # returns a list of dictionaries containing D.C. and Normandy
-        # urls for the main normandy id and other normandy ids if they exist
-        normandy_recipe_url = settings.NORMANDY_API_RECIPE_URL
-        ndt_recipe_url = settings.NORMANDY_DEVTOOLS_RECIPE_URL
         urls = []
 
         if self.normandy_id:
+            # returns a list of dictionaries containing D.C. and Normandy
+            # urls for the main normandy id and other normandy ids if they exist
+            normandy_recipe_url = settings.NORMANDY_API_RECIPE_URL
+            ndt_recipe_url = settings.NORMANDY_DEVTOOLS_RECIPE_URL
             urls.append(
                 {
                     "id": self.normandy_id,
@@ -394,15 +394,14 @@ class Experiment(ExperimentConstants, models.Model):
             )
 
             if self.other_normandy_ids:
-                for norm_id in self.other_normandy_ids:
-                    urls.append(
-                        {
-                            "id": norm_id,
-                            "normandy_url": normandy_recipe_url.format(id=norm_id),
-                            "ndt_url": ndt_recipe_url.format(id=norm_id),
-                        }
-                    )
-
+                urls.extend(
+                    {
+                        "id": norm_id,
+                        "normandy_url": normandy_recipe_url.format(id=norm_id),
+                        "ndt_url": ndt_recipe_url.format(id=norm_id),
+                    }
+                    for norm_id in self.other_normandy_ids
+                )
         return urls
 
     @property
@@ -460,8 +459,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def enrollment_end_date(self):
-        changes = self.changes.filter(message="Enrollment Complete")
-        if changes:
+        if changes := self.changes.filter(message="Enrollment Complete"):
             return changes[0].changed_on.date()
         if self.proposed_enrollment:
             return self._compute_end_date(self.proposed_enrollment)
@@ -473,22 +471,15 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def observation_duration(self):
         if self.enrollment_end_date:
-            duration = (self.end_date - self.enrollment_end_date).days
-            return duration
+            return (self.end_date - self.enrollment_end_date).days
         return 0
 
     def _format_date(self, date):
         return date.strftime("%b %d, %Y")
 
     def _format_date_string(self, start_date, end_date):
-        start_text = "Unknown"
-        if start_date:
-            start_text = self._format_date(start_date)
-
-        end_text = "Unknown"
-        if end_date:
-            end_text = self._format_date(end_date)
-
+        start_text = self._format_date(start_date) if start_date else "Unknown"
+        end_text = self._format_date(end_date) if end_date else "Unknown"
         day_text = "days"
         duration_text = "Unknown"
         if start_date and end_date:
@@ -558,10 +549,10 @@ class Experiment(ExperimentConstants, models.Model):
         date_ordered_changes = []
         for date, users in sorted(self.grouped_changes.items(), reverse=True):
 
-            date_changes = []
-            for user, user_changes in users.items():
-                date_changes.append((user, set([c for c in list(user_changes)])))
-
+            date_changes = [
+                (user, set(list(list(user_changes))))
+                for user, user_changes in users.items()
+            ]
             date_ordered_changes.append((date, date_changes))
 
         return date_ordered_changes
@@ -634,11 +625,10 @@ class Experiment(ExperimentConstants, models.Model):
     def display_platforms_or_versions(self):
         if self.windows_versions:
             return ", ".join(self.windows_versions)
-        else:
-            if set(ExperimentConstants.PLATFORMS_LIST) == set(self.platforms):
-                return ExperimentConstants.PLATFORM_ALL
+        if set(ExperimentConstants.PLATFORMS_LIST) == set(self.platforms):
+            return ExperimentConstants.PLATFORM_ALL
 
-            return ", ".join(self.platforms)
+        return ", ".join(self.platforms)
 
     @property
     def completed_overview(self):
@@ -684,7 +674,7 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def completed_addon(self):
         if self.is_branched_addon:
-            return all([v.addon_release_url for v in self.variants.all()])
+            return all(v.addon_release_url for v in self.variants.all())
         else:
             return self.addon_release_url
 
@@ -721,7 +711,7 @@ class Experiment(ExperimentConstants, models.Model):
             "results_impact_notes",
         )
 
-        return any([getattr(self, field) for field in results_fields])
+        return any(getattr(self, field) for field in results_fields)
 
     @property
     def additional_results(self):
@@ -840,7 +830,7 @@ class Experiment(ExperimentConstants, models.Model):
             # review advisory is an exception that is not required
             required_reviews.remove("review_advisory")
 
-        return all([getattr(self, r) for r in required_reviews])
+        return all(getattr(self, r) for r in required_reviews)
 
     @property
     def completed_all_sections(self):
@@ -1073,10 +1063,7 @@ class ExperimentVariant(models.Model):
 
     @property
     def type(self):
-        if self.is_control:
-            return "Control"
-        else:
-            return "Treatment"
+        return "Control" if self.is_control else "Treatment"
 
 
 class Preference(models.Model):
@@ -1207,10 +1194,7 @@ class ExperimentChangeLog(models.Model):
         ordering = ("changed_on",)
 
     def __str__(self):
-        if self.message:
-            return self.message
-        else:
-            return self.pretty_status
+        return self.message or self.pretty_status
 
     @property
     def pretty_status(self):

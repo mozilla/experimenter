@@ -139,7 +139,7 @@ class TestFilterObjectLocaleSerializer(TestCase):
         experiment = ExperimentFactory.create(locales=[locale1, locale2])
         serializer = FilterObjectLocaleSerializer(experiment)
         self.assertEqual(serializer.data["type"], "locale")
-        self.assertEqual(set(serializer.data["locales"]), set(["ab", "cd"]))
+        self.assertEqual(set(serializer.data["locales"]), {"ab", "cd"})
 
 
 class TestFilterObjectCountrySerializer(TestCase):
@@ -149,7 +149,7 @@ class TestFilterObjectCountrySerializer(TestCase):
         experiment = ExperimentFactory.create(countries=[country1, country2])
         serializer = FilterObjectCountrySerializer(experiment)
         self.assertEqual(serializer.data["type"], "country")
-        self.assertEqual(set(serializer.data["countries"]), set(["ab", "cd"]))
+        self.assertEqual(set(serializer.data["countries"]), {"ab", "cd"})
 
 
 class TestExperimentRecipeAddonVariantSerializer(TestCase):

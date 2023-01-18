@@ -233,8 +233,8 @@ def generate_change_log(
                     }
 
         else:
+            old_val = None
             for field in changed_data:
-                old_val = None
                 new_val = None
                 if field in new_serialized_vals:
                     if field in ("countries", "locales"):

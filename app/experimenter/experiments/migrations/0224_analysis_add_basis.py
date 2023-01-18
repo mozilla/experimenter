@@ -10,11 +10,10 @@ def analysis_add_basis(apps, schema_editor):
     windows = ["daily", "weekly", "overall"]
     default_analysis_basis = "enrollments"
     for experiment in NimbusExperiment.objects.all():
-        new_data = {}
         results = experiment.results_data
         if results is not None and "v2" not in results:
             data = results["v1"]
-            new_data["v1"] = copy.deepcopy(data)
+            new_data = {"v1": copy.deepcopy(data)}
             if data is not None:
                 for key, value in data.items():
                     if (
@@ -22,8 +21,7 @@ def analysis_add_basis(apps, schema_editor):
                         and key in windows
                         and default_analysis_basis not in value
                     ):
-                        data[key] = {}
-                        data[key][default_analysis_basis] = value
+                        data[key] = {default_analysis_basis: value}
                     else:
                         data[key] = value
 

@@ -55,14 +55,12 @@ class TestIntentToShipEmail(TestCase):
         self.assertEqual(sent_email.from_email, sender)
         self.assertEqual(
             set(sent_email.recipients()),
-            set(
-                [
-                    release_drivers,
-                    experiment.owner.email,
-                    experiment.analysis_owner,
-                    "smith@example.com",
-                ]
-            ),
+            {
+                release_drivers,
+                experiment.owner.email,
+                experiment.analysis_owner,
+                "smith@example.com",
+            },
         )
         self.assertTrue(
             experiment.emails.filter(
@@ -116,14 +114,12 @@ class TestIntentToShipEmail(TestCase):
         self.assertEqual(sent_email.from_email, sender)
         self.assertEqual(
             set(sent_email.recipients()),
-            set(
-                [
-                    release_drivers,
-                    experiment.owner.email,
-                    experiment.analysis_owner,
-                    "smith@example.com",
-                ]
-            ),
+            {
+                release_drivers,
+                experiment.owner.email,
+                experiment.analysis_owner,
+                "smith@example.com",
+            },
         )
 
     def format_locales(self, experiment):

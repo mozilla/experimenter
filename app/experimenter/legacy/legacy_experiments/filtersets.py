@@ -182,9 +182,7 @@ class ExperimentFilterset(filters.FilterSet):
         )
 
     def archived_filter(self, queryset, name, value):
-        if not value:
-            return queryset.exclude(archived=True)
-        return queryset
+        return queryset if value else queryset.exclude(archived=True)
 
     def experiment_date_field_filter(self, queryset, name, value):
         # this custom method isn't doing anything. There has to
@@ -199,30 +197,25 @@ class ExperimentFilterset(filters.FilterSet):
         )
 
     def date_range_filter(self, queryset, name, value):
-        date_type = self.form.cleaned_data["experiment_date_field"]
-        if date_type:
-            experiment_date_field = {
-                Experiment.EXPERIMENT_STARTS: "start_date",
-                Experiment.EXPERIMENT_PAUSES: "enrollment_end_date",
-                Experiment.EXPERIMENT_ENDS: "end_date",
-            }[date_type]
+        if not (date_type := self.form.cleaned_data["experiment_date_field"]):
+            return queryset
+        experiment_date_field = {
+            Experiment.EXPERIMENT_STARTS: "start_date",
+            Experiment.EXPERIMENT_PAUSES: "enrollment_end_date",
+            Experiment.EXPERIMENT_ENDS: "end_date",
+        }[date_type]
 
-            results = []
+        results = []
 
-            for experiment in queryset.all():
-                date = getattr(experiment, experiment_date_field)
+        for experiment in queryset.all():
+            if date := getattr(experiment, experiment_date_field):
+                if value.start and date < value.start.date():
+                    continue
+                if value.stop and date > value.stop.date():
+                    continue
+                results.append(experiment.id)
 
-                # enrollment end dates are optional, so there won't always
-                # be a pause date for an experiment
-                if date:
-                    if value.start and date < value.start.date():
-                        continue
-                    if value.stop and date > value.stop.date():
-                        continue
-                    results.append(experiment.id)
-
-            return queryset.filter(pk__in=results)
-        return queryset
+        return queryset.filter(pk__in=results)
 
     def in_qa_filter(self, queryset, name, value):
         if value:
@@ -231,10 +224,7 @@ class ExperimentFilterset(filters.FilterSet):
         return queryset
 
     def surveys_filter(self, queryset, name, value):
-        if value:
-            return queryset.filter(survey_required=True)
-
-        return queryset
+        return queryset.filter(survey_required=True) if value else queryset
 
     def subscribed_filter(self, queryset, name, value):
         if value:
@@ -294,15 +284,12 @@ class ExperimentFilterset(filters.FilterSet):
         )
 
     def get_project_display_value(self):
-        project_ids = self.data.getlist("projects")
-
-        if project_ids:
+        if project_ids := self.data.getlist("projects"):
             if "null" in project_ids:
                 project_ids.remove("null")
-            project_name_list = Project.objects.filter(id__in=project_ids).values_list(
-                "name"
-            )
-            if project_name_list:
+            if project_name_list := Project.objects.filter(
+                id__in=project_ids
+            ).values_list("name"):
                 return ", ".join(project_name[0] for project_name in project_name_list)
             return "No Projects"
 

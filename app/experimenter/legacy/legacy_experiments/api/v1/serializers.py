@@ -20,10 +20,7 @@ class JSTimestampField(serializers.Field):
     """
 
     def to_representation(self, obj):
-        if obj:
-            return time.mktime(obj.timetuple()) * 1000
-        else:
-            return None
+        return time.mktime(obj.timetuple()) * 1000 if obj else None
 
 
 class PrefTypeField(serializers.Field):

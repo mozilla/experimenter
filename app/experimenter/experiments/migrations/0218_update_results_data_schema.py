@@ -11,8 +11,7 @@ def update_results_data_schema(apps, schema_editor):
         if data is not None:
             for key, value in data.items():
                 if value is not None and key in windows and "all" not in value:
-                    data[key] = {}
-                    data[key]["all"] = value
+                    data[key] = {"all": value}
                 else:
                     data[key] = value
 

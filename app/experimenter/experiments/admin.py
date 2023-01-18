@@ -72,12 +72,11 @@ class NimbusExperimentResource(resources.ModelResource):
 
     def get_diff_headers(self):
         skip_list = ["reference_branch_slug"]
-        headers = []
-        for field in self.get_export_fields():
-            if force_text(field.column_name) in skip_list:
-                continue
-            headers.append(force_text(field.column_name))
-        return headers
+        return [
+            force_text(field.column_name)
+            for field in self.get_export_fields()
+            if force_text(field.column_name) not in skip_list
+        ]
 
     class Meta:
         model = NimbusExperiment

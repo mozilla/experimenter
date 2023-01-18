@@ -741,35 +741,35 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(
             set(experiment.grouped_changes.keys()),
-            set([date1.date(), date2.date(), date3.date()]),
+            {date1.date(), date2.date(), date3.date()},
         )
         self.assertEqual(
-            set(experiment.grouped_changes[date1.date()].keys()), set([user1, user2])
+            set(experiment.grouped_changes[date1.date()].keys()), {user1, user2}
         )
         self.assertEqual(
-            set(experiment.grouped_changes[date2.date()].keys()), set([user2, user3])
+            set(experiment.grouped_changes[date2.date()].keys()), {user2, user3}
         )
         self.assertEqual(
             set(experiment.grouped_changes[date3.date()].keys()),
-            set([user1, user2, user3]),
+            {user1, user2, user3},
         )
 
         self.assertEqual(
             experiment.grouped_changes[date1.date()][user1],
-            set([change1, change2, change3]),
+            {change1, change2, change3},
         )
-        self.assertEqual(experiment.grouped_changes[date1.date()][user2], set([change4]))
+        self.assertEqual(experiment.grouped_changes[date1.date()][user2], {change4})
 
-        self.assertEqual(experiment.grouped_changes[date2.date()][user2], set([change5]))
+        self.assertEqual(experiment.grouped_changes[date2.date()][user2], {change5})
         self.assertEqual(
-            experiment.grouped_changes[date2.date()][user3], set([change6, change7])
+            experiment.grouped_changes[date2.date()][user3], {change6, change7}
         )
 
         self.assertEqual(
-            experiment.grouped_changes[date3.date()][user1], set([change8, change9])
+            experiment.grouped_changes[date3.date()][user1], {change8, change9}
         )
-        self.assertEqual(experiment.grouped_changes[date3.date()][user2], set([change10]))
-        self.assertEqual(experiment.grouped_changes[date3.date()][user3], set([change11]))
+        self.assertEqual(experiment.grouped_changes[date3.date()][user2], {change10})
+        self.assertEqual(experiment.grouped_changes[date3.date()][user3], {change11})
 
     def test_ordered_changes_orders_by_date(self):
         experiment = ExperimentFactory.create()
@@ -817,22 +817,22 @@ class TestExperimentModel(TestCase):
         )
 
         expected_changes = {
-            date1.date(): {user1: set([a, b]), user2: set([c])},
-            date2.date(): {user2: set([d]), user3: set([e, f])},
-            date3.date(): {user1: set([g, h]), user2: set([i]), user3: set([j])},
+            date1.date(): {user1: {a, b}, user2: {c}},
+            date2.date(): {user2: {d}, user3: {e, f}},
+            date3.date(): {user1: {g, h}, user2: {i}, user3: {j}},
         }
 
         ordered_dates = [date for date, changes in experiment.ordered_changes]
         self.assertEqual(ordered_dates, [date3.date(), date2.date(), date1.date()])
 
         day3_users = [user for user, user_changes in experiment.ordered_changes[0][1]]
-        self.assertEqual(set(day3_users), set([user1, user2, user3]))
+        self.assertEqual(set(day3_users), {user1, user2, user3})
 
         day2_users = [user for user, user_changes in experiment.ordered_changes[1][1]]
-        self.assertEqual(set(day2_users), set([user2, user3]))
+        self.assertEqual(set(day2_users), {user2, user3})
 
         day1_users = [user for user, user_changes in experiment.ordered_changes[2][1]]
-        self.assertEqual(set(day1_users), set([user1, user2]))
+        self.assertEqual(set(day1_users), {user1, user2})
 
         for date, date_changes in experiment.ordered_changes:
             for user, user_changes in date_changes:

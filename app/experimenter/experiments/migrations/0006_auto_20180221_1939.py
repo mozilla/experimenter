@@ -15,7 +15,7 @@ def update_dates(apps, schema_editor):  # pragma: no cover
                 experiment=experiment, old_status="Accepted", new_status="Launched"
             ).changed_on
             experiment.proposed_start_date = start_date
-        except:
+        except Exception:
             pass
 
         try:
@@ -23,7 +23,7 @@ def update_dates(apps, schema_editor):  # pragma: no cover
                 experiment=experiment, old_status="Launched", new_status="Complete"
             ).changed_on
             experiment.proposed_end_date = end_date
-        except:
+        except Exception:
             pass
         experiment.save()
 
@@ -32,7 +32,7 @@ def update_versions(apps, schema_editor):  # pragma: no cover
     Experiment = apps.get_model("experiments", "Experiment")
 
     for experiment in Experiment.objects.all():
-        experiment.firefox_version = "{}.0".format(experiment.firefox_version)
+        experiment.firefox_version = f"{experiment.firefox_version}.0"
         experiment.save()
 
 
@@ -40,7 +40,7 @@ def add_project_to_name(apps, schema_editor):  # pragma: no cover
     Experiment = apps.get_model("experiments", "Experiment")
 
     for experiment in Experiment.objects.all():
-        experiment.name = "{} {}".format(experiment.project.name, experiment.name)
+        experiment.name = f"{experiment.project.name} {experiment.name}"
         experiment.save()
 
 

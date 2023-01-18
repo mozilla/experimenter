@@ -39,10 +39,7 @@ def pagination_url(context, page, **kwargs):
         data.pop("page", None)
     else:
         data["page"] = page
-    if data:
-        return f"?{data.urlencode()}"
-    else:
-        return "."
+    return f"?{data.urlencode()}" if data else "."
 
 
 @register.filter

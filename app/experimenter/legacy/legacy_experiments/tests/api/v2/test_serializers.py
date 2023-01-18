@@ -57,13 +57,13 @@ class TestExperimentDesignVariantBaseSerializer(TestCase):
     def test_serializer_puts_control_branch_first_and_sorts_rest_by_id(self):
         ExperimentVariantFactory.create(is_control=True)
         sorted_treatment_ids = sorted(
-            [ExperimentVariantFactory.create(is_control=False).id for i in range(3)]
+            [ExperimentVariantFactory.create(is_control=False).id for _ in range(3)]
         )
         serializer = ExperimentDesignVariantBaseSerializer(
             ExperimentVariant.objects.all().order_by("-id"), many=True
         )
         self.assertTrue(serializer.data[0]["is_control"])
-        self.assertFalse(any([b["is_control"] for b in serializer.data[1:]]))
+        self.assertFalse(any(b["is_control"] for b in serializer.data[1:]))
         self.assertEqual(sorted_treatment_ids, [b["id"] for b in serializer.data[1:]])
 
 
@@ -496,7 +496,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
         self.assertEqual(experiment.variants.all().count(), 2)
         self.assertEqual(
-            set(experiment.variants.all()), set([control_variant, treatment2_variant])
+            set(experiment.variants.all()), {control_variant, treatment2_variant}
         )
 
     def test_serializer_adds_new_variant(self):
@@ -543,7 +543,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         new_variant = ExperimentVariant.objects.get(name=treatment2_variant_data["name"])
         self.assertEqual(
             set(experiment.variants.all()),
-            set([control_variant, treatment1_variant, new_variant]),
+            {control_variant, treatment1_variant, new_variant},
         )
 
     def test_serializer_rejects_ratio_not_100(self):
@@ -756,7 +756,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
 
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors), set(["pref_type"]))
+        self.assertEqual(set(serializer.errors), {"pref_type"})
         experiment = Experiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.changes.count(), 0)
 
@@ -773,7 +773,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
 
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors), set(["pref_branch"]))
+        self.assertEqual(set(serializer.errors), {"pref_branch"})
 
     def test_serializer_rejects_inconsistent_pref_type_bool(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)

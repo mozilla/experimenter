@@ -44,7 +44,7 @@ def update_recipe_ids_to_experiments():
 
     for experiment in ready_to_ship_experiments:
         try:
-            logger.info("Updating Experiment: {}".format(experiment))
+            logger.info(f"Updating Experiment: {experiment}")
             recipe_data = normandy.get_recipe_list(experiment.slug)
 
             if len(recipe_data):
@@ -82,7 +82,7 @@ def update_launched_experiments():
 
     for experiment in launched_experiments:
         try:
-            logger.info("Updating Experiment: {}".format(experiment))
+            logger.info(f"Updating Experiment: {experiment}")
             if experiment.normandy_id:
                 recipe_data = normandy.get_recipe(experiment.normandy_id)
 
@@ -103,9 +103,7 @@ def update_launched_experiments():
                     send_period_ending_emails_task(experiment)
 
             else:
-                logger.info(
-                    "Skipping Experiment: {}. No Normandy id found".format(experiment)
-                )
+                logger.info(f"Skipping Experiment: {experiment}. No Normandy id found")
         except (IntegrityError, KeyError, normandy.NormandyError) as e:
             logger.info(f"Failed to update Experiment {experiment}: {e}")
             metrics.incr("update_launched_experiments.failed")
@@ -214,12 +212,12 @@ def update_population_percent(experiment, recipe_data, filter_objects):
 
 
 def update_firefox_versions(experiment, recipe_data, filter_objects):
-    changed_data = {}
-
     if versions := filter_objects.get("version"):
 
         min_version = str(float(min(versions["versions"])))
         max_version = str(float(max(versions["versions"])))
+        changed_data = {}
+
         if experiment.firefox_min_version != min_version:
             changed_data["firefox_min_version"] = min_version
         if experiment.firefox_max_version != max_version:

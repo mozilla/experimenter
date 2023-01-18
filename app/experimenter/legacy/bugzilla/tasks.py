@@ -127,9 +127,7 @@ def add_start_date_comment_task(experiment_id):
     experiment = Experiment.objects.get(id=experiment_id)
     metrics.incr("add_start_data_comment.started")
     logger.info("Adding Bugzilla Start Date Comment")
-    comment = "Start Date: {} End Date: {}".format(
-        experiment.start_date, experiment.end_date
-    )
+    comment = f"Start Date: {experiment.start_date} End Date: {experiment.end_date}"
     try:
         bugzilla_id = experiment.bugzilla_id
         bugzilla.add_experiment_comment(bugzilla_id, comment)

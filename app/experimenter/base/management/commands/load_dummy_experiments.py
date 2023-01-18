@@ -17,8 +17,8 @@ class Command(BaseCommand):
         for status, _ in Experiment.STATUS_CHOICES:
             random_type = random.choice(Experiment.TYPE_CHOICES)[0]
             experiment = ExperimentFactory.create_with_status(status, type=random_type)
-            logger.info("Created {}: {}".format(experiment, status))
+            logger.info(f"Created {experiment}: {status}")
 
         for lifecycle in NimbusExperimentFactory.LocalLifecycles:
             experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
-            logger.info("Created {}: {}".format(experiment, lifecycle))
+            logger.info(f"Created {experiment}: {lifecycle}")

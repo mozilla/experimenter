@@ -24,15 +24,13 @@ class ExperimentConstants(object):
 
     @classmethod
     def FEATURE_TYPE_CHOICES(cls):  # pragma: no cover
-        choices = (
+        return (
             (cls.TYPE_PREF, "Pref-Flip Experiment"),
             (cls.TYPE_ADDON, "Add-On Experiment"),
             (cls.TYPE_GENERIC, "Generic Experiment"),
             (cls.TYPE_ROLLOUT, "Staged Rollout"),
             (cls.TYPE_MESSAGE, "Message Router Content Experiment"),
         )
-
-        return choices
 
     # Message stuff
     MESSAGE_DEFAULT_LOCALES = ("en-AU", "en-GB", "en-CA", "en-NZ", "en-ZA", "en-US")

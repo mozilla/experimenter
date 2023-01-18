@@ -67,9 +67,7 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
     should_rollback = False
     if kinto_client.has_pending_review():
         logger.info(f"{collection} has pending review")
-        should_abort = handle_pending_review(applications)
-
-        if should_abort:
+        if should_abort := handle_pending_review(applications):
             return
 
         should_rollback = True
@@ -105,9 +103,7 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
 
 
 def handle_pending_review(applications):
-    experiment = NimbusExperiment.objects.waiting(applications).first()
-
-    if experiment:
+    if experiment := NimbusExperiment.objects.waiting(applications).first():
         if experiment.should_timeout:
             experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
             experiment.save()
@@ -126,9 +122,7 @@ def handle_pending_review(applications):
 
 def handle_rejection(applications, kinto_client):
     collection_data = kinto_client.get_rejected_collection_data()
-    experiment = NimbusExperiment.objects.waiting(applications).first()
-
-    if experiment:
+    if experiment := NimbusExperiment.objects.waiting(applications).first():
         experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         experiment.status_next = None
         experiment.is_paused = False

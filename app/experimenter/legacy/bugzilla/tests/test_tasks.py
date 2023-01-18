@@ -299,9 +299,7 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase):
     def test_add_start_date_comment_task(self):
         experiment = ExperimentFactory.create(normandy_id=12345)
-        comment = "Start Date: {} End Date: {}".format(
-            experiment.start_date, experiment.end_date
-        )
+        comment = f"Start Date: {experiment.start_date} End Date: {experiment.end_date}"
         expected_call_data = {"comment": comment}
 
         tasks.add_start_date_comment_task(experiment.id)
