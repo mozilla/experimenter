@@ -942,6 +942,17 @@ HAS_GOOGLE_BING_DDG_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NEW_ANDROID_13_USERS = NimbusTargetingConfig(
+    name="New Android 13 Users",
+    slug="new_android_13_users",
+    description="Users who have Android 13 and are on their first run of the application",
+    targeting="(android_sdk_version|versionCompare('33') >= 0) && is_first_run",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=True,
+    application_choice_names=(Application.FENIX.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
