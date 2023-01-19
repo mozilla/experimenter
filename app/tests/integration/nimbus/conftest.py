@@ -93,6 +93,7 @@ def firefox_options(firefox_options):
     firefox_options.log.level = "trace"
     return firefox_options
 
+
 @pytest.fixture
 def selenium(selenium, experiment_name, kinto_client, base_url, slugify):
     yield selenium
@@ -108,8 +109,6 @@ def selenium(selenium, experiment_name, kinto_client, base_url, slugify):
         summary.wait_for_complete_status()
     except Exception as e:
         raise e
-    else:
-        pass
 
 
 @pytest.fixture(
