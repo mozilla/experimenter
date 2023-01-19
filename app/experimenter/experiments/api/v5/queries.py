@@ -23,14 +23,14 @@ class Query(graphene.ObjectType):
         description="Nimbus Configuration Data for front-end usage.",
     )
 
-    def resolve_experiments(root, info):
+    def resolve_experiments(self, info):
         return NimbusExperiment.objects.with_owner_features()
 
-    def resolve_experiment_by_slug(root, info, slug):
+    def resolve_experiment_by_slug(self, info, slug):
         try:
             return NimbusExperiment.objects.get(slug=slug)
         except NimbusExperiment.DoesNotExist:
             return None
 
-    def resolve_nimbus_config(root, info):
+    def resolve_nimbus_config(self, info):
         return NimbusConfigurationType()

@@ -40,14 +40,13 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
         )
-        links_before = []
-        for link in experiment.documentation_links.all():
-            links_before.append(
-                {
-                    "title": link.title,
-                    "link": link.link,
-                }
-            )
+        links_before = [
+            {
+                "title": link.title,
+                "link": link.link,
+            }
+            for link in experiment.documentation_links.all()
+        ]
         data = {
             "public_description": "changed",
             "changelog_message": "test changelog message",
@@ -68,14 +67,13 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
         )
-        links_before = []
-        for link in experiment.documentation_links.all():
-            links_before.append(
-                {
-                    "title": link.title,
-                    "link": link.link,
-                }
-            )
+        links_before = [
+            {
+                "title": link.title,
+                "link": link.link,
+            }
+            for link in experiment.documentation_links.all()
+        ]
         data = {
             "public_description": "changed reference",
             "reference_branch": {

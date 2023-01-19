@@ -1497,9 +1497,7 @@ class TestNimbusConfigQuery(GraphQLTestCase):
             ]
             self.assertEqual(
                 set(channels),
-                set(
-                    [channel.name for channel in application_config.channel_app_id.keys()]
-                ),
+                {channel.name for channel in application_config.channel_app_id.keys()},
             )
 
         self.assertEqual(config["owners"], [{"username": experiment.owner.username}])
