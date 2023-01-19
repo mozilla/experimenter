@@ -455,3 +455,6 @@ FEATURE_MANIFESTS_PATH = os.path.join(BASE_DIR, "features", "manifests")
 SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
     "SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER", default=False, cast=bool
 )
+
+# Required to save large experiments in the admin
+DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20mb
