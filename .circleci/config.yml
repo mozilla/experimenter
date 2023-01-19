@@ -438,7 +438,6 @@ workflows:
 
   build:
     jobs:
-      - build_rust_image
       - check:
           name: check
       - integration_nimbus_desktop_release:
