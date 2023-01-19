@@ -93,6 +93,24 @@ def firefox_options(firefox_options):
     firefox_options.log.level = "trace"
     return firefox_options
 
+@pytest.fixture
+def selenium(selenium, experiment_name, kinto_client, base_url, slugify):
+    yield selenium
+
+    from nimbus.pages.experimenter.summary import SummaryPage
+
+    experiment_slug = str(slugify(experiment_name))
+    try:
+        summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+        summary.end_and_approve()
+        kinto_client.approve()
+        summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+        summary.wait_for_complete_status()
+    except Exception as e:
+        raise e
+    else:
+        pass
+
 
 @pytest.fixture(
     # Use all applications as available parameters in parallel_pytest_args.txt
