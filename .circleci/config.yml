@@ -385,9 +385,8 @@ jobs:
           command: |
             set +e
             docker pull ${DOCKERHUB_REPO}:nimbus-rust-image
-            docker run -d --name firefox-beta ${DOCKERHUB_REPO}:nimbus-rust-image
-            docker_id=$(docker ps -aqf "name=^nimbus-rust-image")
-            docker cp $docker_id:/application-services-old.txt /home/circleci/experimenter/application-services-old.txt
+            docker_id=$(docker run -t -d --name nimbus-rust-image ${DOCKERHUB_REPO}:nimbus-rust-image)
+            docker cp nimbus-rust-image:/code/application-services-old.txt /home/circleci/experimenter/application-services-old.txt
             git -c 'versionsort.suffix=-' \
               ls-remote --exit-code --refs --sort='version:refname' --tags https://github.com/mozilla/application-services.git \
               '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3 > application-services-current.txt
@@ -400,12 +399,14 @@ jobs:
           name: Build rust test image
           command: |
             set +e
+            docker kill nimbus-rust-image
+            docker rm nimbus-rust-image
             AS_VERSION=$(git -c 'versionsort.suffix=-' \
               ls-remote --exit-code --refs --sort='version:refname' --tags https://github.com/mozilla/application-services.git \
               '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3)
             docker build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f app/tests/integration/nimbus/utils/Dockerfile-rust-image --build-arg as_version=$AS_VERSION --progress=plain .
-            docker_id=$(docker ps -aqf "name=^nimbus-rust-image")
-            docker cp /home/circleci/experimenter/application-services-current.txt $docker_id:/application-services-old.txt
+            docker_id=$(docker run -t -d --name nimbus-rust-image ${DOCKERHUB_REPO}:nimbus-rust-image)
+            docker cp /home/circleci/experimenter/application-services-current.txt nimbus-rust-image:/code/application-services-old.txt
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-rust-image
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push ${DOCKERHUB_REPO}:nimbus-rust-image
@@ -437,6 +438,7 @@ workflows:
 
   build:
     jobs:
+      - build_rust_image
       - check:
           name: check
       - integration_nimbus_desktop_release:
