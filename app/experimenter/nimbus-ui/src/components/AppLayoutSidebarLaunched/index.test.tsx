@@ -191,5 +191,23 @@ describe("AppLayoutSidebarLaunched", () => {
         expect(screen.getByText(item)).toBeInTheDocument();
       });
     });
+
+    it("when rollout show audience page", async () => {
+      const { experiment } = mockExperimentQuery("demo-slug");
+      experiment.isRollout = true;
+      render(<Subject withAnalysis {...{ experiment }} />);
+
+      expect(screen.queryByText("Summary")).toBeInTheDocument();
+      expect(screen.queryByText("Audience")).toBeInTheDocument();
+    });
+
+    it("when experiment do not show audience page", () => {
+      const { experiment } = mockExperimentQuery("demo-slug");
+      experiment.isRollout = false;
+      render(<Subject withAnalysis {...{ experiment }} />);
+
+      expect(screen.queryByText("Summary")).toBeInTheDocument();
+      expect(screen.queryByText("Audience")).not.toBeInTheDocument();
+    });
   });
 });

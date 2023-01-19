@@ -78,6 +78,7 @@ def test_check_mobile_targeting(
             "days_since_update": 1,
             "days_since_install": 1,
             "isFirstRun": "true",
+            "is_first_run": True,
         }
     )
     client = sdk_client(load_app_context(context))

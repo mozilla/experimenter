@@ -23,7 +23,12 @@ type RootProps = {
   children: React.ReactNode;
 } & RouteComponentProps;
 
+type SummaryRootProps = {
+  children: React.ReactNode;
+} & RouteComponentProps;
+
 const Root = (props: RootProps) => <>{props.children}</>;
+const SummaryRoot = (props: SummaryRootProps) => <>{props.children}</>;
 
 const App = () => {
   const { loading, error, refetch } = useQuery(GET_CONFIG_QUERY);
@@ -43,7 +48,11 @@ const App = () => {
         <PageHome path="/" />
         <PageNew path="new" />
         <ExperimentRoot path=":slug">
-          <PageSummary path="/" />
+          <SummaryRoot path="/">
+            <Redirect from="/" to="summary" noThrow />
+            <PageSummary path="summary" />
+            <PageEditAudience path="audience" />
+          </SummaryRoot>
           <Root path="edit">
             <Redirect from="/" to="overview" noThrow />
             <PageEditOverview path="overview" />

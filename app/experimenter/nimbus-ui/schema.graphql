@@ -438,7 +438,7 @@ type NimbusExperimentType {
   languages: [NimbusLanguageType!]!
   isSticky: Boolean
   projects: [NimbusProjectType]
-  hypothesis: String!
+  hypothesis: String
   primaryOutcomes: [String]
   secondaryOutcomes: [String]
   warnFeatureSchema: Boolean

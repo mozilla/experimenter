@@ -32,11 +32,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     <Navbar
       variant="light"
       bg="light"
-      className="nav-fill mt-4 mb-4"
+      className="nav-fill mb-4"
       style={{ padding: "0" }}
     >
       <Nav className="w-100 flex-column">
-        <h5>{"Filters"}</h5>
         <FilterSelect
           fieldLabel="Feature"
           fieldOptions={options.allFeatureConfigs!}
@@ -87,7 +86,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {...{ filterValue, onChange }}
         />
         <FilterSelect
-          fieldLabel="Targeting"
+          fieldLabel="Audience"
           fieldOptions={options.targetingConfigs!}
           filterValueName="targetingConfigs"
           optionLabelName="label"

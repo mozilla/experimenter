@@ -39,6 +39,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     publicDescription
                     riskMitigationLink
                     warnFeatureSchema
+                    hypothesis
                 }
             }
             """,
@@ -64,6 +65,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
             experiment_data["warnFeatureSchema"],
             experiment.warn_feature_schema,
         )
+        self.assertEqual(experiment_data["hypothesis"], experiment.hypothesis)
 
     def test_experiments_with_no_branches_returns_empty_reference_treatment_values(self):
         user_email = "user@example.com"
@@ -1465,7 +1467,24 @@ class TestNimbusConfigQuery(GraphQLTestCase):
         assertChoices(
             config["conclusionRecommendations"], NimbusExperiment.ConclusionRecommendation
         )
-        assertChoices(config["firefoxVersions"], NimbusExperiment.Version)
+
+        self.assertEqual(
+            len(config["firefoxVersions"]), len(NimbusExperiment.Version.names)
+        )
+        for index, name in enumerate(NimbusExperiment.Version.names):
+            self.assertIn(
+                {"label": NimbusExperiment.Version[name].label, "value": name},
+                config["firefoxVersions"],
+            )
+
+        self.assertEqual(
+            {
+                "label": NimbusExperiment.Version.NO_VERSION.label,
+                "value": "NO_VERSION",
+            },
+            config["firefoxVersions"][0],
+        )
+
         assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
         self.assertEqual(len(config["allFeatureConfigs"]), 18)
 
