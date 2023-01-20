@@ -10,11 +10,11 @@ from experimenter.experiments.models import NimbusExperiment
 class TestMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0225_nimbusexperiment__updated_date_time",
+        "0224_analysis_add_basis",
     )
     migrate_to = (
         "experiments",
-        "0226_alter_nimbusexperiment_updated_date_time",
+        "0225_nimbusexperiment__updated_date_time",
     )
 
     def prepare(self):
@@ -57,8 +57,6 @@ class TestMigration(MigratorTestCase):
         )
 
         experiment = NimbusExperiments.objects.get(slug="test-experiment")
-        changes = experiment.changes.all()
+        change = experiment.changes.all().order_by("-changed_on").first()
 
-        last_changed_on = changes.order_by("-changed_on")[0]
-
-        self.assertEqual(experiment._updated_date_time, last_changed_on.changed_on)
+        self.assertEqual(experiment._updated_date_time, change.changed_on)
