@@ -54,9 +54,7 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
 
 class OpenIDCRestFrameworkAuthenticator(SessionAuthentication):
     def authenticate(self, request):
-        authenticated_user = getattr(request._request, "user", None)
-
-        if authenticated_user:
+        if authenticated_user := getattr(request._request, "user", None):
             return (authenticated_user, None)
 
         return super().authenticate(request)

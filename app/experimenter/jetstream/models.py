@@ -191,7 +191,6 @@ class ResultsObjectModelBase(BaseModel):
         super(ResultsObjectModelBase, self).__init__()
 
         for jetstream_data_point in data:
-            branch = jetstream_data_point.branch
             metric = jetstream_data_point.metric
             statistic = jetstream_data_point.statistic
 
@@ -210,6 +209,7 @@ class ResultsObjectModelBase(BaseModel):
             window_index = 1 if window == "overall" else jetstream_data_point.window_index
 
             if metric in result_metrics and statistic in result_metrics[metric]:
+                branch = jetstream_data_point.branch
                 branch_obj = getattr(self, branch)
                 branch_obj.is_control = experiment.reference_branch.slug == branch
                 group_obj = getattr(

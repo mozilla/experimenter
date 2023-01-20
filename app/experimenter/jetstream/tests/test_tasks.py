@@ -918,9 +918,11 @@ class TestFetchJetstreamDataTask(TestCase):
             def read(self):
                 if "metadata" in self.name:
                     return "{}"
-                if "errors" in self.name:
-                    return "[]"
-                return json.dumps(DAILY_DATA + SEGMENT_DATA)
+                return (
+                    "[]"
+                    if "errors" in self.name
+                    else json.dumps(DAILY_DATA + SEGMENT_DATA)
+                )
 
         def open_file(filename):
             return File(filename)
@@ -974,9 +976,7 @@ class TestFetchJetstreamDataTask(TestCase):
             def read(self):
                 if "metadata" in self.name:
                     return "{}"
-                if "errors" in self.name:
-                    return "[]"
-                return json.dumps(DAILY_DATA)
+                return "[]" if "errors" in self.name else json.dumps(DAILY_DATA)
 
         def open_file(filename):
             return File(filename)

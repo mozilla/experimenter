@@ -337,7 +337,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             for project in extracted:
                 self.projects.add(project)
         else:
-            for i in range(3):
+            for _ in range(3):
                 self.projects.add(ProjectFactory.create())
 
     @factory.post_generation
@@ -456,10 +456,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             if (
                 experiment.status == experiment.Status.COMPLETE
                 and experiment.status_next is None
-            ):
-                if end_date is not None:
-                    experiment._end_date = end_date
-                    current_datetime = end_date
+            ) and end_date is not None:
+                experiment._end_date = end_date
+                current_datetime = end_date
 
             experiment.save()
 
@@ -536,7 +535,7 @@ class NimbusBranchScreenshotFactory(factory.django.DjangoModelFactory):
     branch = factory.SubFactory(NimbusBranchFactory)
     description = factory.LazyAttribute(lambda o: faker.text())
     image = factory.LazyAttribute(
-        lambda o: SimpleUploadedFile(name="%s.png" % faker.slug(), content=TINY_PNG)
+        lambda o: SimpleUploadedFile(name=f"{faker.slug()}.png", content=TINY_PNG)
     )
 
     class Meta:

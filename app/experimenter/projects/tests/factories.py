@@ -9,7 +9,7 @@ faker = FakerFactory.create()
 
 class ProjectFactory(factory.django.DjangoModelFactory):
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
+    slug = factory.LazyAttribute(lambda o: f"{slugify(o.name)}_")
 
     class Meta:
         model = Project

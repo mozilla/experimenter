@@ -440,12 +440,12 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         return data
 
     def validate_name(self, value):
-        slug_name = slugify(value)
-        if not slug_name:
+        if slugify(value):
+            return value
+        else:
             raise serializers.ValidationError(
                 "Name needs to contain alphanumeric characters."
             )
-        return value
 
     def validate(self, data):
         data = super().validate(data)
@@ -453,7 +453,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         feature_values = data.get("feature_values")
 
         if feature_values is not None:
-            unique_features = set(fv["feature_config"] for fv in feature_values)
+            unique_features = {fv["feature_config"] for fv in feature_values}
             if None not in unique_features and len(feature_values) != len(
                 unique_features
             ):
@@ -465,7 +465,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
                                     NimbusConstants.ERROR_DUPLICATE_BRANCH_FEATURE_VALUE
                                 )
                             }
-                            for fv in feature_values
+                            for _ in feature_values
                         ]
                     }
                 )
@@ -500,30 +500,29 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
                 )
 
     def _save_screenshots(self, screenshots, branch):
-        if screenshots is not None:
-            updated_screenshots = dict(
-                (x["id"], x) for x in screenshots if x.get("id", None)
-            )
-            for screenshot in branch.screenshots.all():
-                screenshot_id = screenshot.id
-                if screenshot_id not in updated_screenshots:
-                    screenshot.delete()
-                else:
-                    serializer = NimbusBranchScreenshotSerializer(
-                        screenshot,
-                        data=updated_screenshots[screenshot_id],
-                        partial=True,
-                    )
-                    if serializer.is_valid(raise_exception=True):
-                        serializer.save()
-
-            new_screenshots = (x for x in screenshots if not x.get("id", None))
-            for screenshot_data in new_screenshots:
+        if screenshots is None:
+            return
+        updated_screenshots = {x["id"]: x for x in screenshots if x.get("id", None)}
+        for screenshot in branch.screenshots.all():
+            screenshot_id = screenshot.id
+            if screenshot_id not in updated_screenshots:
+                screenshot.delete()
+            else:
                 serializer = NimbusBranchScreenshotSerializer(
-                    data=screenshot_data, partial=True
+                    screenshot,
+                    data=updated_screenshots[screenshot_id],
+                    partial=True,
                 )
                 if serializer.is_valid(raise_exception=True):
-                    serializer.save(branch=branch)
+                    serializer.save()
+
+        new_screenshots = (x for x in screenshots if not x.get("id", None))
+        for screenshot_data in new_screenshots:
+            serializer = NimbusBranchScreenshotSerializer(
+                data=screenshot_data, partial=True
+            )
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(branch=branch)
 
     def save(self, *args, **kwargs):
         feature_enabled = self.validated_data.pop("feature_enabled", False)
@@ -566,7 +565,7 @@ class NimbusExperimentBranchMixin:
                         },
                         "treatment_branches": [
                             {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
-                            for i in data["treatment_branches"]
+                            for _ in data["treatment_branches"]
                         ],
                     }
                 )
@@ -591,13 +590,13 @@ class NimbusExperimentBranchMixin:
         with transaction.atomic():
             experiment = super().update(experiment, data)
 
-            if set(["reference_branch", "treatment_branches"]).intersection(
+            if {"reference_branch", "treatment_branches"}.intersection(
                 set(self.initial_data.keys())
             ):
                 saved_branch_ids = set(
                     experiment.branches.all().values_list("id", flat=True)
                 )
-                updated_branch_ids = set([b["id"] for b in branches_data if b.get("id")])
+                updated_branch_ids = {b["id"] for b in branches_data if b.get("id")}
                 deleted_branch_ids = saved_branch_ids - updated_branch_ids
                 for deleted_branch_id in deleted_branch_ids:
                     NimbusBranch.objects.get(id=deleted_branch_id).delete()
@@ -656,19 +655,19 @@ class NimbusStatusValidationMixin:
     def validate(self, data):
         data = super().validate(data)
 
-        restrictions = {
-            "status": TransitionConstants.STATUS_ALLOWS_UPDATE,
-            "publish_status": TransitionConstants.PUBLISH_STATUS_ALLOWS_UPDATE,
-        }
         update_exempt_fields = TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS
-        fields = ["all"]
         if self.instance:
             restrictive_statuses = set()
             exempt_fields = set()
+            fields = ["all"]
             fields.append("rollouts") if self.instance.is_rollout else fields.append(
                 "experiments"
             )
 
+            restrictions = {
+                "status": TransitionConstants.STATUS_ALLOWS_UPDATE,
+                "publish_status": TransitionConstants.PUBLISH_STATUS_ALLOWS_UPDATE,
+            }
             for f in fields:
                 if update_exempt_fields[f] != []:
                     exempt_fields = exempt_fields.union(update_exempt_fields[f])
@@ -949,9 +948,9 @@ class NimbusExperimentSerializer(
                 f"{NimbusExperiment.MAX_PRIMARY_OUTCOMES}."
             )
 
-        valid_outcomes = set(
-            [o.slug for o in Outcomes.by_application(self.instance.application)]
-        )
+        valid_outcomes = {
+            o.slug for o in Outcomes.by_application(self.instance.application)
+        }
 
         if valid_outcomes.intersection(value_set) != value_set:
             invalid_outcomes = value_set - valid_outcomes
@@ -963,9 +962,9 @@ class NimbusExperimentSerializer(
 
     def validate_secondary_outcomes(self, value):
         value_set = set(value)
-        valid_outcomes = set(
-            [o.slug for o in Outcomes.by_application(self.instance.application)]
-        )
+        valid_outcomes = {
+            o.slug for o in Outcomes.by_application(self.instance.application)
+        }
 
         if valid_outcomes.intersection(value_set) != value_set:
             invalid_outcomes = value_set - valid_outcomes
@@ -1146,10 +1145,7 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
         return ",".join([feature.name for feature in sorted_features])
 
     def get_results_url(self, obj):
-        if obj.results_ready:
-            return obj.experiment_url + "results"
-        else:
-            return ""
+        return f"{obj.experiment_url}results" if obj.results_ready else ""
 
 
 class NimbusBranchScreenshotReviewSerializer(NimbusBranchScreenshotSerializer):
@@ -1176,7 +1172,7 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
             try:
                 json.loads(value)
             except Exception as e:
-                raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
+                raise serializers.ValidationError(f"Invalid JSON: {e.msg}") from e
         return value
 
     def validate(self, data):
@@ -1190,7 +1186,7 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
         # This check can be removed with #6744
         branch_feature_value_id = data.get("id")
         branch_feature_value = self.Meta.model.objects.get(id=branch_feature_value_id)
-        if not branch_feature_value.branch.experiment.feature_configs.count() > 1:
+        if branch_feature_value.branch.experiment.feature_configs.count() <= 1:
             return data
 
         if all([branch, feature_config, value]) and feature_config.schema:
@@ -1199,7 +1195,7 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
                 jsonschema.validate(json_value, json.loads(feature_config.schema))
             except jsonschema.ValidationError as e:
                 if not branch.experiment.warn_feature_schema:
-                    raise serializers.ValidationError({"value": e.message})
+                    raise serializers.ValidationError({"value": e.message}) from e
 
         return data
 
@@ -1213,7 +1209,7 @@ class NimbusBranchReviewSerializer(NimbusBranchSerializer):
             try:
                 json.loads(value)
             except Exception as e:
-                raise serializers.ValidationError(f"Invalid JSON: {e.msg}")
+                raise serializers.ValidationError(f"Invalid JSON: {e.msg}") from e
         return value
 
     def validate(self, data):
@@ -1325,7 +1321,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 error["description"] = [NimbusConstants.ERROR_REQUIRED_FIELD]
             errors.append(error)
 
-        if any(x for x in errors):
+        if any(errors):
             raise serializers.ValidationError(errors)
         return value
 
@@ -1379,10 +1375,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         error_result = {}
         if data["reference_branch"].get("feature_enabled"):
 
-            errors = self._validate_feature_value_against_schema(
+            if errors := self._validate_feature_value_against_schema(
                 schema, data["reference_branch"]["feature_value"]
-            )
-            if errors:
+            ):
                 if warn_feature_schema:
                     self.warnings["reference_branch"] = {"feature_value": errors}
                 else:
@@ -1395,10 +1390,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             branch_warning = None
 
             if branch_data.get("feature_enabled", False):
-                errors = self._validate_feature_value_against_schema(
+                if errors := self._validate_feature_value_against_schema(
                     schema, branch_data["feature_value"]
-                )
-                if errors:
+                ):
                     if warn_feature_schema:
                         branch_warning = {"feature_value": errors}
                     else:
@@ -1441,10 +1435,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         application = data.get("application")
         min_version = data.get("firefox_min_version", "")
 
-        languages = data.get("languages", [])
-
-        if languages:
-
+        if data.get("languages", []):
             min_supported_version = (
                 NimbusConstants.LANGUAGES_APPLICATION_SUPPORTED_VERSION[application]
             )
@@ -1465,10 +1456,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         application = data.get("application")
         min_version = data.get("firefox_min_version", "")
 
-        countries = data.get("countries", [])
-
-        if countries:
-
+        if data.get("countries", []):
             min_supported_version = (
                 NimbusConstants.COUNTRIES_APPLICATION_SUPPORTED_VERSION[application]
             )
@@ -1509,14 +1497,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
     def _validate_feature_enabled_for_treatment_branches(self, data):
         if self._validate_feature_enabled_version(data) and "treatment_branches" in data:
-            treatment_branches_error = []
-            for branch in data["treatment_branches"]:
-                if not branch["feature_enabled"]:
-                    treatment_branches_error.append(
-                        {"feature_enabled": NimbusConstants.ERROR_FEATURE_ENABLED}
-                    )
-
-            if treatment_branches_error:
+            if treatment_branches_error := [
+                {"feature_enabled": NimbusConstants.ERROR_FEATURE_ENABLED}
+                for branch in data["treatment_branches"]
+                if not branch["feature_enabled"]
+            ]:
                 raise serializers.ValidationError(
                     {"treatment_branches": treatment_branches_error}
                 )
@@ -1601,8 +1586,7 @@ class NimbusExperimentCloneSerializer(
 
     def validate(self, data):
         data = super().validate(data)
-        rollout_branch_slug = data.get("rollout_branch_slug", None)
-        if rollout_branch_slug:
+        if rollout_branch_slug := data.get("rollout_branch_slug", None):
             parent = data.get("parent_slug")
             if not parent.branches.filter(slug=rollout_branch_slug).exists():
                 raise serializers.ValidationError(
