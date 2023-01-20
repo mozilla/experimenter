@@ -1,168 +1,64 @@
+import datetime
+
+from django.utils import timezone
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment as Experiment
+from experimenter.experiments.models import NimbusExperiment
 
 
 class TestMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0223_analysis_add_schema_version",
+        "0225_nimbusexperiment__updated_date_time",
     )
     migrate_to = (
         "experiments",
-        "0224_analysis_add_basis",
+        "0226_alter_nimbusexperiment_updated_date_time",
     )
 
     def prepare(self):
         """Prepare some data before the migration."""
         User = self.old_state.apps.get_model("auth", "User")
-        NimbusExperiment = self.old_state.apps.get_model(
-            "experiments", "NimbusExperiment"
-        )
+        Experiment = self.old_state.apps.get_model("experiments", "NimbusExperiment")
         user = User.objects.create(email="test@example.com")
 
-        # create experiment without analysis_basis
-        NimbusExperiment.objects.create(
+        ExperimentChangeLog = self.old_state.apps.get_model(
+            "experiments", "NimbusChangeLog"
+        )
+
+        # create experiment
+        experiment = Experiment.objects.create(
             owner=user,
+            application=NimbusExperiment.Application.DESKTOP,
+            status=NimbusConstants.Status.DRAFT,
+            status_next=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.REVIEW,
             name="test experiment",
             slug="test-experiment",
-            application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-            results_data={
-                "v1": {
-                    "daily": {"all": {"control": [], "treatment": []}},
-                    "weekly": {"all": {"control": {}, "treatment": {}}},
-                    "overall": {"all": {"control": {}, "treatment": {}}},
-                    "other_metrics": {},
-                    "metadata": {},
-                    "show_analysis": True,
-                    "errors": [],
-                }
-            },
+            _start_date=datetime.date.today() - datetime.timedelta(days=3),
         )
 
-        # create experiment with analysis_basis
-        NimbusExperiment.objects.create(
-            owner=user,
-            name="another experiment",
-            slug="another-experiment",
-            application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-            results_data={
-                "v1": {
-                    "daily": {"all": {"control": [], "treatment": []}},
-                    "weekly": {"all": {"control": {}, "treatment": {}}},
-                    "overall": {"all": {"control": {}, "treatment": {}}},
-                    "other_metrics": {},
-                    "metadata": {},
-                    "show_analysis": True,
-                    "errors": [],
-                },
-                "v2": {
-                    "daily": {"enrollments": {"all": {"control": [], "treatment": []}}},
-                    "weekly": {"enrollments": {"all": {"control": {}, "treatment": {}}}},
-                    "overall": {"enrollments": {"all": {"control": {}, "treatment": {}}}},
-                    "other_metrics": {},
-                    "metadata": {},
-                    "show_analysis": True,
-                    "errors": [],
-                },
-            },
+        changes = ExperimentChangeLog(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=timezone.datetime(
+                year=2022, month=1, day=2, hour=0, minute=0, second=0
+            ),
+            changed_by=user,
         )
-
-        # create experiment without results_data
-        NimbusExperiment.objects.create(
-            owner=user,
-            name="empty experiment",
-            slug="empty-experiment",
-            application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-        )
-
-        # create experiment with empty results_data
-        NimbusExperiment.objects.create(
-            owner=user,
-            name="empty results experiment",
-            slug="empty-results-experiment",
-            application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-            results_data={
-                "v1": {
-                    "daily": None,
-                    "weekly": None,
-                    "overall": None,
-                    "metadata": None,
-                    "show_analysis": True,
-                },
-            },
-        )
+        changes.save()
 
     def test_migration(self):
         """Run the test itself."""
-        NimbusExperiment = self.new_state.apps.get_model(
+        NimbusExperiments = self.new_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
 
-        changed_data = NimbusExperiment.objects.get(slug="test-experiment").results_data
+        experiment = NimbusExperiments.objects.get(slug="test-experiment")
+        changes = experiment.changes.all()
 
-        default_analysis_basis = "enrollments"
+        last_changed_on = changes.order_by("-changed_on")[0]
 
-        self.assertTrue("v1" in changed_data)
-        self.assertTrue("v2" in changed_data)
-        # v1 unchanged
-        changed_data_v1 = changed_data["v1"]
-        self.assertFalse(default_analysis_basis in changed_data_v1["daily"])
-        self.assertTrue("all" in changed_data_v1["daily"])
-        self.assertFalse(default_analysis_basis in changed_data_v1["weekly"])
-        self.assertTrue("all" in changed_data_v1["weekly"])
-        self.assertFalse(default_analysis_basis in changed_data_v1["overall"])
-        self.assertTrue("all" in changed_data_v1["overall"])
-        self.assertFalse(default_analysis_basis in changed_data_v1["metadata"])
-
-        # v2 exists and has analysis basis
-        changed_data_v2 = changed_data["v2"]
-        self.assertTrue(default_analysis_basis in changed_data_v2["daily"])
-        self.assertFalse("all" in changed_data_v2["daily"])
-        self.assertTrue(default_analysis_basis in changed_data_v2["weekly"])
-        self.assertFalse("all" in changed_data_v2["weekly"])
-        self.assertTrue(default_analysis_basis in changed_data_v2["overall"])
-        self.assertFalse("all" in changed_data_v2["overall"])
-        self.assertFalse(default_analysis_basis in changed_data_v2["metadata"])
-
-        unchanged_data = NimbusExperiment.objects.get(
-            slug="another-experiment"
-        ).results_data
-        self.assertTrue("v1" in unchanged_data)
-        self.assertTrue("v2" in unchanged_data)
-        # v1 is old schema
-        unchanged_data_v1 = unchanged_data["v1"]
-        self.assertFalse(default_analysis_basis in unchanged_data_v1["daily"])
-        self.assertTrue("all" in unchanged_data_v1["daily"])
-        self.assertFalse(default_analysis_basis in unchanged_data_v1["other_metrics"])
-        # v2 has analysis basis
-        unchanged_data_v2 = unchanged_data["v2"]
-        self.assertTrue(default_analysis_basis in unchanged_data_v2["daily"])
-        self.assertFalse("all" in unchanged_data_v2["daily"])
-        self.assertFalse(default_analysis_basis in unchanged_data_v2["other_metrics"])
-
-        # empty data is still empty
-        empty_data = NimbusExperiment.objects.get(slug="empty-experiment").results_data
-        self.assertIsNone(empty_data)
-
-        # defined-but-empty schema adds v2 but otherwise remains the same
-        empty_results_data = NimbusExperiment.objects.get(
-            slug="empty-results-experiment"
-        ).results_data
-
-        results = {
-            "daily": None,
-            "weekly": None,
-            "overall": None,
-            "metadata": None,
-            "show_analysis": True,
-        }
-        self.assertTrue("v1" in empty_results_data)
-        self.assertTrue("v2" in empty_results_data)
-        self.assertEquals(empty_results_data["v1"], results)
-        self.assertEquals(empty_results_data["v2"], results)
+        self.assertEqual(experiment._updated_date_time, last_changed_on.changed_on)

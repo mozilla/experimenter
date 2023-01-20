@@ -45,6 +45,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "_end_date": None,
                 "_enrollment_end_date": None,
                 "_start_date": None,
+                "_updated_date_time": updated_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "application": "",
                 "branches": [],
                 "channel": NimbusExperiment.Channel.NO_CHANNEL,
@@ -87,7 +88,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "takeaways_summary": None,
                 "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
                 "total_enrolled_clients": 0,
-                "updated": updated_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "warn_feature_schema": False,
             },
         )
@@ -132,6 +132,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "_end_date": "2020-02-01",
                 "_enrollment_end_date": None,
                 "_start_date": "2020-01-01",
+                "_updated_date_time": updated_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "application": experiment.application,
                 "channel": experiment.channel,
                 "conclusion_recommendation": None,
@@ -167,7 +168,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "takeaways_summary": None,
                 "targeting_config_slug": experiment.targeting_config_slug,
                 "total_enrolled_clients": experiment.total_enrolled_clients,
-                "updated": updated_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "warn_feature_schema": False,
             },
         )

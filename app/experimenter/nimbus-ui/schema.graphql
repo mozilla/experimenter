@@ -451,7 +451,7 @@ type NimbusExperimentType {
   riskBrand: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
-  updated: DateTime!
+  UpdatedDateTime: DateTime!
   isFirstRun: Boolean!
   isClientSchemaDisabled: Boolean!
   StartDate: Date

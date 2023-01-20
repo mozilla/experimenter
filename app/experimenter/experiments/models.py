@@ -64,7 +64,7 @@ class NimbusExperimentManager(models.Manager):
         return (
             self.get_queryset()
             .prefetch_related("owner", "feature_configs", "projects")
-            .order_by("-updated")
+            .order_by("-_updated_date_time")
         )
 
     def launch_queue(self, applications):
@@ -198,7 +198,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         null=True,
     )
     takeaways_summary = models.TextField(blank=True, null=True)
-    updated = models.DateTimeField(auto_now=True)
+    _updated_date_time = models.DateTimeField(auto_now=True)
     is_first_run = models.BooleanField(default=False)
     is_client_schema_disabled = models.BooleanField(default=False)
 
