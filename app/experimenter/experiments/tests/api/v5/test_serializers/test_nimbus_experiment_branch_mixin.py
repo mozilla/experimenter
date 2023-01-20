@@ -258,7 +258,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
                 "reference_branch": {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME},
                 "treatment_branches": [
                     {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
-                    for i in data["treatment_branches"]
+                    for _ in data["treatment_branches"]
                 ],
             },
         )
@@ -315,7 +315,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(
             set(experiment.feature_configs.all().values_list("id", flat=True)),
-            set([feature_config1.id, feature_config2.id]),
+            {feature_config1.id, feature_config2.id},
         )
 
         self.assertEqual(experiment.reference_branch.name, "control")
@@ -327,7 +327,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
                     "feature_config__id", flat=True
                 )
             ),
-            set([feature_config1.id, feature_config2.id]),
+            {feature_config1.id, feature_config2.id},
         )
 
         self.assertEqual(len(experiment.treatment_branches), 1)
@@ -340,7 +340,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
                 .feature_values.all()
                 .values_list("feature_config__id", flat=True)
             ),
-            set([feature_config1.id, feature_config2.id]),
+            {feature_config1.id, feature_config2.id},
         )
 
     def test_serializer_replace_branches(self):
@@ -387,7 +387,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(
             set(experiment.feature_configs.all().values_list("id", flat=True)),
-            set([feature_config1.id, feature_config2.id]),
+            {feature_config1.id, feature_config2.id},
         )
         self.assertEqual(
             set(experiment.branches.all().values_list("id", flat=True)).intersection(
@@ -405,7 +405,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
                     "feature_config__id", flat=True
                 )
             ),
-            set([feature_config1.id, feature_config2.id]),
+            {feature_config1.id, feature_config2.id},
         )
 
         self.assertEqual(len(experiment.treatment_branches), 1)
@@ -418,7 +418,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
                 .feature_values.all()
                 .values_list("feature_config__id", flat=True)
             ),
-            set([feature_config1.id, feature_config2.id]),
+            {feature_config1.id, feature_config2.id},
         )
 
     def test_serializer_update_branches_with_ids(self):
@@ -467,7 +467,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(
             set(experiment.feature_configs.all().values_list("id", flat=True)),
-            set([feature_config1.id, feature_config2.id]),
+            {feature_config1.id, feature_config2.id},
         )
         self.assertEqual(
             set(experiment.branches.all().values_list("id", flat=True)), branch_ids
@@ -482,7 +482,7 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
                     "feature_config__id", flat=True
                 )
             ),
-            set([feature_config1.id, feature_config2.id]),
+            {feature_config1.id, feature_config2.id},
         )
 
         self.assertEqual(len(experiment.treatment_branches), 1)
@@ -495,5 +495,5 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
                 .feature_values.all()
                 .values_list("feature_config__id", flat=True)
             ),
-            set([feature_config1.id, feature_config2.id]),
+            {feature_config1.id, feature_config2.id},
         )

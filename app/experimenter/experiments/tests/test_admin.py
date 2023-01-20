@@ -250,10 +250,10 @@ class TestNimbusExperimentExport(TestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         )
         experiment.reference_branch = None
-        branches = []
-        for b in experiment.branches.all():
-            branches.append(dict(NimbusBranchChangeLogSerializer(b).data))
-
+        branches = [
+            dict(NimbusBranchChangeLogSerializer(b).data)
+            for b in experiment.branches.all()
+        ]
         changes = []
         num_changes = 3
         for _ in range(num_changes):
