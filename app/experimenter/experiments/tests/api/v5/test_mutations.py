@@ -1112,7 +1112,7 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(
             set(experiment.feature_configs.all().values_list("id", flat=True)),
-            set([feature1.id, feature2.id]),
+            {feature1.id, feature2.id},
         )
 
         self.assertEqual(experiment.branches.count(), 2)
