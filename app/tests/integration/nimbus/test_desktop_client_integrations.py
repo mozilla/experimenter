@@ -124,7 +124,7 @@ def test_check_telemetry_enrollment_unenrollment(
     # Check their was a telemetry event for the enrollment
     control = False
     timeout = time.time() + 60 * 5
-    while control is not True:
+    while not control:
         control = telemetry_event_check(experiment_slug, "enroll")
         if time.time() > timeout:
             assert False, "Experiment enrollment was never seen in ping Data"
@@ -153,7 +153,7 @@ def test_check_telemetry_enrollment_unenrollment(
 
     control = False
     timeout = time.time() + 60 * 5
-    while control is not True:
+    while not control:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
             assert False, "Experiment enrollment was never seen in ping Data"
@@ -219,7 +219,7 @@ def test_check_telemetry_pref_flip(
     # Check there was a telemetry event for the enrollment
     control = False
     timeout = time.time() + 60 * 5
-    while control is not True:
+    while not control:
         control = telemetry_event_check(experiment_slug, "enroll")
         if time.time() > timeout:
             assert False, "Experiment enrollment was never seen in ping Data"
@@ -241,7 +241,7 @@ def test_check_telemetry_pref_flip(
 
     control = False
     timeout = time.time() + 60 * 5
-    while control is not True:
+    while not control:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
             assert False, "Experiment unenrollment was never seen in ping Data"
@@ -310,7 +310,7 @@ def test_check_telemetry_sticky_targeting(
     # Check there was a telemetry event for the enrollment
     control = False
     timeout = time.time() + 60 * 5
-    while control is not True:
+    while not control:
         control = telemetry_event_check(experiment_slug, "enroll")
         if time.time() > timeout:
             assert False, "Experiment enrollment was never seen in ping Data"
@@ -327,7 +327,7 @@ def test_check_telemetry_sticky_targeting(
     # check experiment doesn't unenroll after pref flip
     control = False
     timeout = time.time() + 60
-    while control is not True and time.time() < timeout:
+    while not control and time.time() < timeout:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if control:
             assert False, "Experiment unenrolled when it shouldn't have"
@@ -346,7 +346,7 @@ def test_check_telemetry_sticky_targeting(
     # check for unenroll event after experiment is ended
     control = False
     timeout = time.time() + 60 * 5
-    while control is not True:
+    while not control:
         control = telemetry_event_check(experiment_slug, "unenroll")
         if time.time() > timeout:
             assert False, "Experiment unenrollment was never seen in ping Data"
