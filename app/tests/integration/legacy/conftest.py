@@ -65,7 +65,6 @@ def fixture_experiment_name():
 @pytest.fixture(name="default_data", scope="module")
 def fixture_default_data(experiment_name, experiment_type):
     """Default data needed to create an experiment."""
-    branches = []
     preferences = [
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing",
@@ -80,13 +79,10 @@ def fixture_default_data(experiment_name, experiment_type):
             preference_value="false",
         ),
     ]
-    for count, item in enumerate(preferences):
-        branches.append(
-            BaseBranchDataClass(
-                branch_name=f"e2e-default-branch-{count}", preferences=item
-            )
-        )
-
+    branches = [
+        BaseBranchDataClass(branch_name=f"e2e-default-branch-{count}", preferences=item)
+        for count, item in enumerate(preferences)
+    ]
     return BaseDataClass(
         type_name=experiment_name,
         action_name=experiment_type,
