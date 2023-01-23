@@ -1,6 +1,8 @@
 import datetime
+from unittest import mock
 
 from django.test import TestCase
+from django.utils import timezone
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import (
@@ -30,7 +32,12 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
 
     def test_outputs_expected_schema_for_empty_experiment(self):
         owner = UserFactory.create()
-        experiment = NimbusExperiment.objects.create(owner=owner)
+        updated_time = timezone.datetime(
+            year=2022, month=1, day=2, hour=0, minute=0, second=0
+        )
+        with mock.patch("django.utils.timezone.now") as mock_now:
+            mock_now.return_value = updated_time
+            experiment = NimbusExperiment.objects.create(owner=owner)
         data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
         self.assertEqual(
             data,
@@ -38,6 +45,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "_end_date": None,
                 "_enrollment_end_date": None,
                 "_start_date": None,
+                "_updated_date_time": updated_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "application": "",
                 "branches": [],
                 "channel": NimbusExperiment.Channel.NO_CHANNEL,
@@ -92,17 +100,23 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         secondary_outcome = Outcomes.by_application(application)[1].slug
         parent_experiment = NimbusExperimentFactory.create()
 
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            start_date=datetime.date(2020, 1, 1),
-            end_date=datetime.date(2020, 2, 1),
-            application=application,
-            feature_configs=[feature_config],
-            projects=[project],
-            primary_outcomes=[primary_outcome],
-            secondary_outcomes=[secondary_outcome],
-            parent=parent_experiment,
+        updated_time = timezone.datetime(
+            year=2022, month=1, day=2, hour=0, minute=0, second=0
         )
+        with mock.patch("django.utils.timezone.now") as mock_now:
+            mock_now.return_value = updated_time
+
+            experiment = NimbusExperimentFactory.create_with_lifecycle(
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+                start_date=datetime.date(2020, 1, 1),
+                end_date=datetime.date(2020, 2, 1),
+                application=application,
+                feature_configs=[feature_config],
+                projects=[project],
+                primary_outcomes=[primary_outcome],
+                secondary_outcomes=[secondary_outcome],
+                parent=parent_experiment,
+            )
         data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
         branches_data = [dict(b) for b in data.pop("branches")]
         control_branch_data = dict(data.pop("reference_branch"))
@@ -118,6 +132,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "_end_date": "2020-02-01",
                 "_enrollment_end_date": None,
                 "_start_date": "2020-01-01",
+                "_updated_date_time": updated_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "application": experiment.application,
                 "channel": experiment.channel,
                 "conclusion_recommendation": None,
