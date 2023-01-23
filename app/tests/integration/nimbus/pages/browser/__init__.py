@@ -32,6 +32,7 @@ class AboutConfig(Page):
 
     def wait_for_pref_flip(self, pref, pref_value, action=None):
         timeout = time.time() + 60 * 5
+        error = None
         while time.time() < timeout:
             with self.selenium.context(self.selenium.CONTEXT_CHROME):
                 try:
@@ -43,13 +44,14 @@ class AboutConfig(Page):
                     )
                     assert result == pref_value
                 except Exception as e:
+                    error = e
                     time.sleep(5)
                     if action:
                         action()
                     continue
                 else:
                     return
-        raise (e)
+        raise (error)
 
     def flip_pref(self, pref):
         timeout = time.time() + 15
