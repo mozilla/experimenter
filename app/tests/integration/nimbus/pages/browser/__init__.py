@@ -7,12 +7,12 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class Browser:
-    def execute_script(selenium, *args, script=None, context=None):
+    def execute_script(self, *args, script=None, context=None):
         if "chrome" in context:
-            with selenium.context(selenium.CONTEXT_CHROME):
-                return selenium.execute_script(script, *args)
+            with self.context(self.CONTEXT_CHROME):
+                return self.execute_script(script, *args)
         else:
-            return selenium.execute_script
+            return self.execute_script
 
 
 class AboutConfig(Page):
@@ -42,7 +42,7 @@ class AboutConfig(Page):
                 assert pref_value in [
                     element.text for element in elements
                 ], "Pref not found"
-            except (Exception, AssertionError) as e:
+            except Exception as e:
                 time.sleep(2)
                 error = e
             else:

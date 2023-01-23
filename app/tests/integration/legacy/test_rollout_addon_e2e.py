@@ -22,7 +22,6 @@ def fixture_experiment_name():
 
 @pytest.fixture(name="default_data", scope="module")
 def fixture_default_data(experiment_name, experiment_type):
-    branches = []
     preferences = [
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing",
@@ -32,14 +31,13 @@ def fixture_default_data(experiment_name, experiment_type):
         ),
     ]
 
-    branches.append(
+    branches = [
         BaseBranchDataClass(
             addon_url="http://addon.com/addon.xpi",
             branch_name="e2e-rollout-branch-0",
             preferences=preferences,
         )
-    )
-
+    ]
     return BaseDataClass(
         type_name=experiment_name,
         action_name=experiment_type,
