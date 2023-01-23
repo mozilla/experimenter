@@ -106,4 +106,4 @@ def test_check_mobile_targeting(
             sub_expr = f"{sub_expr} == true"
             targeting_helper.eval_jexl(sub_expr)
         except Exception as e:
-            raise Exception(f"Error evaluating: '{sub_expr}': {e}")
+            raise Exception(f"Error evaluating: '{sub_expr}': {e}") from e

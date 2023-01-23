@@ -29,9 +29,7 @@ def to_str(node):
     Serialize a JEXL tree node back to its string representation
     """
     if type(node) == Identifier:
-        subject = ""
-        if node.subject is not None:
-            subject = f"{to_str(node.subject)}."
+        subject = f"{to_str(node.subject)}." if node.subject is not None else ""
         if node.relative:
             subject = f".{subject}"
         return f"{subject}{node.value}"
@@ -44,9 +42,7 @@ def to_str(node):
     elif type(node) == BinaryExpression:
         return f"({to_str(node.left)} {node.operator.symbol} {to_str(node.right)})"
     elif type(node) == Transform:
-        args = ""
-        if node.args:
-            args = f'({", ".join([to_str(a) for a in node.args])})'
+        args = f'({", ".join([to_str(a) for a in node.args])})' if node.args else ""
         return f"{to_str(node.subject)}|{node.name}{args}"
     elif type(node) == FilterExpression:
         return f"{to_str(node.subject)}[{to_str(node.expression)}]"

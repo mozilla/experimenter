@@ -40,15 +40,14 @@ def load_targeting_configs(app="DESKTOP"):
                     """,
         }
     )
-    targeting_configs = []
-    for item in data["data"]["nimbusConfig"]["targetingConfigs"]:
-        if "DESKTOP" in app:
-            if "DESKTOP" in item["applicationValues"]:
-                targeting_configs.append(item["value"])
-        else:
-            if "DESKTOP" not in item["applicationValues"]:
-                targeting_configs.append(item["value"])
-    return targeting_configs
+    return [
+        item["value"]
+        for item in data["data"]["nimbusConfig"]["targetingConfigs"]
+        if "DESKTOP" in app
+        and "DESKTOP" in item["applicationValues"]
+        or "DESKTOP" not in app
+        and "DESKTOP" not in item["applicationValues"]
+    ]
 
 
 def load_experiment_data(slug):

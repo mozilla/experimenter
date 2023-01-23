@@ -18,18 +18,16 @@ def fixture_experiment_name():
 
 @pytest.fixture(name="default_data", scope="module")
 def fixture_default_data(experiment_name, experiment_type):
-    branches = []
     preferences = [None, None]
 
-    for count, item in enumerate(preferences):
-        branches.append(
-            BaseBranchDataClass(
-                branch_name=f"e2e-addon-branch-{count}",
-                branch_description="e2e Branch Description",
-                preferences=item,
-            )
+    branches = [
+        BaseBranchDataClass(
+            branch_name=f"e2e-addon-branch-{count}",
+            branch_description="e2e Branch Description",
+            preferences=item,
         )
-
+        for count, item in enumerate(preferences)
+    ]
     return BaseDataClass(
         type_name=experiment_name,
         action_name=experiment_type,
