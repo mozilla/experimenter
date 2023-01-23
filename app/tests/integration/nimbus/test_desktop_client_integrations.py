@@ -203,7 +203,9 @@ def test_check_telemetry_pref_flip(
     )
 
     about_config = about_config.open().wait_for_page_to_load()
-    about_config.wait_for_pref_flip("nimbus.qa.pref-1", "default")
+    about_config.wait_for_pref_flip(
+        "nimbus.qa.pref-1", "default", action=trigger_experiment_loader
+    )
 
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.launch_and_approve()
@@ -250,7 +252,9 @@ def test_check_telemetry_pref_flip(
             assert False, "Experiment unenrollment was never seen in ping Data"
 
     about_config = about_config.open().wait_for_page_to_load()
-    about_config.wait_for_pref_flip("nimbus.qa.pref-1", "default")
+    about_config.wait_for_pref_flip(
+        "nimbus.qa.pref-1", "default", action=trigger_experiment_loader
+    )
 
 
 @pytest.mark.nimbus_integration
