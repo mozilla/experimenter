@@ -30,24 +30,29 @@ class AboutConfig(Page):
         self.wait.until(EC.presence_of_element_located(self._search_bar_locator))
         return self
 
-    def wait_for_pref_flip(self, pref, pref_value):
-        timeout = time.time() + 60 * 5
-        error = None
-        while time.time() < timeout:
-            try:
-                search_bar = self.find_element(*self._search_bar_locator)
-                search_bar.send_keys(pref)
-                self.wait.until(EC.presence_of_element_located(self._row_locator))
-                elements = self.find_elements(*self._row_locator)
-                assert pref_value in [
-                    element.text for element in elements
-                ], "Pref not found"
-            except Exception as e:
-                time.sleep(2)
-                error = e
-            else:
-                return True
-        raise (error)
+    def wait_for_pref_flip(self, pref, pref_value, action=None):
+        timeout = time.time() + 60 * 2
+        control = False
+        while control is not True and time.time() < timeout:
+            with self.selenium.context(self.selenium.CONTEXT_CHROME):
+                try:
+                    result = self.selenium.execute_script(
+                        """
+                            return Services.prefs.getStringPref(arguments[0])
+                        """,
+                        pref,
+                    )
+                    assert result == pref_value
+                except Exception:
+                    time.sleep(5)
+                    if action:
+                        action()
+                    continue
+                else:
+                    control = True
+        if control:
+            return True
+        return False
 
     def flip_pref(self, pref):
         timeout = time.time() + 15

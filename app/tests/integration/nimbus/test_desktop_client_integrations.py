@@ -171,6 +171,7 @@ def test_check_telemetry_pref_flip(
     experiment_default_data,
     check_ping_for_experiment,
     telemetry_event_check,
+    trigger_experiment_loader,
 ):
     about_config = AboutConfig(selenium)
 
@@ -227,7 +228,9 @@ def test_check_telemetry_pref_flip(
     assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
     about_config = about_config.open().wait_for_page_to_load()
-    about_config.wait_for_pref_flip("nimbus.qa.pref-1", "test_string_automation")
+    about_config.wait_for_pref_flip(
+        "nimbus.qa.pref-1", "test_string_automation", action=trigger_experiment_loader
+    )
 
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
