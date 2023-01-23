@@ -6,7 +6,10 @@ from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
 from experimenter.base.models import Country, Language, Locale
-from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
+from experimenter.experiments.api.v5.serializers import (
+    NimbusReviewSerializer,
+    TransitionConstants,
+)
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
@@ -256,6 +259,21 @@ class NimbusSignoffRecommendationsType(graphene.ObjectType):
     legal_signoff = graphene.Boolean()
 
 
+class NimbusStatusUpdateExemptFieldsType(graphene.ObjectType):
+    all = graphene.Field(graphene.List(graphene.String))
+    experiments = graphene.Field(graphene.List(graphene.String))
+    rollouts = graphene.Field(graphene.List(graphene.String))
+
+    def resolve_all(parent, info):
+        return TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["all"]
+
+    def resolve_experiments(parent, info):
+        return TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["experiments"]
+
+    def resolve_rollouts(parent, info):
+        return TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["rollouts"]
+
+
 class NimbusConfigurationType(graphene.ObjectType):
     application_configs = graphene.List(NimbusExperimentApplicationConfigType)
     applications = graphene.List(NimbusLabelValueType)
@@ -274,6 +292,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     targeting_configs = graphene.List(NimbusExperimentTargetingConfigType)
     conclusion_recommendations = graphene.List(NimbusLabelValueType)
     types = graphene.List(NimbusLabelValueType)
+    status_update_exempt_fields = graphene.List(NimbusStatusUpdateExemptFieldsType)
 
     def _text_choices_to_label_value_list(self, text_choices):
         return [
@@ -386,6 +405,14 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_types(self, info):
         return self._text_choices_to_label_value_list(NimbusExperiment.Type)
 
+    def resolve_status_update_exempt_fields(self, info):
+        return [
+            NimbusStatusUpdateExemptFieldsType(
+                all = TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["all"],
+                experiments = TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["experiments"],
+                rollouts = TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["rollouts"],
+            )
+        ]
 
 class NimbusExperimentType(DjangoObjectType):
     id = graphene.Int()
