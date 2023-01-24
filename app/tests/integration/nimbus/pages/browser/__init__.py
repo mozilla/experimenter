@@ -30,18 +30,26 @@ class AboutConfig(Page):
         self.wait.until(EC.presence_of_element_located(self._search_bar_locator))
         return self
 
-    def wait_for_pref_flip(self, pref, pref_value, action=None):
+    def wait_for_pref_flip(self, pref, pref_value, action=None, pref_type=str):
         timeout = time.time() + 60 * 5
         error = None
         while time.time() < timeout:
             with self.selenium.context(self.selenium.CONTEXT_CHROME):
                 try:
-                    result = self.selenium.execute_script(
-                        """
-                            return Services.prefs.getStringPref(arguments[0])
-                        """,
-                        pref,
-                    )
+                    if pref_type == str:
+                        result = self.selenium.execute_script(
+                            """
+                                return Services.prefs.getStringPref(arguments[0])
+                            """,
+                            pref,
+                        )
+                    elif pref_type == bool:
+                        result = self.selenium.execute_script(
+                            """
+                                return Services.prefs.getBoolPref(arguments[0])
+                            """,
+                            pref,
+                        )
                     assert result == pref_value
                 except Exception as e:
                     error = e
