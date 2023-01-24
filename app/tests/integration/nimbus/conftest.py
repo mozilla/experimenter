@@ -479,7 +479,7 @@ def fixture_experiment_default_data():
 
 
 @pytest.fixture(name="check_ping_for_experiment")
-def fixture_check_ping_for_experiment():
+def fixture_check_ping_for_experiment(trigger_experiment_loader):
     def _check_ping_for_experiment(experiment=None):
         control = True
         timeout = time.time() + 60 * 5
@@ -494,6 +494,7 @@ def fixture_check_ping_for_experiment():
                 if experiment in item.keys():
                     return True
             time.sleep(5)
+            trigger_experiment_loader()
         else:
             return False
 
