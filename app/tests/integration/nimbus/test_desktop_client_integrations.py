@@ -269,7 +269,7 @@ def test_check_telemetry_sticky_targeting(
     experiment_default_data,
     check_ping_for_experiment,
     telemetry_event_check,
-    trigger_experiment_loader
+    trigger_experiment_loader,
 ):
     about_config = AboutConfig(selenium)
     pref_name = "sticky.targeting.test.pref"
@@ -327,7 +327,9 @@ def test_check_telemetry_sticky_targeting(
 
     # flip pref
     about_config = about_config.open().wait_for_page_to_load()
-    about_config.wait_for_pref_flip(pref_name, True, action=trigger_experiment_loader, pref_type=bool)
+    about_config.wait_for_pref_flip(
+        pref_name, True, action=trigger_experiment_loader, pref_type=bool
+    )
     about_config.flip_pref(pref_name)
 
     assert about_config.get_pref_value(pref_name) == "false"
