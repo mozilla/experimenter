@@ -213,7 +213,7 @@ class SummaryPage(ExperimenterBase):
     @clone_name.setter
     def clone_name(self, text=None):
         # Control-a before typing, in order to fully overwrite default value
-        self.clone_name_field.send_keys(Keys.CONTROL + "a")
+        self.clone_name_field.send_keys(f"{Keys.CONTROL}a")
         self.clone_name_field.send_keys(f"{text}")
 
     @property
@@ -293,7 +293,7 @@ class SummaryPage(ExperimenterBase):
     @takeaways_summary_field.setter
     def takeaways_summary_field(self, text=None):
         # Control-a before typing, in order to fully overwrite default value
-        self.takeaways_summary_field.send_keys(Keys.CONTROL + "a")
+        self.takeaways_summary_field.send_keys(f"{Keys.CONTROL}a")
         self.takeaways_summary_field.send_keys(f"{text}")
 
     @property

@@ -11,7 +11,7 @@ from experimenter.experiments.models import NimbusExperiment
 
 class NimbusExperimentCsvRenderer(CSVRenderer):
     header = NimbusExperimentCsvSerializer.Meta.fields
-    labels = dict(((field, field.replace("_", " ").title()) for field in header))
+    labels = {field: field.replace("_", " ").title() for field in header}
 
 
 class NimbusExperimentCsvListView(ListAPIView):

@@ -166,7 +166,7 @@ class TestNimbusExperimentSerializer(TestCase):
             },
         )
 
-        self.assertEqual(set(feature_ids_data), set([feature1.slug, feature2.slug]))
+        self.assertEqual(set(feature_ids_data), {feature1.slug, feature2.slug})
 
         self.assertEqual(
             bucket_data,

@@ -43,11 +43,11 @@ def load_targeting_configs():
                     """,
         }
     )
-    targeting_configs = []
-    for item in data["data"]["nimbusConfig"]["targetingConfigs"]:
-        if "DESKTOP" in item["applicationValues"]:
-            targeting_configs.append(item["value"])
-    return targeting_configs
+    return [
+        item["value"]
+        for item in data["data"]["nimbusConfig"]["targetingConfigs"]
+        if "DESKTOP" in item["applicationValues"]
+    ]
 
 
 def load_experiment_data(slug):

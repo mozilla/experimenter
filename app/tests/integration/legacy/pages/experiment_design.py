@@ -191,9 +191,7 @@ class DesignPage(Base):
         @property
         def is_displayed(self):
             """Check if a branch is displayed."""
-            if self.root.get_attribute("data-formset-form-deleted") is not None:
-                return False
-            return True
+            return self.root.get_attribute("data-formset-form-deleted") is None
 
         @property
         def add_pref_button(self):
@@ -203,12 +201,10 @@ class DesignPage(Base):
             # Create PrefsRegion objects for each branch and each pref seen
             els = self.find_elements(*self._pref_section_locator)
 
-            _prefs = []
-            for count, el in enumerate(els):
-                _prefs.append(
-                    self.PrefsRegion(self, root=el, count=count, branch_number=branch)
-                )
-            return _prefs
+            return [
+                self.PrefsRegion(self, root=el, count=count, branch_number=branch)
+                for count, el in enumerate(els)
+            ]
 
         def remove_branch(self):
             self.find_element(*self._remove_branch_btn_locator).click()
