@@ -171,6 +171,7 @@ def test_check_telemetry_pref_flip(
     experiment_default_data,
     check_ping_for_experiment,
     telemetry_event_check,
+    trigger_experiment_loader,
 ):
     about_config = AboutConfig(selenium)
 
@@ -202,7 +203,9 @@ def test_check_telemetry_pref_flip(
     )
 
     about_config = about_config.open().wait_for_page_to_load()
-    about_config.wait_for_pref_flip("nimbus.qa.pref-1", "default")
+    about_config.wait_for_pref_flip(
+        "nimbus.qa.pref-1", "default", action=trigger_experiment_loader
+    )
 
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.launch_and_approve()
@@ -227,7 +230,9 @@ def test_check_telemetry_pref_flip(
     assert check_ping_for_experiment(experiment_slug), "Experiment not found in telemetry"
 
     about_config = about_config.open().wait_for_page_to_load()
-    about_config.wait_for_pref_flip("nimbus.qa.pref-1", "test_string_automation")
+    about_config.wait_for_pref_flip(
+        "nimbus.qa.pref-1", "test_string_automation", action=trigger_experiment_loader
+    )
 
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
@@ -247,7 +252,9 @@ def test_check_telemetry_pref_flip(
             assert False, "Experiment unenrollment was never seen in ping Data"
 
     about_config = about_config.open().wait_for_page_to_load()
-    about_config.wait_for_pref_flip("nimbus.qa.pref-1", "default")
+    about_config.wait_for_pref_flip(
+        "nimbus.qa.pref-1", "default", action=trigger_experiment_loader
+    )
 
 
 @pytest.mark.nimbus_integration
@@ -262,6 +269,7 @@ def test_check_telemetry_sticky_targeting(
     experiment_default_data,
     check_ping_for_experiment,
     telemetry_event_check,
+    trigger_experiment_loader,
 ):
     about_config = AboutConfig(selenium)
     pref_name = "sticky.targeting.test.pref"
@@ -319,7 +327,9 @@ def test_check_telemetry_sticky_targeting(
 
     # flip pref
     about_config = about_config.open().wait_for_page_to_load()
-    about_config.wait_for_pref_flip(pref_name, "true")
+    about_config.wait_for_pref_flip(
+        pref_name, True, action=trigger_experiment_loader, pref_type=bool
+    )
     about_config.flip_pref(pref_name)
 
     assert about_config.get_pref_value(pref_name) == "false"
