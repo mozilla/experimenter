@@ -408,11 +408,14 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_status_update_exempt_fields(self, info):
         return [
             NimbusStatusUpdateExemptFieldsType(
-                all = TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["all"],
-                experiments = TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["experiments"],
-                rollouts = TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["rollouts"],
+                all=TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["all"],
+                experiments=TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS[
+                    "experiments"
+                ],
+                rollouts=TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["rollouts"],
             )
         ]
+
 
 class NimbusExperimentType(DjangoObjectType):
     id = graphene.Int()

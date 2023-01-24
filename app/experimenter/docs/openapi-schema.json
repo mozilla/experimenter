@@ -32,7 +32,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Public"]
+        "tags": [
+          "Core: Public"
+        ]
       }
     },
     "/api/v1/experiments/{slug}/": {
@@ -62,7 +64,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Public"]
+        "tags": [
+          "Core: Public"
+        ]
       }
     },
     "/api/v1/experiments/": {
@@ -104,7 +108,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Public"]
+        "tags": [
+          "Core: Public"
+        ]
       }
     },
     "/api/v2/experiments/csv/": {
@@ -127,7 +133,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/design-addon-rollout": {
@@ -157,7 +165,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "put": {
         "operationId": "updateExperiment",
@@ -204,7 +214,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -251,7 +263,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/design-addon": {
@@ -281,7 +295,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "put": {
         "operationId": "updateExperiment",
@@ -328,7 +344,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -375,7 +393,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/design-pref-rollout": {
@@ -405,7 +425,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "put": {
         "operationId": "updateExperiment",
@@ -452,7 +474,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -499,7 +523,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/design-pref": {
@@ -529,7 +555,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "put": {
         "operationId": "updateExperiment",
@@ -576,7 +604,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -623,7 +653,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/design-multi-pref": {
@@ -653,7 +685,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "put": {
         "operationId": "updateExperiment",
@@ -700,7 +734,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -747,7 +783,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/design-generic": {
@@ -777,7 +815,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "put": {
         "operationId": "updateExperiment",
@@ -824,7 +864,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -871,7 +913,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/design-branched-addon": {
@@ -901,7 +945,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "put": {
         "operationId": "updateExperiment",
@@ -948,7 +994,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -995,7 +1043,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/design-message": {
@@ -1025,7 +1075,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "put": {
         "operationId": "updateExperiment",
@@ -1072,7 +1124,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -1119,7 +1173,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/timeline-population": {
@@ -1149,7 +1205,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "put": {
         "operationId": "updateExperiment",
@@ -1196,7 +1254,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -1243,7 +1303,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v3/visualization/{slug}/": {
@@ -1271,7 +1333,9 @@
             "description": ""
           }
         },
-        "tags": ["api"]
+        "tags": [
+          "api"
+        ]
       }
     },
     "/api/v5/csv/": {
@@ -1294,7 +1358,9 @@
             "description": ""
           }
         },
-        "tags": ["api"]
+        "tags": [
+          "api"
+        ]
       }
     },
     "/api/v5/config/": {
@@ -1314,7 +1380,9 @@
             "description": ""
           }
         },
-        "tags": ["api"]
+        "tags": [
+          "api"
+        ]
       }
     },
     "/api/v6/experiments/": {
@@ -1347,7 +1415,9 @@
             "description": ""
           }
         },
-        "tags": ["Nimbus: Public"]
+        "tags": [
+          "Nimbus: Public"
+        ]
       }
     },
     "/api/v6/experiments/{slug}/": {
@@ -1386,7 +1456,9 @@
             "description": ""
           }
         },
-        "tags": ["Nimbus: Public"]
+        "tags": [
+          "Nimbus: Public"
+        ]
       }
     },
     "/api/v6/experiments-first-run/": {
@@ -1419,7 +1491,9 @@
             "description": ""
           }
         },
-        "tags": ["Nimbus: Public"]
+        "tags": [
+          "Nimbus: Public"
+        ]
       }
     },
     "/api/v6/experiments-first-run/{slug}/": {
@@ -1458,7 +1532,9 @@
             "description": ""
           }
         },
-        "tags": ["Nimbus: Public"]
+        "tags": [
+          "Nimbus: Public"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/intent-to-ship-email": {
@@ -1507,7 +1583,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -1554,7 +1632,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     },
     "/api/v2/experiments/{slug}/clone": {
@@ -1603,7 +1683,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       },
       "patch": {
         "operationId": "partialUpdateExperiment",
@@ -1650,7 +1732,9 @@
             "description": ""
           }
         },
-        "tags": ["Core: Private"]
+        "tags": [
+          "Core: Private"
+        ]
       }
     }
   },
@@ -1684,7 +1768,9 @@
             "readOnly": true
           }
         },
-        "required": ["name"]
+        "required": [
+          "name"
+        ]
       },
       "Experiment": {
         "type": "object",
@@ -1694,7 +1780,13 @@
             "readOnly": true
           },
           "type": {
-            "enum": ["pref", "addon", "generic", "rollout", "message"],
+            "enum": [
+              "pref",
+              "addon",
+              "generic",
+              "rollout",
+              "message"
+            ],
             "type": "string"
           },
           "name": {
@@ -1740,7 +1832,10 @@
                   "maxLength": 255
                 }
               },
-              "required": ["code", "name"]
+              "required": [
+                "code",
+                "name"
+              ]
             }
           },
           "countries": {
@@ -1757,7 +1852,10 @@
                   "maxLength": 255
                 }
               },
-              "required": ["code", "name"]
+              "required": [
+                "code",
+                "name"
+              ]
             }
           },
           "platforms": {
@@ -1786,7 +1884,12 @@
             "nullable": true
           },
           "firefox_channel": {
-            "enum": [null, "Nightly", "Beta", "Release"],
+            "enum": [
+              null,
+              "Nightly",
+              "Beta",
+              "Release"
+            ],
             "nullable": true
           },
           "firefox_min_version": {
@@ -1946,7 +2049,11 @@
             "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
           },
           "pref_branch": {
-            "enum": [null, "default", "user"],
+            "enum": [
+              null,
+              "default",
+              "user"
+            ],
             "nullable": true
           },
           "pref_name": {
@@ -2048,7 +2155,11 @@
                         ]
                       },
                       "pref_branch": {
-                        "enum": [null, "default", "user"]
+                        "enum": [
+                          null,
+                          "default",
+                          "user"
+                        ]
                       },
                       "pref_value": {
                         "type": "string",
@@ -2076,7 +2187,10 @@
                   "nullable": true
                 }
               },
-              "required": ["name", "slug"]
+              "required": [
+                "name",
+                "slug"
+              ]
             }
           },
           "results": {
@@ -2122,7 +2236,9 @@
                   "nullable": true
                 }
               },
-              "required": ["new_status"]
+              "required": [
+                "new_status"
+              ]
             }
           },
           "projects": {
@@ -2181,7 +2297,13 @@
             "readOnly": true
           },
           "type": {
-            "enum": ["pref", "addon", "generic", "rollout", "message"],
+            "enum": [
+              "pref",
+              "addon",
+              "generic",
+              "rollout",
+              "message"
+            ],
             "type": "string"
           },
           "length": {
@@ -2235,7 +2357,10 @@
         "type": "object",
         "properties": {
           "rollout_type": {
-            "enum": ["pref", "addon"],
+            "enum": [
+              "pref",
+              "addon"
+            ],
             "type": "string"
           },
           "design": {
@@ -2250,7 +2375,10 @@
             "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
           }
         },
-        "required": ["rollout_type", "addon_release_url"]
+        "required": [
+          "rollout_type",
+          "addon_release_url"
+        ]
       },
       "ExperimentDesignAddon": {
         "type": "object",
@@ -2283,20 +2411,32 @@
                   "type": "integer"
                 }
               },
-              "required": ["description", "is_control", "name", "ratio"]
+              "required": [
+                "description",
+                "is_control",
+                "name",
+                "ratio"
+              ]
             }
           },
           "is_branched_addon": {
             "type": "boolean"
           }
         },
-        "required": ["addon_release_url", "variants", "is_branched_addon"]
+        "required": [
+          "addon_release_url",
+          "variants",
+          "is_branched_addon"
+        ]
       },
       "ExperimentDesignPrefRollout": {
         "type": "object",
         "properties": {
           "rollout_type": {
-            "enum": ["pref", "addon"],
+            "enum": [
+              "pref",
+              "addon"
+            ],
             "type": "string"
           },
           "design": {
@@ -2316,18 +2456,31 @@
                   "maxLength": 255
                 },
                 "pref_type": {
-                  "enum": [null, "boolean", "integer", "string", "json string"]
+                  "enum": [
+                    null,
+                    "boolean",
+                    "integer",
+                    "string",
+                    "json string"
+                  ]
                 },
                 "pref_value": {
                   "type": "string",
                   "maxLength": 4096
                 }
               },
-              "required": ["pref_name", "pref_type", "pref_value"]
+              "required": [
+                "pref_name",
+                "pref_type",
+                "pref_value"
+              ]
             }
           }
         },
-        "required": ["rollout_type", "preferences"]
+        "required": [
+          "rollout_type",
+          "preferences"
+        ]
       },
       "ExperimentDesignPref": {
         "type": "object",
@@ -2439,7 +2592,11 @@
                         ]
                       },
                       "pref_branch": {
-                        "enum": [null, "default", "user"]
+                        "enum": [
+                          null,
+                          "default",
+                          "user"
+                        ]
                       },
                       "pref_value": {
                         "type": "string",
@@ -2465,7 +2622,10 @@
             }
           }
         },
-        "required": ["is_multi_pref", "variants"]
+        "required": [
+          "is_multi_pref",
+          "variants"
+        ]
       },
       "ExperimentDesignGeneric": {
         "type": "object",
@@ -2496,11 +2656,18 @@
                   "type": "integer"
                 }
               },
-              "required": ["description", "is_control", "name", "ratio"]
+              "required": [
+                "description",
+                "is_control",
+                "name",
+                "ratio"
+              ]
             }
           }
         },
-        "required": ["variants"]
+        "required": [
+          "variants"
+        ]
       },
       "ExperimentDesignBranchedAddon": {
         "type": "object",
@@ -2546,13 +2713,19 @@
             }
           }
         },
-        "required": ["is_branched_addon", "variants"]
+        "required": [
+          "is_branched_addon",
+          "variants"
+        ]
       },
       "ExperimentDesignMessage": {
         "type": "object",
         "properties": {
           "message_type": {
-            "enum": ["cfr", "about:welcome"],
+            "enum": [
+              "cfr",
+              "about:welcome"
+            ],
             "type": "string"
           },
           "message_template": {
@@ -2611,7 +2784,10 @@
             }
           }
         },
-        "required": ["message_type", "variants"]
+        "required": [
+          "message_type",
+          "variants"
+        ]
       },
       "ExperimentTimelinePop": {
         "type": "object",
@@ -2626,7 +2802,13 @@
             "nullable": true
           },
           "rollout_playbook": {
-            "enum": [null, "low_risk", "high_risk", "marketing", "custom"],
+            "enum": [
+              null,
+              "low_risk",
+              "high_risk",
+              "marketing",
+              "custom"
+            ],
             "nullable": true
           },
           "proposed_duration": {
@@ -2642,7 +2824,12 @@
             "nullable": true
           },
           "firefox_channel": {
-            "enum": [null, "Nightly", "Beta", "Release"],
+            "enum": [
+              null,
+              "Nightly",
+              "Beta",
+              "Release"
+            ],
             "nullable": true
           },
           "firefox_min_version": {
@@ -2801,7 +2988,10 @@
                   "type": "integer"
                 }
               },
-              "required": ["label", "value"]
+              "required": [
+                "label",
+                "value"
+              ]
             },
             "nullable": true
           },
@@ -2817,7 +3007,10 @@
                   "type": "integer"
                 }
               },
-              "required": ["label", "value"]
+              "required": [
+                "label",
+                "value"
+              ]
             },
             "nullable": true
           },
@@ -2920,7 +3113,10 @@
                   "type": "string"
                 }
               },
-              "required": ["label", "value"]
+              "required": [
+                "label",
+                "value"
+              ]
             }
           },
           "channels": {
@@ -2935,7 +3131,10 @@
                   "type": "string"
                 }
               },
-              "required": ["label", "value"]
+              "required": [
+                "label",
+                "value"
+              ]
             }
           },
           "applicationConfigs": {
@@ -2958,11 +3157,17 @@
                         "type": "string"
                       }
                     },
-                    "required": ["label", "value"]
+                    "required": [
+                      "label",
+                      "value"
+                    ]
                   }
                 }
               },
-              "required": ["application", "channels"]
+              "required": [
+                "application",
+                "channels"
+              ]
             }
           },
           "countries": {
@@ -2980,7 +3185,11 @@
                   "type": "string"
                 }
               },
-              "required": ["id", "name", "code"]
+              "required": [
+                "id",
+                "name",
+                "code"
+              ]
             }
           },
           "locales": {
@@ -2998,7 +3207,11 @@
                   "type": "string"
                 }
               },
-              "required": ["id", "name", "code"]
+              "required": [
+                "id",
+                "name",
+                "code"
+              ]
             }
           },
           "languages": {
@@ -3016,7 +3229,11 @@
                   "type": "string"
                 }
               },
-              "required": ["id", "name", "code"]
+              "required": [
+                "id",
+                "name",
+                "code"
+              ]
             }
           },
           "projects": {
@@ -3034,7 +3251,11 @@
                   "type": "string"
                 }
               },
-              "required": ["id", "name", "slug"]
+              "required": [
+                "id",
+                "name",
+                "slug"
+              ]
             }
           },
           "documentationLink": {
@@ -3049,7 +3270,10 @@
                   "type": "string"
                 }
               },
-              "required": ["label", "value"]
+              "required": [
+                "label",
+                "value"
+              ]
             }
           },
           "allFeatureConfigs": {
@@ -3106,7 +3330,10 @@
                   "type": "string"
                 }
               },
-              "required": ["label", "value"]
+              "required": [
+                "label",
+                "value"
+              ]
             }
           },
           "outcomes": {
@@ -3144,7 +3371,11 @@
                         "type": "string"
                       }
                     },
-                    "required": ["slug", "friendlyName", "description"]
+                    "required": [
+                      "slug",
+                      "friendlyName",
+                      "description"
+                    ]
                   }
                 }
               },
@@ -3167,7 +3398,9 @@
                   "type": "string"
                 }
               },
-              "required": ["username"]
+              "required": [
+                "username"
+              ]
             }
           },
           "targetingConfigs": {
@@ -3219,7 +3452,10 @@
                   "type": "string"
                 }
               },
-              "required": ["label", "value"]
+              "required": [
+                "label",
+                "value"
+              ]
             }
           },
           "types": {
@@ -3234,25 +3470,10 @@
                   "type": "string"
                 }
               },
-              "required": ["label", "value"]
-            }
-          },
-          "statusUpdateExemptFields": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "all": {
-                  "type": "string"
-                },
-                "experiments": {
-                  "type": "string"
-                },
-                "rollouts": {
-                  "type": "string"
-                }
-              },
-              "required": ["all", "experiments", "rollouts"]
+              "required": [
+                "label",
+                "value"
+              ]
             }
           },
           "hypothesisDefault": {
@@ -3277,8 +3498,7 @@
           "owners",
           "targetingConfigs",
           "conclusionRecommendations",
-          "types",
-          "statusUpdateExemptFields"
+          "types"
         ]
       },
       "NimbusExperiment": {
@@ -3370,7 +3590,10 @@
                 "readOnly": true
               }
             },
-            "required": ["start", "count"]
+            "required": [
+              "start",
+              "count"
+            ]
           },
           "featureIds": {
             "type": "string",
@@ -3443,7 +3666,9 @@
             "readOnly": true
           }
         },
-        "required": ["name"]
+        "required": [
+          "name"
+        ]
       }
     }
   }
