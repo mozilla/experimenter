@@ -7,6 +7,7 @@ from graphene_django.utils.testing import GraphQLTestCase
 from parameterized import parameterized
 
 from experimenter.base.models import Country, Language, Locale
+from experimenter.experiments.api.v5.serializers import TransitionConstants
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
@@ -1446,6 +1447,11 @@ class TestNimbusConfigQuery(GraphQLTestCase):
                         label
                         value
                     }
+                    statusUpdateExemptFields {
+                        all
+                        experiments
+                        rollouts
+                    }
                 }
             }
             """,
@@ -1470,6 +1476,10 @@ class TestNimbusConfigQuery(GraphQLTestCase):
 
         self.assertEqual(
             len(config["firefoxVersions"]), len(NimbusExperiment.Version.names)
+        )
+        self.assertEqual(
+            TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS,
+            config["statusUpdateExemptFields"][0],
         )
         for index, name in enumerate(NimbusExperiment.Version.names):
             self.assertIn(
