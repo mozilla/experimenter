@@ -598,6 +598,113 @@ class TestFetchJetstreamDataTask(TestCase):
     )
     @patch("django.core.files.storage.default_storage.open")
     @patch("django.core.files.storage.default_storage.exists")
+    def test_partial_exposures_results_data_parsed_and_stored(
+        self, lifecycle, mock_exists, mock_open
+    ):
+        primary_outcomes = []
+        secondary_outcomes = []
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            primary_outcomes=primary_outcomes,
+            secondary_outcomes=secondary_outcomes,
+        )
+        experiment.reference_branch.slug = "control"
+        experiment.reference_branch.save()
+        treatment_branch = experiment.treatment_branches[0]
+        treatment_branch.slug = "variant"
+        treatment_branch.save()
+
+        (
+            DAILY_DATA,
+            WEEKLY_DATA,
+            OVERALL_DATA,
+            ERRORS,
+            SEGMENT_DATA,
+            DAILY_EXPOSURES_DATA,
+            SEGMENT_EXPOSURES_DATA,
+            # WEEKLY_EXPOSURES_DATA,
+            # WEEKLY_EXPOSURES_SEGMENT_DATA,
+            # OVERALL_EXPOSURES_DATA,
+            # OVERALL_EXPOSURES_SEGMENT_DATA,
+        ) = JetstreamTestData.get_partial_exposures_test_data(primary_outcomes)
+
+        FULL_DATA = {
+            "v1": {
+                "daily": {
+                    "all": DAILY_DATA,
+                    "some_segment": SEGMENT_DATA,
+                },
+                "weekly": WEEKLY_DATA["enrollments"],
+                "overall": OVERALL_DATA["enrollments"],
+                "other_metrics": {
+                    Group.OTHER: {
+                        "some_count": "Some Count",
+                        "another_count": "Another Count",
+                    },
+                },
+                "metadata": {},
+                "show_analysis": False,
+                "errors": ERRORS,
+            },
+            "v2": {
+                "daily": {
+                    "enrollments": {
+                        "all": DAILY_DATA,
+                        "some_segment": SEGMENT_DATA,
+                    },
+                    "exposures": {
+                        "all": DAILY_EXPOSURES_DATA,
+                        "some_segment": SEGMENT_EXPOSURES_DATA,
+                    },
+                },
+                "weekly": WEEKLY_DATA,
+                "overall": OVERALL_DATA,
+                "other_metrics": {
+                    Group.OTHER: {
+                        "some_count": "Some Count",
+                        "another_count": "Another Count",
+                    },
+                },
+                "metadata": {},
+                "show_analysis": False,
+                "errors": ERRORS,
+            },
+        }
+
+        class File:
+            def __init__(self, filename):
+                self.name = filename
+
+            def read(self):
+                if "metadata" in self.name:
+                    return "{}"
+                if "errors" in self.name:
+                    return "[]"
+                return json.dumps(
+                    DAILY_DATA
+                    + SEGMENT_DATA
+                    + DAILY_EXPOSURES_DATA
+                    + SEGMENT_EXPOSURES_DATA
+                )
+
+        def open_file(filename):
+            return File(filename)
+
+        mock_open.side_effect = open_file
+        mock_exists.return_value = True
+
+        tasks.fetch_experiment_data(experiment.id)
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.results_data, FULL_DATA)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
+        ]
+    )
+    @patch("django.core.files.storage.default_storage.open")
+    @patch("django.core.files.storage.default_storage.exists")
     def test_results_data_with_zeros_parsed_and_stored(
         self, lifecycle, mock_exists, mock_open
     ):

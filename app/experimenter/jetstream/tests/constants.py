@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from experimenter.jetstream.models import (
     AnalysisBasis,
     BranchComparison,
@@ -533,6 +535,291 @@ class JetstreamTestData:
                     "segment": "all",
                 }
             ],
+        }
+
+        cls.add_all_outcome_data(
+            DAILY_DATA,
+            OVERALL_DATA,
+            WEEKLY_DATA,
+            primary_outcomes,
+            AnalysisBasis.ENROLLMENTS,
+        )
+        cls.add_all_outcome_data(
+            DAILY_EXPOSURES_DATA,
+            OVERALL_DATA,
+            WEEKLY_DATA,
+            primary_outcomes,
+            AnalysisBasis.EXPOSURES,
+        )
+
+        return (
+            DAILY_DATA,
+            WEEKLY_DATA,
+            OVERALL_DATA,
+            ERRORS,
+            SEGMENT_DATA,
+            DAILY_EXPOSURES_DATA,
+            SEGMENT_EXPOSURES_DATA,
+        )
+
+    @classmethod
+    def get_partial_exposures_test_data(cls, primary_outcomes):
+        # similar to above but missing weekly retention metric for exposures
+        DATA_IDENTITY_ROW = cls.get_identity_row()
+
+        CONTROL_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        CONTROL_DATA_ROW.branch = "control"
+
+        VARIANT_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_ROW.branch = "variant"
+
+        SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.copy()
+        SEGMENTED_ROW_VARIANT.segment = "some_segment"
+        SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.copy()
+        SEGMENTED_ROW_CONTROL.segment = "some_segment"
+
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.metric = "some_count"
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
+        VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.branch = "variant"
+
+        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
+        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
+        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
+        VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.branch = "variant"
+
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.comparison = BranchComparison.DIFFERENCE
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.metric = Metric.SEARCH
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.statistic = Statistic.MEAN
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.branch = "variant"
+
+        (
+            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW,
+            CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW,
+        ) = cls.get_significance_data_row(VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW)
+
+        # exposures
+        EXPOSURES_CONTROL_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_CONTROL_DATA_ROW.branch = "control"
+        EXPOSURES_CONTROL_DATA_ROW.analysis_basis = AnalysisBasis.EXPOSURES
+
+        EXPOSURES_VARIANT_DATA_ROW = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_ROW.branch = "variant"
+        EXPOSURES_VARIANT_DATA_ROW.analysis_basis = AnalysisBasis.EXPOSURES
+
+        EXPOSURES_SEGMENTED_ROW_VARIANT = VARIANT_DATA_ROW.copy()
+        EXPOSURES_SEGMENTED_ROW_VARIANT.segment = "some_segment"
+        EXPOSURES_SEGMENTED_ROW_VARIANT.analysis_basis = AnalysisBasis.EXPOSURES
+        EXPOSURES_SEGMENTED_ROW_CONTROL = CONTROL_DATA_ROW.copy()
+        EXPOSURES_SEGMENTED_ROW_CONTROL.segment = "some_segment"
+        EXPOSURES_SEGMENTED_ROW_CONTROL.analysis_basis = AnalysisBasis.EXPOSURES
+
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.metric = "some_count"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.statistic = Statistic.MEAN
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.branch = "variant"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.analysis_basis = (
+            AnalysisBasis.EXPOSURES
+        )
+
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL = DATA_IDENTITY_ROW.copy()
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.metric = "another_count"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.statistic = Statistic.BINOMIAL
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.branch = "variant"
+        EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.analysis_basis = (
+            AnalysisBasis.EXPOSURES
+        )
+
+        DAILY_DATA = [
+            CONTROL_DATA_ROW.dict(exclude_none=True),
+            VARIANT_DATA_ROW.dict(exclude_none=True),
+            VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
+            VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
+            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
+            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
+            CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW.dict(exclude_none=True),
+        ]
+        DAILY_EXPOSURES_DATA = [
+            EXPOSURES_CONTROL_DATA_ROW.dict(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_ROW.dict(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_MEAN.dict(exclude_none=True),
+            EXPOSURES_VARIANT_DATA_DEFAULT_METRIC_ROW_BINOMIAL.dict(exclude_none=True),
+        ]
+        SEGMENT_DATA = [
+            SEGMENTED_ROW_VARIANT.dict(exclude_none=True),
+            SEGMENTED_ROW_CONTROL.dict(exclude_none=True),
+        ]
+        SEGMENT_EXPOSURES_DATA = [
+            EXPOSURES_SEGMENTED_ROW_VARIANT.dict(exclude_none=True),
+            EXPOSURES_SEGMENTED_ROW_CONTROL.dict(exclude_none=True),
+        ]
+
+        (
+            DATA_POINT_A,
+            DATA_POINT_F,
+            DATA_POINT_B,
+            DATA_POINT_E,
+            DATA_POINT_C,
+            DATA_POINT_D,
+            ABSOLUTE_METRIC_DATA_A,
+            ABSOLUTE_METRIC_DATA_F,
+            ABSOLUTE_METRIC_DATA_F_WITH_PERCENT,
+        ) = cls.get_data_points()
+
+        (
+            DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL,
+            DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE,
+            DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE,
+            DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL,
+            DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE,
+            DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE,
+        ) = cls.get_differences(
+            DATA_POINT_A,
+            DATA_POINT_F,
+            DATA_POINT_B,
+            DATA_POINT_E,
+            DATA_POINT_C,
+            DATA_POINT_D,
+        )
+
+        EMPTY_METRIC_DATA = MetricData(
+            absolute=BranchComparisonData(),
+            difference=BranchComparisonData(),
+            relative_uplift=BranchComparisonData(),
+            significance=SignificanceData(),
+        )
+
+        WEEKLY_BASE = {
+            "control": {
+                "is_control": True,
+                "branch_data": {
+                    Group.SEARCH: {
+                        "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                    },
+                    Group.USAGE: {},
+                    Group.OTHER: {
+                        "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
+                        "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEUTRAL.dict(
+                            exclude_none=True
+                        ),
+                    },
+                },
+            },
+            "variant": {
+                "is_control": False,
+                "branch_data": {
+                    Group.SEARCH: {
+                        "search_count": DIFFERENCE_METRIC_DATA_WEEKLY_POSITIVE.dict(
+                            exclude_none=True
+                        ),
+                    },
+                    Group.USAGE: {},
+                    Group.OTHER: {
+                        "identity": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
+                        "some_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
+                        "another_count": ABSOLUTE_METRIC_DATA_A.dict(exclude_none=True),
+                        "retained": DIFFERENCE_METRIC_DATA_WEEKLY_NEGATIVE.dict(
+                            exclude_none=True
+                        ),
+                    },
+                },
+            },
+        }
+
+        WEEKLY_EXPOSURES_DATA = deepcopy(WEEKLY_BASE)
+        del WEEKLY_EXPOSURES_DATA["control"]["branch_data"][Group.OTHER]["retained"]
+        del WEEKLY_EXPOSURES_DATA["variant"]["branch_data"][Group.OTHER]["retained"]
+        del WEEKLY_EXPOSURES_DATA["control"]["branch_data"][Group.SEARCH]["search_count"]
+        del WEEKLY_EXPOSURES_DATA["variant"]["branch_data"][Group.SEARCH]["search_count"]
+
+        WEEKLY_SEGMENT_DATA = deepcopy(WEEKLY_EXPOSURES_DATA)
+        del WEEKLY_SEGMENT_DATA["control"]["branch_data"][Group.OTHER]["another_count"]
+        del WEEKLY_SEGMENT_DATA["variant"]["branch_data"][Group.OTHER]["another_count"]
+        del WEEKLY_SEGMENT_DATA["control"]["branch_data"][Group.OTHER]["some_count"]
+        del WEEKLY_SEGMENT_DATA["variant"]["branch_data"][Group.OTHER]["some_count"]
+
+        WEEKLY_DATA = {
+            "enrollments": {
+                "all": WEEKLY_BASE,
+                "some_segment": WEEKLY_SEGMENT_DATA,
+            },
+            "exposures": {
+                "all": WEEKLY_EXPOSURES_DATA,
+                "some_segment": WEEKLY_SEGMENT_DATA,
+            },
+        }
+
+        OVERALL_BASE = {
+            "control": {
+                "is_control": True,
+                "branch_data": {
+                    Group.SEARCH: {
+                        "search_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                    },
+                    Group.USAGE: {},
+                    Group.OTHER: {
+                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.dict(
+                            exclude_none=True
+                        ),
+                        "some_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "another_count": EMPTY_METRIC_DATA.dict(exclude_none=True),
+                        "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEUTRAL.dict(
+                            exclude_none=True
+                        ),
+                    },
+                },
+            },
+            "variant": {
+                "is_control": False,
+                "branch_data": {
+                    Group.SEARCH: {
+                        "search_count": DIFFERENCE_METRIC_DATA_OVERALL_POSITIVE.dict(
+                            exclude_none=True
+                        ),
+                    },
+                    Group.USAGE: {},
+                    Group.OTHER: {
+                        "identity": ABSOLUTE_METRIC_DATA_F_WITH_PERCENT.dict(
+                            exclude_none=True
+                        ),
+                        "some_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
+                        "another_count": ABSOLUTE_METRIC_DATA_F.dict(exclude_none=True),
+                        "retained": DIFFERENCE_METRIC_DATA_OVERALL_NEGATIVE.dict(
+                            exclude_none=True
+                        ),
+                    },
+                },
+            },
+        }
+
+        OVERALL_EXPOSURES_DATA = deepcopy(OVERALL_BASE)
+        del OVERALL_EXPOSURES_DATA["control"]["branch_data"][Group.OTHER]["retained"]
+        del OVERALL_EXPOSURES_DATA["variant"]["branch_data"][Group.OTHER]["retained"]
+        del OVERALL_EXPOSURES_DATA["control"]["branch_data"][Group.SEARCH]["search_count"]
+        del OVERALL_EXPOSURES_DATA["variant"]["branch_data"][Group.SEARCH]["search_count"]
+
+        OVERALL_SEGMENT_DATA = deepcopy(OVERALL_EXPOSURES_DATA)
+        del OVERALL_SEGMENT_DATA["control"]["branch_data"][Group.OTHER]["another_count"]
+        del OVERALL_SEGMENT_DATA["variant"]["branch_data"][Group.OTHER]["another_count"]
+        del OVERALL_SEGMENT_DATA["control"]["branch_data"][Group.OTHER]["some_count"]
+        del OVERALL_SEGMENT_DATA["variant"]["branch_data"][Group.OTHER]["some_count"]
+
+        OVERALL_DATA = {
+            "enrollments": {
+                "all": OVERALL_BASE,
+                "some_segment": OVERALL_SEGMENT_DATA,
+            },
+            "exposures": {
+                "all": OVERALL_EXPOSURES_DATA,
+                "some_segment": OVERALL_SEGMENT_DATA,
+            },
+        }
+
+        ERRORS = {
+            "experiment": [],
         }
 
         cls.add_all_outcome_data(
