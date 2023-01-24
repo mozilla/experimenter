@@ -108,6 +108,12 @@ export interface getConfig_nimbusConfig_types {
   value: string | null;
 }
 
+export interface getConfig_nimbusConfig_statusUpdateExemptFields {
+  all: (string | null)[] | null;
+  experiments: (string | null)[] | null;
+  rollouts: (string | null)[] | null;
+}
+
 export interface getConfig_nimbusConfig {
   applications: (getConfig_nimbusConfig_applications | null)[] | null;
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
@@ -126,6 +132,7 @@ export interface getConfig_nimbusConfig {
   languages: (getConfig_nimbusConfig_languages | null)[] | null;
   projects: (getConfig_nimbusConfig_projects | null)[] | null;
   types: (getConfig_nimbusConfig_types | null)[] | null;
+  statusUpdateExemptFields: (getConfig_nimbusConfig_statusUpdateExemptFields | null)[] | null;
 }
 
 export interface getConfig {
