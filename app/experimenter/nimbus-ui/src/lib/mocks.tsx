@@ -86,6 +86,20 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     { label: "Experiment", value: "EXPERIMENT" },
     { label: "Rollout", value: "ROLLOUT" },
   ],
+  statusUpdateExemptFields: [
+    {
+      all: [
+        "is_archived",
+        "publish_status",
+        "status_next",
+        "status",
+        "takeaways_summary",
+        "conclusion_recommendation",
+      ],
+      experiments: [],
+      rollouts: ["population_percent"],
+    },
+  ],
   channels: [
     {
       label: "Desktop Beta",
