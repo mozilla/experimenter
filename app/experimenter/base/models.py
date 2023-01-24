@@ -8,9 +8,7 @@ class SiteFlagNameChoices(models.TextChoices):
 class SiteFlagManager(models.Manager):
     def value(self, choice, defval=False):
         qs = self.get_queryset().filter(name=choice.name)
-        if qs.exists():
-            return qs.get().value
-        return defval
+        return qs.get().value if qs.exists() else defval
 
 
 class SiteFlag(models.Model):

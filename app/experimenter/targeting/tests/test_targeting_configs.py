@@ -9,8 +9,8 @@ from experimenter.targeting.constants import TargetingConstants
 class TestTargetingConfigs(TestCase):
     def test_all_targeting_configs_defined_in_constants(self):
         self.assertEqual(
-            set([t.value for t in TargetingConstants.TargetingConfig]),
-            set(t for t in TargetingConstants.TARGETING_CONFIGS.keys()),
+            {t.value for t in TargetingConstants.TargetingConfig},
+            set(TargetingConstants.TARGETING_CONFIGS.keys()),
             "Targeting Configs must be defined in both "
             "TargetingConstants.TargetingConfig and TargetingConstants.TARGETING_CONFIGS",
         )
@@ -21,4 +21,6 @@ class TestTargetingConfigs(TestCase):
             try:
                 JEXLParser().parse(targeting_config.targeting)
             except ParseError as e:
-                raise Exception(f"JEXL Parse error in {targeting_config.name}: {e}")
+                raise Exception(
+                    f"JEXL Parse error in {targeting_config.name}: {e}"
+                ) from e

@@ -6,7 +6,10 @@ from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
 from experimenter.base.models import Country, Language, Locale
-from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
+from experimenter.experiments.api.v5.serializers import (
+    NimbusReviewSerializer,
+    TransitionConstants,
+)
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
@@ -143,8 +146,8 @@ class NimbusFeatureConfigType(DjangoObjectType):
     class Meta:
         model = NimbusFeatureConfig
 
-    def resolve_sets_prefs(root, info):
-        return bool(root.sets_prefs)
+    def resolve_sets_prefs(self, info):
+        return bool(self.sets_prefs)
 
 
 class NimbusBranchScreenshotType(DjangoObjectType):
@@ -155,9 +158,9 @@ class NimbusBranchScreenshotType(DjangoObjectType):
     class Meta:
         model = NimbusBranchScreenshot
 
-    def resolve_image(root, info):
-        if root.image and root.image.name:
-            return root.image.url
+    def resolve_image(self, info):
+        if self.image and self.image.name:
+            return self.image.url
 
 
 class NimbusBranchFeatureValueType(DjangoObjectType):
@@ -181,20 +184,21 @@ class NimbusBranchType(DjangoObjectType):
         model = NimbusBranch
         exclude = ("experiment", "nimbusexperiment")
 
-    def resolve_feature_values(root, info):
-        return root.feature_values.all()
+    def resolve_feature_values(self, info):
+        return self.feature_values.all()
 
-    def resolve_feature_enabled(root, info):
+    def resolve_feature_enabled(self, info):
         return (
-            root.feature_values.exists()
-            and root.feature_values.all().order_by("feature_config__slug").first().enabled
+            self.feature_values.exists()
+            and self.feature_values.all().order_by("feature_config__slug").first().enabled
         )
 
-    def resolve_feature_value(root, info):
+    def resolve_feature_value(self, info):
         return (
-            root.feature_values.exists()
-            and root.feature_values.all().order_by("feature_config__slug").first().value
-        ) or ""
+            self.feature_values.exists()
+            and self.feature_values.all().order_by("feature_config__slug").first().value
+            or ""
+        )
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
@@ -255,6 +259,21 @@ class NimbusSignoffRecommendationsType(graphene.ObjectType):
     legal_signoff = graphene.Boolean()
 
 
+class NimbusStatusUpdateExemptFieldsType(graphene.ObjectType):
+    all = graphene.Field(graphene.List(graphene.String))
+    experiments = graphene.Field(graphene.List(graphene.String))
+    rollouts = graphene.Field(graphene.List(graphene.String))
+
+    def resolve_all(parent, info):
+        return TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["all"]
+
+    def resolve_experiments(parent, info):
+        return TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["experiments"]
+
+    def resolve_rollouts(parent, info):
+        return TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["rollouts"]
+
+
 class NimbusConfigurationType(graphene.ObjectType):
     application_configs = graphene.List(NimbusExperimentApplicationConfigType)
     applications = graphene.List(NimbusLabelValueType)
@@ -273,8 +292,9 @@ class NimbusConfigurationType(graphene.ObjectType):
     targeting_configs = graphene.List(NimbusExperimentTargetingConfigType)
     conclusion_recommendations = graphene.List(NimbusLabelValueType)
     types = graphene.List(NimbusLabelValueType)
+    status_update_exempt_fields = graphene.List(NimbusStatusUpdateExemptFieldsType)
 
-    def _text_choices_to_label_value_list(root, text_choices):
+    def _text_choices_to_label_value_list(self, text_choices):
         return [
             NimbusLabelValueType(
                 label=text_choices[name].label,
@@ -283,13 +303,13 @@ class NimbusConfigurationType(graphene.ObjectType):
             for name in text_choices.names
         ]
 
-    def resolve_applications(root, info):
-        return root._text_choices_to_label_value_list(NimbusExperiment.Application)
+    def resolve_applications(self, info):
+        return self._text_choices_to_label_value_list(NimbusExperiment.Application)
 
-    def resolve_channels(root, info):
-        return root._text_choices_to_label_value_list(NimbusExperiment.Channel)
+    def resolve_channels(self, info):
+        return self._text_choices_to_label_value_list(NimbusExperiment.Channel)
 
-    def resolve_application_configs(root, info):
+    def resolve_application_configs(self, info):
         configs = []
         for application in NimbusExperiment.Application:
             application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
@@ -305,14 +325,14 @@ class NimbusConfigurationType(graphene.ObjectType):
             )
         return configs
 
-    def resolve_all_feature_configs(root, info):
+    def resolve_all_feature_configs(self, info):
         return NimbusFeatureConfig.objects.all().order_by("name")
 
-    def resolve_firefox_versions(root, info):
+    def resolve_firefox_versions(self, info):
         return NimbusConfigurationType.sort_version_choices(NimbusExperiment.Version)
 
-    def resolve_conclusion_recommendations(root, info):
-        return root._text_choices_to_label_value_list(
+    def resolve_conclusion_recommendations(self, info):
+        return self._text_choices_to_label_value_list(
             NimbusExperiment.ConclusionRecommendation
         )
 
@@ -331,10 +351,10 @@ class NimbusConfigurationType(graphene.ObjectType):
 
         return sorted_versions
 
-    def resolve_outcomes(root, info):
+    def resolve_outcomes(self, info):
         return Outcomes.all()
 
-    def resolve_owners(root, info):
+    def resolve_owners(self, info):
         return (
             get_user_model()
             .objects.filter(owned_nimbusexperiments__isnull=False)
@@ -342,7 +362,7 @@ class NimbusConfigurationType(graphene.ObjectType):
             .order_by("email")
         )
 
-    def resolve_targeting_configs(root, info):
+    def resolve_targeting_configs(self, info):
         return [
             NimbusExperimentTargetingConfigType(
                 label=choice.label,
@@ -361,29 +381,40 @@ class NimbusConfigurationType(graphene.ObjectType):
             for choice in NimbusExperiment.TargetingConfig
         ]
 
-    def resolve_hypothesis_default(root, info):
+    def resolve_hypothesis_default(self, info):
         return NimbusExperiment.HYPOTHESIS_DEFAULT
 
-    def resolve_max_primary_outcomes(root, info):
+    def resolve_max_primary_outcomes(self, info):
         return NimbusExperiment.MAX_PRIMARY_OUTCOMES
 
-    def resolve_documentation_link(root, info):
-        return root._text_choices_to_label_value_list(NimbusExperiment.DocumentationLink)
+    def resolve_documentation_link(self, info):
+        return self._text_choices_to_label_value_list(NimbusExperiment.DocumentationLink)
 
-    def resolve_locales(root, info):
+    def resolve_locales(self, info):
         return Locale.objects.all().order_by("name")
 
-    def resolve_countries(root, info):
+    def resolve_countries(self, info):
         return Country.objects.all().order_by("name")
 
-    def resolve_languages(root, info):
+    def resolve_languages(self, info):
         return Language.objects.all().order_by("name")
 
-    def resolve_projects(root, info):
+    def resolve_projects(self, info):
         return Project.objects.all().order_by("name")
 
-    def resolve_types(root, info):
-        return root._text_choices_to_label_value_list(NimbusExperiment.Type)
+    def resolve_types(self, info):
+        return self._text_choices_to_label_value_list(NimbusExperiment.Type)
+
+    def resolve_status_update_exempt_fields(self, info):
+        return [
+            NimbusStatusUpdateExemptFieldsType(
+                all=TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["all"],
+                experiments=TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS[
+                    "experiments"
+                ],
+                rollouts=TransitionConstants.STATUS_UPDATE_EXEMPT_FIELDS["rollouts"],
+            )
+        ]
 
 
 class NimbusExperimentType(DjangoObjectType):
@@ -454,9 +485,9 @@ class NimbusExperimentType(DjangoObjectType):
         return self.projects.all()
 
     def resolve_reference_branch(self, info):
-        if self.reference_branch:
-            return self.reference_branch
-        return NimbusBranch(name=NimbusConstants.DEFAULT_REFERENCE_BRANCH_NAME)
+        return self.reference_branch or NimbusBranch(
+            name=NimbusConstants.DEFAULT_REFERENCE_BRANCH_NAME
+        )
 
     def resolve_treatment_branches(self, info):
         if self.branches.exists():

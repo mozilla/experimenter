@@ -22,9 +22,12 @@ BRANCH_DATA = "branch_data"
 STATISTICS_FOLDER = "statistics"
 METADATA_FOLDER = "metadata"
 ERRORS_FOLDER = "errors"
-ALL_STATISTICS = set(
-    [Statistic.BINOMIAL, Statistic.MEAN, Statistic.COUNT, Statistic.PERCENT]
-)
+ALL_STATISTICS = {
+    Statistic.BINOMIAL,
+    Statistic.MEAN,
+    Statistic.COUNT,
+    Statistic.PERCENT,
+}
 
 
 class AnalysisWindow:
@@ -62,10 +65,10 @@ def get_results_metrics_map(
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
     RESULTS_METRICS_MAP = {
-        Metric.RETENTION: set([Statistic.BINOMIAL]),
-        Metric.SEARCH: set([Statistic.MEAN]),
-        Metric.DAYS_OF_USE: set([Statistic.MEAN]),
-        Metric.USER_COUNT: set([Statistic.COUNT, Statistic.PERCENT]),
+        Metric.RETENTION: {Statistic.BINOMIAL},
+        Metric.SEARCH: {Statistic.MEAN},
+        Metric.DAYS_OF_USE: {Statistic.MEAN},
+        Metric.USER_COUNT: {Statistic.COUNT, Statistic.PERCENT},
     }
     primary_metrics_set = set()
     primary_outcome_metrics = list(
@@ -104,7 +107,7 @@ def get_results_metrics_map(
     other_metrics_map, other_metrics = get_other_metrics_names_and_map(
         data, RESULTS_METRICS_MAP
     )
-    RESULTS_METRICS_MAP.update(other_metrics_map)
+    RESULTS_METRICS_MAP |= other_metrics_map
 
     return RESULTS_METRICS_MAP, primary_metrics_set, other_metrics
 
@@ -138,7 +141,7 @@ def get_other_metrics_names_and_map(data, RESULTS_METRICS_MAP):
 
     # Turn other_metrics_map into the format needed
     # by get_result_metrics_map()
-    other_metrics_map = {k: set([v]) for k, v in other_metrics_map.items()}
+    other_metrics_map = {k: {v} for k, v in other_metrics_map.items()}
 
     return other_metrics_map, other_metrics_names
 
@@ -180,12 +183,16 @@ def get_experiment_data(experiment):
             if point["analysis_basis"] == AnalysisBasis.ENROLLMENTS:
                 segment_points_enrollments[point["segment"]].append(point)
                 experiment_data[window][AnalysisBasis.ENROLLMENTS] = {}
+                raw_data[window][AnalysisBasis.ENROLLMENTS] = {}
             elif point["analysis_basis"] == AnalysisBasis.EXPOSURES:
                 segment_points_exposures[point["segment"]].append(point)
                 experiment_data[window][AnalysisBasis.EXPOSURES] = {}
+                raw_data[window][AnalysisBasis.EXPOSURES] = {}
 
         for segment, segment_data in segment_points_enrollments.items():
-            data = raw_data[window][segment] = JetstreamData(__root__=(segment_data))
+            data = raw_data[window][AnalysisBasis.ENROLLMENTS][segment] = JetstreamData(
+                __root__=(segment_data)
+            )
             (
                 result_metrics,
                 primary_metrics_set,
@@ -199,7 +206,9 @@ def get_experiment_data(experiment):
             if data and window == AnalysisWindow.OVERALL:
                 # Append some values onto Jetstream data
                 data.append_population_percentages()
-                data.append_retention_data(raw_data[AnalysisWindow.WEEKLY][segment])
+                data.append_retention_data(
+                    raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.ENROLLMENTS][segment]
+                )
 
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment)
@@ -217,7 +226,9 @@ def get_experiment_data(experiment):
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
 
         for segment, segment_data in segment_points_exposures.items():
-            data = raw_data[window][segment] = JetstreamData(__root__=(segment_data))
+            data = raw_data[window][AnalysisBasis.EXPOSURES][segment] = JetstreamData(
+                __root__=(segment_data)
+            )
             (
                 result_metrics,
                 primary_metrics_set,
@@ -231,7 +242,9 @@ def get_experiment_data(experiment):
             if data and window == AnalysisWindow.OVERALL:
                 # Append some values onto Jetstream data
                 data.append_population_percentages()
-                data.append_retention_data(raw_data[AnalysisWindow.WEEKLY][segment])
+                data.append_retention_data(
+                    raw_data[AnalysisWindow.WEEKLY][AnalysisBasis.EXPOSURES][segment]
+                )
 
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment)

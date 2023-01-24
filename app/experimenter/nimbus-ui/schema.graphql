@@ -202,6 +202,7 @@ type NimbusConfigurationType {
   targetingConfigs: [NimbusExperimentTargetingConfigType]
   conclusionRecommendations: [NimbusLabelValueType]
   types: [NimbusLabelValueType]
+  statusUpdateExemptFields: [NimbusStatusUpdateExemptFieldsType]
 }
 
 type NimbusCountryType {
@@ -451,6 +452,7 @@ type NimbusExperimentType {
   riskBrand: Boolean
   conclusionRecommendation: NimbusExperimentConclusionRecommendationEnum
   takeawaysSummary: String
+  UpdatedDateTime: DateTime!
   isFirstRun: Boolean!
   isClientSchemaDisabled: Boolean!
   StartDate: Date
@@ -571,6 +573,12 @@ type NimbusSignoffRecommendationsType {
   qaSignoff: Boolean
   vpSignoff: Boolean
   legalSignoff: Boolean
+}
+
+type NimbusStatusUpdateExemptFieldsType {
+  all: [String]
+  experiments: [String]
+  rollouts: [String]
 }
 
 type NimbusUserType {
