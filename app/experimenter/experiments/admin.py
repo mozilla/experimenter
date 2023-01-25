@@ -1,7 +1,9 @@
+from typing import Any, Dict, Optional
+
 from django import forms
 from django.contrib import admin
-from django.contrib.auth import get_user_model
-from django.contrib.postgres.forms import SimpleArrayField
+from django.contrib.auth.models import User
+from django.contrib.postgres import forms as pgforms
 from django.utils.encoding import force_text
 from import_export import fields, resources
 from import_export.admin import ExportActionMixin, ImportMixin
@@ -111,15 +113,14 @@ class NimbusExperimentResource(resources.ModelResource):
             return None
         return experiment.conclusion_recommendation
 
-    def before_import_row(self, row: dict, row_number=None, **kwargs):
+    def before_import_row(self, row: Dict[str, Any], row_number=None, **kwargs):
         owner_id = row.get("owner")
-        user_model = get_user_model()
 
         try:
-            user_model.objects.get(id=owner_id)
-        except user_model.DoesNotExist:
+            User.objects.get(id=owner_id)
+        except User.DoesNotExist:
             # use dev testing user as default
-            (dev_user, _) = user_model.objects.get_or_create(email=DEV_USER_EMAIL)
+            (dev_user, _) = User.objects.get_or_create(email=DEV_USER_EMAIL)
             row["owner"] = dev_user.id
 
     def after_import_row(self, row, row_result, row_number=None, **kwargs):
@@ -183,12 +184,16 @@ class ReadOnlyAdminMixin(NoDeleteAdminMixin):
         return False
 
 
-class NimbusBucketRangeInlineAdmin(ReadOnlyAdminMixin, admin.StackedInline):
+class NimbusBucketRangeInlineAdmin(
+    ReadOnlyAdminMixin, admin.StackedInline[NimbusBucketRange]
+):
     model = NimbusBucketRange
     extra = 0
 
 
-class NimbusIsolationGroupAdmin(ReadOnlyAdminMixin, admin.ModelAdmin):
+class NimbusIsolationGroupAdmin(
+    ReadOnlyAdminMixin, admin.ModelAdmin[NimbusIsolationGroup]
+):
     inlines = (NimbusBucketRangeInlineAdmin,)
 
     class Meta:
@@ -196,22 +201,28 @@ class NimbusIsolationGroupAdmin(ReadOnlyAdminMixin, admin.ModelAdmin):
         exclude = ("id",)
 
 
-class NimbusBranchInlineAdmin(NoDeleteAdminMixin, admin.StackedInline):
+class NimbusBranchInlineAdmin(NoDeleteAdminMixin, admin.StackedInline[NimbusBranch]):
     model = NimbusBranch
     extra = 0
 
 
-class NimbusDocumentationLinkInlineAdmin(NoDeleteAdminMixin, admin.TabularInline):
+class NimbusDocumentationLinkInlineAdmin(
+    NoDeleteAdminMixin, admin.TabularInline[NimbusDocumentationLink]
+):
     model = NimbusDocumentationLink
     extra = 1
 
 
-class NimbusExperimentChangeLogInlineAdmin(NoDeleteAdminMixin, admin.StackedInline):
+class NimbusExperimentChangeLogInlineAdmin(
+    NoDeleteAdminMixin, admin.StackedInline[NimbusChangeLog]
+):
     model = NimbusChangeLog
     extra = 1
 
 
-class NimbusExperimentBucketRangeInlineAdmin(ReadOnlyAdminMixin, admin.StackedInline):
+class NimbusExperimentBucketRangeInlineAdmin(
+    ReadOnlyAdminMixin, admin.StackedInline[NimbusBucketRange]
+):
     model = NimbusBucketRange
     extra = 0
     fields = (
@@ -253,8 +264,8 @@ class NimbusExperimentAdminForm(forms.ModelForm):
         choices=NimbusExperiment.Version.choices, required=False
     )
     channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices, required=False)
-    primary_outcomes = SimpleArrayField(forms.CharField(), required=False)
-    secondary_outcomes = SimpleArrayField(forms.CharField(), required=False)
+    primary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
+    secondary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
     targeting_config_slug = forms.ChoiceField(
         choices=NimbusExperiment.TargetingConfig.choices, required=False
     )
@@ -280,7 +291,7 @@ class NimbusExperimentAdminForm(forms.ModelForm):
 
 
 class NimbusExperimentAdmin(
-    NoDeleteAdminMixin, ImportMixin, ExportActionMixin, admin.ModelAdmin
+    NoDeleteAdminMixin, ImportMixin, ExportActionMixin, admin.ModelAdmin[NimbusExperiment]
 ):
     inlines = (
         NimbusDocumentationLinkInlineAdmin,
@@ -302,31 +313,34 @@ class NimbusExperimentAdmin(
     prepopulated_fields = {"slug": ("name",)}
     form = NimbusExperimentAdminForm
     actions = [force_fetch_jetstream_data]
-
     resource_class = NimbusExperimentResource
 
 
-class NimbusFeatureConfigAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
+class NimbusFeatureConfigAdmin(NoDeleteAdminMixin, admin.ModelAdmin[NimbusFeatureConfig]):
     prepopulated_fields = {"slug": ("name",)}
     list_filter = ("application", "read_only")
     list_display = ("name", "application", "read_only")
     exclude = ("read_only",)
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj: Optional[NimbusFeatureConfig] = None):
         return obj and not obj.read_only
 
 
-class NimbusBranchScreenshotInlineAdmin(NoDeleteAdminMixin, admin.TabularInline):
+class NimbusBranchScreenshotInlineAdmin(
+    NoDeleteAdminMixin, admin.TabularInline[NimbusBranchScreenshot]
+):
     model = NimbusBranchScreenshot
     extra = 0
 
 
-class NimbusBranchFeatureValueInlineAdmin(NoDeleteAdminMixin, admin.TabularInline):
+class NimbusBranchFeatureValueInlineAdmin(
+    NoDeleteAdminMixin, admin.TabularInline[NimbusBranchFeatureValue]
+):
     model = NimbusBranchFeatureValue
     extra = 0
 
 
-class NimbusBranchAdmin(NoDeleteAdminMixin, admin.ModelAdmin):
+class NimbusBranchAdmin(NoDeleteAdminMixin, admin.ModelAdmin[NimbusBranch]):
     inlines = (
         NimbusBranchFeatureValueInlineAdmin,
         NimbusBranchScreenshotInlineAdmin,

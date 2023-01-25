@@ -834,6 +834,7 @@ class TestNimbusExperiment(TestCase):
             start_date=datetime.date.today() + datetime.timedelta(days=1),
         )
 
+        assert experiment.start_date
         self.assertEqual(experiment.launch_month, experiment.start_date.strftime("%B"))
 
     @parameterized.expand(
@@ -918,6 +919,8 @@ class TestNimbusExperiment(TestCase):
             start_date=datetime.date.today() + datetime.timedelta(days=1),
         )
 
+        assert experiment.start_date
+        assert experiment.computed_end_date
         expected_enrollment_duration = "{start} to {end}".format(
             start=experiment.start_date.strftime("%Y-%m-%d"),
             end=experiment.computed_end_date.strftime("%Y-%m-%d"),
@@ -1261,6 +1264,7 @@ class TestNimbusExperiment(TestCase):
 
         expected_slug = "rollout_1_slug"
         url = experiment.rollout_monitoring_dashboard_url
+        assert url
         actual_slug = url[(url.index("::") + 2) :]  # take a slice of the url after '::'
         self.assertEqual(expected_slug, actual_slug)
 

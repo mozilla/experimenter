@@ -608,6 +608,25 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             ).exists()
         )
 
+    def test_updating_experiment_with_published_dto_none_is_skipped(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_dto=None,
+        )
+
+        self.setup_kinto_get_main_records([experiment.slug])
+        self.setup_kinto_no_pending_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
+        )
+
+        self.mock_kinto_client.patch_collection.assert_not_called()
+        self.mock_push_task.assert_not_called()
+        self.mock_update_task.assert_not_called()
+        self.mock_end_task.assert_not_called()
+
 
 class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
     def test_push_experiment_to_kinto_sends_desktop_experiment_data_and_sets_accepted(
