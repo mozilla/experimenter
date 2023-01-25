@@ -1,74 +1,11 @@
 import json
-import time
 
 import pytest
-import requests
 from nimbus.pages.browser import Browser
 from nimbus.utils import helpers
 
-LOAD_DATA_RETRIES = 10
-LOAD_DATA_RETRY_DELAY = 1.0
 
-
-def load_graphql_data(query):
-    for retry in range(LOAD_DATA_RETRIES):
-        try:
-            return requests.post(
-                "https://nginx/api/v5/graphql",
-                json=query,
-                verify=False,
-            ).json()
-        except json.JSONDecodeError:
-            if retry + 1 >= LOAD_DATA_RETRIES:
-                raise
-            else:
-                time.sleep(LOAD_DATA_RETRY_DELAY)
-
-
-def load_targeting_configs():
-    data = load_graphql_data(
-        {
-            "operationName": "getConfig",
-            "variables": {},
-            "query": """
-                    query getConfig {
-                        nimbusConfig {
-                            targetingConfigs {
-                                label
-                                value
-                                applicationValues
-                            }
-                        }
-                    }
-                    """,
-        }
-    )
-    return [
-        item["value"]
-        for item in data["data"]["nimbusConfig"]["targetingConfigs"]
-        if "DESKTOP" in item["applicationValues"]
-    ]
-
-
-def load_experiment_data(slug):
-    return load_graphql_data(
-        {
-            "operationName": "getExperiment",
-            "variables": {"slug": slug},
-            "query": """
-                    query getExperiment($slug: String!) {
-                        experimentBySlug(slug: $slug) {
-                            jexlTargetingExpression
-                            recipeJson
-                            __typename
-                        }
-                    }
-                    """,
-        }
-    )
-
-
-@pytest.fixture(params=load_targeting_configs())
+@pytest.fixture(params=helpers.load_targeting_configs())
 def targeting_config_slug(request):
     return request.param
 
@@ -79,7 +16,6 @@ def test_check_advanced_targeting(
     slugify,
     experiment_name,
     targeting_config_slug,
-    create_desktop_experiment,
 ):
     targeting = helpers.load_targeting_configs()[1]
     experiment_slug = str(slugify(experiment_name))
@@ -112,13 +48,13 @@ def test_check_advanced_targeting(
         "populationPercent": "100",
         "totalEnrolledClients": 55,
     }
-    create_desktop_experiment(
+    helpers.create_desktop_experiment(
         experiment_slug,
         "desktop",
         targeting_config_slug,
         data,
     )
-    experiment_data = load_experiment_data(experiment_slug)
+    experiment_data = helpers.load_experiment_data(experiment_slug)
     targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
     recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
 
@@ -161,19 +97,18 @@ def test_check_audience_targeting(
     selenium,
     slugify,
     experiment_name,
-    create_desktop_experiment,
     audience_field,
     experiment_default_data,
 ):
     experiment_slug = str(slugify(experiment_name))
     experiment_default_data.update(audience_field)
-    create_desktop_experiment(
+    helpers.create_desktop_experiment(
         experiment_slug,
         "desktop",
         "no_targeting",
         experiment_default_data,
     )
-    experiment_data = load_experiment_data(experiment_slug)
+    experiment_data = helpers.load_experiment_data(experiment_slug)
     targeting = experiment_data["data"]["experimentBySlug"]["jexlTargetingExpression"]
     recipe = experiment_data["data"]["experimentBySlug"]["recipeJson"]
 
