@@ -5,20 +5,20 @@
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useState } from "react";
-import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { ReactComponent as DeleteIcon } from "../../images/x.svg";
+import AppLayout from "src/components/AppLayout";
+import FormOverview from "src/components/FormOverview";
+import Head from "src/components/Head";
+import LinkExternal from "src/components/LinkExternal";
+import { CREATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { ReactComponent as DeleteIcon } from "src/images/x.svg";
 import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   SAVE_FAILED_NO_ERROR,
   SUBMIT_ERROR,
-} from "../../lib/constants";
-import { createExperiment_createExperiment as CreateExperimentResult } from "../../types/createExperiment";
-import { ExperimentInput } from "../../types/globalTypes";
-import AppLayout from "../AppLayout";
-import FormOverview from "../FormOverview";
-import Head from "../Head";
-import LinkExternal from "../LinkExternal";
+} from "src/lib/constants";
+import { createExperiment_createExperiment as CreateExperimentResult } from "src/types/createExperiment";
+import { ExperimentInput } from "src/types/globalTypes";
 
 type PageNewProps = Record<string, any> & RouteComponentProps;
 

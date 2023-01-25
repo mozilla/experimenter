@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BranchScreenshotInput } from "../../../../types/globalTypes";
 import {
   AnnotatedBranch,
   createAnnotatedBranch,
   FormBranchesState,
-} from "./state";
-import { FormData } from "./update";
+} from "src/components/PageEditBranches/FormBranches/reducer/state";
+import { FormData } from "src/components/PageEditBranches/FormBranches/reducer/update";
+import { BranchScreenshotInput } from "src/types/globalTypes";
 
 export const REFERENCE_BRANCH_IDX = -1;
 

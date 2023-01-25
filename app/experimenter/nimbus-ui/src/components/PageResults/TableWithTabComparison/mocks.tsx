@@ -3,12 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import TableWithTabComparison, { TableWithTabComparisonProps } from ".";
-import {
-  mockExperimentQuery,
-  MockResultsContextProvider,
-} from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
+import TableWithTabComparison, {
+  TableWithTabComparisonProps,
+} from "src/components/PageResults/TableWithTabComparison";
+import { mockExperimentQuery, MockResultsContextProvider } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
 
 export const Subject = ({
   Table,

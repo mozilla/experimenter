@@ -10,12 +10,6 @@ import {
   within,
 } from "@testing-library/react";
 import React from "react";
-import { LIFECYCLE_REVIEW_FLOWS } from "../../lib/constants";
-import { getStatus } from "../../lib/experiment";
-import {
-  NimbusChangeLogOldStatus,
-  NimbusChangeLogOldStatusNext,
-} from "../../types/globalTypes";
 import {
   BaseSubject,
   MOCK_EXPERIMENT,
@@ -26,7 +20,13 @@ import {
   reviewRequestedBaseProps,
   reviewTimedOutBaseProps,
   REVIEW_URL,
-} from "./mocks";
+} from "src/components/ChangeApprovalOperations/mocks";
+import { LIFECYCLE_REVIEW_FLOWS } from "src/lib/constants";
+import { getStatus } from "src/lib/experiment";
+import {
+  NimbusChangeLogOldStatus,
+  NimbusChangeLogOldStatusNext,
+} from "src/types/globalTypes";
 
 const Subject = ({
   rejectChange = () => {},

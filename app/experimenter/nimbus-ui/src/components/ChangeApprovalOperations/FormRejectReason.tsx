@@ -7,8 +7,8 @@ import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { FormProvider } from "react-hook-form";
-import { useCommonForm } from "../../hooks";
-import { REQUIRED_FIELD } from "../../lib/constants";
+import { useCommonForm } from "src/hooks";
+import { REQUIRED_FIELD } from "src/lib/constants";
 
 export const rejectReasonFieldNames = ["changelogMessage"];
 type RejectReasonFieldNames = typeof rejectReasonFieldNames[number];

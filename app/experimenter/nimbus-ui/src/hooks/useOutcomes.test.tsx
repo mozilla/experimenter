@@ -5,14 +5,14 @@
 import { MockedResponse } from "@apollo/client/testing";
 import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
-import { useOutcomes } from ".";
+import { useOutcomes } from "src/hooks";
 import {
   MockedCache,
   mockExperimentQuery,
   mockOutcomeSets,
   MOCK_CONFIG,
-} from "../lib/mocks";
-import { NimbusExperimentApplicationEnum } from "../types/globalTypes";
+} from "src/lib/mocks";
+import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 describe("hooks/useOutcomes", () => {
   it("matches experiment outcome slugs to available configuration outcomes", () => {

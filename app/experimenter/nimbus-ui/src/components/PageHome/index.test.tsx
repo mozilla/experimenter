@@ -14,14 +14,14 @@ import { act } from "@testing-library/react-hooks";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import selectEvent from "react-select-event";
-import PageHome from ".";
-import { REFETCH_DELAY } from "../../hooks";
+import PageHome from "src/components/PageHome";
+import { REFETCH_DELAY } from "src/hooks";
 import {
   mockDirectoryExperiments,
   mockDirectoryExperimentsQuery,
-} from "../../lib/mocks";
-import { CurrentLocation, RouterSlugProvider } from "../../lib/test-utils";
-import { getAllExperiments_experiments } from "../../types/getAllExperiments";
+} from "src/lib/mocks";
+import { CurrentLocation, RouterSlugProvider } from "src/lib/test-utils";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 
 describe("PageHome", () => {
   it("renders as expected", () => {

@@ -4,9 +4,9 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import TableRiskMitigation from ".";
-import { MockedCache, mockExperimentQuery } from "../../../lib/mocks";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import TableRiskMitigation from "src/components/Summary/TableRiskMitigation";
+import { MockedCache, mockExperimentQuery } from "src/lib/mocks";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 describe("TableRiskMitigation", () => {
   describe("renders 'Risk mitigation question' rows as expected", () => {

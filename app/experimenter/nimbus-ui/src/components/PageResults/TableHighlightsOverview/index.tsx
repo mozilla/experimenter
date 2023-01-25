@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { useConfig, useOutcomes } from "../../../hooks";
-import { getConfigLabel } from "../../../lib/getConfigLabel";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import { useConfig, useOutcomes } from "src/hooks";
+import { getConfigLabel } from "src/lib/getConfigLabel";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 type TableHighlightsOverviewProps = {
   experiment: getExperiment_experimentBySlug;

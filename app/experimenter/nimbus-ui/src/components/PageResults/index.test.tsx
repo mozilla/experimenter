@@ -12,14 +12,14 @@ import {
 import fetchMock from "jest-fetch-mock";
 import React from "react";
 import { act } from "react-dom/test-utils";
-import PageResults from ".";
-import { ExperimentContextType, RedirectCondition } from "../../lib/contexts";
-import { getStatus as mockGetStatus } from "../../lib/experiment";
-import { mockExperimentQuery } from "../../lib/mocks";
+import PageResults from "src/components/PageResults";
+import { ExperimentContextType, RedirectCondition } from "src/lib/contexts";
+import { getStatus as mockGetStatus } from "src/lib/experiment";
+import { mockExperimentQuery } from "src/lib/mocks";
 import {
   MockExperimentContextProvider,
   RouterSlugProvider,
-} from "../../lib/test-utils";
+} from "src/lib/test-utils";
 import {
   mockAnalysis,
   mockAnalysisWithErrors,
@@ -28,10 +28,10 @@ import {
   mockAnalysisWithSegments,
   MOCK_METADATA_WITH_CONFIG,
   MOCK_UNAVAILABLE_ANALYSIS,
-} from "../../lib/visualization/mocks";
-import { AnalysisData } from "../../lib/visualization/types";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
+} from "src/lib/visualization/mocks";
+import { AnalysisData } from "src/lib/visualization/types";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import { NimbusExperimentStatusEnum } from "src/types/globalTypes";
 
 let mockExperiment: getExperiment_experimentBySlug;
 let mockAnalysisData: AnalysisData | undefined;

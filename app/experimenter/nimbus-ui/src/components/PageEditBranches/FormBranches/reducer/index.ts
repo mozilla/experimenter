@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useMemo, useReducer } from "react";
-import { getExperiment_experimentBySlug } from "../../../../types/getExperiment";
-import { formBranchesActionReducer } from "./actions";
-import { createInitialState } from "./state";
-import { extractUpdateState } from "./update";
+import { formBranchesActionReducer } from "src/components/PageEditBranches/FormBranches/reducer/actions";
+import { createInitialState } from "src/components/PageEditBranches/FormBranches/reducer/state";
+import { extractUpdateState } from "src/components/PageEditBranches/FormBranches/reducer/update";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export { REFERENCE_BRANCH_IDX } from "./actions";
 export type { AnnotatedBranch } from "./state";

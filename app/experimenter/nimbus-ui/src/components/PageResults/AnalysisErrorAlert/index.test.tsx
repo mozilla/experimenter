@@ -4,9 +4,9 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import AnalysisErrorAlert from ".";
-import { mockAnalysisWithErrors } from "../../../lib/visualization/mocks";
-import AnalysisErrorMessage from "./AnalysisErrorMessage";
+import AnalysisErrorAlert from "src/components/PageResults/AnalysisErrorAlert";
+import AnalysisErrorMessage from "src/components/PageResults/AnalysisErrorAlert/AnalysisErrorMessage";
+import { mockAnalysisWithErrors } from "src/lib/visualization/mocks";
 
 describe("AnalysisErrorAlert", () => {
   it("renders errors as expected", () => {

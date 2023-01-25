@@ -4,7 +4,7 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import TableSignoff from ".";
+import TableSignoff from "src/components/PageSummary/TableSignoff";
 
 describe("TableSignoff", () => {
   it("shows no recommended signoff", async () => {

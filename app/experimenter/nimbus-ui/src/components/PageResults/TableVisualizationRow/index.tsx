@@ -1,5 +1,10 @@
 import React from "react";
 import ReactTooltip from "react-tooltip";
+import ConfidenceInterval from "src/components/PageResults/ConfidenceInterval";
+import { ReactComponent as SignificanceNegative } from "src/components/PageResults/TableVisualizationRow/significance-negative.svg";
+import { ReactComponent as SignificanceNeutral } from "src/components/PageResults/TableVisualizationRow/significance-neutral.svg";
+import { ReactComponent as SignificancePositive } from "src/components/PageResults/TableVisualizationRow/significance-positive.svg";
+import TooltipWithMarkdown from "src/components/PageResults/TooltipWithMarkdown";
 import {
   BRANCH_COMPARISON,
   DISPLAY_TYPE,
@@ -9,17 +14,12 @@ import {
   SIGNIFICANCE,
   SIGNIFICANCE_TIPS,
   TABLE_LABEL,
-} from "../../../lib/visualization/constants";
+} from "src/lib/visualization/constants";
 import {
   BranchComparisonValues,
   BranchDescription,
   FormattedAnalysisPoint,
-} from "../../../lib/visualization/types";
-import ConfidenceInterval from "../ConfidenceInterval";
-import TooltipWithMarkdown from "../TooltipWithMarkdown";
-import { ReactComponent as SignificanceNegative } from "./significance-negative.svg";
-import { ReactComponent as SignificanceNeutral } from "./significance-neutral.svg";
-import { ReactComponent as SignificancePositive } from "./significance-positive.svg";
+} from "src/lib/visualization/types";
 
 const BASELINE_TEXT = "(baseline)";
 

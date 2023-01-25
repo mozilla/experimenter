@@ -5,8 +5,8 @@
 import React, { useCallback, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
-import { ReactComponent as AlertCircle } from "../../images/alert-circle.svg";
-import FormLaunchConfirmationCheckboxes from "./FormLaunchConfirmationCheckboxes";
+import FormLaunchConfirmationCheckboxes from "src/components/PageSummary/FormLaunchConfirmationCheckboxes";
+import { ReactComponent as AlertCircle } from "src/images/alert-circle.svg";
 
 const FormLaunchDraftToReview = ({
   isLoading,

@@ -4,7 +4,7 @@
 
 import React from "react";
 import { Alert } from "react-bootstrap";
-import sentryMetrics from "../../services/sentry";
+import sentryMetrics from "src/services/sentry";
 
 class AppErrorBoundary extends React.Component {
   state: {

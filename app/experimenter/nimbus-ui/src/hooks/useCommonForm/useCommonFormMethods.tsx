@@ -6,7 +6,7 @@ import classNames from "classnames";
 import React from "react";
 import Form from "react-bootstrap/Form";
 import { FieldError, RegisterOptions, UseFormMethods } from "react-hook-form";
-import { camelToSnakeCase } from "../../lib/caseConversions";
+import { camelToSnakeCase } from "src/lib/caseConversions";
 
 // TODO: 'any' type on `onChange={(selectedOptions) => ...`,
 // it wants this, but can't seem to coerce it into SelectOption type

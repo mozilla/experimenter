@@ -11,17 +11,20 @@ import {
 } from "@testing-library/react-hooks";
 import React from "react";
 import { act } from "react-dom/test-utils";
-import { useTakeaways, UseTakeawaysResult } from ".";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../../gql/experiments";
-import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../../lib/constants";
+import {
+  useTakeaways,
+  UseTakeawaysResult,
+} from "src/components/PageSummary/Takeaways";
+import { Subject as BaseSubject } from "src/components/PageSummary/Takeaways/mocks";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
 import {
   MockedCache,
   mockExperimentMutation,
   mockExperimentQuery,
-} from "../../../lib/mocks";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { NimbusExperimentConclusionRecommendationEnum } from "../../../types/globalTypes";
-import { Subject as BaseSubject } from "./mocks";
+} from "src/lib/mocks";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import { NimbusExperimentConclusionRecommendationEnum } from "src/types/globalTypes";
 
 const { experiment } = mockExperimentQuery("demo-slug", {
   takeawaysSummary: "old content",

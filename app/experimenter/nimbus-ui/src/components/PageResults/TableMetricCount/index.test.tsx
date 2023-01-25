@@ -4,14 +4,14 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import TableMetricCount from ".";
+import TableMetricCount from "src/components/PageResults/TableMetricCount";
 import {
   mockExperimentQuery,
   mockOutcomeSets,
   MockResultsContextProvider,
-} from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
-import { GROUP, METRIC_TYPE } from "../../../lib/visualization/constants";
+} from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { GROUP, METRIC_TYPE } from "src/lib/visualization/constants";
 
 describe("TableMetricCount", () => {
   it("has the correct headings", () => {

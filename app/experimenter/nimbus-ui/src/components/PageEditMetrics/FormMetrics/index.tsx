@@ -13,11 +13,11 @@ import {
   useExitWarning,
   useOutcomes,
   useReviewCheck,
-} from "../../../hooks";
-import { SelectOption } from "../../../hooks/useCommonForm/useCommonFormMethods";
-import { ReactComponent as Info } from "../../../images/info.svg";
-import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
-import { getExperiment } from "../../../types/getExperiment";
+} from "src/hooks";
+import { SelectOption } from "src/hooks/useCommonForm/useCommonFormMethods";
+import { ReactComponent as Info } from "src/images/info.svg";
+import { getConfig_nimbusConfig_outcomes } from "src/types/getConfig";
+import { getExperiment } from "src/types/getExperiment";
 
 export const metricsFieldNames = [
   "primaryOutcomes",

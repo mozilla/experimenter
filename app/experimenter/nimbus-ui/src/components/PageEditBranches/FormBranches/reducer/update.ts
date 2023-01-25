@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { CONTROL_BRANCH_REQUIRED_ERROR } from "../../../../lib/constants";
 import {
-  BranchScreenshotInput,
-  ExperimentInput,
-} from "../../../../types/globalTypes";
-import { AnnotatedBranch, FormBranchesState } from "./state";
+  AnnotatedBranch,
+  FormBranchesState,
+} from "src/components/PageEditBranches/FormBranches/reducer/state";
+import { CONTROL_BRANCH_REQUIRED_ERROR } from "src/lib/constants";
+import { BranchScreenshotInput, ExperimentInput } from "src/types/globalTypes";
 
 export type FormBranchesSaveState = Pick<
   ExperimentInput,

@@ -4,7 +4,7 @@
 
 import { act, render } from "@testing-library/react";
 import React from "react";
-import { exitHandler, useExitWarning } from "./useExitWarning";
+import { exitHandler, useExitWarning } from "src/hooks/useExitWarning";
 
 describe("hooks/useExitWarning", () => {
   describe("exitHandler", () => {

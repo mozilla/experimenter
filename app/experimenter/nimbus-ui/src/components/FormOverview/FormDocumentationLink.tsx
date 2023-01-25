@@ -7,10 +7,10 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import { ArrayField, FieldError } from "react-hook-form";
-import { useCommonNestedForm, useConfig } from "../../hooks";
-import { ReactComponent as DeleteIcon } from "../../images/x.svg";
-import { URL_FIELD } from "../../lib/constants";
-import { AnnotatedDocumentationLink } from "./documentationLink";
+import { AnnotatedDocumentationLink } from "src/components/FormOverview/documentationLink";
+import { useCommonNestedForm, useConfig } from "src/hooks";
+import { ReactComponent as DeleteIcon } from "src/images/x.svg";
+import { URL_FIELD } from "src/lib/constants";
 
 export const documentationLinkFieldNames = ["title", "link"] as const;
 

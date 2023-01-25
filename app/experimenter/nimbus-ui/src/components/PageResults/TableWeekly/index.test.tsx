@@ -4,17 +4,17 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import TableWeekly from ".";
-import { MockResultsContextProvider } from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
-import { BRANCH_COMPARISON, GROUP } from "../../../lib/visualization/constants";
+import TableWeekly from "src/components/PageResults/TableWeekly";
+import { MockResultsContextProvider } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { BRANCH_COMPARISON, GROUP } from "src/lib/visualization/constants";
 import {
   mockAnalysis,
   weeklyMockAnalysis,
   WEEKLY_IDENTITY,
   WEEKLY_TREATMENT,
   WONKY_WEEKLY_TREATMENT,
-} from "../../../lib/visualization/mocks";
+} from "src/lib/visualization/mocks";
 
 describe("TableWeekly", () => {
   it("has the correct headings", () => {

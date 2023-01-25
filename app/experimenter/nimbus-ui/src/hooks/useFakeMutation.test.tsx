@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { act, renderHook } from "@testing-library/react-hooks";
-import { useFakeMutation } from "./useFakeMutation";
+import { useFakeMutation } from "src/hooks/useFakeMutation";
 
 describe("hooks/useMockMutation", () => {
   it("simulates loading with a delay", async () => {

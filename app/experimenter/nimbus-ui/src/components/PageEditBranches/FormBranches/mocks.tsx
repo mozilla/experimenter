@@ -4,14 +4,14 @@
 
 import React, { useEffect } from "react";
 import { FormProvider } from "react-hook-form";
-import FormBranches from ".";
-import { useForm } from "../../../hooks";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
-import { NimbusExperimentApplicationEnum } from "../../../types/globalTypes";
-import FormBranch from "./FormBranch";
-import { AnnotatedBranch } from "./reducer";
-import { formBranchesActionReducer } from "./reducer/actions";
-import { FormBranchesState } from "./reducer/state";
+import FormBranches from "src/components/PageEditBranches/FormBranches";
+import FormBranch from "src/components/PageEditBranches/FormBranches/FormBranch";
+import { AnnotatedBranch } from "src/components/PageEditBranches/FormBranches/reducer";
+import { formBranchesActionReducer } from "src/components/PageEditBranches/FormBranches/reducer/actions";
+import { FormBranchesState } from "src/components/PageEditBranches/FormBranches/reducer/state";
+import { useForm } from "src/hooks";
+import { mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
+import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
   application: NimbusExperimentApplicationEnum.DESKTOP,

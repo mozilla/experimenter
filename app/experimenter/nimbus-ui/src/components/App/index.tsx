@@ -5,19 +5,19 @@
 import { useQuery } from "@apollo/client";
 import { Redirect, RouteComponentProps, Router } from "@reach/router";
 import React from "react";
-import { GET_CONFIG_QUERY } from "../../gql/config";
-import { SearchParamsStateProvider, useRefetchOnError } from "../../hooks";
-import { BASE_PATH } from "../../lib/constants";
-import PageEditAudience from "../PageEditAudience";
-import PageEditBranches from "../PageEditBranches";
-import PageEditMetrics from "../PageEditMetrics";
-import PageEditOverview from "../PageEditOverview";
-import PageHome from "../PageHome";
-import PageLoading from "../PageLoading";
-import PageNew from "../PageNew";
-import PageResults from "../PageResults";
-import PageSummary from "../PageSummary";
-import ExperimentRoot from "./ExperimentRoot";
+import ExperimentRoot from "src/components/App/ExperimentRoot";
+import PageEditAudience from "src/components/PageEditAudience";
+import PageEditBranches from "src/components/PageEditBranches";
+import PageEditMetrics from "src/components/PageEditMetrics";
+import PageEditOverview from "src/components/PageEditOverview";
+import PageHome from "src/components/PageHome";
+import PageLoading from "src/components/PageLoading";
+import PageNew from "src/components/PageNew";
+import PageResults from "src/components/PageResults";
+import PageSummary from "src/components/PageSummary";
+import { GET_CONFIG_QUERY } from "src/gql/config";
+import { SearchParamsStateProvider, useRefetchOnError } from "src/hooks";
+import { BASE_PATH } from "src/lib/constants";
 
 type RootProps = {
   children: React.ReactNode;

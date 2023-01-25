@@ -4,10 +4,10 @@
 
 import { RouteComponentProps } from "@reach/router";
 import React from "react";
-import { AppLayoutWithSidebar } from ".";
-import { mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { AppLayoutWithSidebar } from "src/components/AppLayoutWithSidebar";
+import { mockExperimentQuery } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export const Subject = ({
   experiment: overrides,

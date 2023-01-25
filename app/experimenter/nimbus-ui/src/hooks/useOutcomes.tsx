@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { OutcomesList, OutcomeSlugs } from "../lib/types";
-import { getExperiment_experimentBySlug } from "../types/getExperiment";
-import { useConfig } from "./useConfig";
+import { useConfig } from "src/hooks/useConfig";
+import { OutcomesList, OutcomeSlugs } from "src/lib/types";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export function useOutcomes(experiment: getExperiment_experimentBySlug): {
   primaryOutcomes: OutcomesList;

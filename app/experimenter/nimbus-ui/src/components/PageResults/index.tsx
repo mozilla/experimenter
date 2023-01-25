@@ -7,32 +7,32 @@ import React, { useContext, useState } from "react";
 import { Form } from "react-bootstrap";
 import Collapse from "react-bootstrap/Collapse";
 import Select from "react-select";
-import { useConfig } from "../../hooks";
-import { ReactComponent as Info } from "../../images/info.svg";
-import { ReactComponent as CollapseMinus } from "../../images/minus.svg";
-import { ReactComponent as ExpandPlus } from "../../images/plus.svg";
+import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
+import AnalysisErrorAlert from "src/components/PageResults/AnalysisErrorAlert";
+import ExternalConfigAlert from "src/components/PageResults/ExternalConfigAlert";
+import TableHighlights from "src/components/PageResults/TableHighlights";
+import TableHighlightsOverview from "src/components/PageResults/TableHighlightsOverview";
+import TableMetricCount from "src/components/PageResults/TableMetricCount";
+import MetricHeader from "src/components/PageResults/TableMetricCount/MetricHeader";
+import TableResults from "src/components/PageResults/TableResults";
+import TableResultsWeekly from "src/components/PageResults/TableResultsWeekly";
+import TableWithTabComparison from "src/components/PageResults/TableWithTabComparison";
+import TooltipWithMarkdown from "src/components/PageResults/TooltipWithMarkdown";
+import { useConfig } from "src/hooks";
+import { ReactComponent as Info } from "src/images/info.svg";
+import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
+import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
 import {
   ExperimentContext,
   ResultsContext,
   ResultsContextType,
-} from "../../lib/contexts";
-import { GROUP, METRIC_TYPE } from "../../lib/visualization/constants";
-import { AnalysisBases, AnalysisError } from "../../lib/visualization/types";
+} from "src/lib/contexts";
+import { GROUP, METRIC_TYPE } from "src/lib/visualization/constants";
+import { AnalysisBases, AnalysisError } from "src/lib/visualization/types";
 import {
   analysisUnavailable,
   getSortedBranchNames,
-} from "../../lib/visualization/utils";
-import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import AnalysisErrorAlert from "./AnalysisErrorAlert";
-import ExternalConfigAlert from "./ExternalConfigAlert";
-import TableHighlights from "./TableHighlights";
-import TableHighlightsOverview from "./TableHighlightsOverview";
-import TableMetricCount from "./TableMetricCount";
-import MetricHeader from "./TableMetricCount/MetricHeader";
-import TableResults from "./TableResults";
-import TableResultsWeekly from "./TableResultsWeekly";
-import TableWithTabComparison from "./TableWithTabComparison";
-import TooltipWithMarkdown from "./TooltipWithMarkdown";
+} from "src/lib/visualization/utils";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { experiment, analysis, useRedirectCondition, useAnalysisRequired } =

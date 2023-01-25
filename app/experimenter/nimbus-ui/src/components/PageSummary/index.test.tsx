@@ -11,13 +11,6 @@ import {
 } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
-import { CHANGELOG_MESSAGES, SERVER_ERRORS } from "../../lib/constants";
-import { mockExperimentQuery } from "../../lib/mocks";
-import {
-  NimbusExperimentPublishStatusEnum,
-  NimbusExperimentStatusEnum,
-} from "../../types/globalTypes";
-import { createMutationMock } from "../Summary/mocks";
 import {
   createFullStatusMutationMock,
   createStatusMutationMock,
@@ -25,7 +18,14 @@ import {
   enrollmentPauseReviewRequestedBaseProps,
   reviewRequestedBaseProps,
   Subject,
-} from "./mocks";
+} from "src/components/PageSummary/mocks";
+import { createMutationMock } from "src/components/Summary/mocks";
+import { CHANGELOG_MESSAGES, SERVER_ERRORS } from "src/lib/constants";
+import { mockExperimentQuery } from "src/lib/mocks";
+import {
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
+} from "src/types/globalTypes";
 
 jest.mock("@reach/router", () => ({
   ...(jest.requireActual("@reach/router") as any),

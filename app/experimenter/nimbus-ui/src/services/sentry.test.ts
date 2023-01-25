@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from "@sentry/browser";
-import sentryMetrics, { _Sentry } from "./sentry";
+import sentryMetrics, { _Sentry } from "src/services/sentry";
 
 const dsn = "https://public:private@host:port/1";
 type ValueOf<T> = T[keyof T];

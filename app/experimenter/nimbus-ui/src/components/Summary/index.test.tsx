@@ -4,13 +4,13 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
-import { mockExperimentQuery } from "../../lib/mocks";
+import { createMutationMock, Subject } from "src/components/Summary/mocks";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
+import { mockExperimentQuery } from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../../types/globalTypes";
-import { createMutationMock, Subject } from "./mocks";
+} from "src/types/globalTypes";
 
 describe("Summary", () => {
   it("renders expected components", () => {

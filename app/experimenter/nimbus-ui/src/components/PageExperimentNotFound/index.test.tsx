@@ -4,8 +4,8 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import ExperimentNotFound from ".";
-import { BASE_PATH } from "../../lib/constants";
+import ExperimentNotFound from "src/components/PageExperimentNotFound";
+import { BASE_PATH } from "src/lib/constants";
 
 describe("PageExperimentNotFound", () => {
   it("renders as expected", () => {

@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { useRefetchOnError } from ".";
-import { mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import { useExperiment } from "../useExperiment";
+import { useExperiment } from "src/hooks/useExperiment";
+import { useRefetchOnError } from "src/hooks/useRefetchOnError";
+import { mockExperimentQuery } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
 
 const ComponentWithHook = () => {
   // this works with any GQL query, we just need to provide one with mocks for testing
