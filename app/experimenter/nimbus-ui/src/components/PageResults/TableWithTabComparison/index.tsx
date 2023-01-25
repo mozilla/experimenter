@@ -4,12 +4,12 @@
 
 import React, { ComponentType } from "react";
 import { Tab, Tabs } from "react-bootstrap";
-import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
-import { AnalysisBases } from "../../../lib/visualization/types";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { TableHighlightsProps } from "../TableHighlights";
-import { TableResultsProps } from "../TableResults";
-import { TableResultsWeeklyProps } from "../TableResultsWeekly";
+import { TableHighlightsProps } from "src/components/PageResults/TableHighlights";
+import { TableResultsProps } from "src/components/PageResults/TableResults";
+import { TableResultsWeeklyProps } from "src/components/PageResults/TableResultsWeekly";
+import { BRANCH_COMPARISON } from "src/lib/visualization/constants";
+import { AnalysisBases } from "src/lib/visualization/types";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 type TablesWithExperiment =
   | ComponentType<TableHighlightsProps>

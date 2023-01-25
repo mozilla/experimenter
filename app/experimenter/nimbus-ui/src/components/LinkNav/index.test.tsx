@@ -9,8 +9,8 @@ import {
 } from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import LinkNav from ".";
-import { BASE_PATH } from "../../lib/constants";
+import LinkNav from "src/components/LinkNav";
+import { BASE_PATH } from "src/lib/constants";
 
 describe("LinkNav", () => {
   it("renders as expected when inactive", async () => {

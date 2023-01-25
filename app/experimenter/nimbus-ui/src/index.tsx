@@ -5,12 +5,12 @@
 import { ApolloProvider } from "@apollo/client";
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./components/App";
-import AppErrorBoundary from "./components/AppErrorBoundary";
-import { createApolloClient } from "./services/apollo";
-import config, { readConfig } from "./services/config";
-import sentryMetrics from "./services/sentry";
-import "./styles/index.scss";
+import App from "src/components/App";
+import AppErrorBoundary from "src/components/AppErrorBoundary";
+import { createApolloClient } from "src/services/apollo";
+import config, { readConfig } from "src/services/config";
+import sentryMetrics from "src/services/sentry";
+import "src/styles/index.scss";
 
 try {
   const root = document.getElementById("root")!;

@@ -9,10 +9,10 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import ReactMarkdown from "react-markdown";
-import { useConfig } from "../../../hooks";
-import NotSet from "../../NotSet";
-import TakeawaysEditor from "./TakeawaysEditor";
-import { UseTakeawaysResult } from "./useTakeaways";
+import NotSet from "src/components/NotSet";
+import TakeawaysEditor from "src/components/PageSummary/Takeaways/TakeawaysEditor";
+import { UseTakeawaysResult } from "src/components/PageSummary/Takeaways/useTakeaways";
+import { useConfig } from "src/hooks";
 
 export * from "./useTakeaways";
 

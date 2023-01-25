@@ -5,14 +5,14 @@
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useContext, useState } from "react";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
-import { ExperimentContext } from "../../lib/contexts";
-import { editCommonRedirects } from "../../lib/experiment";
-import { ExperimentInput } from "../../types/globalTypes";
-import { updateExperiment_updateExperiment as UpdateExperimentAudienceResult } from "../../types/updateExperiment";
-import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import FormAudience from "./FormAudience";
+import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
+import FormAudience from "src/components/PageEditAudience/FormAudience";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
+import { ExperimentContext } from "src/lib/contexts";
+import { editCommonRedirects } from "src/lib/experiment";
+import { ExperimentInput } from "src/types/globalTypes";
+import { updateExperiment_updateExperiment as UpdateExperimentAudienceResult } from "src/types/updateExperiment";
 
 const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
   const { experiment, refetch, useRedirectCondition } =

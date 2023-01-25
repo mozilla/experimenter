@@ -4,15 +4,15 @@
 
 import { useMutation } from "@apollo/client";
 import { useCallback, useState } from "react";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import {
   CHANGELOG_MESSAGES,
   SAVE_FAILED_NO_ERROR,
   SUBMIT_ERROR,
-} from "../../../lib/constants";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { ExperimentInput } from "../../../types/globalTypes";
-import { updateExperiment_updateExperiment } from "../../../types/updateExperiment";
+} from "src/lib/constants";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import { ExperimentInput } from "src/types/globalTypes";
+import { updateExperiment_updateExperiment } from "src/types/updateExperiment";
 
 // Params are a select subset of experiment properties
 export type UseTakeawaysExperimentSubset = Pick<

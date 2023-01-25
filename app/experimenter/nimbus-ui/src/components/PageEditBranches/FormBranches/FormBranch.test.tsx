@@ -10,8 +10,11 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
-import { FIELD_MESSAGES } from "../../../lib/constants";
-import { MOCK_ANNOTATED_BRANCH, SubjectBranch } from "./mocks";
+import {
+  MOCK_ANNOTATED_BRANCH,
+  SubjectBranch,
+} from "src/components/PageEditBranches/FormBranches/mocks";
+import { FIELD_MESSAGES } from "src/lib/constants";
 
 describe("FormBranch", () => {
   it("renders as expected", () => {

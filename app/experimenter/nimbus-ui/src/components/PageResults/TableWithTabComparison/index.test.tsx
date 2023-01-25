@@ -4,9 +4,9 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { mockExperimentQuery } from "../../../lib/mocks";
-import TableHighlights from "../TableHighlights";
-import { Subject } from "./mocks";
+import TableHighlights from "src/components/PageResults/TableHighlights";
+import { Subject } from "src/components/PageResults/TableWithTabComparison/mocks";
+import { mockExperimentQuery } from "src/lib/mocks";
 
 describe("TableWithTabComparison", () => {
   // This test exists to test that the relative comparison shows by default and

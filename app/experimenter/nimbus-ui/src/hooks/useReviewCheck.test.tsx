@@ -6,10 +6,10 @@ import { MockedResponse } from "@apollo/client/testing";
 import { render, screen, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
-import { editPages } from "../components/AppLayoutWithSidebar";
-import { SERVER_ERRORS } from "../lib/constants";
-import { MockedCache, mockExperimentQuery } from "../lib/mocks";
-import { useReviewCheck } from "./useReviewCheck";
+import { editPages } from "src/components/AppLayoutWithSidebar";
+import { useReviewCheck } from "src/hooks/useReviewCheck";
+import { SERVER_ERRORS } from "src/lib/constants";
+import { MockedCache, mockExperimentQuery } from "src/lib/mocks";
 
 describe("hooks/useReviewCheck", () => {
   const readyMessages = {

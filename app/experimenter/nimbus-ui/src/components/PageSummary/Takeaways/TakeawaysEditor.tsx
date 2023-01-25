@@ -10,9 +10,9 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { FormProvider } from "react-hook-form";
-import { useCommonForm } from "../../../hooks";
-import { getConfig_nimbusConfig } from "../../../types/getConfig";
-import { UseTakeawaysResult } from "./useTakeaways";
+import { UseTakeawaysResult } from "src/components/PageSummary/Takeaways/useTakeaways";
+import { useCommonForm } from "src/hooks";
+import { getConfig_nimbusConfig } from "src/types/getConfig";
 
 export const takeawaysEditorFieldNames = [
   "conclusionRecommendation",

@@ -6,24 +6,24 @@ import { navigate } from "@reach/router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
-import PageEditBranches from ".";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import PageEditBranches from "src/components/PageEditBranches";
+import FormBranches from "src/components/PageEditBranches/FormBranches";
+import { FormBranchesSaveState } from "src/components/PageEditBranches/FormBranches/reducer";
+import { extractUpdateBranch } from "src/components/PageEditBranches/FormBranches/reducer/update";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   SUBMIT_ERROR,
-} from "../../lib/constants";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+} from "src/lib/constants";
+import { mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   ExperimentInput,
   NimbusExperimentApplicationEnum,
-} from "../../types/globalTypes";
-import { updateExperiment_updateExperiment } from "../../types/updateExperiment";
-import FormBranches from "./FormBranches";
-import { FormBranchesSaveState } from "./FormBranches/reducer";
-import { extractUpdateBranch } from "./FormBranches/reducer/update";
+} from "src/types/globalTypes";
+import { updateExperiment_updateExperiment } from "src/types/updateExperiment";
 
 describe("PageEditBranches", () => {
   beforeAll(() => {

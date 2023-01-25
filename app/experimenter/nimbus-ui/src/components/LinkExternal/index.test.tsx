@@ -4,7 +4,7 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import LinkExternal from "./index";
+import LinkExternal from "src/components/LinkExternal/index";
 
 it("renders without imploding", () => {
   const className = "mozilla-link";

@@ -5,10 +5,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { default as SearchBar } from ".";
-import { mockDirectoryExperimentsQuery } from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
-import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
+import { default as SearchBar } from "src/components/PageHome/SearchBar";
+import { mockDirectoryExperimentsQuery } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 
 describe("SearchBar", () => {
   it("renders as expected", async () => {

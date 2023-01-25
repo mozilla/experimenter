@@ -5,26 +5,26 @@
 import React from "react";
 import { Card } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
-import { useChangeOperationMutation } from "../../hooks";
-import { CHANGELOG_MESSAGES } from "../../lib/constants";
-import { getStatus } from "../../lib/experiment";
-import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import NotSet from "src/components/NotSet";
+import TableSignoff from "src/components/PageSummary/TableSignoff";
+import Takeaways, { useTakeaways } from "src/components/PageSummary/Takeaways";
+import PreviewURL from "src/components/PreviewURL";
+import CancelReview from "src/components/Summary/CancelReview";
+import EndEnrollment from "src/components/Summary/EndEnrollment";
+import EndExperiment from "src/components/Summary/EndExperiment";
+import TableAudience from "src/components/Summary/TableAudience";
+import TableBranches from "src/components/Summary/TableBranches";
+import TableOverview from "src/components/Summary/TableOverview";
+import TableRiskMitigation from "src/components/Summary/TableRiskMitigation";
+import { useChangeOperationMutation } from "src/hooks";
+import { CHANGELOG_MESSAGES } from "src/lib/constants";
+import { getStatus } from "src/lib/experiment";
+import { ConfigOptions, getConfigLabel } from "src/lib/getConfigLabel";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../../types/globalTypes";
-import NotSet from "../NotSet";
-import TableSignoff from "../PageSummary/TableSignoff";
-import Takeaways, { useTakeaways } from "../PageSummary/Takeaways";
-import PreviewURL from "../PreviewURL";
-import CancelReview from "./CancelReview";
-import EndEnrollment from "./EndEnrollment";
-import EndExperiment from "./EndExperiment";
-import TableAudience from "./TableAudience";
-import TableBranches from "./TableBranches";
-import TableOverview from "./TableOverview";
-import TableRiskMitigation from "./TableRiskMitigation";
+} from "src/types/globalTypes";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;

@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from "react";
-import { ReactComponent as Airplane } from "../../images/airplane.svg";
-import { getSummaryAction, StatusCheck } from "../../lib/experiment";
-import { LinkNav } from "../LinkNav";
+import { LinkNav } from "src/components/LinkNav";
+import { ReactComponent as Airplane } from "src/images/airplane.svg";
+import { getSummaryAction, StatusCheck } from "src/lib/experiment";
 
 type LinkNavSummaryProps = {
   slug: string;

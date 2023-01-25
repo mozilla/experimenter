@@ -5,21 +5,21 @@
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useContext } from "react";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { useConfig } from "../../hooks";
+import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
+import LinkExternal from "src/components/LinkExternal";
+import FormBranches from "src/components/PageEditBranches/FormBranches";
+import { FormBranchesSaveState } from "src/components/PageEditBranches/FormBranches/reducer";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { useConfig } from "src/hooks";
 import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   SUBMIT_ERROR,
-} from "../../lib/constants";
-import { ExperimentContext } from "../../lib/contexts";
-import { editCommonRedirects } from "../../lib/experiment";
-import { ExperimentInput } from "../../types/globalTypes";
-import { updateExperiment_updateExperiment as UpdateExperimentBranchesResult } from "../../types/updateExperiment";
-import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import LinkExternal from "../LinkExternal";
-import FormBranches from "./FormBranches";
-import { FormBranchesSaveState } from "./FormBranches/reducer";
+} from "src/lib/constants";
+import { ExperimentContext } from "src/lib/contexts";
+import { editCommonRedirects } from "src/lib/experiment";
+import { ExperimentInput } from "src/types/globalTypes";
+import { updateExperiment_updateExperiment as UpdateExperimentBranchesResult } from "src/types/updateExperiment";
 
 const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   const { allFeatureConfigs } = useConfig();

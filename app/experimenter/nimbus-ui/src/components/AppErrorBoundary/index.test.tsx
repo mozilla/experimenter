@@ -4,7 +4,9 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import AppErrorBoundary, { AppErrorAlert } from ".";
+import AppErrorBoundary, {
+  AppErrorAlert,
+} from "src/components/AppErrorBoundary";
 
 describe("AppErrorAlert", () => {
   it("renders a general error dialog", async () => {

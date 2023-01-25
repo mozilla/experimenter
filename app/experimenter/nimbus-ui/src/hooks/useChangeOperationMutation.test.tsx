@@ -5,17 +5,17 @@
 import { MockedResponse } from "@apollo/client/testing";
 import { act, renderHook, RenderResult } from "@testing-library/react-hooks";
 import React from "react";
-import { UPDATE_EXPERIMENT_MUTATION } from "../gql/experiments";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { useChangeOperationMutation } from "src/hooks/useChangeOperationMutation";
 import {
   MockedCache,
   mockExperiment,
   mockExperimentMutation,
-} from "../lib/mocks";
+} from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../types/globalTypes";
-import { useChangeOperationMutation } from "./useChangeOperationMutation";
+} from "src/types/globalTypes";
 
 describe("hooks/useChangeOperationMutation", () => {
   it("can successfully execute mutation set callbacks", async () => {

@@ -6,10 +6,10 @@ import { MockedResponse } from "@apollo/client/testing";
 import { navigate } from "@reach/router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import PageNew from ".";
-import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
-import { MockedCache, mockExperimentMutation } from "../../lib/mocks";
+import PageNew from "src/components/PageNew";
+import { CREATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
+import { MockedCache, mockExperimentMutation } from "src/lib/mocks";
 
 jest.mock("@reach/router", () => ({
   navigate: jest.fn(),

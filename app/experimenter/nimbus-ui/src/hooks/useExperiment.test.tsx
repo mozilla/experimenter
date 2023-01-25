@@ -6,8 +6,8 @@ import { MockedResponse } from "@apollo/client/testing";
 import { waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
-import { MockedCache, mockExperimentQuery } from "../lib/mocks";
-import { useExperiment } from "./useExperiment";
+import { useExperiment } from "src/hooks/useExperiment";
+import { MockedCache, mockExperimentQuery } from "src/lib/mocks";
 
 describe("hooks/useExperiment", () => {
   it("starts by loading", async () => {

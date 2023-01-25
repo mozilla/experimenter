@@ -9,19 +9,19 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import { FormProvider } from "react-hook-form";
-import { useExitWarning, useForm, useReviewCheck } from "../../../hooks";
-import { IsDirtyUnsaved } from "../../../hooks/useCommonForm/useCommonFormMethods";
-import { getConfig_nimbusConfig } from "../../../types/getConfig";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "../../../types/globalTypes";
-import FormBranch from "./FormBranch";
+import FormBranch from "src/components/PageEditBranches/FormBranches/FormBranch";
 import {
   FormBranchesSaveState,
   REFERENCE_BRANCH_IDX,
   useFormBranchesReducer,
-} from "./reducer";
-import { FormBranchesState } from "./reducer/state";
-import { FormData } from "./reducer/update";
+} from "src/components/PageEditBranches/FormBranches/reducer";
+import { FormBranchesState } from "src/components/PageEditBranches/FormBranches/reducer/state";
+import { FormData } from "src/components/PageEditBranches/FormBranches/reducer/update";
+import { useExitWarning, useForm, useReviewCheck } from "src/hooks";
+import { IsDirtyUnsaved } from "src/hooks/useCommonForm/useCommonFormMethods";
+import { getConfig_nimbusConfig } from "src/types/getConfig";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 type FormBranchesProps = {
   isLoading: boolean;

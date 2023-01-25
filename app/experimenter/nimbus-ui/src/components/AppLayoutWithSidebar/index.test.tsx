@@ -4,8 +4,8 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import { BASE_PATH, SERVER_ERRORS } from "../../lib/constants";
-import { Subject } from "./mocks";
+import { Subject } from "src/components/AppLayoutWithSidebar/mocks";
+import { BASE_PATH, SERVER_ERRORS } from "src/lib/constants";
 
 describe("AppLayoutWithSidebar", () => {
   it("renders app layout content with children", () => {

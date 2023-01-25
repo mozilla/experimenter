@@ -5,8 +5,8 @@
 import React, { useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
-import { ReactComponent as Check } from "../../images/check.svg";
-import FormLaunchConfirmationCheckboxes from "./FormLaunchConfirmationCheckboxes";
+import FormLaunchConfirmationCheckboxes from "src/components/PageSummary/FormLaunchConfirmationCheckboxes";
+import { ReactComponent as Check } from "src/images/check.svg";
 
 const FormLaunchPreviewToReview = ({
   isLoading,

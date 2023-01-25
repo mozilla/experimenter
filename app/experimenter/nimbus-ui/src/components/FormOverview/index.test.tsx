@@ -4,13 +4,13 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
-import { FIELD_MESSAGES, RISK_QUESTIONS } from "../../lib/constants";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
-import { assertSerializerMessages } from "../../lib/test-utils";
-import { optionalBoolString } from "../../lib/utils";
-import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
-import { Subject } from "./mocks";
+import { DOCUMENTATION_LINKS_TOOLTIP } from "src/components/FormOverview";
+import { Subject } from "src/components/FormOverview/mocks";
+import { FIELD_MESSAGES, RISK_QUESTIONS } from "src/lib/constants";
+import { mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
+import { assertSerializerMessages } from "src/lib/test-utils";
+import { optionalBoolString } from "src/lib/utils";
+import { NimbusDocumentationLinkTitle } from "src/types/globalTypes";
 
 describe("FormOverview", () => {
   it("renders as expected", async () => {

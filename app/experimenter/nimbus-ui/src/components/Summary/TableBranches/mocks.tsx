@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import TableBranches from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import AppLayout from "../../AppLayout";
+import AppLayout from "src/components/AppLayout";
+import TableBranches from "src/components/Summary/TableBranches";
+import { mockExperimentQuery } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 type TableBranchesProps = React.ComponentProps<typeof TableBranches>;
 

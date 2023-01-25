@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useContext } from "react";
-import { useOutcomes } from "../../../hooks";
-import { ResultsContext } from "../../../lib/contexts";
-import { OutcomesList } from "../../../lib/types";
+import TableVisualizationRow from "src/components/PageResults/TableVisualizationRow";
+import { useOutcomes } from "src/hooks";
+import { ResultsContext } from "src/lib/contexts";
+import { OutcomesList } from "src/lib/types";
 import {
   BRANCH_COMPARISON,
   GROUP,
@@ -13,18 +14,17 @@ import {
   METRIC,
   METRICS_TIPS,
   TABLE_LABEL,
-} from "../../../lib/visualization/constants";
+} from "src/lib/visualization/constants";
 import {
   AnalysisBases,
   BranchComparisonValues,
-} from "../../../lib/visualization/types";
-import { getTableDisplayType } from "../../../lib/visualization/utils";
+} from "src/lib/visualization/types";
+import { getTableDisplayType } from "src/lib/visualization/utils";
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
-} from "../../../types/getExperiment";
-import TableVisualizationRow from "../TableVisualizationRow";
+} from "src/types/getExperiment";
 
 export type TableHighlightsProps = {
   experiment: getExperiment_experimentBySlug;

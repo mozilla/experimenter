@@ -4,9 +4,9 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { MockedCache, MOCK_CONFIG } from "../lib/mocks";
-import serverConfig from "../services/config";
-import { MockConfigContext, useConfig } from "./useConfig";
+import { MockConfigContext, useConfig } from "src/hooks/useConfig";
+import { MockedCache, MOCK_CONFIG } from "src/lib/mocks";
+import serverConfig from "src/services/config";
 
 describe("hooks/useConfig", () => {
   describe("useConfig", () => {

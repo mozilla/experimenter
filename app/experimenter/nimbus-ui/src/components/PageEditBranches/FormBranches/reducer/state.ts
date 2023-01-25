@@ -5,11 +5,8 @@
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_treatmentBranches,
-} from "../../../../types/getExperiment";
-import {
-  ExperimentInput,
-  TreatmentBranchInput,
-} from "../../../../types/globalTypes";
+} from "src/types/getExperiment";
+import { ExperimentInput, TreatmentBranchInput } from "src/types/globalTypes";
 
 export type FormBranchesState = Pick<
   ExperimentInput,

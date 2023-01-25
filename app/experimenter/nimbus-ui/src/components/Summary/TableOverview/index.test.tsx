@@ -4,13 +4,9 @@
 
 import { render, screen, within } from "@testing-library/react";
 import React from "react";
-import TableOverview from ".";
-import {
-  MockedCache,
-  mockExperimentQuery,
-  MOCK_CONFIG,
-} from "../../../lib/mocks";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import TableOverview from "src/components/Summary/TableOverview";
+import { MockedCache, mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 describe("TableOverview", () => {
   it("renders rows displaying required fields at experiment creation as expected", () => {

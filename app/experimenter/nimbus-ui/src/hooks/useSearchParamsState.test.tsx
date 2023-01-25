@@ -11,10 +11,10 @@ import {
 } from "@reach/router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React, { useContext } from "react";
-import { RouterSlugProvider } from "../lib/test-utils";
 import useSearchParamsState, {
   SearchParamsContext,
-} from "./useSearchParamsState";
+} from "src/hooks/useSearchParamsState";
+import { RouterSlugProvider } from "src/lib/test-utils";
 
 // TODO: Work out how to test this stuff with @testing-library/react-hooks?
 // Depends on being wrapped by @reach/router, so that seems to make it difficult

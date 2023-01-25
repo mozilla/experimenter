@@ -9,14 +9,14 @@ import Col from "react-bootstrap/Col";
 import Figure from "react-bootstrap/Figure";
 import Row from "react-bootstrap/Row";
 import Table from "react-bootstrap/Table";
+import CloneDialog, { useCloneDialog } from "src/components/CloneDialog";
+import { Code } from "src/components/Code";
+import NotSet from "src/components/NotSet";
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
-} from "../../../types/getExperiment";
-import CloneDialog, { useCloneDialog } from "../../CloneDialog";
-import { Code } from "../../Code";
-import NotSet from "../../NotSet";
+} from "src/types/getExperiment";
 
 export const NO_BRANCHES_COPY = "No branches have been saved yet";
 

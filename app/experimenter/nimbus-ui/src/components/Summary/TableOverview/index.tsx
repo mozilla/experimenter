@@ -4,11 +4,11 @@
 
 import React from "react";
 import { Card, Table } from "react-bootstrap";
-import { displayConfigLabelOrNotSet } from "..";
-import { useConfig, useOutcomes } from "../../../hooks";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import NotSet from "../../NotSet";
-import RichText from "../../RichText";
+import NotSet from "src/components/NotSet";
+import RichText from "src/components/RichText";
+import { displayConfigLabelOrNotSet } from "src/components/Summary";
+import { useConfig, useOutcomes } from "src/hooks";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 type TableOverviewProps = {
   experiment: getExperiment_experimentBySlug;

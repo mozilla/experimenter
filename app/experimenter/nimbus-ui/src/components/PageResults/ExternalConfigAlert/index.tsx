@@ -4,9 +4,9 @@
 
 import React from "react";
 import { Alert } from "react-bootstrap";
-import { humanDate } from "../../../lib/dateUtils";
-import { MetadataExternalConfig } from "../../../lib/visualization/types";
-import LinkExternal from "../../LinkExternal";
+import LinkExternal from "src/components/LinkExternal";
+import { humanDate } from "src/lib/dateUtils";
+import { MetadataExternalConfig } from "src/lib/visualization/types";
 
 export const ExternalConfigAlert = ({
   externalConfig,

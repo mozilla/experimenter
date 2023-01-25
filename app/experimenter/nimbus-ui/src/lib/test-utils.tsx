@@ -15,11 +15,15 @@ import {
 } from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import { SearchParamsStateProvider } from "../hooks";
-import { snakeToCamelCase } from "./caseConversions";
-import { ExperimentContext, ExperimentContextType } from "./contexts";
-import { getStatus } from "./experiment";
-import { MockedCache, mockExperimentQuery, MOCK_EXPERIMENT } from "./mocks";
+import { SearchParamsStateProvider } from "src/hooks";
+import { snakeToCamelCase } from "src/lib/caseConversions";
+import { ExperimentContext, ExperimentContextType } from "src/lib/contexts";
+import { getStatus } from "src/lib/experiment";
+import {
+  MockedCache,
+  mockExperimentQuery,
+  MOCK_EXPERIMENT,
+} from "src/lib/mocks";
 
 export function renderWithRouter(
   ui: React.ReactElement,

@@ -17,13 +17,16 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
-import CloneDialog, { RolloutBranch, useCloneDialog } from ".";
-import { CLONE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { BASE_PATH, SUBMIT_ERROR } from "../../lib/constants";
-import { mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import { MemoryHistorySource } from "../../lib/types";
-import { ExperimentCloneInput } from "../../types/globalTypes";
+import CloneDialog, {
+  RolloutBranch,
+  useCloneDialog,
+} from "src/components/CloneDialog";
+import { CLONE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { BASE_PATH, SUBMIT_ERROR } from "src/lib/constants";
+import { mockExperimentQuery } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { MemoryHistorySource } from "src/lib/types";
+import { ExperimentCloneInput } from "src/types/globalTypes";
 
 describe("CloneDialog", () => {
   it("renders, cancels, and saves as expected", async () => {

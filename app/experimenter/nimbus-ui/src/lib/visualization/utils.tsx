@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BRANCH_COMPARISON, DISPLAY_TYPE, METRIC } from "./constants";
+import {
+  BRANCH_COMPARISON,
+  DISPLAY_TYPE,
+  METRIC,
+} from "src/lib/visualization/constants";
 import {
   AnalysisData,
   AnalysisDataOverall,
   BranchComparisonValues,
   FormattedAnalysisPoint,
-} from "./types";
+} from "src/lib/visualization/types";
 
 // `show_analysis` is the feature flag for turning visualization on/off.
 // `overall` and `weekly` will be `null` if the analysis isn't available yet.

@@ -10,9 +10,9 @@ import Form from "react-bootstrap/Form";
 import Image from "react-bootstrap/Image";
 import Row from "react-bootstrap/Row";
 import { Controller, FieldError } from "react-hook-form";
-import { useCommonNestedForm } from "../../../../hooks";
-import { ReactComponent as DeleteIcon } from "../../../../images/x.svg";
-import { IMAGE_UPLOAD_ACCEPT } from "../../../../lib/constants";
+import { useCommonNestedForm } from "src/hooks";
+import { ReactComponent as DeleteIcon } from "src/images/x.svg";
+import { IMAGE_UPLOAD_ACCEPT } from "src/lib/constants";
 
 export const screenshotFieldNames = ["description", "image"] as const;
 
