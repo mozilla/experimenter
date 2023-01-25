@@ -162,10 +162,6 @@ def get_experiment_data(experiment):
 
     experiment_errors = get_analysis_errors(recipe_slug)
 
-    experiment_data_old = {
-        "show_analysis": settings.FEATURE_ANALYSIS,
-        "metadata": experiment_metadata,
-    }
     experiment_data = {
         "show_analysis": settings.FEATURE_ANALYSIS,
         "metadata": experiment_metadata,
@@ -173,7 +169,6 @@ def get_experiment_data(experiment):
 
     for window in windows:
         experiment_data[window] = {}
-        experiment_data_old[window] = {}
         data_from_jetstream = get_data(recipe_slug, window) or []
 
         segment_points_enrollments = defaultdict(list)
@@ -215,14 +210,12 @@ def get_experiment_data(experiment):
                 data.append_conversion_count(primary_metrics_set)
 
                 if segment == Segment.ALL:
-                    experiment_data_old["other_metrics"] = other_metrics
                     experiment_data["other_metrics"] = other_metrics
             elif data and window == AnalysisWindow.WEEKLY:
                 ResultsObjectModel = create_results_object_model(data)
                 data = ResultsObjectModel(result_metrics, data, experiment, window)
 
             transformed_data = data.dict(exclude_none=True) or None
-            experiment_data_old[window][segment] = transformed_data
             experiment_data[window][AnalysisBasis.ENROLLMENTS][segment] = transformed_data
 
         for segment, segment_data in segment_points_exposures.items():
@@ -271,7 +264,6 @@ def get_experiment_data(experiment):
 
     errors_by_metric["experiment"] = errors_experiment_overall
 
-    experiment_data_old["errors"] = errors_by_metric
     experiment_data["errors"] = errors_by_metric
 
-    return {"v1": experiment_data_old, "v2": experiment_data}
+    return {"v2": experiment_data}
