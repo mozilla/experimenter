@@ -4,13 +4,13 @@
 
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import React from "react";
-import TableAudience from ".";
-import { MockedCache, mockExperimentQuery } from "../../../lib/mocks";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import TableAudience from "src/components/Summary/TableAudience";
+import { MockedCache, mockExperimentQuery } from "src/lib/mocks";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   NimbusExperimentApplicationEnum,
   NimbusExperimentChannelEnum,
-} from "../../../types/globalTypes";
+} from "src/types/globalTypes";
 
 describe("TableAudience", () => {
   describe("renders 'Channel' row as expected", () => {

@@ -7,11 +7,11 @@ import { MockedResponse } from "@apollo/client/testing";
 import { screen, waitFor } from "@testing-library/react";
 import React, { ReactNode } from "react";
 import { act } from "react-dom/test-utils";
-import App from ".";
-import { REFETCH_DELAY } from "../../hooks";
-import { BASE_PATH } from "../../lib/constants";
-import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
-import { renderWithRouter } from "../../lib/test-utils";
+import App from "src/components/App";
+import { REFETCH_DELAY } from "src/hooks";
+import { BASE_PATH } from "src/lib/constants";
+import { MockedCache, mockExperimentQuery } from "src/lib/mocks";
+import { renderWithRouter } from "src/lib/test-utils";
 
 const { mock } = mockExperimentQuery("my-special-slug");
 

@@ -3,19 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useContext } from "react";
-import { ResultsContext } from "../../../lib/contexts";
+import TableVisualizationRow from "src/components/PageResults/TableVisualizationRow";
+import { ResultsContext } from "src/lib/contexts";
 import {
   BRANCH_COMPARISON,
   TABLE_LABEL,
-} from "../../../lib/visualization/constants";
+} from "src/lib/visualization/constants";
 import {
   AnalysisBases,
   BranchComparisonValues,
   BranchDescription,
   FormattedAnalysisPoint,
-} from "../../../lib/visualization/types";
-import { getTableDisplayType } from "../../../lib/visualization/utils";
-import TableVisualizationRow from "../TableVisualizationRow";
+} from "src/lib/visualization/types";
+import { getTableDisplayType } from "src/lib/visualization/utils";
 
 type TableWeeklyProps = {
   metricKey: string;

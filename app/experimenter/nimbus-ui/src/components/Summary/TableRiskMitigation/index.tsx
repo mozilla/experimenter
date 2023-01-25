@@ -4,10 +4,10 @@
 
 import React from "react";
 import { Card, Table } from "react-bootstrap";
-import { useConfig, useOutcomes } from "../../../hooks";
-import { RISK_QUESTIONS } from "../../../lib/constants";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import NotSet from "../../NotSet";
+import NotSet from "src/components/NotSet";
+import { useConfig, useOutcomes } from "src/hooks";
+import { RISK_QUESTIONS } from "src/lib/constants";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 type TableRiskMitigationProps = {
   experiment: getExperiment_experimentBySlug;

@@ -4,13 +4,10 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import TableHighlights from ".";
-import {
-  mockExperimentQuery,
-  MockResultsContextProvider,
-} from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
-import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
+import TableHighlights from "src/components/PageResults/TableHighlights";
+import { mockExperimentQuery, MockResultsContextProvider } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { BRANCH_COMPARISON } from "src/lib/visualization/constants";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 

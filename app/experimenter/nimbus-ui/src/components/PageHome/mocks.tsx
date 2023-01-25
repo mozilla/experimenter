@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from "react";
-import { mockDirectoryExperiments, MOCK_CONFIG } from "../../lib/mocks";
-import { FilterBar } from "./FilterBar";
-import { FilterOptions, FilterValue } from "./types";
+import { FilterBar } from "src/components/PageHome/FilterBar";
+import { FilterOptions, FilterValue } from "src/components/PageHome/types";
+import { mockDirectoryExperiments, MOCK_CONFIG } from "src/lib/mocks";
 
 export const MOCK_EXPERIMENTS = mockDirectoryExperiments();
 

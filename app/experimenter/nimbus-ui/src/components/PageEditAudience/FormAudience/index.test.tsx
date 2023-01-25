@@ -11,22 +11,25 @@ import {
   within,
 } from "@testing-library/react";
 import React from "react";
-import { filterAndSortTargetingConfigs } from ".";
-import { snakeToCamelCase } from "../../../lib/caseConversions";
+import { filterAndSortTargetingConfigs } from "src/components/PageEditAudience/FormAudience";
+import {
+  MOCK_EXPERIMENT,
+  Subject,
+} from "src/components/PageEditAudience/FormAudience/mocks";
+import { snakeToCamelCase } from "src/lib/caseConversions";
 import {
   EXTERNAL_URLS,
   FIELD_MESSAGES,
   TOOLTIP_DURATION,
-} from "../../../lib/constants";
-import { MOCK_CONFIG } from "../../../lib/mocks";
-import { assertSerializerMessages } from "../../../lib/test-utils";
+} from "src/lib/constants";
+import { MOCK_CONFIG } from "src/lib/mocks";
+import { assertSerializerMessages } from "src/lib/test-utils";
 import {
   NimbusExperimentApplicationEnum,
   NimbusExperimentChannelEnum,
   NimbusExperimentFirefoxVersionEnum,
   NimbusExperimentStatusEnum,
-} from "../../../types/globalTypes";
-import { MOCK_EXPERIMENT, Subject } from "./mocks";
+} from "src/types/globalTypes";
 
 describe("FormAudience", () => {
   it("renders without error", async () => {

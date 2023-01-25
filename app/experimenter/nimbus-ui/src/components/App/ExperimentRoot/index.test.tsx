@@ -15,14 +15,14 @@ import {
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React, { useContext, useRef, useState } from "react";
-import ExperimentRoot from ".";
-import { BASE_PATH, POLL_INTERVAL } from "../../../lib/constants";
-import { ExperimentContext } from "../../../lib/contexts";
-import { MockedCache, mockExperimentQuery } from "../../../lib/mocks";
+import ExperimentRoot from "src/components/App/ExperimentRoot";
+import { BASE_PATH, POLL_INTERVAL } from "src/lib/constants";
+import { ExperimentContext } from "src/lib/contexts";
+import { MockedCache, mockExperimentQuery } from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../../../types/globalTypes";
+} from "src/types/globalTypes";
 
 describe("ExperimentRoot", () => {
   const MOCK_ANALYSIS_DATA = JSON.stringify({ fake: "data" });

@@ -8,7 +8,7 @@ import {
   useFormContext,
   UseFormMethods,
 } from "react-hook-form";
-import { useCommonFormMethods } from "./useCommonFormMethods";
+import { useCommonFormMethods } from "src/hooks/useCommonForm/useCommonFormMethods";
 
 export function useCommonNestedForm<FieldNames extends string>(
   defaultValues: Record<string, any>,

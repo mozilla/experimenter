@@ -4,9 +4,9 @@
 
 import { useApolloClient } from "@apollo/client";
 import { createContext, useContext } from "react";
-import { GET_CONFIG_QUERY } from "../gql/config";
-import serverConfig from "../services/config";
-import { getConfig } from "../types/getConfig";
+import { GET_CONFIG_QUERY } from "src/gql/config";
+import serverConfig from "src/services/config";
+import { getConfig } from "src/types/getConfig";
 
 export type Config = typeof serverConfig & getConfig["nimbusConfig"];
 export type MockConfig = Partial<Config> | undefined;

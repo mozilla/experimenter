@@ -4,14 +4,14 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { CHANGELOG_MESSAGES } from "../../lib/constants";
-import { mockExperiment, mockExperimentMutation } from "../../lib/mocks";
+import { Subject } from "src/components/SidebarActions/mocks";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { CHANGELOG_MESSAGES } from "src/lib/constants";
+import { mockExperiment, mockExperimentMutation } from "src/lib/mocks";
 import {
   ExperimentsNimbusDocumentationLinkTitleChoices,
   NimbusExperimentStatusEnum,
-} from "../../types/globalTypes";
-import { Subject } from "./mocks";
+} from "src/types/globalTypes";
 
 describe("SidebarActions", () => {
   it("renders sidebar actions content", () => {

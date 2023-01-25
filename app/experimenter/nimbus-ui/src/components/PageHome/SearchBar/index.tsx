@@ -2,9 +2,9 @@ import Fuse from "fuse.js";
 import React from "react";
 import { FormControl } from "react-bootstrap";
 import InputGroup from "react-bootstrap/InputGroup";
-import { ReactComponent as SearchIcon } from "../../../images/search.svg";
-import { ReactComponent as DeleteIcon } from "../../../images/x.svg";
-import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
+import { ReactComponent as SearchIcon } from "src/images/search.svg";
+import { ReactComponent as DeleteIcon } from "src/images/x.svg";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 interface SearchBarProps {
   experiments: getAllExperiments_experiments[];
   onChange: any;

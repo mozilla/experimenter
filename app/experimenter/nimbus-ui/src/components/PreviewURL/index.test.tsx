@@ -5,9 +5,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import selectEvent from "react-select-event";
-import PreviewURL from ".";
-import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
-import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
+import PreviewURL from "src/components/PreviewURL";
+import { mockExperimentQuery, mockGetStatus } from "src/lib/mocks";
+import { NimbusExperimentStatusEnum } from "src/types/globalTypes";
 
 const { experiment } = mockExperimentQuery("preview-url-slug");
 

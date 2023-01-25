@@ -4,10 +4,10 @@
 
 import React, { useState } from "react";
 import Select from "react-select";
-import { SelectOption } from "../../hooks/useCommonForm/useCommonFormMethods";
-import { StatusCheck } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "../../types/globalTypes";
+import { SelectOption } from "src/hooks/useCommonForm/useCommonFormMethods";
+import { StatusCheck } from "src/lib/experiment";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 type CopyableURLProps = {
   experimentSlug: string;

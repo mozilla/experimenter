@@ -4,9 +4,9 @@
 
 import React from "react";
 import { Alert } from "react-bootstrap";
-import { AnalysisError } from "../../../lib/visualization/types";
-import LinkExternal from "../../LinkExternal";
-import AnalysisErrorMessage from "./AnalysisErrorMessage";
+import LinkExternal from "src/components/LinkExternal";
+import AnalysisErrorMessage from "src/components/PageResults/AnalysisErrorAlert/AnalysisErrorMessage";
+import { AnalysisError } from "src/lib/visualization/types";
 
 type AnalysisErrorAlertProps = {
   errors: AnalysisError[];

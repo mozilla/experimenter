@@ -5,8 +5,8 @@
 import { createMemorySource } from "@reach/router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React, { useState } from "react";
-import { RouterSlugProvider } from "../lib/test-utils";
-import { useScrollToLocationHash } from "./useScrollToLocationHash";
+import { useScrollToLocationHash } from "src/hooks/useScrollToLocationHash";
+import { RouterSlugProvider } from "src/lib/test-utils";
 
 describe("hooks/useScrollToLocationHash", () => {
   let mockGetElementById: any;

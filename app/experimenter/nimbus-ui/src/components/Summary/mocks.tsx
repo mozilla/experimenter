@@ -4,20 +4,20 @@
 
 import { MockedResponse } from "@apollo/client/testing";
 import React from "react";
-import Summary from ".";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import AppLayout from "src/components/AppLayout";
+import Summary from "src/components/Summary";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import {
   mockChangelog,
   mockExperimentMutation,
   mockExperimentQuery,
-} from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+} from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../../types/globalTypes";
-import AppLayout from "../AppLayout";
+} from "src/types/globalTypes";
 
 export function createMutationMock(
   id: number,

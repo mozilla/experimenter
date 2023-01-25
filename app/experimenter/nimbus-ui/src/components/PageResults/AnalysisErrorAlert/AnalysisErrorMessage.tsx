@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { AnalysisError } from "../../../lib/visualization/types";
+import { AnalysisError } from "src/lib/visualization/types";
 
 type AnalysisErrorMessageProps = {
   err: AnalysisError;

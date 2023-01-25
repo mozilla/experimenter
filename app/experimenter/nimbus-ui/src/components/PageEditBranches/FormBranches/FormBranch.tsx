@@ -9,11 +9,13 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import { FieldError } from "react-hook-form";
-import { useCommonNestedForm } from "../../../hooks";
-import { ReactComponent as DeleteIcon } from "../../../images/x.svg";
-import { NUMBER_FIELD, REQUIRED_FIELD } from "../../../lib/constants";
-import FormScreenshot, { FormScreenshotProps } from "./FormScreenshot";
-import { AnnotatedBranch } from "./reducer";
+import FormScreenshot, {
+  FormScreenshotProps,
+} from "src/components/PageEditBranches/FormBranches/FormScreenshot";
+import { AnnotatedBranch } from "src/components/PageEditBranches/FormBranches/reducer";
+import { useCommonNestedForm } from "src/hooks";
+import { ReactComponent as DeleteIcon } from "src/images/x.svg";
+import { NUMBER_FIELD, REQUIRED_FIELD } from "src/lib/constants";
 
 export const branchFieldNames = [
   "name",

@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getAllExperiments_experiments } from "../types/getAllExperiments";
-import { getExperiment_experimentBySlug } from "../types/getExperiment";
-import { pluralize } from "./utils";
+import { pluralize } from "src/lib/utils";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export function humanDate(date: string): string {
   const parsedDate = new Date(date);

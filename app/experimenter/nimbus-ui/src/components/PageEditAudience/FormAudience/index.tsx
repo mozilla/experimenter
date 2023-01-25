@@ -9,22 +9,22 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Select from "react-select";
 import ReactTooltip from "react-tooltip";
-import { useCommonForm, useConfig, useReviewCheck } from "../../../hooks";
-import { ReactComponent as Info } from "../../../images/info.svg";
+import LinkExternal from "src/components/LinkExternal";
+import { useCommonForm, useConfig, useReviewCheck } from "src/hooks";
+import { ReactComponent as Info } from "src/images/info.svg";
 import {
   EXTERNAL_URLS,
   POSITIVE_NUMBER_FIELD,
   POSITIVE_NUMBER_WITH_COMMAS_FIELD,
   TOOLTIP_DURATION,
-} from "../../../lib/constants";
-import { getStatus } from "../../../lib/experiment";
+} from "src/lib/constants";
+import { getStatus } from "src/lib/experiment";
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_targetingConfigs,
-} from "../../../types/getConfig";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "../../../types/globalTypes";
-import LinkExternal from "../../LinkExternal";
+} from "src/types/getConfig";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 type FormAudienceProps = {
   experiment: getExperiment_experimentBySlug;

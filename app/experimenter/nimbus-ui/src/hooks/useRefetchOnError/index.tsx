@@ -4,8 +4,8 @@
 
 import { ApolloError, ApolloQueryResult } from "@apollo/client";
 import React, { ReactElement, useEffect, useState } from "react";
-import ApolloErrorAlert from "../../components/ApolloErrorAlert";
-import RefetchAlert from "../../components/RefetchAlert";
+import ApolloErrorAlert from "src/components/ApolloErrorAlert";
+import RefetchAlert from "src/components/RefetchAlert";
 
 export const REFETCH_DELAY = 5000;
 const IS_DEV =

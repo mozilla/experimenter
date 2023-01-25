@@ -4,11 +4,11 @@
 
 import { useMutation } from "@apollo/client";
 import { useMemo, useState } from "react";
-import { UPDATE_EXPERIMENT_MUTATION } from "../gql/experiments";
-import { SUBMIT_ERROR } from "../lib/constants";
-import { getExperiment_experimentBySlug as Experiment } from "../types/getExperiment";
-import { ExperimentInput } from "../types/globalTypes";
-import { updateExperiment_updateExperiment as UpdateExperiment } from "../types/updateExperiment";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { SUBMIT_ERROR } from "src/lib/constants";
+import { getExperiment_experimentBySlug as Experiment } from "src/types/getExperiment";
+import { ExperimentInput } from "src/types/globalTypes";
+import { updateExperiment_updateExperiment as UpdateExperiment } from "src/types/updateExperiment";
 
 const CHANGE_MUTATION_DISPLAY_ERROR_FIELDS = ["status", "status_next"];
 

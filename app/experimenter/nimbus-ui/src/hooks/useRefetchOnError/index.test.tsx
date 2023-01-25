@@ -4,8 +4,8 @@
 
 import { act, render, screen } from "@testing-library/react";
 import React from "react";
-import { REFETCH_DELAY } from ".";
-import Subject from "./mocks";
+import { REFETCH_DELAY } from "src/hooks/useRefetchOnError";
+import Subject from "src/hooks/useRefetchOnError/mocks";
 
 describe("useRefetchOnError", () => {
   it("returns RefetchAlert, then returns ApolloErrorAlert when an error occurs after refetch", async () => {

@@ -4,8 +4,8 @@
 
 import { useEffect, useMemo } from "react";
 import { ArrayField, useFieldArray, UseFormMethods } from "react-hook-form";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { ExperimentsNimbusDocumentationLinkTitleChoices } from "../../types/globalTypes";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import { ExperimentsNimbusDocumentationLinkTitleChoices } from "src/types/globalTypes";
 
 type DefaultDocumentationLink = {
   title: ExperimentsNimbusDocumentationLinkTitleChoices | "";

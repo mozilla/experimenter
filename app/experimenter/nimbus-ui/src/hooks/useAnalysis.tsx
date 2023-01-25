@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useAsync } from "react-async-hook";
-import { AnalysisData } from "../lib/visualization/types";
+import { AnalysisData } from "src/lib/visualization/types";
 
 export const fetchData = async (slug: string) =>
   (

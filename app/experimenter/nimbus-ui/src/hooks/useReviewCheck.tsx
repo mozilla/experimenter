@@ -4,9 +4,9 @@
 
 import { Link } from "@reach/router";
 import React from "react";
-import { editPages } from "../components/AppLayoutWithSidebar";
-import { BASE_PATH } from "../lib/constants";
-import { getExperiment_experimentBySlug } from "../types/getExperiment";
+import { editPages } from "src/components/AppLayoutWithSidebar";
+import { BASE_PATH } from "src/lib/constants";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export type ReviewCheck = ReturnType<typeof useReviewCheck>;
 
