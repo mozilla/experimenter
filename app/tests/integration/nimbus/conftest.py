@@ -218,7 +218,7 @@ def default_data(application, experiment_name, load_experiment_outcomes):
         metrics=outcomes[str(application).lower().rsplit(".")[-1]],
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.RELEASE,
-            min_version=80,
+            min_version=102,
             targeting="no_targeting",
             percentage="50",
             expected_clients=50,
@@ -244,6 +244,7 @@ def create_experiment(base_url, default_data):
         overview.select_risk_brand_false()
         overview.select_risk_revenue_false()
         overview.select_risk_partner_false()
+        overview.projects = ["Advanced hybrid forecast"]
         overview.set_additional_links(value="DESIGN_DOC")
         overview.add_additional_links()
         overview.set_additional_links(value="DS_JIRA", url="https://jira.jira.com")
@@ -285,6 +286,11 @@ def create_experiment(base_url, default_data):
         audience.targeting = default_data.audience.targeting
         audience.percentage = default_data.audience.percentage
         audience.expected_clients = default_data.audience.expected_clients
+        audience.countries = ["Canada"]
+        if default_data.application.value != "DESKTOP":
+            audience.languages = ["English"]
+        else:
+            audience.locales = ["English (US)"]
         return audience.save_and_continue()
 
     return _create_experiment
