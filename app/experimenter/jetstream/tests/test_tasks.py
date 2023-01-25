@@ -1068,8 +1068,8 @@ class TestFetchJetstreamDataTask(TestCase):
 
         (
             DAILY_DATA,
-            WEEKLY_DATA,
-            OVERALL_DATA,
+            _,
+            _,
             _,
             _,
             _,

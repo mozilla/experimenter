@@ -82,6 +82,7 @@ def get_results_metrics_map(
     )
 
     bypass_jetstream_check = True
+    metrics_set_from_jetstream = set()
     if outcomes_metadata is not None:
         bypass_jetstream_check = False
         metrics_set_from_jetstream = set(

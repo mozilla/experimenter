@@ -67,15 +67,20 @@ class KintoClient:
 
     def has_pending_review(self):
         self._fetch_collection_data()
-        return self.collection_data["status"] == KINTO_REVIEW_STATUS
+        if self.collection_data:
+            return self.collection_data["status"] == KINTO_REVIEW_STATUS
 
     def has_rejection(self):
         self._fetch_collection_data()
-        return self.collection_data["status"] == KINTO_REJECTED_STATUS
+        if self.collection_data:
+            return self.collection_data["status"] == KINTO_REJECTED_STATUS
 
     def get_rejected_collection_data(self):
         self._fetch_collection_data()
-        if self.collection_data["status"] == KINTO_REJECTED_STATUS:
+        if (
+            self.collection_data
+            and self.collection_data["status"] == KINTO_REJECTED_STATUS
+        ):
             return self.collection_data
 
     def rollback_changes(self):
