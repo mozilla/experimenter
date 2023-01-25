@@ -1,62 +1,100 @@
-import datetime
-
-from django.utils import timezone
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import NimbusExperiment as Experiment
 
 
 class TestMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0224_analysis_add_basis",
+        "0225_nimbusexperiment__updated_date_time",
     )
     migrate_to = (
         "experiments",
-        "0225_nimbusexperiment__updated_date_time",
+        "0226_remove_viz_api_v1",
     )
 
     def prepare(self):
         """Prepare some data before the migration."""
         User = self.old_state.apps.get_model("auth", "User")
-        Experiment = self.old_state.apps.get_model("experiments", "NimbusExperiment")
+        NimbusExperiment = self.old_state.apps.get_model(
+            "experiments", "NimbusExperiment"
+        )
         user = User.objects.create(email="test@example.com")
 
-        ExperimentChangeLog = self.old_state.apps.get_model(
-            "experiments", "NimbusChangeLog"
-        )
-
-        # create experiment
-        experiment = Experiment.objects.create(
+        # create experiment with analysis_basis
+        NimbusExperiment.objects.create(
             owner=user,
-            application=NimbusExperiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
-            status_next=NimbusConstants.Status.LIVE,
-            publish_status=NimbusConstants.PublishStatus.REVIEW,
             name="test experiment",
             slug="test-experiment",
-            _start_date=datetime.date.today() - datetime.timedelta(days=3),
+            application=Experiment.Application.DESKTOP,
+            status=NimbusConstants.Status.DRAFT,
+            results_data={
+                "v1": {
+                    "daily": {"all": {"control": [], "treatment": []}},
+                    "weekly": {"all": {"control": {}, "treatment": {}}},
+                    "overall": {"all": {"control": {}, "treatment": {}}},
+                    "other_metrics": {},
+                    "metadata": {},
+                    "show_analysis": True,
+                    "errors": [],
+                },
+                "v2": {
+                    "daily": {"enrollments": {"all": {"control": [], "treatment": []}}},
+                    "weekly": {"enrollments": {"all": {"control": {}, "treatment": {}}}},
+                    "overall": {"enrollments": {"all": {"control": {}, "treatment": {}}}},
+                    "other_metrics": {},
+                    "metadata": {},
+                    "show_analysis": True,
+                    "errors": [],
+                },
+            },
         )
 
-        changes = ExperimentChangeLog(
-            experiment=experiment,
-            old_status=NimbusExperiment.Status.DRAFT,
-            new_status=NimbusExperiment.Status.LIVE,
-            changed_on=timezone.datetime(
-                year=2022, month=1, day=2, hour=0, minute=0, second=0
-            ),
-            changed_by=user,
+        # create experiment without results_data
+        NimbusExperiment.objects.create(
+            owner=user,
+            name="empty experiment",
+            slug="empty-experiment",
+            application=Experiment.Application.DESKTOP,
+            status=NimbusConstants.Status.DRAFT,
         )
-        changes.save()
+
+        # create experiment with empty results_data
+        NimbusExperiment.objects.create(
+            owner=user,
+            name="empty results experiment",
+            slug="empty-results-experiment",
+            application=Experiment.Application.DESKTOP,
+            status=NimbusConstants.Status.DRAFT,
+            results_data={
+                "v2": {
+                    "daily": None,
+                    "weekly": None,
+                    "overall": None,
+                    "metadata": None,
+                    "show_analysis": True,
+                },
+            },
+        )
 
     def test_migration(self):
         """Run the test itself."""
-        NimbusExperiments = self.new_state.apps.get_model(
+        NimbusExperiment = self.new_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
 
-        experiment = NimbusExperiments.objects.get(slug="test-experiment")
-        change = experiment.changes.all().order_by("-changed_on").first()
+        changed_data = NimbusExperiment.objects.get(slug="test-experiment").results_data
+        self.assertFalse("v1" in changed_data)
+        self.assertTrue("v2" in changed_data)
 
-        self.assertEqual(experiment._updated_date_time, change.changed_on)
+        empty_data = NimbusExperiment.objects.get(slug="empty-experiment").results_data
+
+        self.assertIsNone(empty_data)
+
+        empty_results_data = NimbusExperiment.objects.get(
+            slug="empty-results-experiment"
+        ).results_data
+
+        self.assertFalse("v1" in empty_results_data)
+        self.assertTrue("v2" in empty_results_data)
