@@ -252,7 +252,7 @@ def create_experiment(base_url, default_data):
         overview.set_additional_links(
             value="ENG_TICKET", url="https://www.smarter-engineering.eng"
         )
-        overview.projects = [helpers.load_config_data()["projects"][0]]
+        overview.projects = [helpers.load_config_data()["projects"][0]["name"]]
 
         # Fill Branches page
         branches = overview.save_and_continue()
