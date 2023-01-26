@@ -70,7 +70,7 @@ auth_gcloud:
 jetstream_config:
 	curl -LJ -o app/experimenter/outcomes/metric-hub.zip $(JETSTREAM_CONFIG_URL)
 	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/metric-hub.zip
-	rm -Rf app/experimenter/outcomes/metric-hub-main/.scripts/
+	rm -Rf app/experimenter/outcomes/metric-hub-main/.script/
 
 feature_manifests:
 	curl -LJ --create-dirs -o app/experimenter/features/manifests/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
