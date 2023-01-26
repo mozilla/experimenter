@@ -14,6 +14,7 @@ import React from "react";
 import { filterAndSortTargetingConfigs } from "src/components/PageEditAudience/FormAudience";
 import {
   MOCK_EXPERIMENT,
+  MOCK_ROLLOUT,
   Subject,
 } from "src/components/PageEditAudience/FormAudience/mocks";
 import { snakeToCamelCase } from "src/lib/caseConversions";
@@ -1231,41 +1232,7 @@ describe("FormAudience", () => {
   });
 });
 
-it("disables fields when locked", async () => {
-  render(
-    <Subject
-      experiment={{
-        ...MOCK_EXPERIMENT,
-        application: NimbusExperimentApplicationEnum.FENIX,
-        isRollout: true,
-        status: NimbusExperimentStatusEnum.LIVE,
-        targetingConfig: [
-          {
-            label: "No Targeting",
-            value: "",
-            applicationValues: [
-              NimbusExperimentApplicationEnum.DESKTOP,
-              "TOASTER",
-            ],
-            description: "No targeting configuration",
-            stickyRequired: false,
-            isFirstRunRequired: false,
-          },
-        ],
-      }}
-    />,
-  );
-  // testing one checkbox, one dropdown, and one text field
-  expect(screen.getByTestId("isSticky")).toBeDisabled();
-  expect(screen.getByTestId("firefoxMinVersion")).toBeDisabled();
-  expect(
-    within(
-      screen.queryByTestId("population-percent-top-row") as HTMLElement,
-    ).getByTestId("population-percent-text"),
-  ).toBeDisabled();
-});
-
-it("enables fields when unlocked", async () => {
+it("fields should be enabled for draft experiments", async () => {
   render(
     <Subject
       experiment={{
@@ -1289,14 +1256,91 @@ it("enables fields when unlocked", async () => {
       }}
     />,
   );
-  // testing one checkbox, one dropdown, and one text field
   expect(screen.getByTestId("isSticky")).toBeEnabled();
   expect(screen.getByTestId("firefoxMinVersion")).toBeEnabled();
+  expect(screen.getByTestId("channel")).toBeEnabled();
+});
+
+it("enables fields and buttons for live rollouts", async () => {
+  render(
+    <Subject
+      experiment={{
+        ...MOCK_ROLLOUT,
+        application: NimbusExperimentApplicationEnum.FENIX,
+        isRollout: true,
+        status: NimbusExperimentStatusEnum.LIVE,
+        targetingConfig: [
+          {
+            label: "No Targeting",
+            value: "",
+            applicationValues: [
+              NimbusExperimentApplicationEnum.DESKTOP,
+              "TOASTER",
+            ],
+            description: "No targeting configuration",
+            stickyRequired: false,
+            isFirstRunRequired: false,
+          },
+        ],
+      }}
+    />,
+  );
+  expect(screen.getByTestId("submit-button")).toBeEnabled();
+  expect(screen.getByTestId("next-button")).toBeEnabled();
   expect(
     within(
       screen.queryByTestId("population-percent-top-row") as HTMLElement,
     ).getByTestId("population-percent-text"),
   ).toBeEnabled();
+  expect(
+    within(
+      screen.queryByTestId("population-percent-top-row") as HTMLElement,
+    ).getByTestId("population-percent-slider"),
+  ).toBeEnabled();
+  expect(screen.getByTestId("isSticky")).toBeDisabled();
+  expect(screen.getByTestId("firefoxMinVersion")).toBeDisabled();
+  expect(screen.getByTestId("channel")).toBeDisabled();
+});
+
+it("disables fields and buttons for live experiments", async () => {
+  render(
+    <Subject
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        application: NimbusExperimentApplicationEnum.FENIX,
+        isRollout: false,
+        status: NimbusExperimentStatusEnum.LIVE,
+        targetingConfig: [
+          {
+            label: "No Targeting",
+            value: "",
+            applicationValues: [
+              NimbusExperimentApplicationEnum.DESKTOP,
+              "TOASTER",
+            ],
+            description: "No targeting configuration",
+            stickyRequired: false,
+            isFirstRunRequired: false,
+          },
+        ],
+      }}
+    />,
+  );
+  expect(screen.getByTestId("submit-button")).toBeDisabled();
+  expect(screen.getByTestId("next-button")).toBeDisabled();
+  expect(
+    within(
+      screen.queryByTestId("population-percent-top-row") as HTMLElement,
+    ).getByTestId("population-percent-text"),
+  ).toBeDisabled();
+  expect(
+    within(
+      screen.queryByTestId("population-percent-top-row") as HTMLElement,
+    ).getByTestId("population-percent-slider"),
+  ).toBeDisabled();
+  expect(screen.getByTestId("isSticky")).toBeDisabled();
+  expect(screen.getByTestId("firefoxMinVersion")).toBeDisabled();
+  expect(screen.getByTestId("channel")).toBeDisabled();
 });
 
 describe("filterAndSortTargetingConfigSlug", () => {
