@@ -7,6 +7,7 @@ import { FormAudience } from ".";
 import {
   MockedCache,
   mockExperimentQuery,
+  mockLiveRolloutQuery,
   MOCK_CONFIG,
 } from "../../../lib/mocks";
 import { getConfig_nimbusConfig } from "../../../types/getConfig";
@@ -42,3 +43,4 @@ export const Subject = ({
 };
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug").experiment;
+export const MOCK_ROLLOUT = mockLiveRolloutQuery("demo-slug").rollout;

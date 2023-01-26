@@ -610,7 +610,105 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   projects: [{ name: "Pocket", id: 1 }],
 };
 
+export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
+  id: 1,
+  isArchived: false,
+  isRollout: true,
+  canEdit: true,
+  canArchive: true,
+  owner: {
+    email: "example@mozilla.com",
+  },
+  name: "Open-architected background installation",
+  slug: "open-architected-background-installation",
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: null,
+  publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+  monitoringDashboardUrl: "https://mozilla.cloud.looker.com",
+  rolloutMonitoringDashboardUrl: "https://mozilla.cloud.looker.com",
+  hypothesis: "Realize material say pretty.",
+  application: NimbusExperimentApplicationEnum.DESKTOP,
+  publicDescription: "Official approach present industry strategy dream piece.",
+  referenceBranch: {
+    id: 123,
+    name: "User-centric mobile solution",
+    slug: "control",
+    description: "Behind almost radio result personal none future current.",
+    ratio: 1,
+    featureValue: '{"environmental-fact": "really-citizen"}',
+    featureEnabled: true,
+    screenshots: [],
+  },
+  featureConfigs: [],
+  targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
+  isSticky: false,
+  isFirstRun: false,
+  treatmentBranches: [
+    {
+      id: 456,
+      name: "Managed zero tolerance projection",
+      slug: "treatment",
+      description: "Next ask then he in degree order.",
+      ratio: 1,
+      featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
+      featureEnabled: true,
+      screenshots: [],
+    },
+  ],
+  primaryOutcomes: ["picture_in_picture", "feature_c", "feature_nodata"],
+  secondaryOutcomes: ["feature_b", "feature_d"],
+  channel: NimbusExperimentChannelEnum.NIGHTLY,
+  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_16,
+  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_64,
+  targetingConfigSlug: "MAC_ONLY",
+  jexlTargetingExpression: "localeLanguageCode == 'en' && region == 'US'",
+  populationPercent: "40",
+  totalEnrolledClients: 68000,
+  proposedEnrollment: 1,
+  proposedDuration: 28,
+  readyForReview: {
+    ready: true,
+    message: {},
+    warnings: {},
+  },
+  signoffRecommendations: {
+    qaSignoff: true,
+    vpSignoff: false,
+    legalSignoff: false,
+  },
+  startDate: new Date().toISOString(),
+  computedEndDate: new Date(Date.now() + 12096e5).toISOString(),
+  computedDurationDays: 14,
+  computedEnrollmentDays: 1,
+  riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
+  documentationLinks: [
+    {
+      title: NimbusDocumentationLinkTitle.DS_JIRA,
+      link: "https://bingo.bongo",
+    },
+  ],
+  isEnrollmentPaused: true,
+  enrollmentEndDate: null,
+  recipeJson:
+    '{"schemaVersion": "1.5.0", "slug": "pre-emptive-zero-tolerance-data-warehouse", "id": "pre-emptive-zero-tolerance-data-warehouse", "arguments": {}, "application": "", "appName": "firefox_ios", "appId": "", "channel": "", "userFacingName": "Pre-emptive zero tolerance data-warehouse", "userFacingDescription": "Analysis art mean sort serve stuff. Scene alone current television up write company. Without admit she occur total generation by mother. Environmental remember account huge drive policy play strong.", "isEnrollmentPaused": false, "bucketConfig": null, "probeSets": [], "outcomes": [{"slug": "example_config", "priority": "primary"}, {"slug": "newtab_visibility", "priority": "primary"}, {"slug": "picture_in_picture", "priority": "secondary"}], "branches": [{"slug": "horizontal-well-modulated-conglomeration", "ratio": 1, "feature": {"featureId": "decentralized-solution-oriented-neural-net", "enabled": true, "value": {"trouble-left-back": "west-receive"}}}, {"slug": "fully-configurable-context-sensitive-local-area-network", "ratio": 1, "feature": {"featureId": "decentralized-solution-oriented-neural-net", "enabled": true, "value": {"financial-school": "peace-light-might"}}}], "targeting": "localeLanguageCode == \'en\' && ((isFirstStartup && !(\'trailhead.firstrun.didSeeAboutWelcome\'|preferenceValue)) || experiment.slug in activeExperiments)", "startDate": null, "endDate": null, "proposedDuration": 60, "proposedEnrollment": 45, "referenceBranch": "horizontal-well-modulated-conglomeration", "featureIds": ["decentralized-solution-oriented-neural-net"]}',
+  riskBrand: false,
+  riskRevenue: true,
+  riskPartnerRelated: false,
+  reviewUrl:
+    "https://kinto.example.com/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review",
+  locales: [{ name: "Quebecois", id: 1 }],
+  countries: [{ name: "Canada", id: 1 }],
+  languages: [{ name: "English", id: 1 }],
+  projects: [{ name: "Pocket", id: 1 }],
+};
+
 export function mockExperiment<
+  T extends getExperiment["experimentBySlug"] = getExperiment_experimentBySlug,
+>(modifications: Partial<getExperiment["experimentBySlug"]> = {}): T {
+  return Object.assign({}, MOCK_EXPERIMENT, modifications) as T;
+}
+
+export function mockLiveRollout<
   T extends getExperiment["experimentBySlug"] = getExperiment_experimentBySlug,
 >(modifications: Partial<getExperiment["experimentBySlug"]> = {}): T {
   return Object.assign({}, MOCK_EXPERIMENT, modifications) as T;
@@ -643,6 +741,36 @@ export function mockExperimentQuery<
       },
     },
     experiment: experiment as T,
+  };
+}
+
+export function mockLiveRolloutQuery<
+  T extends getExperiment["experimentBySlug"] = getExperiment_experimentBySlug,
+>(
+  slug = "foo",
+  modifications: Partial<getExperiment["experimentBySlug"]> = {},
+): {
+  mockRollout: MockedResponse<Record<string, any>>;
+  rollout: T;
+} {
+  const experiment =
+    modifications === null ? null : mockLiveRollout({ slug, ...modifications });
+
+  return {
+    mockRollout: {
+      request: {
+        query: GET_EXPERIMENT_QUERY,
+        variables: {
+          slug,
+        },
+      },
+      result: {
+        data: {
+          experimentBySlug: experiment,
+        },
+      },
+    },
+    rollout: experiment as T,
   };
 }
 

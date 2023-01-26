@@ -26,7 +26,7 @@ import {
   NimbusExperimentFirefoxVersionEnum,
   NimbusExperimentStatusEnum,
 } from "../../../types/globalTypes";
-import { MOCK_EXPERIMENT, Subject } from "./mocks";
+import { MOCK_EXPERIMENT, MOCK_ROLLOUT, Subject } from "./mocks";
 
 describe("FormAudience", () => {
   it("renders without error", async () => {
@@ -1228,11 +1228,11 @@ describe("FormAudience", () => {
   });
 });
 
-it("disables fields when locked", async () => {
+it("live rollouts disable certain fields", async () => {
   render(
     <Subject
       experiment={{
-        ...MOCK_EXPERIMENT,
+        ...MOCK_ROLLOUT,
         application: NimbusExperimentApplicationEnum.FENIX,
         isRollout: true,
         status: NimbusExperimentStatusEnum.LIVE,
@@ -1252,17 +1252,17 @@ it("disables fields when locked", async () => {
       }}
     />,
   );
-  // testing one checkbox, one dropdown, and one text field
   expect(screen.getByTestId("isSticky")).toBeDisabled();
   expect(screen.getByTestId("firefoxMinVersion")).toBeDisabled();
+  expect(screen.getByTestId("channel")).toBeDisabled();
   expect(
     within(
       screen.queryByTestId("population-percent-top-row") as HTMLElement,
     ).getByTestId("population-percent-text"),
-  ).toBeDisabled();
+  ).toBeEnabled();
 });
 
-it("enables fields when unlocked", async () => {
+it("enables fields for experiments", async () => {
   render(
     <Subject
       experiment={{
@@ -1286,14 +1286,37 @@ it("enables fields when unlocked", async () => {
       }}
     />,
   );
-  // testing one checkbox, one dropdown, and one text field
   expect(screen.getByTestId("isSticky")).toBeEnabled();
   expect(screen.getByTestId("firefoxMinVersion")).toBeEnabled();
-  expect(
-    within(
-      screen.queryByTestId("population-percent-top-row") as HTMLElement,
-    ).getByTestId("population-percent-text"),
-  ).toBeEnabled();
+  expect(screen.getByTestId("channel")).toBeEnabled();
+});
+
+it("enables save buttons for rollouts", async () => {
+  render(
+    <Subject
+      experiment={{
+        ...MOCK_ROLLOUT,
+        application: NimbusExperimentApplicationEnum.FENIX,
+        isRollout: true,
+        status: NimbusExperimentStatusEnum.LIVE,
+        targetingConfig: [
+          {
+            label: "No Targeting",
+            value: "",
+            applicationValues: [
+              NimbusExperimentApplicationEnum.DESKTOP,
+              "TOASTER",
+            ],
+            description: "No targeting configuration",
+            stickyRequired: false,
+            isFirstRunRequired: false,
+          },
+        ],
+      }}
+    />,
+  );
+  expect(screen.getByTestId("submit-button")).toBeEnabled();
+  expect(screen.getByTestId("next-button")).toBeEnabled();
 });
 
 describe("filterAndSortTargetingConfigSlug", () => {

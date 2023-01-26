@@ -397,7 +397,7 @@ export const FormAudience = ({
                 value={populationPercent}
                 onChange={(e) => setPopulationPercent(e.target.value)}
                 data-testid="population-percent-slider"
-                disabled={isLocked!}
+                disabled={isLocked! && !isLiveRollout}
               />
               <Form.Control
                 aria-describedby="populationPercent-unit"
@@ -405,7 +405,7 @@ export const FormAudience = ({
                 value={populationPercent}
                 onChange={(e) => setPopulationPercent(e.target.value)}
                 data-testid="population-percent-text"
-                disabled={isLocked!}
+                disabled={isLocked! && !isLiveRollout}
               />
               <InputGroup.Append>
                 <InputGroup.Text id="populationPercent-unit">%</InputGroup.Text>
@@ -499,7 +499,7 @@ export const FormAudience = ({
             onClick={handleSaveNext}
             className="btn btn-secondary"
             id="save-and-continue-button"
-            disabled={isLoading || isLocked!}
+            disabled={isLoading || (isLocked! && !isLiveRollout)}
             data-testid="next-button"
             data-sb-kind="pages/Summary"
           >
@@ -513,7 +513,7 @@ export const FormAudience = ({
             onClick={handleSave}
             className="btn btn-primary"
             id="save-button"
-            disabled={isLoading || isLocked!}
+            disabled={isLoading || (isLocked! && !isLiveRollout)}
             data-sb-kind="pages/EditOverview"
           >
             <span>{isLoading ? "Saving" : "Save"}</span>
