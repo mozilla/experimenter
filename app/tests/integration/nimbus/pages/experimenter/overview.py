@@ -24,7 +24,6 @@ class OverviewPage(ExperimenterBase):
         By.CSS_SELECTOR,
         "div[class*='multiValue'] > div:nth-child(1)",
     )
-
     NEXT_PAGE = BranchesPage
 
     @property

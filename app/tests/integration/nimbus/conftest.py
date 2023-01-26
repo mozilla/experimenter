@@ -19,6 +19,7 @@ from nimbus.models.base_dataclass import (
     BaseExperimentMetricsDataClass,
 )
 from nimbus.pages.experimenter.home import HomePage
+from nimbus.utils import helpers
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -251,7 +252,7 @@ def create_experiment(base_url, default_data):
         overview.set_additional_links(
             value="ENG_TICKET", url="https://www.smarter-engineering.eng"
         )
-        overview.projects = ["A"]
+        overview.projects = [helpers.load_config_data()["projects"][0]]
 
         # Fill Branches page
         branches = overview.save_and_continue()
