@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from "react";
+import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
-import FormLaunchConfirmationCheckboxes from "./FormLaunchConfirmationCheckboxes";
 
 const FormLaunchLiveToReview = ({
   isLoading,
@@ -16,21 +15,24 @@ const FormLaunchLiveToReview = ({
   onSubmit: () => void;
   onCancel: () => void;
 }) => {
-  const [allBoxesChecked, setAllBoxesChecked] = useState(false);
-
   return (
-    <Alert variant="secondary" id="request-launch-alert">
+    <Alert
+      variant="secondary"
+      id="request-live-launch-alert"
+      data-testid="request-live-launch-alert"
+    >
       <Form className="text-body">
-        <FormLaunchConfirmationCheckboxes onChange={setAllBoxesChecked} />
-
         <div className="d-flex bd-highlight">
           <div className="py-1">
+          <p>
+          Review and launch live rollout updates:
+          </p>
             <button
-              data-testid="launch-draft-to-review"
+              data-testid="launch-live-to-review"
               id="request-launch-button"
               type="button"
               className="mr-2 btn btn-primary"
-              disabled={isLoading || !allBoxesChecked}
+              disabled={isLoading}
               onClick={onSubmit}
             >
               Request Launch
