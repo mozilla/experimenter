@@ -63,9 +63,7 @@ def test_check_mobile_targeting(
     context,
     slugify,
     experiment_name,
-    create_basic_experiment,
     targeting,
-    language_database_id_loader,
 ):
 
     # The context fixtures can only contain strings or null
@@ -87,11 +85,11 @@ def test_check_mobile_targeting(
     )
 
     experiment_slug = str(slugify(experiment_name))
-    create_basic_experiment(
+    helpers.create_basic_experiment(
         experiment_slug,
         context["app_name"],
         targeting,
-        languages=language_database_id_loader([context["language"]]),
+        languages=context["language"],
     )
     data = helpers.load_experiment_data(experiment_slug)
     expression = data["data"]["experimentBySlug"]["jexlTargetingExpression"]
