@@ -101,6 +101,7 @@ google-credentials.json
 # Jetstream config
 app/experimenter/outcomes/metric-hub-main/*
 !app/experimenter/outcomes/metric-hub-main/jetstream/
+app/experimenter/outcomes/metric-hub-main/jetstream/*
 !app/experimenter/outcomes/metric-hub-main/jetstream/outcomes/
 app/experimenter/outcomes/metric-hub.zip
 
