@@ -1,0 +1,43 @@
+friendly_name = "Reader Mode"
+description = "Usage and engagement metrics for the Reader Mode feature."
+
+[metrics.reader_mode_open_count]
+friendly_name = "Reader Mode opens"
+description = "Number of times Reader Mode was opened"
+select_expression = """
+    COUNTIF(
+        event_category = "readermode"
+        AND event_method = "view"
+        AND event_object = "on"
+    )
+"""
+data_source = "events"
+statistics = { bootstrap_mean = {} }
+
+[metrics.reader_mode_scroll_to_end_count]
+friendly_name = "Reader Mode scrolls to end"
+description = "Number of times Reader Mode was closed and user had scrolled to end of article"
+select_expression = """
+    COUNTIF(
+        event_category = "readermode"
+        AND event_method = "view"
+        AND event_object = "off"
+        AND SAFE_CAST(mozfun.map.get_key(event_map_values, "scroll_position") as int64) = 100
+    )
+"""
+data_source = "events"
+statistics = { bootstrap_mean = { drop_highest = 0.0000001 } }
+
+[metrics.reader_mode_total_duration]
+friendly_name = "Time spent in Reader Mode"
+description = "Total length of Reader Mode sessions (in seconds)"
+select_expression = """
+    SUM(CASE 
+          WHEN event_category = "readermode" AND event_method = "view" AND event_object = "off"
+            THEN SAFE_CAST(mozfun.map.get_key(event_map_values, "reader_time") as int64)
+          ELSE 0
+        END
+    )
+"""
+data_source = "events"
+statistics = { bootstrap_mean = { drop_highest = 0.0000001 } }
