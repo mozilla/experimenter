@@ -68,7 +68,6 @@ def test_check_telemetry_enrollment_unenrollment(
     kinto_client,
     slugify,
     experiment_name,
-    create_desktop_experiment,
     telemetry_event_check,
     check_ping_for_experiment,
 ):
@@ -103,7 +102,7 @@ def test_check_telemetry_enrollment_unenrollment(
         "populationPercent": "100",
         "totalEnrolledClients": 55,
     }
-    create_desktop_experiment(
+    helpers.create_desktop_experiment(
         experiment_slug,
         "desktop",
         targeting,
@@ -167,7 +166,6 @@ def test_check_telemetry_pref_flip(
     kinto_client,
     slugify,
     experiment_name,
-    create_desktop_experiment,
     experiment_default_data,
     check_ping_for_experiment,
     telemetry_event_check,
@@ -195,7 +193,7 @@ def test_check_telemetry_pref_flip(
             "featureValue": "",
         }
     ]
-    create_desktop_experiment(
+    helpers.create_desktop_experiment(
         experiment_slug,
         "desktop",
         targeting,
@@ -265,7 +263,6 @@ def test_check_telemetry_sticky_targeting(
     kinto_client,
     slugify,
     experiment_name,
-    create_desktop_experiment,
     experiment_default_data,
     check_ping_for_experiment,
     telemetry_event_check,
@@ -296,7 +293,7 @@ def test_check_telemetry_sticky_targeting(
         }
     ]
     experiment_default_data["isSticky"] = True
-    create_desktop_experiment(
+    helpers.create_desktop_experiment(
         experiment_slug,
         "desktop",
         targeting,
