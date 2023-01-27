@@ -266,7 +266,7 @@ You should now be able to navigate to `localhost/nimbus/your-experiment-slug/res
 
 ### Jetstream Metadata and Caching
 
-With the data returned from the visualization endpoint, a `metadata` object is also returned. At the time of writing, it contains a `description` per metric used for tooltips on the Results page as well as an `external_config` object containing some experiment properties than can be overridden for analysis purposes only. Jetstream configs for experiments are located in the [`jetstream-config`](https://github.com/mozilla/jetstream-config/) repository and the metadata schema lives in the [Jetstream repo](https://github.com/mozilla/jetstream/).
+With the data returned from the visualization endpoint, a `metadata` object is also returned. At the time of writing, it contains a `description` per metric used for tooltips on the Results page as well as an `external_config` object containing some experiment properties than can be overridden for analysis purposes only. Jetstream configs for experiments are located in the [`metric-hub`](https://github.com/mozilla/metric-hub/tree/main/jetstream) repository and the metadata schema lives in the [Jetstream repo](https://github.com/mozilla/jetstream/).
 
 Visualization data is cached and refetches every 8 hours for live or complete experiments whose end date is less than 3 days ago. After that point, experiment data is not refetched. If a manual refetch needs to occur in any environment, in `/admin`, go to Nimbus Experiments > Action > "Force jetstream data fetch".
 
