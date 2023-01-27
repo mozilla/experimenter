@@ -1,6 +1,7 @@
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.summary import SummaryPage
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
 
 
@@ -18,6 +19,21 @@ class AudiencePage(ExperimenterBase):
     _expected_clients_locator = (By.CSS_SELECTOR, "#totalEnrolledClients")
     _enrollment_period_locator = (By.CSS_SELECTOR, "#proposedEnrollment")
     _duration_locator = (By.CSS_SELECTOR, "#proposedDuration")
+    _locales_input_locator = (By.CSS_SELECTOR, "div[data-testid='locales'] input")
+    _locales_value_locator = (
+        By.CSS_SELECTOR,
+        "div[data-testid='locales'] > div:nth-child(1)",
+    )
+    _countries_input_locator = (By.CSS_SELECTOR, "div[data-testid='countries'] input")
+    _countries_value_locator = (
+        By.CSS_SELECTOR,
+        "div[data-testid='countries'] > div:nth-child(1)",
+    )
+    _languages_input_locator = (By.CSS_SELECTOR, "div[data-testid='languages'] input")
+    _languages_value_locator = (
+        By.CSS_SELECTOR,
+        "div[data-testid='languages'] > div:nth-child(1)",
+    )
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditAudience")
     NEXT_PAGE = SummaryPage
 
@@ -70,3 +86,42 @@ class AudiencePage(ExperimenterBase):
     def expected_clients(self, text):
         el = self.find_element(*self._expected_clients_locator)
         el.send_keys(text)
+
+    @property
+    def locales(self):
+        return [
+            element.text for element in self.find_elements(*self._locales_value_locator)
+        ]
+
+    @locales.setter
+    def locales(self, text=None):
+        el = self.find_element(*self._locales_input_locator)
+        for _ in text:
+            el.send_keys(f"{_}")
+            el.send_keys(Keys.ENTER)
+
+    @property
+    def countries(self):
+        return [
+            element.text for element in self.find_elements(*self._countries_value_locator)
+        ]
+
+    @countries.setter
+    def countries(self, text=None):
+        el = self.find_element(*self._countries_input_locator)
+        for _ in text:
+            el.send_keys(f"{_}")
+            el.send_keys(Keys.ENTER)
+
+    @property
+    def languages(self):
+        return [
+            element.text for element in self.find_elements(*self._languages_value_locator)
+        ]
+
+    @languages.setter
+    def languages(self, text=None):
+        el = self.find_element(*self._languages_input_locator)
+        for _ in text:
+            el.send_keys(f"{_}")
+            el.send_keys(Keys.ENTER)
