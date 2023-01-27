@@ -44,7 +44,7 @@ LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_ex
 PYTHON_PATH_SDK = PYTHONPATH=/application-services/components/nimbus/src
 
 
-JETSTREAM_CONFIG_URL = https://github.com/mozilla/jetstream-config/archive/main.zip
+JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
 FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/nimbus/FeatureManifest.yaml
 FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/fenix/main/.experimenter.yaml
 FEATURE_MANIFEST_FXIOS_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/.experimenter.yaml
@@ -68,9 +68,9 @@ auth_gcloud:
 	gcloud auth login --update-adc
 
 jetstream_config:
-	curl -LJ -o app/experimenter/outcomes/jetstream-config.zip $(JETSTREAM_CONFIG_URL)
-	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/jetstream-config.zip
-	rm -Rf app/experimenter/outcomes/jetstream-config-main/.scripts/
+	curl -LJ -o app/experimenter/outcomes/metric-hub.zip $(JETSTREAM_CONFIG_URL)
+	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/metric-hub.zip
+	rm -Rf app/experimenter/outcomes/metric-hub-main/.script/
 
 feature_manifests:
 	curl -LJ --create-dirs -o app/experimenter/features/manifests/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)

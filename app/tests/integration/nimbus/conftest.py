@@ -164,7 +164,7 @@ def experiment_name(request):
 def fixture_load_experiment_outcomes():
     """Fixture to create a list of outcomes based on the current configs."""
     outcomes = {"firefox_desktop": "", "fenix": "", "firefox_ios": ""}
-    base_path = "/code/app/experimenter/outcomes/jetstream-config-main/outcomes"
+    base_path = "/code/app/experimenter/outcomes/metric-hub-main/jetstream/outcomes"
 
     for k in list(outcomes):
         outcomes[k] = [

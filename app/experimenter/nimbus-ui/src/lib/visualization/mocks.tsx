@@ -70,7 +70,7 @@ export const MOCK_METADATA_EXTERNAL_CONFIG = {
   enrollment_period: 9,
   reference_branch: "treatment",
   skip: true,
-  url: "https://github.com/mozilla/jetstream-config/",
+  url: "https://github.com/mozilla/metric-hub/",
 };
 
 export const MOCK_METADATA_WITH_CONFIG = {
