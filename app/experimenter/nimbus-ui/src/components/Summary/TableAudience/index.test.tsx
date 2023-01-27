@@ -171,8 +171,8 @@ describe("TableAudience", () => {
     it("when locales exist, displays them", () => {
       const data = {
         locales: [
-          { name: "Quebecois", id: 1 },
-          { name: "Acholi", id: 2 },
+          { name: "Quebecois", id: "1" },
+          { name: "Acholi", id: "2" },
         ],
       };
       const { experiment } = mockExperimentQuery("demo-slug", data);
@@ -197,8 +197,8 @@ describe("TableAudience", () => {
     it("when locales exist, displays them", () => {
       const data = {
         locales: [
-          { name: "Quebecois", id: 1 },
-          { name: "Acholi", id: 2 },
+          { name: "Quebecois", id: "1" },
+          { name: "Acholi", id: "2" },
         ],
         application: NimbusExperimentApplicationEnum.FENIX,
       };
@@ -224,8 +224,8 @@ describe("TableAudience", () => {
     it("when languages exist, displays them", () => {
       const data = {
         languages: [
-          { name: "English", id: 1 },
-          { name: "French", id: 2 },
+          { name: "English", id: "1" },
+          { name: "French", id: "2" },
         ],
         application: NimbusExperimentApplicationEnum.FENIX,
       };
@@ -264,8 +264,8 @@ describe("TableAudience", () => {
     it("when countries exist, displays them", async () => {
       const data = {
         countries: [
-          { name: "Canada", id: 1 },
-          { name: "Germany", id: 2 },
+          { name: "Canada", id: "1" },
+          { name: "Germany", id: "2" },
         ],
       };
       const { experiment } = mockExperimentQuery("demo-slug", data);

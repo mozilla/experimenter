@@ -7,21 +7,21 @@
 // START Enums and Input Objects
 //==============================================================
 
-export enum NimbusChangeLogOldStatus {
+export enum ExperimentsNimbusChangeLogOldStatusChoices {
   COMPLETE = "COMPLETE",
   DRAFT = "DRAFT",
   LIVE = "LIVE",
   PREVIEW = "PREVIEW",
 }
 
-export enum NimbusChangeLogOldStatusNext {
+export enum ExperimentsNimbusChangeLogOldStatusNextChoices {
   COMPLETE = "COMPLETE",
   DRAFT = "DRAFT",
   LIVE = "LIVE",
   PREVIEW = "PREVIEW",
 }
 
-export enum NimbusDocumentationLinkTitle {
+export enum ExperimentsNimbusDocumentationLinkTitleChoices {
   DESIGN_DOC = "DESIGN_DOC",
   DS_JIRA = "DS_JIRA",
   ENG_TICKET = "ENG_TICKET",
@@ -208,6 +208,17 @@ export interface BranchFeatureValueInput {
   value?: string | null;
 }
 
+export interface BranchInput {
+  id?: number | null;
+  name: string;
+  description: string;
+  ratio: number;
+  featureEnabled?: boolean | null;
+  featureValue?: string | null;
+  featureValues?: (BranchFeatureValueInput | null)[] | null;
+  screenshots?: (BranchScreenshotInput | null)[] | null;
+}
+
 export interface BranchScreenshotInput {
   id?: number | null;
   image?: Upload | null;
@@ -226,69 +237,47 @@ export interface ExperimentCloneInput {
 }
 
 export interface ExperimentInput {
-  id?: number | null;
-  isArchived?: boolean | null;
-  status?: NimbusExperimentStatusEnum | null;
-  statusNext?: NimbusExperimentStatusEnum | null;
-  publishStatus?: NimbusExperimentPublishStatusEnum | null;
-  name?: string | null;
-  hypothesis?: string | null;
   application?: NimbusExperimentApplicationEnum | null;
-  publicDescription?: string | null;
-  isEnrollmentPaused?: boolean | null;
-  riskMitigationLink?: string | null;
+  changelogMessage?: string | null;
+  channel?: NimbusExperimentChannelEnum | null;
+  conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
+  countries?: (string | null)[] | null;
+  documentationLinks?: (DocumentationLinkInput | null)[] | null;
   featureConfigId?: number | null;
   featureConfigIds?: (number | null)[] | null;
-  warnFeatureSchema?: boolean | null;
-  documentationLinks?: (DocumentationLinkInput | null)[] | null;
-  referenceBranch?: ReferenceBranchInput | null;
-  treatmentBranches?: (TreatmentBranchInput | null)[] | null;
-  preventPrefConflicts?: boolean | null;
-  primaryOutcomes?: (string | null)[] | null;
-  secondaryOutcomes?: (string | null)[] | null;
-  channel?: NimbusExperimentChannelEnum | null;
-  firefoxMinVersion?: NimbusExperimentFirefoxVersionEnum | null;
   firefoxMaxVersion?: NimbusExperimentFirefoxVersionEnum | null;
-  populationPercent?: string | null;
-  proposedDuration?: number | null;
-  proposedEnrollment?: string | null;
-  isSticky?: boolean | null;
+  firefoxMinVersion?: NimbusExperimentFirefoxVersionEnum | null;
+  hypothesis?: string | null;
+  id?: number | null;
+  isArchived?: boolean | null;
+  isEnrollmentPaused?: boolean | null;
   isFirstRun?: boolean | null;
   isRollout?: boolean | null;
-  targetingConfigSlug?: string | null;
-  totalEnrolledClients?: number | null;
-  changelogMessage?: string | null;
+  isSticky?: boolean | null;
+  languages?: (string | null)[] | null;
+  locales?: (string | null)[] | null;
+  name?: string | null;
+  populationPercent?: string | null;
+  preventPrefConflicts?: boolean | null;
+  primaryOutcomes?: (string | null)[] | null;
+  projects?: (string | null)[] | null;
+  proposedDuration?: string | null;
+  proposedEnrollment?: string | null;
+  publicDescription?: string | null;
+  publishStatus?: NimbusExperimentPublishStatusEnum | null;
+  referenceBranch?: BranchInput | null;
+  riskBrand?: boolean | null;
+  riskMitigationLink?: string | null;
   riskPartnerRelated?: boolean | null;
   riskRevenue?: boolean | null;
-  riskBrand?: boolean | null;
-  countries?: (number | null)[] | null;
-  locales?: (number | null)[] | null;
-  languages?: (number | null)[] | null;
-  projects?: (number | null)[] | null;
-  conclusionRecommendation?: NimbusExperimentConclusionRecommendationEnum | null;
+  secondaryOutcomes?: (string | null)[] | null;
+  status?: NimbusExperimentStatusEnum | null;
+  statusNext?: NimbusExperimentStatusEnum | null;
   takeawaysSummary?: string | null;
-}
-
-export interface ReferenceBranchInput {
-  id?: number | null;
-  name: string;
-  description: string;
-  ratio: number;
-  featureEnabled?: boolean | null;
-  featureValue?: string | null;
-  featureValues?: (BranchFeatureValueInput | null)[] | null;
-  screenshots?: (BranchScreenshotInput | null)[] | null;
-}
-
-export interface TreatmentBranchInput {
-  id?: number | null;
-  name: string;
-  description: string;
-  ratio: number;
-  featureEnabled?: boolean | null;
-  featureValue?: string | null;
-  featureValues?: (BranchFeatureValueInput | null)[] | null;
-  screenshots?: (BranchScreenshotInput | null)[] | null;
+  targetingConfigSlug?: string | null;
+  totalEnrolledClients?: number | null;
+  treatmentBranches?: (BranchInput | null)[] | null;
+  warnFeatureSchema?: boolean | null;
 }
 
 //==============================================================

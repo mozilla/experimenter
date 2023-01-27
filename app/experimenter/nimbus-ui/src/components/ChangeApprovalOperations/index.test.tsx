@@ -13,8 +13,8 @@ import React from "react";
 import { LIFECYCLE_REVIEW_FLOWS } from "../../lib/constants";
 import { getStatus } from "../../lib/experiment";
 import {
-  NimbusChangeLogOldStatus,
-  NimbusChangeLogOldStatusNext,
+  ExperimentsNimbusChangeLogOldStatusChoices,
+  ExperimentsNimbusChangeLogOldStatusNextChoices,
 } from "../../types/globalTypes";
 import {
   BaseSubject,
@@ -214,8 +214,8 @@ describe("ChangeApprovalOperations", () => {
   const commonRejectionCase =
     (
       actionDescription: string,
-      oldStatus: NimbusChangeLogOldStatus,
-      oldStatusNext: NimbusChangeLogOldStatusNext,
+      oldStatus: ExperimentsNimbusChangeLogOldStatusChoices,
+      oldStatusNext: ExperimentsNimbusChangeLogOldStatusNextChoices,
     ) =>
     async () => {
       const rejectionEvent = {
@@ -246,8 +246,8 @@ describe("ChangeApprovalOperations", () => {
     "reports a rejection reason when launch review is rejected",
     commonRejectionCase(
       LIFECYCLE_REVIEW_FLOWS.LAUNCH.description,
-      NimbusChangeLogOldStatus.DRAFT,
-      NimbusChangeLogOldStatusNext.LIVE,
+      ExperimentsNimbusChangeLogOldStatusChoices.DRAFT,
+      ExperimentsNimbusChangeLogOldStatusNextChoices.LIVE,
     ),
   );
 
@@ -255,8 +255,8 @@ describe("ChangeApprovalOperations", () => {
     "reports a rejection reason when end enrollment review is rejected",
     commonRejectionCase(
       LIFECYCLE_REVIEW_FLOWS.PAUSE.description,
-      NimbusChangeLogOldStatus.LIVE,
-      NimbusChangeLogOldStatusNext.LIVE,
+      ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
+      ExperimentsNimbusChangeLogOldStatusNextChoices.LIVE,
     ),
   );
 
@@ -264,8 +264,8 @@ describe("ChangeApprovalOperations", () => {
     "reports a rejection reason when end experiment review is rejected",
     commonRejectionCase(
       LIFECYCLE_REVIEW_FLOWS.END.description,
-      NimbusChangeLogOldStatus.LIVE,
-      NimbusChangeLogOldStatusNext.COMPLETE,
+      ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
+      ExperimentsNimbusChangeLogOldStatusNextChoices.COMPLETE,
     ),
   );
 

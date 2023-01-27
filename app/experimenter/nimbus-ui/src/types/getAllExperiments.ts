@@ -10,6 +10,9 @@ import { NimbusExperimentApplicationEnum, NimbusExperimentFirefoxVersionEnum, Ni
 // ====================================================
 
 export interface getAllExperiments_experiments_owner {
+  /**
+   * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+   */
   username: string;
 }
 
@@ -38,7 +41,7 @@ export interface getAllExperiments_experiments_featureConfig {
 }
 
 export interface getAllExperiments_experiments_projects {
-  id: number | null;
+  id: string | null;
   name: string | null;
 }
 
@@ -73,5 +76,8 @@ export interface getAllExperiments_experiments {
 }
 
 export interface getAllExperiments {
+  /**
+   * List Nimbus Experiments.
+   */
   experiments: (getAllExperiments_experiments | null)[] | null;
 }

@@ -14,8 +14,8 @@ import {
 } from "../../lib/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import {
-  NimbusChangeLogOldStatus,
-  NimbusChangeLogOldStatusNext,
+  ExperimentsNimbusChangeLogOldStatusChoices,
+  ExperimentsNimbusChangeLogOldStatusNextChoices,
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
@@ -100,8 +100,8 @@ export const reviewRejectedBaseProps = {
   rejection: mockRejectionChangelog(
     "def@mozilla.com",
     "It's bad. Just start over.",
-    NimbusChangeLogOldStatus.DRAFT,
-    NimbusChangeLogOldStatusNext.LIVE,
+    ExperimentsNimbusChangeLogOldStatusChoices.DRAFT,
+    ExperimentsNimbusChangeLogOldStatusNextChoices.LIVE,
   ),
 };
 
@@ -129,8 +129,8 @@ export const endRejectedBaseProps = {
   rejection: mockRejectionChangelog(
     "def@mozilla.com",
     "Let this run a bit longer",
-    NimbusChangeLogOldStatus.LIVE,
-    NimbusChangeLogOldStatusNext.COMPLETE,
+    ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
+    ExperimentsNimbusChangeLogOldStatusNextChoices.COMPLETE,
   ),
 };
 
@@ -167,7 +167,7 @@ export const enrollmentPauseRejectedBaseProps = {
   rejection: mockRejectionChangelog(
     "def@mozilla.com",
     "Some more enrollment would be nice",
-    NimbusChangeLogOldStatus.LIVE,
-    NimbusChangeLogOldStatusNext.LIVE,
+    ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
+    ExperimentsNimbusChangeLogOldStatusNextChoices.LIVE,
   ),
 };

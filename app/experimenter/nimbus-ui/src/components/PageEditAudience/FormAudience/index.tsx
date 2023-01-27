@@ -37,7 +37,7 @@ type FormAudienceProps = {
 
 type AudienceFieldName = typeof audienceFieldNames[number];
 type SelectIdItems = {
-  id: number;
+  id: string;
   name: string;
 }[];
 

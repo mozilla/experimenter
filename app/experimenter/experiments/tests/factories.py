@@ -341,7 +341,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 self.projects.add(ProjectFactory.create())
 
     @factory.post_generation
-    def document_links(self, create, extracted, **kwargs):
+    def documentation_links(self, create, extracted, **kwargs):
         if not create:
             # Simple build, do nothing.
             return
@@ -544,7 +544,9 @@ class NimbusBranchScreenshotFactory(factory.django.DjangoModelFactory):
 
 class NimbusDocumentationLinkFactory(factory.django.DjangoModelFactory):
     experiment = factory.SubFactory(NimbusExperimentFactory)
-    title = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    title = factory.LazyAttribute(
+        lambda o: random.choice(NimbusExperiment.DocumentationLink.choices)[0]
+    )
     link = factory.LazyAttribute(lambda o: faker.uri())
 
     class Meta:

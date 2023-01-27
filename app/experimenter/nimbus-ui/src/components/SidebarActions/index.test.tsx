@@ -8,7 +8,7 @@ import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { CHANGELOG_MESSAGES } from "../../lib/constants";
 import { mockExperiment, mockExperimentMutation } from "../../lib/mocks";
 import {
-  NimbusDocumentationLinkTitle,
+  ExperimentsNimbusDocumentationLinkTitleChoices,
   NimbusExperimentStatusEnum,
 } from "../../types/globalTypes";
 import { Subject } from "./mocks";
@@ -29,11 +29,12 @@ describe("SidebarActions", () => {
             riskMitigationLink: "https://mozilla.org",
             documentationLinks: [
               {
-                title: NimbusDocumentationLinkTitle.DESIGN_DOC,
+                title:
+                  ExperimentsNimbusDocumentationLinkTitleChoices.DESIGN_DOC,
                 link: "https://mozilla.org",
               },
               {
-                title: NimbusDocumentationLinkTitle.DS_JIRA,
+                title: ExperimentsNimbusDocumentationLinkTitleChoices.DS_JIRA,
                 link: "https://twitter.com",
               },
             ],
