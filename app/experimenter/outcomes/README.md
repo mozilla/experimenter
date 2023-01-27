@@ -2,7 +2,7 @@
 
 ## Overview
 
-[Outcomes](https://github.com/mozilla/jetstream-config/#outcome-snippets) define automated analyses that can be applied to Nimbus experiments. They are stored in the [Jetstream Config repo](https://github.com/mozilla/jetstream-config/tree/main/outcomes) as [TOML](https://github.com/toml-lang/toml) files and are consumed by Experimenter as a [Git Submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
+[Outcomes](https://experimenter.info/jetstream/outcomes) define automated analyses that can be applied to Nimbus experiments. They are stored in the [metric-hub repo](https://github.com/mozilla/metric-hub/tree/main/jetstream/outcomes) as [TOML](https://github.com/toml-lang/toml) files and are consumed by Experimenter as a [Git Submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
 
 ## Building and Deploying
 

@@ -446,7 +446,7 @@ NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").
 
 # Jetstream config paths
 JETSTREAM_CONFIG_OUTCOMES_PATH = os.path.join(
-    BASE_DIR, "outcomes", "jetstream-config-main", "outcomes"
+    BASE_DIR, "outcomes", "metric-hub-main", "jetstream", "outcomes"
 )
 
 # Feature Manifest path
