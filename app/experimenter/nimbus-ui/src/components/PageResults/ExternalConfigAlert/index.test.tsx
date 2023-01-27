@@ -33,7 +33,7 @@ describe("ExternalConfigAlert", () => {
 
     expect(screen.getByTestId("external-config-url")).toHaveProperty(
       "href",
-      "https://github.com/mozilla/jetstream-config/",
+      "https://github.com/mozilla/metric-hub/",
     );
   });
 });
