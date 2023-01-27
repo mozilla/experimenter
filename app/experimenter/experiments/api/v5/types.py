@@ -450,6 +450,7 @@ class NimbusExperimentType(DjangoObjectType):
     locales = graphene.List(graphene.NonNull(NimbusLocaleType), required=True)
     monitoring_dashboard_url = graphene.String()
     name = graphene.String(required=True)
+    owner = graphene.Field(graphene.NonNull(NimbusUserType))
     parent = graphene.Field(lambda: NimbusExperimentType)
     population_percent = graphene.String()
     prevent_pref_conflicts = graphene.Boolean()
