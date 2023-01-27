@@ -617,8 +617,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def can_edit(self):
         return (
-            self.status == self.Status.DRAFT
-            and self.publish_status == self.PublishStatus.IDLE
+            (
+                self.status == self.Status.DRAFT
+                and self.publish_status == self.PublishStatus.IDLE
+            )
+            or (
+                self.is_rollout
+                and self.status == self.Status.LIVE
+                and (
+                    self.publish_status == self.PublishStatus.DIRTY
+                    or self.publish_status == self.PublishStatus.IDLE
+                )
+            )
             and not self.is_archived
         )
 
