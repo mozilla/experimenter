@@ -1,6 +1,7 @@
 from nimbus.pages.experimenter.base import ExperimenterBase
 from nimbus.pages.experimenter.branches import BranchesPage
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
 
@@ -18,7 +19,25 @@ class OverviewPage(ExperimenterBase):
     _risk_brand_locator = (By.CSS_SELECTOR, "#riskBrand-false")
     _risk_revenue_locator = (By.CSS_SELECTOR, "#riskRevenue-false")
     _risk_partner_locator = (By.CSS_SELECTOR, "#riskPartnerRelated-false")
+    _projects_input_locator = (By.CSS_SELECTOR, "input[id^='react-select']")
+    _projects_value_locator = (
+        By.CSS_SELECTOR,
+        "div[class*='multiValue'] > div:nth-child(1)",
+    )
     NEXT_PAGE = BranchesPage
+
+    @property
+    def projects(self):
+        return [
+            element.text for element in self.find_elements(*self._projects_value_locator)
+        ]
+
+    @projects.setter
+    def projects(self, text=None):
+        el = self.find_element(*self._projects_input_locator)
+        for _ in text:
+            el.send_keys(f"{_}")
+            el.send_keys(Keys.ENTER)
 
     @property
     def public_description(self):
