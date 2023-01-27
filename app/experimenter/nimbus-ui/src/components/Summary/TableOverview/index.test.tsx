@@ -159,8 +159,8 @@ describe("TableOverview", () => {
     it("with multiple projects", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         projects: [
-          { id: 1, name: "Pocket" },
-          { id: 2, name: "VPN" },
+          { id: "1", name: "Pocket" },
+          { id: "2", name: "VPN" },
         ],
       });
       render(<Subject {...{ experiment }} />);

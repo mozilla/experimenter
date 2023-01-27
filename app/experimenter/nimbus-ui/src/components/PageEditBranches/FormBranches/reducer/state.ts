@@ -6,10 +6,7 @@ import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "../../../../types/getExperiment";
-import {
-  ExperimentInput,
-  TreatmentBranchInput,
-} from "../../../../types/globalTypes";
+import { BranchInput, ExperimentInput } from "../../../../types/globalTypes";
 
 export type FormBranchesState = Pick<
   ExperimentInput,
@@ -23,7 +20,7 @@ export type FormBranchesState = Pick<
   globalErrors: string[];
 };
 
-export type AnnotatedBranch = Omit<TreatmentBranchInput, "id"> & {
+export type AnnotatedBranch = Omit<BranchInput, "id"> & {
   id?: number | null;
   key: string;
   isValid: boolean;

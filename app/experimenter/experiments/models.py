@@ -534,6 +534,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return bool(self.published_dto and self.published_dto.get("isEnrollmentPaused"))
 
     @property
+    def is_enrollment_pause_pending(self):
+        return self.is_paused and not self.is_paused_published
+
+    @property
     def monitoring_dashboard_url(self):
         start_date = (self.start_date or datetime.date.today()) - datetime.timedelta(
             days=1
