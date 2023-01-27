@@ -19,6 +19,9 @@ export interface createExperiment_createExperiment {
 }
 
 export interface createExperiment {
+  /**
+   * Create a new Nimbus Experiment.
+   */
   createExperiment: createExperiment_createExperiment | null;
 }
 

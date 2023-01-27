@@ -91,3 +91,17 @@ def test_create_new_experiment_timeout_remote_settings(
     summary = create_experiment(selenium)
     summary.launch_and_approve()
     summary.wait_for_timeout_alert()
+
+
+@pytest.mark.nimbus_ui
+def test_every_form_page_can_be_resaved(
+    selenium,
+    create_experiment,
+):
+    summary = create_experiment(selenium)
+    overview = summary.navigate_to_overview()
+    branches = overview.save_and_continue()
+    metrics = branches.save_and_continue()
+    audience = metrics.save_and_continue()
+    summary = audience.save_and_continue()
+    assert summary.experiment_slug is not None

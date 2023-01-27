@@ -9,7 +9,7 @@ import { FIELD_MESSAGES, RISK_QUESTIONS } from "../../lib/constants";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { assertSerializerMessages } from "../../lib/test-utils";
 import { optionalBoolString } from "../../lib/utils";
-import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
+import { ExperimentsNimbusDocumentationLinkTitleChoices } from "../../types/globalTypes";
 import { Subject } from "./mocks";
 
 describe("FormOverview", () => {
@@ -29,11 +29,11 @@ describe("FormOverview", () => {
     const { experiment } = mockExperimentQuery("boo", {
       documentationLinks: [
         {
-          title: NimbusDocumentationLinkTitle.DESIGN_DOC,
+          title: ExperimentsNimbusDocumentationLinkTitleChoices.DESIGN_DOC,
           link: "https://mozilla.com",
         },
         {
-          title: NimbusDocumentationLinkTitle.DS_JIRA,
+          title: ExperimentsNimbusDocumentationLinkTitleChoices.DS_JIRA,
           link: "https://mozilla.com",
         },
       ],
@@ -107,7 +107,10 @@ describe("FormOverview", () => {
   };
 
   const fillDocumentationLinkFields = (
-    value: { title: NimbusDocumentationLinkTitle; link: string },
+    value: {
+      title: ExperimentsNimbusDocumentationLinkTitleChoices;
+      link: string;
+    },
     index: number,
   ) => {
     const { titleField, linkField } = getDocumentationLinkFields(index);
@@ -232,7 +235,7 @@ describe("FormOverview", () => {
       projects: [
         {
           name: "Pocket",
-          id: 1,
+          id: "1",
         },
       ],
     });
@@ -242,15 +245,15 @@ describe("FormOverview", () => {
       projects: [
         {
           name: "Pocket",
-          id: 1,
+          id: "1",
         },
         {
           name: "Mdn",
-          id: 2,
+          id: "2",
         },
         {
           name: "VPN",
-          id: 3,
+          id: "3",
         },
       ],
     };
@@ -269,11 +272,11 @@ describe("FormOverview", () => {
       projects: [
         {
           name: "Pocket",
-          id: 1,
+          id: "1",
         },
         {
           name: "VPN",
-          id: 3,
+          id: "3",
         },
       ],
     });
@@ -283,15 +286,15 @@ describe("FormOverview", () => {
       projects: [
         {
           name: "Pocket",
-          id: 1,
+          id: "1",
         },
         {
           name: "Mdn",
-          id: 2,
+          id: "2",
         },
         {
           name: "VPN",
-          id: 3,
+          id: "3",
         },
       ],
     };
@@ -327,7 +330,7 @@ describe("FormOverview", () => {
     const { experiment } = mockExperimentQuery("boo", {
       documentationLinks: [
         {
-          title: NimbusDocumentationLinkTitle.DS_JIRA,
+          title: ExperimentsNimbusDocumentationLinkTitleChoices.DS_JIRA,
           link: "https://bingo.bongo",
         },
       ],
@@ -346,7 +349,7 @@ describe("FormOverview", () => {
 
     // Update the values of the first set
     experiment.documentationLinks![0] = {
-      title: NimbusDocumentationLinkTitle.ENG_TICKET,
+      title: ExperimentsNimbusDocumentationLinkTitleChoices.ENG_TICKET,
       link: "https://",
     };
     fillDocumentationLinkFields(experiment.documentationLinks![0], 0);
@@ -367,7 +370,7 @@ describe("FormOverview", () => {
     // Add a new set and populate it
     fireEvent.click(addButton);
     experiment.documentationLinks!.push({
-      title: NimbusDocumentationLinkTitle.DESIGN_DOC,
+      title: ExperimentsNimbusDocumentationLinkTitleChoices.DESIGN_DOC,
       link: "https://boingo.oingo",
     });
     fillDocumentationLinkFields(experiment.documentationLinks![1], 1);
@@ -378,7 +381,7 @@ describe("FormOverview", () => {
     fireEvent.click(addButton);
     fillDocumentationLinkFields(
       {
-        title: NimbusDocumentationLinkTitle.DESIGN_DOC,
+        title: ExperimentsNimbusDocumentationLinkTitleChoices.DESIGN_DOC,
         link: "",
       },
       2,

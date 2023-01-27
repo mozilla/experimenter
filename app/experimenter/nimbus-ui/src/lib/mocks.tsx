@@ -34,9 +34,9 @@ import {
 } from "../types/getExperiment";
 import {
   ExperimentInput,
-  NimbusChangeLogOldStatus,
-  NimbusChangeLogOldStatusNext,
-  NimbusDocumentationLinkTitle,
+  ExperimentsNimbusChangeLogOldStatusChoices,
+  ExperimentsNimbusChangeLogOldStatusNextChoices,
+  ExperimentsNimbusDocumentationLinkTitleChoices,
   NimbusExperimentApplicationEnum,
   NimbusExperimentChannelEnum,
   NimbusExperimentFirefoxVersionEnum,
@@ -368,57 +368,57 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   locales: [
     {
       name: "Acholi",
-      id: 1,
+      id: "1",
     },
     {
       name: "Afrikaans",
-      id: 2,
+      id: "2",
     },
     {
       name: "Albanian",
-      id: 3,
+      id: "3",
     },
   ],
   countries: [
     {
       name: "Eritrea",
-      id: 1,
+      id: "1",
     },
     {
       name: "Estonia",
-      id: 2,
+      id: "2",
     },
     {
       name: "Eswatini",
-      id: 3,
+      id: "3",
     },
   ],
   languages: [
     {
       name: "German",
-      id: 1,
+      id: "1",
     },
     {
       name: "English",
-      id: 2,
+      id: "2",
     },
     {
       name: "Fijian",
-      id: 3,
+      id: "3",
     },
   ],
   projects: [
     {
       name: "Pocket",
-      id: 1,
+      id: "1",
     },
     {
       name: "Mdn",
-      id: 2,
+      id: "2",
     },
     {
       name: "VPN",
-      id: 3,
+      id: "3",
     },
   ],
 };
@@ -591,7 +591,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
   documentationLinks: [
     {
-      title: NimbusDocumentationLinkTitle.DS_JIRA,
+      title: ExperimentsNimbusDocumentationLinkTitleChoices.DS_JIRA,
       link: "https://bingo.bongo",
     },
   ],
@@ -604,10 +604,10 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   riskPartnerRelated: false,
   reviewUrl:
     "https://kinto.example.com/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review",
-  locales: [{ name: "Quebecois", id: 1 }],
-  countries: [{ name: "Canada", id: 1 }],
-  languages: [{ name: "English", id: 1 }],
-  projects: [{ name: "Pocket", id: 1 }],
+  locales: [{ name: "Quebecois", id: "1" }],
+  countries: [{ name: "Canada", id: "1" }],
+  languages: [{ name: "English", id: "1" }],
+  projects: [{ name: "Pocket", id: "1" }],
 };
 
 export function mockExperiment<
@@ -914,7 +914,7 @@ export const mockChangelog = (
   message: string | null = null,
   changedOn: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
-  oldStatus: NimbusChangeLogOldStatus.LIVE,
+  oldStatus: ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
   oldStatusNext: null,
   changedBy: mockUser(email),
   changedOn,
@@ -924,8 +924,8 @@ export const mockChangelog = (
 export const mockRejectionChangelog = (
   email = "abc@mozilla.com",
   message: string | null = null,
-  oldStatus: NimbusChangeLogOldStatus = NimbusChangeLogOldStatus.LIVE,
-  oldStatusNext: NimbusChangeLogOldStatusNext | null = null,
+  oldStatus: ExperimentsNimbusChangeLogOldStatusChoices = ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
+  oldStatusNext: ExperimentsNimbusChangeLogOldStatusNextChoices | null = null,
   changedOn: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
   oldStatus,
