@@ -4,15 +4,15 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
-import { EXTERNAL_URLS } from "../../lib/constants";
-import { StatusCheck } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentPublishStatusEnum } from "../../types/globalTypes";
-import LinkExternal from "../LinkExternal";
-import FormApproveOrReject from "./FormApproveOrReject";
-import FormRejectReason from "./FormRejectReason";
-import FormRemoteSettingsPending from "./FormRemoteSettingsPending";
-import RejectionReason from "./RejectionReason";
+import FormApproveOrReject from "src/components/ChangeApprovalOperations/FormApproveOrReject";
+import FormRejectReason from "src/components/ChangeApprovalOperations/FormRejectReason";
+import FormRemoteSettingsPending from "src/components/ChangeApprovalOperations/FormRemoteSettingsPending";
+import RejectionReason from "src/components/ChangeApprovalOperations/RejectionReason";
+import LinkExternal from "src/components/LinkExternal";
+import { EXTERNAL_URLS } from "src/lib/constants";
+import { StatusCheck } from "src/lib/experiment";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import { NimbusExperimentPublishStatusEnum } from "src/types/globalTypes";
 
 export enum ChangeApprovalOperationsState {
   None,

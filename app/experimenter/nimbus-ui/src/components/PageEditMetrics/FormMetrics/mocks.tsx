@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from "react";
-import FormMetrics from ".";
-import { MockedCache, mockExperimentQuery } from "../../../lib/mocks";
+import FormMetrics from "src/components/PageEditMetrics/FormMetrics";
+import { MockedCache, mockExperimentQuery } from "src/lib/mocks";
 
 export const Subject = ({
   isLoading = false,

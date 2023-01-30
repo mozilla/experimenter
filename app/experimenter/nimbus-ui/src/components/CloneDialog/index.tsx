@@ -10,17 +10,17 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import { FormProvider } from "react-hook-form";
-import { CLONE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { useCommonForm } from "../../hooks";
-import { BASE_PATH, SUBMIT_ERROR } from "../../lib/constants";
-import { cloneExperiment_cloneExperiment } from "../../types/cloneExperiment";
+import { SlugTextControl } from "src/components/SlugTextControl";
+import { CLONE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { useCommonForm } from "src/hooks";
+import { BASE_PATH, SUBMIT_ERROR } from "src/lib/constants";
+import { cloneExperiment_cloneExperiment } from "src/types/cloneExperiment";
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
-} from "../../types/getExperiment";
-import { ExperimentCloneInput } from "../../types/globalTypes";
-import { SlugTextControl } from "../SlugTextControl";
+} from "src/types/getExperiment";
+import { ExperimentCloneInput } from "src/types/globalTypes";
 
 // Relaxed type, since we only use these two properties
 export type RolloutBranch = Pick<

@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useContext } from "react";
-import { ReactComponent as Info } from "../../../images/info.svg";
-import { ResultsContext } from "../../../lib/contexts";
-import { METRIC_TYPE } from "../../../lib/visualization/constants";
-import TooltipWithMarkdown from "../TooltipWithMarkdown";
+import TooltipWithMarkdown from "src/components/PageResults/TooltipWithMarkdown";
+import { ReactComponent as Info } from "src/images/info.svg";
+import { ResultsContext } from "src/lib/contexts";
+import { METRIC_TYPE } from "src/lib/visualization/constants";
 
 type MetricTypes =
   | typeof METRIC_TYPE.PRIMARY

@@ -4,19 +4,19 @@
 import classNames from "classnames";
 import React, { useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
-import vegaEmbed, { VisualizationSpec } from "vega-embed";
-import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
-import { ReactComponent as ExpandPlus } from "../../../images/plus.svg";
+import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
+import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
 import {
   BRANCH_COMPARISON,
   BRANCH_COMPARISON_TITLE,
-} from "../../../lib/visualization/constants";
-import { lineGraphConfig } from "../../../lib/visualization/graphConfig";
+} from "src/lib/visualization/constants";
+import { lineGraphConfig } from "src/lib/visualization/graphConfig";
 import {
   AnalysisDataWeekly,
   BranchDescription,
   FormattedAnalysisPoint,
-} from "../../../lib/visualization/types";
+} from "src/lib/visualization/types";
+import vegaEmbed, { VisualizationSpec } from "vega-embed";
 
 const getGraphID = (outcomeSlug: string, branchComparison: string) =>
   `${outcomeSlug}_${branchComparison}_graph`;

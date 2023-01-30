@@ -4,7 +4,7 @@
 
 import { render } from "@testing-library/react";
 import React from "react";
-import RichText from ".";
+import RichText from "src/components/RichText";
 
 it("renders text with newlines converted to <br> tags", () => {
   const text = `Aliens

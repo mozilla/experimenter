@@ -3,8 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { IsDirtyUnsaved, useCommonFormMethods } from "./useCommonFormMethods";
-import { useForm } from "./useForm";
+import {
+  IsDirtyUnsaved,
+  useCommonFormMethods,
+} from "src/hooks/useCommonForm/useCommonFormMethods";
+import { useForm } from "src/hooks/useCommonForm/useForm";
 
 export function useCommonForm<FieldNames extends string>(
   defaultValues: Record<string, any>,

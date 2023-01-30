@@ -4,7 +4,7 @@
 
 import React from "react";
 import { Alert } from "react-bootstrap";
-import { REFETCH_DELAY } from "../../hooks/useRefetchOnError";
+import { REFETCH_DELAY } from "src/hooks/useRefetchOnError";
 
 export const RefetchAlert = ({ className = "mt-4" }) => (
   <Alert variant="warning" data-testid="refetch-alert" {...{ className }}>

@@ -4,14 +4,14 @@
 
 import { navigate, RouteComponentProps, useMatch } from "@reach/router";
 import React, { useEffect, useRef } from "react";
-import { useAnalysis, useExperiment } from "../../../hooks";
-import { BASE_PATH, POLL_INTERVAL } from "../../../lib/constants";
-import { ExperimentContext } from "../../../lib/contexts";
-import { getStatus, StatusCheck } from "../../../lib/experiment";
-import { AnalysisData } from "../../../lib/visualization/types";
-import ApolloErrorAlert from "../../ApolloErrorAlert";
-import PageExperimentNotFound from "../../PageExperimentNotFound";
-import PageLoading from "../../PageLoading";
+import ApolloErrorAlert from "src/components/ApolloErrorAlert";
+import PageExperimentNotFound from "src/components/PageExperimentNotFound";
+import PageLoading from "src/components/PageLoading";
+import { useAnalysis, useExperiment } from "src/hooks";
+import { BASE_PATH, POLL_INTERVAL } from "src/lib/constants";
+import { ExperimentContext } from "src/lib/contexts";
+import { getStatus, StatusCheck } from "src/lib/experiment";
+import { AnalysisData } from "src/lib/visualization/types";
 
 export const ExperimentRoot = ({
   // BASE_PATH is a constant in App, but some tests vary in RouterSlugProvider

@@ -9,27 +9,27 @@ import Form from "react-bootstrap/Form";
 import { FormProvider } from "react-hook-form";
 import Select from "react-select";
 import ReactTooltip from "react-tooltip";
-import { useCommonForm, useExitWarning, useReviewCheck } from "../../hooks";
-import { useConfig } from "../../hooks/useConfig";
-import { ReactComponent as Info } from "../../images/info.svg";
+import {
+  stripInvalidDocumentationLinks,
+  useDocumentationLinks,
+} from "src/components/FormOverview/documentationLink";
+import FormDocumentationLink, {
+  FormDocumentationLinkProps,
+} from "src/components/FormOverview/FormDocumentationLink";
+import InputRadios from "src/components/InputRadios";
+import LinkExternal from "src/components/LinkExternal";
+import { useCommonForm, useExitWarning, useReviewCheck } from "src/hooks";
+import { useConfig } from "src/hooks/useConfig";
+import { ReactComponent as Info } from "src/images/info.svg";
 import {
   EXTERNAL_URLS,
   PUBLIC_DESCRIPTION_PLACEHOLDER,
   REQUIRED_FIELD,
   RISK_QUESTIONS,
-} from "../../lib/constants";
-import { optionalBoolString } from "../../lib/utils";
-import { getConfig_nimbusConfig_projects } from "../../types/getConfig";
-import { getExperiment } from "../../types/getExperiment";
-import InputRadios from "../InputRadios";
-import LinkExternal from "../LinkExternal";
-import {
-  stripInvalidDocumentationLinks,
-  useDocumentationLinks,
-} from "./documentationLink";
-import FormDocumentationLink, {
-  FormDocumentationLinkProps,
-} from "./FormDocumentationLink";
+} from "src/lib/constants";
+import { optionalBoolString } from "src/lib/utils";
+import { getConfig_nimbusConfig_projects } from "src/types/getConfig";
+import { getExperiment } from "src/types/getExperiment";
 
 type FormOverviewProps = {
   isLoading: boolean;

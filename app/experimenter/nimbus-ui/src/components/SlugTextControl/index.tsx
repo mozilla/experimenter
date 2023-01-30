@@ -4,7 +4,7 @@
 
 import React from "react";
 import Form from "react-bootstrap/Form";
-import { slugify } from "./slugify";
+import { slugify } from "src/components/SlugTextControl/slugify";
 
 export type SlugTextControlProps = {
   defaultValue?: string;

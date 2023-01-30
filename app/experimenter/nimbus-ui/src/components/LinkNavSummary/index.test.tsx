@@ -9,12 +9,12 @@ import {
 } from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import LinkNavSummary from ".";
-import { mockGetStatus } from "../../lib/mocks";
+import LinkNavSummary from "src/components/LinkNavSummary";
+import { mockGetStatus } from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../../types/globalTypes";
+} from "src/types/globalTypes";
 
 type SubjectProps = {
   status?: NimbusExperimentStatusEnum;

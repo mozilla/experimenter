@@ -4,7 +4,7 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import PageLoading from ".";
+import PageLoading from "src/components/PageLoading";
 
 describe("PageLoading", () => {
   it("renders as expected", () => {

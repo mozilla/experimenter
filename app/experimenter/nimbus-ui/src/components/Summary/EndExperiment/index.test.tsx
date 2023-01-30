@@ -4,7 +4,7 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { Subject } from "./mocks";
+import { Subject } from "src/components/Summary/EndExperiment/mocks";
 
 describe("EndExperiment", () => {
   it("displays the end button when experiment is live", async () => {

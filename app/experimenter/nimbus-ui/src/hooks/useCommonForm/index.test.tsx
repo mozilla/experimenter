@@ -13,17 +13,17 @@ import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
 import Form from "react-bootstrap/Form";
 import { FormProvider } from "react-hook-form";
-import { useCommonForm } from ".";
-import { useCommonNestedForm, useForm } from "..";
-import { overviewFieldNames } from "../../components/FormOverview";
-import { Subject as OverviewSubject } from "../../components/FormOverview/mocks";
-import { audienceFieldNames } from "../../components/PageEditAudience/FormAudience";
-import { Subject as AudienceSubject } from "../../components/PageEditAudience/FormAudience/mocks";
-import { branchFieldNames } from "../../components/PageEditBranches/FormBranches/FormBranch";
-import { SubjectBranch as BranchSubject } from "../../components/PageEditBranches/FormBranches/mocks";
-import { metricsFieldNames } from "../../components/PageEditMetrics/FormMetrics";
-import { Subject as MetricsSubject } from "../../components/PageEditMetrics/FormMetrics/mocks";
-import { mockExperimentQuery } from "../../lib/mocks";
+import { overviewFieldNames } from "src/components/FormOverview";
+import { Subject as OverviewSubject } from "src/components/FormOverview/mocks";
+import { audienceFieldNames } from "src/components/PageEditAudience/FormAudience";
+import { Subject as AudienceSubject } from "src/components/PageEditAudience/FormAudience/mocks";
+import { branchFieldNames } from "src/components/PageEditBranches/FormBranches/FormBranch";
+import { SubjectBranch as BranchSubject } from "src/components/PageEditBranches/FormBranches/mocks";
+import { metricsFieldNames } from "src/components/PageEditMetrics/FormMetrics";
+import { Subject as MetricsSubject } from "src/components/PageEditMetrics/FormMetrics/mocks";
+import { useCommonNestedForm, useForm } from "src/hooks";
+import { useCommonForm } from "src/hooks/useCommonForm";
+import { mockExperimentQuery } from "src/lib/mocks";
 
 describe("hooks/useCommonForm", () => {
   describe("works as expected", () => {

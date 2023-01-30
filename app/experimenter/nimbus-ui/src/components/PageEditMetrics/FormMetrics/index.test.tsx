@@ -10,10 +10,13 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
-import { PRIMARY_OUTCOMES_TOOLTIP, SECONDARY_OUTCOMES_TOOLTIP } from ".";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
-import { assertSerializerMessages } from "../../../lib/test-utils";
-import { Subject } from "./mocks";
+import {
+  PRIMARY_OUTCOMES_TOOLTIP,
+  SECONDARY_OUTCOMES_TOOLTIP,
+} from "src/components/PageEditMetrics/FormMetrics";
+import { Subject } from "src/components/PageEditMetrics/FormMetrics/mocks";
+import { mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
+import { assertSerializerMessages } from "src/lib/test-utils";
 
 const outcomeNames = MOCK_CONFIG.outcomes!.map(
   (outcome) => outcome!.friendlyName,

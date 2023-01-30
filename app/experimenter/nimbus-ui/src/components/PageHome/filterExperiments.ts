@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { UpdateSearchParams } from "../../hooks";
-import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 import {
   FilterOptions,
   FilterValue,
@@ -12,7 +10,9 @@ import {
   NonNullFilterOption,
   NonNullFilterOptions,
   OptionalString,
-} from "./types";
+} from "src/components/PageHome/types";
+import { UpdateSearchParams } from "src/hooks";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 
 type OptionIndexKey<K extends FilterValueKeys> = (
   option: NonNullFilterOption<K>,

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getStatus } from "../../lib/experiment";
-import { getAllExperiments_experiments } from "../../types/getAllExperiments";
+import { getStatus } from "src/lib/experiment";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 
 export type ExperimentCollector = Record<
   "draft" | "preview" | "review" | "live" | "complete" | "archived",

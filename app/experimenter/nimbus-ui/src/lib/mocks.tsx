@@ -15,23 +15,29 @@ import { Observable } from "@apollo/client/utilities";
 import { equal } from "@wry/equality";
 import { DocumentNode, print } from "graphql";
 import React, { ReactNode } from "react";
-import { GET_CONFIG_QUERY } from "../gql/config";
+import { GET_CONFIG_QUERY } from "src/gql/config";
 import {
   GET_EXPERIMENTS_QUERY,
   GET_EXPERIMENT_QUERY,
-} from "../gql/experiments";
-import { ReviewCheck } from "../hooks";
-import { cacheConfig } from "../services/apollo";
+} from "src/gql/experiments";
+import { ReviewCheck } from "src/hooks";
+import { ResultsContext } from "src/lib/contexts";
+import { getStatus } from "src/lib/experiment";
+import { OutcomesList, OutcomeSlugs } from "src/lib/types";
+import { mockAnalysis } from "src/lib/visualization/mocks";
+import { AnalysisData } from "src/lib/visualization/types";
+import { getSortedBranchNames } from "src/lib/visualization/utils";
+import { cacheConfig } from "src/services/apollo";
 import {
   getAllExperiments,
   getAllExperiments_experiments,
-} from "../types/getAllExperiments";
-import { getConfig_nimbusConfig } from "../types/getConfig";
+} from "src/types/getAllExperiments";
+import { getConfig_nimbusConfig } from "src/types/getConfig";
 import {
   getExperiment,
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_rejection_changedBy,
-} from "../types/getExperiment";
+} from "src/types/getExperiment";
 import {
   ExperimentInput,
   ExperimentsNimbusChangeLogOldStatusChoices,
@@ -42,13 +48,7 @@ import {
   NimbusExperimentFirefoxVersionEnum,
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../types/globalTypes";
-import { ResultsContext } from "./contexts";
-import { getStatus } from "./experiment";
-import { OutcomesList, OutcomeSlugs } from "./types";
-import { mockAnalysis } from "./visualization/mocks";
-import { AnalysisData } from "./visualization/types";
-import { getSortedBranchNames } from "./visualization/utils";
+} from "src/types/globalTypes";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;

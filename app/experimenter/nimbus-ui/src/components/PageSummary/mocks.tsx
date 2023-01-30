@@ -3,22 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import PageSummary from ".";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { CHANGELOG_MESSAGES } from "../../lib/constants";
+import PageSummary from "src/components/PageSummary";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { CHANGELOG_MESSAGES } from "src/lib/constants";
 import {
   mockChangelog,
   mockExperimentMutation,
   mockExperimentQuery,
   mockRejectionChangelog,
-} from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
+} from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
 import {
   ExperimentsNimbusChangeLogOldStatusChoices,
   ExperimentsNimbusChangeLogOldStatusNextChoices,
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../../types/globalTypes";
+} from "src/types/globalTypes";
 
 export const { mock, experiment } = mockExperimentQuery("demo-slug");
 

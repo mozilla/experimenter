@@ -4,13 +4,13 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import TableMetricConversion from ".";
+import TableMetricConversion from "src/components/PageResults/TableMetricConversion";
 import {
   mockExperimentQuery,
   mockOutcomeSets,
   MockResultsContextProvider,
-} from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
+} from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
 
 describe("TableMetricConversion", () => {
   it("has the correct headings", () => {

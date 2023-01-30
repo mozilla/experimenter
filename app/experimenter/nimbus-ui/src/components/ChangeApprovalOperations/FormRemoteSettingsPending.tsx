@@ -6,7 +6,7 @@ import classNames from "classnames";
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
-import LinkExternal from "../LinkExternal";
+import LinkExternal from "src/components/LinkExternal";
 
 const FormRemoteSettingsPending = ({
   isLoading,

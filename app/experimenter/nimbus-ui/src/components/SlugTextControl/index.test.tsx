@@ -4,7 +4,7 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import SlugTextControl from ".";
+import SlugTextControl from "src/components/SlugTextControl";
 
 describe("SlugTextControl", () => {
   it("renders as expected with defaultValue", () => {

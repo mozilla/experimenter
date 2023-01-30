@@ -4,9 +4,9 @@
 
 import { Link } from "@reach/router";
 import React from "react";
-import { BASE_PATH } from "../../lib/constants";
-import AppLayout from "../AppLayout";
-import Head from "../Head";
+import AppLayout from "src/components/AppLayout";
+import Head from "src/components/Head";
+import { BASE_PATH } from "src/lib/constants";
 
 const ExperimentNotFound = ({ slug }: { slug: string }) => (
   <AppLayout testid="not-found">

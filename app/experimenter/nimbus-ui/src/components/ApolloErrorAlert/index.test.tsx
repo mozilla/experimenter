@@ -5,13 +5,13 @@
 import { ServerError, ServerParseError } from "@apollo/client";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import ApolloErrorAlert from ".";
+import ApolloErrorAlert from "src/components/ApolloErrorAlert";
 import {
   GQL_ERROR,
   NETWORK_ERROR,
   NETWORK_SERVER_ERROR,
   NETWORK_SERVER_PARSE_ERROR,
-} from "./mocks";
+} from "src/components/ApolloErrorAlert/mocks";
 
 describe("ApolloErrorAlert", () => {
   it("handles a standard error", () => {

@@ -5,12 +5,12 @@
 import { MockedResponse } from "@apollo/client/testing";
 import { RouteComponentProps } from "@reach/router";
 import React from "react";
-import { SidebarActions } from ".";
-import { getStatus, StatusCheck } from "../../lib/experiment";
-import { mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import { AnalysisData } from "../../lib/visualization/types";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { SidebarActions } from "src/components/SidebarActions";
+import { getStatus, StatusCheck } from "src/lib/experiment";
+import { mockExperimentQuery } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { AnalysisData } from "src/lib/visualization/types";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export const Subject = ({
   experiment: overrides,

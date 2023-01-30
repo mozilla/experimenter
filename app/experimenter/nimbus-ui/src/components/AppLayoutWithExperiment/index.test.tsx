@@ -6,11 +6,11 @@ import * as apollo from "@apollo/client";
 import { MockedResponse } from "@apollo/client/testing";
 import { render, screen } from "@testing-library/react";
 import React, { useContext } from "react";
-import AppLayoutWithExperiment from ".";
-import { ExperimentContext, RedirectCheck } from "../../lib/contexts";
-import { mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import ExperimentRoot from "../App/ExperimentRoot";
+import ExperimentRoot from "src/components/App/ExperimentRoot";
+import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
+import { ExperimentContext, RedirectCheck } from "src/lib/contexts";
+import { mockExperimentQuery } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
 
 describe("AppLayoutWithExperiment", () => {
   it("renders as expected with default props", async () => {

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import AppLayout from "../AppLayout";
+import AppLayout from "src/components/AppLayout";
 
 const PageLoading = () => (
   <AppLayout testid="page-loading">

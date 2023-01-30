@@ -4,11 +4,11 @@
 
 import classNames from "classnames";
 import React from "react";
-import { BASE_PATH } from "../../lib/constants";
-import { humanDate } from "../../lib/dateUtils";
-import { StatusCheck } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import "./index.scss";
+import "src/components/HeaderExperiment/index.scss";
+import { BASE_PATH } from "src/lib/constants";
+import { humanDate } from "src/lib/dateUtils";
+import { StatusCheck } from "src/lib/experiment";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 type HeaderExperimentProps = Pick<
   getExperiment_experimentBySlug,

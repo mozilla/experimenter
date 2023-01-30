@@ -4,12 +4,12 @@
 
 import { cleanup, render, screen } from "@testing-library/react";
 import React from "react";
-import { TOOLTIP_DURATION } from "../../../lib/constants";
+import { Subject } from "src/components/Summary/SummaryTimeline/mocks";
+import { TOOLTIP_DURATION } from "src/lib/constants";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../../../types/globalTypes";
-import { Subject } from "./mocks";
+} from "src/types/globalTypes";
 
 const innerBar = () => {
   return screen

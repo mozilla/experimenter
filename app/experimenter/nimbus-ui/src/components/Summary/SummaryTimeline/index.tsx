@@ -5,13 +5,13 @@
 import React from "react";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import ReactTooltip from "react-tooltip";
-import { ReactComponent as Info } from "../../../images/info.svg";
-import { TOOLTIP_DURATION } from "../../../lib/constants";
-import { humanDate } from "../../../lib/dateUtils";
-import { getStatus, StatusCheck } from "../../../lib/experiment";
-import { pluralize } from "../../../lib/utils";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import NotSet from "../../NotSet";
+import NotSet from "src/components/NotSet";
+import { ReactComponent as Info } from "src/images/info.svg";
+import { TOOLTIP_DURATION } from "src/lib/constants";
+import { humanDate } from "src/lib/dateUtils";
+import { getStatus, StatusCheck } from "src/lib/experiment";
+import { pluralize } from "src/lib/utils";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 const SummaryTimeline = ({
   experiment,

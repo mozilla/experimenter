@@ -4,9 +4,9 @@
 
 import React from "react";
 import { Card, Table } from "react-bootstrap";
-import { EXTERNAL_URLS } from "../../../lib/constants";
-import { getExperiment_experimentBySlug_signoffRecommendations } from "../../../types/getExperiment";
-import LinkExternal from "../../LinkExternal";
+import LinkExternal from "src/components/LinkExternal";
+import { EXTERNAL_URLS } from "src/lib/constants";
+import { getExperiment_experimentBySlug_signoffRecommendations } from "src/types/getExperiment";
 
 type TableSignoffProps = {
   signoffRecommendations: getExperiment_experimentBySlug_signoffRecommendations | null;

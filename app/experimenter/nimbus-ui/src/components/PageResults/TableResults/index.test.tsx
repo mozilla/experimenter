@@ -4,14 +4,11 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import TableResults from ".";
-import {
-  mockExperimentQuery,
-  MockResultsContextProvider,
-} from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
-import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
-import { mockIncompleteAnalysis } from "../../../lib/visualization/mocks";
+import TableResults from "src/components/PageResults/TableResults";
+import { mockExperimentQuery, MockResultsContextProvider } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { BRANCH_COMPARISON } from "src/lib/visualization/constants";
+import { mockIncompleteAnalysis } from "src/lib/visualization/mocks";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 

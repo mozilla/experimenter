@@ -5,19 +5,19 @@
 import { useMutation } from "@apollo/client";
 import { navigate, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useContext, useState } from "react";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
+import LinkExternal from "src/components/LinkExternal";
+import FormMetrics from "src/components/PageEditMetrics/FormMetrics";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   SUBMIT_ERROR,
-} from "../../lib/constants";
-import { ExperimentContext } from "../../lib/contexts";
-import { editCommonRedirects } from "../../lib/experiment";
-import { ExperimentInput } from "../../types/globalTypes";
-import { updateExperiment_updateExperiment as UpdateExperimentOutcomesResult } from "../../types/updateExperiment";
-import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import LinkExternal from "../LinkExternal";
-import FormMetrics from "./FormMetrics";
+} from "src/lib/constants";
+import { ExperimentContext } from "src/lib/contexts";
+import { editCommonRedirects } from "src/lib/experiment";
+import { ExperimentInput } from "src/types/globalTypes";
+import { updateExperiment_updateExperiment as UpdateExperimentOutcomesResult } from "src/types/updateExperiment";
 
 const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   const { experiment, refetch, useRedirectCondition } =

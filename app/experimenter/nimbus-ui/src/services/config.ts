@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  CONFIG_EMPTY_ERROR,
-  INVALID_CONFIG_ERROR,
-} from "../../src/lib/constants";
+import { CONFIG_EMPTY_ERROR, INVALID_CONFIG_ERROR } from "src/lib/constants";
 
 export function getDefault() {
   return {

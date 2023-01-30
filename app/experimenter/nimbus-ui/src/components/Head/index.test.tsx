@@ -4,7 +4,7 @@
 
 import { render, waitFor } from "@testing-library/react";
 import React from "react";
-import Head from ".";
+import Head from "src/components/Head";
 
 describe("Head", () => {
   it("sets the page's <head> content", async () => {

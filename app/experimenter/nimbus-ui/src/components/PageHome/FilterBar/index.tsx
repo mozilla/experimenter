@@ -6,16 +6,16 @@ import React, { useMemo } from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Select, { OptionsType, OptionTypeBase } from "react-select";
-import { useConfig } from "../../../hooks";
-import { displayConfigLabelOrNotSet } from "../../Summary";
-import { optionIndexKeys } from "../filterExperiments";
+import { optionIndexKeys } from "src/components/PageHome/filterExperiments";
 import {
   FilterOptions,
   FilterValue,
   FilterValueKeys,
   NonNullFilterOption,
   NonNullFilterOptions,
-} from "../types";
+} from "src/components/PageHome/types";
+import { displayConfigLabelOrNotSet } from "src/components/Summary";
+import { useConfig } from "src/hooks";
 
 export type FilterBarProps = {
   options: FilterOptions;

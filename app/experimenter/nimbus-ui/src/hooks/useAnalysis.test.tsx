@@ -4,7 +4,7 @@
 
 import { act, renderHook } from "@testing-library/react-hooks";
 import fetchMock from "jest-fetch-mock";
-import { useAnalysis } from ".";
+import { useAnalysis } from "src/hooks";
 
 describe("hooks/useVisualization", () => {
   it("fetches from the visualization endpoint and returns data", async () => {

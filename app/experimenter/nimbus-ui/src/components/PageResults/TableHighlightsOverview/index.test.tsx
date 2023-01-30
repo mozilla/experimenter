@@ -4,9 +4,9 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import TableHighlightsOverview from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
+import TableHighlightsOverview from "src/components/PageResults/TableHighlightsOverview";
+import { mockExperimentQuery } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 

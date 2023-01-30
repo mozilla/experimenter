@@ -3,13 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from "react";
-import { FormAudience } from ".";
-import {
-  MockedCache,
-  mockExperimentQuery,
-  MOCK_CONFIG,
-} from "../../../lib/mocks";
-import { getConfig_nimbusConfig } from "../../../types/getConfig";
+import { FormAudience } from "src/components/PageEditAudience/FormAudience";
+import { MockedCache, mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
+import { getConfig_nimbusConfig } from "src/types/getConfig";
 
 export const Subject = ({
   config = MOCK_CONFIG,

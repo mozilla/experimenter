@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from "@sentry/browser";
-import Logger from "./logger";
+import Logger from "src/services/logger";
 
 // HACK: allow tests to stub this function from Sentry
 // https://stackoverflow.com/questions/35240469/how-to-mock-the-imports-of-an-es6-module
