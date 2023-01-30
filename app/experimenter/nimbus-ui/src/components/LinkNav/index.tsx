@@ -7,7 +7,7 @@ import classNames from "classnames";
 import React from "react";
 import { Button } from "react-bootstrap";
 import Nav from "react-bootstrap/Nav";
-import { BASE_PATH } from "../../lib/constants";
+import { BASE_PATH } from "src/lib/constants";
 
 type LinkNavProps = {
   children: React.ReactNode;

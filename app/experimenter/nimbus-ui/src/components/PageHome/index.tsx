@@ -6,30 +6,26 @@ import { useQuery } from "@apollo/client";
 import { Link, RouteComponentProps } from "@reach/router";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Col, Container, Row, Tab, Tabs } from "react-bootstrap";
-import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
-import {
-  useConfig,
-  useRefetchOnError,
-  useSearchParamsState,
-} from "../../hooks";
-import { ReactComponent as DownloadIcon } from "../../images/download.svg";
-import { ReactComponent as Logo } from "../../images/logo.svg";
-import { ReactComponent as CreateNewIcon } from "../../images/pencil.svg";
-import { getAllExperiments_experiments } from "../../types/getAllExperiments";
-import AppLayout from "../AppLayout";
-import Head from "../Head";
-import LinkExternal from "../LinkExternal";
-import PageLoading from "../PageLoading";
-import DirectoryTable from "./DirectoryTable";
-import FilterBar from "./FilterBar";
+import AppLayout from "src/components/AppLayout";
+import Head from "src/components/Head";
+import LinkExternal from "src/components/LinkExternal";
+import DirectoryTable from "src/components/PageHome/DirectoryTable";
+import FilterBar from "src/components/PageHome/FilterBar";
 import {
   filterExperiments,
   getFilterValueFromParams,
   updateParamsFromFilterValue,
-} from "./filterExperiments";
-import SearchBar from "./SearchBar";
-import sortByStatus from "./sortByStatus";
-import { FilterOptions, FilterValue } from "./types";
+} from "src/components/PageHome/filterExperiments";
+import SearchBar from "src/components/PageHome/SearchBar";
+import sortByStatus from "src/components/PageHome/sortByStatus";
+import { FilterOptions, FilterValue } from "src/components/PageHome/types";
+import PageLoading from "src/components/PageLoading";
+import { GET_EXPERIMENTS_QUERY } from "src/gql/experiments";
+import { useConfig, useRefetchOnError, useSearchParamsState } from "src/hooks";
+import { ReactComponent as DownloadIcon } from "src/images/download.svg";
+import { ReactComponent as Logo } from "src/images/logo.svg";
+import { ReactComponent as CreateNewIcon } from "src/images/pencil.svg";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 type PageHomeProps = Record<string, any> & RouteComponentProps;
 
 export type BodyProps = {

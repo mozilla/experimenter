@@ -5,20 +5,23 @@
 import { RouteComponentProps } from "@reach/router";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import { AppLayoutSidebarLaunched, RESULTS_WAITING_FOR_LAUNCH_TEXT } from ".";
-import { BASE_PATH } from "../../lib/constants";
-import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
+import {
+  AppLayoutSidebarLaunched,
+  RESULTS_WAITING_FOR_LAUNCH_TEXT,
+} from "src/components/AppLayoutSidebarLaunched";
+import { BASE_PATH } from "src/lib/constants";
+import { mockExperimentQuery, mockGetStatus } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
 import {
   mockAnalysis,
   MOCK_METADATA_WITH_CONFIG,
-} from "../../lib/visualization/mocks";
-import { AnalysisData } from "../../lib/visualization/types";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+} from "src/lib/visualization/mocks";
+import { AnalysisData } from "src/lib/visualization/types";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../../types/globalTypes";
+} from "src/types/globalTypes";
 
 const { mock, experiment: defaultExperiment } = mockExperimentQuery(
   "my-special-slug/design",

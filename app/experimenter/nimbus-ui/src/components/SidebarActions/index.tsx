@@ -5,33 +5,33 @@
 import { Link, RouteComponentProps } from "@reach/router";
 import React from "react";
 import ReactTooltip from "react-tooltip";
+import { ReactComponent as CogIcon } from "src/components/AppLayoutWithSidebar/cog.svg";
+import CloneDialog, { useCloneDialog } from "src/components/CloneDialog";
+import LinkExternal from "src/components/LinkExternal";
+import { LinkNav } from "src/components/LinkNav";
+import { ReactComponent as CloneIcon } from "src/components/SidebarActions/clone.svg";
+import "src/components/SidebarActions/index.scss";
+import { ReactComponent as TrashIcon } from "src/components/SidebarActions/trash.svg";
 import {
   useChangeOperationMutation,
   useConfig,
   useScrollToLocationHash,
-} from "../../hooks";
-import { ReactComponent as BookIcon } from "../../images/book.svg";
-import { ReactComponent as FeedbackIcon } from "../../images/chat-square-text.svg";
-import { ReactComponent as ExternalIcon } from "../../images/external.svg";
-import { ReactComponent as Info } from "../../images/info.svg";
-import { ReactComponent as SlackIcon } from "../../images/slack.svg";
+} from "src/hooks";
+import { ReactComponent as BookIcon } from "src/images/book.svg";
+import { ReactComponent as FeedbackIcon } from "src/images/chat-square-text.svg";
+import { ReactComponent as ExternalIcon } from "src/images/external.svg";
+import { ReactComponent as Info } from "src/images/info.svg";
+import { ReactComponent as SlackIcon } from "src/images/slack.svg";
 import {
   ARCHIVE_DISABLED,
   BASE_PATH,
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
-} from "../../lib/constants";
-import { StatusCheck } from "../../lib/experiment";
-import { AnalysisData } from "../../lib/visualization/types";
-import { analysisUnavailable } from "../../lib/visualization/utils";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { ReactComponent as CogIcon } from "../AppLayoutWithSidebar/cog.svg";
-import CloneDialog, { useCloneDialog } from "../CloneDialog";
-import LinkExternal from "../LinkExternal";
-import { LinkNav } from "../LinkNav";
-import { ReactComponent as CloneIcon } from "./clone.svg";
-import "./index.scss";
-import { ReactComponent as TrashIcon } from "./trash.svg";
+} from "src/lib/constants";
+import { StatusCheck } from "src/lib/experiment";
+import { AnalysisData } from "src/lib/visualization/types";
+import { analysisUnavailable } from "src/lib/visualization/utils";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 type SidebarModifyExperimentProps = {
   testid?: string;

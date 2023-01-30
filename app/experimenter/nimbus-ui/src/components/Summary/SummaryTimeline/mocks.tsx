@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import SummaryTimeline from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import SummaryTimeline from "src/components/Summary/SummaryTimeline";
+import { mockExperimentQuery } from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../../../types/globalTypes";
+} from "src/types/globalTypes";
 
 export const Subject = ({
   startDate = "2020-11-28T14:52:44.704811+00:00",

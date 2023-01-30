@@ -4,8 +4,11 @@
 
 import { render } from "@testing-library/react";
 import React from "react";
-import { MockedCache } from "../../../lib/mocks";
-import { EVERYTHING_SELECTED_VALUE, Subject } from "../mocks";
+import {
+  EVERYTHING_SELECTED_VALUE,
+  Subject,
+} from "src/components/PageHome/mocks";
+import { MockedCache } from "src/lib/mocks";
 
 describe("FilterBar", () => {
   it("renders as expected", () => {

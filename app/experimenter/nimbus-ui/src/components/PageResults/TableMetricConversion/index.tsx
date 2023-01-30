@@ -3,20 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useContext } from "react";
-import { ResultsContext } from "../../../lib/contexts";
+import TableVisualizationRow from "src/components/PageResults/TableVisualizationRow";
+import { ResultsContext } from "src/lib/contexts";
 import {
   CONVERSION_METRIC_COLUMNS,
   DISPLAY_TYPE,
   GROUP,
   TABLE_LABEL,
-} from "../../../lib/visualization/constants";
+} from "src/lib/visualization/constants";
 import {
   AnalysisBases,
   BranchComparisonValues,
-} from "../../../lib/visualization/types";
-import { getExtremeBounds } from "../../../lib/visualization/utils";
-import { getConfig_nimbusConfig_outcomes } from "../../../types/getConfig";
-import TableVisualizationRow from "../TableVisualizationRow";
+} from "src/lib/visualization/types";
+import { getExtremeBounds } from "src/lib/visualization/utils";
+import { getConfig_nimbusConfig_outcomes } from "src/types/getConfig";
 
 type ConversionMetricStatistic = {
   name: string;

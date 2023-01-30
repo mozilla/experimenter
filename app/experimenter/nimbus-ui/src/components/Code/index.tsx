@@ -4,7 +4,7 @@
 
 import React from "react";
 import JSONPretty from "react-json-pretty";
-import "../../styles/react-json-pretty-theme.scss";
+import "src/styles/react-json-pretty-theme.scss";
 
 export const Code = ({
   codeString,

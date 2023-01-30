@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import EndExperiment from ".";
-import { mockExperimentQuery } from "../../../lib/mocks";
-import { getExperiment } from "../../../types/getExperiment";
-import { NimbusExperimentStatusEnum } from "../../../types/globalTypes";
+import EndExperiment from "src/components/Summary/EndExperiment";
+import { mockExperimentQuery } from "src/lib/mocks";
+import { getExperiment } from "src/types/getExperiment";
+import { NimbusExperimentStatusEnum } from "src/types/globalTypes";
 
 export const Subject = ({
   experiment: overrides = {},

@@ -4,7 +4,7 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import AppLayout from ".";
+import AppLayout from "src/components/AppLayout";
 
 test("renders app layout content with children", () => {
   render(

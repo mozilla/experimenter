@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode } from "react";
-import { ReactComponent as NotAllowed } from "./not-allowed.svg";
+import { ReactComponent as NotAllowed } from "src/components/DisabledItem/not-allowed.svg";
 
 type DisabledItemProps = {
   name: string;

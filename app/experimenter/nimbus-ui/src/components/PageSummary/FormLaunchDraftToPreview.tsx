@@ -5,9 +5,9 @@
 import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
-import { ReactComponent as ExternalIcon } from "../../images/external.svg";
-import { EXTERNAL_URLS } from "../../lib/constants";
-import LinkExternal from "../LinkExternal";
+import LinkExternal from "src/components/LinkExternal";
+import { ReactComponent as ExternalIcon } from "src/images/external.svg";
+import { EXTERNAL_URLS } from "src/lib/constants";
 
 const FormLaunchDraftToPreview = ({
   isLoading,

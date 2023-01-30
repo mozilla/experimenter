@@ -2,11 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AnnotatedBranch, REFERENCE_BRANCH_IDX } from ".";
-import { MOCK_EXPERIMENT } from "../mocks";
-import { FormBranchesAction, formBranchesActionReducer } from "./actions";
-import { FormBranchesState } from "./state";
-import { extractUpdateBranch, extractUpdateState } from "./update";
+import { MOCK_EXPERIMENT } from "src/components/PageEditBranches/FormBranches/mocks";
+import {
+  AnnotatedBranch,
+  REFERENCE_BRANCH_IDX,
+} from "src/components/PageEditBranches/FormBranches/reducer";
+import {
+  FormBranchesAction,
+  formBranchesActionReducer,
+} from "src/components/PageEditBranches/FormBranches/reducer/actions";
+import { FormBranchesState } from "src/components/PageEditBranches/FormBranches/reducer/state";
+import {
+  extractUpdateBranch,
+  extractUpdateState,
+} from "src/components/PageEditBranches/FormBranches/reducer/update";
 
 const MOCK_STATE: FormBranchesState = {
   equalRatio: true,

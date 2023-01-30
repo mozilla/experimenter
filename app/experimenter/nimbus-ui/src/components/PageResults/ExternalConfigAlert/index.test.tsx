@@ -4,8 +4,8 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import ExternalConfigAlert from ".";
-import { MOCK_METADATA_EXTERNAL_CONFIG } from "../../../lib/visualization/mocks";
+import ExternalConfigAlert from "src/components/PageResults/ExternalConfigAlert";
+import { MOCK_METADATA_EXTERNAL_CONFIG } from "src/lib/visualization/mocks";
 
 describe("ExternalConfigAlert", () => {
   it("renders all overrides as expected", () => {

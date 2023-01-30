@@ -4,7 +4,7 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { Subject } from "./mocks";
+import { Subject } from "src/components/PageEditBranches/FormBranches/FormScreenshot/mocks";
 
 describe("FormScreenshot", () => {
   const expectedImageUrl = "http://example.com/image.PNG";

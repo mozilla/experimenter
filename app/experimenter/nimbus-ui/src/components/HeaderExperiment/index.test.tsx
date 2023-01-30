@@ -4,11 +4,11 @@
 
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import HeaderExperiment from ".";
-import { BASE_PATH } from "../../lib/constants";
-import { humanDate } from "../../lib/dateUtils";
-import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
-import { NimbusExperimentStatusEnum } from "../../types/globalTypes";
+import HeaderExperiment from "src/components/HeaderExperiment";
+import { BASE_PATH } from "src/lib/constants";
+import { humanDate } from "src/lib/dateUtils";
+import { mockExperimentQuery, mockGetStatus } from "src/lib/mocks";
+import { NimbusExperimentStatusEnum } from "src/types/globalTypes";
 
 describe("HeaderExperiment", () => {
   it("renders as expected", () => {

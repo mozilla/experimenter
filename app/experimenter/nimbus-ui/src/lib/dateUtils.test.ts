@@ -6,8 +6,8 @@ import {
   addDaysToDate,
   getProposedEnrollmentRange,
   humanDate,
-} from "./dateUtils";
-import { mockSingleDirectoryExperiment as expFactory } from "./mocks";
+} from "src/lib/dateUtils";
+import { mockSingleDirectoryExperiment as expFactory } from "src/lib/mocks";
 
 const FAKE_DATE = "Sat Dec 12 2020";
 const FAKE_ISO_DATE = "2020-12-25T15:28:01.821657+00:00";

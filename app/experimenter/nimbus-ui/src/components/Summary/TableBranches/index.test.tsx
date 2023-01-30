@@ -10,9 +10,12 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
-import { NO_BRANCHES_COPY } from ".";
-import { getExperiment_experimentBySlug_treatmentBranches_screenshots } from "../../../types/getExperiment";
-import { MOCK_EXPERIMENT, Subject } from "./mocks";
+import { NO_BRANCHES_COPY } from "src/components/Summary/TableBranches";
+import {
+  MOCK_EXPERIMENT,
+  Subject,
+} from "src/components/Summary/TableBranches/mocks";
+import { getExperiment_experimentBySlug_treatmentBranches_screenshots } from "src/types/getExperiment";
 
 describe("TableBranches", () => {
   it("renders as expected with defaults", () => {

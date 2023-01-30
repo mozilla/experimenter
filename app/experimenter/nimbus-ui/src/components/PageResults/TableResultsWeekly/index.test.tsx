@@ -4,9 +4,9 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import TableResultsWeekly from ".";
-import { MockResultsContextProvider } from "../../../lib/mocks";
-import { BRANCH_COMPARISON } from "../../../lib/visualization/constants";
+import TableResultsWeekly from "src/components/PageResults/TableResultsWeekly";
+import { MockResultsContextProvider } from "src/lib/mocks";
+import { BRANCH_COMPARISON } from "src/lib/visualization/constants";
 
 describe("TableResultsWeekly", () => {
   it("renders as expected with relative uplift branch comparison (default)", () => {

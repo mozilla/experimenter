@@ -3,10 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  NimbusExperimentPublishStatusEnum,
-  NimbusExperimentStatusEnum,
-} from "../types/globalTypes";
-import {
   applicationSortSelector,
   channelSortSelector,
   computedEndDateSortSelector,
@@ -22,12 +18,16 @@ import {
   resultsReadySortSelector,
   selectFromExperiment,
   startDateSortSelector,
-} from "./experiment";
+} from "src/lib/experiment";
 import {
   mockDirectoryExperiments,
   mockExperimentQuery,
   mockSingleDirectoryExperiment,
-} from "./mocks";
+} from "src/lib/mocks";
+import {
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
+} from "src/types/globalTypes";
 
 const { experiment } = mockExperimentQuery("boo");
 

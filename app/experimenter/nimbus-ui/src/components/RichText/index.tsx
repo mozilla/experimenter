@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import LinkExternal from "../LinkExternal";
+import LinkExternal from "src/components/LinkExternal";
 
 // Match http://, https://, www., a combo, but not neither
 const LINK_MATCHER =
