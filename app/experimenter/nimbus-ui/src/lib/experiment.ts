@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RedirectCheck } from "../lib/contexts";
-import { getAllExperiments_experiments } from "../types/getAllExperiments";
-import { getExperiment_experimentBySlug } from "../types/getExperiment";
+import { LIFECYCLE_REVIEW_FLOWS } from "src/lib/constants";
+import { RedirectCheck } from "src/lib/contexts";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../types/globalTypes";
-import { LIFECYCLE_REVIEW_FLOWS } from "./constants";
+} from "src/types/globalTypes";
 
 export function getStatus(
   experiment?: getExperiment_experimentBySlug | getAllExperiments_experiments,

@@ -6,12 +6,11 @@ import { Link } from "@reach/router";
 import classNames from "classnames";
 import React, { useCallback, useMemo } from "react";
 import { Button, Table } from "react-bootstrap";
-import {
-  UpdateSearchParams,
-  useConfig,
-  useSearchParamsState,
-} from "../../../hooks";
-import { getProposedEnrollmentRange, humanDate } from "../../../lib/dateUtils";
+import LinkExternal from "src/components/LinkExternal";
+import NotSet from "src/components/NotSet";
+import { displayConfigLabelOrNotSet } from "src/components/Summary";
+import { UpdateSearchParams, useConfig, useSearchParamsState } from "src/hooks";
+import { getProposedEnrollmentRange, humanDate } from "src/lib/dateUtils";
 import {
   applicationSortSelector,
   channelSortSelector,
@@ -26,11 +25,8 @@ import {
   populationPercentSortSelector,
   resultsReadySortSelector,
   startDateSortSelector,
-} from "../../../lib/experiment";
-import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
-import LinkExternal from "../../LinkExternal";
-import NotSet from "../../NotSet";
-import { displayConfigLabelOrNotSet } from "../../Summary";
+} from "src/lib/experiment";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 
 // These are all render functions for column types in the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;

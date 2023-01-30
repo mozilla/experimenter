@@ -2,8 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { mockAnalysis, MOCK_METADATA_WITH_CONFIG } from "./mocks";
-import { getControlBranchName, getSortedBranchNames } from "./utils";
+import {
+  mockAnalysis,
+  MOCK_METADATA_WITH_CONFIG,
+} from "src/lib/visualization/mocks";
+import {
+  getControlBranchName,
+  getSortedBranchNames,
+} from "src/lib/visualization/utils";
 
 describe("getSortedBranchNames", () => {
   const MOCK_OVERALL = {

@@ -4,18 +4,18 @@
 
 import React from "react";
 import Button from "react-bootstrap/Button";
-import ChangeApprovalOperations from ".";
-import { getStatus } from "../../lib/experiment";
+import ChangeApprovalOperations from "src/components/ChangeApprovalOperations";
+import { getStatus } from "src/lib/experiment";
 import {
   mockChangelog,
   mockExperimentQuery,
   mockRejectionChangelog,
-} from "../../lib/mocks";
+} from "src/lib/mocks";
 import {
   ExperimentsNimbusChangeLogOldStatusChoices,
   ExperimentsNimbusChangeLogOldStatusNextChoices,
   NimbusExperimentPublishStatusEnum,
-} from "../../types/globalTypes";
+} from "src/types/globalTypes";
 
 type BaseSubjectProps = Partial<
   React.ComponentProps<typeof ChangeApprovalOperations>

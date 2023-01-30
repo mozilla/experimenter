@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useQuery } from "@apollo/client";
-import { GET_EXPERIMENT_QUERY } from "../gql/experiments";
-import { getExperiment } from "../types/getExperiment";
+import { GET_EXPERIMENT_QUERY } from "src/gql/experiments";
+import { getExperiment } from "src/types/getExperiment";
 
 /**
  * Hook to retrieve all Experiment data by slug.

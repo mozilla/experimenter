@@ -7,17 +7,17 @@ import { navigate } from "@reach/router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
-import PageEditMetrics from ".";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import PageEditMetrics from "src/components/PageEditMetrics";
+import FormMetrics from "src/components/PageEditMetrics/FormMetrics";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   SUBMIT_ERROR,
-} from "../../lib/constants";
-import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import { OutcomeSlugs } from "../../lib/types";
-import FormMetrics from "./FormMetrics";
+} from "src/lib/constants";
+import { mockExperimentMutation, mockExperimentQuery } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { OutcomeSlugs } from "src/lib/types";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 

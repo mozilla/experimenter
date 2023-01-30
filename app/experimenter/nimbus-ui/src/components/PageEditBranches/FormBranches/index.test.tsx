@@ -4,13 +4,6 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { SERVER_ERRORS } from "../../../lib/constants";
-import { MOCK_CONFIG } from "../../../lib/mocks";
-import { assertSerializerMessages } from "../../../lib/test-utils";
-import {
-  NimbusExperimentApplicationEnum,
-  NimbusExperimentFirefoxVersionEnum,
-} from "../../../types/globalTypes";
 import {
   MOCK_BRANCH,
   MOCK_EXPERIMENT,
@@ -18,8 +11,15 @@ import {
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
   MOCK_FEATURE_CONFIG_WITH_SETS_PREFS,
   SubjectBranches,
-} from "./mocks";
-import { extractUpdateBranch } from "./reducer/update";
+} from "src/components/PageEditBranches/FormBranches/mocks";
+import { extractUpdateBranch } from "src/components/PageEditBranches/FormBranches/reducer/update";
+import { SERVER_ERRORS } from "src/lib/constants";
+import { MOCK_CONFIG } from "src/lib/mocks";
+import { assertSerializerMessages } from "src/lib/test-utils";
+import {
+  NimbusExperimentApplicationEnum,
+  NimbusExperimentFirefoxVersionEnum,
+} from "src/types/globalTypes";
 
 describe("FormBranches", () => {
   it("renders as expected", async () => {

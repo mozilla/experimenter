@@ -7,18 +7,18 @@ import { navigate } from "@reach/router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
-import PageEditAudience from ".";
-import { UPDATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "../../lib/constants";
-import { mockExperimentQuery } from "../../lib/mocks";
-import { RouterSlugProvider } from "../../lib/test-utils";
+import PageEditAudience from "src/components/PageEditAudience";
+import FormAudience from "src/components/PageEditAudience/FormAudience";
+import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
+import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
+import { mockExperimentQuery } from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
 import {
   ExperimentInput,
   NimbusExperimentChannelEnum,
   NimbusExperimentFirefoxVersionEnum,
-} from "../../types/globalTypes";
-import { updateExperiment_updateExperiment } from "../../types/updateExperiment";
-import FormAudience from "./FormAudience";
+} from "src/types/globalTypes";
+import { updateExperiment_updateExperiment } from "src/types/updateExperiment";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 

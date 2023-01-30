@@ -5,15 +5,15 @@
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext } from "react";
 import { Alert } from "react-bootstrap";
-import { POLL_INTERVAL } from "../../lib/constants";
-import { ExperimentContext } from "../../lib/contexts";
-import { StatusCheck } from "../../lib/experiment";
-import { AnalysisData } from "../../lib/visualization/types";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import AppLayoutSidebarLaunched from "../AppLayoutSidebarLaunched";
-import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
-import Head from "../Head";
-import HeaderExperiment from "../HeaderExperiment";
+import AppLayoutSidebarLaunched from "src/components/AppLayoutSidebarLaunched";
+import AppLayoutWithSidebar from "src/components/AppLayoutWithSidebar";
+import Head from "src/components/Head";
+import HeaderExperiment from "src/components/HeaderExperiment";
+import { POLL_INTERVAL } from "src/lib/constants";
+import { ExperimentContext } from "src/lib/contexts";
+import { StatusCheck } from "src/lib/experiment";
+import { AnalysisData } from "src/lib/visualization/types";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export type AppLayoutWithExperimentProps = {
   children: React.ReactNode;

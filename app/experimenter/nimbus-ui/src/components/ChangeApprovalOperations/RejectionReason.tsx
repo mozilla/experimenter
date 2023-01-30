@@ -4,13 +4,13 @@
 
 import React, { useMemo } from "react";
 import Alert from "react-bootstrap/Alert";
-import { LIFECYCLE_REVIEW_FLOWS } from "../../lib/constants";
-import { humanDate } from "../../lib/dateUtils";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { LIFECYCLE_REVIEW_FLOWS } from "src/lib/constants";
+import { humanDate } from "src/lib/dateUtils";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   ExperimentsNimbusChangeLogOldStatusChoices,
   ExperimentsNimbusChangeLogOldStatusNextChoices,
-} from "../../types/globalTypes";
+} from "src/types/globalTypes";
 
 export const RejectionReason = ({
   rejectionEvent,

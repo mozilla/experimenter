@@ -20,15 +20,15 @@ import DirectoryTable, {
   DirectoryColumnStartDate,
   DirectoryColumnTitle,
   SortableColumnTitle,
-} from ".";
-import { UpdateSearchParams } from "../../../hooks/useSearchParamsState";
-import { getProposedEnrollmentRange, humanDate } from "../../../lib/dateUtils";
+} from "src/components/PageHome/DirectoryTable";
+import { UpdateSearchParams } from "src/hooks/useSearchParamsState";
+import { getProposedEnrollmentRange, humanDate } from "src/lib/dateUtils";
 import {
   mockDirectoryExperiments,
   mockSingleDirectoryExperiment,
-} from "../../../lib/mocks";
-import { RouterSlugProvider } from "../../../lib/test-utils";
-import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
+} from "src/lib/mocks";
+import { RouterSlugProvider } from "src/lib/test-utils";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 
 const experiment = mockSingleDirectoryExperiment();
 

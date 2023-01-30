@@ -4,14 +4,14 @@
 
 import React, { useState } from "react";
 import { Accordion, Button, Card, Table } from "react-bootstrap";
-import { displayConfigLabelOrNotSet } from "..";
-import { useConfig } from "../../../hooks";
-import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
-import { ReactComponent as ExpandPlus } from "../../../images/plus.svg";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { NimbusExperimentApplicationEnum } from "../../../types/globalTypes";
-import { Code } from "../../Code";
-import NotSet from "../../NotSet";
+import { Code } from "src/components/Code";
+import NotSet from "src/components/NotSet";
+import { displayConfigLabelOrNotSet } from "src/components/Summary";
+import { useConfig } from "src/hooks";
+import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
+import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
+import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
 
 type TableAudienceProps = {
   experiment: getExperiment_experimentBySlug;

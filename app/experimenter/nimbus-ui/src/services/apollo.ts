@@ -10,7 +10,7 @@ import {
   InMemoryCacheConfig,
 } from "@apollo/client";
 import { createUploadLink } from "apollo-upload-client";
-import config from "./config";
+import config from "src/services/config";
 
 export const cacheConfig: InMemoryCacheConfig = {
   typePolicies: {

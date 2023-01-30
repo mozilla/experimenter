@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { getExperiment_experimentBySlug } from "../types/getExperiment";
-import { getStatus, StatusCheck } from "./experiment";
-import { AnalysisData } from "./visualization/types";
-import { getSortedBranchNames } from "./visualization/utils";
+import { getStatus, StatusCheck } from "src/lib/experiment";
+import { AnalysisData } from "src/lib/visualization/types";
+import { getSortedBranchNames } from "src/lib/visualization/utils";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export type ResultsContextType = {
   analysis: AnalysisData;

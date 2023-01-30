@@ -8,7 +8,7 @@ import config, {
   readConfig,
   reset,
   update,
-} from "./config";
+} from "src/services/config";
 
 describe("services/config", () => {
   beforeEach(reset);

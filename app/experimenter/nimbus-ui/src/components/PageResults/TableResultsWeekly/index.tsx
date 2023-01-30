@@ -5,19 +5,19 @@
 import classNames from "classnames";
 import React, { useContext, useState } from "react";
 import Collapse from "react-bootstrap/Collapse";
-import { ReactComponent as CollapseMinus } from "../../../images/minus.svg";
-import { ReactComponent as ExpandPlus } from "../../../images/plus.svg";
-import { ResultsContext } from "../../../lib/contexts";
+import TableWeekly from "src/components/PageResults/TableWeekly";
+import { ReactComponent as CollapseMinus } from "src/images/minus.svg";
+import { ReactComponent as ExpandPlus } from "src/images/plus.svg";
+import { ResultsContext } from "src/lib/contexts";
 import {
   BRANCH_COMPARISON,
   GENERAL_TIPS,
   HIGHLIGHTS_METRICS_LIST,
-} from "../../../lib/visualization/constants";
+} from "src/lib/visualization/constants";
 import {
   AnalysisBases,
   BranchComparisonValues,
-} from "../../../lib/visualization/types";
-import TableWeekly from "../TableWeekly";
+} from "src/lib/visualization/types";
 
 export type TableResultsWeeklyProps = {
   branchComparison?: BranchComparisonValues;

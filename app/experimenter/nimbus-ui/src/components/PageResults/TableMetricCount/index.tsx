@@ -3,21 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useContext } from "react";
-import { ResultsContext } from "../../../lib/contexts";
+import GraphsWeekly from "src/components/PageResults/GraphsWeekly";
+import MetricHeader from "src/components/PageResults/TableMetricCount/MetricHeader";
+import TableVisualizationRow from "src/components/PageResults/TableVisualizationRow";
+import { ResultsContext } from "src/lib/contexts";
 import {
   COUNT_METRIC_COLUMNS,
   DISPLAY_TYPE,
   METRIC_TYPE,
   TABLE_LABEL,
-} from "../../../lib/visualization/constants";
+} from "src/lib/visualization/constants";
 import {
   AnalysisBases,
   BranchComparisonValues,
-} from "../../../lib/visualization/types";
-import { getExtremeBounds } from "../../../lib/visualization/utils";
-import GraphsWeekly from "../GraphsWeekly";
-import TableVisualizationRow from "../TableVisualizationRow";
-import MetricHeader from "./MetricHeader";
+} from "src/lib/visualization/types";
+import { getExtremeBounds } from "src/lib/visualization/utils";
 
 type CountMetricStatistic = {
   name: string;

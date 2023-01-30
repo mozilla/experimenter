@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ApolloClient, InMemoryCache } from "@apollo/client/core";
-import { cache, cacheConfig, createApolloClient } from "./apollo";
+import { cache, cacheConfig, createApolloClient } from "src/services/apollo";
 
 describe("services/apollo", () => {
   describe("cacheConfig", () => {

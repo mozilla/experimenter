@@ -6,28 +6,28 @@ import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useMemo, useState } from "react";
 import { Badge } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
-import { useChangeOperationMutation, useReviewCheck } from "../../hooks";
-import { ReactComponent as InfoCircle } from "../../images/info-circle.svg";
+import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
+import ChangeApprovalOperations from "src/components/ChangeApprovalOperations";
+import Head from "src/components/Head";
+import FormLaunchDraftToPreview from "src/components/PageSummary/FormLaunchDraftToPreview";
+import FormLaunchDraftToReview from "src/components/PageSummary/FormLaunchDraftToReview";
+import FormLaunchPreviewToReview from "src/components/PageSummary/FormLaunchPreviewToReview";
+import Summary from "src/components/Summary";
+import SummaryTimeline from "src/components/Summary/SummaryTimeline";
+import { useChangeOperationMutation, useReviewCheck } from "src/hooks";
+import { ReactComponent as InfoCircle } from "src/images/info-circle.svg";
 import {
   CHANGELOG_MESSAGES,
   EXTERNAL_URLS,
   LIFECYCLE_REVIEW_FLOWS,
-} from "../../lib/constants";
-import { ExperimentContext } from "../../lib/contexts";
-import { getStatus, getSummaryAction } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+} from "src/lib/constants";
+import { ExperimentContext } from "src/lib/contexts";
+import { getStatus, getSummaryAction } from "src/lib/experiment";
+import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
-} from "../../types/globalTypes";
-import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import ChangeApprovalOperations from "../ChangeApprovalOperations";
-import Head from "../Head";
-import Summary from "../Summary";
-import SummaryTimeline from "../Summary/SummaryTimeline";
-import FormLaunchDraftToPreview from "./FormLaunchDraftToPreview";
-import FormLaunchDraftToReview from "./FormLaunchDraftToReview";
-import FormLaunchPreviewToReview from "./FormLaunchPreviewToReview";
+} from "src/types/globalTypes";
 
 const PageSummary = (props: RouteComponentProps) => {
   const { experiment, refetch, useExperimentPolling } =

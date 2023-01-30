@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from "react";
-import FormOverview from ".";
-import { MockedCache, MOCK_CONFIG } from "../../lib/mocks";
-import { getConfig_nimbusConfig } from "../../types/getConfig";
+import FormOverview from "src/components/FormOverview";
+import { MockedCache, MOCK_CONFIG } from "src/lib/mocks";
+import { getConfig_nimbusConfig } from "src/types/getConfig";
 
 export const Subject = ({
   isLoading = false,

@@ -7,7 +7,7 @@ import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { useCommonForm } from "../../hooks";
+import { useCommonForm } from "src/hooks";
 
 type InputRadiosProps = {
   children: React.ReactNode;
