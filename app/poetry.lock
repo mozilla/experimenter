@@ -1274,19 +1274,19 @@ test-extra = ["curio", "matplotlib (!=3.2.0)", "nbformat", "numpy (>=1.20)", "pa
 
 [[package]]
 name = "isort"
-version = "5.11.0"
+version = "5.12.0"
 description = "A Python utility / library to sort Python imports."
 category = "main"
 optional = false
-python-versions = ">=3.7.0"
+python-versions = ">=3.8.0"
 files = [
-    {file = "isort-5.11.0-py3-none-any.whl", hash = "sha256:1b8631908ecc1b7108801801e510c4bf908962b77bd44882a3873566542f7255"},
-    {file = "isort-5.11.0.tar.gz", hash = "sha256:7aa325a6cbbc086cb74db2e9cc838a8089f8a6e1da26780d8d6d6b24e37f4e5f"},
+    {file = "isort-5.12.0-py3-none-any.whl", hash = "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"},
+    {file = "isort-5.12.0.tar.gz", hash = "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504"},
 ]
 
 [package.extras]
-colors = ["colorama (>=0.4.3,<0.5.0)"]
-pipfile-deprecated-finder = ["pipreqs", "requirementslib"]
+colors = ["colorama (>=0.4.3)"]
+pipfile-deprecated-finder = ["pip-shims (>=0.5.2)", "pipreqs", "requirementslib"]
 plugins = ["setuptools"]
 requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
@@ -2800,4 +2800,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "d87901a66212b082801963d647162bb6e667deb78f883104c8f76f4ee09a77ed"
+content-hash = "71e710d6ed2bdef77d6be8fe9bbbcb5919243a69e2707a1f9a1a89856d8d138e"
