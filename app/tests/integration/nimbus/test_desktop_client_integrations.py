@@ -272,9 +272,9 @@ def test_check_telemetry_sticky_targeting(
     pref_name = "sticky.targeting.test.pref"
 
     requests.delete("http://ping-server:5000/pings")
-    targeting = helpers.load_targeting_configs()[-1]
     experiment_slug = str(slugify(experiment_name))
-    experiment_default_data["targetingConfigSlug"] = targeting
+    targeting_config_slug = "no_targeting"
+    experiment_default_data["targetingConfigSlug"] = targeting_config_slug
     experiment_default_data["featureConfigId"] = 1
     experiment_default_data["referenceBranch"] = {
         "description": "reference branch",
@@ -296,7 +296,7 @@ def test_check_telemetry_sticky_targeting(
     helpers.create_desktop_experiment(
         experiment_slug,
         "desktop",
-        targeting,
+        targeting_config_slug,
         experiment_default_data,
     )
 
