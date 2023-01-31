@@ -11,8 +11,8 @@ import ChangeApprovalOperations from "src/components/ChangeApprovalOperations";
 import Head from "src/components/Head";
 import FormLaunchDraftToPreview from "src/components/PageSummary/FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "src/components/PageSummary/FormLaunchDraftToReview";
-import FormLaunchLiveToReview from "src/components/PageSummary/FormLaunchLiveToReview";
 import FormLaunchPreviewToReview from "src/components/PageSummary/FormLaunchPreviewToReview";
+import FormUpdateLiveToReview from "src/components/PageSummary/FormUpdateLiveToReview";
 import Summary from "src/components/Summary";
 import SummaryTimeline from "src/components/Summary/SummaryTimeline";
 import { useChangeOperationMutation, useReviewCheck } from "src/hooks";
@@ -170,7 +170,6 @@ const PageSummary = (props: RouteComponentProps) => {
         ...LIFECYCLE_REVIEW_FLOWS.UPDATE,
       };
     }
-    
     // HACK: These values shouldn't end up being used, but it makes typechecking happy
     return {
       rejectChange: () => {},
@@ -278,7 +277,7 @@ const PageSummary = (props: RouteComponentProps) => {
         )}
 
         {status.live && status.dirty && (
-          <FormLaunchLiveToReview
+          <FormUpdateLiveToReview
             {...{
               isLoading,
               onSubmit: onUpdateClicked,

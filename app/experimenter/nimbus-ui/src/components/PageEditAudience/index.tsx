@@ -86,7 +86,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
           setIsServerValid(true);
           setSubmitErrors({});
           // In practice this should be defined by the time we get here
-          refetch(); // do we need to refetch for live updates? 
+          refetch();
 
           if (next) {
             navigate("../");
