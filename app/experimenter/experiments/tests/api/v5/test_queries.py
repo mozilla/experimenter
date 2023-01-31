@@ -1221,6 +1221,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         experiment_data = content["data"]["experimentBySlug"]
+        assert experiment.proposed_end_date
         self.assertEqual(
             experiment_data["computedEndDate"],
             experiment.proposed_end_date.isoformat(),

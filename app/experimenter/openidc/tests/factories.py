@@ -1,5 +1,5 @@
 import factory
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from faker import Factory as FakerFactory
 
 faker = FakerFactory.create()
@@ -12,4 +12,4 @@ class UserFactory(factory.django.DjangoModelFactory):
     username = factory.LazyAttribute(lambda o: o.email)
 
     class Meta:
-        model = get_user_model()
+        model = User

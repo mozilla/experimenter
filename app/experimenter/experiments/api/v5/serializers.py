@@ -4,7 +4,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 import jsonschema
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
@@ -149,10 +149,10 @@ class FeatureConfigDataClass:
     id: int
     name: str
     slug: str
-    description: str
+    description: typing.Optional[str]
     application: str
-    ownerEmail: str
-    schema: str
+    ownerEmail: typing.Optional[str]
+    schema: typing.Optional[str]
     setsPrefs: bool
 
 
@@ -283,8 +283,7 @@ class NimbusConfigurationDataClass:
 
     def _get_owners(self):
         owners = (
-            get_user_model()
-            .objects.filter(owned_nimbusexperiments__isnull=False)
+            User.objects.filter(owned_nimbusexperiments__isnull=False)
             .distinct()
             .order_by("email")
         )
@@ -330,12 +329,17 @@ class NimbusConfigurationDataClass:
         ]
 
 
-class NimbusConfigurationSerializer(DataclassSerializer):
+class NimbusConfigurationSerializer(DataclassSerializer[NimbusConfigurationDataClass]):
     class Meta:
         dataclass = NimbusConfigurationDataClass
 
 
-class ExperimentNameValidatorMixin:
+_SerializerT = typing.TypeVar("_SerializerT", bound=serializers.ModelSerializer)
+
+
+class ExperimentNameValidatorMixin(typing.Generic[_SerializerT]):
+    instance: _SerializerT
+
     def validate_name(self, name):
         if not (self.instance or name):
             raise serializers.ValidationError("Name is required to create an experiment")
@@ -738,7 +742,7 @@ class NimbusExperimentSerializer(
     NimbusExperimentBranchMixin,
     NimbusStatusValidationMixin,
     NimbusExperimentDocumentationLinkMixin,
-    ExperimentNameValidatorMixin,
+    ExperimentNameValidatorMixin[NimbusExperiment],
     serializers.ModelSerializer,
 ):
     name = serializers.CharField(
@@ -888,15 +892,17 @@ class NimbusExperimentSerializer(
         self.should_call_preview_task = instance and (
             (
                 instance.status == NimbusExperiment.Status.DRAFT
+                and data
                 and (data.get("status") == NimbusExperiment.Status.PREVIEW)
             )
             or (
                 instance.status == NimbusExperiment.Status.PREVIEW
+                and data
                 and (data.get("status") == NimbusExperiment.Status.DRAFT)
             )
         )
         self.should_call_push_task = (
-            data.get("publish_status") == NimbusExperiment.PublishStatus.APPROVED
+            data and data.get("publish_status") == NimbusExperiment.PublishStatus.APPROVED
         )
         super().__init__(instance=instance, data=data, **kwargs)
 
@@ -1568,7 +1574,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
 
 class NimbusExperimentCloneSerializer(
-    ExperimentNameValidatorMixin, serializers.ModelSerializer
+    ExperimentNameValidatorMixin[NimbusExperiment], serializers.ModelSerializer
 ):
     parent_slug = serializers.SlugRelatedField(
         slug_field="slug", queryset=NimbusExperiment.objects.all()

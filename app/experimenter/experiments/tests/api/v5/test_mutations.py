@@ -77,7 +77,7 @@ class TestCreateExperimentMutation(GraphQLTestCase):
         result = content["data"]["createExperiment"]
         self.assertEqual(result["message"], "success")
 
-        experiment = NimbusExperiment.objects.first()
+        experiment = NimbusExperiment.objects.get()
         self.assertEqual(experiment.name, "Test 1234")
         self.assertEqual(experiment.slug, "test-1234")
         self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
@@ -167,7 +167,7 @@ class TestUpdateExperimentMutationSingleFeature(
         result = content["data"]["updateExperiment"]
         self.assertEqual(result["message"], "success")
 
-        experiment = NimbusExperiment.objects.first()
+        experiment = NimbusExperiment.objects.get()
         self.assertEqual(experiment.slug, "old slug")
         self.assertEqual(experiment.name, "new name")
         self.assertEqual(experiment.hypothesis, "new hypothesis")
@@ -277,7 +277,7 @@ class TestUpdateExperimentMutationSingleFeature(
         result = content["data"]["updateExperiment"]
         self.assertEqual(result["message"], "success")
 
-        experiment = NimbusExperiment.objects.first()
+        experiment = NimbusExperiment.objects.get()
         self.assertEqual(experiment.branches.count(), branch_count)
 
     def test_does_not_clear_feature_config_when_other_fields_specified(self):
@@ -305,7 +305,7 @@ class TestUpdateExperimentMutationSingleFeature(
         result = content["data"]["updateExperiment"]
         self.assertEqual(result["message"], "success")
 
-        experiment = NimbusExperiment.objects.first()
+        experiment = NimbusExperiment.objects.get()
         self.assertEqual(experiment.feature_configs.get(), expected_feature_config)
 
     def test_update_mobile_experiment_branches_with_feature_config(self):
@@ -582,7 +582,7 @@ class TestUpdateExperimentMutationSingleFeature(
         reference_branch = {"name": "control", "description": "a control", "ratio": 1}
         treatment_branches = [{"name": "treatment1", "description": "desc1", "ratio": 1}]
         invalid_feature_config_id = (
-            NimbusFeatureConfig.objects.all().order_by("-id").first().id + 1
+            NimbusFeatureConfig.objects.all().order_by("-id").all()[0].id + 1
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -1117,7 +1117,7 @@ class TestUpdateExperimentMutationSingleFeature(
         result = content["data"]["updateExperiment"]
         self.assertEqual(result["message"], "success")
 
-        experiment = NimbusExperiment.objects.first()
+        experiment = NimbusExperiment.objects.get()
         self.assertEqual(experiment.conclusion_recommendation, None)
         self.assertEqual(experiment.takeaways_summary, "the test worked")
 

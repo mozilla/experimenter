@@ -1,7 +1,7 @@
 import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 
 from experimenter.celery import app
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -18,7 +18,7 @@ metrics = markus.get_metrics("kinto.nimbus_tasks")
 
 
 def get_kinto_user():
-    user, _ = get_user_model().objects.get_or_create(
+    user, _ = User.objects.get_or_create(
         email=settings.KINTO_DEFAULT_CHANGELOG_USER,
         username=settings.KINTO_DEFAULT_CHANGELOG_USER,
     )
@@ -169,6 +169,9 @@ def handle_updating_experiments(applications, records):
         published_record = records.get(experiment.slug).copy()
         published_record.pop("last_modified")
 
+        if experiment.published_dto is None:
+            continue
+
         stored_record = experiment.published_dto.copy()
         stored_record.pop("last_modified", None)
 
@@ -264,7 +267,7 @@ def nimbus_push_experiment_to_kinto(collection, experiment_id):
         metrics.incr("push_experiment_to_kinto.completed")
     except Exception as e:
         metrics.incr("push_experiment_to_kinto.failed")
-        logger.info(f"Pushing experiment {experiment.slug} to Kinto failed: {e}")
+        logger.info(f"Pushing experiment {experiment_id} to Kinto failed: {e}")
         raise e
 
 
@@ -302,7 +305,7 @@ def nimbus_update_experiment_in_kinto(collection, experiment_id):
         metrics.incr("update_experiment_in_kinto.completed")
     except Exception as e:
         metrics.incr("update_experiment_in_kinto.failed")
-        logger.info(f"Updating experiment {experiment.slug} in Kinto failed: {e}")
+        logger.info(f"Updating experiment {experiment_id} in Kinto failed: {e}")
         raise e
 
 
@@ -336,7 +339,7 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
         metrics.incr("end_experiment_in_kinto.completed")
     except Exception as e:
         metrics.incr("end_experiment_in_kinto.failed")
-        logger.info(f"Deleting experiment {experiment.slug} from Kinto failed: {e}")
+        logger.info(f"Deleting experiment {experiment_id} from Kinto failed: {e}")
         raise e
 
 
