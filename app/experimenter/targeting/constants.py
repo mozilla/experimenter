@@ -142,6 +142,37 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903_PREFER_MOTION = NimbusTargetingC
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
+    name=(
+        "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
+        "new profile, needing default w/ pin"
+    ),
+    slug="first_run_new_profile_need_default_has_pin",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Windows 1903+, "
+        "with a new profile, needing default w/ pin"
+    ),
+    targeting=(
+        "{first_run} && os.windowsBuildNumber >= 18362 && {has_pin} && {new_profile} && "
+        "{need_default}".format(
+            first_run=FIRST_RUN.targeting,
+            new_profile=NEW_PROFILE,
+            need_default=NEED_DEFAULT,
+            has_pin=HAS_PIN,
+        )
+    ),
+    desktop_telemetry=(
+        "{first_run} AND environment.system.os.windows_build_number >= 18362 AND "
+        "!isDefaultBrowser AND {new_profile} AND {has_pin}"
+    ).format(
+        first_run=FIRST_RUN.desktop_telemetry,
+        new_profile=NEW_PROFILE,
+        has_pin=HAS_PIN),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_TCP_STUDY = NimbusTargetingConfig(
     name="Exclude users in the TCP revenue study",
     slug="not_tcp_study",
@@ -459,17 +490,6 @@ INFREQUENT_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     # in a new profile created by (at least) 100 and newer, and probably
     # substantially older than that too.
     targeting=f"{INFREQUENT_USER_URIS.targeting} && totalBookmarksCount == 5",
-    desktop_telemetry="",
-    sticky_required=True,
-    is_first_run_required=False,
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
-NEW_USER_WITH_7_28_DAY_PROFILE_AGE = NimbusTargetingConfig(
-    name="New user with 7 to 28 day profile age",
-    slug="new_user_with_7_28_day_profile_age",
-    description="Users with a profile that is between 7-28 days old, inclusive",
-    targeting=f"{PROFILELESSTHAN28DAYS} && {PROFILEMORETHAN7DAYS}",
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
@@ -925,32 +945,6 @@ IOS_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.IOS.name, Application.FOCUS_IOS.name),
-)
-
-HAS_GOOGLE_BING_DDG_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
-    name="Has Google, Bing, or DuckDuckGo as current default search engine",
-    slug="has_google_bing_or_ddg_as_current_default_search_engine",
-    description="Users with Google, Bing, or DuckDuckGo as current default engine",
-    targeting=(
-        "'google' in searchEngines.current ||"
-        "searchEngines.current == 'bing' ||"
-        "searchEngines.current == 'ddg'"
-    ),
-    desktop_telemetry="",
-    sticky_required=False,
-    is_first_run_required=False,
-    application_choice_names=(Application.DESKTOP.name,),
-)
-
-NEW_ANDROID_13_USERS = NimbusTargetingConfig(
-    name="New Android 13 Users",
-    slug="new_android_13_users",
-    description="Users who have Android 13 and are on their first run of the application",
-    targeting="(android_sdk_version|versionCompare('33') >= 0) && is_first_run",
-    desktop_telemetry="",
-    sticky_required=True,
-    is_first_run_required=True,
-    application_choice_names=(Application.FENIX.name,),
 )
 
 
