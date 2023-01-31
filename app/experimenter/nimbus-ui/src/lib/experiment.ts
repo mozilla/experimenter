@@ -38,6 +38,7 @@ export function getStatus(
     approved: publishStatus === NimbusExperimentPublishStatusEnum.APPROVED,
     review: publishStatus === NimbusExperimentPublishStatusEnum.REVIEW,
     waiting: publishStatus === NimbusExperimentPublishStatusEnum.WAITING,
+    dirty: publishStatus === NimbusExperimentPublishStatusEnum.DIRTY,
     // TODO: EXP-1325 Need to check something else here for end enrollment in particular?
     pauseRequested:
       status === NimbusExperimentStatusEnum.LIVE &&
