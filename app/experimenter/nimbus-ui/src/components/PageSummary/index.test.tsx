@@ -21,7 +21,7 @@ import {
 } from "src/components/PageSummary/mocks";
 import { createMutationMock } from "src/components/Summary/mocks";
 import { CHANGELOG_MESSAGES, SERVER_ERRORS } from "src/lib/constants";
-import { mockExperimentQuery } from "src/lib/mocks";
+import { mockExperimentQuery, mockLiveRolloutQuery } from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
@@ -221,6 +221,20 @@ describe("PageSummary", () => {
     await launchFromDraftToReview();
   });
 
+  it("handles dirty Live to Review as expected", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+    });
+    const mutationMock = createStatusMutationMock(rollout.id!);
+
+    render(<Subject mocks={[mockRollout, mutationMock]} />);
+
+    const submitButton = await screen.findByTestId("launch-live-to-review");
+    expect(submitButton!).toBeEnabled();
+    await act(async () => void fireEvent.click(submitButton));
+  });
+
   it("handles cancelled Launch to Review as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.DRAFT,
@@ -237,6 +251,23 @@ describe("PageSummary", () => {
     const cancelButton = await screen.findByTestId("cancel");
     fireEvent.click(cancelButton);
     await screen.findByTestId("launch-draft-to-preview");
+  });
+
+  it("handles cancelled launch Live to Review as expected", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+    });
+    const mutationMock = createStatusMutationMock(rollout.id!);
+    render(<Subject mocks={[mockRollout, mutationMock]} />);
+
+    const submitButton = await screen.findByTestId("launch-live-to-review");
+    expect(submitButton!).toBeEnabled();
+    await act(async () => void fireEvent.click(submitButton));
+
+    const cancelButton = await screen.findByTestId("cancel");
+    fireEvent.click(cancelButton);
+    await screen.findByTestId("request-live-launch-alert");
   });
 
   it("handles Launch to Preview after reconsidering Launch to Review from Draft", async () => {
