@@ -11,6 +11,7 @@ import ChangeApprovalOperations from "src/components/ChangeApprovalOperations";
 import Head from "src/components/Head";
 import FormLaunchDraftToPreview from "src/components/PageSummary/FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "src/components/PageSummary/FormLaunchDraftToReview";
+import FormLaunchLiveToReview from "src/components/PageSummary/FormLaunchLiveToReview";
 import FormLaunchPreviewToReview from "src/components/PageSummary/FormLaunchPreviewToReview";
 import Summary from "src/components/Summary";
 import SummaryTimeline from "src/components/Summary/SummaryTimeline";
@@ -243,6 +244,16 @@ const PageSummary = (props: RouteComponentProps) => {
               isLoading,
               onSubmit: onLaunchClicked,
               onBackToDraft: onBackToDraftClicked,
+            }}
+          />
+        )}
+
+        {status.live && status.dirty && (
+          <FormLaunchLiveToReview
+            {...{
+              isLoading,
+              onSubmit: onLaunchClicked,
+              onCancel: () => setShowLaunchToReview(false),
             }}
           />
         )}
