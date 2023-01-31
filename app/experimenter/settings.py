@@ -472,3 +472,4 @@ SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
 
 # Required to save large experiments in the admin
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20mb
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
