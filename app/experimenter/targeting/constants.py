@@ -165,9 +165,8 @@ FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
         "{first_run} AND environment.system.os.windows_build_number >= 18362 AND "
         "!isDefaultBrowser AND {new_profile} AND {has_pin}"
     ).format(
-        first_run=FIRST_RUN.desktop_telemetry,
-        new_profile=NEW_PROFILE,
-        has_pin=HAS_PIN),
+        first_run=FIRST_RUN.desktop_telemetry, new_profile=NEW_PROFILE, has_pin=HAS_PIN
+    ),
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
