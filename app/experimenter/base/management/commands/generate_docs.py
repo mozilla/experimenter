@@ -23,7 +23,7 @@ class Command(BaseCommand):
     def generateSchema():
         generator = SchemaGenerator(title="Experimenter API")
         schema = generator.get_schema()
-        paths = schema["paths"]
+        paths = schema.get("paths") or []
         for path in paths:
             if "/api/v1/" in path:
                 for method in paths[path]:
