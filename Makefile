@@ -19,6 +19,7 @@ COLOR_CHECK = && echo "${GREEN}${PAD}All Checks Passed\n${PAD}${NOCOLOR}" || (ec
 PY_IMPORT_SORT =  python -m isort . --profile black
 PY_IMPORT_CHECK =  python -m isort . --profile black --check
 PYTHON_TEST = pytest --cov --cov-report term-missing
+PYTHON_TYPECHECK = pyright experimenter/
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 PYTHON_MIGRATE = python manage.py migrate
 ESLINT_LEGACY = yarn workspace @experimenter/core lint
@@ -121,7 +122,7 @@ kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
 check: build_test
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)" "$(PYTHON_TEST)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
 
 pytest: build_test
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
