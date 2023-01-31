@@ -9,12 +9,26 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
+from django.contrib.admin import ModelAdmin, StackedInline, TabularInline
+from django.db.models import DecimalField, ForeignKey, JSONField, ManyToManyField
+
+for cls in [
+    DecimalField,
+    ForeignKey,
+    JSONField,
+    ManyToManyField,
+    ModelAdmin,
+    StackedInline,
+    TabularInline,
+]:
+    cls.__class_getitem__ = classmethod(lambda cls, *args, **kwargs: cls)
+
+
 import os
 from urllib.parse import urljoin
 
 import pkg_resources
 import sentry_sdk
-from celery.schedules import crontab
 from decouple import config
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -458,3 +472,4 @@ SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
 
 # Required to save large experiments in the admin
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20mb
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000

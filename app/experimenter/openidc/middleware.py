@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.middleware import AuthenticationMiddleware
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.urls import Resolver404, resolve
 from rest_framework.authentication import SessionAuthentication
@@ -18,14 +18,11 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
 
     def __init__(self, get_response):
         self.get_response = get_response
-        self.User = get_user_model()
 
     def __call__(self, request):
         try:
             resolved = resolve(request.path)
-            if resolved.url_name in settings.OPENIDC_AUTH_WHITELIST:
-                # If the requested path is in our auth whitelist,
-                # skip authentication entirely
+            if resolved.url_name in settings.OPENIDC_AUTH_WHITELIST and self.get_response:
                 return self.get_response(request)
         except Resolver404:
             pass
@@ -39,9 +36,9 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
             return HttpResponse("Please login using OpenID Connect", status=401)
 
         try:
-            user = self.User.objects.get(username=openidc_email)
-        except self.User.DoesNotExist:
-            user = self.User(username=openidc_email, email=openidc_email)
+            user = User.objects.get(username=openidc_email)
+        except User.DoesNotExist:
+            user = User(username=openidc_email, email=openidc_email)
             if user.email == settings.DEV_USER_EMAIL and settings.DEBUG:
                 user.is_superuser = True
                 user.is_staff = True
@@ -49,7 +46,8 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
 
         request.user = user
 
-        return self.get_response(request)
+        if self.get_response:
+            return self.get_response(request)
 
 
 class OpenIDCRestFrameworkAuthenticator(SessionAuthentication):
