@@ -53,6 +53,9 @@ const PageSummary = (props: RouteComponentProps) => {
       onEndReviewRejectedClicked,
       onPauseReviewApprovedClicked,
       onPauseReviewRejectedClicked,
+      onUpdateClicked,
+      onUpdateReviewApprovedClicked,
+      onUpdateReviewRejectedClicked,
     ],
   } = useChangeOperationMutation(
     experiment,
@@ -106,6 +109,23 @@ const PageSummary = (props: RouteComponentProps) => {
       isEnrollmentPaused: false,
       publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     },
+    {
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+      changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+    },
+    {
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
+      changelogMessage: CHANGELOG_MESSAGES.REVIEW_APPROVED_UPDATE,
+    },
+    {
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: null,
+      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+    },
   );
 
   const {
@@ -143,7 +163,14 @@ const PageSummary = (props: RouteComponentProps) => {
         approveChange: onLaunchReviewApprovedClicked,
         ...LIFECYCLE_REVIEW_FLOWS.LAUNCH,
       };
+    } else if (status.updateRequested) {
+      return {
+        rejectChange: onUpdateReviewRejectedClicked,
+        approveChange: onUpdateReviewApprovedClicked,
+        ...LIFECYCLE_REVIEW_FLOWS.UPDATE,
+      };
     }
+    
     // HACK: These values shouldn't end up being used, but it makes typechecking happy
     return {
       rejectChange: () => {},
@@ -158,6 +185,8 @@ const PageSummary = (props: RouteComponentProps) => {
     onLaunchReviewRejectedClicked,
     onPauseReviewApprovedClicked,
     onPauseReviewRejectedClicked,
+    onUpdateReviewApprovedClicked,
+    onUpdateReviewRejectedClicked,
   ]);
 
   let launchDocs;
@@ -252,8 +281,8 @@ const PageSummary = (props: RouteComponentProps) => {
           <FormLaunchLiveToReview
             {...{
               isLoading,
-              onSubmit: onLaunchClicked,
-              onCancel: () => setShowLaunchToReview(false),
+              onSubmit: onUpdateClicked,
+              onCancel: onUpdateReviewRejectedClicked,
             }}
           />
         )}
