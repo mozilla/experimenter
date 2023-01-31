@@ -3291,16 +3291,19 @@
                   "type": "string"
                 },
                 "description": {
-                  "type": "string"
+                  "type": "string",
+                  "nullable": true
                 },
                 "application": {
                   "type": "string"
                 },
                 "ownerEmail": {
-                  "type": "string"
+                  "type": "string",
+                  "nullable": true
                 },
                 "schema": {
-                  "type": "string"
+                  "type": "string",
+                  "nullable": true
                 },
                 "setsPrefs": {
                   "type": "boolean"

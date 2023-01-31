@@ -2,12 +2,13 @@ import copy
 import datetime
 import os.path
 from decimal import Decimal
+from typing import Any, Dict
 from urllib.parse import urljoin
 from uuid import uuid4
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
@@ -31,7 +32,7 @@ class FilterMixin:
         return type(self).objects.filter(id=self.id).filter(filter).exists()
 
 
-class NimbusExperimentManager(models.Manager):
+class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
     def with_related(self):
         return (
             super()
@@ -108,13 +109,13 @@ class NimbusExperimentManager(models.Manager):
 
 
 class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.Model):
-    parent = models.ForeignKey(
+    parent = models.ForeignKey["NimbusExperiment"](
         "experiments.NimbusExperiment", models.SET_NULL, blank=True, null=True
     )
     is_rollout = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     owner = models.ForeignKey(
-        get_user_model(),
+        User,
         on_delete=models.CASCADE,
         related_name="owned_nimbusexperiments",
     )
@@ -147,7 +148,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=NimbusConstants.DEFAULT_PROPOSED_ENROLLMENT,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
-    population_percent = models.DecimalField(max_digits=7, decimal_places=4, default=0.0)
+    population_percent = models.DecimalField[Decimal](
+        max_digits=7, decimal_places=4, default=0.0
+    )
     total_enrolled_clients = models.PositiveIntegerField(default=0)
     firefox_min_version = models.CharField(
         max_length=255,
@@ -167,15 +170,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         max_length=255,
         choices=NimbusConstants.Channel.choices,
     )
-    locales = models.ManyToManyField(Locale, blank=True)
-    countries = models.ManyToManyField(Country, blank=True)
-    languages = models.ManyToManyField(Language, blank=True)
+    locales = models.ManyToManyField[Locale](Locale, blank=True)
+    countries = models.ManyToManyField[Country](Country, blank=True)
+    languages = models.ManyToManyField[Language](Language, blank=True)
     is_sticky = models.BooleanField(default=False)
-    projects = models.ManyToManyField(Project, blank=True)
+    projects = models.ManyToManyField[Project](Project, blank=True)
     hypothesis = models.TextField(default=NimbusConstants.HYPOTHESIS_DEFAULT)
     primary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
     secondary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
-    feature_configs = models.ManyToManyField(
+    feature_configs = models.ManyToManyField["NimbusFeatureConfig"](
         "NimbusFeatureConfig",
         blank=True,
     )
@@ -184,11 +187,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         max_length=255,
         default=TargetingConstants.TargetingConfig.NO_TARGETING,
     )
-    reference_branch = models.OneToOneField(
+    reference_branch = models.OneToOneField["NimbusBranch"](
         "NimbusBranch", blank=True, null=True, on_delete=models.SET_NULL
     )
-    published_dto = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
-    results_data = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+    published_dto = models.JSONField[Dict[str, Any]](
+        encoder=DjangoJSONEncoder, blank=True, null=True
+    )
+    results_data = models.JSONField[Dict[str, Any]](
+        encoder=DjangoJSONEncoder, blank=True, null=True
+    )
     risk_partner_related = models.BooleanField(default=None, blank=True, null=True)
     risk_revenue = models.BooleanField(default=None, blank=True, null=True)
     risk_brand = models.BooleanField(default=None, blank=True, null=True)
@@ -492,10 +499,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_enrollment_end_date(self):
-        if None not in (self.start_date, self.computed_enrollment_days):
-            return self.start_date + datetime.timedelta(
-                days=self.computed_enrollment_days
-            )
+        start_date = self.start_date
+        computed_enrollment_days = self.computed_enrollment_days
+        if start_date is not None and computed_enrollment_days is not None:
+            return start_date + datetime.timedelta(days=computed_enrollment_days)
 
     @property
     def computed_end_date(self):
@@ -503,7 +510,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def enrollment_duration(self):
-        if self.start_date:
+        if self.start_date and self.computed_end_date:
             return (
                 self.start_date.strftime("%Y-%m-%d")
                 + " to "
@@ -514,7 +521,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_duration_days(self):
-        if self.start_date:
+        if self.start_date and self.computed_end_date:
             return (self.computed_end_date - self.start_date).days
         else:
             return self.proposed_duration
@@ -567,12 +574,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def review_url(self):
-        return "{base_url}{collection_path}/{collection}/{review_path}".format(
-            base_url=settings.KINTO_ADMIN_URL,
-            collection_path="#/buckets/main-workspace/collections",
-            collection=self.application_config.kinto_collection,
-            review_path="simple-review",
-        )
+        if self.application_config:
+            return "{base_url}{collection_path}/{collection}/{review_path}".format(
+                base_url=settings.KINTO_ADMIN_URL,
+                collection_path="#/buckets/main-workspace/collections",
+                collection=self.application_config.kinto_collection,
+                review_path="simple-review",
+            )
 
     def delete_branches(self):
         self.reference_branch = None
@@ -581,9 +589,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def bucket_namespace(self):
-        keys = [
-            self.application_config.slug,
-        ]
+        keys = []
+        if self.application_config:
+            keys.append(self.application_config.slug)
 
         keys.extend(
             feature_config.slug
@@ -802,7 +810,7 @@ class NimbusBranchFeatureValue(models.Model):
     branch = models.ForeignKey(
         NimbusBranch, related_name="feature_values", on_delete=models.CASCADE
     )
-    feature_config = models.ForeignKey(
+    feature_config = models.ForeignKey["NimbusFeatureConfig"](
         "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
     )
     enabled = models.BooleanField(default=True)
@@ -923,10 +931,12 @@ class NimbusIsolationGroup(models.Model):
 
     @classmethod
     def request_isolation_group_buckets(cls, name, experiment, count):
-        query = cls.objects.filter(name=name, application=experiment.application)
-        if query.exists():
-            isolation_group = query.order_by("-instance").first()
-        else:
+        isolation_group = (
+            cls.objects.filter(name=name, application=experiment.application)
+            .order_by("-instance")
+            .first()
+        )
+        if isolation_group is None:
             isolation_group = cls.objects.create(
                 name=name, application=experiment.application
             )
@@ -984,6 +994,7 @@ class NimbusBucketRange(models.Model):
 
 
 class NimbusFeatureConfig(models.Model):
+    id: int
     name = models.CharField(max_length=255, null=False)
     slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, null=False)
     description = models.TextField(blank=True, null=True)
@@ -1007,7 +1018,7 @@ class NimbusFeatureConfig(models.Model):
         return self.name
 
 
-class NimbusChangeLogManager(models.Manager):
+class NimbusChangeLogManager(models.Manager["NimbusChangeLog"]):
     def latest_change(self):
         return self.all().order_by("-changed_on").first()
 
@@ -1039,7 +1050,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         on_delete=models.CASCADE,
     )
     changed_on = models.DateTimeField(default=current_datetime)
-    changed_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    changed_by = models.ForeignKey(User, on_delete=models.CASCADE)
     old_status = models.CharField(
         max_length=255, blank=True, null=True, choices=NimbusExperiment.Status.choices
     )
@@ -1060,7 +1071,9 @@ class NimbusChangeLog(FilterMixin, models.Model):
         max_length=255, choices=NimbusExperiment.PublishStatus.choices
     )
     message = models.TextField(blank=True, null=True)
-    experiment_data = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+    experiment_data = models.JSONField[Dict[str, Any]](
+        encoder=DjangoJSONEncoder, blank=True, null=True
+    )
     published_dto_changed = models.BooleanField(default=False)
 
     objects = NimbusChangeLogManager()

@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, create_model
 
@@ -174,8 +174,8 @@ class BranchComparisonData(BaseModel):
 
 
 class SignificanceData(BaseModel):
-    overall: dict = {}
-    weekly: dict = {}
+    overall: Dict[str, Any] = {}
+    weekly: Dict[str, Any] = {}
 
 
 class MetricData(BaseModel):
