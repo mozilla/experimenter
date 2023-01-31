@@ -24,9 +24,7 @@ const FormLaunchLiveToReview = ({
       <Form className="text-body">
         <div className="d-flex bd-highlight">
           <div className="py-1">
-          <p>
-          Review and launch live rollout updates:
-          </p>
+            <p>Review and update live rollout:</p>
             <button
               data-testid="launch-live-to-review"
               id="request-launch-button"
@@ -35,7 +33,7 @@ const FormLaunchLiveToReview = ({
               disabled={isLoading}
               onClick={onSubmit}
             >
-              Request Launch
+              Request Update
             </button>
             <button
               data-testid="cancel"

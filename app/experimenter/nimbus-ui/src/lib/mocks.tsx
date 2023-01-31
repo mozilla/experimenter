@@ -613,7 +613,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
 export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   id: 1,
   isArchived: false,
-  isRollout: false,
+  isRollout: true,
   canEdit: true,
   canArchive: true,
   owner: {
