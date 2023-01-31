@@ -13,7 +13,7 @@ class SiteFlagAdminForm(forms.ModelForm):
         exclude = ("id",)
 
 
-class SiteFlagAdmin(admin.ModelAdmin):
+class SiteFlagAdmin(admin.ModelAdmin[SiteFlag]):
     form = SiteFlagAdminForm
     list_display = ("value", "description", "modified_on", "created_on")
     list_display_links = ("description",)

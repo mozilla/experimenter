@@ -258,7 +258,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
                 "reference_branch": {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME},
                 "treatment_branches": [
                     {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
-                    for _ in data["treatment_branches"]
+                    for _ in (data.get("treatment_branches", []) or [])
                 ],
             },
         )

@@ -5,7 +5,7 @@ class SiteFlagNameChoices(models.TextChoices):
     LAUNCHING_DISABLED = "LAUNCHING_DISABLED", "Disable launching experiments"
 
 
-class SiteFlagManager(models.Manager):
+class SiteFlagManager(models.Manager["SiteFlag"]):
     def value(self, choice, defval=False):
         qs = self.get_queryset().filter(name=choice.name)
         return qs.get().value if qs.exists() else defval

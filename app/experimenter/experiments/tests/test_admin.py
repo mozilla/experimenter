@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import mock
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from import_export import fields
@@ -231,13 +231,13 @@ class TestNimbusExperimentExport(TestCase):
         self.assertIsNone(conclusion_recommendation)
 
     def test_before_import_row(self):
-        user_model = get_user_model()
+
         resource = NimbusExperimentResource()
 
         test_row = {"owner": 9999}
         resource.before_import_row(row=test_row)
         owner_id = test_row.get("owner")
-        dev_user = user_model.objects.get(email=DEV_USER_EMAIL)
+        dev_user = User.objects.get(email=DEV_USER_EMAIL)
 
         # user id=9999 should not exist in test DB
         self.assertNotEqual(owner_id, 9999)
