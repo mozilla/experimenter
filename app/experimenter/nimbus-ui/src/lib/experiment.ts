@@ -72,20 +72,25 @@ export function getSummaryAction(
   status: StatusCheck,
   canReview: boolean | null,
 ) {
+  const stringName = !canReview ? "requestSummary" : "reviewSummary";
   // has pending review approval
   if (status.review || status.approved || status.waiting) {
-    const stringName = !canReview ? "requestSummary" : "reviewSummary";
     if (status.pauseRequested) {
       return LIFECYCLE_REVIEW_FLOWS.PAUSE[stringName];
     }
     if (status.endRequested) {
       return LIFECYCLE_REVIEW_FLOWS.END[stringName];
+    }
+    if (status.dirty || status.updateRequested) {
+      return LIFECYCLE_REVIEW_FLOWS.UPDATE[stringName];
     } else {
       return LIFECYCLE_REVIEW_FLOWS.LAUNCH[stringName];
     }
+  } else if (status.dirty) {
+    return LIFECYCLE_REVIEW_FLOWS.UPDATE[stringName];
   }
 
-  if (!status.launched && !status.archived) {
+  if (!status.launched && !status.archived && !status.live) {
     return "Request Launch";
   }
   return "";

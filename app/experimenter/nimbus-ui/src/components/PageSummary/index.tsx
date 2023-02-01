@@ -55,7 +55,7 @@ const PageSummary = (props: RouteComponentProps) => {
       onPauseReviewRejectedClicked,
       onUpdateClicked,
       onUpdateReviewApprovedClicked,
-      onUpdateReviewRejectedClicked,
+      onUpdateRevertedClicked,
     ],
   } = useChangeOperationMutation(
     experiment,
@@ -163,9 +163,15 @@ const PageSummary = (props: RouteComponentProps) => {
         approveChange: onLaunchReviewApprovedClicked,
         ...LIFECYCLE_REVIEW_FLOWS.LAUNCH,
       };
+    } else if (status.dirty) {
+      return {
+        rejectChange: onUpdateRevertedClicked,
+        approveChange: onUpdateReviewApprovedClicked,
+        ...LIFECYCLE_REVIEW_FLOWS.UPDATE,
+      };
     } else if (status.updateRequested) {
       return {
-        rejectChange: onUpdateReviewRejectedClicked,
+        rejectChange: onUpdateRevertedClicked,
         approveChange: onUpdateReviewApprovedClicked,
         ...LIFECYCLE_REVIEW_FLOWS.UPDATE,
       };
@@ -185,7 +191,7 @@ const PageSummary = (props: RouteComponentProps) => {
     onPauseReviewApprovedClicked,
     onPauseReviewRejectedClicked,
     onUpdateReviewApprovedClicked,
-    onUpdateReviewRejectedClicked,
+    onUpdateRevertedClicked,
   ]);
 
   let launchDocs;
@@ -221,7 +227,7 @@ const PageSummary = (props: RouteComponentProps) => {
       )}
 
       {summaryAction && (
-        <h5 className="mt-3 mb-4 ml-3">
+        <h5 className="mt-3 mb-4 ml-3" data-testid="summary-action-title">
           {summaryAction} {launchDocs}
         </h5>
       )}
@@ -281,7 +287,7 @@ const PageSummary = (props: RouteComponentProps) => {
             {...{
               isLoading,
               onSubmit: onUpdateClicked,
-              onCancel: onUpdateReviewRejectedClicked,
+              onRevert: onUpdateRevertedClicked,
             }}
           />
         )}

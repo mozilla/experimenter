@@ -176,6 +176,7 @@ describe("FormAudience", () => {
 
     expect(screen.getByTestId("isSticky")).not.toBeChecked();
   });
+
   it("expect sticky enrollment to be selected as sticky is required for the selected targeting", async () => {
     render(
       <Subject

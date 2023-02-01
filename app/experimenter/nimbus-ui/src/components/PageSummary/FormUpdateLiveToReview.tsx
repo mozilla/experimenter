@@ -9,11 +9,11 @@ import Form from "react-bootstrap/Form";
 const FormUpdateLiveToReview = ({
   isLoading,
   onSubmit,
-  onCancel,
+  onRevert,
 }: {
   isLoading: boolean;
   onSubmit: () => void;
-  onCancel: () => void;
+  onRevert: () => void;
 }) => {
   return (
     <Alert
@@ -36,13 +36,13 @@ const FormUpdateLiveToReview = ({
               Request Update
             </button>
             <button
-              data-testid="cancel"
+              data-testid="revert"
               type="button"
               className="btn btn-secondary"
-              disabled={isLoading}
-              onClick={onCancel}
+              disabled={true}
+              onClick={onRevert}
             >
-              Cancel
+              Revert update
             </button>
           </div>
         </div>

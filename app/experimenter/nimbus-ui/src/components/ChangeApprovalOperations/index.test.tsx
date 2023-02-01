@@ -145,6 +145,42 @@ describe("ChangeApprovalOperations", () => {
     expect(openRemoteSettingsButton).toHaveProperty("href", REVIEW_URL);
   });
 
+  it("when user can review for live updates, supports approval and opening remote settings", async () => {
+    const approveChange = jest.fn();
+    render(
+      <Subject
+        {...{
+          ...reviewRequestedBaseProps,
+          canReview: true,
+          approveChange,
+          status: {
+            ...getStatus(MOCK_LIVE_ROLLOUT),
+            draft: false,
+            dirty: true,
+            live: true,
+          },
+        }}
+      />,
+    );
+
+    const reviewAlertTitle = await screen.findByTestId("review-request-alert");
+    await waitFor(() => {
+      expect(reviewAlertTitle).toBeInTheDocument();
+    });
+
+    const approveButton = await screen.findByTestId("approve-request");
+    fireEvent.click(approveButton);
+
+    await waitFor(() => {
+      expect(approveChange).toHaveBeenCalled();
+    });
+
+    const openRemoteSettingsButton = await screen.findByTestId(
+      "open-remote-settings",
+    );
+    expect(openRemoteSettingsButton).toHaveProperty("href", REVIEW_URL);
+  });
+
   it("when user cannot review, an approval pending notice is displayed", async () => {
     Object.assign(navigator, {
       clipboard: {

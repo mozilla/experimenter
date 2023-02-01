@@ -433,7 +433,7 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertTrue(experiment.is_rollout)
         self.assertEqual(experiment.population_percent, 50.0)
-        self.assertEqual(experiment.publish_status, NimbusConstants.PublishStatus.IDLE)
+        self.assertEqual(experiment.publish_status, NimbusConstants.PublishStatus.DIRTY)
         self.assertEqual(experiment.status, NimbusConstants.Status.LIVE)
         self.assertEqual(experiment.status_next, None)
 
@@ -458,6 +458,10 @@ class TestUpdateExperimentMutationSingleFeature(
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+
+        self.assertEqual(result["message"].keys(), {"experiment"})
 
         content = json.loads(response.content)
         result = content["data"]["updateExperiment"]

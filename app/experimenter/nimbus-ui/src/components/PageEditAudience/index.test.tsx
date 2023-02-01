@@ -33,6 +33,11 @@ let rolloutMutationMock: ReturnType<
   typeof mockUpdateExperimentAudienceMutation
 >;
 
+let mockDirtyRolloutSubmitData: Partial<ExperimentInput>;
+let dirtyRolloutMutationMock: ReturnType<
+  typeof mockUpdateExperimentAudienceMutation
+>;
+
 describe("PageEditAudience", () => {
   beforeAll(() => {
     fetchMock.enableMocks();
@@ -45,6 +50,9 @@ describe("PageEditAudience", () => {
 
   beforeEach(() => {
     mockSubmitData = { ...MOCK_FORM_DATA };
+    mockRolloutSubmitData = { ...MOCK_ROLLOUT_FORM_DATA };
+    mockDirtyRolloutSubmitData = { ...MOCK_DIRTY_ROLLOUT_FORM_DATA };
+
     mutationMock = mockUpdateExperimentAudienceMutation(
       {
         ...mockSubmitData,
@@ -57,6 +65,15 @@ describe("PageEditAudience", () => {
     rolloutMutationMock = mockUpdateExperimentAudienceMutation(
       {
         ...mockRolloutSubmitData,
+        id: rollout.id,
+        changelogMessage: CHANGELOG_MESSAGES.UPDATED_AUDIENCE,
+      },
+      {},
+    );
+
+    dirtyRolloutMutationMock = mockUpdateExperimentAudienceMutation(
+      {
+        ...mockDirtyRolloutSubmitData,
         id: rollout.id,
         changelogMessage: CHANGELOG_MESSAGES.UPDATED_AUDIENCE,
       },
@@ -161,6 +178,22 @@ const MOCK_ROLLOUT_FORM_DATA = {
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_95,
   targetingConfigSlug: "FIRST_RUN",
   populationPercent: "40",
+  totalEnrolledClients: 68000,
+  proposedEnrollment: "7",
+  proposedDuration: "28",
+  countries: ["1"],
+  locales: ["1"],
+  languages: ["1"],
+  isSticky: true,
+  isFirstRun: true,
+};
+
+const MOCK_DIRTY_ROLLOUT_FORM_DATA = {
+  channel: NimbusExperimentChannelEnum.NIGHTLY,
+  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_83,
+  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_95,
+  targetingConfigSlug: "FIRST_RUN",
+  populationPercent: "60",
   totalEnrolledClients: 68000,
   proposedEnrollment: "7",
   proposedDuration: "28",

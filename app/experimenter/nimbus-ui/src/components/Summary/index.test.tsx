@@ -5,7 +5,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { createMutationMock, Subject } from "src/components/Summary/mocks";
-import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
+import {
+  CHANGELOG_MESSAGES,
+  LIFECYCLE_REVIEW_FLOWS,
+  SUBMIT_ERROR,
+} from "src/lib/constants";
 import { mockExperimentQuery } from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
@@ -100,6 +104,23 @@ describe("Summary", () => {
     expect(screen.queryByText("End Experiment")).not.toBeInTheDocument();
     expect(
       screen.queryByText("End Enrollment for Experiment"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not renders the update button if the experiment is live and not dirty", async () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+        }}
+      />,
+    );
+    expect(
+      screen.queryByText(LIFECYCLE_REVIEW_FLOWS.UPDATE.reviewSummary),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(LIFECYCLE_REVIEW_FLOWS.UPDATE.buttonTitle),
     ).not.toBeInTheDocument();
   });
 

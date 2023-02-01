@@ -10,6 +10,7 @@ import {
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import LinkNavSummary from "src/components/LinkNavSummary";
+import { LIFECYCLE_REVIEW_FLOWS } from "src/lib/constants";
 import { mockGetStatus } from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
@@ -24,6 +25,7 @@ type SubjectProps = {
   canReview?: boolean;
   showSummaryAction?: boolean;
   isArchived?: boolean;
+  isRollout?: boolean;
 };
 
 const Subject = ({
@@ -34,6 +36,7 @@ const Subject = ({
   showSummaryAction = true,
   canReview = false,
   isArchived = false,
+  isRollout = false,
 }: SubjectProps) => {
   // Create a LocationProvider context since LinkNav uses `useLocation()`
   // to detect current page
@@ -122,14 +125,32 @@ describe("LinkNavSummary", () => {
       expect(screen.queryByText("Review End Request")).toBeInTheDocument();
     });
 
-    it("renders 'Review Launch Request' when expected", () => {
+    it("renders review launch request title when expected", () => {
       render(
         <Subject
+          status={NimbusExperimentStatusEnum.DRAFT}
           publishStatus={NimbusExperimentPublishStatusEnum.REVIEW}
           canReview
         />,
       );
-      expect(screen.queryByText("Review Launch Request")).toBeInTheDocument();
+      expect(
+        screen.queryByText(LIFECYCLE_REVIEW_FLOWS.LAUNCH.reviewSummary),
+      ).toBeInTheDocument();
+    });
+
+    it("renders update launch request title when expected", () => {
+      render(
+        <Subject
+          status={NimbusExperimentStatusEnum.LIVE}
+          statusNext={NimbusExperimentStatusEnum.LIVE}
+          publishStatus={NimbusExperimentPublishStatusEnum.REVIEW}
+          canReview
+          isRollout={true}
+        />,
+      );
+      expect(
+        screen.queryByText(LIFECYCLE_REVIEW_FLOWS.UPDATE.reviewSummary),
+      ).toBeInTheDocument();
     });
 
     it("renders 'Review End Enrollment Request' when expected", () => {
