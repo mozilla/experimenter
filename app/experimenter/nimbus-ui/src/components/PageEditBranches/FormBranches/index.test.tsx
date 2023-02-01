@@ -206,7 +206,7 @@ describe("FormBranches", () => {
     expect(saveResult.featureConfigIds).toEqual([]);
   });
 
-  it("does not render options with feature.enabled = false", async () => {
+  it("does not render options when feature is not enabled", async () => {
     render(<SubjectBranches experiment={{ ...MOCK_EXPERIMENT }} />);
     const select = screen.getByTestId("feature-config-select");
     const options = select.querySelectorAll("option");
