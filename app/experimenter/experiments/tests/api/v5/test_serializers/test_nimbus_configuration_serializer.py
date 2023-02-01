@@ -92,6 +92,7 @@ class TestNimbusConfigurationSerializer(TestCase):
                     "ownerEmail": feature_config.owner_email,
                     "schema": feature_config.schema,
                     "setsPrefs": bool(feature_config.sets_prefs),
+                    "enabled": bool(feature_config.enabled),
                 },
                 config["allFeatureConfigs"],
             )

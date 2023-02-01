@@ -206,6 +206,13 @@ describe("FormBranches", () => {
     expect(saveResult.featureConfigIds).toEqual([]);
   });
 
+  it("does not render options with feature.enabled = false", async () => {
+    render(<SubjectBranches experiment={{ ...MOCK_EXPERIMENT }} />);
+    const select = screen.getByTestId("feature-config-select");
+    const options = select.querySelectorAll("option");
+    expect(options).toHaveLength(5);
+  });
+
   it("requires adding a valid control branch before save is completed", async () => {
     const onSave = jest.fn();
     const { container } = render(

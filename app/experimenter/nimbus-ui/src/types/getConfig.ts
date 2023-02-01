@@ -43,6 +43,7 @@ export interface getConfig_nimbusConfig_allFeatureConfigs {
   ownerEmail: string | null;
   schema: string | null;
   setsPrefs: boolean | null;
+  enabled: boolean;
 }
 
 export interface getConfig_nimbusConfig_firefoxVersions {
