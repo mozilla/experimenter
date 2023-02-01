@@ -953,6 +953,28 @@ NEW_ANDROID_13_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
+EXISTING_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+    name="Existing user (has default, need pin)",
+    slug="existing_user_has_default_need_pin",
+    description="Users with profiles older than 28 days and w/ default need pin",
+    targeting=f"{PROFILE28DAYS} && isDefaultBrowser && doesAppNeedPin",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
+    name="Existing user (need default, has pin)",
+    slug="existing_user_need_default_has_pin",
+    description="Users with profiles older than 28 days and need default w/ pin",
+    targeting=f"{PROFILE28DAYS} && {NEED_DEFAULT} && {HAS_PIN}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
