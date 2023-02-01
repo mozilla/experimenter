@@ -33,6 +33,10 @@ class TestNimbusExperimentSerializer(TestCase):
         bucket_data = dict(experiment_data.pop("bucketConfig"))
         branches_data = [dict(b) for b in experiment_data.pop("branches")]
 
+        assert experiment.start_date
+        assert experiment.computed_enrollment_end_date
+        assert experiment.end_date
+
         self.assertDictEqual(
             experiment_data,
             {
@@ -123,6 +127,10 @@ class TestNimbusExperimentSerializer(TestCase):
         bucket_data = dict(experiment_data.pop("bucketConfig"))
         branches_data = [dict(b) for b in experiment_data.pop("branches")]
         feature_ids_data = experiment_data.pop("featureIds")
+
+        assert experiment.start_date
+        assert experiment.computed_enrollment_end_date
+        assert experiment.end_date
 
         self.assertDictEqual(
             experiment_data,

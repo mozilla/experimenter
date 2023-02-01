@@ -52,13 +52,14 @@ class Feature(BaseModel):
     schema_paths: Optional[FeatureSchema] = Field(alias="schema")
 
     def load_remote_jsonschema(self):
-        schema_url = urljoin(MC_ROOT, self.schema_paths.path)
-        schema_data = requests.get(schema_url).content
+        if self.schema_paths:
+            schema_url = urljoin(MC_ROOT, self.schema_paths.path)
+            schema_data = requests.get(schema_url).content
 
-        try:
-            return json.dumps(json.loads(schema_data), indent=2)
-        except json.JSONDecodeError:
-            return None
+            try:
+                return json.dumps(json.loads(schema_data), indent=2)
+            except json.JSONDecodeError:
+                return None
 
     def generate_jsonschema(self):
         schema = {

@@ -1,7 +1,7 @@
 import json
 
 import graphene
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
@@ -119,7 +119,7 @@ class NimbusLanguageType(DjangoObjectType):
 
 class NimbusUserType(DjangoObjectType):
     class Meta:
-        model = get_user_model()
+        model = User
         fields = ("id", "username", "first_name", "last_name", "email")
 
 
@@ -219,8 +219,7 @@ class NimbusBranchType(DjangoObjectType):
         return (
             self.feature_values.exists()
             and self.feature_values.all().order_by("feature_config__slug").first().value
-            or ""
-        )
+        ) or ""
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
@@ -359,8 +358,7 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_owners(self, info):
         return (
-            get_user_model()
-            .objects.filter(owned_nimbusexperiments__isnull=False)
+            User.objects.filter(owned_nimbusexperiments__isnull=False)
             .distinct()
             .order_by("email")
         )
