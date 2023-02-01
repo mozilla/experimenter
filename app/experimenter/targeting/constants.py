@@ -163,7 +163,7 @@ FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
             first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
             has_pin=HAS_PIN,
         )
-    ).format(first_run=FIRST_RUN.desktop_telemetry, has_pin=HAS_PIN),
+    ),
     sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
