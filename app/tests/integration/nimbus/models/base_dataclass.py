@@ -1,3 +1,4 @@
+from ast import Dict
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional
@@ -51,4 +52,4 @@ class BaseExperimentDataClass:
     branches: Optional[List[BaseExperimentBranchDataClass]]
     metrics: BaseExperimentMetricsDataClass
     audience: BaseExperimentAudienceDataClass
-    feature_config_object: str
+    feature_config_object: Dict[str, any]
