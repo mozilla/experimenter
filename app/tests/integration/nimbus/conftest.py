@@ -178,7 +178,6 @@ def fixture_load_experiment_outcomes():
 @pytest.fixture
 def default_data(application, experiment_name, load_experiment_outcomes):
     feature_config_id = APPLICATION_FEATURE_IDS[application]
-    feature_config_object = {"id": feature_config_id, "enabled": True}
 
     outcomes = {
         "firefox_desktop": BaseExperimentMetricsDataClass(
@@ -206,7 +205,7 @@ def default_data(application, experiment_name, load_experiment_outcomes):
         hypothesis="smart stuff here",
         application=application,
         public_description="description stuff",
-        feature_config_object=feature_config_object,
+        feature_config_id=feature_config_id,
         branches=[
             BaseExperimentBranchDataClass(
                 name="control",
@@ -257,7 +256,7 @@ def create_experiment(base_url, default_data):
 
         # Fill Branches page
         branches = overview.save_and_continue()
-        branches.feature_config = default_data.feature_config_object.id
+        branches.feature_config = default_data.feature_config_id
         branches.reference_branch_description = default_data.branches[0].description
         branches.treatment_branch_description = default_data.branches[1].description
 
