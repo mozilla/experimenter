@@ -152,3 +152,23 @@ class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
 
         feature_config = NimbusFeatureConfig.objects.get(slug="cfr")
         self.assertEqual(feature_config.schema, schema)
+
+    def test_load_feature_does_not_set_no_features_slug_enabled_to_false(self):
+
+        call_command("load_feature_configs")
+
+        feature_config = NimbusFeatureConfig.objects.get(slug="no-feature-fenix")
+        self.assertEqual(feature_config.enabled, True)
+
+    def test_load_feature_set_features_slug_enabled_to_false_if_not_found_yaml(self):
+        schema = "{}"
+        NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            application=NimbusConstants.Application.DESKTOP,
+            schema=schema,
+        )
+
+        call_command("load_feature_configs")
+
+        feature_config = NimbusFeatureConfig.objects.get(slug="test-feature")
+        self.assertEqual(feature_config.enabled, False)

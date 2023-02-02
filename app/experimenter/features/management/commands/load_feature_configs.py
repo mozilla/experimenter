@@ -1,8 +1,8 @@
 import logging
 
 from django.core.management.base import BaseCommand
-from experimenter.experiments.constants import NO_FEATURE_SLUG
 
+from experimenter.experiments.constants import NO_FEATURE_SLUG
 from experimenter.experiments.models import NimbusFeatureConfig
 from experimenter.features import Features
 
