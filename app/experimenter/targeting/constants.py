@@ -975,6 +975,28 @@ EXISTING_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_USER_NEED_PIN = NimbusTargetingConfig(
+    name="Existing user (need pin)",
+    slug="existing_user_need_pin",
+    description="Users with profiles older than 28 days who have not pinned",
+    targeting=f"{PROFILE28DAYS} && doesAppNeedPin",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_NEED_DEFAULT = NimbusTargetingConfig(
+    name="Existing user (need default)",
+    slug="existing_user_need_default",
+    description="Users with profiles older than 28 days who have not set to default",
+    targeting=f"{PROFILE28DAYS} && {NEED_DEFAULT}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
