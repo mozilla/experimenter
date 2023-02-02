@@ -161,11 +161,10 @@ class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
         self.assertEqual(feature_config.enabled, True)
 
     def test_load_feature_set_features_slug_enabled_to_false_if_not_found_yaml(self):
-        schema = "{}"
         NimbusFeatureConfigFactory.create(
             slug="test-feature",
             application=NimbusConstants.Application.DESKTOP,
-            schema=schema,
+            schema="{}",
         )
 
         call_command("load_feature_configs")
