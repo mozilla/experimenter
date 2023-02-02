@@ -60,6 +60,7 @@ def load_config_data():
                             ownerEmail
                             schema
                             setsPrefs
+                            enabled
                         }
                         firefoxVersions {
                             label

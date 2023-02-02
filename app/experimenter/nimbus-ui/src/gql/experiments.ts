@@ -98,6 +98,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         application
         ownerEmail
         schema
+        enabled
       }
 
       primaryOutcomes
