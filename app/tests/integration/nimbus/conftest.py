@@ -26,7 +26,7 @@ from requests.packages.urllib3.util.retry import Retry
 APPLICATION_FEATURE_IDS = {
     BaseExperimentApplications.FIREFOX_DESKTOP: "1",
     BaseExperimentApplications.FENIX: "2",
-    BaseExperimentApplications.IOS: "3",
+    BaseExperimentApplications.IOS: "54",
     BaseExperimentApplications.FOCUS_ANDROID: "4",
     BaseExperimentApplications.FOCUS_IOS: "6",
 }
