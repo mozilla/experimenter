@@ -188,6 +188,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                     "schema": feature_config.schema,
                     "slug": feature_config.slug,
                     "sets_prefs": feature_config.sets_prefs,
+                    "enabled": feature_config.enabled,
                 },
                 feature_configs_data,
             )

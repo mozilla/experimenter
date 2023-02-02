@@ -60,6 +60,7 @@ export interface getExperiment_experimentBySlug_featureConfigs {
   application: NimbusExperimentApplicationEnum | null;
   ownerEmail: string | null;
   schema: string | null;
+  enabled: boolean;
 }
 
 export interface getExperiment_experimentBySlug_targetingConfig {

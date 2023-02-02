@@ -259,20 +259,19 @@ export const FormBranches = ({
             }
           >
             <option value="">Select...</option>
-            {allFeatureConfigs?.map(
-              (feature) =>
-                feature && (
-                  <option
-                    key={`feature-${feature.slug}-${feature.id!}`}
-                    value={feature.id!}
-                  >
-                    {feature.name}
-                    {feature.description?.length
-                      ? ` - ${feature.description}`
-                      : ""}
-                  </option>
-                ),
-            )}
+            {allFeatureConfigs
+              ?.filter((feature) => feature?.enabled)
+              .map((feature) => (
+                <option
+                  key={`feature-${feature?.slug}-${feature?.id!}`}
+                  value={feature?.id!}
+                >
+                  {feature?.name}
+                  {feature?.description?.length
+                    ? ` - ${feature.description}`
+                    : ""}
+                </option>
+              ))}
           </Form.Control>
           {fieldMessages.feature_config?.length > 0 && (
             // @ts-ignore This component doesn't technically support type="warning", but
