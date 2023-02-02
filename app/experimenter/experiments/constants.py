@@ -124,6 +124,16 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
+NO_FEATURE_SLUG = [
+    "no-feature-focus-android",
+    "no-feature-klar-ios",
+    "no-feature-focus-ios",
+    "no-feature-klar-android",
+    "no-feature-ios",
+    "no-feature-fenix",
+    "no-feature-firefox-desktop",
+]
+
 
 class Application(models.TextChoices):
     DESKTOP = (APPLICATION_CONFIG_DESKTOP.slug, APPLICATION_CONFIG_DESKTOP.name)

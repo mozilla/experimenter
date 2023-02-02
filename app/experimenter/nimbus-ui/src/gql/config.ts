@@ -35,6 +35,7 @@ export const GET_CONFIG_QUERY = gql`
         ownerEmail
         schema
         setsPrefs
+        enabled
       }
       firefoxVersions {
         label

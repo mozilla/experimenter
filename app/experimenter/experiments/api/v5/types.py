@@ -153,6 +153,7 @@ class NimbusFeatureConfigType(DjangoObjectType):
             "sets_prefs",
             "schema",
             "slug",
+            "enabled",
         )
 
     def resolve_sets_prefs(self, info):

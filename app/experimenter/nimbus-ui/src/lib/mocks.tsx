@@ -194,6 +194,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       ownerEmail: "sheila43@yahoo.com",
       schema: null,
       setsPrefs: false,
+      enabled: true,
     },
     {
       id: 2,
@@ -204,6 +205,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
       setsPrefs: false,
+      enabled: true,
     },
     {
       id: 3,
@@ -214,6 +216,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
       setsPrefs: false,
+      enabled: true,
     },
     {
       id: 4,
@@ -224,6 +227,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       ownerEmail: "dude23@yahoo.com",
       schema: '{ "sample": "schema" }',
       setsPrefs: false,
+      enabled: false,
     },
     {
       id: 5,
@@ -234,6 +238,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       ownerEmail: "dude23@yahoocom",
       schema: '{ "sample": "schema" }',
       setsPrefs: true,
+      enabled: true,
     },
   ],
   firefoxVersions: [

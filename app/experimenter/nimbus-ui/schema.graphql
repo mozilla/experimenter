@@ -281,6 +281,7 @@ type NimbusFeatureConfigType {
   ownerEmail: String
   schema: String
   setsPrefs: Boolean
+  enabled: Boolean!
 }
 
 type NimbusBranchType {
