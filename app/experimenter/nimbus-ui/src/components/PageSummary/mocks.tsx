@@ -77,6 +77,13 @@ export const reviewRequestedBaseProps = {
   reviewRequest: mockChangelog(),
 };
 
+export const updateReviewRequestedBaseProps = {
+  status: NimbusExperimentStatusEnum.LIVE,
+  statusNext: NimbusExperimentStatusEnum.LIVE,
+  publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+  reviewRequest: mockChangelog(),
+};
+
 export const reviewPendingBaseProps = {
   status: NimbusExperimentStatusEnum.DRAFT,
   statusNext: NimbusExperimentStatusEnum.LIVE,

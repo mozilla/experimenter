@@ -18,6 +18,7 @@ import {
   enrollmentPauseReviewRequestedBaseProps,
   reviewRequestedBaseProps,
   Subject,
+  updateReviewRequestedBaseProps,
 } from "src/components/PageSummary/mocks";
 import { createMutationMock } from "src/components/Summary/mocks";
 import { CHANGELOG_MESSAGES, SERVER_ERRORS } from "src/lib/constants";
@@ -230,7 +231,7 @@ describe("PageSummary", () => {
 
     render(<Subject mocks={[mockRollout, mutationMock]} />);
 
-    const submitButton = await screen.findByTestId("launch-live-to-review");
+    const submitButton = await screen.findByTestId("update-live-to-review");
     expect(submitButton!).toBeEnabled();
     await act(async () => void fireEvent.click(submitButton));
   });
@@ -253,7 +254,7 @@ describe("PageSummary", () => {
     await screen.findByTestId("launch-draft-to-preview");
   });
 
-  it("handles cancelled launch Live to Review as expected", async () => {
+  it("handles cancelled update Live to Review as expected", async () => {
     const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.LIVE,
       publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
@@ -261,13 +262,13 @@ describe("PageSummary", () => {
     const mutationMock = createStatusMutationMock(rollout.id!);
     render(<Subject mocks={[mockRollout, mutationMock]} />);
 
-    const submitButton = await screen.findByTestId("launch-live-to-review");
+    const submitButton = await screen.findByTestId("update-live-to-review");
     expect(submitButton!).toBeEnabled();
     await act(async () => void fireEvent.click(submitButton));
 
     const cancelButton = await screen.findByTestId("cancel");
     fireEvent.click(cancelButton);
-    await screen.findByTestId("request-live-launch-alert");
+    await screen.findByTestId("request-live-update-alert");
   });
 
   it("handles Launch to Preview after reconsidering Launch to Review from Draft", async () => {
@@ -360,20 +361,81 @@ describe("PageSummary", () => {
       experiment.id!,
       NimbusExperimentStatusEnum.DRAFT,
       null,
-      NimbusExperimentPublishStatusEnum.IDLE,
+      NimbusExperimentPublishStatusEnum.REVIEW,
       expectedReason,
     );
     render(<Subject mocks={[mock, mutationMock]} />);
+
     await screen.findByText("Approve and Launch Experiment");
     const rejectButton = await screen.findByTestId("reject-request");
     fireEvent.click(rejectButton);
     const rejectSubmitButton = await screen.findByTestId("reject-submit");
     const rejectReasonField = await screen.findByTestId("reject-reason");
+
     fireEvent.change(rejectReasonField, {
       target: { value: expectedReason },
     });
     fireEvent.blur(rejectReasonField);
     fireEvent.click(rejectSubmitButton);
+
+    await waitFor(() =>
+      expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument(),
+    );
+  });
+
+  it("handles approval of live update as expected", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      ...updateReviewRequestedBaseProps,
+      canReview: true,
+    });
+    const mutationMock = createFullStatusMutationMock(
+      rollout.id!,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.APPROVED,
+      CHANGELOG_MESSAGES.REVIEW_APPROVED_UPDATE,
+    );
+    render(<Subject mocks={[mockRollout, mockRollout, mutationMock]} />);
+    const approveButton = await screen.findByTestId("approve-request");
+    expect(approveButton).toHaveTextContent("Approve and Update Rollout");
+    fireEvent.click(approveButton);
+    const openRemoteSettingsButton = await screen.findByTestId(
+      "open-remote-settings",
+    );
+    expect(openRemoteSettingsButton).toHaveProperty("href", rollout.reviewUrl);
+  });
+
+  it("handles rejection of live update as expected", async () => {
+    const expectedReason = "Oh no.";
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      ...updateReviewRequestedBaseProps,
+      canReview: true,
+    });
+    const mutationMock = createFullStatusMutationMock(
+      rollout.id!,
+      NimbusExperimentStatusEnum.LIVE,
+      null,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+      expectedReason,
+    );
+    render(<Subject mocks={[mockRollout, mutationMock]} />);
+    await screen.findByText("Approve and Update Rollout");
+
+    const rejectButton = await screen.findByTestId("reject-request");
+    fireEvent.click(rejectButton);
+
+    const rejectSubmitButton = await screen.findByTestId("reject-submit");
+    const rejectReasonField = await screen.findByTestId("reject-reason");
+
+    fireEvent.change(rejectReasonField, {
+      target: { value: expectedReason },
+    });
+    fireEvent.blur(rejectReasonField);
+    fireEvent.click(rejectSubmitButton);
+
+    await waitFor(() =>
+      expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument(),
+    );
   });
 
   it("handles submission with server API error", async () => {
@@ -542,6 +604,21 @@ describe("PageSummary", () => {
       expect(screen.getByTestId("in-review-label")).toBeInTheDocument(),
     );
   });
+
+  it("will not allow submitting live update if already in review", async () => {
+    const { mockRollout } = mockLiveRolloutQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
+    });
+    render(<Subject mocks={[mockRollout]} />);
+    await waitFor(() =>
+      expect(screen.getByTestId("in-review-label")).toBeInTheDocument(),
+    );
+    await waitFor(() =>
+      expect(screen.queryByTestId("approve-request")).not.toBeInTheDocument(),
+    );
+  });
+
   it("renders enrollment complete badge if enrollment is not paused", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.LIVE,
