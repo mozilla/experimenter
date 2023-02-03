@@ -6,7 +6,7 @@ import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 
-const FormLaunchLiveToReview = ({
+const FormUpdateLiveToReview = ({
   isLoading,
   onSubmit,
   onCancel,
@@ -18,16 +18,16 @@ const FormLaunchLiveToReview = ({
   return (
     <Alert
       variant="secondary"
-      id="request-live-launch-alert"
-      data-testid="request-live-launch-alert"
+      id="request-live-update-alert"
+      data-testid="request-live-update-alert"
     >
       <Form className="text-body">
         <div className="d-flex bd-highlight">
           <div className="py-1">
             <p>Review and update live rollout:</p>
             <button
-              data-testid="launch-live-to-review"
-              id="request-launch-button"
+              data-testid="update-live-to-review"
+              id="request-update-button"
               type="button"
               className="mr-2 btn btn-primary"
               disabled={isLoading}
@@ -51,4 +51,4 @@ const FormLaunchLiveToReview = ({
   );
 };
 
-export default FormLaunchLiveToReview;
+export default FormUpdateLiveToReview;

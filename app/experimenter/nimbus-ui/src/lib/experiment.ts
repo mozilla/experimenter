@@ -47,6 +47,10 @@ export function getStatus(
     endRequested:
       status === NimbusExperimentStatusEnum.LIVE &&
       statusNext === NimbusExperimentStatusEnum.COMPLETE,
+    updateRequested:
+      status === NimbusExperimentStatusEnum.LIVE &&
+      publishStatus === NimbusExperimentPublishStatusEnum.REVIEW &&
+      statusNext === NimbusExperimentStatusEnum.LIVE,
     launched,
   };
 }

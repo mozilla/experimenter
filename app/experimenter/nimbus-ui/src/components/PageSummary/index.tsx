@@ -11,8 +11,8 @@ import ChangeApprovalOperations from "src/components/ChangeApprovalOperations";
 import Head from "src/components/Head";
 import FormLaunchDraftToPreview from "src/components/PageSummary/FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "src/components/PageSummary/FormLaunchDraftToReview";
-import FormLaunchLiveToReview from "src/components/PageSummary/FormLaunchLiveToReview";
 import FormLaunchPreviewToReview from "src/components/PageSummary/FormLaunchPreviewToReview";
+import FormUpdateLiveToReview from "src/components/PageSummary/FormUpdateLiveToReview";
 import Summary from "src/components/Summary";
 import SummaryTimeline from "src/components/Summary/SummaryTimeline";
 import { useChangeOperationMutation, useReviewCheck } from "src/hooks";
@@ -53,6 +53,9 @@ const PageSummary = (props: RouteComponentProps) => {
       onEndReviewRejectedClicked,
       onPauseReviewApprovedClicked,
       onPauseReviewRejectedClicked,
+      onUpdateClicked,
+      onUpdateReviewApprovedClicked,
+      onUpdateReviewRejectedClicked,
     ],
   } = useChangeOperationMutation(
     experiment,
@@ -106,6 +109,23 @@ const PageSummary = (props: RouteComponentProps) => {
       isEnrollmentPaused: false,
       publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
     },
+    {
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+      changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+    },
+    {
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
+      changelogMessage: CHANGELOG_MESSAGES.REVIEW_APPROVED_UPDATE,
+    },
+    {
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: null,
+      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+    },
   );
 
   const {
@@ -143,6 +163,12 @@ const PageSummary = (props: RouteComponentProps) => {
         approveChange: onLaunchReviewApprovedClicked,
         ...LIFECYCLE_REVIEW_FLOWS.LAUNCH,
       };
+    } else if (status.updateRequested) {
+      return {
+        rejectChange: onUpdateReviewRejectedClicked,
+        approveChange: onUpdateReviewApprovedClicked,
+        ...LIFECYCLE_REVIEW_FLOWS.UPDATE,
+      };
     }
     // HACK: These values shouldn't end up being used, but it makes typechecking happy
     return {
@@ -158,6 +184,8 @@ const PageSummary = (props: RouteComponentProps) => {
     onLaunchReviewRejectedClicked,
     onPauseReviewApprovedClicked,
     onPauseReviewRejectedClicked,
+    onUpdateReviewApprovedClicked,
+    onUpdateReviewRejectedClicked,
   ]);
 
   let launchDocs;
@@ -249,11 +277,11 @@ const PageSummary = (props: RouteComponentProps) => {
         )}
 
         {status.live && status.dirty && (
-          <FormLaunchLiveToReview
+          <FormUpdateLiveToReview
             {...{
               isLoading,
-              onSubmit: onLaunchClicked,
-              onCancel: () => setShowLaunchToReview(false),
+              onSubmit: onUpdateClicked,
+              onCancel: onUpdateReviewRejectedClicked,
             }}
           />
         )}
