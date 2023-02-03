@@ -17,15 +17,17 @@ import {
   SAVE_FAILED_NO_ERROR,
   SUBMIT_ERROR,
 } from "src/lib/constants";
-import { createExperiment_createExperiment as CreateExperimentResult } from "src/types/createExperiment";
-import { ExperimentInput } from "src/types/globalTypes";
+import {
+  createExperiment,
+  createExperimentVariables,
+} from "src/types/createExperiment";
 
 type PageNewProps = Record<string, any> & RouteComponentProps;
 
 const PageNew: React.FunctionComponent<PageNewProps> = () => {
   const [createExperiment, { loading }] = useMutation<
-    { createExperiment: CreateExperimentResult },
-    { input: ExperimentInput }
+    createExperiment,
+    createExperimentVariables
   >(CREATE_EXPERIMENT_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});

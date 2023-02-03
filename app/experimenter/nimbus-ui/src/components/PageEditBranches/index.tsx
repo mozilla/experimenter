@@ -18,8 +18,10 @@ import {
 } from "src/lib/constants";
 import { ExperimentContext } from "src/lib/contexts";
 import { editCommonRedirects } from "src/lib/experiment";
-import { ExperimentInput } from "src/types/globalTypes";
-import { updateExperiment_updateExperiment as UpdateExperimentBranchesResult } from "src/types/updateExperiment";
+import {
+  updateExperiment,
+  updateExperimentVariables,
+} from "src/types/updateExperiment";
 
 const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   const { allFeatureConfigs } = useConfig();
@@ -28,8 +30,8 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   useRedirectCondition(editCommonRedirects);
 
   const [updateExperimentBranches, { loading }] = useMutation<
-    { updateExperiment: UpdateExperimentBranchesResult },
-    { input: ExperimentInput }
+    updateExperiment,
+    updateExperimentVariables
   >(UPDATE_EXPERIMENT_MUTATION);
 
   const applicationFeatureConfigs =
