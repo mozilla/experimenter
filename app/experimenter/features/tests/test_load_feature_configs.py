@@ -124,6 +124,45 @@ class TestLoadFeatureConfigs(TestCase):
             "Some Firefox Feature",
         )
 
+    def test_load_feature_set_features_slug_enabled_to_false_if_not_found_yaml(self):
+        NimbusFeatureConfigFactory.create(
+            slug="test-feature",
+            application=NimbusConstants.Application.DESKTOP,
+            schema="{}",
+            enabled=True,
+        )
+
+        call_command("load_feature_configs")
+
+        feature_config = NimbusFeatureConfig.objects.get(slug="test-feature")
+        self.assertFalse(feature_config.enabled)
+
+    def test_load_feature_set_features_slug_enabled_to_false_with_duplicate_slug(self):
+        feature_desktop = NimbusFeatureConfigFactory.create(
+            slug="someFeature",
+            application=NimbusConstants.Application.DESKTOP,
+            schema="{}",
+            enabled=True,
+        )
+
+        feature_fenix = NimbusFeatureConfigFactory.create(
+            slug="someFeature",
+            application=NimbusConstants.Application.FENIX,
+            schema="{}",
+            enabled=True,
+        )
+
+        call_command("load_feature_configs")
+
+        feature_desktop = NimbusFeatureConfig.objects.get(
+            slug="someFeature", application=NimbusConstants.Application.DESKTOP
+        )
+        feature_fenix = NimbusFeatureConfig.objects.get(
+            slug="someFeature", application=NimbusConstants.Application.FENIX
+        )
+        self.assertTrue(feature_desktop.enabled)
+        self.assertFalse(feature_fenix.enabled)
+
 
 @mock_invalid_remote_schema_features
 class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
@@ -159,15 +198,3 @@ class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
 
         feature_config = NimbusFeatureConfig.objects.get(slug="no-feature-fenix")
         self.assertEqual(feature_config.enabled, True)
-
-    def test_load_feature_set_features_slug_enabled_to_false_if_not_found_yaml(self):
-        NimbusFeatureConfigFactory.create(
-            slug="test-feature",
-            application=NimbusConstants.Application.DESKTOP,
-            schema="{}",
-        )
-
-        call_command("load_feature_configs")
-
-        feature_config = NimbusFeatureConfig.objects.get(slug="test-feature")
-        self.assertEqual(feature_config.enabled, False)
