@@ -28,8 +28,8 @@ from experimenter.targeting.constants import TargetingConstants
 
 
 class FilterMixin:
-    def has_filter(self, filter):
-        return type(self).objects.filter(id=self.id).filter(filter).exists()
+    def has_filter(self, query_filter):
+        return type(self).objects.filter(id=self.id).filter(query_filter).exists()
 
 
 class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
@@ -629,14 +629,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 self.status == self.Status.DRAFT
                 and self.publish_status == self.PublishStatus.IDLE
             )
-            or (
-                self.is_rollout
-                and self.status == self.Status.LIVE
-                and (
-                    self.publish_status == self.PublishStatus.DIRTY
-                    or self.publish_status == self.PublishStatus.IDLE
-                )
-            )
+            or self.is_rollout
+            and self.status == self.Status.LIVE
+            and self.publish_status in [self.PublishStatus.DIRTY, self.PublishStatus.IDLE]
             and not self.is_archived
         )
 
@@ -801,9 +796,9 @@ class NimbusBranch(models.Model):
 
 # Helper to ensure branch screenshot filenames have controlled unique paths
 def nimbus_branch_screenshot_upload_to(screenshot, filename):
-    id = uuid4()
+    screenshot_id = uuid4()
     ext = filename.split(".")[-1].lower()
-    return os.path.join(screenshot.branch.experiment.slug, f"{id}.{ext}")
+    return os.path.join(screenshot.branch.experiment.slug, f"{screenshot_id}.{ext}")
 
 
 class NimbusBranchFeatureValue(models.Model):
