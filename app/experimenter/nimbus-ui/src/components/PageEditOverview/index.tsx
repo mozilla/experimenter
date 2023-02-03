@@ -16,8 +16,10 @@ import {
 import { ExperimentContext } from "src/lib/contexts";
 import { editCommonRedirects } from "src/lib/experiment";
 import { optionalStringBool } from "src/lib/utils";
-import { ExperimentInput } from "src/types/globalTypes";
-import { updateExperiment_updateExperiment as UpdateExperimentOverviewResult } from "src/types/updateExperiment";
+import {
+  updateExperiment,
+  updateExperimentVariables,
+} from "src/types/updateExperiment";
 
 type PageEditOverviewProps = Record<string, any> & RouteComponentProps;
 
@@ -27,8 +29,8 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
   useRedirectCondition(editCommonRedirects);
 
   const [updateExperimentOverview, { loading }] = useMutation<
-    { updateExperiment: UpdateExperimentOverviewResult },
-    { input: ExperimentInput }
+    updateExperiment,
+    updateExperimentVariables
   >(UPDATE_EXPERIMENT_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
