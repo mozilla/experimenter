@@ -355,7 +355,9 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "nimbus_synchronize_preview_experiments_in_kinto": {
-        "task": "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_kinto",
+        "task": (
+            "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_kinto"
+        ),
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "nimbus_send_emails": {

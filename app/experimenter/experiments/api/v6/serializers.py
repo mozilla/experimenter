@@ -1,3 +1,4 @@
+import contextlib
 import json
 
 from django.conf import settings
@@ -51,12 +52,11 @@ class NimbusBranchSerializerSingleFeature(serializers.ModelSerializer):
                     fv for fv in feature_values if fv.feature_config == feature_config
                 ][0]
                 feature_enabled = branch_feature_value.enabled
-                try:
-                    feature_value = json.loads(branch_feature_value.value)
-                except json.JSONDecodeError:
+
+                with contextlib.suppress(json.JSONDecodeError):
                     # feature_value may be invalid JSON while the experiment is
                     # still being drafted
-                    pass
+                    feature_value = json.loads(branch_feature_value.value)
 
         return {
             "featureId": feature_config_slug,
@@ -80,11 +80,11 @@ class NimbusBranchSerializerMultiFeature(serializers.ModelSerializer):
                 "enabled": fv.enabled,
                 "value": {},
             }
-            try:
-                feature_value["value"] = json.loads(fv.value)
-            except Exception:
+
+            with contextlib.suppress(Exception):
                 # The value may still be invalid at this time
-                pass
+                feature_value["value"] = json.loads(fv.value)
+
             features.append(feature_value)
         return features
 
