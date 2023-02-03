@@ -154,6 +154,7 @@ class FeatureConfigDataClass:
     ownerEmail: typing.Optional[str]
     schema: typing.Optional[str]
     setsPrefs: bool
+    enabled: bool
 
 
 @dataclass
@@ -277,6 +278,7 @@ class NimbusConfigurationDataClass:
                 ownerEmail=f.owner_email,
                 schema=f.schema,
                 setsPrefs=bool(f.sets_prefs),
+                enabled=f.enabled,
             )
             for f in NimbusFeatureConfig.objects.all().order_by("name")
         ]
