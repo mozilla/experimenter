@@ -241,7 +241,7 @@ class ResultsObjectModelBase(BaseModel):
                 comparison_data.all.append(data_point)
 
     def append_conversion_count(self, primary_metrics_set):
-        for branch_name in self.dict().keys():
+        for branch_name in self.dict():
             branch = getattr(self, branch_name)
             branch_data = branch.branch_data
             for primary_metric in primary_metrics_set:

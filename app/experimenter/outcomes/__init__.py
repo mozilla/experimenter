@@ -64,7 +64,7 @@ class Outcomes:
                                             "description"
                                         ),
                                     )
-                                    for metric in outcome_data["metrics"].keys()
+                                    for metric in outcome_data["metrics"]
                                 ],
                             )
                         )

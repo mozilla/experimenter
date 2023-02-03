@@ -63,12 +63,10 @@ mozilla-nimbus-shared = "^1.10.0"
 django-import-export = "^2.9.0"
 sentry-sdk = "^1.9.0"
 djangorestframework-dataclasses = "^1.2.0"
-flake8 = "^6.0.0"
-flake8-comprehensions = "^3.10.1"
 graphene-django = "^3.0.0"
-flake8-use-fstring = "^1.4"
 pyright = "^1.1.291"
 django-types = "^0.16.0"
+ruff = "^0.0.239"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"
@@ -118,3 +116,33 @@ reportUntypedBaseClass = false
 reportUntypedClassDecorator = true
 reportUntypedFunctionDecorator = false
 reportUnusedCallResult = false
+
+[tool.ruff]
+# # Enable Pyflakes `E` and `F` codes by default.
+select = ["F", "E", "W", "I", "N", "YTT", "A", "C4", "RET", "SIM"]
+ignore = [
+    # "A002",
+    "A003",
+    "E402",
+    "E741",
+    "F403",
+    "N802",
+    "N803",
+    "N806",
+    "N815",
+    "RET503",
+    "RET504",
+    "RET505",
+    "SIM102",
+]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    "migrations",
+    ".tox",
+    "node_modules",
+    "legacy",
+]
+
+# Same as Black.
+line-length = 90

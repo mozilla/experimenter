@@ -29,9 +29,6 @@ class TestDocs(TestCase):
         with mock.patch(
             "experimenter.base.management.commands.generate_docs.open",
             mock.mock_open(read_data="{}"),
-        ):
-            with self.assertRaises(ValueError) as cm:
-                call_command("generate_docs", "--check=true")
-                self.assertIn(
-                    "Api Schemas have changed and have not been updated", cm.value
-                )
+        ), self.assertRaises(ValueError) as cm:
+            call_command("generate_docs", "--check=true")
+            self.assertIn("Api Schemas have changed and have not been updated", cm.value)
