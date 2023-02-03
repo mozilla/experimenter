@@ -16,7 +16,7 @@ class Command(BaseCommand):
         logger.info("Loading Features")
 
         features_to_disable = set(
-            NimbusFeatureConfig.objects.values_list("slug", flat=True)
+            NimbusFeatureConfig.objects.values_list("application", "slug")
         )
 
         for feature in Features.all():
@@ -26,7 +26,7 @@ class Command(BaseCommand):
             )
 
             if not created:
-                features_to_disable.discard(feature.slug)
+                features_to_disable.discard((feature.applicationSlug, feature.slug))
 
             feature_config.name = feature.slug
             feature_config.description = feature.description
@@ -46,10 +46,12 @@ class Command(BaseCommand):
             feature_config.save()
             logger.info(f"Feature Loaded: {feature.applicationSlug}/{feature.slug}")
 
-        for feature_slug in features_to_disable:
-            logger.info(f"Feature Not Found in YAML: {feature_slug}")
+        for application_slug, feature_slug in features_to_disable:
             if feature_slug not in NO_FEATURE_SLUG:
-                feature_config = NimbusFeatureConfig.objects.get(slug=feature_slug)
+                logger.info(f"Feature Not Found in YAML: {feature_slug}")
+                feature_config = NimbusFeatureConfig.objects.get(
+                    application=application_slug, slug=feature_slug
+                )
                 feature_config.enabled = False
                 feature_config.save()
 
