@@ -107,7 +107,7 @@ class Features:
                     application_data = yaml.load(
                         application_yaml_file.read(), Loader=yaml.Loader
                     )
-                    for feature_slug in application_data.keys():
+                    for feature_slug in application_data:
                         feature_data = application_data[feature_slug]
                         feature_data["slug"] = feature_slug
                         feature_data["applicationSlug"] = application.slug
