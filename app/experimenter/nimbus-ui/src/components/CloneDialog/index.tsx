@@ -14,13 +14,15 @@ import { SlugTextControl } from "src/components/SlugTextControl";
 import { CLONE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import { useCommonForm } from "src/hooks";
 import { BASE_PATH, SUBMIT_ERROR } from "src/lib/constants";
-import { cloneExperiment_cloneExperiment } from "src/types/cloneExperiment";
+import {
+  cloneExperiment,
+  cloneExperimentVariables,
+} from "src/types/cloneExperiment";
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "src/types/getExperiment";
-import { ExperimentCloneInput } from "src/types/globalTypes";
 
 // Relaxed type, since we only use these two properties
 export type RolloutBranch = Pick<
@@ -156,8 +158,8 @@ export const useCloneDialog = (
   const onCancel = () => setShowDialog(false);
 
   const [cloneExperiment] = useMutation<
-    { cloneExperiment: cloneExperiment_cloneExperiment },
-    { input: ExperimentCloneInput }
+    cloneExperiment,
+    cloneExperimentVariables
   >(CLONE_EXPERIMENT_MUTATION);
 
   const [isLoading, cloneSetIsLoading] = useState(false);

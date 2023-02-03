@@ -11,8 +11,10 @@ import {
   SUBMIT_ERROR,
 } from "src/lib/constants";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
-import { ExperimentInput } from "src/types/globalTypes";
-import { updateExperiment_updateExperiment } from "src/types/updateExperiment";
+import {
+  updateExperiment,
+  updateExperimentVariables,
+} from "src/types/updateExperiment";
 
 // Params are a select subset of experiment properties
 export type UseTakeawaysExperimentSubset = Pick<
@@ -39,8 +41,8 @@ export const useTakeaways = (
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
   const [isServerValid, setIsServerValid] = useState(true);
   const [updateExperiment] = useMutation<
-    { updateExperiment: updateExperiment_updateExperiment },
-    { input: ExperimentInput }
+    updateExperiment,
+    updateExperimentVariables
   >(UPDATE_EXPERIMENT_MUTATION);
 
   const onSubmit = useCallback(
