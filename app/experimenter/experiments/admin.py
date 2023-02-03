@@ -301,6 +301,7 @@ class NimbusExperimentAdmin(
     )
     list_display = (
         "name",
+        "slug",
         "is_rollout",
         "status",
         "publish_status",
@@ -309,7 +310,15 @@ class NimbusExperimentAdmin(
         "channel",
         "firefox_min_version",
     )
-    list_filter = ("status", "publish_status", "application")
+    list_filter = (
+        "status",
+        "publish_status",
+        "is_rollout",
+        "application",
+        "channel",
+        "feature_configs",
+    )
+    search_fields = ("name", "slug")
     prepopulated_fields = {"slug": ("name",)}
     form = NimbusExperimentAdminForm
     actions = [force_fetch_jetstream_data]
