@@ -8,7 +8,10 @@ import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import { SUBMIT_ERROR } from "src/lib/constants";
 import { getExperiment_experimentBySlug as Experiment } from "src/types/getExperiment";
 import { ExperimentInput } from "src/types/globalTypes";
-import { updateExperiment_updateExperiment as UpdateExperiment } from "src/types/updateExperiment";
+import {
+  updateExperiment,
+  updateExperimentVariables,
+} from "src/types/updateExperiment";
 
 const CHANGE_MUTATION_DISPLAY_ERROR_FIELDS = ["status", "status_next"];
 
@@ -21,8 +24,8 @@ export function useChangeOperationMutation(
   const [isLoading, setIsLoading] = useState(false);
 
   const [updateExperiment] = useMutation<
-    { updateExperiment: UpdateExperiment },
-    { input: ExperimentInput }
+    updateExperiment,
+    updateExperimentVariables
   >(UPDATE_EXPERIMENT_MUTATION);
 
   const callbacks = useMemo(
