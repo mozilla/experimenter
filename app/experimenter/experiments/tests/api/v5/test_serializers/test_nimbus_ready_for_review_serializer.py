@@ -1069,6 +1069,62 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             serializer.warnings,
         )
 
+    def test_serializer_feature_config_validation_treatment_value_schema_warn_returns_empty_object(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            warn_feature_schema=True,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    schema=BASIC_JSON_SCHEMA,
+                    application=NimbusExperiment.Application.DESKTOP,
+                )
+            ],
+            is_sticky=True,
+        )
+        reference_feature_value = experiment.reference_branch.feature_values.get()
+        reference_feature_value.value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        reference_feature_value.save()
+
+        treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
+        treatment_feature_value.value = """\
+            {"DDirectMigrateSingleProfile": true}
+        """.strip()
+        treatment_feature_value.save()
+
+        treatment_branch = NimbusBranchFactory.create(
+            experiment=experiment, description="dgdgd"
+        )
+        experiment.branches.add(treatment_branch)
+        experiment.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
+        self.assertTrue(
+            serializer.warnings["treatment_branches"][0]["feature_value"][0].startswith(
+                "Additional properties are not allowed"
+            ),
+            serializer.warnings,
+        )
+
+        self.assertTrue(serializer.warnings["treatment_branches"][1], {})
+
     def test_serializer_feature_config_validation_supports_ref_json_schema(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
