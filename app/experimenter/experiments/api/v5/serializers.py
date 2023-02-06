@@ -1394,8 +1394,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         treatment_branches_errors = []
         treatment_branches_warnings = []
         for branch_data in data["treatment_branches"]:
-            branch_error = None
-            branch_warning = None
+            branch_error = {}
+            branch_warning = {}
 
             if branch_data.get("feature_enabled", False):
                 if errors := self._validate_feature_value_against_schema(
