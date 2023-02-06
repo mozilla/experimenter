@@ -330,7 +330,7 @@ def fixture_experiment_default_data():
         "riskRevenue": False,
         "riskPartnerRelated": False,
         "riskBrand": False,
-        "featureConfigId": 1,
+        "featureConfigIds": [1],
         "referenceBranch": {
             "description": "reference branch",
             "name": "Branch 1",

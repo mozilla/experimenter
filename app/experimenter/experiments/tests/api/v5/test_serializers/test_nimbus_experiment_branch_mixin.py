@@ -40,7 +40,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         }
 
         data = {
-            "feature_config": feature_config.id,
+            "feature_configs": [feature_config.id],
             "reference_branch": reference_branch,
             "treatment_branches": [treatment_branch],
             "changelog_message": "test changelog message",
@@ -101,7 +101,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         }
 
         data = {
-            "feature_config": feature_config.id,
+            "feature_configs": [feature_config.id],
             "reference_branch": reference_branch,
             "treatment_branches": [treatment_branch],
             "changelog_message": "test changelog message",
@@ -170,7 +170,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         }
 
         data = {
-            "feature_config": feature_config.id,
+            "feature_configs": [feature_config.id],
             "reference_branch": reference_branch,
             "treatment_branches": [treatment_branch],
             "changelog_message": "test changelog message",
@@ -243,7 +243,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         ]
 
         data = {
-            "feature_config": None,
+            "feature_configs": [],
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
             "changelog_message": "test changelog message",

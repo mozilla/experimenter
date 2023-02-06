@@ -771,12 +771,6 @@ class NimbusExperimentSerializer(
     reference_branch = NimbusBranchSerializer(required=False)
     treatment_branches = NimbusBranchSerializer(many=True, required=False)
     prevent_pref_conflicts = serializers.BooleanField(required=False)
-    feature_config = serializers.PrimaryKeyRelatedField(
-        queryset=NimbusFeatureConfig.objects.all(),
-        allow_null=True,
-        required=False,
-        write_only=True,
-    )
     feature_configs = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
         many=True,
@@ -853,7 +847,6 @@ class NimbusExperimentSerializer(
             "conclusion_recommendation",
             "countries",
             "documentation_links",
-            "feature_config",
             "feature_configs",
             "warn_feature_schema",
             "firefox_min_version",
@@ -1075,8 +1068,6 @@ class NimbusExperimentSerializer(
         return super().create(validated_data)
 
     def save(self):
-        feature_config_provided = "feature_config" in self.validated_data
-        feature_config = self.validated_data.pop("feature_config", None)
         feature_configs_provided = "feature_configs" in self.validated_data
         feature_configs = self.validated_data.pop("feature_configs", None)
 
@@ -1085,12 +1076,6 @@ class NimbusExperimentSerializer(
             # the feature_config is available when the branches save their
             # feature_values
             if self.instance:
-                if feature_config_provided:
-                    self.instance.feature_configs.clear()
-
-                if feature_config:
-                    self.instance.feature_configs.add(feature_config)
-
                 if feature_configs_provided:
                     self.instance.feature_configs.clear()
 
@@ -1260,12 +1245,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     )
     reference_branch = NimbusBranchReviewSerializer(required=True)
     treatment_branches = NimbusBranchReviewSerializer(many=True)
-    feature_config = serializers.PrimaryKeyRelatedField(
-        queryset=NimbusFeatureConfig.objects.all(),
-        allow_null=False,
-        error_messages={"null": NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG},
-        write_only=True,
-    )
     feature_configs = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
         many=True,
@@ -1301,15 +1280,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.warnings = defaultdict(list)
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data["feature_config"] = None
-        if instance.feature_configs.exists():
-            data["feature_config"] = (
-                instance.feature_configs.all().order_by("slug").first().id
-            )
-        return data
 
     def validate_reference_branch(self, value):
         if value["description"] == "":
@@ -1363,60 +1333,77 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         return data
 
     def _validate_feature_config(self, data):
-        feature_config = data.get("feature_config", None)
-        warn_feature_schema = data.get("warn_feature_schema", False)
+        feature_configs = data.get("feature_configs", [])
+        for feature_config in feature_configs:
 
-        if not feature_config or not feature_config.schema or not self.instance:
-            return data
+            warn_feature_schema = data.get("warn_feature_schema", False)
 
-        if self.instance.application != feature_config.application:
-            raise serializers.ValidationError(
-                {
-                    "feature_config": [
-                        f"Feature Config application {feature_config.application} does "
-                        f"not match experiment application {self.instance.application}."
-                    ]
-                }
-            )
+            if not feature_config or not feature_config.schema or not self.instance:
+                return data
 
-        schema = json.loads(feature_config.schema)
-        error_result = {}
-        if data["reference_branch"].get("feature_enabled"):
+            if self.instance.application != feature_config.application:
+                raise serializers.ValidationError(
+                    {
+                        "feature_configs": [
+                            f"Feature Config application {feature_config.application} "
+                            f"does not match experiment application "
+                            f"{self.instance.application}."
+                        ]
+                    }
+                )
 
-            if errors := self._validate_feature_value_against_schema(
-                schema, data["reference_branch"]["feature_value"]
-            ):
-                if warn_feature_schema:
-                    self.warnings["reference_branch"] = {"feature_value": errors}
-                else:
-                    error_result["reference_branch"] = {"feature_value": errors}
-
-        treatment_branches_errors = []
-        treatment_branches_warnings = []
-        for branch_data in data["treatment_branches"]:
-            branch_error = {}
-            branch_warning = {}
-
-            if branch_data.get("feature_enabled", False):
+            schema = json.loads(feature_config.schema)
+            error_result = {}
+            if data["reference_branch"].get("feature_enabled"):
                 if errors := self._validate_feature_value_against_schema(
-                    schema, branch_data["feature_value"]
+                    schema, data["reference_branch"]["feature_value"]
                 ):
                     if warn_feature_schema:
-                        branch_warning = {"feature_value": errors}
+                        self.warnings["reference_branch"] = {"feature_value": errors}
                     else:
-                        branch_error = {"feature_value": errors}
+                        error_result["reference_branch"] = {"feature_value": errors}
 
-            treatment_branches_errors.append(branch_error)
-            treatment_branches_warnings.append(branch_warning)
+            treatment_branches_errors = []
+            treatment_branches_warnings = []
+            for branch_data in data["treatment_branches"]:
+                branch_error = {}
+                branch_warning = {}
 
-        if any(treatment_branches_warnings):
-            self.warnings["treatment_branches"] = treatment_branches_warnings
+                if branch_data.get("feature_enabled", False):
+                    if errors := self._validate_feature_value_against_schema(
+                        schema, data["reference_branch"]["feature_value"]
+                    ):
+                        if warn_feature_schema:
+                            self.warnings["reference_branch"] = {"feature_value": errors}
+                        else:
+                            error_result["reference_branch"] = {"feature_value": errors}
 
-        if any(treatment_branches_errors):
-            error_result["treatment_branches"] = treatment_branches_errors
+            treatment_branches_errors = []
+            treatment_branches_warnings = []
+            for branch_data in data["treatment_branches"]:
+                branch_error = None
+                branch_warning = None
 
-        if error_result:
-            raise serializers.ValidationError(error_result)
+                if branch_data.get("feature_enabled", False):
+                    if errors := self._validate_feature_value_against_schema(
+                        schema, branch_data["feature_value"]
+                    ):
+                        if warn_feature_schema:
+                            branch_warning = {"feature_value": errors}
+                        else:
+                            branch_error = {"feature_value": errors}
+
+                treatment_branches_errors.append(branch_error)
+                treatment_branches_warnings.append(branch_warning)
+
+            if any(treatment_branches_warnings):
+                self.warnings["treatment_branches"] = treatment_branches_warnings
+
+            if any(treatment_branches_errors):
+                error_result["treatment_branches"] = treatment_branches_errors
+
+            if error_result:
+                raise serializers.ValidationError(error_result)
 
         return data
 
