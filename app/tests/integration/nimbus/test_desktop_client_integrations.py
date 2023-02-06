@@ -82,7 +82,7 @@ def test_check_telemetry_enrollment_unenrollment(
         "riskRevenue": False,
         "riskPartnerRelated": False,
         "riskBrand": False,
-        "featureConfigId": 1,
+        "featureConfigIds": [1],
         "referenceBranch": {
             "description": "reference branch",
             "name": "Branch 1",
@@ -176,7 +176,7 @@ def test_check_telemetry_pref_flip(
     targeting = helpers.load_targeting_configs()[0]
     experiment_slug = str(slugify(experiment_name))
     experiment_default_data["targetingConfigSlug"] = targeting
-    experiment_default_data["featureConfigId"] = 9
+    experiment_default_data["featureConfigIds"] = [9]
     experiment_default_data["referenceBranch"] = {
         "description": "reference branch",
         "name": "Branch 1",
@@ -275,7 +275,7 @@ def test_check_telemetry_sticky_targeting(
     experiment_slug = str(slugify(experiment_name))
     targeting_config_slug = "no_targeting"
     experiment_default_data["targetingConfigSlug"] = targeting_config_slug
-    experiment_default_data["featureConfigId"] = 1
+    experiment_default_data["featureConfigIds"] = [1]
     experiment_default_data["referenceBranch"] = {
         "description": "reference branch",
         "name": "Branch 1",

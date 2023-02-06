@@ -721,7 +721,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["feature_configs"],
             [NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG],
         )
 
@@ -816,7 +816,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["feature_configs"],
             [
                 "Feature Config application ios does not "
                 "match experiment application fenix."
@@ -843,7 +843,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["feature_config"],
+            serializer.errors["feature_configs"],
             ["You must select a feature configuration from the drop down."],
         )
 
