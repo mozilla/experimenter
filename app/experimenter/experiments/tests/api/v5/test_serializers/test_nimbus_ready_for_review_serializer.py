@@ -1069,7 +1069,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             serializer.warnings,
         )
 
-    def test_serializer_feature_config_validation_treatment_value_schema_warn_returns_empty_object(
+    def test_serializer_feature_config_validation_treatment_value_warn_returns_object(
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
