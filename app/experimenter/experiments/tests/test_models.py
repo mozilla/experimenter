@@ -2095,6 +2095,19 @@ class TestNimbusChangeLogManager(TestCase):
 
         self.assertEqual(experiment.changes.latest_review_request(), change)
 
+    def test_latest_review_request_returns_change_for_dirty_to_review(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+            is_rollout=True,
+        )
+
+        experiment.publish_status = NimbusExperiment.PublishStatus.REVIEW
+        experiment.save()
+
+        change = generate_nimbus_changelog(experiment, experiment.owner, "test message")
+
+        self.assertEqual(experiment.changes.latest_review_request(), change)
+
     def test_latest_review_request_returns_most_recent_review_request(self):
         reviewer = UserFactory()
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -2143,6 +2156,26 @@ class TestNimbusChangeLogManager(TestCase):
         self.assertEqual(experiment.changes.latest_review_request(), changes[0])
         self.assertEqual(experiment.changes.latest_rejection(), changes[1])
 
+    def test_latest_rejection_returns_rejection_for_review_to_dirty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+            is_rollout=True,
+        )
+
+        changes = []
+        for publish_status in (
+            NimbusExperiment.PublishStatus.REVIEW,
+            NimbusExperiment.PublishStatus.DIRTY,
+        ):
+            experiment.publish_status = publish_status
+            experiment.save()
+            changes.append(
+                generate_nimbus_changelog(experiment, experiment.owner, "test message")
+            )
+
+        self.assertEqual(experiment.changes.latest_review_request(), changes[0])
+        self.assertEqual(experiment.changes.latest_rejection(), changes[1])
+
     def test_latest_rejection_returns_rejection_for_waiting_to_idle(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2171,6 +2204,22 @@ class TestNimbusChangeLogManager(TestCase):
 
         experiment.status = NimbusExperiment.Status.LIVE
         experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner, "test message")
+
+        self.assertIsNone(experiment.changes.latest_rejection())
+
+    def test_update_live_is_not_considered_latest_rejection(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
+            is_rollout=True,
+            published_dto={"id": "cool-cat", "test": False},
+        )
+
+        experiment.status = NimbusExperiment.Status.LIVE
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        experiment.published_dto = {"id": "cool-cat", "test": True}
+
         experiment.save()
         generate_nimbus_changelog(experiment, experiment.owner, "test message")
 
