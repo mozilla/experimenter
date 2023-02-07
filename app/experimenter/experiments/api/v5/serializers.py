@@ -86,7 +86,9 @@ class TransitionConstants:
             NimbusExperiment.PublishStatus.IDLE,
         ],
         "experiments": [],
-        "rollouts": [],
+        "rollouts": [
+            NimbusExperiment.PublishStatus.DIRTY,
+        ],
     }
 
     STATUS_UPDATE_EXEMPT_FIELDS = {
@@ -99,7 +101,7 @@ class TransitionConstants:
             "conclusion_recommendation",
         ],
         "experiments": [],
-        "rollouts": [],
+        "rollouts": ["population_percent"],
     }
 
 
