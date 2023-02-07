@@ -85,6 +85,12 @@ export const LIFECYCLE_REVIEW_FLOWS = {
     requestSummary: "Requested Launch",
     reviewSummary: "Review Launch Request",
   },
+  UPDATE: {
+    buttonTitle: "Update Rollout",
+    description: "update this rollout",
+    requestSummary: "Requested Update",
+    reviewSummary: "Review Update Request",
+  },
   PAUSE: {
     buttonTitle: "End Enrollment for Experiment",
     description: "end enrollment for this experiment",
@@ -115,6 +121,8 @@ export const CHANGELOG_MESSAGES = {
   RETURNED_TO_DRAFT: "Returned to Draft Status",
   REQUESTED_REVIEW: "Review Requested for Launch",
   REVIEW_APPROVED: "Launch Review Approved",
+  REQUESTED_REVIEW_UPDATE: "Review Requested for Update",
+  REVIEW_APPROVED_UPDATE: "Update Review Approved",
   REQUESTED_REVIEW_END_ENROLLMENT: "Requested Review to End Enrollment",
   END_ENROLLMENT_APPROVED: "End Enrollment Approved",
   REQUESTED_REVIEW_END: "Requested Review to End",

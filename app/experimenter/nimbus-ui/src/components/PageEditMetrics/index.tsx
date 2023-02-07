@@ -16,8 +16,10 @@ import {
 } from "src/lib/constants";
 import { ExperimentContext } from "src/lib/contexts";
 import { editCommonRedirects } from "src/lib/experiment";
-import { ExperimentInput } from "src/types/globalTypes";
-import { updateExperiment_updateExperiment as UpdateExperimentOutcomesResult } from "src/types/updateExperiment";
+import {
+  updateExperiment,
+  updateExperimentVariables,
+} from "src/types/updateExperiment";
 
 const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   const { experiment, refetch, useRedirectCondition } =
@@ -25,8 +27,8 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   useRedirectCondition(editCommonRedirects);
 
   const [updateExperimentOutcomes, { loading }] = useMutation<
-    { updateExperiment: UpdateExperimentOutcomesResult },
-    { input: ExperimentInput }
+    updateExperiment,
+    updateExperimentVariables
   >(UPDATE_EXPERIMENT_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});

@@ -57,9 +57,9 @@ class KintoClient:
         )
         self._patch_collection()
 
-    def delete_record(self, id):
+    def delete_record(self, record_id):
         self.kinto_http_client.delete_record(
-            id=id,
+            id=record_id,
             collection=self.collection,
             bucket=settings.KINTO_BUCKET_WORKSPACE,
         )

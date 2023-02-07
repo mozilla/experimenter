@@ -54,7 +54,7 @@ class TestNimbusConfigurationSerializer(TestCase):
             ]
             self.assertEqual(
                 set(channels),
-                {channel.name for channel in application_config.channel_app_id.keys()},
+                {channel.name for channel in application_config.channel_app_id},
             )
 
         self.assertEqual(config["owners"], [{"username": experiment.owner.username}])
@@ -92,6 +92,7 @@ class TestNimbusConfigurationSerializer(TestCase):
                     "ownerEmail": feature_config.owner_email,
                     "schema": feature_config.schema,
                     "setsPrefs": bool(feature_config.sets_prefs),
+                    "enabled": bool(feature_config.enabled),
                 },
                 config["allFeatureConfigs"],
             )

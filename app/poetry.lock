@@ -480,14 +480,14 @@ six = ">=1.10"
 
 [[package]]
 name = "django"
-version = "3.2.16"
+version = "3.2.17"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "Django-3.2.16-py3-none-any.whl", hash = "sha256:18ba8efa36b69cfcd4b670d0fa187c6fe7506596f0ababe580e16909bcdec121"},
-    {file = "Django-3.2.16.tar.gz", hash = "sha256:3adc285124244724a394fa9b9839cc8cd116faf7d159554c43ecdaa8cdf0b94d"},
+    {file = "Django-3.2.17-py3-none-any.whl", hash = "sha256:59c39fc342b242fb42b6b040ad8b1b4c15df438706c1d970d416d63cdd73e7fd"},
+    {file = "Django-3.2.17.tar.gz", hash = "sha256:644288341f06ebe4938eec6801b6bd59a6534a78e4aedde2a153075d11143894"},
 ]
 
 [package.dependencies]
@@ -822,57 +822,6 @@ files = [
 
 [package.dependencies]
 python-dateutil = ">=2.4"
-
-[[package]]
-name = "flake8"
-version = "6.0.0"
-description = "the modular source code checker: pep8 pyflakes and co"
-category = "main"
-optional = false
-python-versions = ">=3.8.1"
-files = [
-    {file = "flake8-6.0.0-py2.py3-none-any.whl", hash = "sha256:3833794e27ff64ea4e9cf5d410082a8b97ff1a06c16aa3d2027339cd0f1195c7"},
-    {file = "flake8-6.0.0.tar.gz", hash = "sha256:c61007e76655af75e6785a931f452915b371dc48f56efd765247c8fe68f2b181"},
-]
-
-[package.dependencies]
-mccabe = ">=0.7.0,<0.8.0"
-pycodestyle = ">=2.10.0,<2.11.0"
-pyflakes = ">=3.0.0,<3.1.0"
-
-[[package]]
-name = "flake8-comprehensions"
-version = "3.10.1"
-description = "A flake8 plugin to help you write better list/set/dict comprehensions."
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "flake8-comprehensions-3.10.1.tar.gz", hash = "sha256:412052ac4a947f36b891143430fef4859705af11b2572fbb689f90d372cf26ab"},
-    {file = "flake8_comprehensions-3.10.1-py3-none-any.whl", hash = "sha256:d763de3c74bc18a79c039a7ec732e0a1985b0c79309ceb51e56401ad0a2cd44e"},
-]
-
-[package.dependencies]
-flake8 = ">=3.0,<3.2.0 || >3.2.0"
-
-[[package]]
-name = "flake8-use-fstring"
-version = "1.4"
-description = "Flake8 plugin for string formatting style."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "flake8-use-fstring-1.4.tar.gz", hash = "sha256:6550bf722585eb97dffa8343b0f1c372101f5c4ab5b07ebf0edd1c79880cdd39"},
-]
-
-[package.dependencies]
-flake8 = ">=3"
-
-[package.extras]
-ci = ["coverage (>=4.0.0,<5.0.0)", "coveralls", "flake8-builtins", "flake8-commas", "flake8-fixme", "flake8-print", "flake8-quotes", "flake8-todo", "pytest (>=4)", "pytest-cov (>=2)"]
-dev = ["coverage (>=4.0.0,<5.0.0)", "flake8-builtins", "flake8-commas", "flake8-fixme", "flake8-print", "flake8-quotes", "flake8-todo", "pytest (>=4)", "pytest-cov (>=2)"]
-test = ["coverage (>=4.0.0,<5.0.0)", "flake8-builtins", "flake8-commas", "flake8-fixme", "flake8-print", "flake8-quotes", "flake8-todo", "pytest (>=4)", "pytest-cov (>=2)"]
 
 [[package]]
 name = "future"
@@ -1454,18 +1403,6 @@ files = [
 traitlets = "*"
 
 [[package]]
-name = "mccabe"
-version = "0.7.0"
-description = "McCabe checker, plugin for flake8"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
-    {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
-]
-
-[[package]]
 name = "mock"
 version = "4.0.3"
 description = "Rolling backport of unittest.mock for all Pythons"
@@ -1921,18 +1858,6 @@ files = [
 pyasn1 = ">=0.4.6,<0.5.0"
 
 [[package]]
-name = "pycodestyle"
-version = "2.10.0"
-description = "Python style guide checker"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pycodestyle-2.10.0-py2.py3-none-any.whl", hash = "sha256:8a4eaf0d0495c7395bdab3589ac2db602797d76207242c17d470186815706610"},
-    {file = "pycodestyle-2.10.0.tar.gz", hash = "sha256:347187bdb476329d98f695c213d7295a846d1152ff4fe9bacb8a9590b8ee7053"},
-]
-
-[[package]]
 name = "pydantic"
 version = "1.10.4"
 description = "Data validation and settings management using python type hints"
@@ -1984,18 +1909,6 @@ typing-extensions = ">=4.2.0"
 [package.extras]
 dotenv = ["python-dotenv (>=0.10.4)"]
 email = ["email-validator (>=1.0.3)"]
-
-[[package]]
-name = "pyflakes"
-version = "3.0.1"
-description = "passive checker of Python programs"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pyflakes-3.0.1-py2.py3-none-any.whl", hash = "sha256:ec55bf7fe21fff7f1ad2f7da62363d749e2a470500eab1b555334b67aa1ef8cf"},
-    {file = "pyflakes-3.0.1.tar.gz", hash = "sha256:ec8b276a6b60bd80defed25add7e439881c19e64850afd9b346283d4165fd0fd"},
-]
 
 [[package]]
 name = "pygments"
@@ -2485,6 +2398,32 @@ files = [
 pyasn1 = ">=0.1.3"
 
 [[package]]
+name = "ruff"
+version = "0.0.239"
+description = "An extremely fast Python linter, written in Rust."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "ruff-0.0.239-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:de9830cfcca81c5d25233bf4be6f2f95deb58a7eaf2295f91280de97a54240d7"},
+    {file = "ruff-0.0.239-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:71c05f627fb9efb0859af248fe00f61391266d14e9406c10236dec7db1b1bfe5"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3b1caea095c22067abc685b8452be5a9079ca27b88bffd80730f9e4ca8f81e7c"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:97293bae6da5bd82672473f6d43421de7dd27fe8a8b1b3c79ffeda37bcb492b4"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:25c3a84f8db9281385685041e98b67afd4a0bb5a872e897331af8229eb28b965"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:0056b7e1975a3ad7ef7eb9df4ca9f905661caf924c6843ecbe4e10719cd6cd0b"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:b38916c62eb2587743d2ec8e1f03a43eb5889cf4a56cb55f5eb3bffee5260e32"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:7afe3bc50339b916b75a587ed299859fae9c1056ed73d35531c0af610dbe67f6"},
+    {file = "ruff-0.0.239-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:daac673996ecbef77bccf8cd03189c60302568b7aec669e352aa2d8925b074b2"},
+    {file = "ruff-0.0.239-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:d3e4bb03333b0c8012ad7d27246a7a95dba3d6ec8796c172af055a179a86b61c"},
+    {file = "ruff-0.0.239-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:801a209887f777811caf9fd4513eec9b505e139d1b0844e1eacd1b4683b0eba2"},
+    {file = "ruff-0.0.239-py3-none-musllinux_1_2_i686.whl", hash = "sha256:216592db3bd93c260cc329d3237548f17fea1f43f87673ab5cdeb04d548fbea9"},
+    {file = "ruff-0.0.239-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:1e523edf92c5e888d93a145ef20ad548fca4da7cbd7a8321b3539967a03b7caf"},
+    {file = "ruff-0.0.239-py3-none-win32.whl", hash = "sha256:e54233e7d97d5b705582f673dc3184c7b16c42f7eac3be707c0adf716e457293"},
+    {file = "ruff-0.0.239-py3-none-win_amd64.whl", hash = "sha256:a1bdd3b5ea60b160d3ceb2f8fef4d88af58b7932d4ed46c85c586ef2f277b71d"},
+    {file = "ruff-0.0.239.tar.gz", hash = "sha256:bbb1fe64d4641ce7e5855bbebd9e81f6a596501bcb67842600186b3aa9b950cf"},
+]
+
+[[package]]
 name = "sentry-sdk"
 version = "1.9.0"
 description = "Python client for Sentry (https://sentry.io)"
@@ -2851,4 +2790,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "5941b045dfd06a5586a64b1bf49fcceed8d61d1c06a3bd7aaafe50eee47de1b4"
+content-hash = "dd852283bcc0ee5707ded294baa0d4d7f3e6f409b33503fe2e10889e39fb4173"

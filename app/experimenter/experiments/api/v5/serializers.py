@@ -86,7 +86,9 @@ class TransitionConstants:
             NimbusExperiment.PublishStatus.IDLE,
         ],
         "experiments": [],
-        "rollouts": [],
+        "rollouts": [
+            NimbusExperiment.PublishStatus.DIRTY,
+        ],
     }
 
     STATUS_UPDATE_EXEMPT_FIELDS = {
@@ -99,7 +101,7 @@ class TransitionConstants:
             "conclusion_recommendation",
         ],
         "experiments": [],
-        "rollouts": [],
+        "rollouts": ["population_percent"],
     }
 
 
@@ -154,6 +156,7 @@ class FeatureConfigDataClass:
     ownerEmail: typing.Optional[str]
     schema: typing.Optional[str]
     setsPrefs: bool
+    enabled: bool
 
 
 @dataclass
@@ -277,6 +280,7 @@ class NimbusConfigurationDataClass:
                 ownerEmail=f.owner_email,
                 schema=f.schema,
                 setsPrefs=bool(f.sets_prefs),
+                enabled=f.enabled,
             )
             for f in NimbusFeatureConfig.objects.all().order_by("name")
         ]
@@ -1392,8 +1396,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         treatment_branches_errors = []
         treatment_branches_warnings = []
         for branch_data in data["treatment_branches"]:
-            branch_error = None
-            branch_warning = None
+            branch_error = {}
+            branch_warning = {}
 
             if branch_data.get("feature_enabled", False):
                 if errors := self._validate_feature_value_against_schema(

@@ -931,7 +931,8 @@ class TestUpdateExperimentMutationSingleFeature(
     def test_reject_ending_experiment(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_REVIEW_REQUESTED
+            NimbusExperimentFactory.Lifecycles.ENDING_REVIEW_REQUESTED,
+            is_rollout=False,
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -939,7 +940,8 @@ class TestUpdateExperimentMutationSingleFeature(
                 "input": {
                     "id": experiment.id,
                     "publishStatus": NimbusExperiment.PublishStatus.IDLE.name,
-                    "statusNext": NimbusExperiment.Status.COMPLETE.name,
+                    "statusNext": None,
+                    "status": NimbusExperiment.Status.LIVE.name,
                     "changelogMessage": "This is not good",
                 }
             },
@@ -952,7 +954,7 @@ class TestUpdateExperimentMutationSingleFeature(
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
-        self.assertEqual(experiment.status_next, NimbusExperiment.Status.COMPLETE)
+        self.assertEqual(experiment.status_next, None)
         rejection = experiment.changes.latest_rejection()
         self.assertEqual(rejection.changed_by.email, user_email)
         self.assertEqual(rejection.message, "This is not good")

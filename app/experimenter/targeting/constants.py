@@ -142,6 +142,33 @@ FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903_PREFER_MOTION = NimbusTargetingC
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
+    name=(
+        "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
+        "new profile, needing default w/ pin"
+    ),
+    slug="first_run_new_profile_need_default_has_pin",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Windows 1903+, "
+        "with a new profile, needing default w/ pin"
+    ),
+    targeting=(
+        "{first_run} && {has_pin}".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
+            has_pin=HAS_PIN,
+        )
+    ),
+    desktop_telemetry=(
+        "{first_run} AND {has_pin}".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
+            has_pin=HAS_PIN,
+        )
+    ),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_TCP_STUDY = NimbusTargetingConfig(
     name="Exclude users in the TCP revenue study",
     slug="not_tcp_study",
@@ -951,6 +978,76 @@ NEW_ANDROID_13_USERS = NimbusTargetingConfig(
     sticky_required=True,
     is_first_run_required=True,
     application_choice_names=(Application.FENIX.name,),
+)
+
+EXISTING_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+    name="Existing user (has default, need pin)",
+    slug="existing_user_has_default_need_pin",
+    description="Users with profiles older than 28 days and w/ default need pin",
+    targeting=f"{PROFILE28DAYS} && isDefaultBrowser && doesAppNeedPin",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
+    name="Existing user (need default, has pin)",
+    slug="existing_user_need_default_has_pin",
+    description="Users with profiles older than 28 days and need default w/ pin",
+    targeting=f"{PROFILE28DAYS} && {NEED_DEFAULT} && {HAS_PIN}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_NEED_PIN = NimbusTargetingConfig(
+    name="Existing user (need pin)",
+    slug="existing_user_need_pin",
+    description="Users with profiles older than 28 days who have not pinned",
+    targeting=f"{PROFILE28DAYS} && doesAppNeedPin",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_NEED_DEFAULT = NimbusTargetingConfig(
+    name="Existing user (need default)",
+    slug="existing_user_need_default",
+    description="Users with profiles older than 28 days who have not set to default",
+    targeting=f"{PROFILE28DAYS} && {NEED_DEFAULT}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
+    name="New user (5 bookmarks)",
+    slug="new_user_5_bookmarks",
+    description="Profile age less than 28 days, has 5 bookmarks",
+    targeting=f"{PROFILELESSTHAN28DAYS} && totalBookmarksCount == 5",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+INFREQUENT_USER_OR_NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
+    name="Infrequent user or new user (5 bookmarks)",
+    slug="infrequent_user_or_new_user_five_bookmarks",
+    description="Infrequent users or new users with 5 bookmarks",
+    targeting=(
+        f"{INFREQUENT_USER_FIVE_BOOKMARKS.targeting}"
+        " || "
+        f"{NEW_USER_FIVE_BOOKMARKS.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
 )
 
 

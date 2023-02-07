@@ -1,4 +1,0 @@
-[flake8]
-exclude=migrations,settings*,.tox,node_modules,legacy
-max-line-length = 90
-ignore = E203, W503, FS002, FS003, E741

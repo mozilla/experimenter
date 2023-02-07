@@ -28,8 +28,8 @@ from experimenter.targeting.constants import TargetingConstants
 
 
 class FilterMixin:
-    def has_filter(self, filter):
-        return type(self).objects.filter(id=self.id).filter(filter).exists()
+    def has_filter(self, query_filter):
+        return type(self).objects.filter(id=self.id).filter(query_filter).exists()
 
 
 class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
@@ -629,14 +629,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 self.status == self.Status.DRAFT
                 and self.publish_status == self.PublishStatus.IDLE
             )
-            or (
-                self.is_rollout
-                and self.status == self.Status.LIVE
-                and (
-                    self.publish_status == self.PublishStatus.DIRTY
-                    or self.publish_status == self.PublishStatus.IDLE
-                )
-            )
+            or self.is_rollout
+            and self.status == self.Status.LIVE
+            and self.publish_status in [self.PublishStatus.DIRTY, self.PublishStatus.IDLE]
             and not self.is_archived
         )
 
@@ -801,9 +796,9 @@ class NimbusBranch(models.Model):
 
 # Helper to ensure branch screenshot filenames have controlled unique paths
 def nimbus_branch_screenshot_upload_to(screenshot, filename):
-    id = uuid4()
+    screenshot_id = uuid4()
     ext = filename.split(".")[-1].lower()
-    return os.path.join(screenshot.branch.experiment.slug, f"{id}.{ext}")
+    return os.path.join(screenshot.branch.experiment.slug, f"{screenshot_id}.{ext}")
 
 
 class NimbusBranchFeatureValue(models.Model):
@@ -1008,6 +1003,7 @@ class NimbusFeatureConfig(models.Model):
     schema = models.TextField(blank=True, null=True)
     read_only = models.BooleanField(default=False)
     sets_prefs = ArrayField(models.CharField(max_length=255, null=False), default=list)
+    enabled = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Nimbus Feature Config"
@@ -1025,13 +1021,19 @@ class NimbusChangeLogManager(models.Manager["NimbusChangeLog"]):
     def latest_review_request(self):
         return (
             self.all()
-            .filter(NimbusChangeLog.Filters.IS_REVIEW_REQUEST)
+            .filter(
+                NimbusChangeLog.Filters.IS_REVIEW_REQUEST
+                | NimbusChangeLog.Filters.IS_UPDATE_REVIEW_REQUEST
+            )
             .order_by("-changed_on")
         ).first()
 
     def latest_rejection(self):
         change = self.latest_change()
-        if change and change.has_filter(NimbusChangeLog.Filters.IS_REJECTION):
+        if change and change.has_filter(
+            NimbusChangeLog.Filters.IS_REJECTION
+            | NimbusChangeLog.Filters.IS_UPDATE_REJECTION
+        ):
             return change
 
     def latest_timeout(self):
@@ -1088,13 +1090,30 @@ class NimbusChangeLog(FilterMixin, models.Model):
             old_publish_status=NimbusExperiment.PublishStatus.IDLE,
             new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
         )
+        IS_UPDATE_REVIEW_REQUEST = Q(
+            old_publish_status=NimbusExperiment.PublishStatus.DIRTY,
+            new_publish_status=NimbusExperiment.PublishStatus.REVIEW,
+        )
         IS_REJECTION = Q(
             Q(old_status=F("new_status")),
             old_publish_status__in=(
                 NimbusExperiment.PublishStatus.REVIEW,
                 NimbusExperiment.PublishStatus.WAITING,
             ),
-            new_publish_status=NimbusExperiment.PublishStatus.IDLE,
+            new_publish_status=(NimbusExperiment.PublishStatus.IDLE),
+            new_status__in=(
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.LIVE,
+            ),
+            published_dto_changed=False,
+        )
+        IS_UPDATE_REJECTION = Q(
+            Q(old_status=F("new_status")),
+            old_publish_status__in=(
+                NimbusExperiment.PublishStatus.REVIEW,
+                NimbusExperiment.PublishStatus.WAITING,
+            ),
+            new_publish_status__in=(NimbusExperiment.PublishStatus.DIRTY,),
             published_dto_changed=False,
         )
         IS_TIMEOUT = Q(
