@@ -99,7 +99,7 @@ describe("PageResults", () => {
       screen.getByText(
         new Date(MOCK_METADATA_WITH_CONFIG.analysis_start_time).toLocaleString(
           undefined,
-          { timeZone: "UTC", timeZoneName:"short" },
+          { timeZone: "UTC", timeZoneName: "short" },
         ),
       ),
     );

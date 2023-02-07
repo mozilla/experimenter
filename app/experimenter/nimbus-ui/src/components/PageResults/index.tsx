@@ -221,7 +221,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             <b>
               {new Date(analysis?.metadata?.analysis_start_time).toLocaleString(
                 undefined,
-                { timeZone: "UTC", timeZoneName:"short" },
+                { timeZone: "UTC", timeZoneName: "short" },
               )}
             </b>
           </p>
