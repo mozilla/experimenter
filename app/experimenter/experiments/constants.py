@@ -411,7 +411,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FEATURE_ENABLED = f"Experiments for Firefox Desktop\
          {FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION} and above must have the feature\
             enabled and specify a feature value."
-
+    ERROR_BRANCH_SWAP = (
+        "You are trying to swap branches name, Give another random name to the branches"
+    )
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
     # buffer day is added for Jetstream to compute the results.

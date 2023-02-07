@@ -577,24 +577,38 @@ class NimbusExperimentBranchMixin:
                         ],
                     }
                 )
-        old_reference_branch_name = self.instance.reference_branch.name
-        old_treatment_branch_names = [
-            b.name for b in self.instance.treatment_branches.all()
-        ]
-        new_reference_branch_name = data["reference_branch"].get("name")
-        new_treatment_branch_names = [b.get("name") for b in data["treatment_branches"]]
-        names_swapped = (
-            old_reference_branch_name in new_treatment_branch_names
-            and old_treatment_branch_names == [new_reference_branch_name]
-        )
-        if names_swapped:
-            raise serializers.ValidationError(
-                {
-                    "reference_branch": {
-                        "name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME
-                    }
-                }
-            )
+            try:
+                reference_branch = getattr(self.instance, "reference_branch")
+            except NimbusBranch.DoesNotExist:
+                reference_branch = None
+
+            try:
+                treatment_branches = getattr(self.instance, "treatment_branches")
+            except NimbusBranch.DoesNotExist:
+                treatment_branches = None
+
+            if self.instance and reference_branch and treatment_branches:
+                old_reference_branch_name = reference_branch.name
+
+                old_treatment_branch_names = [b.name for b in treatment_branches]
+
+                names_swapped = (
+                    old_reference_branch_name in treatment_branch_names
+                    and old_treatment_branch_names == [ref_branch_name]
+                )
+                if names_swapped:
+                    raise serializers.ValidationError(
+                        {
+                            "reference_branch": {
+                                "name": NimbusConstants.ERROR_BRANCH_SWAP
+                            },
+                            "treatment_branches": [
+                                {"name": NimbusConstants.ERROR_BRANCH_SWAP}
+                                for _ in data["treatment_branches"]
+                            ],
+                        }
+                    )
+
         return data
 
     def update(self, experiment, data):

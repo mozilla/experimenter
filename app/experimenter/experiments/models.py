@@ -770,7 +770,7 @@ class NimbusBranch(models.Model):
     class Meta:
         verbose_name = "Nimbus Branch"
         verbose_name_plural = "Nimbus Branches"
-        unique_together = (("slug", "experiment", "id"),)
+        unique_together = (("slug", "experiment"),)
         ordering = ("slug",)
 
     def __str__(self):

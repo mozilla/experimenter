@@ -263,6 +263,65 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             },
         )
 
+    def test_swap_branch_name(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        experiment.delete_branches()
+
+        reference_branch = {"name": "control", "description": "a control", "ratio": 1}
+        treatment_branches = [
+            {"name": "treatment", "description": "desc1", "ratio": 1},
+        ]
+
+        data = {
+            "feature_config": None,
+            "reference_branch": reference_branch,
+            "treatment_branches": treatment_branches,
+            "changelog_message": "test changelog message",
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.branches.count(), 2)
+        self.assertEqual(experiment.reference_branch.name, reference_branch["name"])
+        treatment_branch = experiment.treatment_branches[0]
+        self.assertEqual(treatment_branch.name, treatment_branches[0]["name"])
+
+        swap_reference_branch = {
+            "name": "treatment",
+            "description": "a control",
+            "ratio": 1,
+        }
+        swap_treatment_branches = [
+            {"name": "control", "description": "desc1", "ratio": 1},
+        ]
+
+        data = {
+            "feature_config": None,
+            "reference_branch": swap_reference_branch,
+            "treatment_branches": swap_treatment_branches,
+            "changelog_message": "test changelog message",
+        }
+        serializer = NimbusExperimentSerializer(
+            experiment, data=data, partial=True, context={"user": self.user}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {
+                "reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP},
+                "treatment_branches": [
+                    {"name": NimbusConstants.ERROR_BRANCH_SWAP}
+                    for _ in (data.get("treatment_branches", []) or [])
+                ],
+            },
+        )
+
 
 class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
     maxDiff = None
