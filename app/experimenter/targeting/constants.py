@@ -1024,6 +1024,32 @@ EXISTING_USER_NEED_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
+    name="New user (5 bookmarks)",
+    slug="new_user_5_bookmarks",
+    description="Profile age less than 28 days, has 5 bookmarks",
+    targeting=f"{PROFILELESSTHAN28DAYS} && totalBookmarksCount == 5",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+INFREQUENT_USER_OR_NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
+    name="Infrequent user or new user (5 bookmarks)",
+    slug="infrequent_user_or_new_user_five_bookmarks",
+    description="Infrequent users or new users with 5 bookmarks",
+    targeting=(
+        f"{INFREQUENT_USER_FIVE_BOOKMARKS.targeting}"
+        " || "
+        f"{NEW_USER_FIVE_BOOKMARKS.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
