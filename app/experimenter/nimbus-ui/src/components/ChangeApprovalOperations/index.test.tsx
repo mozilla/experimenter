@@ -23,10 +23,7 @@ import {
 } from "src/components/ChangeApprovalOperations/mocks";
 import { LIFECYCLE_REVIEW_FLOWS } from "src/lib/constants";
 import { getStatus } from "src/lib/experiment";
-import {
-  ExperimentsNimbusChangeLogOldStatusChoices,
-  ExperimentsNimbusChangeLogOldStatusNextChoices,
-} from "src/types/globalTypes";
+import { NimbusExperimentStatusEnum } from "src/types/globalTypes";
 
 const Subject = ({
   rejectChange = () => {},
@@ -214,8 +211,8 @@ describe("ChangeApprovalOperations", () => {
   const commonRejectionCase =
     (
       actionDescription: string,
-      oldStatus: ExperimentsNimbusChangeLogOldStatusChoices,
-      oldStatusNext: ExperimentsNimbusChangeLogOldStatusNextChoices,
+      oldStatus: NimbusExperimentStatusEnum,
+      oldStatusNext: NimbusExperimentStatusEnum,
     ) =>
     async () => {
       const rejectionEvent = {
@@ -246,8 +243,8 @@ describe("ChangeApprovalOperations", () => {
     "reports a rejection reason when launch review is rejected",
     commonRejectionCase(
       LIFECYCLE_REVIEW_FLOWS.LAUNCH.description,
-      ExperimentsNimbusChangeLogOldStatusChoices.DRAFT,
-      ExperimentsNimbusChangeLogOldStatusNextChoices.LIVE,
+      NimbusExperimentStatusEnum.DRAFT,
+      NimbusExperimentStatusEnum.LIVE,
     ),
   );
 
@@ -255,8 +252,8 @@ describe("ChangeApprovalOperations", () => {
     "reports a rejection reason when end enrollment review is rejected",
     commonRejectionCase(
       LIFECYCLE_REVIEW_FLOWS.PAUSE.description,
-      ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
-      ExperimentsNimbusChangeLogOldStatusNextChoices.LIVE,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentStatusEnum.LIVE,
     ),
   );
 
@@ -264,8 +261,8 @@ describe("ChangeApprovalOperations", () => {
     "reports a rejection reason when end experiment review is rejected",
     commonRejectionCase(
       LIFECYCLE_REVIEW_FLOWS.END.description,
-      ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
-      ExperimentsNimbusChangeLogOldStatusNextChoices.COMPLETE,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentStatusEnum.COMPLETE,
     ),
   );
 

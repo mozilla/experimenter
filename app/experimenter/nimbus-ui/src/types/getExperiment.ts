@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentApplicationEnum, NimbusExperimentConclusionRecommendationEnum, NimbusExperimentChannelEnum, NimbusExperimentFirefoxVersionEnum, ExperimentsNimbusDocumentationLinkTitleChoices, ExperimentsNimbusChangeLogOldStatusChoices, ExperimentsNimbusChangeLogOldStatusNextChoices } from "./globalTypes";
+import { NimbusExperimentStatusEnum, NimbusExperimentPublishStatusEnum, NimbusExperimentApplicationEnum, NimbusExperimentConclusionRecommendationEnum, NimbusExperimentChannelEnum, NimbusExperimentFirefoxVersionEnum, NimbusExperimentDocumentationLinkEnum } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -83,7 +83,7 @@ export interface getExperiment_experimentBySlug_signoffRecommendations {
 }
 
 export interface getExperiment_experimentBySlug_documentationLinks {
-  title: ExperimentsNimbusDocumentationLinkTitleChoices;
+  title: NimbusExperimentDocumentationLinkEnum | null;
   link: string;
 }
 
@@ -102,8 +102,8 @@ export interface getExperiment_experimentBySlug_rejection_changedBy {
 
 export interface getExperiment_experimentBySlug_rejection {
   message: string | null;
-  oldStatus: ExperimentsNimbusChangeLogOldStatusChoices | null;
-  oldStatusNext: ExperimentsNimbusChangeLogOldStatusNextChoices | null;
+  oldStatus: NimbusExperimentStatusEnum | null;
+  oldStatusNext: NimbusExperimentStatusEnum | null;
   changedOn: DateTime;
   changedBy: getExperiment_experimentBySlug_rejection_changedBy;
 }
