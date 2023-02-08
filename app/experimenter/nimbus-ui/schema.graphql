@@ -316,18 +316,13 @@ enum NimbusExperimentConclusionRecommendationEnum {
 }
 
 type NimbusDocumentationLinkType {
-  title: ExperimentsNimbusDocumentationLinkTitleChoices!
+  title: NimbusExperimentDocumentationLinkEnum
   link: String!
 }
 
-enum ExperimentsNimbusDocumentationLinkTitleChoices {
-  """Data Science Jira Ticket"""
+enum NimbusExperimentDocumentationLinkEnum {
   DS_JIRA
-
-  """Experiment Design Document"""
   DESIGN_DOC
-
-  """Engineering Ticket (Bugzilla/Jira/GitHub)"""
   ENG_TICKET
 }
 
@@ -350,37 +345,9 @@ scalar ObjectField
 type NimbusChangeLogType {
   changedOn: DateTime!
   changedBy: NimbusUserType!
-  oldStatus: ExperimentsNimbusChangeLogOldStatusChoices
-  oldStatusNext: ExperimentsNimbusChangeLogOldStatusNextChoices
+  oldStatus: NimbusExperimentStatusEnum
+  oldStatusNext: NimbusExperimentStatusEnum
   message: String
-}
-
-enum ExperimentsNimbusChangeLogOldStatusChoices {
-  """Draft"""
-  DRAFT
-
-  """Preview"""
-  PREVIEW
-
-  """Live"""
-  LIVE
-
-  """Complete"""
-  COMPLETE
-}
-
-enum ExperimentsNimbusChangeLogOldStatusNextChoices {
-  """Draft"""
-  DRAFT
-
-  """Preview"""
-  PREVIEW
-
-  """Live"""
-  LIVE
-
-  """Complete"""
-  COMPLETE
 }
 
 type NimbusSignoffRecommendationsType {
@@ -513,12 +480,6 @@ input ExperimentInput {
 input DocumentationLinkInput {
   title: NimbusExperimentDocumentationLinkEnum!
   link: String!
-}
-
-enum NimbusExperimentDocumentationLinkEnum {
-  DS_JIRA
-  DESIGN_DOC
-  ENG_TICKET
 }
 
 input BranchInput {

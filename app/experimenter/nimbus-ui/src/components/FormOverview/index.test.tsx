@@ -10,7 +10,8 @@ import { FIELD_MESSAGES, RISK_QUESTIONS } from "src/lib/constants";
 import { mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
 import { assertSerializerMessages } from "src/lib/test-utils";
 import { optionalBoolString } from "src/lib/utils";
-import { ExperimentsNimbusDocumentationLinkTitleChoices } from "src/types/globalTypes";
+import { getExperiment_experimentBySlug_documentationLinks } from "src/types/getExperiment";
+import { NimbusExperimentDocumentationLinkEnum } from "src/types/globalTypes";
 
 describe("FormOverview", () => {
   it("renders as expected", async () => {
@@ -29,11 +30,11 @@ describe("FormOverview", () => {
     const { experiment } = mockExperimentQuery("boo", {
       documentationLinks: [
         {
-          title: ExperimentsNimbusDocumentationLinkTitleChoices.DESIGN_DOC,
+          title: NimbusExperimentDocumentationLinkEnum.DESIGN_DOC,
           link: "https://mozilla.com",
         },
         {
-          title: ExperimentsNimbusDocumentationLinkTitleChoices.DS_JIRA,
+          title: NimbusExperimentDocumentationLinkEnum.DS_JIRA,
           link: "https://mozilla.com",
         },
       ],
@@ -83,7 +84,7 @@ describe("FormOverview", () => {
     Promise.resolve();
   };
 
-  const getDocumentationLinkFields = (index: number) => {
+  const getDocumentationLinkFields = (index?: number) => {
     const testIdBase = `documentationLinks[${index}]`;
     const titleField = screen.getByTestId(
       `${testIdBase}.title`,
@@ -98,19 +99,18 @@ describe("FormOverview", () => {
   };
 
   const assertDocumentationLinkFields = (
-    value: { title: string; link: string },
+    value: getExperiment_experimentBySlug_documentationLinks,
     index: number,
   ) => {
-    const { titleField, linkField } = getDocumentationLinkFields(index);
-    expect(titleField.value).toEqual(value.title);
-    expect(linkField.value).toEqual(value.link);
+    if (value) {
+      const { titleField, linkField } = getDocumentationLinkFields(index);
+      expect(titleField.value).toEqual(value.title);
+      expect(linkField.value).toEqual(value.link);
+    }
   };
 
   const fillDocumentationLinkFields = (
-    value: {
-      title: ExperimentsNimbusDocumentationLinkTitleChoices;
-      link: string;
-    },
+    value: getExperiment_experimentBySlug_documentationLinks,
     index: number,
   ) => {
     const { titleField, linkField } = getDocumentationLinkFields(index);
@@ -330,7 +330,7 @@ describe("FormOverview", () => {
     const { experiment } = mockExperimentQuery("boo", {
       documentationLinks: [
         {
-          title: ExperimentsNimbusDocumentationLinkTitleChoices.DS_JIRA,
+          title: NimbusExperimentDocumentationLinkEnum.DS_JIRA,
           link: "https://bingo.bongo",
         },
       ],
@@ -349,7 +349,7 @@ describe("FormOverview", () => {
 
     // Update the values of the first set
     experiment.documentationLinks![0] = {
-      title: ExperimentsNimbusDocumentationLinkTitleChoices.ENG_TICKET,
+      title: NimbusExperimentDocumentationLinkEnum.ENG_TICKET,
       link: "https://",
     };
     fillDocumentationLinkFields(experiment.documentationLinks![0], 0);
@@ -370,7 +370,7 @@ describe("FormOverview", () => {
     // Add a new set and populate it
     fireEvent.click(addButton);
     experiment.documentationLinks!.push({
-      title: ExperimentsNimbusDocumentationLinkTitleChoices.DESIGN_DOC,
+      title: NimbusExperimentDocumentationLinkEnum.DESIGN_DOC,
       link: "https://boingo.oingo",
     });
     fillDocumentationLinkFields(experiment.documentationLinks![1], 1);
@@ -381,7 +381,7 @@ describe("FormOverview", () => {
     fireEvent.click(addButton);
     fillDocumentationLinkFields(
       {
-        title: ExperimentsNimbusDocumentationLinkTitleChoices.DESIGN_DOC,
+        title: NimbusExperimentDocumentationLinkEnum.DESIGN_DOC,
         link: "",
       },
       2,
