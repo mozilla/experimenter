@@ -7,10 +7,7 @@ import Alert from "react-bootstrap/Alert";
 import { LIFECYCLE_REVIEW_FLOWS } from "src/lib/constants";
 import { humanDate } from "src/lib/dateUtils";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
-import {
-  ExperimentsNimbusChangeLogOldStatusChoices,
-  ExperimentsNimbusChangeLogOldStatusNextChoices,
-} from "src/types/globalTypes";
+import { NimbusExperimentStatusEnum } from "src/types/globalTypes";
 
 export const RejectionReason = ({
   rejectionEvent,
@@ -21,15 +18,13 @@ export const RejectionReason = ({
     rejectionEvent!;
 
   const rejectionActionDescription = useMemo(() => {
-    if (oldStatus === ExperimentsNimbusChangeLogOldStatusChoices.LIVE) {
-      if (
-        oldStatusNext === ExperimentsNimbusChangeLogOldStatusNextChoices.LIVE
-      ) {
+    if (oldStatus === NimbusExperimentStatusEnum.LIVE) {
+      if (oldStatusNext === NimbusExperimentStatusEnum.LIVE) {
         return LIFECYCLE_REVIEW_FLOWS.PAUSE.description;
       }
       return LIFECYCLE_REVIEW_FLOWS.END.description;
     }
-    if (oldStatus === ExperimentsNimbusChangeLogOldStatusChoices.DRAFT) {
+    if (oldStatus === NimbusExperimentStatusEnum.DRAFT) {
       return LIFECYCLE_REVIEW_FLOWS.LAUNCH.description;
     }
   }, [oldStatus, oldStatusNext]);

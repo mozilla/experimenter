@@ -5,10 +5,10 @@
 import { useEffect, useMemo } from "react";
 import { ArrayField, useFieldArray, UseFormMethods } from "react-hook-form";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
-import { ExperimentsNimbusDocumentationLinkTitleChoices } from "src/types/globalTypes";
+import { NimbusExperimentDocumentationLinkEnum } from "src/types/globalTypes";
 
 type DefaultDocumentationLink = {
-  title: ExperimentsNimbusDocumentationLinkTitleChoices | "";
+  title: NimbusExperimentDocumentationLinkEnum | "";
   link: string;
 };
 

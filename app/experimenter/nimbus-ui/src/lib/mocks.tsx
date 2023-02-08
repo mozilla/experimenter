@@ -40,11 +40,9 @@ import {
 } from "src/types/getExperiment";
 import {
   ExperimentInput,
-  ExperimentsNimbusChangeLogOldStatusChoices,
-  ExperimentsNimbusChangeLogOldStatusNextChoices,
-  ExperimentsNimbusDocumentationLinkTitleChoices,
   NimbusExperimentApplicationEnum,
   NimbusExperimentChannelEnum,
+  NimbusExperimentDocumentationLinkEnum,
   NimbusExperimentFirefoxVersionEnum,
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
@@ -596,7 +594,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
   documentationLinks: [
     {
-      title: ExperimentsNimbusDocumentationLinkTitleChoices.DS_JIRA,
+      title: NimbusExperimentDocumentationLinkEnum.DS_JIRA,
       link: "https://bingo.bongo",
     },
   ],
@@ -690,7 +688,7 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
   documentationLinks: [
     {
-      title: ExperimentsNimbusDocumentationLinkTitleChoices.DS_JIRA,
+      title: NimbusExperimentDocumentationLinkEnum.DS_JIRA,
       link: "https://bingo.bongo",
     },
   ],
@@ -1049,7 +1047,7 @@ export const mockChangelog = (
   message: string | null = null,
   changedOn: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
-  oldStatus: ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
+  oldStatus: NimbusExperimentStatusEnum.LIVE,
   oldStatusNext: null,
   changedBy: mockUser(email),
   changedOn,
@@ -1059,8 +1057,8 @@ export const mockChangelog = (
 export const mockRejectionChangelog = (
   email = "abc@mozilla.com",
   message: string | null = null,
-  oldStatus: ExperimentsNimbusChangeLogOldStatusChoices = ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
-  oldStatusNext: ExperimentsNimbusChangeLogOldStatusNextChoices | null = null,
+  oldStatus: NimbusExperimentStatusEnum = NimbusExperimentStatusEnum.LIVE,
+  oldStatusNext: NimbusExperimentStatusEnum | null = null,
   changedOn: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
   oldStatus,

@@ -223,6 +223,8 @@ class NimbusBranchType(DjangoObjectType):
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
+    title = NimbusExperimentDocumentationLinkEnum()
+
     class Meta:
         model = NimbusDocumentationLink
         fields = ("title", "link")
@@ -250,6 +252,9 @@ class NimbusReviewType(graphene.ObjectType):
 
 
 class NimbusChangeLogType(DjangoObjectType):
+    old_status = NimbusExperimentStatusEnum()
+    old_status_next = NimbusExperimentStatusEnum()
+
     class Meta:
         model = NimbusChangeLog
         fields = ("changed_on", "changed_by", "message", "old_status", "old_status_next")
