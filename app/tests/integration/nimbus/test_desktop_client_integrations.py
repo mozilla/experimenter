@@ -88,18 +88,9 @@ def test_check_telemetry_enrollment_unenrollment(
             "description": "reference branch",
             "name": "Branch 1",
             "ratio": 50,
-            "featureEnabled": True,
             "featureValue": "{}",
         },
-        "treatmentBranches": [
-            {
-                "description": "treatment branch",
-                "name": "Branch 2",
-                "ratio": 50,
-                "featureEnabled": False,
-                "featureValue": "",
-            }
-        ],
+        "treatmentBranches": [],
         "populationPercent": "100",
         "totalEnrolledClients": 55,
     }
@@ -180,18 +171,9 @@ def test_check_telemetry_pref_flip(
         "description": "reference branch",
         "name": "Branch 1",
         "ratio": 100,
-        "featureEnabled": True,
         "featureValue": '{"value": "test_string_automation"}',
     }
-    experiment_default_data["treatmentBranches"] = [
-        {
-            "description": "treatment branch",
-            "name": "Branch 2",
-            "ratio": 0,
-            "featureEnabled": False,
-            "featureValue": "",
-        }
-    ]
+    experiment_default_data["treatmentBranches"] = []
     helpers.create_desktop_experiment(
         experiment_slug,
         "desktop",
@@ -279,18 +261,9 @@ def test_check_telemetry_sticky_targeting(
         "description": "reference branch",
         "name": "Branch 1",
         "ratio": 100,
-        "featureEnabled": True,
         "featureValue": "{}",
     }
-    experiment_default_data["treatmentBranches"] = [
-        {
-            "description": "treatment branch",
-            "name": "Branch 2",
-            "ratio": 0,
-            "featureEnabled": False,
-            "featureValue": "",
-        }
-    ]
+    experiment_default_data["treatmentBranches"] = []
     experiment_default_data["isSticky"] = True
     helpers.create_desktop_experiment(
         experiment_slug,

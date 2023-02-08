@@ -34,7 +34,6 @@ def test_check_advanced_targeting(
             "description": "reference branch",
             "name": "Branch 1",
             "ratio": 50,
-            "featureEnabled": True,
             "featureValue": "{}",
         },
         "treatmentBranches": [
@@ -42,7 +41,6 @@ def test_check_advanced_targeting(
                 "description": "treatment branch",
                 "name": "Branch 2",
                 "ratio": 50,
-                "featureEnabled": False,
                 "featureValue": "",
             }
         ],
