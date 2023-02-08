@@ -17,8 +17,7 @@ export const ExternalConfigAlert = ({
     <Alert.Heading>Analysis has manual overrides in Jetstream</Alert.Heading>
     <p>
       The results shown on this page are from an analysis ran with at least one
-      experiment override that affects only the <em>analysis</em>. The original
-      {" "}
+      experiment override that affects only the <em>analysis</em>. The original{" "}
       <strong>
         experiment details and description on the Summary page will not reflect
         this.
