@@ -37,8 +37,8 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
         return (
             super()
             .get_queryset()
-            .select_related("owner")
             .prefetch_related(
+                "changes",
                 "locales",
                 "languages",
                 "countries",
@@ -49,7 +49,6 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
                 "branches__feature_values",
                 "branches__feature_values__feature_config",
                 "feature_configs",
-                "projects",
             )
         )
 
