@@ -330,10 +330,9 @@ function branchUpdatedWithFormData(
     };
   });
   const featureValues = state.featureConfigIds?.map((featureConfigId, idx) => {
-    const { enabled, value } = formData?.featureValues?.[idx] || {};
+    const { value } = formData?.featureValues?.[idx] || {};
     return {
       featureConfigId,
-      enabled,
       value,
     };
   });

@@ -40,7 +40,6 @@ class NimbusBranchSerializerSingleFeature(serializers.ModelSerializer):
         feature_config = None
         feature_config_slug = None
         feature_value = {}
-        feature_enabled = False
 
         feature_configs = obj.experiment.feature_configs.all()
         feature_values = obj.feature_values.all()
@@ -51,7 +50,6 @@ class NimbusBranchSerializerSingleFeature(serializers.ModelSerializer):
                 branch_feature_value = [
                     fv for fv in feature_values if fv.feature_config == feature_config
                 ][0]
-                feature_enabled = branch_feature_value.enabled
 
                 with contextlib.suppress(json.JSONDecodeError):
                     # feature_value may be invalid JSON while the experiment is
@@ -60,7 +58,7 @@ class NimbusBranchSerializerSingleFeature(serializers.ModelSerializer):
 
         return {
             "featureId": feature_config_slug,
-            "enabled": feature_enabled,
+            "enabled": True,  # TODO: Remove after Desktop 104 is no longer supported
             "value": feature_value,
         }
 
@@ -77,7 +75,7 @@ class NimbusBranchSerializerMultiFeature(serializers.ModelSerializer):
         for fv in obj.feature_values.all():
             feature_value = {
                 "featureId": fv.feature_config and fv.feature_config.slug or "",
-                "enabled": fv.enabled,
+                "enabled": True,  # TODO: Remove after Desktop 104 is no longer supported
                 "value": {},
             }
 
@@ -99,7 +97,7 @@ class NimbusBranchSerializerMultiFeatureDesktop(NimbusBranchSerializerMultiFeatu
     def get_feature(self, obj):
         return {
             "featureId": "this-is-included-for-desktop-pre-95-support",
-            "enabled": False,
+            "enabled": False,  # TODO: Remove after Desktop 104 is no longer supported
             "value": {},
         }
 

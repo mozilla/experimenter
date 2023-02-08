@@ -20,7 +20,6 @@ class BranchScreenshotInput(graphene.InputObjectType):
 
 class BranchFeatureValueInput(graphene.InputObjectType):
     feature_config = graphene.Int()
-    enabled = graphene.Boolean()
     value = graphene.String()
 
 
@@ -29,7 +28,6 @@ class BranchInput(graphene.InputObjectType):
     name = graphene.String(required=True)
     description = graphene.String(required=True)
     ratio = graphene.Int(required=True)
-    feature_enabled = graphene.Boolean()
     feature_value = graphene.String()
     feature_values = graphene.List(BranchFeatureValueInput)
     screenshots = graphene.List(BranchScreenshotInput)
