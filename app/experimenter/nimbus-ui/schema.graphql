@@ -292,14 +292,12 @@ type NimbusBranchType {
   ratio: Int!
   featureValues: [NimbusBranchFeatureValueType]
   screenshots: [NimbusBranchScreenshotType!]
-  featureEnabled: Boolean!
   featureValue: String
 }
 
 type NimbusBranchFeatureValueType {
   id: Int
   featureConfig: NimbusFeatureConfigType
-  enabled: Boolean
   value: String
 }
 
@@ -489,7 +487,6 @@ input BranchInput {
   name: String!
   description: String!
   ratio: Int!
-  featureEnabled: Boolean
   featureValue: String
   featureValues: [BranchFeatureValueInput]
   screenshots: [BranchScreenshotInput]
@@ -497,7 +494,6 @@ input BranchInput {
 
 input BranchFeatureValueInput {
   featureConfig: Int
-  enabled: Boolean
   value: String
 }
 

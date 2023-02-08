@@ -325,7 +325,6 @@ class TestNimbusExperimentSerializer(TestCase):
                 "name": "control",
                 "description": "a control",
                 "ratio": 1,
-                "feature_enabled": False,
                 "feature_value": "",
             },
             "treatment_branches": [
@@ -333,7 +332,6 @@ class TestNimbusExperimentSerializer(TestCase):
                     "name": "treatment",
                     "description": "a treatment",
                     "ratio": 1,
-                    "feature_enabled": True,
                     "feature_value": "{'this': 'that'}",
                 }
             ],
@@ -354,7 +352,6 @@ class TestNimbusExperimentSerializer(TestCase):
 
         reference_feature_value = experiment.reference_branch.feature_values.get()
         self.assertEqual(reference_feature_value.feature_config, feature_config)
-        self.assertFalse(reference_feature_value.enabled)
         self.assertEqual(reference_feature_value.value, "")
 
         treatment_branch = experiment.treatment_branches[0]
@@ -364,7 +361,6 @@ class TestNimbusExperimentSerializer(TestCase):
 
         treatment_feature_value = treatment_branch.feature_values.get()
         self.assertEqual(treatment_feature_value.feature_config, feature_config)
-        self.assertTrue(treatment_feature_value.enabled)
         self.assertEqual(treatment_feature_value.value, "{'this': 'that'}")
 
     def test_saves_branches_multi_feature(self):
@@ -390,12 +386,10 @@ class TestNimbusExperimentSerializer(TestCase):
                 "feature_values": [
                     {
                         "feature_config": feature1.id,
-                        "enabled": False,
                         "value": "",
                     },
                     {
                         "feature_config": feature2.id,
-                        "enabled": False,
                         "value": "",
                     },
                 ],
@@ -408,12 +402,10 @@ class TestNimbusExperimentSerializer(TestCase):
                     "feature_values": [
                         {
                             "feature_config": feature1.id,
-                            "enabled": True,
                             "value": f"{{'{feature1.name}': 'value'}}",
                         },
                         {
                             "feature_config": feature2.id,
-                            "enabled": True,
                             "value": f"{{'{feature2.name}': 'value'}}",
                         },
                     ],
@@ -438,7 +430,6 @@ class TestNimbusExperimentSerializer(TestCase):
             reference_feature_value = experiment.reference_branch.feature_values.get(
                 feature_config=feature
             )
-            self.assertFalse(reference_feature_value.enabled)
             self.assertEqual(reference_feature_value.value, "")
 
         treatment_branch = experiment.treatment_branches[0]
@@ -450,7 +441,6 @@ class TestNimbusExperimentSerializer(TestCase):
             treatment_feature_value = treatment_branch.feature_values.get(
                 feature_config=feature
             )
-            self.assertTrue(treatment_feature_value.enabled)
             self.assertEqual(
                 treatment_feature_value.value, f"{{'{feature.name}': 'value'}}"
             )

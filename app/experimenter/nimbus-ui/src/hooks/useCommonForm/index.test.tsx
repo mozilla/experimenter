@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
 import Form from "react-bootstrap/Form";
@@ -170,28 +164,9 @@ describe("hooks/useCommonForm", () => {
         const fieldName = `referenceBranch.${name}`;
         expect(screen.queryByTestId(fieldName)).toBeInTheDocument();
 
-        // featureValue must be "enabled" to show the submit error
-        if (name === "featureValue") {
-          (async () => {
-            const field = container.querySelector(
-              `[name="${fieldName}"]`,
-            ) as HTMLInputElement;
-            act(() => {
-              fireEvent.focus(field!);
-              fireEvent.change(field!, { target: { value: true } });
-            });
-            await waitFor(() => {
-              expect(
-                screen.queryByTestId(`${fieldName}-form-errors`),
-              ).toBeInTheDocument();
-            });
-          })();
-          // featureEnabled does not call FormErrors because it is a global error
-        } else if (name !== "featureEnabled") {
-          expect(
-            screen.queryByTestId(`${fieldName}-form-errors`),
-          ).toBeInTheDocument();
-        }
+        expect(
+          screen.queryByTestId(`${fieldName}-form-errors`),
+        ).toBeInTheDocument();
       });
     });
   });

@@ -78,14 +78,12 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
             "public_description": "changed reference",
             "reference_branch": {
                 "description": "changed",
-                "feature_enabled": False,
                 "name": "also changed reference",
                 "ratio": 1,
             },
             "treatment_branches": [
                 {
                     "description": "changed treatment",
-                    "feature_enabled": False,
                     "name": "also changed treatment",
                     "ratio": 1,
                 },
