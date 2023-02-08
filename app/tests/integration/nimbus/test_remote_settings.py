@@ -1,6 +1,7 @@
 from urllib.parse import urljoin
 
 import pytest
+
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.pages.experimenter.summary import SummaryPage
 

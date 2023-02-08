@@ -1,7 +1,8 @@
-from nimbus.pages.experimenter.base import ExperimenterBase
-from nimbus.pages.experimenter.overview import OverviewPage
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+
+from nimbus.pages.experimenter.base import ExperimenterBase
+from nimbus.pages.experimenter.overview import OverviewPage
 
 
 class NewExperiment(ExperimenterBase):

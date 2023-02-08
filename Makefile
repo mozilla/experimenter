@@ -16,8 +16,6 @@ RED = \033[0;31m
 GREEN = \033[0;32m
 PAD = -------------------------------------------------\n
 COLOR_CHECK = && echo "${GREEN}${PAD}All Checks Passed\n${PAD}${NOCOLOR}" || (echo "${RED}${PAD}Some Checks Failed\n${PAD}${NOCOLOR}";exit 1)
-PY_IMPORT_SORT =  python -m isort . --profile black
-PY_IMPORT_CHECK =  python -m isort . --profile black --check
 PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_TYPECHECK = pyright experimenter/
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
@@ -32,8 +30,8 @@ JS_TEST_LEGACY = yarn workspace @experimenter/core test
 JS_TEST_NIMBUS_UI = DEBUG_PRINT_LIMIT=999999 CI=yes yarn workspace @experimenter/nimbus-ui test:cov
 NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-ui/test_schema.graphql&&diff experimenter/nimbus-ui/test_schema.graphql experimenter/nimbus-ui/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
 NIMBUS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/nimbus-ui/schema.graphql&&yarn workspace @experimenter/nimbus-ui generate-types
-RUFF_CHECK = ruff experimenter/
-RUFF_FIX = ruff --fix experimenter/
+RUFF_CHECK = ruff experimenter/ tests/
+RUFF_FIX = ruff --fix experimenter/ tests/
 BLACK_CHECK = black -l 90 --check --diff . --exclude node_modules
 BLACK_FIX = black -l 90 . --exclude node_modules
 CHECK_DOCS = python manage.py generate_docs --check=true
@@ -123,7 +121,7 @@ kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
 check: build_test
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}" "$(BLACK_CHECK)" "$(RUFF_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(RUFF_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
 
 pytest: build_test
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
@@ -156,7 +154,7 @@ generate_types: build_dev
 	$(COMPOSE) run app sh -c "$(NIMBUS_TYPES_GENERATE)"
 
 code_format: build_dev
-	$(COMPOSE) run app sh -c '${PARALLEL} "${PY_IMPORT_SORT};$(RUFF_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)"'
+	$(COMPOSE) run app sh -c '${PARALLEL} "$(RUFF_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)"'
 
 makemigrations: build_dev
 	$(COMPOSE) run app python manage.py makemigrations
