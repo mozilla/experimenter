@@ -47,7 +47,6 @@ djangorestframework-csv = "2.1.1"
 unicodecsv = "0.14.1"
 kinto-http = "10.8.0"
 jsonschema = "3.2.0"
-isort = "5.12.0"
 google-cloud-storage = "1.44.0"
 django-storages = "1.13.1"
 toml = "^0.10.2"
@@ -121,7 +120,6 @@ reportUnusedCallResult = false
 # # Enable Pyflakes `E` and `F` codes by default.
 select = ["F", "E", "W", "I", "N", "YTT", "A", "C4", "RET", "SIM"]
 ignore = [
-    # "A002",
     "A003",
     "E402",
     "E741",
@@ -129,6 +127,7 @@ ignore = [
     "N802",
     "N803",
     "N806",
+    "N812",
     "N815",
     "RET503",
     "RET504",

@@ -1,8 +1,9 @@
-from nimbus.pages.experimenter.base import ExperimenterBase
-from nimbus.pages.experimenter.summary import SummaryPage
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
+
+from nimbus.pages.experimenter.base import ExperimenterBase
+from nimbus.pages.experimenter.summary import SummaryPage
 
 
 class AudiencePage(ExperimenterBase):

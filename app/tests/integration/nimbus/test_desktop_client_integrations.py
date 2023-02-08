@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 
 import pytest
 import requests
+
 from nimbus.pages.browser import AboutConfig
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.utils import helpers
@@ -137,8 +138,6 @@ def test_check_telemetry_enrollment_unenrollment(
             for key in item["environment"]["experiments"]:
                 if experiment_slug in key:
                     break
-                else:
-                    continue
 
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
