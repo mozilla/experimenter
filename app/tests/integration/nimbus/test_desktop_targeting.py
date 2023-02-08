@@ -1,6 +1,7 @@
 import json
 
 import pytest
+
 from nimbus.pages.browser import Browser
 from nimbus.utils import helpers
 
