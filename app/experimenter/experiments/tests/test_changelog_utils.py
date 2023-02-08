@@ -217,9 +217,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "slug": experiment.reference_branch.slug,
                 "feature_values": [
                     {
-                        "enabled": (
-                            experiment.reference_branch.feature_values.get().enabled
-                        ),
                         "value": experiment.reference_branch.feature_values.get().value,
                         "branch": experiment.reference_branch.id,
                         "feature_config": experiment.feature_configs.get().id,
@@ -237,7 +234,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                     "slug": branch.slug,
                     "feature_values": [
                         {
-                            "enabled": branch.feature_values.get().enabled,
                             "value": branch.feature_values.get().value,
                             "branch": branch.id,
                             "feature_config": experiment.feature_configs.get().id,

@@ -807,7 +807,6 @@ class NimbusBranchFeatureValue(models.Model):
     feature_config = models.ForeignKey["NimbusFeatureConfig"](
         "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
     )
-    enabled = models.BooleanField(default=True)
     value = models.TextField(blank=True, default="")
 
     class Meta:
