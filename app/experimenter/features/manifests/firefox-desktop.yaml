@@ -798,14 +798,10 @@ featureCallout:
   hasExposure: false
   isEarlyStartup: false
   variables:
-    pdfjs:
-      description: A string that determines the initial value of browser.pdfjs.feature-tour screen property when the tour is initialized and the status of the tour is not complete. This pref should resemble a JSON object, similar to the JSON object in the fallback pref.
+    pdfjsInitialPref:
+      description: A JSON String representing the intitial state of the pref that holds the progress of the PDF.js feature tour.
       type: string
-      fallbackPref: "browser.pdfjs.feature-tour"
-    firefox-view:
-      description: A string that determines the initial value of browser.firefox-view.feature-tour screen property when the tour is initialized and the status of the tour is not complete. This pref should resemble a JSON object, similar to the JSON object in the fallback pref.
-      type: string
-      fallbackPref: "browser.firefox-view.feature-tour"
+      setPref: "browser.pdfjs.feature-tour"
 browserLowMemoryPrefs:
   description: Prefs which control the browser's behaviour under low memory.
   owner: haftandilian@mozilla.com
@@ -885,3 +881,33 @@ etpLevel2PBMPref:
       description: Whether to enable ETP level 2 list in the private browsing mode.
       type: boolean
       setPref: "privacy.annotate_channels.strict_list.pbmode.enabled"
+
+cookieBannerHandling:
+  description: Prefs to control Cookie Banner Handling
+  owner: dwalker@mozilla.com
+  hasExposure: false
+  variables:
+    serviceMode:
+      type: int
+      setPref: cookiebanners.service.mode
+      description: Controls cookie banner handling behavior. 0=off; 1=reject-only; 2=reject-or-accept
+      enum:
+        - 0
+        - 1
+        - 2
+    detectOnlyMode:
+      type: boolean
+      setPref: cookiebanners.service.detectOnly
+      description: Detects when the user has seen a cookie banner, required for doorhanger
+    desktopUiEnabled:
+      type: boolean
+      setPref: cookiebanners.ui.desktop.enabled
+      description: Controls whether the desktop UI is enabled
+    desktopCfrVariant:
+      type: int
+      setPref: cookiebanners.ui.desktop.cfrVariant
+      description: Which variant of the doorhanger the user should receive. 0=control; 1=A; 2=B
+      enum:
+        - 0
+        - 1
+        - 2
