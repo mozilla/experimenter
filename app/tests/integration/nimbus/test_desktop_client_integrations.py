@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 
 import pytest
 import requests
+
 from nimbus.pages.browser import AboutConfig
 from nimbus.pages.experimenter.summary import SummaryPage
 from nimbus.utils import helpers
@@ -60,7 +61,7 @@ def firefox_options(firefox_options):
     return firefox_options
 
 
-@pytest.mark.nimbus_integration
+@pytest.mark.desktop_enrollment
 @pytest.mark.xdist_group(name="group1")
 def test_check_telemetry_enrollment_unenrollment(
     base_url,
@@ -137,8 +138,6 @@ def test_check_telemetry_enrollment_unenrollment(
             for key in item["environment"]["experiments"]:
                 if experiment_slug in key:
                     break
-                else:
-                    continue
 
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
@@ -158,7 +157,7 @@ def test_check_telemetry_enrollment_unenrollment(
             assert False, "Experiment enrollment was never seen in ping Data"
 
 
-@pytest.mark.nimbus_integration
+@pytest.mark.desktop_enrollment
 @pytest.mark.xdist_group(name="group2")
 def test_check_telemetry_pref_flip(
     base_url,
@@ -255,7 +254,7 @@ def test_check_telemetry_pref_flip(
     )
 
 
-@pytest.mark.nimbus_integration
+@pytest.mark.desktop_enrollment
 @pytest.mark.xdist_group(name="group1")
 def test_check_telemetry_sticky_targeting(
     base_url,

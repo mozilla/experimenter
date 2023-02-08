@@ -19,8 +19,8 @@ def load_graphql_data(query):
         except json.JSONDecodeError:
             if retry + 1 >= LOAD_DATA_RETRIES:
                 raise
-            else:
-                time.sleep(LOAD_DATA_RETRY_DELAY)
+
+            time.sleep(LOAD_DATA_RETRY_DELAY)
 
 
 @lru_cache(maxsize=None)

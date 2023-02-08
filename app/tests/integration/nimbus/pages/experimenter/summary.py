@@ -1,11 +1,12 @@
 import random
 import string
 
-from nimbus.pages.experimenter.base import ExperimenterBase
 from pypom import Region
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
+
+from nimbus.pages.experimenter.base import ExperimenterBase
 
 
 class SummaryPage(ExperimenterBase):
