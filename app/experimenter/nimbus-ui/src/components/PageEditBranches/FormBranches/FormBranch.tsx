@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -22,7 +21,6 @@ export const branchFieldNames = [
   "description",
   "ratio",
   "featureValue",
-  "featureEnabled",
 ] as const;
 
 type BranchFieldName = typeof branchFieldNames[number];
@@ -72,8 +70,6 @@ export const FormBranch = ({
       reviewErrors,
       reviewWarnings,
     );
-
-  const featureEnabled = watch(`${fieldNamePrefix}.featureEnabled`);
 
   const handleRemoveClick = () => onRemove && onRemove();
 
@@ -165,64 +161,21 @@ export const FormBranch = ({
         </Form.Row>
       </Form.Group>
 
-      {isDesktop ? (
-        <Form.Group
-          className="p-1 mx-3 mt-2 mb-0"
-          data-testid="feature-config-edit"
-        >
-          <Form.Row>
-            <Col sm={1} md={1}>
-              Feature is
-            </Col>
-            <Form.Group as={Col} controlId={`${id}.featureEnabled`}>
-              <Form.Check
-                {...formControlAttrs("featureEnabled", {}, false)}
-                type="switch"
-                label={featureEnabled ? "On" : "Off"}
-              />
-              {reviewErrors?.feature_enabled && (
-                // @ts-ignore This component doesn't technically support type="warning", but
-                // all it's doing is using the string in a class, so we can safely override.
-                <Form.Control.Feedback type="warning" data-for="featureEnabled">
-                  {reviewErrors.feature_enabled}
-                </Form.Control.Feedback>
-              )}
-            </Form.Group>
-          </Form.Row>
-        </Form.Group>
-      ) : (
-        <Form.Group>
-          <Col>
-            <Alert variant="warning" data-testid="mobile-feature-value-warning">
-              Mobile features require a value for every branch.
-            </Alert>
-          </Col>
-        </Form.Group>
-      )}
-
       <Form.Group
         className="p-1 mx-3 mt-2 mb-0"
         data-testid="feature-config-edit"
       >
-        {featureEnabled || !isDesktop ? (
-          <Form.Row data-testid="feature-value-edit">
-            <Form.Group as={Col} controlId={`${id}-featureValue`}>
-              <Form.Label>Value</Form.Label>
-              <Form.Control
-                {...formControlAttrs("featureValue")}
-                as="textarea"
-                rows={4}
-              />
-              <FormErrors name="featureValue" />
-            </Form.Group>
-          </Form.Row>
-        ) : (
-          <Form.Control
-            {...formControlAttrs("featureValue", {}, false)}
-            type="hidden"
-            value=""
-          />
-        )}
+        <Form.Row data-testid="feature-value-edit">
+          <Form.Group as={Col} controlId={`${id}-featureValue`}>
+            <Form.Label>Value</Form.Label>
+            <Form.Control
+              {...formControlAttrs("featureValue")}
+              as="textarea"
+              rows={4}
+            />
+            <FormErrors name="featureValue" />
+          </Form.Group>
+        </Form.Row>
       </Form.Group>
       <Form.Group
         className="px-3 pt-2 border-top"

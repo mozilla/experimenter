@@ -263,7 +263,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         name
                         description
                         ratio
-                        featureEnabled
                         featureValue
                         screenshots {
                             description
@@ -275,7 +274,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         name
                         description
                         ratio
-                        featureEnabled
                         featureValue
                         screenshots {
                             description
@@ -303,9 +301,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 "name": experiment.reference_branch.name,
                 "description": experiment.reference_branch.description,
                 "ratio": experiment.reference_branch.ratio,
-                "featureEnabled": (
-                    experiment.reference_branch.feature_values.get().enabled
-                ),
                 "featureValue": experiment.reference_branch.feature_values.get().value,
                 "screenshots": [{"description": screenshot.description, "image": None}],
             },
@@ -320,7 +315,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     "name": treatment_branch.name,
                     "description": treatment_branch.description,
                     "ratio": treatment_branch.ratio,
-                    "featureEnabled": treatment_branch.feature_values.get().enabled,
                     "featureValue": treatment_branch.feature_values.get().value,
                     "screenshots": [
                         {"description": s.description, "image": s.image.url}
@@ -363,7 +357,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                             featureConfig {
                                 id
                             }
-                            enabled
                             value
                         }
                         screenshots {
@@ -380,7 +373,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                             featureConfig {
                                 id
                             }
-                            enabled
                             value
                         }
                         screenshots {
@@ -414,7 +406,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     "featureConfig": {
                         "id": reference_branch_feature_value.feature_config.id
                     },
-                    "enabled": reference_branch_feature_value.enabled,
                     "value": reference_branch_feature_value.value,
                 },
                 reference_branch_feature_values_data,
@@ -443,7 +434,6 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                         "featureConfig": {
                             "id": treatment_branch_feature_value.feature_config.id
                         },
-                        "enabled": treatment_branch_feature_value.enabled,
                         "value": treatment_branch_feature_value.value,
                     },
                     treatment_branch_feature_values_data,
@@ -678,7 +668,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         description
                         ratio
                         featureValue
-                        featureEnabled
                         screenshots {
                             id
                             description
@@ -693,7 +682,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         description
                         ratio
                         featureValue
-                        featureEnabled
                         screenshots {
                             id
                             description
@@ -909,7 +897,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 ),
                 "referenceBranch": {
                     "description": reference_branch.description,
-                    "featureEnabled": reference_feature_value.enabled,
                     "featureValue": reference_feature_value.value,
                     "id": reference_branch.id,
                     "name": reference_branch.name,
@@ -998,7 +985,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "treatmentBranches": [
                     {
                         "description": treatment_branch.description,
-                        "featureEnabled": treatment_feature_value.enabled,
                         "featureValue": treatment_feature_value.value,
                         "id": treatment_branch.id,
                         "name": treatment_branch.name,
@@ -1816,7 +1802,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         slug
                         description
                         ratio
-                        featureEnabled
                         featureValue
                     }
                     treatmentBranches {
@@ -1825,7 +1810,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         slug
                         description
                         ratio
-                        featureEnabled
                         featureValue
                     }
                 }
@@ -1845,11 +1829,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "slug": experiment.reference_branch.slug,
                 "ratio": experiment.reference_branch.ratio,
                 "description": experiment.reference_branch.description,
-                "featureEnabled": (
-                    experiment.reference_branch.feature_values.get(
-                        feature_config=feature_config1
-                    ).enabled
-                ),
                 "featureValue": experiment.reference_branch.feature_values.get(
                     feature_config=feature_config1
                 ).value,
@@ -1864,9 +1843,6 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     "slug": treatment_branch.slug,
                     "ratio": treatment_branch.ratio,
                     "description": treatment_branch.description,
-                    "featureEnabled": treatment_branch.feature_values.get(
-                        feature_config=feature_config1
-                    ).enabled,
                     "featureValue": treatment_branch.feature_values.get(
                         feature_config=feature_config1
                     ).value,

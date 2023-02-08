@@ -260,11 +260,6 @@ def create_experiment(base_url, default_data):
         branches.feature_config = default_data.feature_config_id
         branches.reference_branch_description = default_data.branches[0].description
         branches.treatment_branch_description = default_data.branches[1].description
-
-        if default_data.application.value == "DESKTOP":
-            branches.reference_branch_enabled.click()
-            branches.treatment_branch_enabled.click()
-
         branches.reference_branch_value = "{}"
         branches.treatment_branch_value = "{}"
 
@@ -336,7 +331,6 @@ def fixture_experiment_default_data():
             "description": "reference branch",
             "name": "Branch 1",
             "ratio": 50,
-            "featureEnabled": True,
             "featureValue": "{}",
         },
         "treatmentBranches": [
@@ -344,7 +338,6 @@ def fixture_experiment_default_data():
                 "description": "treatment branch",
                 "name": "Branch 2",
                 "ratio": 50,
-                "featureEnabled": False,
                 "featureValue": "",
             }
         ],
