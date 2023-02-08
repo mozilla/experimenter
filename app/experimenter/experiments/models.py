@@ -505,14 +505,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def computed_end_date(self):
-        if (
-            self.results_data is not None
-            and "metadata" in self.results_data
-            and "external_config" in self.results_data["metadata"]
-            and "end_date" in self.results_data["metadata"]["external_config"]
-        ):
-            return self.results_data["metadata"]["external_config"]["end_date"]
-
         return self.end_date or self.proposed_end_date
 
     @property

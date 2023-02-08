@@ -952,19 +952,6 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertEqual(experiment.end_date, end_change.changed_on.date())
 
-    def test_computed_end_date_uses_external_config(self):
-        end_date = datetime.date(2022, 1, 1)
-        custom_end_date = datetime.date(2022, 1, 2)
-        metadata = {"metadata": {"external_config": {"end_date": custom_end_date}}}
-
-        experiment = NimbusExperimentFactory.create(end_date=end_date)
-        # experiment.end_date = end_date
-        experiment.results_data = metadata
-        experiment.save()
-
-        self.assertEqual(experiment.end_date, end_date)
-        self.assertEqual(experiment.computed_end_date, custom_end_date)
-
     def test_proposed_end_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
