@@ -256,6 +256,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 status=NimbusConstants.Status.DRAFT,
                 publish_status=NimbusConstants.PublishStatus.APPROVED,
             )
+            | Q(
+                status=NimbusConstants.Status.LIVE,
+                status_next=NimbusConstants.Status.LIVE,
+                publish_status=NimbusConstants.PublishStatus.APPROVED,
+            )
         )
 
     def __str__(self):
