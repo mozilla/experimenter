@@ -662,9 +662,81 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
         self.assertEqual(experiment.bucket_range.count, 5000)
 
+    def test_end_enrollment_does_not_change_bucket_allocation(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_REVIEW_REQUESTED,
+            is_rollout=True,
+            population_percent=Decimal("50.0"),
+        )
+        bucket_id = experiment.bucket_range.id
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+
+        self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+        self.assertEqual(experiment.bucket_range.count, 5000)
+        self.assertEqual(experiment.bucket_range.id, bucket_id)
+
+    def test_end_experiment_does_not_change_bucket_allocation(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,
+            is_rollout=True,
+            population_percent=Decimal("50.0"),
+        )
+        bucket_id = experiment.bucket_range.id
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.REVIEW,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+
+        self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+        self.assertEqual(experiment.bucket_range.count, 5000)
+        self.assertEqual(experiment.bucket_range.id, bucket_id)
+
+    def test_live_rollout_allocates_buckets(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+            is_rollout=True,
+            population_percent=Decimal("50.0"),
+        )
+
+        bucket_id = experiment.bucket_range.id
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "publish_status": NimbusExperiment.PublishStatus.APPROVED,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+        self.assertEqual(experiment.bucket_range.count, 5000)
+        self.assertNotEqual(experiment.bucket_range.id, bucket_id)
+
     def test_live_experiment_does_not_allocate_buckets(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,
+            is_rollout=False,
             population_percent=Decimal("50.0"),
         )
 
