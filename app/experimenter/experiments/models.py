@@ -38,7 +38,6 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
             super()
             .get_queryset()
             .prefetch_related(
-                "changes",
                 "locales",
                 "languages",
                 "countries",
@@ -422,18 +421,18 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return self._start_date
 
         if self.is_started:
-            if start_changelogs := [
-                c
-                for c in self.changes.all()
-                if c.old_status == NimbusExperiment.Status.DRAFT
-                and c.new_status == NimbusExperiment.Status.LIVE
-            ]:
-                start_date = sorted(start_changelogs, key=lambda c: c.changed_on)[
-                    -1
-                ].changed_on.date()
-                self._start_date = start_date
+            if (
+                start_changelog := self.changes.all()
+                .filter(
+                    old_status=self.Status.DRAFT,
+                    new_status=self.Status.LIVE,
+                )
+                .order_by("-changed_on")
+                .first()
+            ):
+                self._start_date = start_changelog.changed_on.date()
                 self.save()
-                return start_date
+                return self._start_date
 
     @property
     def launch_month(self):
@@ -446,19 +445,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return self._end_date
 
         if self.status == self.Status.COMPLETE:
-            changes = self.changes.all()
-            if end_changelogs := [
-                c
-                for c in changes
-                if c.old_status == self.Status.LIVE
-                and c.new_status == self.Status.COMPLETE
-            ]:
-                end_date = sorted(end_changelogs, key=lambda c: c.changed_on)[
-                    -1
-                ].changed_on.date()
-                self._end_date = end_date
+            if (
+                end_changelog := self.changes.all()
+                .filter(old_status=self.Status.LIVE, new_status=self.Status.COMPLETE)
+                .order_by("-changed_on")
+                .first()
+            ):
+                self._end_date = end_changelog.changed_on.date()
                 self.save()
-                return end_date
+                return self._end_date
 
     @property
     def proposed_enrollment_end_date(self):
@@ -475,21 +470,23 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if None not in (self._start_date, self._enrollment_end_date):
             return (self._enrollment_end_date - self._start_date).days
 
-        changes = self.changes.all()
-        if paused_changelogs := [
-            c
-            for c in changes
-            if c.experiment_data is not None
-            and "is_paused" in c.experiment_data
-            and c.experiment_data["is_paused"]
-            and c.new_status == NimbusExperiment.Status.LIVE
-            and c.new_status_next is None
-            and c.new_publish_status == NimbusExperiment.PublishStatus.IDLE
-        ]:
-            paused_change = sorted(paused_changelogs, key=lambda c: c.changed_on)[-1]
-            self._enrollment_end_date = paused_change.changed_on.date()
-            self.save()
-            return (paused_change.changed_on.date() - self.start_date).days
+        if self.is_paused:
+            if paused_changelogs := [
+                c
+                for c in self.changes.all().filter(
+                    old_status=self.Status.LIVE,
+                    new_status=self.Status.LIVE,
+                    new_status_next=None,
+                    new_publish_status=self.PublishStatus.IDLE,
+                )
+                if c.experiment_data is not None
+                and "is_paused" in c.experiment_data
+                and c.experiment_data["is_paused"]
+            ]:
+                paused_change = sorted(paused_changelogs, key=lambda c: c.changed_on)[-1]
+                self._enrollment_end_date = paused_change.changed_on.date()
+                self.save()
+                return (paused_change.changed_on.date() - self.start_date).days
 
         if self.end_date:
             return self.computed_duration_days
@@ -499,9 +496,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def computed_enrollment_end_date(self):
         start_date = self.start_date
-        computed_enrollment_days = self.computed_enrollment_days
-        if start_date is not None and computed_enrollment_days is not None:
-            return start_date + datetime.timedelta(days=computed_enrollment_days)
+
+        if start_date is not None:
+            computed_enrollment_days = self.computed_enrollment_days
+            if computed_enrollment_days is not None:
+                return start_date + datetime.timedelta(days=computed_enrollment_days)
 
     @property
     def computed_end_date(self):
