@@ -1356,12 +1356,13 @@ class TestNimbusExperiment(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
             population_percent=Decimal("50.0"),
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
         )
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(
             experiment.bucket_range.isolation_group.name,
-            "firefox-desktop-feature-release",
+            "firefox-desktop-feature-release-mac_only",
         )
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
@@ -1384,6 +1385,7 @@ class TestNimbusExperiment(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
             population_percent=Decimal("50.0"),
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
         )
         experiment1.allocate_bucket_range()
 
@@ -1393,6 +1395,7 @@ class TestNimbusExperiment(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
             population_percent=Decimal("100.0"),
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
         )
         experiment2.allocate_bucket_range()
 
@@ -1415,6 +1418,7 @@ class TestNimbusExperiment(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
             population_percent=Decimal("50.0"),
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
         )
         experiment1.allocate_bucket_range()
 
@@ -1424,6 +1428,7 @@ class TestNimbusExperiment(TestCase):
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
             population_percent=Decimal("25.0"),
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
         )
         experiment2.allocate_bucket_range()
 
@@ -1444,6 +1449,7 @@ class TestNimbusExperiment(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
+            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
             population_percent=Decimal("50.0"),
         )
         original_namespace = experiment.bucket_namespace
@@ -1454,7 +1460,7 @@ class TestNimbusExperiment(TestCase):
         self.assertNotEqual(original_namespace, experiment.bucket_namespace)
         self.assertEqual(
             experiment.bucket_namespace,
-            "firefox-desktop-feature-release-rollout",
+            "firefox-desktop-feature-release-mac_only-rollout",
         )
 
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
