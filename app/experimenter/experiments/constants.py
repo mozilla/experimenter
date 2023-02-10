@@ -409,6 +409,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_BRANCH_SWAP = "You are trying to swap branch names. \
         Please choose another name for the branches."
 
+    ERROR_BUCKET_EXISTS = "A rollout already exists for this combination \
+        of rollout, feature, channel, and advanced targeting."
+
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
     # buffer day is added for Jetstream to compute the results.
