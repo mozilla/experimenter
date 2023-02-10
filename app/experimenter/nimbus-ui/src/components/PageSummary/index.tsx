@@ -36,7 +36,7 @@ const PageSummary = (props: RouteComponentProps) => {
   useExperimentPolling();
 
   const [showLaunchToReview, setShowLaunchToReview] = useState(false);
-  const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
+  const { invalidPages, InvalidPagesList, fieldWarnings } = useReviewCheck(experiment);
 
   const status = getStatus(experiment);
 
@@ -224,6 +224,14 @@ const PageSummary = (props: RouteComponentProps) => {
         <h5 className="mt-3 mb-4 ml-3">
           {summaryAction} {launchDocs}
         </h5>
+      )}
+
+      {status.draft || status.preview &&
+        !experiment.isArchived && 
+        (fieldWarnings["bucketing"].values.length > 0) && (
+          <Alert data-testid="bucketing-warning" variant="danger">
+            "A rollout already exists for this combination of rollout, feature, channel, and advanced targeting."
+          </Alert>
       )}
 
       <ChangeApprovalOperations

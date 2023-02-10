@@ -628,6 +628,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             ),
         )
 
+    def bucket_range_exists(self):
+        existing_bucket_range = NimbusBucketRange.objects.filter(experiment=self)
+        return existing_bucket_range.exists()
+
     @property
     def can_edit(self):
         return (

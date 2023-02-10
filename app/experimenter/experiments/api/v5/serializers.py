@@ -1074,7 +1074,10 @@ class NimbusExperimentSerializer(
             experiment = super().save()
 
             if experiment.has_filter(experiment.Filters.SHOULD_ALLOCATE_BUCKETS):
+                if experiment.bucket_range_exists(): 
+                    experiment.warnings["bucketing"] = [NimbusExperiment.ERROR_BUCKET_EXISTS]
                 experiment.allocate_bucket_range()
+
 
             if self.should_call_preview_task:
                 nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)

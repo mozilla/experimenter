@@ -406,6 +406,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
+    ERROR_BUCKET_EXISTS = (
+        "A rollout already exists for this combination of rollout, feature, channel, and advanced targeting."
+    )
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
