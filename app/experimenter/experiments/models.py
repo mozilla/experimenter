@@ -604,10 +604,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.channel:
             keys.append(self.channel)
 
-        if self.targeting_config_slug:
-            keys.append(self.targeting_config_slug)
-
         if self.is_rollout:
+            if self.targeting_config_slug:
+                keys.append(self.targeting_config_slug.replace("_", "-"))
             keys.append("rollout")
 
         return "-".join(keys)

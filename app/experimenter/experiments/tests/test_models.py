@@ -1352,6 +1352,7 @@ class TestNimbusExperiment(TestCase):
         feature = NimbusFeatureConfigFactory(slug="feature")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
@@ -1362,7 +1363,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.bucket_range.count, 5000)
         self.assertEqual(
             experiment.bucket_range.isolation_group.name,
-            "firefox-desktop-feature-release-mac_only",
+            "firefox-desktop-feature-release",
         )
 
     def test_allocate_buckets_creates_new_bucket_range_if_population_changes(self):
@@ -1460,7 +1461,7 @@ class TestNimbusExperiment(TestCase):
         self.assertNotEqual(original_namespace, experiment.bucket_namespace)
         self.assertEqual(
             experiment.bucket_namespace,
-            "firefox-desktop-feature-release-mac_only-rollout",
+            "firefox-desktop-feature-release-mac-only-rollout",
         )
 
     def test_proposed_enrollment_end_date_without_start_date_is_None(self):
