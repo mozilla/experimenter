@@ -21,3 +21,4 @@ description = """
 select_expression = "SUM(metrics.counter.default_browser_card_go_to_settings_pressed)"
 data_source = "metrics"
 statistics = { bootstrap_mean = { pre_treatments = ["remove_nulls"] }, deciles = { pre_treatments = ["remove_nulls"] } }
+
