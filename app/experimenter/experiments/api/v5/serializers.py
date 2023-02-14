@@ -558,25 +558,6 @@ class NimbusExperimentBranchMixin:
 
     def _validate_duplicate_branch_names(self, data):
         if "reference_branch" in data and "treatment_branches" in data:
-            ref_branch_name = data["reference_branch"]["name"]
-            treatment_branch_names = [
-                branch["name"] for branch in data["treatment_branches"]
-            ]
-            all_names = [ref_branch_name, *treatment_branch_names]
-            unique_names = set(all_names)
-
-            if len(all_names) != len(unique_names):
-                raise serializers.ValidationError(
-                    {
-                        "reference_branch": {
-                            "name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME
-                        },
-                        "treatment_branches": [
-                            {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
-                            for _ in data["treatment_branches"]
-                        ],
-                    }
-                )
             try:
                 reference_branch = getattr(self.instance, "reference_branch")
             except NimbusBranch.DoesNotExist:
@@ -587,27 +568,51 @@ class NimbusExperimentBranchMixin:
             except NimbusBranch.DoesNotExist:
                 treatment_branches = None
 
-            if self.instance and reference_branch and treatment_branches:
-                old_reference_branch_name = reference_branch.name
-
-                old_treatment_branch_names = [b.name for b in treatment_branches]
-
-                names_swapped = (
-                    old_reference_branch_name in treatment_branch_names
-                    and old_treatment_branch_names == [ref_branch_name]
+            ref_branch_name = data["reference_branch"]["name"]
+            treatment_branch_names = [b["name"] for b in data["treatment_branches"]]
+            all_names = [ref_branch_name, *treatment_branch_names]
+            if len(all_names) != len(set(all_names)):
+                error = {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
+                raise serializers.ValidationError(
+                    {
+                        "reference_branch": error,
+                        "treatment_branches": [error for _ in data["treatment_branches"]],
+                    }
                 )
-                if names_swapped:
-                    raise serializers.ValidationError(
-                        {
-                            "reference_branch": {
-                                "name": NimbusConstants.ERROR_BRANCH_SWAP
-                            },
-                            "treatment_branches": [
-                                {"name": NimbusConstants.ERROR_BRANCH_SWAP}
-                                for _ in data["treatment_branches"]
-                            ],
-                        }
-                    )
+            old_branch_names = (
+                {b.name: b for b in treatment_branches} if treatment_branches else {}
+            )
+            new_branch_names = {b["name"]: b for b in data.get("treatment_branches", [])}
+            new_reference_branch = data.get("reference_branch")
+            new_reference_branch_name = (
+                new_reference_branch["name"] if new_reference_branch else None
+            )
+            reference_name_swapped = (
+                reference_branch
+                and new_reference_branch_name
+                and reference_branch.name != new_reference_branch_name
+                and new_reference_branch_name in old_branch_names
+            )
+            treatment_errors = [
+                b.pk
+                for name, b in old_branch_names.items()
+                if name in new_branch_names
+                and b.pk != new_branch_names[name].get("id")
+                and b.pk != reference_branch.pk
+            ]
+            if reference_name_swapped:
+                raise serializers.ValidationError(
+                    {"reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP}}
+                )
+            if treatment_errors:
+                raise serializers.ValidationError(
+                    {
+                        "treatment_branches": [
+                            {"name": NimbusConstants.ERROR_BRANCH_SWAP}
+                            for _ in treatment_errors
+                        ]
+                    }
+                )
 
         return data
 
@@ -1416,7 +1421,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         schema = json.loads(feature_config.schema)
         error_result = {}
         if data["reference_branch"].get("feature_enabled"):
-
             if errors := self._validate_feature_value_against_schema(
                 schema, data["reference_branch"]["feature_value"]
             ):
@@ -1484,7 +1488,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             if NimbusExperiment.Version.parse(
                 min_version
             ) < NimbusExperiment.Version.parse(min_supported_version):
-
                 raise serializers.ValidationError(
                     {
                         "languages": f"Language targeting is not \
@@ -1556,7 +1559,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             and not data["reference_branch"]["feature_enabled"]
             and self._validate_feature_enabled_version(data)
         ):
-
             raise serializers.ValidationError(
                 {
                     "reference_branch": {
