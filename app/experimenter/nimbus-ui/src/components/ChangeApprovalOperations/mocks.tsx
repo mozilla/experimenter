@@ -12,9 +12,8 @@ import {
   mockRejectionChangelog,
 } from "src/lib/mocks";
 import {
-  ExperimentsNimbusChangeLogOldStatusChoices,
-  ExperimentsNimbusChangeLogOldStatusNextChoices,
   NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
 
 type BaseSubjectProps = Partial<
@@ -117,8 +116,8 @@ export const reviewRejectedBaseProps: BaseSubjectProps = {
   rejectionEvent: mockRejectionChangelog(
     "ghi@mozilla.com",
     "It's bad. Just start over.",
-    ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
-    ExperimentsNimbusChangeLogOldStatusNextChoices.COMPLETE,
+    NimbusExperimentStatusEnum.LIVE,
+    NimbusExperimentStatusEnum.COMPLETE,
     "2020-04-13T02:00:00Z",
   ),
 };

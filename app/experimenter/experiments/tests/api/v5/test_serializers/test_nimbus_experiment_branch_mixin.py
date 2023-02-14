@@ -28,14 +28,12 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "feature_enabled": False,
             "feature_value": "",
         }
         treatment_branch = {
             "name": "treatment",
             "description": "a treatment",
             "ratio": 1,
-            "feature_enabled": True,
             "feature_value": '{"value": true}',
         }
 
@@ -60,7 +58,6 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             experiment.reference_branch.feature_values.get().feature_config,
             feature_config,
         )
-        self.assertEqual(experiment.reference_branch.feature_values.get().enabled, False)
         self.assertEqual(experiment.reference_branch.feature_values.get().value, "")
 
         self.assertEqual(len(experiment.treatment_branches), 1)
@@ -70,9 +67,6 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         self.assertEqual(
             experiment.treatment_branches[0].feature_values.get().feature_config,
             feature_config,
-        )
-        self.assertEqual(
-            experiment.treatment_branches[0].feature_values.get().enabled, True
         )
         self.assertEqual(
             experiment.treatment_branches[0].feature_values.get().value, '{"value": true}'
@@ -89,14 +83,12 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 1,
-            "feature_enabled": False,
             "feature_value": "",
         }
         treatment_branch = {
             "name": "new treatment",
             "description": "a new treatment",
             "ratio": 1,
-            "feature_enabled": True,
             "feature_value": '{"value": true}',
         }
 
@@ -127,7 +119,6 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             experiment.reference_branch.feature_values.get().feature_config,
             feature_config,
         )
-        self.assertEqual(experiment.reference_branch.feature_values.get().enabled, False)
         self.assertEqual(experiment.reference_branch.feature_values.get().value, "")
 
         self.assertEqual(len(experiment.treatment_branches), 1)
@@ -137,9 +128,6 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         self.assertEqual(
             experiment.treatment_branches[0].feature_values.get().feature_config,
             feature_config,
-        )
-        self.assertEqual(
-            experiment.treatment_branches[0].feature_values.get().enabled, True
         )
         self.assertEqual(
             experiment.treatment_branches[0].feature_values.get().value, '{"value": true}'
@@ -157,7 +145,6 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 1,
-            "feature_enabled": False,
             "feature_value": "",
         }
         treatment_branch = {
@@ -165,7 +152,6 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             "name": "new treatment",
             "description": "a new treatment",
             "ratio": 1,
-            "feature_enabled": True,
             "feature_value": '{"value": true}',
         }
 
@@ -193,7 +179,6 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             experiment.reference_branch.feature_values.get().feature_config,
             feature_config,
         )
-        self.assertEqual(experiment.reference_branch.feature_values.get().enabled, False)
         self.assertEqual(experiment.reference_branch.feature_values.get().value, "")
 
         self.assertEqual(len(experiment.treatment_branches), 1)
@@ -203,9 +188,6 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         self.assertEqual(
             experiment.treatment_branches[0].feature_values.get().feature_config,
             feature_config,
-        )
-        self.assertEqual(
-            experiment.treatment_branches[0].feature_values.get().enabled, True
         )
         self.assertEqual(
             experiment.treatment_branches[0].feature_values.get().value, '{"value": true}'
@@ -456,8 +438,8 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
             "description": "a control",
             "ratio": 1,
             "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config1.id, "value": "{}"},
+                {"feature_config": feature_config2.id, "value": "{}"},
             ],
         }
         treatment_branch = {
@@ -465,8 +447,8 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
             "description": "a treatment",
             "ratio": 1,
             "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config1.id, "value": "{}"},
+                {"feature_config": feature_config2.id, "value": "{}"},
             ],
         }
         data = {
@@ -528,8 +510,8 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
             "description": "a new control",
             "ratio": 2,
             "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config1.id, "value": "{}"},
+                {"feature_config": feature_config2.id, "value": "{}"},
             ],
         }
         treatment_branch = {
@@ -537,8 +519,8 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
             "description": "a new treatment",
             "ratio": 2,
             "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config1.id, "value": "{}"},
+                {"feature_config": feature_config2.id, "value": "{}"},
             ],
         }
         data = {
@@ -607,8 +589,8 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
             "description": "a new control",
             "ratio": 2,
             "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config1.id, "value": "{}"},
+                {"feature_config": feature_config2.id, "value": "{}"},
             ],
         }
         treatment_branch = {
@@ -617,8 +599,8 @@ class TestNimbusExperimentBranchMixinMultiFeature(TestCase):
             "description": "a new treatment",
             "ratio": 2,
             "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config1.id, "value": "{}"},
+                {"feature_config": feature_config2.id, "value": "{}"},
             ],
         }
         data = {

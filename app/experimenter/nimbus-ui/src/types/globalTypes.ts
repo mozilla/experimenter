@@ -7,26 +7,6 @@
 // START Enums and Input Objects
 //==============================================================
 
-export enum ExperimentsNimbusChangeLogOldStatusChoices {
-  COMPLETE = "COMPLETE",
-  DRAFT = "DRAFT",
-  LIVE = "LIVE",
-  PREVIEW = "PREVIEW",
-}
-
-export enum ExperimentsNimbusChangeLogOldStatusNextChoices {
-  COMPLETE = "COMPLETE",
-  DRAFT = "DRAFT",
-  LIVE = "LIVE",
-  PREVIEW = "PREVIEW",
-}
-
-export enum ExperimentsNimbusDocumentationLinkTitleChoices {
-  DESIGN_DOC = "DESIGN_DOC",
-  DS_JIRA = "DS_JIRA",
-  ENG_TICKET = "ENG_TICKET",
-}
-
 export enum NimbusExperimentApplicationEnum {
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
@@ -204,7 +184,6 @@ export enum NimbusExperimentStatusEnum {
 
 export interface BranchFeatureValueInput {
   featureConfig?: number | null;
-  enabled?: boolean | null;
   value?: string | null;
 }
 
@@ -213,7 +192,6 @@ export interface BranchInput {
   name: string;
   description: string;
   ratio: number;
-  featureEnabled?: boolean | null;
   featureValue?: string | null;
   featureValues?: (BranchFeatureValueInput | null)[] | null;
   screenshots?: (BranchScreenshotInput | null)[] | null;

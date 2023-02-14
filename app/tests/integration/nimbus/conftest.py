@@ -5,6 +5,9 @@ from urllib.parse import urljoin, urlparse
 
 import pytest
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
 from nimbus.kinto.client import (
     KINTO_COLLECTION_DESKTOP,
     KINTO_COLLECTION_MOBILE,
@@ -20,8 +23,6 @@ from nimbus.models.base_dataclass import (
 )
 from nimbus.pages.experimenter.home import HomePage
 from nimbus.utils import helpers
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 
 APPLICATION_FEATURE_IDS = {
     BaseExperimentApplications.FIREFOX_DESKTOP: "1",
@@ -60,8 +61,8 @@ APPLICATION_KINTO_COLLECTION = {
 
 @pytest.fixture
 def slugify():
-    def _slugify(input):
-        return input.lower().replace(" ", "-").replace("[", "").replace("]", "")
+    def _slugify(name):
+        return name.lower().replace(" ", "-").replace("[", "").replace("]", "")
 
     return _slugify
 
@@ -259,11 +260,6 @@ def create_experiment(base_url, default_data):
         branches.feature_config = default_data.feature_config_id
         branches.reference_branch_description = default_data.branches[0].description
         branches.treatment_branch_description = default_data.branches[1].description
-
-        if default_data.application.value == "DESKTOP":
-            branches.reference_branch_enabled.click()
-            branches.treatment_branch_enabled.click()
-
         branches.reference_branch_value = "{}"
         branches.treatment_branch_value = "{}"
 
@@ -335,7 +331,6 @@ def fixture_experiment_default_data():
             "description": "reference branch",
             "name": "Branch 1",
             "ratio": 50,
-            "featureEnabled": True,
             "featureValue": "{}",
         },
         "treatmentBranches": [
@@ -343,7 +338,6 @@ def fixture_experiment_default_data():
                 "description": "treatment branch",
                 "name": "Branch 2",
                 "ratio": 50,
-                "featureEnabled": False,
                 "featureValue": "",
             }
         ],
@@ -365,7 +359,7 @@ def fixture_check_ping_for_experiment(trigger_experiment_loader):
                 if "experiments" in item["environment"]
             ]
             for item in experiments_data:
-                if experiment in item.keys():
+                if experiment in item:
                     return True
             time.sleep(5)
             trigger_experiment_loader()

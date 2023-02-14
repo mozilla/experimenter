@@ -99,7 +99,7 @@ class TestNimbusExperimentSerializer(TestCase):
                     "ratio": branch.ratio,
                     "feature": {
                         "featureId": experiment.feature_configs.get().slug,
-                        "enabled": branch.feature_values.get().enabled,
+                        "enabled": True,
                         "value": json.loads(branch.feature_values.get().value),
                     },
                 },
@@ -203,7 +203,7 @@ class TestNimbusExperimentSerializer(TestCase):
                     "features": [
                         {
                             "featureId": fv.feature_config.slug,
-                            "enabled": fv.enabled,
+                            "enabled": True,
                             "value": json.loads(fv.value),
                         }
                         for fv in branch.feature_values.all()
@@ -305,13 +305,12 @@ class TestNimbusExperimentSerializer(TestCase):
         NimbusBranchFeatureValue.objects.create(
             branch=experiment.reference_branch,
             feature_config=None,
-            enabled=False,
             value="",
         )
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(
             serializer.data["branches"][0]["features"],
-            [{"featureId": "", "enabled": False, "value": {}}],
+            [{"featureId": "", "enabled": True, "value": {}}],
         )
 
     def test_serializer_with_branch_invalid_single_feature_value(self):

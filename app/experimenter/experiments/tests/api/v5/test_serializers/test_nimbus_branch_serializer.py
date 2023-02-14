@@ -1,6 +1,5 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from parameterized import parameterized
 
 from experimenter.experiments.api.v5.serializers import NimbusBranchSerializer
 from experimenter.experiments.constants import NimbusConstants
@@ -20,7 +19,6 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "feature_enabled": True,
             "feature_value": "{}",
         }
         branch_serializer = NimbusBranchSerializer(data=branch_data)
@@ -51,7 +49,6 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
             "name": "control",
             "description": "a control",
             "ratio": 1,
-            "feature_enabled": True,
             "feature_value": "{}",
         }
 
@@ -65,7 +62,6 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
 
         branch_feature_value = branch.feature_values.get()
         self.assertEqual(branch_feature_value.feature_config, feature_config)
-        self.assertEqual(branch_feature_value.enabled, True)
         self.assertEqual(branch_feature_value.value, "{}")
 
     def test_serializer_updates_existing_branch(self):
@@ -79,7 +75,6 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
             "name": "new control",
             "description": "a new control",
             "ratio": 2,
-            "feature_enabled": True,
             "feature_value": "{}",
         }
 
@@ -96,7 +91,6 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
 
         branch_feature_value = branch.feature_values.get()
         self.assertEqual(branch_feature_value.feature_config, feature_config)
-        self.assertEqual(branch_feature_value.enabled, True)
         self.assertEqual(branch_feature_value.value, "{}")
 
     def test_branch_update_screenshots(self):
@@ -150,38 +144,6 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
         with new_screenshot.image.open() as image_file:
             self.assertEqual(image_file.read(), image_content)
 
-    @parameterized.expand(
-        [
-            (NimbusConstants.Application.FOCUS_ANDROID,),
-            (NimbusConstants.Application.FENIX,),
-            (NimbusConstants.Application.IOS,),
-            (NimbusConstants.Application.FOCUS_IOS,),
-        ]
-    )
-    def test_serializer_sets_feature_enabled_true_for_mobile_experiments(
-        self, application
-    ):
-        feature_config = NimbusFeatureConfigFactory.create(application=application)
-        experiment = NimbusExperimentFactory.create(
-            application=application, feature_configs=[feature_config]
-        )
-        experiment.branches.all().delete()
-
-        branch_data = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_enabled": False,
-            "feature_value": "{}",
-        }
-
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertTrue(branch_serializer.is_valid(), branch_serializer.errors)
-
-        branch = branch_serializer.save(experiment=experiment)
-        branch_feature_value = branch.feature_values.get()
-        self.assertTrue(branch_feature_value.enabled)
-
 
 class TestNimbusBranchSerializerMultiFeature(TestCase):
     maxDiff = None
@@ -196,36 +158,6 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
         branch_serializer = NimbusBranchSerializer(data=branch_data)
         self.assertTrue(branch_serializer.is_valid())
 
-    def test_branch_missing_feature_value(self):
-        feature_config = NimbusFeatureConfigFactory.create()
-        branch_data = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_values": [{"feature_config": feature_config.id, "enabled": True}],
-        }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertFalse(branch_serializer.is_valid())
-        self.assertEqual(
-            branch_serializer.errors,
-            {"feature_values": [{"value": [NimbusConstants.ERROR_BRANCH_NO_VALUE]}]},
-        )
-
-    def test_branch_missing_feature_enabled(self):
-        feature_config = NimbusFeatureConfigFactory.create()
-        branch_data = {
-            "name": "control",
-            "description": "a control",
-            "ratio": 1,
-            "feature_values": [{"feature_config": feature_config.id, "value": "{}"}],
-        }
-        branch_serializer = NimbusBranchSerializer(data=branch_data)
-        self.assertFalse(branch_serializer.is_valid())
-        self.assertEqual(
-            branch_serializer.errors,
-            {"feature_values": [{"enabled": [NimbusConstants.ERROR_BRANCH_NO_ENABLED]}]},
-        )
-
     def test_no_duplicate_feature_configs(self):
         feature_config = NimbusFeatureConfigFactory.create()
         branch_data = {
@@ -233,8 +165,8 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
             "description": "a control",
             "ratio": 1,
             "feature_values": [
-                {"feature_config": feature_config.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config.id, "value": "{}"},
+                {"feature_config": feature_config.id, "value": "{}"},
             ],
         }
         branch_serializer = NimbusBranchSerializer(data=branch_data)
@@ -271,8 +203,8 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
             "description": "a control",
             "ratio": 1,
             "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config1.id, "value": "{}"},
+                {"feature_config": feature_config2.id, "value": "{}"},
             ],
         }
 
@@ -290,7 +222,6 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
                 feature_config=feature_config
             )
             self.assertEqual(branch_feature_value.feature_config, feature_config)
-            self.assertEqual(branch_feature_value.enabled, True)
             self.assertEqual(branch_feature_value.value, "{}")
 
     def test_serializer_updates_existing_branch(self):
@@ -306,8 +237,8 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
             "description": "a new control",
             "ratio": 2,
             "feature_values": [
-                {"feature_config": feature_config1.id, "enabled": True, "value": "{}"},
-                {"feature_config": feature_config2.id, "enabled": True, "value": "{}"},
+                {"feature_config": feature_config1.id, "value": "{}"},
+                {"feature_config": feature_config2.id, "value": "{}"},
             ],
         }
 
@@ -327,5 +258,4 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
                 feature_config=feature_config
             )
             self.assertEqual(branch_feature_value.feature_config, feature_config)
-            self.assertEqual(branch_feature_value.enabled, True)
             self.assertEqual(branch_feature_value.value, "{}")

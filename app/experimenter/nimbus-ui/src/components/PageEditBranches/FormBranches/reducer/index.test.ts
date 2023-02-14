@@ -113,7 +113,6 @@ describe("extractUpdateBranch", () => {
       description: "changed",
       ratio: 1,
       featureValue: undefined,
-      featureEnabled: false,
       screenshots: [
         { id: 123, description: "foo", image: file },
         { id: 456, description: "bar", image: file },
@@ -143,7 +142,6 @@ describe("extractUpdateBranch", () => {
       description: "changed",
       ratio: 1,
       featureValue: undefined,
-      featureEnabled: false,
       screenshots: [
         { id: 123, description: "foo" },
         { id: 456, description: "bar" },
@@ -238,25 +236,11 @@ describe("formBranchesReducer", () => {
     const oldState = {
       ...MOCK_STATE,
       featureConfigId: null,
-      referenceBranch: {
-        ...MOCK_STATE.referenceBranch!,
-        featureEnabled: true,
-      },
-      treatmentBranches: MOCK_STATE.treatmentBranches!.map((branch) => ({
-        ...branch,
-        featureEnabled: true,
-      })),
     };
 
     const newState = formBranchesActionReducer(oldState, action);
 
     expect(newState.featureConfigIds).toBeNull();
-    expect(newState.referenceBranch?.featureEnabled).toBe(false);
-    expect(
-      newState.treatmentBranches?.every(
-        (branch) => branch?.featureEnabled === false,
-      ),
-    ).toEqual(true);
   };
 
   describe("setFeatureConfigs", () => {
@@ -490,22 +474,18 @@ describe("formBranchesReducer", () => {
       expect(newState.treatmentBranches![1]!.featureValues).toEqual([
         {
           featureConfigId: 8,
-          enabled: true,
           value: "{ foo: true }",
         },
         {
           featureConfigId: 6,
-          enabled: false,
           value: undefined,
         },
         {
           featureConfigId: 7,
-          enabled: undefined,
           value: "{ bar: 123 }",
         },
         {
           featureConfigId: 5,
-          enabled: undefined,
           value: undefined,
         },
       ]);

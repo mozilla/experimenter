@@ -177,17 +177,15 @@ class NimbusBranchScreenshotType(DjangoObjectType):
 class NimbusBranchFeatureValueType(DjangoObjectType):
     id = graphene.Int()
     feature_config = graphene.Field(NimbusFeatureConfigType)
-    enabled = graphene.Boolean()
     value = graphene.String()
 
     class Meta:
         model = NimbusBranchFeatureValue
-        fields = ("id", "feature_config", "enabled", "value")
+        fields = ("id", "feature_config", "value")
 
 
 class NimbusBranchType(DjangoObjectType):
     id = graphene.Int(required=False)
-    feature_enabled = graphene.Boolean(required=True)
     feature_value = graphene.String(required=False)
     feature_values = graphene.List(NimbusBranchFeatureValueType)
     screenshots = DjangoListField(NimbusBranchScreenshotType)
@@ -196,7 +194,6 @@ class NimbusBranchType(DjangoObjectType):
         model = NimbusBranch
         fields = (
             "description",
-            "feature_enabled",
             "feature_value",
             "feature_values",
             "id",
@@ -209,12 +206,6 @@ class NimbusBranchType(DjangoObjectType):
     def resolve_feature_values(self, info):
         return self.feature_values.all()
 
-    def resolve_feature_enabled(self, info):
-        return (
-            self.feature_values.exists()
-            and self.feature_values.all().order_by("feature_config__slug").first().enabled
-        )
-
     def resolve_feature_value(self, info):
         return (
             self.feature_values.exists()
@@ -223,6 +214,8 @@ class NimbusBranchType(DjangoObjectType):
 
 
 class NimbusDocumentationLinkType(DjangoObjectType):
+    title = NimbusExperimentDocumentationLinkEnum()
+
     class Meta:
         model = NimbusDocumentationLink
         fields = ("title", "link")
@@ -250,6 +243,9 @@ class NimbusReviewType(graphene.ObjectType):
 
 
 class NimbusChangeLogType(DjangoObjectType):
+    old_status = NimbusExperimentStatusEnum()
+    old_status_next = NimbusExperimentStatusEnum()
+
     class Meta:
         model = NimbusChangeLog
         fields = ("changed_on", "changed_by", "message", "old_status", "old_status_next")

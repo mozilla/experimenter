@@ -391,8 +391,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_DUPLICATE_BRANCH_FEATURE_VALUE = (
         "A branch can not have multiple configurations for the same feature"
     )
-    ERROR_BRANCH_NO_VALUE = "A value must be supplied for an enabled feature."
-    ERROR_BRANCH_NO_ENABLED = "Enabled must be specified to include a value."
     ERROR_REQUIRED_QUESTION = "This question may not be blank."
     ERROR_REQUIRED_FIELD = "This field may not be blank."
     ERROR_REQUIRED_FEATURE_CONFIG = (
@@ -408,12 +406,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
-    ERROR_FEATURE_ENABLED = f"Experiments for Firefox Desktop\
-         {FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION} and above must have the feature\
-            enabled and specify a feature value."
     ERROR_BRANCH_SWAP = (
         "You are trying to swap branches name, Give another random name to the branches"
     )
+
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
     # buffer day is added for Jetstream to compute the results.

@@ -40,11 +40,9 @@ import {
 } from "src/types/getExperiment";
 import {
   ExperimentInput,
-  ExperimentsNimbusChangeLogOldStatusChoices,
-  ExperimentsNimbusChangeLogOldStatusNextChoices,
-  ExperimentsNimbusDocumentationLinkTitleChoices,
   NimbusExperimentApplicationEnum,
   NimbusExperimentChannelEnum,
+  NimbusExperimentDocumentationLinkEnum,
   NimbusExperimentFirefoxVersionEnum,
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
@@ -549,7 +547,6 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
     description: "Behind almost radio result personal none future current.",
     ratio: 1,
     featureValue: '{"environmental-fact": "really-citizen"}',
-    featureEnabled: true,
     screenshots: [],
   },
   featureConfigs: [],
@@ -564,7 +561,6 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
       description: "Next ask then he in degree order.",
       ratio: 1,
       featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
-      featureEnabled: true,
       screenshots: [],
     },
   ],
@@ -596,7 +592,7 @@ export const MOCK_EXPERIMENT: Partial<getExperiment["experimentBySlug"]> = {
   riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
   documentationLinks: [
     {
-      title: ExperimentsNimbusDocumentationLinkTitleChoices.DS_JIRA,
+      title: NimbusExperimentDocumentationLinkEnum.DS_JIRA,
       link: "https://bingo.bongo",
     },
   ],
@@ -643,7 +639,6 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
       "Policy success score. Education clear write. Where same create matter natural.",
     ratio: 1,
     featureValue: '{"environmental-fact": "bingo-bongo"}',
-    featureEnabled: true,
     screenshots: [],
   },
   featureConfigs: [],
@@ -658,7 +653,6 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
       description: "Next ask then he in degree order.",
       ratio: 1,
       featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
-      featureEnabled: true,
       screenshots: [],
     },
   ],
@@ -690,7 +684,7 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
   documentationLinks: [
     {
-      title: ExperimentsNimbusDocumentationLinkTitleChoices.DS_JIRA,
+      title: NimbusExperimentDocumentationLinkEnum.DS_JIRA,
       link: "https://bingo.bongo",
     },
   ],
@@ -1049,7 +1043,7 @@ export const mockChangelog = (
   message: string | null = null,
   changedOn: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
-  oldStatus: ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
+  oldStatus: NimbusExperimentStatusEnum.LIVE,
   oldStatusNext: null,
   changedBy: mockUser(email),
   changedOn,
@@ -1059,8 +1053,8 @@ export const mockChangelog = (
 export const mockRejectionChangelog = (
   email = "abc@mozilla.com",
   message: string | null = null,
-  oldStatus: ExperimentsNimbusChangeLogOldStatusChoices = ExperimentsNimbusChangeLogOldStatusChoices.LIVE,
-  oldStatusNext: ExperimentsNimbusChangeLogOldStatusNextChoices | null = null,
+  oldStatus: NimbusExperimentStatusEnum = NimbusExperimentStatusEnum.LIVE,
+  oldStatusNext: NimbusExperimentStatusEnum | null = null,
   changedOn: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
   oldStatus,
