@@ -552,9 +552,13 @@ class NimbusExperimentBranchMixin:
                     }
                 )
             old_branch_names = (
-                {b.name: b for b in treatment_branches} if treatment_branches else {}
+                {branch.name: branch for branch in treatment_branches}
+                if treatment_branches
+                else {}
             )
-            new_branch_names = {b["name"]: b for b in data.get("treatment_branches", [])}
+            new_branch_names = {
+                branch["name"]: branch for branch in data.get("treatment_branches", [])
+            }
             new_reference_branch = data.get("reference_branch")
             new_reference_branch_name = (
                 new_reference_branch["name"] if new_reference_branch else None
@@ -566,11 +570,12 @@ class NimbusExperimentBranchMixin:
                 and new_reference_branch_name in old_branch_names
             )
             treatment_errors = [
-                b.pk
-                for name, b in old_branch_names.items()
-                if name in new_branch_names
-                and b.pk != new_branch_names[name].get("id")
-                and b.pk != reference_branch.pk
+                branch.pk
+                for name, branch in old_branch_names.items()
+                if old_branch_names is not None
+                and name in new_branch_names
+                and branch.pk != new_branch_names[name].get("id")
+                and branch.pk != reference_branch.pk
             ]
             if reference_name_swapped:
                 raise serializers.ValidationError(
