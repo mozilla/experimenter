@@ -827,39 +827,25 @@ class TestFetchJetstreamDataTask(TestCase):
             },
         )
 
-    @parameterized.expand(
-        [
-            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
-        ]
-    )
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_data_fetch_in_loop(self, lifecycle, mock_delay):
+    def test_data_fetch_in_loop(self, mock_delay):
+        lifecycle = NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
         tasks.fetch_jetstream_data()
         mock_delay.assert_called_once_with(experiment.id)
 
-    @parameterized.expand(
-        [
-            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,),
-        ]
-    )
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_data_fetch_live(self, lifecycle, mock_delay):
-        # continue to fetch data while LIVE, even after proposed end date
+    def test_data_fetch_live_continue_fetching_after_proposed_end(self, mock_delay):
+        lifecycle = NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, start_date=datetime.date(2020, 1, 1), proposed_enrollment=12
         )
         tasks.fetch_jetstream_data()
         mock_delay.assert_called_once_with(experiment.id)
 
-    @parameterized.expand(
-        [
-            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
-        ]
-    )
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_data_fetch_skip_old_complete(self, lifecycle, mock_delay):
-        # don't fetch COMPLETE experiment after proposed end date + buffer
+    def test_data_fetch_skip_old_complete(self, mock_delay):
+        lifecycle = NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, start_date=datetime.date(2020, 1, 1), proposed_enrollment=12
         )
@@ -869,14 +855,9 @@ class TestFetchJetstreamDataTask(TestCase):
         tasks.fetch_jetstream_data()
         mock_delay.assert_not_called()
 
-    @parameterized.expand(
-        [
-            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
-        ]
-    )
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_data_fetch_skip_preview(self, lifecycle, mock_delay):
-        # don't fetch PREVIEW experiments
+    def test_data_fetch_skip_preview(self, mock_delay):
+        lifecycle = NimbusExperimentFactory.Lifecycles.PREVIEW
         offset = NimbusConstants.DAYS_ANALYSIS_BUFFER + 1
         _ = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=offset)
@@ -884,13 +865,9 @@ class TestFetchJetstreamDataTask(TestCase):
         tasks.fetch_jetstream_data()
         mock_delay.assert_not_called()
 
-    @parameterized.expand(
-        [
-            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
-        ]
-    )
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_data_expired_in_loop(self, lifecycle, mock_delay):
+    def test_data_expired_in_loop(self, mock_delay):
+        lifecycle = NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         offset = NimbusConstants.DAYS_ANALYSIS_BUFFER + 1
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=offset)
@@ -909,13 +886,9 @@ class TestFetchJetstreamDataTask(TestCase):
         tasks.fetch_jetstream_data()
         mock_delay.assert_not_called()
 
-    @parameterized.expand(
-        [
-            (NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,),
-        ]
-    )
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_data_null_fetches(self, lifecycle, mock_delay):
+    def test_data_null_fetches(self, mock_delay):
+        lifecycle = NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
         offset = NimbusConstants.DAYS_ANALYSIS_BUFFER + 1
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=offset)
@@ -924,13 +897,9 @@ class TestFetchJetstreamDataTask(TestCase):
         tasks.fetch_jetstream_data()
         mock_delay.assert_called_once_with(experiment.id)
 
-    @parameterized.expand(
-        [
-            (NimbusExperimentFactory.Lifecycles.CREATED,),
-        ]
-    )
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_no_data_fetch_in_loop(self, lifecycle, mock_delay):
+    def test_no_data_fetch_in_loop(self, mock_delay):
+        lifecycle = NimbusExperimentFactory.Lifecycles.CREATED
         NimbusExperimentFactory.create_with_lifecycle(lifecycle)
         tasks.fetch_jetstream_data()
         mock_delay.assert_not_called()
