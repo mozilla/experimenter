@@ -212,15 +212,13 @@ class NimbusConfigurationDataClass:
     maxPrimaryOutcomes: int = NimbusExperiment.MAX_PRIMARY_OUTCOMES
 
     def __init__(self):
-        self.applications = self._enum_to_label_value(
-            NimbusExperiment.Application)
+        self.applications = self._enum_to_label_value(NimbusExperiment.Application)
         self.channels = self._enum_to_label_value(NimbusExperiment.Channel)
         self.applicationConfigs = self._get_application_configs()
         self.countries = self._geo_model_to_dataclass(
             Country.objects.all().order_by("name")
         )
-        self.locales = self._geo_model_to_dataclass(
-            Locale.objects.all().order_by("name"))
+        self.locales = self._geo_model_to_dataclass(Locale.objects.all().order_by("name"))
         self.languages = self._geo_model_to_dataclass(
             Language.objects.all().order_by("name")
         )
@@ -231,8 +229,7 @@ class NimbusConfigurationDataClass:
             NimbusExperiment.DocumentationLink
         )
         self.allFeatureConfigs = self._get_feature_configs()
-        self.firefoxVersions = self._enum_to_label_value(
-            NimbusExperiment.Version)
+        self.firefoxVersions = self._enum_to_label_value(NimbusExperiment.Version)
         self.outcomes = self._get_outcomes()
         self.owners = self._get_owners()
         self.targetingConfigs = self._get_targeting_configs()
@@ -264,8 +261,7 @@ class NimbusConfigurationDataClass:
                 ApplicationConfigDataClass(
                     application=application.name,
                     channels=[
-                        LabelValueDataClass(
-                            label=channel.label, value=channel.name)
+                        LabelValueDataClass(label=channel.label, value=channel.name)
                         for channel in NimbusExperiment.Channel
                         if channel in application_config.channel_app_id
                     ],
@@ -321,8 +317,7 @@ class NimbusConfigurationDataClass:
             OutcomeDataClass(
                 slug=outcome.slug,
                 friendlyName=outcome.friendly_name,
-                application=NimbusExperiment.Application(
-                    outcome.application).name,
+                application=NimbusExperiment.Application(outcome.application).name,
                 description=outcome.description,
                 isDefault=outcome.is_default,
                 metrics=[
@@ -343,8 +338,7 @@ class NimbusConfigurationSerializer(DataclassSerializer[NimbusConfigurationDataC
         dataclass = NimbusConfigurationDataClass
 
 
-_SerializerT = typing.TypeVar(
-    "_SerializerT", bound=serializers.ModelSerializer)
+_SerializerT = typing.TypeVar("_SerializerT", bound=serializers.ModelSerializer)
 
 
 class ExperimentNameValidatorMixin(typing.Generic[_SerializerT]):
@@ -352,8 +346,7 @@ class ExperimentNameValidatorMixin(typing.Generic[_SerializerT]):
 
     def validate_name(self, name):
         if not (self.instance or name):
-            raise serializers.ValidationError(
-                "Name is required to create an experiment")
+            raise serializers.ValidationError("Name is required to create an experiment")
 
         if name:
             slug = slugify(name)
@@ -377,10 +370,8 @@ class ExperimentNameValidatorMixin(typing.Generic[_SerializerT]):
 
 class NimbusBranchScreenshotSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False, allow_null=True)
-    description = serializers.CharField(
-        max_length=1024, required=False, allow_blank=True)
-    image = serializers.ImageField(
-        required=False, allow_null=True, allow_empty_file=True)
+    description = serializers.CharField(max_length=1024, required=False, allow_blank=True)
+    image = serializers.ImageField(required=False, allow_null=True, allow_empty_file=True)
 
     class Meta:
         model = NimbusBranchScreenshot
@@ -411,8 +402,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
     feature_value = serializers.CharField(
         required=False, allow_blank=True, write_only=True
     )
-    feature_values = NimbusBranchFeatureValueSerializer(
-        many=True, required=False)
+    feature_values = NimbusBranchFeatureValueSerializer(many=True, required=False)
 
     class Meta:
         model = NimbusBranch
@@ -495,8 +485,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
     def _save_screenshots(self, screenshots, branch):
         if screenshots is None:
             return
-        updated_screenshots = {
-            x["id"]: x for x in screenshots if x.get("id", None)}
+        updated_screenshots = {x["id"]: x for x in screenshots if x.get("id", None)}
         for screenshot in branch.screenshots.all():
             screenshot_id = screenshot.id
             if screenshot_id not in updated_screenshots:
@@ -547,14 +536,12 @@ class NimbusExperimentBranchMixin:
                 reference_branch = None
 
             try:
-                treatment_branches = getattr(
-                    self.instance, "treatment_branches")
+                treatment_branches = getattr(self.instance, "treatment_branches")
             except NimbusBranch.DoesNotExist:
                 treatment_branches = None
 
             ref_branch_name = data["reference_branch"]["name"]
-            treatment_branch_names = [b["name"]
-                                      for b in data["treatment_branches"]]
+            treatment_branch_names = [b["name"] for b in data["treatment_branches"]]
             all_names = [ref_branch_name, *treatment_branch_names]
             if len(all_names) != len(set(all_names)):
                 error = {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
@@ -633,8 +620,7 @@ class NimbusExperimentBranchMixin:
                 saved_branch_ids = set(
                     experiment.branches.all().values_list("id", flat=True)
                 )
-                updated_branch_ids = {b["id"]
-                                      for b in branches_data if b.get("id")}
+                updated_branch_ids = {b["id"] for b in branches_data if b.get("id")}
                 deleted_branch_ids = saved_branch_ids - updated_branch_ids
                 for deleted_branch_id in deleted_branch_ids:
                     NimbusBranch.objects.get(id=deleted_branch_id).delete()
@@ -708,8 +694,7 @@ class NimbusStatusValidationMixin:
             }
             for f in fields:
                 if update_exempt_fields[f] != []:
-                    exempt_fields = exempt_fields.union(
-                        update_exempt_fields[f])
+                    exempt_fields = exempt_fields.union(update_exempt_fields[f])
                 for status in restrictions:
                     restrictive_statuses = restrictive_statuses.union(
                         restrictions[status][f]
@@ -719,8 +704,7 @@ class NimbusStatusValidationMixin:
                 current_status = getattr(self.instance, "status")
                 is_locked = current_status not in restrictive_statuses
                 modifying_fields = set(data.keys()) - exempt_fields
-                is_modifying_locked_fields = set(
-                    data.keys()).issubset(modifying_fields)
+                is_modifying_locked_fields = set(data.keys()).issubset(modifying_fields)
 
                 if is_locked and is_modifying_locked_fields:
                     raise serializers.ValidationError(
@@ -794,13 +778,11 @@ class NimbusExperimentSerializer(
     public_description = serializers.CharField(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
-    is_enrollment_paused = serializers.BooleanField(
-        source="is_paused", required=False)
+    is_enrollment_paused = serializers.BooleanField(source="is_paused", required=False)
     risk_mitigation_link = serializers.URLField(
         min_length=0, max_length=255, required=False, allow_blank=True
     )
-    documentation_links = NimbusDocumentationLinkSerializer(
-        many=True, required=False)
+    documentation_links = NimbusDocumentationLinkSerializer(many=True, required=False)
     hypothesis = serializers.CharField(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
@@ -940,8 +922,7 @@ class NimbusExperimentSerializer(
             )
         )
         self.should_call_push_task = (
-            data and data.get(
-                "publish_status") == NimbusExperiment.PublishStatus.APPROVED
+            data and data.get("publish_status") == NimbusExperiment.PublishStatus.APPROVED
         )
         super().__init__(instance=instance, data=data, **kwargs)
 
@@ -1027,8 +1008,7 @@ class NimbusExperimentSerializer(
             self.instance.status, ()
         )
         if value not in valid_status_next:
-            choices_str = ", ".join(str(choice)
-                                    for choice in valid_status_next)
+            choices_str = ", ".join(str(choice) for choice in valid_status_next)
             raise serializers.ValidationError(
                 f"Invalid choice for status_next: '{value}' - with status "
                 f"'{self.instance.status}', the only valid choices are "
@@ -1064,8 +1044,7 @@ class NimbusExperimentSerializer(
 
         if self.instance and "targeting_config_slug" in data:
             targeting_config_slug = data["targeting_config_slug"]
-            application_choice = NimbusExperiment.Application(
-                self.instance.application)
+            application_choice = NimbusExperiment.Application(self.instance.application)
             targeting_config = NimbusExperiment.TARGETING_CONFIGS[targeting_config_slug]
             if application_choice.name not in targeting_config.application_choice_names:
                 raise serializers.ValidationError(
@@ -1142,8 +1121,7 @@ class NimbusExperimentSerializer(
                 experiment.allocate_bucket_range()
 
             if self.should_call_preview_task:
-                nimbus_synchronize_preview_experiments_in_kinto.apply_async(
-                    countdown=5)
+                nimbus_synchronize_preview_experiments_in_kinto.apply_async(countdown=5)
 
             if self.should_call_push_task:
                 collection = experiment.application_config.kinto_collection
@@ -1219,8 +1197,7 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
             try:
                 json.loads(value)
             except Exception as e:
-                raise serializers.ValidationError(
-                    f"Invalid JSON: {e.msg}") from e
+                raise serializers.ValidationError(f"Invalid JSON: {e.msg}") from e
         return value
 
     def validate(self, data):
@@ -1233,37 +1210,31 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
         # so we check that there's more than 1 feature or return early
         # This check can be removed with #6744
         branch_feature_value_id = data.get("id")
-        branch_feature_value = self.Meta.model.objects.get(
-            id=branch_feature_value_id)
+        branch_feature_value = self.Meta.model.objects.get(id=branch_feature_value_id)
         if branch_feature_value.branch.experiment.feature_configs.count() <= 1:
             return data
 
         if all([branch, feature_config, value]) and feature_config.schema:
             json_value = json.loads(value)
             try:
-                jsonschema.validate(
-                    json_value, json.loads(feature_config.schema))
+                jsonschema.validate(json_value, json.loads(feature_config.schema))
             except jsonschema.ValidationError as e:
                 if not branch.experiment.warn_feature_schema:
-                    raise serializers.ValidationError(
-                        {"value": e.message}) from e
+                    raise serializers.ValidationError({"value": e.message}) from e
 
         return data
 
 
 class NimbusBranchReviewSerializer(NimbusBranchSerializer):
-    feature_values = NimbusBranchFeatureValueReviewSerializer(
-        many=True, required=True)
-    screenshots = NimbusBranchScreenshotReviewSerializer(
-        many=True, required=False)
+    feature_values = NimbusBranchFeatureValueReviewSerializer(many=True, required=True)
+    screenshots = NimbusBranchScreenshotReviewSerializer(many=True, required=False)
 
     def validate_feature_value(self, value):
         if value:
             try:
                 json.loads(value)
             except Exception as e:
-                raise serializers.ValidationError(
-                    f"Invalid JSON: {e.msg}") from e
+                raise serializers.ValidationError(f"Invalid JSON: {e.msg}") from e
         else:
             raise serializers.ValidationError("This field may not be blank.")
         return value
@@ -1279,11 +1250,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         min_value=0.00009,
         max_value=100.0,
         required=True,
-        error_messages={
-            "min_value": NimbusConstants.ERROR_POPULATION_PERCENT_MIN},
+        error_messages={"min_value": NimbusConstants.ERROR_POPULATION_PERCENT_MIN},
     )
-    total_enrolled_clients = serializers.IntegerField(
-        required=True, min_value=1)
+    total_enrolled_clients = serializers.IntegerField(required=True, min_value=1)
     firefox_min_version = serializers.ChoiceField(
         NimbusExperiment.Version.choices, required=True
     )
@@ -1307,8 +1276,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         queryset=NimbusFeatureConfig.objects.all(),
         many=True,
         allow_empty=False,
-        error_messages={
-            "empty": NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG},
+        error_messages={"empty": NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG},
     )
     primary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
@@ -1373,15 +1341,13 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
     def validate_hypothesis(self, value):
         if value == NimbusExperiment.HYPOTHESIS_DEFAULT.strip():
-            raise serializers.ValidationError(
-                "Hypothesis cannot be the default value.")
+            raise serializers.ValidationError("Hypothesis cannot be the default value.")
         return value
 
     def _validate_feature_value_against_schema(self, schema, value):
         json_value = json.loads(value)
         try:
-            jsonschema.validate(json_value, schema,
-                                resolver=NestedRefResolver(schema))
+            jsonschema.validate(json_value, schema, resolver=NestedRefResolver(schema))
         except jsonschema.ValidationError as exc:
             return [exc.message]
 
@@ -1535,8 +1501,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         if not self.instance or not self.instance.is_rollout:
             return data
 
-        min_version = NimbusExperiment.Version.parse(
-            self.instance.firefox_min_version)
+        min_version = NimbusExperiment.Version.parse(self.instance.firefox_min_version)
         rollout_version_supported = NimbusExperiment.ROLLOUT_SUPPORT_VERSION.get(
             self.instance.application
         )
@@ -1579,8 +1544,7 @@ class NimbusExperimentCloneSerializer(
         slug_field="slug", queryset=NimbusExperiment.objects.all()
     )
     name = serializers.CharField(min_length=1, max_length=80, required=True)
-    rollout_branch_slug = serializers.CharField(
-        required=False, allow_null=True)
+    rollout_branch_slug = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         model = NimbusExperiment
