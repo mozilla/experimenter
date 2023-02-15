@@ -28,6 +28,12 @@ FEATURE_SCHEMA_TYPES = {
     FeatureVariableType.BOOLEAN: "boolean",
 }
 
+FEATURE_PYTHON_TYPES = {
+    FeatureVariableType.INT: int,
+    FeatureVariableType.STRING: str,
+    FeatureVariableType.BOOLEAN: bool,
+}
+
 
 class FeatureVariable(BaseModel):
     description: Optional[str]
@@ -78,7 +84,8 @@ class Feature(BaseModel):
                     variable_schema["type"] = FEATURE_SCHEMA_TYPES[variable.type]
 
                 if variable.enum:
-                    variable_schema["enum"] = variable.enum
+                    python_type = FEATURE_PYTHON_TYPES[variable.type]
+                    variable_schema["enum"] = [python_type(e) for e in variable.enum]
 
                 schema["properties"][variable_slug] = variable_schema
 

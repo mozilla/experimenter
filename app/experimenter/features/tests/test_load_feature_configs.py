@@ -16,6 +16,8 @@ from experimenter.features.tests import (
 
 @mock_valid_features
 class TestLoadFeatureConfigs(TestCase):
+    maxDiff = None
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -45,7 +47,11 @@ class TestLoadFeatureConfigs(TestCase):
                         "description": "Boolean Property",
                         "type": "boolean",
                     },
-                    "intProperty": {"description": "Integer Property", "type": "integer"},
+                    "intProperty": {
+                        "description": "Integer Property",
+                        "type": "integer",
+                        "enum": [1, 2, 3],
+                    },
                     "jsonProperty": {"description": "Arbitrary JSON Property"},
                 },
                 "additionalProperties": False,
@@ -94,7 +100,11 @@ class TestLoadFeatureConfigs(TestCase):
                         "description": "Boolean Property",
                         "type": "boolean",
                     },
-                    "intProperty": {"description": "Integer Property", "type": "integer"},
+                    "intProperty": {
+                        "description": "Integer Property",
+                        "type": "integer",
+                        "enum": [1, 2, 3],
+                    },
                     "jsonProperty": {"description": "Arbitrary JSON Property"},
                 },
                 "additionalProperties": False,
