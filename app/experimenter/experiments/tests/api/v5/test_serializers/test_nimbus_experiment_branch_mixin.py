@@ -1,4 +1,5 @@
 from django.test import TestCase
+from experimenter.experiments.tests.factories import NimbusBranchFactory
 
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.constants import NimbusConstants
@@ -251,43 +252,47 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         )
         experiment.delete_branches()
 
-        reference_branch = {"name": "control", "description": "a control", "ratio": 1}
-        treatment_branches = [
-            {"name": "treatment", "description": "desc1", "ratio": 1},
-            {"name": "treatment b", "description": "desc1", "ratio": 1},
-        ]
-
-        data = {
-            "feature_config": None,
-            "reference_branch": reference_branch,
-            "treatment_branches": treatment_branches,
-            "changelog_message": "test changelog message",
-        }
-        serializer = NimbusExperimentSerializer(
-            experiment, data=data, partial=True, context={"user": self.user}
+        reference = NimbusBranchFactory.create(
+            experiment=experiment,
+            name="control",
         )
-        self.assertTrue(serializer.is_valid())
-        serializer.save()
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.branches.count(), 3)
-        self.assertEqual(experiment.reference_branch.name, reference_branch["name"])
-        treatment_branch = experiment.treatment_branches[0]
-        self.assertEqual(treatment_branch.name, treatment_branches[0]["name"])
+        experiment.reference_branch = reference
+        experiment.save()
 
-        swap_reference_branch = {
-            "name": "treatment",
-            "description": "a control",
-            "ratio": 1,
+        treatment1 = NimbusBranchFactory.create(
+            experiment=experiment,
+            name="treatment 1",
+        )
+        treatment2 = NimbusBranchFactory.create(
+            experiment=experiment,
+            name="treatment 2",
+        )
+
+        reference_branch_data = {
+            "id": reference.id,
+            "name": treatment1.name,
+            "description": reference.description,
+            "ratio": reference.ratio,
         }
-        swap_treatment_branches = [
-            {"name": "control", "description": "desc1", "ratio": 1},
-            {"name": "treatment b", "description": "desc1", "ratio": 1},
+        treatment_branches_data = [
+            {
+                "id": treatment1.id,
+                "name": reference.name,
+                "description": treatment1.description,
+                "ratio": treatment1.ratio,
+            },
+            {
+                "id": treatment2.id,
+                "name": treatment2.name,
+                "description": treatment2.description,
+                "ratio": treatment2.ratio,
+            },
         ]
 
         data = {
             "feature_config": None,
-            "reference_branch": swap_reference_branch,
-            "treatment_branches": swap_treatment_branches,
+            "reference_branch": reference_branch_data,
+            "treatment_branches": treatment_branches_data,
             "changelog_message": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(
@@ -308,43 +313,47 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         )
         experiment.delete_branches()
 
-        reference_branch = {"name": "control", "description": "a control", "ratio": 1}
-        treatment_branches = [
-            {"name": "treatment", "description": "desc1", "ratio": 1},
-            {"name": "treatment b", "description": "desc1", "ratio": 1},
-        ]
-
-        data = {
-            "feature_config": None,
-            "reference_branch": reference_branch,
-            "treatment_branches": treatment_branches,
-            "changelog_message": "test changelog message",
-        }
-        serializer = NimbusExperimentSerializer(
-            experiment, data=data, partial=True, context={"user": self.user}
+        reference = NimbusBranchFactory.create(
+            experiment=experiment,
+            name="control",
         )
-        self.assertTrue(serializer.is_valid())
-        serializer.save()
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.branches.count(), 3)
-        self.assertEqual(experiment.reference_branch.name, reference_branch["name"])
-        treatment_branch = experiment.treatment_branches[0]
-        self.assertEqual(treatment_branch.name, treatment_branches[0]["name"])
+        experiment.reference_branch = reference
+        experiment.save()
 
-        swap_reference_branch = {
-            "name": "treatment b",
-            "description": "a control",
-            "ratio": 1,
+        treatment1 = NimbusBranchFactory.create(
+            experiment=experiment,
+            name="treatment 1",
+        )
+        treatment2 = NimbusBranchFactory.create(
+            experiment=experiment,
+            name="treatment 2",
+        )
+
+        reference_branch_data = {
+            "id": reference.id,
+            "name": treatment2.name,
+            "description": reference.description,
+            "ratio": reference.ratio,
         }
-        swap_treatment_branches = [
-            {"name": "treatment", "description": "desc1", "ratio": 1},
-            {"name": "control", "description": "desc1", "ratio": 1},
+        treatment_branches_data = [
+            {
+                "id": treatment1.id,
+                "name": treatment1.name,
+                "description": treatment1.description,
+                "ratio": treatment1.ratio,
+            },
+            {
+                "id": treatment2.id,
+                "name": reference.name,
+                "description": treatment2.description,
+                "ratio": treatment2.ratio,
+            },
         ]
 
         data = {
             "feature_config": None,
-            "reference_branch": swap_reference_branch,
-            "treatment_branches": swap_treatment_branches,
+            "reference_branch": reference_branch_data,
+            "treatment_branches": treatment_branches_data,
             "changelog_message": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(
@@ -365,38 +374,47 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         )
         experiment.delete_branches()
 
-        reference_branch = {"name": "control", "description": "a control", "ratio": 1}
-        treatment_branches = [
-            {"name": "treatment", "description": "desc1", "ratio": 1},
-            {"name": "treatment b", "description": "desc2", "ratio": 1},
-        ]
-
-        data = {
-            "feature_config": None,
-            "reference_branch": reference_branch,
-            "treatment_branches": treatment_branches,
-            "changelog_message": "test changelog message",
-        }
-        serializer = NimbusExperimentSerializer(
-            experiment, data=data, partial=True, context={"user": self.user}
+        reference = NimbusBranchFactory.create(
+            experiment=experiment,
+            name="control",
         )
-        self.assertTrue(serializer.is_valid())
-        serializer.save()
-        experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.branches.count(), 3)
-        self.assertEqual(experiment.reference_branch.name, reference_branch["name"])
-        treatment_branch = experiment.treatment_branches[0]
-        self.assertEqual(treatment_branch.name, treatment_branches[0]["name"])
+        experiment.reference_branch = reference
+        experiment.save()
 
-        swap_treatment_branches = [
-            {"name": "treatment b", "description": "desc1", "ratio": 1},
-            {"name": "treatment", "description": "desc2", "ratio": 1},
+        treatment1 = NimbusBranchFactory.create(
+            experiment=experiment,
+            name="treatment 1",
+        )
+        treatment2 = NimbusBranchFactory.create(
+            experiment=experiment,
+            name="treatment 2",
+        )
+
+        reference_branch_data = {
+            "id": reference.id,
+            "name": reference.name,
+            "description": reference.description,
+            "ratio": reference.ratio,
+        }
+        treatment_branches_data = [
+            {
+                "id": treatment1.id,
+                "name": treatment2.name,
+                "description": treatment1.description,
+                "ratio": treatment1.ratio,
+            },
+            {
+                "id": treatment2.id,
+                "name": treatment1.name,
+                "description": treatment2.description,
+                "ratio": treatment2.ratio,
+            },
         ]
 
         data = {
             "feature_config": None,
-            "reference_branch": reference_branch,
-            "treatment_branches": swap_treatment_branches,
+            "reference_branch": reference_branch_data,
+            "treatment_branches": treatment_branches_data,
             "changelog_message": "test changelog message",
         }
         serializer = NimbusExperimentSerializer(
