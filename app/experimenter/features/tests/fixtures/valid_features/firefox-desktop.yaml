@@ -16,6 +16,10 @@ someFeature:
     intProperty:
       type: int
       description: Integer Property
+      enum:
+        - 1
+        - 2
+        - 3
     jsonProperty:
       type: json
       description: Arbitrary JSON Property

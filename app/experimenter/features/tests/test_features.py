@@ -52,6 +52,7 @@ class TestFeatures(TestCase):
                     ),
                     "intProperty": FeatureVariable(
                         description="Integer Property",
+                        enum=[1, 2, 3],
                         type="int",
                     ),
                     "jsonProperty": FeatureVariable(
@@ -105,6 +106,7 @@ class TestFeatures(TestCase):
                     "intProperty": FeatureVariable(
                         description="Integer Property",
                         type="int",
+                        enum=[1, 2, 3],
                     ),
                     "jsonProperty": FeatureVariable(
                         description="Arbitrary JSON Property",
@@ -131,7 +133,11 @@ class TestFeatures(TestCase):
                         "description": "Boolean Property",
                         "type": "boolean",
                     },
-                    "intProperty": {"description": "Integer Property", "type": "integer"},
+                    "intProperty": {
+                        "description": "Integer Property",
+                        "type": "integer",
+                        "enum": [1, 2, 3],
+                    },
                     "jsonProperty": {"description": "Arbitrary JSON Property"},
                 },
                 "additionalProperties": False,
