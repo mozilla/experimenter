@@ -220,7 +220,7 @@ def default_data(application, experiment_name, load_experiment_outcomes):
         metrics=outcomes[str(application).lower().rsplit(".")[-1]],
         audience=BaseExperimentAudienceDataClass(
             channel=BaseExperimentAudienceChannels.RELEASE,
-            min_version=102,
+            min_version=106,
             targeting="test_targeting",
             percentage="50",
             expected_clients=50,
@@ -228,12 +228,13 @@ def default_data(application, experiment_name, load_experiment_outcomes):
             countries=None,
             languages=None,
         ),
+        is_rollout=False,
     )
 
 
 @pytest.fixture
 def create_experiment(base_url, default_data):
-    def _create_experiment(selenium):
+    def _create_experiment(selenium, is_rollout=False):
         home = HomePage(selenium, base_url).open()
         experiment = home.create_new_button()
         experiment.public_name = default_data.public_name
@@ -259,9 +260,13 @@ def create_experiment(base_url, default_data):
         branches = overview.save_and_continue()
         branches.feature_config = default_data.feature_config_id
         branches.reference_branch_description = default_data.branches[0].description
-        branches.treatment_branch_description = default_data.branches[1].description
         branches.reference_branch_value = "{}"
-        branches.treatment_branch_value = "{}"
+
+        if is_rollout:
+            branches.make_rollout()
+        else:
+            branches.treatment_branch_description = default_data.branches[1].description
+            branches.treatment_branch_value = "{}"
 
         # Fill Metrics page
         metrics = branches.save_and_continue()
