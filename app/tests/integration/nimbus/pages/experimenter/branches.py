@@ -30,6 +30,7 @@ class BranchesPage(ExperimenterBase):
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
     _feature_select_locator = (By.CSS_SELECTOR, '[data-testid="feature-config-select"]')
     _add_screenshot_buttons_locator = (By.CSS_SELECTOR, '[data-testid="add-screenshot"]')
+    _rollout_checkbox_locator = (By.CSS_SELECTOR, '[data-testid="is-rollout-checkbox"]')
     NEXT_PAGE = MetricsPage
     PAGE_TITLE = "Edit Branches Page"
 
@@ -123,6 +124,17 @@ class BranchesPage(ExperimenterBase):
         )
         select = Select(el)
         select.select_by_value(feature_config_id)
+
+    @property
+    def is_rollout(self):
+        return self.wait_for_and_find_element(
+            self._rollout_checkbox_locator, "is rollout"
+        )
+
+    def make_rollout(self):
+        self.wait_for_and_find_element(
+            self._rollout_checkbox_locator, "is_rollout"
+        ).click()
 
     @property
     def add_screenshot_buttons(self):
