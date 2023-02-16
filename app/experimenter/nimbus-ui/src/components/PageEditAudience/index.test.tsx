@@ -11,23 +11,32 @@ import PageEditAudience from "src/components/PageEditAudience";
 import FormAudience from "src/components/PageEditAudience/FormAudience";
 import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
-import { mockExperimentQuery } from "src/lib/mocks";
+import { mockExperimentQuery, mockLiveRolloutQuery } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
 import {
   ExperimentInput,
   NimbusExperimentChannelEnum,
   NimbusExperimentFirefoxVersionEnum,
+  NimbusExperimentPublishStatusEnum,
+  NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
 import { updateExperiment_updateExperiment } from "src/types/updateExperiment";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
+const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug-1");
 
 let mockSubmitData: Partial<ExperimentInput>;
 let mutationMock: ReturnType<typeof mockUpdateExperimentAudienceMutation>;
 
+let mockRolloutSubmitData: Partial<ExperimentInput>;
+let rolloutMutationMock: ReturnType<
+  typeof mockUpdateExperimentAudienceMutation
+>;
+
 describe("PageEditAudience", () => {
   beforeAll(() => {
     fetchMock.enableMocks();
+    mockRolloutSubmitData = { ...MOCK_ROLLOUT_FORM_DATA };
   });
 
   afterAll(() => {
@@ -44,6 +53,15 @@ describe("PageEditAudience", () => {
       },
       {},
     );
+
+    rolloutMutationMock = mockUpdateExperimentAudienceMutation(
+      {
+        ...mockRolloutSubmitData,
+        id: rollout.id,
+        changelogMessage: CHANGELOG_MESSAGES.UPDATED_AUDIENCE,
+      },
+      {},
+    );
   });
 
   it("renders as expected", async () => {
@@ -55,10 +73,34 @@ describe("PageEditAudience", () => {
     render(<Subject mocks={[mock, mutationMock]} />);
     await screen.findByTestId("PageEditAudience");
     fireEvent.click(screen.getByTestId("next"));
+    expect(experiment.status).toEqual(NimbusExperimentStatusEnum.DRAFT);
     await waitFor(() => {
       expect(mockSubmit).toHaveBeenCalled();
       expect(navigate).toHaveBeenCalledWith("../");
     });
+  });
+
+  it("handles form next button for live updates", async () => {
+    render(<Subject mocks={[mockRollout, rolloutMutationMock]} />);
+    await screen.findByTestId("PageEditAudience");
+    fireEvent.click(screen.getByTestId("next"));
+    expect(rollout.status).toEqual(NimbusExperimentStatusEnum.LIVE);
+    await waitFor(() => {
+      expect(mockSubmit).toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith("summary");
+    });
+  });
+
+  it("handles save button for live updates", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      isRollout: true,
+    });
+    render(<Subject mocks={[mockRollout, rolloutMutationMock]} />);
+    await screen.findByTestId("PageEditAudience");
+    fireEvent.click(screen.getByTestId("submit"));
+    await waitFor(() => expect(mockSubmit).toHaveBeenCalled());
   });
 
   it("handles form submission", async () => {
@@ -98,6 +140,22 @@ describe("PageEditAudience", () => {
 });
 
 const MOCK_FORM_DATA = {
+  channel: NimbusExperimentChannelEnum.NIGHTLY,
+  firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_83,
+  firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_95,
+  targetingConfigSlug: "FIRST_RUN",
+  populationPercent: "40",
+  totalEnrolledClients: 68000,
+  proposedEnrollment: "7",
+  proposedDuration: "28",
+  countries: ["1"],
+  locales: ["1"],
+  languages: ["1"],
+  isSticky: true,
+  isFirstRun: true,
+};
+
+const MOCK_ROLLOUT_FORM_DATA = {
   channel: NimbusExperimentChannelEnum.NIGHTLY,
   firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_83,
   firefoxMaxVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_95,

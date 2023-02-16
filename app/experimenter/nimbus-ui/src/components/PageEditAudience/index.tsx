@@ -10,7 +10,7 @@ import FormAudience from "src/components/PageEditAudience/FormAudience";
 import { UPDATE_EXPERIMENT_MUTATION } from "src/gql/experiments";
 import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
 import { ExperimentContext } from "src/lib/contexts";
-import { editCommonRedirects } from "src/lib/experiment";
+import { editCommonRedirects, getStatus } from "src/lib/experiment";
 import {
   updateExperiment,
   updateExperimentVariables,
@@ -89,7 +89,11 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
           refetch();
 
           if (next) {
-            navigate("../");
+            if (getStatus(experiment).live) {
+              navigate("summary");
+            } else {
+              navigate("../");
+            }
           }
         }
       } catch (error) {

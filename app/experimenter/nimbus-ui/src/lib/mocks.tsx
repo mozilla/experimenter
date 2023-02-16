@@ -829,6 +829,7 @@ export const mockGetStatus = (
       | "statusNext"
       | "isEnrollmentPausePending"
       | "isArchived"
+      | "isRollout"
     >
   >,
 ) => {
