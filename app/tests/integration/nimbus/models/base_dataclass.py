@@ -52,3 +52,4 @@ class BaseExperimentDataClass:
     metrics: BaseExperimentMetricsDataClass
     audience: BaseExperimentAudienceDataClass
     feature_config_id: str
+    is_rollout: bool
