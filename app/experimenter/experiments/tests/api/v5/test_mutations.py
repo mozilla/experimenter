@@ -433,7 +433,7 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertTrue(experiment.is_rollout)
         self.assertEqual(experiment.population_percent, 50.0)
-        self.assertEqual(experiment.publish_status, NimbusConstants.PublishStatus.IDLE)
+        self.assertEqual(experiment.publish_status, NimbusConstants.PublishStatus.DIRTY)
         self.assertEqual(experiment.status, NimbusConstants.Status.LIVE)
         self.assertEqual(experiment.status_next, None)
 
