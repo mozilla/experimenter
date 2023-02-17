@@ -38,7 +38,7 @@ const FormApproveOrReject = ({
           </p>
         </Alert>
       )}
-      <Alert variant="secondary">
+      <Alert variant="secondary" data-testid="review-request-alert">
         <Form className="text-body">
           <p>
             <strong>{reviewRequestEvent!.changedBy!.email}</strong> requested to{" "}
