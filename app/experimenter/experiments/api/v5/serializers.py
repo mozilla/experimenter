@@ -1038,11 +1038,9 @@ class NimbusExperimentSerializer(
             and experiment.publish_status == NimbusExperiment.PublishStatus.IDLE
             and validated_data.get("publish_status")
             != NimbusConstants.PublishStatus.REVIEW
-            and validated_data.get("publish_status")
-            != NimbusConstants.PublishStatus.DIRTY
         ):
             # can be Live Update (Dirty), End Enrollment, or End Experiment
-            # if we don't check validated_data["publish_status"]
+            # (including rejections) if we don't check validated_data
             validated_data["publish_status"] = NimbusConstants.PublishStatus.DIRTY
 
         self.changelog_message = validated_data.pop("changelog_message")

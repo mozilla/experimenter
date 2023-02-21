@@ -6,6 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
 from graphene_file_upload.django.testing import GraphQLFileUploadTestCase
+from parameterized import parameterized
 
 from experimenter.base.tests.factories import (
     CountryFactory,
@@ -436,6 +437,51 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(experiment.publish_status, NimbusConstants.PublishStatus.DIRTY)
         self.assertEqual(experiment.status, NimbusConstants.Status.LIVE)
         self.assertEqual(experiment.status_next, None)
+
+    @parameterized.expand(
+        [
+            [True, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING],
+            [True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_REJECT],
+            [True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_TIMEOUT],
+            [True, NimbusExperimentFactory.Lifecycles.LIVE_REJECT_MANUAL_ROLLBACK],
+            [True, NimbusExperimentFactory.Lifecycles.LIVE_DIRTY],
+            [True, NimbusExperimentFactory.Lifecycles.LIVE_REJECT],
+            [True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE],
+            [True, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING],
+            [True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE],
+            [False, NimbusExperimentFactory.Lifecycles.LIVE_PAUSED],
+            [False, NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED],
+            [False, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE],
+        ]
+    )
+    def test_update_rollout_is_dirty(self, is_dirty_expected, lifecycle):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=lifecycle,
+            application=NimbusExperiment.Application.FENIX,
+            is_rollout=True,
+            population_percent=40,
+        )
+        experiment_id = experiment.id
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "populationPercent": "50",
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        self.assertEqual(experiment.population_percent, 50.0)
+        self.assertEqual(
+            experiment.publish_status == NimbusConstants.PublishStatus.DIRTY,
+            is_dirty_expected,
+        )
 
     def test_do_not_update_live_experiment(self):
         user_email = "user@example.com"
