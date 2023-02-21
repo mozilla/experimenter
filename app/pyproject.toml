@@ -64,7 +64,7 @@ sentry-sdk = "^1.9.0"
 djangorestframework-dataclasses = "^1.2.0"
 graphene-django = "^3.0.0"
 pyright = "^1.1.291"
-django-types = "^0.16.0"
+django-types = "^0.17.0"
 ruff = "^0.0.239"
 
 [tool.poetry.dev-dependencies]
