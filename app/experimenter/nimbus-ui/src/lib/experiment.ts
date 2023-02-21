@@ -19,6 +19,7 @@ export function getStatus(
     statusNext,
     publishStatus,
     isEnrollmentPausePending,
+    isEnrollmentPaused,
     isArchived,
     isRollout,
   } = experiment || {};

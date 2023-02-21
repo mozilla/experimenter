@@ -10,6 +10,7 @@ import {
   mockChangelog,
   mockExperimentMutation,
   mockExperimentQuery,
+  mockLiveRolloutQuery,
   mockRejectionChangelog,
 } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
@@ -19,6 +20,7 @@ import {
 } from "src/types/globalTypes";
 
 export const { mock, experiment } = mockExperimentQuery("demo-slug");
+export const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug-1");
 
 export function createStatusMutationMock(
   id: number,
