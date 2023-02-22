@@ -840,6 +840,9 @@ class TestFetchJetstreamDataTask(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, start_date=datetime.date(2020, 1, 1), proposed_enrollment=12
         )
+        experiment.results_data = {}
+        experiment.save()
+
         tasks.fetch_jetstream_data()
         mock_delay.assert_called_once_with(experiment.id)
 
