@@ -318,8 +318,6 @@ class TestNimbusExperimentSerializer(TestCase):
             feature_configs=[],
         )
         experiment.branches.all().delete()
-        experiment.reference_branch = None
-        experiment.save()
 
         data = {
             "feature_configs": [feature_config.id],
@@ -378,8 +376,6 @@ class TestNimbusExperimentSerializer(TestCase):
             feature_configs=[],
         )
         experiment.branches.all().delete()
-        experiment.reference_branch = None
-        experiment.save()
 
         data = {
             "feature_configs": [feature1.id, feature2.id],
