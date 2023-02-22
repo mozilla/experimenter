@@ -2,11 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import React from "react";
 import { createMutationMock, Subject } from "src/components/Summary/mocks";
 import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
-import { mockExperimentQuery } from "src/lib/mocks";
+import { mockExperimentQuery, mockLiveRolloutQuery } from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
@@ -317,5 +323,31 @@ describe("Summary", () => {
       const errorContainer = await screen.findByTestId("submit-error");
       expect(errorContainer).toHaveTextContent(errorMessage);
     });
+  });
+
+  it("handles dirty Live to Review as expected", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      statusNext: null,
+    });
+
+    const mutationMock = createMutationMock(
+      rollout.id!,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+      {
+        changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+        statusNext: null,
+        publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        status: NimbusExperimentStatusEnum.LIVE,
+      },
+    );
+    render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
+
+    const requestUpdateButton = await screen.findByTestId(
+      "request-live-update-alert",
+    );
+    expect(requestUpdateButton).toBeEnabled();
+    await act(async () => void fireEvent.click(requestUpdateButton));
   });
 });

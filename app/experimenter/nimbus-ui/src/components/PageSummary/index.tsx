@@ -13,7 +13,6 @@ import Head from "src/components/Head";
 import FormLaunchDraftToPreview from "src/components/PageSummary/FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "src/components/PageSummary/FormLaunchDraftToReview";
 import FormLaunchPreviewToReview from "src/components/PageSummary/FormLaunchPreviewToReview";
-import RequestLiveUpdate from "src/components/PageSummary/RequestLiveUpdate";
 import Summary from "src/components/Summary";
 import SummaryTimeline from "src/components/Summary/SummaryTimeline";
 import { useChangeOperationMutation, useReviewCheck } from "src/hooks";
@@ -55,7 +54,6 @@ const PageSummary = (props: RouteComponentProps) => {
       onEndReviewRejectedClicked,
       onPauseReviewApprovedClicked,
       onPauseReviewRejectedClicked,
-      onUpdateClicked,
       onUpdateReviewApprovedClicked,
       onUpdateReviewRejectedClicked,
     ],
@@ -110,12 +108,6 @@ const PageSummary = (props: RouteComponentProps) => {
       statusNext: null,
       isEnrollmentPaused: false,
       publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
-    },
-    {
-      status: NimbusExperimentStatusEnum.LIVE,
-      statusNext: NimbusExperimentStatusEnum.LIVE,
-      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
-      changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
     },
     {
       status: NimbusExperimentStatusEnum.LIVE,
@@ -283,15 +275,6 @@ const PageSummary = (props: RouteComponentProps) => {
               isLoading,
               onSubmit: onLaunchClicked,
               onBackToDraft: onBackToDraftClicked,
-            }}
-          />
-        )}
-
-        {status.live && status.dirty && (
-          <RequestLiveUpdate
-            {...{
-              isLoading,
-              onSubmit: onUpdateClicked,
             }}
           />
         )}
