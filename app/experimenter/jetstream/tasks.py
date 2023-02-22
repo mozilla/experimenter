@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 
 import markus
 from celery.utils.log import get_task_logger
@@ -32,31 +32,30 @@ def fetch_experiment_data(experiment_id):
 def fetch_jetstream_data():
     metrics.incr("fetch_jetstream_data.started")
     try:
-        for experiment in NimbusExperiment.objects.all().exclude(
-            status__in=[NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.PREVIEW]
+        for experiment in NimbusExperiment.objects.filter(
+            status__in=[NimbusExperiment.Status.COMPLETE, NimbusExperiment.Status.LIVE]
         ):
             if (
-                experiment.status != NimbusExperiment.Status.LIVE  # always fetch LIVE
-                and experiment.results_data is not None
-                and experiment.computed_end_date
-                and (
+                experiment.status == NimbusExperiment.Status.LIVE
+                or experiment.results_data is None
+                or (
                     experiment.computed_end_date
-                    + datetime.timedelta(days=NimbusConstants.DAYS_ANALYSIS_BUFFER)
+                    and (
+                        experiment.computed_end_date
+                        + dt.timedelta(days=NimbusConstants.DAYS_ANALYSIS_BUFFER)
+                    )
+                    >= dt.date.today()
                 )
-                < datetime.date.today()
             ):
+                logger.info(f"Fetching Jetstream data for {experiment.name}")
+                fetch_experiment_data.delay(experiment.id)
+                metrics.incr("fetch_jetstream_data.completed")
+            else:
                 metrics.incr("fetch_jetstream_data.skipped")
                 logger.info(
-                    "Skipping cache refresh for old experiment {name}".format(
-                        name=experiment.name
-                    )
+                    f"Skipping cache refresh for old experiment {experiment.name}"
                 )
 
-                continue
-
-            logger.info("Fetching Jetstream data for {name}".format(name=experiment.name))
-            fetch_experiment_data.delay(experiment.id)
-            metrics.incr("fetch_jetstream_data.completed")
     except Exception as e:
         metrics.incr("fetch_jetstream_data.failed")
         logger.info(f"Fetching Jetstream data failed: {e}")
