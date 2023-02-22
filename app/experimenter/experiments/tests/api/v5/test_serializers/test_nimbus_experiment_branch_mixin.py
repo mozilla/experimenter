@@ -304,6 +304,10 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             serializer.errors,
             {
                 "reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP},
+                "treatment_branches": [
+                    {"name": NimbusConstants.ERROR_BRANCH_SWAP}
+                    for _ in (data.get("treatment_branches", []) or [])
+                ],
             },
         )
 
@@ -365,6 +369,10 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             serializer.errors,
             {
                 "reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP},
+                "treatment_branches": [
+                    {"name": NimbusConstants.ERROR_BRANCH_SWAP}
+                    for _ in (data.get("treatment_branches", []) or [])
+                ],
             },
         )
 
@@ -425,6 +433,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         self.assertEqual(
             serializer.errors,
             {
+                "reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP},
                 "treatment_branches": [
                     {"name": NimbusConstants.ERROR_BRANCH_SWAP}
                     for _ in (data.get("treatment_branches", []) or [])

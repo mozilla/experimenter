@@ -526,20 +526,11 @@ class NimbusExperimentBranchMixin:
     def validate(self, data):
         data = super().validate(data)
         data = self._validate_duplicate_branch_names(data)
+        data = self._validate_swapped_branch_names(data)
         return data
 
     def _validate_duplicate_branch_names(self, data):
         if "reference_branch" in data and "treatment_branches" in data:
-            try:
-                reference_branch = getattr(self.instance, "reference_branch")
-            except NimbusBranch.DoesNotExist:
-                reference_branch = None
-
-            try:
-                treatment_branches = getattr(self.instance, "treatment_branches")
-            except NimbusBranch.DoesNotExist:
-                treatment_branches = None
-
             ref_branch_name = data["reference_branch"]["name"]
             treatment_branch_names = [b["name"] for b in data["treatment_branches"]]
             all_names = [ref_branch_name, *treatment_branch_names]
@@ -551,6 +542,20 @@ class NimbusExperimentBranchMixin:
                         "treatment_branches": [error for _ in data["treatment_branches"]],
                     }
                 )
+
+        return data
+
+    def _validate_swapped_branch_names(self, data):
+        if "reference_branch" in data and "treatment_branches" in data:
+            try:
+                reference_branch = getattr(self.instance, "reference_branch")
+            except NimbusBranch.DoesNotExist:
+                reference_branch = None
+
+            try:
+                treatment_branches = getattr(self.instance, "treatment_branches")
+            except NimbusBranch.DoesNotExist:
+                treatment_branches = None
             old_branch_names = (
                 {branch.name: branch for branch in treatment_branches}
                 if treatment_branches
@@ -579,17 +584,14 @@ class NimbusExperimentBranchMixin:
                 and branch.pk != new_branch_names[name].get("id")
                 and branch.pk != reference_branch.pk
             ]
-            if reference_name_swapped:
-                raise serializers.ValidationError(
-                    {"reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP}}
-                )
-            if treatment_errors:
+            if reference_name_swapped or treatment_errors:
                 raise serializers.ValidationError(
                     {
+                        "reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP},
                         "treatment_branches": [
                             {"name": NimbusConstants.ERROR_BRANCH_SWAP}
-                            for _ in treatment_errors
-                        ]
+                            for _ in treatment_branches
+                        ],
                     }
                 )
 
