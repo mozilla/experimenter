@@ -407,7 +407,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "Ensure this value is greater than or equal to the minimum version"
     )
     ERROR_BRANCH_SWAP = (
-        "You are trying to swap branches name, Give another random name to the branches"
+        "You are trying to swap branch names. Please choose another name for the branches."
     )
 
     # Analysis can be computed starting the week after enrollment
