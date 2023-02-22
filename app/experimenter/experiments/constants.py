@@ -406,7 +406,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_FIREFOX_VERSION_MAX = (
         "Ensure this value is greater than or equal to the minimum version"
     )
-    ERROR_BRANCH_SWAP = "You are trying to swap branch names. Please choose another name for the branches."
+    ERROR_BRANCH_SWAP = "You are trying to swap branch names. \
+        Please choose another name for the branches."
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
