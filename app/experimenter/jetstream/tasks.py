@@ -36,7 +36,7 @@ def fetch_jetstream_data():
             status__in=[NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.PREVIEW]
         ):
             if (
-                experiment.status is not NimbusExperiment.Status.LIVE  # always fetch LIVE
+                experiment.status != NimbusExperiment.Status.LIVE  # always fetch LIVE
                 and experiment.results_data is not None
                 and experiment.computed_end_date
                 and (
