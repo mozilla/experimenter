@@ -873,17 +873,41 @@ scriptLoaderPrefs:
 
 echPrefs:
   description: Prefs that control Encrypted Client Hello.
-  owner: kershaw@mozilla.com
+  owner: djackson@mozilla.com
   hasExposure: false
   variables:
-    configEnabled:
-      description: Whether to enable encrypted client hello.
+    tlsEnabled:
+      description: Whether to enable ECH for connections using TLS
       type: boolean
       setPref: "network.dns.echconfig.enabled"
-    greaseProbability:
+    h3Enabled:
+      description: Whether to enable ECH for connections using H3/QUIC
+      type: boolean
+      setPref: "network.dns.http3_echconfig.enabled"
+    forceWaitHttpsRR:
+      description: Whether to force waiting for HTTPS DNS records, which ECH requires.
+      type: boolean
+      setPref: "network.dns.force_waiting_https_rr"
+    insecureFallback:
+      description: Whether to fallback to non-ECH connections if all ECH RRs fail.
+      type: boolean
+      setPref: "network.dns.echconfig.fallback_to_origin_when_all_failed"
+    tlsGreaseProb:
       description: Probability of GREASEing a TLS connection with ECH (0-100).
       type: int
       setPref: "security.tls.ech.grease_probability"
+    h3GreaseEnabled:
+      description: Whether to apply GREASE settings to H3/QUIC connections.
+      type: boolean
+      setPref: "security.tls.ech.grease_http3"
+    disableGreaseOnFallback:
+      description: Whether to disable GREASE when retrying a connection.
+      type: boolean
+      setPref: "security.tls.ech.disable_grease_on_fallback"
+    greasePaddingSize:
+      description: Assumed echConfig padding length for GREASE extensions (1-255).
+      type: int
+      setPref: "security.tls.ech.grease_size"
 
 pingsender:
   description: "In-product usage of the pingsender telemetry reporter."
@@ -925,27 +949,28 @@ cookieBannerHandling:
   owner: dwalker@mozilla.com
   hasExposure: false
   variables:
-    serviceMode:
-      type: int
-      setPref: cookiebanners.service.mode
-      description: Controls cookie banner handling behavior. 0=off; 1=reject-only; 2=reject-or-accept
-      enum:
-        - 0
-        - 1
-        - 2
-    detectOnlyMode:
-      type: boolean
-      setPref: cookiebanners.service.detectOnly
-      description: Detects when the user has seen a cookie banner, required for doorhanger
-    desktopUiEnabled:
-      type: boolean
-      setPref: cookiebanners.ui.desktop.enabled
-      description: Controls whether the desktop UI is enabled
     desktopCfrVariant:
       type: int
-      setPref: cookiebanners.ui.desktop.cfrVariant
-      description: Which variant of the doorhanger the user should receive. 0=control; 1=A; 2=B
-      enum:
-        - 0
-        - 1
-        - 2
+      description: Which variant of the doorhanger the user should receive. 0=unenrolled; 1=control; 2=A; 3=B
+
+accessibilityCache:
+  description: Caches all accessibility information from all documents in the Firefox main process.
+  owner: jteh@mozilla.com
+  hasExposure: false
+  isEarlyStartup: true
+  variables:
+    enabled:
+      description: Whether to enable the accessibility cache.
+      type: boolean
+      setPref: accessibility.cache.enabled
+
+fxaButtonVisibility:
+  description: Prefs to control the visibility of the Firefox Accounts toolbar button when not signed in.
+  owner: mconley@mozilla.com
+  hasExposure: false
+  isEarlyStartup: true
+  variables:
+    boolean:
+      description: True if the Firefox Accounts toolbar button should be visible when not signed in.
+      type: boolean
+      setPref: identity.fxaccounts.toolbar.defaultVisible

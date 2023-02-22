@@ -33,10 +33,11 @@ def fetch_jetstream_data():
     metrics.incr("fetch_jetstream_data.started")
     try:
         for experiment in NimbusExperiment.objects.all().exclude(
-            status__in=[NimbusExperiment.Status.DRAFT]
+            status__in=[NimbusExperiment.Status.DRAFT, NimbusExperiment.Status.PREVIEW]
         ):
             if (
-                experiment.results_data is not None
+                experiment.status != NimbusExperiment.Status.LIVE  # always fetch LIVE
+                and experiment.results_data is not None
                 and experiment.computed_end_date
                 and (
                     experiment.computed_end_date

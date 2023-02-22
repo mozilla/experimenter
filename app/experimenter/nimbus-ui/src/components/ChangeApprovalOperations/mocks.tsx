@@ -9,6 +9,7 @@ import { getStatus } from "src/lib/experiment";
 import {
   mockChangelog,
   mockExperimentQuery,
+  mockLiveRolloutQuery,
   mockRejectionChangelog,
 } from "src/lib/mocks";
 import {
@@ -24,6 +25,7 @@ export const REVIEW_URL =
   "http://localhost:8888/v1/admin/#/buckets/main-workspace/collections/nimbus-mobile-experiments/records";
 
 export const { experiment: MOCK_EXPERIMENT } = mockExperimentQuery("boo");
+export const { rollout: MOCK_LIVE_ROLLOUT } = mockLiveRolloutQuery("boop");
 
 export const BaseSubject = ({
   actionButtonTitle = "Frobulate Thingy",

@@ -384,10 +384,10 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertTrue(experiment.warn_feature_schema)
 
-    def test_update_experiment_is_rollout(self):
+    def test_update_draft_experiment_to_rollout(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.FENIX,
             is_rollout=False,
         )
@@ -407,6 +407,67 @@ class TestUpdateExperimentMutationSingleFeature(
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertTrue(experiment.is_rollout)
+
+    def test_update_live_rollout(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.FENIX,
+            is_rollout=True,
+            population_percent=40,
+        )
+        experiment_id = experiment.id
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "populationPercent": "50",
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        self.assertTrue(experiment.is_rollout)
+        self.assertEqual(experiment.population_percent, 50.0)
+        self.assertEqual(experiment.publish_status, NimbusConstants.PublishStatus.IDLE)
+        self.assertEqual(experiment.status, NimbusConstants.Status.LIVE)
+        self.assertEqual(experiment.status_next, None)
+
+    def test_do_not_update_live_experiment(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.FENIX,
+            is_rollout=False,
+            population_percent=40,
+        )
+        experiment_id = experiment.id
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "populationPercent": "50",
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"].keys(), {"experiment"})
+
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        self.assertEqual(experiment.population_percent, 40.0)
+        self.assertEqual(experiment.publish_status, NimbusConstants.PublishStatus.IDLE)
+        self.assertEqual(experiment.status, NimbusConstants.Status.LIVE)
+        self.assertEqual(experiment.status_next, None)
 
     def test_update_experiment_branches_without_feature_config(self):
         user_email = "user@example.com"
@@ -864,6 +925,9 @@ class TestUpdateExperimentMutationSingleFeature(
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
