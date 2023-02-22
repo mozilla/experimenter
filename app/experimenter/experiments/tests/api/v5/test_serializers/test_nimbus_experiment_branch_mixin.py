@@ -376,7 +376,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             },
         )
 
-    def test_swap_treatment_branch_name_with_other_treatment_branch(self):
+    def test_new_branch_can_be_saved_with_existing_branches(self):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
         )
@@ -393,10 +393,6 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             experiment=experiment,
             name="treatment 1",
         )
-        treatment2 = NimbusBranchFactory.create(
-            experiment=experiment,
-            name="treatment 2",
-        )
 
         reference_branch_data = {
             "id": reference.id,
@@ -407,15 +403,14 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         treatment_branches_data = [
             {
                 "id": treatment1.id,
-                "name": treatment2.name,
+                "name": treatment1.name,
                 "description": treatment1.description,
                 "ratio": treatment1.ratio,
             },
             {
-                "id": treatment2.id,
-                "name": treatment1.name,
-                "description": treatment2.description,
-                "ratio": treatment2.ratio,
+                "name": "new branch",
+                "description": "new branch",
+                "ratio": 1,
             },
         ]
 
@@ -429,17 +424,7 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
             experiment, data=data, partial=True, context={"user": self.user}
         )
 
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors,
-            {
-                "reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP},
-                "treatment_branches": [
-                    {"name": NimbusConstants.ERROR_BRANCH_SWAP}
-                    for _ in (data.get("treatment_branches", []) or [])
-                ],
-            },
-        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
 
 class TestNimbusExperimentBranchMixinMultiFeature(TestCase):

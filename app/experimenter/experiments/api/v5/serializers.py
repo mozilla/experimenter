@@ -547,13 +547,13 @@ class NimbusExperimentBranchMixin:
 
     def _validate_swapped_branch_names(self, data):
         if "reference_branch" in data and "treatment_branches" in data:
-            name_ids = defaultdict(list)
+            name_ids = defaultdict(set)
 
             for branch_data in data["treatment_branches"] + [data["reference_branch"]]:
-                name_ids[branch_data["name"]].append(branch_data.get("id"))
+                name_ids[branch_data["name"]].add(branch_data.get("id"))
 
             for branch in self.instance.branches.all():
-                name_ids[branch.name].append(branch.id)
+                name_ids[branch.name].add(branch.id)
 
             swapped_branches = [name for (name, ids) in name_ids.items() if len(ids) > 1]
 
