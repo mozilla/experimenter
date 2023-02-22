@@ -12,6 +12,7 @@ import PreviewURL from "src/components/PreviewURL";
 import CancelReview from "src/components/Summary/CancelReview";
 import EndEnrollment from "src/components/Summary/EndEnrollment";
 import EndExperiment from "src/components/Summary/EndExperiment";
+import RequestLiveUpdate from "src/components/Summary/RequestLiveUpdate";
 import TableAudience from "src/components/Summary/TableAudience";
 import TableBranches from "src/components/Summary/TableBranches";
 import TableOverview from "src/components/Summary/TableOverview";
@@ -41,6 +42,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       onConfirmEndClicked,
       onConfirmEndEnrollmentClicked,
       onConfirmCancelReviewClicked,
+      onRequestUpdateClicked,
     ],
   } = useChangeOperationMutation(
     experiment,
@@ -67,6 +69,12 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
           : null,
       isEnrollmentPaused: false,
     },
+    {
+      publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+      status: NimbusExperimentStatusEnum.LIVE,
+      statusNext: NimbusExperimentStatusEnum.LIVE,
+      changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+    },
   );
 
   return (
@@ -76,6 +84,13 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
           {submitError}
         </Alert>
       )}
+
+      {status.dirty && (
+        <RequestLiveUpdate
+          {...{ isLoading, onSubmit: onRequestUpdateClicked }}
+        />
+      )}
+
       {!status.complete && (
         <Card className="border-left-0 border-right-0 border-bottom-0">
           <Card.Header as="h5">Actions</Card.Header>

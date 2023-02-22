@@ -6,7 +6,7 @@ import React from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 
-const FormUpdateLiveToReview = ({
+const RequestLiveUpdate = ({
   isLoading,
   onSubmit,
 }: {
@@ -40,4 +40,4 @@ const FormUpdateLiveToReview = ({
   );
 };
 
-export default FormUpdateLiveToReview;
+export default RequestLiveUpdate;
