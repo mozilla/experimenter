@@ -547,50 +547,23 @@ class NimbusExperimentBranchMixin:
 
     def _validate_swapped_branch_names(self, data):
         if "reference_branch" in data and "treatment_branches" in data:
-            try:
-                reference_branch = getattr(self.instance, "reference_branch")
-            except NimbusBranch.DoesNotExist:
-                reference_branch = None
+            name_ids = defaultdict(list)
 
-            try:
-                treatment_branches = getattr(self.instance, "treatment_branches")
-            except NimbusBranch.DoesNotExist:
-                treatment_branches = None
-            old_branch_names = (
-                {branch.name: branch for branch in treatment_branches}
-                if treatment_branches
-                else {}
-            )
-            new_branch_names = {
-                branch["name"]: branch for branch in data.get("treatment_branches", [])
-            }
-            new_reference_branch = data.get("reference_branch")
-            new_reference_branch_name = (
-                new_reference_branch["name"] if new_reference_branch else None
-            )
-            reference_name_swapped = (
-                reference_branch
-                and new_reference_branch_name
-                and reference_branch.name != new_reference_branch_name
-                and new_reference_branch_name in old_branch_names
-            )
-            treatment_errors = [
-                branch.pk
-                for name, branch in old_branch_names.items()
-                if old_branch_names is not None
-                and name in new_branch_names
-                and branch is not None
-                and reference_branch is not None
-                and branch.pk != new_branch_names[name].get("id")
-                and branch.pk != reference_branch.pk
-            ]
-            if reference_name_swapped or treatment_errors:
+            for branch_data in data["treatment_branches"] + [data["reference_branch"]]:
+                name_ids[branch_data["name"]].append(branch_data.get("id"))
+
+            for branch in self.instance.branches.all():
+                name_ids[branch.name].append(branch.id)
+
+            swapped_branches = [name for (name, ids) in name_ids.items() if len(ids) > 1]
+
+            if len(swapped_branches) > 1:
                 raise serializers.ValidationError(
                     {
                         "reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP},
                         "treatment_branches": [
                             {"name": NimbusConstants.ERROR_BRANCH_SWAP}
-                            for _ in treatment_branches
+                            for _ in data["treatment_branches"]
                         ],
                     }
                 )

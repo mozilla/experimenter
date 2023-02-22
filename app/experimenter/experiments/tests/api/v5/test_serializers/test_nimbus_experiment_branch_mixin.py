@@ -1,10 +1,10 @@
 from django.test import TestCase
-from experimenter.experiments.tests.factories import NimbusBranchFactory
 
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
+    NimbusBranchFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
 )
