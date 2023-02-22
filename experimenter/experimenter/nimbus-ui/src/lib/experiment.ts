@@ -155,8 +155,12 @@ export const enrollmentSortSelector: ExperimentSortSelector = ({
 export const resultsReadySortSelector: ExperimentSortSelector = (experiment) =>
   experiment.resultsReady ? "1" : "0";
 
-export const unpublishedUpdatesSortSelector: ExperimentSortSelector = (experiment) =>
-  experiment.publishStatus === NimbusExperimentPublishStatusEnum.DIRTY ? "1" : "0";
+export const unpublishedUpdatesSortSelector: ExperimentSortSelector = (
+  experiment,
+) =>
+  experiment.publishStatus === NimbusExperimentPublishStatusEnum.DIRTY
+    ? "1"
+    : "0";
 
 export const selectFromExperiment = (
   experiment: getAllExperiments_experiments,

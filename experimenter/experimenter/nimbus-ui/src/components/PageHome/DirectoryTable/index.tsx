@@ -129,11 +129,13 @@ export const DirectoryColumnStartDate: ColumnComponent = ({ startDate: d }) => (
     {(d && humanDate(d)) || <NotSet />}
   </td>
 );
+
 export const DirectoryColumnEnrollmentDate: ColumnComponent = (experiment) => (
   <td data-testid="directory-table-cell">
     {getProposedEnrollmentRange(experiment) || <NotSet />}
   </td>
 );
+
 export const DirectoryColumnEndDate: ColumnComponent = ({
   computedEndDate: d,
 }) => (
@@ -141,14 +143,25 @@ export const DirectoryColumnEndDate: ColumnComponent = ({
     {(d && humanDate(d)) || <NotSet />}
   </td>
 );
-export const DirectoryColumnUnpublishedUpdates: ColumnComponent = (experiment) => (
+
+export const DirectoryColumnUnpublishedUpdates: ColumnComponent = ({
+  publishStatus: p,
+}) => (
   <td data-testid="directory-table-cell">
-    <Badge
-      className={"ml-2 border rounded-pill px-2 bg-white font-weight-normal border-danger text-danger"}
-      data-testid="directory-table-cell"
-    >
-      {experiment.publishStatus === NimbusExperimentPublishStatusEnum.DIRTY ? "YES" : ""}
-    </Badge>
+    {p ? (
+      <>
+        <Badge
+          className={
+            "ml-2 border rounded-pill px-2 bg-white font-weight-normal border-danger text-danger"
+          }
+          data-testid="directory-unpublished-updates"
+        >
+          {p === NimbusExperimentPublishStatusEnum.DIRTY ? "YES" : ""}
+        </Badge>
+      </>
+    ) : (
+      ""
+    )}
   </td>
 );
 
@@ -321,7 +334,7 @@ const commonColumns: Column[] = [
     component: DirectoryColumnResults,
   },
   {
-    label: "Unpublished updates",
+    label: "Unpublished Updates",
     sortBy: unpublishedUpdatesSortSelector,
     component: DirectoryColumnUnpublishedUpdates,
   },
