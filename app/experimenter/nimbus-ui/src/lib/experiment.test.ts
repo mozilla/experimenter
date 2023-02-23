@@ -58,6 +58,21 @@ describe("getStatus", () => {
 
     experiment.publishStatus = NimbusExperimentPublishStatusEnum.WAITING;
     expect(getStatus(experiment).waiting).toBeTruthy();
+
+    experiment.publishStatus = NimbusExperimentPublishStatusEnum.DIRTY;
+    expect(getStatus(experiment).dirty).toBeTruthy();
+
+    experiment.publishStatus = NimbusExperimentPublishStatusEnum.REVIEW;
+    experiment.status = NimbusExperimentStatusEnum.LIVE;
+    experiment.statusNext = NimbusExperimentStatusEnum.LIVE;
+    experiment.isRollout = true;
+    expect(getStatus(experiment).updateRequested).toBeTruthy();
+
+    experiment.publishStatus = NimbusExperimentPublishStatusEnum.APPROVED;
+    expect(getStatus(experiment).updateRequestedApproved).toBeTruthy();
+
+    experiment.publishStatus = NimbusExperimentPublishStatusEnum.WAITING;
+    expect(getStatus(experiment).updateRequestedWaiting).toBeTruthy();
   });
 });
 
