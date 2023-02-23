@@ -264,11 +264,11 @@ def get_experiment_data(experiment):
             else:
                 try:
                     analysis_start_time = datetime.fromisoformat(
-                        experiment_metadata.get("analysis_start_time", "")
+                        experiment_metadata.get("analysis_start_time")
                         if experiment_metadata is not None
                         else ""
                     )
-                    timestamp = datetime.fromisoformat(err.get("timestamp", ""))
+                    timestamp = datetime.fromisoformat(err.get("timestamp"))
 
                     if timestamp >= analysis_start_time:
                         errors_experiment_overall.append(err)
