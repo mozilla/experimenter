@@ -20,6 +20,7 @@ export function getStatus(
     publishStatus,
     isEnrollmentPausePending,
     isArchived,
+    isRollout,
   } = experiment || {};
 
   // The experiment is or was out in the wild (live or complete)
@@ -48,8 +49,19 @@ export function getStatus(
       status === NimbusExperimentStatusEnum.LIVE &&
       statusNext === NimbusExperimentStatusEnum.COMPLETE,
     updateRequested:
+      isRollout === true &&
       status === NimbusExperimentStatusEnum.LIVE &&
       publishStatus === NimbusExperimentPublishStatusEnum.REVIEW &&
+      statusNext === NimbusExperimentStatusEnum.LIVE,
+    updateRequestedApproved:
+      isRollout === true &&
+      status === NimbusExperimentStatusEnum.LIVE &&
+      publishStatus === NimbusExperimentPublishStatusEnum.APPROVED &&
+      statusNext === NimbusExperimentStatusEnum.LIVE,
+    updateRequestedWaiting:
+      isRollout === true &&
+      status === NimbusExperimentStatusEnum.LIVE &&
+      publishStatus === NimbusExperimentPublishStatusEnum.WAITING &&
       statusNext === NimbusExperimentStatusEnum.LIVE,
     launched,
   };
