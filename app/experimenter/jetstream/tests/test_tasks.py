@@ -350,7 +350,8 @@ class TestFetchJetstreamDataTask(TestCase):
                             ],
                             "default_metrics": [],
                         }
-                    }
+                    },
+                    "analysis_start_time": "2022-08-31T04:30:03+00:00",
                 },
                 "show_analysis": False,
                 "errors": ERRORS,
@@ -373,7 +374,8 @@ class TestFetchJetstreamDataTask(TestCase):
                                 ],
                                 "default_metrics": []
                             }
-                        }
+                        },
+                        "analysis_start_time": "2022-08-31T04:30:03+00:00"
                     }"""
                 if "errors" in self.name:
                     return """[
@@ -388,6 +390,47 @@ class TestFetchJetstreamDataTask(TestCase):
                             "metric": null,
                             "statistic": null,
                             "timestamp": "2022-08-31T04:32:03+00:00",
+                            "analysis_basis": "enrollments",
+                            "segment": "all"
+                        },
+                        {
+                            "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "cli.py",
+                            "func_name": "execute",
+                            "log_level": "ERROR",
+                            "message": "test-experiment-slug -> error",
+                            "metric": null,
+                            "statistic": null,
+                            "timestamp": "2020-08-31T04:32:03+00:00",
+                            "analysis_basis": "enrollments",
+                            "segment": "all"
+                        },
+                        {
+                            "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "cli.py",
+                            "func_name": "execute",
+                            "log_level": "ERROR",
+                            "message": "test-experiment-slug -> error",
+                            "metric": null,
+                            "statistic": null,
+                            "analysis_basis": "enrollments",
+                            "segment": "all"
+                        },
+                        {
+                            "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "cli.py",
+                            "func_name": "execute",
+                            "log_level": "ERROR",
+                            "message": "test-experiment-slug -> error",
+                            "metric": null,
+                            "statistic": null,
+                            "timestamp": null,
                             "analysis_basis": "enrollments",
                             "segment": "all"
                         },
@@ -426,6 +469,124 @@ class TestFetchJetstreamDataTask(TestCase):
                     + DAILY_EXPOSURES_DATA
                     + SEGMENT_EXPOSURES_DATA
                 )
+
+        def open_file(filename):
+            return File(filename)
+
+        mock_open.side_effect = open_file
+        mock_exists.return_value = True
+
+        tasks.fetch_experiment_data(experiment.id)
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.results_data, FULL_DATA)
+
+    @parameterized.expand(
+        [
+            (None, None),
+            ("", ""),
+            ("2022-08-31T04:30:03+00:00", ""),
+            ("", "2022-08-31T04:32:03+00:00"),
+            ("2022-08-31T04:30:03+00:00", "2022-08-31T04:32:03+00:00"),
+        ]
+    )
+    @patch("django.core.files.storage.default_storage.open")
+    @patch("django.core.files.storage.default_storage.exists")
+    def test_error_analysis_timestamps(
+        self, analysis_start_time, error_timestamp, mock_exists, mock_open
+    ):
+        # analysis_start_time = timestamps[0]
+        # error_timestamp = timestamps[1]
+        experiment = NimbusExperimentFactory.create()
+
+        (
+            _,
+            _,
+            _,
+            ERRORS,
+            _,
+            _,
+            _,
+        ) = JetstreamTestData.get_test_data([])
+
+        FULL_DATA = {
+            "v2": {
+                "daily": {},
+                "weekly": {},
+                "overall": {},
+                "metadata": {
+                    "outcomes": {
+                        "default-browser": {
+                            "metrics": [
+                                "default_browser_action",
+                                "mozilla_default_browser",
+                                "default_browser_null",
+                            ],
+                            "default_metrics": [],
+                        }
+                    },
+                    "analysis_start_time": analysis_start_time,
+                },
+                "show_analysis": False,
+                "errors": {
+                    "experiment": [
+                        {
+                            "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "cli.py",
+                            "func_name": "execute",
+                            "log_level": "ERROR",
+                            "message": "test-experiment-slug -> error",
+                            "metric": None,
+                            "statistic": None,
+                            "timestamp": error_timestamp,
+                            "analysis_basis": "enrollments",
+                            "segment": "all",
+                        }
+                    ],
+                },
+            },
+        }
+
+        class File:
+            def __init__(self, filename):
+                self.name = filename
+
+            def read(self):
+                if "metadata" in self.name:
+                    ret_json = {
+                        "outcomes": {
+                            "default-browser": {
+                                "metrics": [
+                                    "default_browser_action",
+                                    "mozilla_default_browser",
+                                    "default_browser_null",
+                                ],
+                                "default_metrics": [],
+                            }
+                        },
+                        "analysis_start_time": analysis_start_time,
+                    }
+                elif "errors" in self.name:
+                    ret_json = [
+                        {
+                            "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "cli.py",
+                            "func_name": "execute",
+                            "log_level": "ERROR",
+                            "message": "test-experiment-slug -> error",
+                            "metric": None,
+                            "statistic": None,
+                            "timestamp": error_timestamp,
+                            "analysis_basis": "enrollments",
+                            "segment": "all",
+                        }
+                    ]
+                else:
+                    ret_json = ""
+                return json.dumps(ret_json)
 
         def open_file(filename):
             return File(filename)

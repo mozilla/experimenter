@@ -13,7 +13,7 @@ describe("AnalysisErrorAlert", () => {
     const errors = mockAnalysisWithErrors().errors.experiment;
     render(<AnalysisErrorAlert errors={errors} />);
 
-    expect(screen.getByText("Analysis errors during last run:"));
+    expect(screen.getByText("Errors during Analysis:"));
     expect(screen.getByText("NoEnrollmentPeriodException"));
 
     expect(screen.getByTestId("error-help-url")).toHaveProperty(
