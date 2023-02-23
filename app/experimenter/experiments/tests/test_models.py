@@ -1352,6 +1352,7 @@ class TestNimbusExperiment(TestCase):
         feature = NimbusFeatureConfigFactory(slug="feature")
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=False,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.RELEASE,
             feature_configs=[feature],
@@ -1374,6 +1375,23 @@ class TestNimbusExperiment(TestCase):
         experiment.population_percent = Decimal("20.0")
         experiment.allocate_bucket_range()
         self.assertEqual(experiment.bucket_range.count, 2000)
+
+    def test_allocate_buckets_for_live_approved_rollout(self):
+        feature = NimbusFeatureConfigFactory(slug="feature")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+            population_percent=Decimal("50.0"),
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.RELEASE,
+            feature_configs=[feature],
+            is_rollout=True,
+        )
+        experiment.allocate_bucket_range()
+        self.assertEqual(experiment.bucket_range.count, 5000)
+        self.assertEqual(
+            experiment.bucket_range.isolation_group.name,
+            "firefox-desktop-feature-release-rollout",
+        )
 
     def test_allocate_buckets_deletes_buckets_and_empty_isolation_group(self):
         feature = NimbusFeatureConfigFactory(slug="feature")
