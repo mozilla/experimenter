@@ -1,0 +1,14 @@
+friendly_name = "New Tab - Do No Harm"
+description = """
+Guardrail metrics for the New Tab. Includes user experience and revenue-related metrics for Search, Pocket and AdMarketplace Sponsored Tiles.
+"""
+
+
+[metrics.newtab_searches.statistics.bootstrap_mean]
+[metrics.newtab_searches.statistics.deciles]
+
+[metrics.newtab_ad_clicks.statistics.bootstrap_mean]
+[metrics.newtab_ad_clicks.statistics.deciles]
+
+[metrics.newtab_homepage_enabled.statistics.binomial]
+[metrics.newtab_engagement.statistics.binomial]
