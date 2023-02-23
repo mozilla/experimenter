@@ -14,7 +14,7 @@ type AnalysisErrorAlertProps = {
 
 const AnalysisErrorAlert = ({ errors }: AnalysisErrorAlertProps) => (
   <Alert variant="danger" data-testid="analysis-error">
-    <Alert.Heading as="h5">Analysis errors during last run:</Alert.Heading>
+    <Alert.Heading as="h5">Errors during Analysis:</Alert.Heading>
     {errors.map((err, idx) => (
       <AnalysisErrorMessage key={idx} err={err} />
     ))}
