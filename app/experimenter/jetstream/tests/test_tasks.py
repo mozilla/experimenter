@@ -350,7 +350,8 @@ class TestFetchJetstreamDataTask(TestCase):
                             ],
                             "default_metrics": [],
                         }
-                    }
+                    },
+                    "analysis_start_time": "2022-08-31T04:30:03+00:00",
                 },
                 "show_analysis": False,
                 "errors": ERRORS,
@@ -373,7 +374,8 @@ class TestFetchJetstreamDataTask(TestCase):
                                 ],
                                 "default_metrics": []
                             }
-                        }
+                        },
+                        "analysis_start_time": "2022-08-31T04:30:03+00:00"
                     }"""
                 if "errors" in self.name:
                     return """[
@@ -388,6 +390,47 @@ class TestFetchJetstreamDataTask(TestCase):
                             "metric": null,
                             "statistic": null,
                             "timestamp": "2022-08-31T04:32:03+00:00",
+                            "analysis_basis": "enrollments",
+                            "segment": "all"
+                        },
+                        {
+                            "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "cli.py",
+                            "func_name": "execute",
+                            "log_level": "ERROR",
+                            "message": "test-experiment-slug -> error",
+                            "metric": null,
+                            "statistic": null,
+                            "timestamp": "2020-08-31T04:32:03+00:00",
+                            "analysis_basis": "enrollments",
+                            "segment": "all"
+                        },
+                        {
+                            "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "cli.py",
+                            "func_name": "execute",
+                            "log_level": "ERROR",
+                            "message": "test-experiment-slug -> error",
+                            "metric": null,
+                            "statistic": null,
+                            "analysis_basis": "enrollments",
+                            "segment": "all"
+                        },
+                        {
+                            "exception": "(<class 'NoEnrollmentPeriodException'>)",
+                            "exception_type": "NoEnrollmentPeriodException",
+                            "experiment": "test-experiment-slug",
+                            "filename": "cli.py",
+                            "func_name": "execute",
+                            "log_level": "ERROR",
+                            "message": "test-experiment-slug -> error",
+                            "metric": null,
+                            "statistic": null,
+                            "timestamp": null,
                             "analysis_basis": "enrollments",
                             "segment": "all"
                         },

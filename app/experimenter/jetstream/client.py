@@ -1,6 +1,7 @@
 import json
 import os
 from collections import defaultdict
+from datetime import datetime
 from itertools import chain
 
 from django.conf import settings
@@ -261,7 +262,19 @@ def get_experiment_data(experiment):
                     errors_by_metric[metric_slug] = []
                 errors_by_metric[metric_slug].append(err)
             else:
-                errors_experiment_overall.append(err)
+                try:
+                    analysis_start_time = datetime.fromisoformat(
+                        experiment_metadata.get("analysis_start_time", "")
+                        if experiment_metadata is not None
+                        else ""
+                    )
+                    timestamp = datetime.fromisoformat(err.get("timestamp", ""))
+
+                    if timestamp >= analysis_start_time:
+                        errors_experiment_overall.append(err)
+                except (ValueError, TypeError):
+                    # ill-formatted/missing timestamp: default to including the error
+                    errors_experiment_overall.append(err)
 
     errors_by_metric["experiment"] = errors_experiment_overall
 

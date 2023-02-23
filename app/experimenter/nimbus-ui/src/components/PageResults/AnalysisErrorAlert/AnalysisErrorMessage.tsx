@@ -23,6 +23,16 @@ const AnalysisErrorMessage = ({ err }: AnalysisErrorMessageProps) => {
     <>
       <hr />
       <p>
+        {err.timestamp && (
+          <span style={{ fontSize: "0.9em", paddingRight: "0.5em" }}>
+            [
+            {new Date(err.timestamp).toLocaleString(undefined, {
+              timeZone: "UTC",
+              timeZoneName: "short",
+            })}
+            ]
+          </span>
+        )}
         <b>{alertMessage}</b>: {err.message}
       </p>
     </>
