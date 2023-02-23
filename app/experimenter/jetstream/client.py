@@ -272,7 +272,7 @@ def get_experiment_data(experiment):
 
                     if timestamp >= analysis_start_time:
                         errors_experiment_overall.append(err)
-                except (ValueError, TypeError):
+                except (ValueError, TypeError, KeyError):
                     # ill-formatted/missing timestamp: default to including the error
                     errors_experiment_overall.append(err)
 
