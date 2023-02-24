@@ -601,10 +601,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             feature_config.slug
             for feature_config in self.feature_configs.all().order_by("slug")
         )
+
         if self.channel:
             keys.append(self.channel)
 
         if self.is_rollout:
+            if self.targeting_config_slug:
+                keys.append(self.targeting_config_slug)
             keys.append("rollout")
 
         return "-".join(keys)
