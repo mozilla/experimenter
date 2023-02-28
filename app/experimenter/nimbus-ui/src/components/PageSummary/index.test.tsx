@@ -629,6 +629,7 @@ describe("PageSummary", () => {
     render(<Subject mocks={[mock, mutationMock]} />);
     await screen.findByTestId("pill-enrolling-complete");
   });
+
   it("renders enrollment active badge if enrollment is not paused", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.LIVE,
@@ -638,4 +639,71 @@ describe("PageSummary", () => {
     render(<Subject mocks={[mock, mutationMock]} />);
     await screen.findByTestId("pill-enrolling-active");
   });
+
+  it.each([
+    [
+      true,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+    ],
+    [
+      true,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+      NimbusExperimentPublishStatusEnum.REVIEW,
+    ],
+    [
+      true,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+      NimbusExperimentPublishStatusEnum.WAITING,
+    ],
+    [
+      false,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+    ],
+    [
+      false,
+      NimbusExperimentStatusEnum.DRAFT,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+    ],
+  ])(
+    "renders unpublished changes status pill when dirty",
+    async (
+      shouldShowPill: boolean,
+      status: NimbusExperimentStatusEnum,
+      publishStatus: NimbusExperimentPublishStatusEnum,
+      mutationPublishStatus: NimbusExperimentPublishStatusEnum,
+    ) => {
+      const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+        status: status,
+        publishStatus: publishStatus,
+        statusNext: null,
+        isRollout: true,
+        isEnrollmentPaused: false,
+      });
+      const mutationMock = createFullStatusMutationMock(
+        rollout.id!,
+        status,
+        null,
+        mutationPublishStatus,
+        CHANGELOG_MESSAGES.REQUESTED_REVIEW,
+      );
+      render(<Subject mocks={[mockRollout, mutationMock]} />);
+
+      if (shouldShowPill) {
+        expect(
+          screen.queryByTestId("pill-dirty-unpublished"),
+        ).toBeInTheDocument();
+      } else {
+        expect(
+          screen.queryByTestId("pill-dirty-unpublished"),
+        ).not.toBeInTheDocument();
+      }
+    },
+  );
 });
