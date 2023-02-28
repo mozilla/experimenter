@@ -224,7 +224,6 @@ const PageSummary = (props: RouteComponentProps) => {
 
       {experiment.isRollout &&
         (status.draft || status.preview) &&
-        !experiment.isArchived &&
         fieldWarnings.bucketing?.length > 0 && (
           <Alert data-testid="bucketing-warning" variant="danger">
             {fieldWarnings.bucketing as SerializerMessage}
