@@ -1,3 +1,5 @@
+from itertools import chain
+
 from django.test import TestCase
 from parameterized import parameterized
 
@@ -1353,12 +1355,11 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
 
     def test_bucket_namespace_warning_for_dupe_rollouts(self):
-        lifecycle = NimbusExperimentFactory.Lifecycles.CREATED
         desktop = NimbusExperiment.Application.DESKTOP
         channel = NimbusExperiment.Channel.NIGHTLY
         targeting_config_slug = NimbusExperiment.TargetingConfig.MAC_ONLY
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle,
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
             application=desktop,
             channel=channel,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
@@ -1368,7 +1369,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=targeting_config_slug,
         )
         experiment2 = NimbusExperimentFactory.create_with_lifecycle(
-            lifecycle,
+            NimbusExperimentFactory.Lifecycles.CREATED,
             application=desktop,
             channel=channel,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
@@ -1378,9 +1379,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=targeting_config_slug,
         )
 
-        for branch in experiment1.treatment_branches:
-            branch.delete()
-        for branch in experiment2.treatment_branches:
+        for branch in chain(
+            experiment1.treatment_branches, experiment2.treatment_branches
+        ):
             branch.delete()
 
         experiment1.save()
@@ -1397,6 +1398,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
 
         count = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
             channel=channel,
             application=desktop,
             targeting_config_slug=targeting_config_slug,
@@ -1404,7 +1406,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         ).count()
 
         self.assertTrue(experiment1.is_rollout and experiment2.is_rollout)
-        self.assertTrue(count > 1)
+        self.assertTrue(count > 0)
         self.assertTrue(serializer.is_valid())
         self.assertEqual(
             serializer.warnings["bucketing"],
@@ -1437,9 +1439,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             targeting_config_slug=targeting_config_slug,
         )
 
-        for branch in experiment1.treatment_branches:
-            branch.delete()
-        for branch in experiment2.treatment_branches:
+        for branch in chain(
+            experiment1.treatment_branches, experiment2.treatment_branches
+        ):
             branch.delete()
 
         experiment1.save()
@@ -1456,6 +1458,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
 
         count = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
             channel=channel,
             application=desktop,
             targeting_config_slug=targeting_config_slug,

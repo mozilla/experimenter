@@ -1511,13 +1511,14 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             return data
         is_rollout = self.instance.is_rollout
         count = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
             channel=self.instance.channel,
             application=self.instance.application,
             targeting_config_slug=self.instance.targeting_config_slug,
             is_rollout=is_rollout,
         ).count()
 
-        if is_rollout and count > 1:
+        if is_rollout and count > 0:
             self.warnings["bucketing"] = [NimbusConstants.ERROR_BUCKET_EXISTS]
 
         return data
