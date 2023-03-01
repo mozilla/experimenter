@@ -1506,6 +1506,23 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_bucket_duplicates(self, data):
+        if not self.instance or not self.instance.is_rollout:
+            return data
+        is_rollout = self.instance.is_rollout
+        count = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
+            channel=self.instance.channel,
+            application=self.instance.application,
+            targeting_config_slug=self.instance.targeting_config_slug,
+            is_rollout=is_rollout,
+        ).count()
+
+        if is_rollout and count > 0:
+            self.warnings["bucketing"] = [NimbusConstants.ERROR_BUCKET_EXISTS]
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1519,6 +1536,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_versions(data)
         data = self._validate_sticky_enrollment(data)
         data = self._validate_rollout_version_support(data)
+        data = self._validate_bucket_duplicates(data)
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
             data = self._validate_countries_versions(data)
