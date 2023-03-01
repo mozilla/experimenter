@@ -85,16 +85,16 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
         </Alert>
       )}
 
-      {status.dirty && (
-        <RequestLiveUpdate
-          {...{ isLoading, onSubmit: onRequestUpdateClicked }}
-        />
-      )}
-
       {!status.complete && (
         <Card className="border-left-0 border-right-0 border-bottom-0">
           <Card.Header as="h5">Actions</Card.Header>
           <Card.Body>
+            {status.dirty && (
+              <RequestLiveUpdate
+                {...{ isLoading, onSubmit: onRequestUpdateClicked }}
+              />
+            )}
+
             {status.live &&
               !status.approved &&
               !status.review &&

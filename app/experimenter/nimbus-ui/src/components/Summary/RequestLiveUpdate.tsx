@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import Alert from "react-bootstrap/Alert";
-import Form from "react-bootstrap/Form";
+import { Button } from "react-bootstrap";
 
 const RequestLiveUpdate = ({
   isLoading,
@@ -14,29 +13,18 @@ const RequestLiveUpdate = ({
   onSubmit: () => void;
 }) => {
   return (
-    <Alert
-      variant="secondary"
-      id="request-live-update-alert"
-      data-testid="request-live-update-alert"
-    >
-      <Form className="text-body">
-        <div className="d-flex bd-highlight">
-          <div className="py-1">
-            <p>Review and update live rollout:</p>
-            <button
-              data-testid="update-live-to-review"
-              id="request-update-button"
-              type="button"
-              className="mr-2 btn btn-primary"
-              disabled={isLoading}
-              onClick={onSubmit}
-            >
-              Request Update
-            </button>
-          </div>
-        </div>
-      </Form>
-    </Alert>
+    <div className="mb-4" data-testid="update-live-to-review">
+      <Button
+        data-testid="request-update-button"
+        id="request-update-button"
+        type="button"
+        className="mr-2 btn btn-primary"
+        disabled={isLoading}
+        onClick={onSubmit}
+      >
+        Request Update
+      </Button>
+    </div>
   );
 };
 
