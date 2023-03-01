@@ -1466,7 +1466,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         ).count()
 
         self.assertTrue(experiment1.is_rollout and experiment2.is_rollout)
-        self.assertTrue(count == 1)
+        self.assertTrue(count == 0)
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.warnings, {})
 
@@ -1510,6 +1510,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
 
         count = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
             channel=channel,
             application=desktop,
             targeting_config_slug=targeting_config_slug,
