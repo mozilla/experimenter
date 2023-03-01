@@ -409,6 +409,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     ERROR_BRANCH_SWAP = "You are trying to swap branch names. \
         Please choose another name for the branches."
 
+    ERROR_BUCKET_EXISTS = "WARNING: A rollout already exists for this combination \
+        of application, feature, channel, and advanced targeting! \
+        If this rollout is launched, a client meeting the advanced targeting criteria \
+        will be enrolled in one and not the other and \
+        you will not be able to adjust the sizing for this rollout."
+
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
     # buffer day is added for Jetstream to compute the results.

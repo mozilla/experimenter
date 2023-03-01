@@ -1,3 +1,5 @@
+from itertools import chain
+
 from django.test import TestCase
 from parameterized import parameterized
 
@@ -1351,6 +1353,174 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             serializer.errors,
             {"reference_branch": {"feature_value": ["This field may not be blank."]}},
         )
+
+    def test_bucket_namespace_warning_for_dupe_rollouts(self):
+        desktop = NimbusExperiment.Application.DESKTOP
+        channel = NimbusExperiment.Channel.NIGHTLY
+        targeting_config_slug = NimbusExperiment.TargetingConfig.MAC_ONLY
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            application=desktop,
+            channel=channel,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            feature_configs=[NimbusFeatureConfigFactory(application=desktop)],
+            is_sticky=False,
+            is_rollout=True,
+            targeting_config_slug=targeting_config_slug,
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=desktop,
+            channel=channel,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            feature_configs=[NimbusFeatureConfigFactory(application=desktop)],
+            is_sticky=False,
+            is_rollout=True,
+            targeting_config_slug=targeting_config_slug,
+        )
+
+        for branch in chain(
+            experiment1.treatment_branches, experiment2.treatment_branches
+        ):
+            branch.delete()
+
+        experiment1.save()
+        experiment2.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment2,
+            data=NimbusReviewSerializer(
+                experiment2,
+                context={"user": self.user},
+            ).data,
+            partial=True,
+            context={"user": self.user},
+        )
+
+        count = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
+            channel=channel,
+            application=desktop,
+            targeting_config_slug=targeting_config_slug,
+            is_rollout=True,
+        ).count()
+
+        self.assertTrue(experiment1.is_rollout and experiment2.is_rollout)
+        self.assertTrue(count > 0)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(
+            serializer.warnings["bucketing"],
+            [NimbusConstants.ERROR_BUCKET_EXISTS],
+        )
+
+    def test_bucket_namespace_warning_for_non_dupe_rollouts(self):
+        lifecycle = NimbusExperimentFactory.Lifecycles.CREATED
+        desktop = NimbusExperiment.Application.DESKTOP
+        channel = NimbusExperiment.Channel.NIGHTLY
+        targeting_config_slug = NimbusExperiment.TargetingConfig.MAC_ONLY
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            application=NimbusExperiment.Application.FENIX,
+            channel=channel,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            feature_configs=[NimbusFeatureConfigFactory(application=desktop)],
+            is_sticky=False,
+            is_rollout=True,
+            targeting_config_slug=targeting_config_slug,
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            application=desktop,
+            channel=channel,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            feature_configs=[NimbusFeatureConfigFactory(application=desktop)],
+            is_sticky=False,
+            is_rollout=True,
+            targeting_config_slug=targeting_config_slug,
+        )
+
+        for branch in chain(
+            experiment1.treatment_branches, experiment2.treatment_branches
+        ):
+            branch.delete()
+
+        experiment1.save()
+        experiment2.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment2,
+            data=NimbusReviewSerializer(
+                experiment2,
+                context={"user": self.user},
+            ).data,
+            partial=True,
+            context={"user": self.user},
+        )
+
+        count = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
+            channel=channel,
+            application=desktop,
+            targeting_config_slug=targeting_config_slug,
+            is_rollout=True,
+        ).count()
+
+        self.assertTrue(experiment1.is_rollout and experiment2.is_rollout)
+        self.assertTrue(count == 0)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.warnings, {})
+
+    def test_bucket_namespace_warning_for_experiments(self):
+        lifecycle = NimbusExperimentFactory.Lifecycles.CREATED
+        desktop = NimbusExperiment.Application.DESKTOP
+        channel = NimbusExperiment.Channel.NIGHTLY
+        targeting_config_slug = NimbusExperiment.TargetingConfig.MAC_ONLY
+        experiment1 = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            application=desktop,
+            channel=channel,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            feature_configs=[NimbusFeatureConfigFactory(application=desktop)],
+            is_sticky=False,
+            is_rollout=False,
+            targeting_config_slug=targeting_config_slug,
+        )
+        experiment2 = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            application=desktop,
+            channel=channel,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
+            feature_configs=[NimbusFeatureConfigFactory(application=desktop)],
+            is_sticky=False,
+            is_rollout=False,
+            targeting_config_slug=targeting_config_slug,
+        )
+
+        experiment1.save()
+        experiment2.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment2,
+            data=NimbusReviewSerializer(
+                experiment2,
+                context={"user": self.user},
+            ).data,
+            partial=True,
+            context={"user": self.user},
+        )
+
+        count = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE,
+            channel=channel,
+            application=desktop,
+            targeting_config_slug=targeting_config_slug,
+            is_rollout=True,
+        ).count()
+
+        self.assertFalse(experiment1.is_rollout and experiment2.is_rollout)
+        self.assertTrue(count == 0)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.warnings, {})
 
 
 class TestNimbusReviewSerializerMultiFeature(TestCase):
