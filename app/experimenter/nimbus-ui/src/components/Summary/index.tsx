@@ -83,7 +83,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
             {status.live &&
               !status.approved &&
               !status.review &&
-              status.idle &&
+              (status.idle || status.dirty) &&
               !status.pauseRequested &&
               !experiment.isEnrollmentPaused && (
                 <EndEnrollment
@@ -94,7 +94,7 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
             {status.live &&
               !status.review &&
               !status.endRequested &&
-              status.idle && (
+              (status.idle || status.dirty) && (
                 <EndExperiment
                   {...{ isLoading, onSubmit: onConfirmEndClicked }}
                 />
