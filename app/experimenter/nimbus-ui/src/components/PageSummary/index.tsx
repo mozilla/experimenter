@@ -38,6 +38,7 @@ const PageSummary = (props: RouteComponentProps) => {
 
   const [showLaunchToReview, setShowLaunchToReview] = useState(false);
   const { invalidPages, InvalidPagesList } = useReviewCheck(experiment);
+  const { fieldWarnings } = useReviewCheck(experiment);
 
   const status = getStatus(experiment);
 
@@ -220,6 +221,14 @@ const PageSummary = (props: RouteComponentProps) => {
           {submitError}
         </Alert>
       )}
+
+      {experiment.isRollout &&
+        (status.draft || status.preview) &&
+        fieldWarnings.bucketing?.length > 0 && (
+          <Alert data-testid="bucketing-warning" variant="danger">
+            {fieldWarnings.bucketing as SerializerMessage}
+          </Alert>
+        )}
 
       {summaryAction && (
         <h5 className="mt-3 mb-4 ml-3">

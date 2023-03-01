@@ -24,6 +24,9 @@ import { createMutationMock } from "src/components/Summary/mocks";
 import { CHANGELOG_MESSAGES, SERVER_ERRORS } from "src/lib/constants";
 import { mockExperimentQuery, mockLiveRolloutQuery } from "src/lib/mocks";
 import {
+  NimbusExperimentApplicationEnum,
+  NimbusExperimentChannelEnum,
+  NimbusExperimentFirefoxVersionEnum,
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
@@ -706,4 +709,48 @@ describe("PageSummary", () => {
       }
     },
   );
+
+  it("displays a warning for rollouts that will be in the same bucket", async () => {
+    const BUCKET_WARNING =
+      "A rollout already exists for this combination of rollout, ...";
+    const { mock } = mockExperimentQuery("demo-slug", {
+      readyForReview: {
+        ready: true,
+        message: {},
+        warnings: {
+          bucketing: [BUCKET_WARNING],
+        },
+      },
+      isRollout: true,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_106,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      targetingConfigSlug: "OH_NO",
+    });
+    render(<Subject mocks={[mock]} />);
+    expect(screen.queryByTestId("bucketing-warning")).toBeInTheDocument();
+  });
+
+  it("displays no duplicate rollout warning for experiments", async () => {
+    const BUCKET_WARNING =
+      "A rollout already exists for this combination of rollout, ...";
+    const { mock } = mockExperimentQuery("demo-slug", {
+      readyForReview: {
+        ready: true,
+        message: {},
+        warnings: {
+          bucketing: [BUCKET_WARNING],
+        },
+      },
+      isRollout: false,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_106,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      targetingConfigSlug: "OH_NO",
+    });
+    render(<Subject mocks={[mock]} />);
+    expect(screen.queryByTestId("bucketing-warning")).not.toBeInTheDocument();
+  });
 });
