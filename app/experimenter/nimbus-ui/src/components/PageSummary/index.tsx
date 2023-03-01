@@ -291,7 +291,7 @@ const PageSummary = (props: RouteComponentProps) => {
             {...{
               isLoading,
               onSubmit: onUpdateClicked,
-              onCancel: onUpdateReviewRejectedClicked,
+              onCancel: () => {},
             }}
           />
         )}
