@@ -350,4 +350,38 @@ describe("Summary", () => {
     expect(requestUpdateButton).toBeEnabled();
     await act(async () => void fireEvent.click(requestUpdateButton));
   });
+
+  it("shows update and end buttons for live dirty rollout", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      statusNext: null,
+    });
+
+    const mutationMock = createMutationMock(
+      rollout.id!,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+      {
+        changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+        statusNext: null,
+        publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        status: NimbusExperimentStatusEnum.LIVE,
+      },
+    );
+    render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
+    const requestUpdateButton = await screen.findByTestId(
+      "request-live-update-alert",
+    );
+    const endExperimentButton = await screen.findByTestId(
+      "end-experiment-start",
+    );
+    const endEnrollmentButton = await screen.findByTestId(
+      "end-enrollment-start",
+    );
+    await waitFor(() => {
+      expect(requestUpdateButton).toBeInTheDocument();
+      expect(endEnrollmentButton).toBeInTheDocument();
+      expect(endExperimentButton).toBeInTheDocument();
+    });
+  });
 });
