@@ -76,6 +76,31 @@ describe("Summary", () => {
     await screen.findByText("End Experiment");
   });
 
+  it("renders the end experiment button if dirty", async () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        }}
+      />,
+    );
+    await screen.findByText("End Experiment");
+  });
+
+  it("renders the end enrollment button if dirty", async () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+          isEnrollmentPaused: false,
+        }}
+      />,
+    );
+    await screen.findByTestId("end-enrollment-start");
+  });
+
   it("renders the cancel review button if the experiment is in review state", async () => {
     render(
       <Subject
