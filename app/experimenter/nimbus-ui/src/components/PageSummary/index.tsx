@@ -127,6 +127,7 @@ const PageSummary = (props: RouteComponentProps) => {
       status: NimbusExperimentStatusEnum.LIVE,
       statusNext: null,
       publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      changelogMessage: CHANGELOG_MESSAGES.RETURNED_TO_LIVE,
     },
   );
 
