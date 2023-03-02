@@ -16,7 +16,7 @@ class BranchesPage(ExperimenterBase):
     )
     _reference_branch_value_locator = (
         By.CSS_SELECTOR,
-        "#referenceBranch-featureValue",
+        "#referenceBranch\\.featureValues\\[0\\]-value",
     )
     _treatment_branch_name_locator = (By.CSS_SELECTOR, "#treatmentBranches\\[0\\]-name")
     _treatment_branch_description_locator = (
@@ -25,7 +25,7 @@ class BranchesPage(ExperimenterBase):
     )
     _treatment_branch_value_locator = (
         By.CSS_SELECTOR,
-        "#treatmentBranches\\[0\\]-featureValue",
+        "#treatmentBranches\\[0\\]\\.featureValues\\[0\\]-value",
     )
     _remove_branch_locator = (By.CSS_SELECTOR, ".bg-transparent")
     _feature_select_locator = (By.CSS_SELECTOR, '[data-testid="feature-config-select"]')
