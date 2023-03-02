@@ -37,7 +37,7 @@ jobs:
       - run:
           name: Check file paths
           command: |
-            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments|app/tests'
+            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
               then
                 echo "Continuing"
               else
@@ -65,7 +65,7 @@ jobs:
       - run:
           name: Check file paths
           command: |
-            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments|app/tests'
+            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
               then
                 echo "Continuing"
               else
@@ -228,7 +228,7 @@ jobs:
       - run:
           name: Check file paths
           command: |
-            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments|app/tests'
+            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
               then
                 echo "Continuing"
               else
@@ -415,7 +415,7 @@ jobs:
             AS_VERSION=$(git -c 'versionsort.suffix=-' \
               ls-remote --exit-code --refs --sort='version:refname' --tags https://github.com/mozilla/application-services.git \
               '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3)
-            docker build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f app/tests/integration/nimbus/utils/Dockerfile-rust-image --build-arg as_version=$AS_VERSION --progress=plain .
+            docker build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f experimenter/tests/integration/nimbus/utils/Dockerfile-rust-image --build-arg as_version=$AS_VERSION --progress=plain .
             docker_id=$(docker run -t -d --name nimbus-rust-image ${DOCKERHUB_REPO}:nimbus-rust-image)
             docker cp /home/circleci/experimenter/application-services-current.txt nimbus-rust-image:/code/application-services-old.txt
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-rust-image

@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  app:
+  experimenter:
     image: app:test
     env_file: .env.sample
     environment:
