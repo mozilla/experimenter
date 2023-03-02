@@ -645,17 +645,6 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
   targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
   isSticky: false,
   isFirstRun: false,
-  treatmentBranches: [
-    {
-      id: 456,
-      name: "Managed zero baby projection",
-      slug: "treatment",
-      description: "Next ask then he in degree order.",
-      ratio: 1,
-      featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
-      screenshots: [],
-    },
-  ],
   primaryOutcomes: ["picture_in_picture", "feature_c", "feature_nodata"],
   secondaryOutcomes: ["feature_b", "feature_d"],
   channel: NimbusExperimentChannelEnum.NIGHTLY,
@@ -688,7 +677,7 @@ export const MOCK_LIVE_ROLLOUT: Partial<getExperiment["experimentBySlug"]> = {
       link: "https://bingo.bongo",
     },
   ],
-  isEnrollmentPaused: true,
+  isEnrollmentPaused: false,
   enrollmentEndDate: null,
   recipeJson:
     '{"schemaVersion": "1.5.0", "slug": "pre-emptive-zero-tolerance-data-warehouse", "id": "pre-emptive-zero-tolerance-data-warehouse", "arguments": {}, "application": "", "appName": "firefox_ios", "appId": "", "channel": "", "userFacingName": "Pre-emptive zero tolerance data-warehouse", "userFacingDescription": "Analysis art mean sort serve stuff. Scene alone current television up write company. Without admit she occur total generation by mother. Environmental remember account huge drive policy play strong.", "isEnrollmentPaused": false, "bucketConfig": null, "probeSets": [], "outcomes": [{"slug": "example_config", "priority": "primary"}, {"slug": "newtab_visibility", "priority": "primary"}, {"slug": "picture_in_picture", "priority": "secondary"}], "branches": [{"slug": "horizontal-well-modulated-conglomeration", "ratio": 1, "feature": {"featureId": "decentralized-solution-oriented-neural-net", "enabled": true, "value": {"trouble-left-back": "west-receive"}}}, {"slug": "fully-configurable-context-sensitive-local-area-network", "ratio": 1, "feature": {"featureId": "decentralized-solution-oriented-neural-net", "enabled": true, "value": {"financial-school": "peace-light-might"}}}], "targeting": "localeLanguageCode == \'en\' && ((isFirstStartup && !(\'trailhead.firstrun.didSeeAboutWelcome\'|preferenceValue)) || experiment.slug in activeExperiments)", "startDate": null, "endDate": null, "proposedDuration": 60, "proposedEnrollment": 45, "referenceBranch": "horizontal-well-modulated-conglomeration", "featureIds": ["decentralized-solution-oriented-neural-net"]}',
