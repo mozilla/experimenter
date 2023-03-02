@@ -60,7 +60,7 @@ describe("TableBranches", () => {
               slug: "",
               description: "",
               ratio: 0,
-              featureValue: null,
+              featureValues: [],
               screenshots: [],
             },
           ],
@@ -90,12 +90,13 @@ describe("TableBranches", () => {
   });
 
   it("renders expected content", () => {
+    const featureValue = '{ "thing": true }';
     const expected = {
       name: "expected name",
       slug: "expected slug",
       description: "expected description",
       ratio: 42,
-      featureValue: '{ "thing": true }',
+      featureValue,
     };
 
     render(
@@ -107,6 +108,9 @@ describe("TableBranches", () => {
               ...expected,
               id: 456,
               screenshots: [],
+              featureValues: [
+                { featureConfig: { id: 1 }, value: featureValue },
+              ],
             },
             ...MOCK_EXPERIMENT.treatmentBranches!,
           ],
@@ -157,7 +161,9 @@ describe("TableBranches", () => {
               slug: "expected slug",
               description: "expected description",
               ratio: 42,
-              featureValue: '{ "thing": true }',
+              featureValues: [
+                { featureConfig: { id: 1 }, value: '{ "thing": true }' },
+              ],
               screenshots: expectedScreenshots,
             },
             ...MOCK_EXPERIMENT.treatmentBranches!,
@@ -197,7 +203,7 @@ describe("TableBranches", () => {
       slug: "expected-slug",
       description: "expected description",
       ratio: 42,
-      featureValue: '{ "thing": true }',
+      featureValues: [{ featureConfig: { id: 1 }, value: '{ "thing": true }' }],
       screenshots: [],
     };
 
@@ -235,7 +241,7 @@ describe("TableBranches", () => {
       slug: "expected-slug",
       description: "expected description",
       ratio: 42,
-      featureValue: '{ "thing": true }',
+      featureValues: [{ featureConfig: { id: 1 }, value: '{ "thing": true }' }],
       screenshots: [],
     };
 
@@ -265,7 +271,7 @@ describe("TableBranches", () => {
       slug: "expected-slug",
       description: "expected description",
       ratio: 42,
-      featureValue: '{ "thing": true }',
+      featureValues: [{ featureConfig: { id: 1 }, value: '{ "thing": true }' }],
       screenshots: [],
     };
 
@@ -300,7 +306,7 @@ describe("TableBranches", () => {
               slug: "treatment-1",
               description: "",
               ratio: 0,
-              featureValue: null,
+              featureValues: [],
               screenshots: [],
             },
             {
@@ -309,7 +315,7 @@ describe("TableBranches", () => {
               slug: "",
               description: "",
               ratio: 0,
-              featureValue: null,
+              featureValues: [],
               screenshots: [],
             },
           ],

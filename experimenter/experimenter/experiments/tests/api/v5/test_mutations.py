@@ -344,7 +344,7 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": feature.id,
+                    "featureConfigIds": [feature.id],
                     "referenceBranch": reference_branch_data,
                     "treatmentBranches": treatment_branches_data,
                     "changelogMessage": "test changelog message",
@@ -598,7 +598,7 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": None,
+                    "featureConfigIds": [],
                     "referenceBranch": reference_branch_data,
                     "treatmentBranches": treatment_branches_data,
                     "changelogMessage": "test changelog message",
@@ -639,7 +639,7 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": invalid_feature_config_id,
+                    "featureConfigIds": [invalid_feature_config_id],
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                     "changelogMessage": "test changelog message",
@@ -654,7 +654,7 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(
             result["message"],
             {
-                "feature_config": [
+                "feature_configs": [
                     f'Invalid pk "{invalid_feature_config_id}" - object does not exist.'
                 ]
             },
@@ -699,7 +699,7 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": feature.id,
+                    "featureConfigIds": [feature.id],
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                     "changelogMessage": "test changelog message",
@@ -1322,7 +1322,7 @@ class TestUpdateExperimentMutationMultiFeature(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "featureConfigId": None,
+                    "featureConfigIds": [],
                     "referenceBranch": reference_branch_data,
                     "treatmentBranches": treatment_branches_data,
                     "changelogMessage": "test changelog message",

@@ -69,7 +69,11 @@ function addBranch(state: FormBranchesState): FormBranchesState {
   lastId++;
 
   if (referenceBranch === null) {
-    referenceBranch = createAnnotatedBranch(lastId, "control");
+    referenceBranch = createAnnotatedBranch(
+      lastId,
+      "control",
+      state.featureConfigIds,
+    );
   } else {
     treatmentBranches = [
       ...(treatmentBranches || []),
@@ -77,6 +81,7 @@ function addBranch(state: FormBranchesState): FormBranchesState {
         state.lastId,
         // 65 is A, but we generate a control, so start at 64
         `Treatment ${String.fromCharCode(64 + lastId)}`,
+        state.featureConfigIds,
       ),
     ];
   }
@@ -120,6 +125,24 @@ function setFeatureConfigs(
   return {
     ...state,
     featureConfigIds: featureConfigIds || null,
+    referenceBranch: {
+      ...state.referenceBranch,
+      featureValues: featureConfigIds?.map((featureConfigId) => ({
+        featureConfig: featureConfigId,
+        value: state.referenceBranch?.featureValues?.length
+          ? state.referenceBranch?.featureValues?.reduce((fv, acc) => fv)?.value
+          : [],
+      })),
+    } as AnnotatedBranch,
+    treatmentBranches: state.treatmentBranches?.map((treatmentBranch) => ({
+      ...treatmentBranch,
+      featureValues: featureConfigIds?.map((featureConfigId) => ({
+        featureConfig: featureConfigId,
+        value: treatmentBranch.featureValues?.length
+          ? treatmentBranch?.featureValues?.reduce((fv, acc) => fv)?.value
+          : [],
+      })),
+    })) as AnnotatedBranch[],
   };
 }
 
@@ -330,9 +353,9 @@ function branchUpdatedWithFormData(
     };
   });
   const featureValues = state.featureConfigIds?.map((featureConfigId, idx) => {
-    const { value } = formData?.featureValues?.[idx] || {};
+    const { featureConfig, value } = formData?.featureValues?.[idx] || {};
     return {
-      featureConfigId,
+      featureConfig,
       value,
     };
   });

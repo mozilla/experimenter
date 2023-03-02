@@ -1140,9 +1140,7 @@ class NimbusExperimentSerializer(
 
 class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
     experiment_name = serializers.CharField(source="name")
-
     product_area = serializers.CharField(source="application")
-
     rollout = serializers.BooleanField(source="is_rollout")
     owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
     feature_configs = serializers.SerializerMethodField()
@@ -1184,6 +1182,7 @@ class NimbusBranchScreenshotReviewSerializer(NimbusBranchScreenshotSerializer):
 
 class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerializer):
     id = serializers.IntegerField()
+    value = serializers.CharField(allow_blank=False)
 
     class Meta:
         model = NimbusBranchFeatureValue
@@ -1206,16 +1205,6 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
 class NimbusBranchReviewSerializer(NimbusBranchSerializer):
     feature_values = NimbusBranchFeatureValueReviewSerializer(many=True, required=True)
     screenshots = NimbusBranchScreenshotReviewSerializer(many=True, required=False)
-
-    def validate_feature_value(self, value):
-        if value:
-            try:
-                json.loads(value)
-            except Exception as e:
-                raise serializers.ValidationError(f"Invalid JSON: {e.msg}") from e
-        else:
-            raise serializers.ValidationError("This field may not be blank.")
-        return value
 
 
 class NimbusReviewSerializer(serializers.ModelSerializer):
@@ -1387,8 +1376,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         errors = {}
 
         feature_configs = data.get("feature_configs", [])
-        if len(feature_configs) <= 1:
-            return data
+        # if len(feature_configs) <= 1:
+        #     return data
 
         warn_feature_schema = data.get("warn_feature_schema", False)
 

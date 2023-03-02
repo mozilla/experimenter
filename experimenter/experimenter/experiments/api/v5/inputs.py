@@ -19,7 +19,7 @@ class BranchScreenshotInput(graphene.InputObjectType):
 
 
 class BranchFeatureValueInput(graphene.InputObjectType):
-    feature_config = graphene.Int()
+    feature_config = graphene.String()
     value = graphene.String()
 
 
@@ -28,7 +28,7 @@ class BranchInput(graphene.InputObjectType):
     name = graphene.String(required=True)
     description = graphene.String(required=True)
     ratio = graphene.Int(required=True)
-    feature_value = graphene.String()
+    # feature_value = graphene.String()
     feature_values = graphene.List(BranchFeatureValueInput)
     screenshots = graphene.List(BranchScreenshotInput)
 
@@ -47,7 +47,7 @@ class ExperimentInput(graphene.InputObjectType):
     countries = graphene.List(graphene.String)
     countries = graphene.List(graphene.String)
     documentation_links = graphene.List(DocumentationLinkInput)
-    feature_config_id = graphene.Int()
+    # feature_config_id = graphene.Int()
     feature_config_ids = graphene.List(graphene.Int)
     firefox_max_version = NimbusExperimentFirefoxVersionEnum()
     firefox_min_version = NimbusExperimentFirefoxVersionEnum()
