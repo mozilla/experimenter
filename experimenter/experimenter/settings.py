@@ -9,14 +9,15 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
-from sentry_sdk.integrations.django import DjangoIntegration
-from decouple import config
-import sentry_sdk
-import pkg_resources
-from urllib.parse import urljoin
 import os
+from urllib.parse import urljoin
+
+import pkg_resources
+import sentry_sdk
+from decouple import config
 from django.contrib.admin import ModelAdmin, StackedInline, TabularInline
 from django.db.models import DecimalField, ForeignKey, JSONField, ManyToManyField
+from sentry_sdk.integrations.django import DjangoIntegration
 
 for cls in [
     DecimalField,
@@ -277,8 +278,7 @@ REST_FRAMEWORK = {
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Experiments list pagination
-EXPERIMENTS_PAGINATE_BY = config(
-    "EXPERIMENTS_PAGINATE_BY", default=10, cast=int)
+EXPERIMENTS_PAGINATE_BY = config("EXPERIMENTS_PAGINATE_BY", default=10, cast=int)
 
 USE_GOOGLE_ANALYTICS = config("USE_GOOGLE_ANALYTICS", default=True, cast=bool)
 
@@ -405,8 +405,7 @@ MARKUS_BACKEND = [
 NORMANDY_API_HOST = config("NORMANDY_API_HOST")
 NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
 NORMANDY_API_RECIPES_LIST_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/")
-NORMANDY_API_HISTORY_URL = urljoin(
-    NORMANDY_API_HOST, "/api/v3/recipe/{id}/history")
+NORMANDY_API_HISTORY_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/history")
 
 NORMANDY_DEVTOOLS_HOST = config("NORMANDY_DEVTOOLS_HOST")
 NORMANDY_DEVTOOLS_RECIPE_URL = "{root}{recipe_url}".format(
@@ -423,8 +422,7 @@ JIRA_URL = config(
 )
 
 
-SESSION_COOKIE_SECURE = config(
-    "SESSION_COOKIE_SECURE", default=False, cast=bool)
+SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=False, cast=bool)
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=False, cast=bool)
 SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="origin")
 
@@ -444,8 +442,7 @@ KINTO_BUCKET_MAIN = "main"
 KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
 KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
-KINTO_ADMIN_URL = config(
-    "KINTO_ADMIN_URL", default=urljoin(KINTO_HOST, "/admin/"))
+KINTO_ADMIN_URL = config("KINTO_ADMIN_URL", default=urljoin(KINTO_HOST, "/admin/"))
 KINTO_REVIEW_TIMEOUT = config("KINTO_REVIEW_TIMEOUT", cast=int)
 
 # Jetstream GCS Bucket data
@@ -459,8 +456,7 @@ UPLOADS_GS_BUCKET_NAME = config("UPLOADS_GS_BUCKET_NAME", default=None)
 # Custom file storage override for user uploads (e.g. for testing)
 UPLOADS_FILE_STORAGE = config("UPLOADS_FILE_STORAGE", default=None)
 
-NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution(
-    "mozilla-nimbus-shared").version
+NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").version
 
 
 # Jetstream config paths
