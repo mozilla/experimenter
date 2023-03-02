@@ -1880,6 +1880,49 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         experiment_data = content["data"]["experimentBySlug"]
         self.assertEqual(experiment_data["preventPrefConflicts"], True)
 
+    def test_get_changelogs(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+        )
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    changes {
+                        changedBy {
+                            email
+                        }
+                        changedOn
+                        message
+                        oldStatusNext
+                        oldStatus
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200, response.content)
+
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["changes"],
+            [
+                {
+                    "changedBy": {"email": c.changed_by.email},
+                    "changedOn": c.changed_on.isoformat(),
+                    "message": c.message,
+                    "oldStatusNext": c.old_status_next,
+                    "oldStatus": c.old_status,
+                }
+                for c in experiment.changes.all().order_by("changed_on")
+            ],
+        )
+
 
 class TestNimbusConfigQuery(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
