@@ -50,6 +50,7 @@ type NimbusExperimentType {
   isFirstRun: Boolean!
   preventPrefConflicts: Boolean
   documentationLinks: [NimbusDocumentationLinkType!]
+  changes: [NimbusChangeLogType]
   canArchive: Boolean
   canEdit: Boolean
   canReview: Boolean
@@ -326,12 +327,31 @@ enum NimbusExperimentDocumentationLinkEnum {
   ENG_TICKET
 }
 
+type NimbusChangeLogType {
+  changedOn: DateTime!
+  changedBy: NimbusUserType!
+  oldStatus: NimbusExperimentStatusEnum
+  oldStatusNext: NimbusExperimentStatusEnum
+  newStatus: NimbusExperimentStatusEnum
+  newStatusNext: NimbusExperimentStatusEnum
+  message: String
+  experimentData: JSONString
+}
+
 """
 The `DateTime` scalar type represents a DateTime
 value as specified by
 [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
 """
 scalar DateTime
+
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
 
 type NimbusReviewType {
   message: ObjectField
@@ -341,14 +361,6 @@ type NimbusReviewType {
 
 """Utilized to serialize out Serializer errors"""
 scalar ObjectField
-
-type NimbusChangeLogType {
-  changedOn: DateTime!
-  changedBy: NimbusUserType!
-  oldStatus: NimbusExperimentStatusEnum
-  oldStatusNext: NimbusExperimentStatusEnum
-  message: String
-}
 
 type NimbusSignoffRecommendationsType {
   qaSignoff: Boolean
