@@ -245,10 +245,21 @@ class NimbusReviewType(graphene.ObjectType):
 class NimbusChangeLogType(DjangoObjectType):
     old_status = NimbusExperimentStatusEnum()
     old_status_next = NimbusExperimentStatusEnum()
+    new_status = NimbusExperimentStatusEnum()
+    new_status_next = NimbusExperimentStatusEnum()
 
     class Meta:
         model = NimbusChangeLog
-        fields = ("changed_on", "changed_by", "message", "old_status", "old_status_next")
+        fields = (
+            "changed_by",
+            "changed_on",
+            "experiment_data",
+            "message",
+            "new_status_next",
+            "new_status",
+            "old_status_next",
+            "old_status",
+        )
 
 
 class NimbusSignoffRecommendationsType(graphene.ObjectType):
@@ -419,6 +430,7 @@ class NimbusExperimentType(DjangoObjectType):
     can_archive = graphene.Boolean()
     can_edit = graphene.Boolean()
     can_review = graphene.Boolean()
+    changes = graphene.List(NimbusChangeLogType)
     channel = NimbusExperimentChannelEnum()
     computed_duration_days = graphene.Int()
     computed_end_date = graphene.DateTime()
@@ -481,6 +493,7 @@ class NimbusExperimentType(DjangoObjectType):
             "can_archive",
             "can_edit",
             "can_review",
+            "changes",
             "channel",
             "computed_duration_days",
             "computed_end_date",
@@ -651,3 +664,6 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_languages(self, info):
         return self.languages.all().order_by("name")
+
+    def resolve_changes(self, info):
+        return self.changes.all().order_by("changed_on")
