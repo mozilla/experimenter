@@ -13,7 +13,7 @@ import Head from "src/components/Head";
 import FormLaunchDraftToPreview from "src/components/PageSummary/FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "src/components/PageSummary/FormLaunchDraftToReview";
 import FormLaunchPreviewToReview from "src/components/PageSummary/FormLaunchPreviewToReview";
-import FormUpdateLiveToReview from "src/components/PageSummary/FormUpdateLiveToReview";
+import RequestLiveUpdate from "src/components/PageSummary/RequestLiveUpdate";
 import Summary from "src/components/Summary";
 import SummaryTimeline from "src/components/Summary/SummaryTimeline";
 import { useChangeOperationMutation, useReviewCheck } from "src/hooks";
@@ -287,11 +287,10 @@ const PageSummary = (props: RouteComponentProps) => {
         )}
 
         {status.live && status.dirty && (
-          <FormUpdateLiveToReview
+          <RequestLiveUpdate
             {...{
               isLoading,
               onSubmit: onUpdateClicked,
-              onCancel: () => {},
             }}
           />
         )}
