@@ -32,6 +32,12 @@ const MOCK_STATE: FormBranchesState = {
     errors: {},
     isValid: true,
     isDirty: false,
+    featureValues: MOCK_EXPERIMENT.referenceBranch!.featureValues?.map(
+      (fv) => ({
+        featureConfig: fv?.featureConfig?.id?.toString(),
+        value: fv?.value,
+      }),
+    ),
   },
   treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map((branch, idx) => ({
     ...branch!,
@@ -40,6 +46,10 @@ const MOCK_STATE: FormBranchesState = {
     errors: {},
     isValid: true,
     isDirty: false,
+    featureValues: branch!.featureValues?.map((fv) => ({
+      featureConfig: fv?.featureConfig?.id?.toString(),
+      value: fv?.value,
+    })),
   })),
 };
 

@@ -57,7 +57,7 @@ describe("FormBranches", () => {
     render(<SubjectBranches {...{ onSave }} />);
     await clickAndWaitForSave(onSave);
     const onSaveArgs = onSave.mock.calls[0];
-    expect(onSaveArgs[0]).toEqual({
+    const expectedData = {
       featureConfigIds: [],
       // @ts-ignore type mismatch covers discarded annotation properties
       referenceBranch: extractUpdateBranch(MOCK_EXPERIMENT.referenceBranch!),
@@ -68,7 +68,8 @@ describe("FormBranches", () => {
       isRollout: false,
       preventPrefConflicts: false,
       warnFeatureSchema: false,
-    });
+    };
+    expect(onSaveArgs[0]).toEqual(expectedData);
     expect(typeof onSaveArgs[1]).toEqual("function");
     expect(typeof onSaveArgs[2]).toEqual("function");
   });
@@ -178,7 +179,7 @@ describe("FormBranches", () => {
                 slug: "",
                 description: "",
                 ratio: 0,
-                featureValue: null,
+                featureValues: [],
                 screenshots: [],
               },
             ],
@@ -221,7 +222,7 @@ describe("FormBranches", () => {
           experiment: {
             ...MOCK_EXPERIMENT,
             referenceBranch: null,
-            treatmentBranches: null,
+            treatmentBranches: [],
           },
         }}
       />,
@@ -259,7 +260,7 @@ describe("FormBranches", () => {
               slug: "",
               description: "",
               ratio: 1,
-              featureValue: null,
+              featureValues: [],
               screenshots: [],
             },
             treatmentBranches: null,
@@ -333,7 +334,7 @@ describe("FormBranches", () => {
           onSave,
           experiment: {
             ...MOCK_EXPERIMENT,
-            treatmentBranches: null,
+            treatmentBranches: [],
           },
         }}
       />,
@@ -386,7 +387,7 @@ describe("FormBranches", () => {
               slug: "",
               description: "test",
               ratio: 1,
-              featureValue: null,
+              featureValues: [],
               screenshots: [],
             },
             treatmentBranches: null,
@@ -452,14 +453,27 @@ describe("FormBranches", () => {
     const branchIdx = 1;
 
     const expectedData = {
-      name: "example name",
       description: "example description",
+      featureValues: [
+        {
+          featureConfig: "1",
+          value: "example value",
+        },
+      ],
+      id: 123,
+      name: "example name",
       ratio: 42,
-      featureValue: "example value",
+      screenshots: [],
     };
+    const inputData = [
+      ["name", expectedData.name],
+      ["description", expectedData.description],
+      ["ratio", expectedData.ratio],
+      ["featureValues[0].value", expectedData.featureValues[0].value],
+    ];
 
     for (const id of ["referenceBranch", `treatmentBranches[${branchIdx}]`]) {
-      await fillInBranch(container, id, expectedData);
+      await fillInBranch(container, id, inputData);
     }
 
     await clickAndWaitForSave(onSave);
@@ -469,14 +483,12 @@ describe("FormBranches", () => {
       MOCK_FEATURE_CONFIG_WITH_SCHEMA.id,
     ]);
     expect(saveResult.referenceBranch).toEqual({
-      id: MOCK_EXPERIMENT.referenceBranch!.id,
-      screenshots: [],
       ...expectedData,
+      id: MOCK_EXPERIMENT.referenceBranch!.id,
     });
     expect(saveResult.treatmentBranches[1]).toEqual({
-      id: MOCK_EXPERIMENT.treatmentBranches![1]!.id,
-      screenshots: [],
       ...expectedData,
+      id: MOCK_EXPERIMENT.treatmentBranches![1]!.id,
     });
   });
 
@@ -527,7 +539,7 @@ describe("FormBranches", () => {
               },
               warnings: {
                 reference_branch: {
-                  feature_value: [FEATURE_VALUE_WARNING],
+                  feature_values: [{ value: [FEATURE_VALUE_WARNING] }],
                 },
               },
             },
@@ -543,7 +555,7 @@ describe("FormBranches", () => {
                 slug: "",
                 description: "",
                 ratio: 0,
-                featureValue: null,
+                featureValues: [],
                 screenshots: [],
               },
             ],
@@ -696,14 +708,14 @@ const clickAndWaitForSave = async (pendingOnSave: jest.Mock<any, any>) => {
 async function fillInBranch(
   container: HTMLElement,
   fieldNamePrefix: string,
-  expectedData = {
-    name: "example name",
-    description: "example description",
-    ratio: 42,
-    featureValue: "example value",
-  },
+  expectedData = [
+    ["name", "example name"],
+    ["description", "example description"],
+    ["ratio", 42],
+    ["featureValues[0].value", '{"key": "value"}'],
+  ],
 ) {
-  for (const [name, value] of Object.entries(expectedData)) {
+  for (const [name, value] of expectedData) {
     const field = container.querySelector(
       `[name="${fieldNamePrefix}.${name}"]`,
     ) as HTMLInputElement;
