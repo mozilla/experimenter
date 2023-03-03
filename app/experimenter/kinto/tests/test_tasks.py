@@ -391,6 +391,43 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             ).exists()
         )
 
+    def test_check_with_rejected_update_live_rollout_rolls_back_and_pushes(self):
+        rejected_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=True,
+        )
+        self.setup_kinto_get_main_records([])
+        self.setup_kinto_rejected_review()
+
+        tasks.nimbus_check_kinto_push_queue_by_collection(
+            settings.KINTO_COLLECTION_NIMBUS_DESKTOP
+        )
+
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            data={"status": KINTO_ROLLBACK_STATUS},
+        )
+
+        rejected_experiment = NimbusExperiment.objects.get(id=rejected_experiment.id)
+        self.assertEqual(rejected_experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(
+            rejected_experiment.publish_status, NimbusExperiment.PublishStatus.DIRTY
+        )
+        self.assertIsNone(rejected_experiment.status_next)
+        self.assertFalse(rejected_experiment.is_paused)
+
+        self.assertTrue(
+            rejected_experiment.changes.filter(
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=NimbusExperiment.Status.LIVE,
+                old_publish_status=NimbusExperiment.PublishStatus.WAITING,
+                new_status=NimbusExperiment.Status.LIVE,
+                new_publish_status=NimbusExperiment.PublishStatus.DIRTY,
+            ).exists()
+        )
+
     def test_check_with_rejected_end_rolls_back_and_pushes(self):
         rejected_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_WAITING,
