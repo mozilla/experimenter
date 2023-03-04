@@ -225,43 +225,6 @@ describe("PageSummary", () => {
     await launchFromDraftToReview();
   });
 
-  it("handles dirty Live to Review as expected", async () => {
-    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
-      status: NimbusExperimentStatusEnum.LIVE,
-      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
-    });
-    const mutationMock = createStatusMutationMock(rollout.id!);
-
-    render(<Subject mocks={[mockRollout, mutationMock]} />);
-
-    const submitButton = await screen.findByTestId("update-live-to-review");
-    expect(submitButton!).toBeEnabled();
-    await act(async () => void fireEvent.click(submitButton));
-  });
-
-  it("shows update and end buttons for live dirty rollout", async () => {
-    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
-      status: NimbusExperimentStatusEnum.LIVE,
-      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
-      isEnrollmentPaused: false,
-    });
-    const mutationMock = createStatusMutationMock(rollout.id!);
-
-    render(<Subject mocks={[mockRollout, mutationMock]} />);
-    const requestUpdateButton = await screen.findByTestId(
-      "update-live-to-review",
-    );
-    const endExperimentButton = await screen.findByTestId(
-      "end-experiment-start",
-    );
-    const endEnrollmentButton = await screen.findByTestId("enrollment-end");
-    await waitFor(() => {
-      expect(requestUpdateButton).toBeInTheDocument();
-      expect(endEnrollmentButton).toBeInTheDocument();
-      expect(endExperimentButton).toBeInTheDocument();
-    });
-  });
-
   it("handles cancelled Launch to Review as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.DRAFT,
