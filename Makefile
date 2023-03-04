@@ -193,3 +193,11 @@ integration_test_nimbus: build_prod
 
 integration_test_nimbus_rust: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
+
+
+
+cirrus_up:  ## Run Docker Compose services
+	$(COMPOSE) up web
+
+cirrus_down:  ## Shutdown Docker Compose services
+	$(COMPOSE) down
