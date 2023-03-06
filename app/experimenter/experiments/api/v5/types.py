@@ -252,7 +252,7 @@ class NimbusChangeLogType(DjangoObjectType):
         model = NimbusChangeLog
         fields = (
             "changed_by",
-            "changed_on",
+            "_updated_date_time",
             "experiment_data",
             "message",
             "new_status_next",
