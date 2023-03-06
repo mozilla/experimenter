@@ -196,8 +196,8 @@ integration_test_nimbus_rust: build_prod
 
 
 
-cirrus_up:  ## Run Docker Compose services
+cirrus_up:
 	$(COMPOSE) up cirrus
 
-cirrus_down:  ## Shutdown Docker Compose services
+cirrus_down:
 	$(COMPOSE) down cirrus
