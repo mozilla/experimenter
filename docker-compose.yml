@@ -101,6 +101,16 @@ services:
     ports:
       - "8000:8000"
 
+  cirrus:
+    build:
+      context: .
+      dockerfile: cirrus/server/Dockerfile
+    volumes:
+      - .:/cirrus/server
+    ports:
+      - "8001:8001"
+    command: uvicorn cirrus.server.cirrus.main:app --reload --host 0.0.0.0 --port 8001
+
 volumes:
   db_volume:
   media_volume:
