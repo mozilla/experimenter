@@ -101,7 +101,7 @@ services:
     ports:
       - "8000:8000"
 
-  web:
+  cirrus:
     build:
       context: .
       dockerfile: cirrus/server/Dockerfile
