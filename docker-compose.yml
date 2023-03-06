@@ -108,8 +108,8 @@ services:
     volumes:
       - .:/cirrus/server
     ports:
-      - "8000:8000"
-    command: uvicorn cirrus.server.cirrus.main:app --reload --host 0.0.0.0 --port 8000
+      - "8001:8001"
+    command: uvicorn cirrus.server.cirrus.main:app --reload --host 0.0.0.0 --port 8001
 
 volumes:
   db_volume:
