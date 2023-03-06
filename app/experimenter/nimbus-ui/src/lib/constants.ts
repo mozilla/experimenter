@@ -174,3 +174,5 @@ export const URL_FIELD = {
 export const IMAGE_UPLOAD_ACCEPT = ".gif,.jpg,.jpeg,.png";
 
 export const POLL_INTERVAL = 30000;
+
+export const ENABLE_LIVE_ROLLOUTS = false;

@@ -19,6 +19,7 @@ import { useChangeOperationMutation, useReviewCheck } from "src/hooks";
 import { ReactComponent as InfoCircle } from "src/images/info-circle.svg";
 import {
   CHANGELOG_MESSAGES,
+  ENABLE_LIVE_ROLLOUTS,
   EXTERNAL_URLS,
   LIFECYCLE_REVIEW_FLOWS,
 } from "src/lib/constants";
@@ -215,7 +216,8 @@ const PageSummary = (props: RouteComponentProps) => {
         </Alert>
       )}
 
-      {experiment.isRollout &&
+      {ENABLE_LIVE_ROLLOUTS && 
+        experiment.isRollout &&
         (status.draft || status.preview) &&
         fieldWarnings.bucketing?.length > 0 && (
           <Alert data-testid="bucketing-warning" variant="danger">
@@ -307,7 +309,8 @@ const StatusPills = ({
         label="Enrollment Complete"
       />
     )}
-    {(status.dirty ||
+    {ENABLE_LIVE_ROLLOUTS &&
+      (status.dirty ||
       status.updateRequested ||
       status.updateRequestedWaiting) && (
       <StatusPill
