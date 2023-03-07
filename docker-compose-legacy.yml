@@ -2,7 +2,7 @@ version: "3"
 
 services:
   yarn-legacy:
-    image: app:dev
+    image: experimenter:dev
     env_file: .env
     tty: true
     volumes:

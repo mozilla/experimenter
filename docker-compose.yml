@@ -2,7 +2,7 @@ version: "3"
 
 services:
   experimenter:
-    image: app:dev
+    image: experimenter:dev
     env_file: .env
     stdin_open: true
     tty: true
@@ -24,7 +24,7 @@ services:
     command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python /experimenter/manage.py runserver 0:7001"
 
   yarn-nimbus-ui:
-    image: app:dev
+    image: experimenter:dev
     env_file: .env
     tty: true
     ports:
@@ -41,7 +41,7 @@ services:
     command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus-ui start | cat"
 
   worker:
-    image: app:dev
+    image: experimenter:dev
     env_file: .env
     links:
       - db
@@ -52,7 +52,7 @@ services:
     command: bash -c "/experimenter/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l DEBUG"
 
   beat:
-    image: app:dev
+    image: experimenter:dev
     env_file: .env
     links:
       - db

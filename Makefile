@@ -86,16 +86,16 @@ update_kinto:
 	docker pull mozilla/kinto-dist:latest
 
 build_dev: ssl
-	DOCKER_BUILDKIT=1 docker build --target dev -f experimenter/Dockerfile -t app:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	DOCKER_BUILDKIT=1 docker build --target dev -f experimenter/Dockerfile -t experimenter:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
 build_test: ssl
-	DOCKER_BUILDKIT=1 docker build --target test -f experimenter/Dockerfile -t app:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	DOCKER_BUILDKIT=1 docker build --target test -f experimenter/Dockerfile -t experimenter:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
 build_ui: ssl
-	DOCKER_BUILDKIT=1 docker build --target ui -f experimenter/Dockerfile -t app:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	DOCKER_BUILDKIT=1 docker build --target ui -f experimenter/Dockerfile -t experimenter:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
 build_prod: build_ui ssl
-	DOCKER_BUILDKIT=1 docker build --target deploy -f experimenter/Dockerfile -t app:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
+	DOCKER_BUILDKIT=1 docker build --target deploy -f experimenter/Dockerfile -t experimenter:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
 compose_stop:
 	$(COMPOSE) kill || true

@@ -59,7 +59,7 @@ IS_STAGING = "stage." in HOSTNAME
 ALLOWED_HOSTS = [HOSTNAME]
 
 if DEBUG:
-    ALLOWED_HOSTS += ["localhost", "nginx", "0.0.0.0"]  # pragma: no cover
+    ALLOWED_HOSTS += ["localhost", "nginx"]  # pragma: no cover
 
 USE_YARN_DEV = config("USE_YARN_DEV", default=DEBUG, cast=bool)
 
