@@ -351,7 +351,7 @@ describe("Summary", () => {
     await act(async () => void fireEvent.click(requestUpdateButton));
   });
 
-  it("shows update and end buttons for live dirty rollout", async () => {
+  it("shows update and end experiment button for live dirty rollout", async () => {
     const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.LIVE,
       publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
@@ -376,13 +376,12 @@ describe("Summary", () => {
     const endExperimentButton = await screen.findByTestId(
       "end-experiment-start",
     );
-    const endEnrollmentButton = await screen.findByTestId(
-      "end-enrollment-start",
-    );
     await waitFor(() => {
       expect(requestUpdateButton).toBeInTheDocument();
-      expect(endEnrollmentButton).toBeInTheDocument();
       expect(endExperimentButton).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("end-enrollment-start"),
+      ).not.toBeInTheDocument();
     });
   });
 });
