@@ -52,12 +52,37 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
     setClearIcon(false);
     onChange(experiments);
   };
+  const formRef = React.useRef<any>();
 
   const [timer, setTimer] = React.useState<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    const newtimer = setTimeout(() => {
+      // get search term from url history
+      const termFromURL = new URL(window.location as any).searchParams.get(
+        "search",
+      ) as string;
+
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        "value",
+      )?.set;
+      nativeInputValueSetter?.call(formRef.current, termFromURL);
+
+      const event = new Event("input", { bubbles: true });
+      formRef.current?.dispatchEvent(event);
+    }, 700);
+    return () => clearTimeout(newtimer);
+  }, []);
 
   const handleChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
+    // add the search query to history state
+    const url = new URL(`${window.location}`);
+    url.searchParams.set("search", event.target.value as string);
+    window.history.pushState({}, "", `${url}`);
+
     setSearchTerms(event.target.value);
     if (timer) {
       clearTimeout(timer);
@@ -66,7 +91,7 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       setClearIcon(true);
 
       const newTimer = setTimeout(() => {
-        const results = fuse.search(searchTerms);
+        const results = fuse.search(event.target.value as string);
 
         const searchResults = results.map((character) => character.item);
         onChange(searchResults);
@@ -92,6 +117,8 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
         </InputGroup.Text>
       </InputGroup.Prepend>
       <FormControl
+        ref={formRef}
+        id="search-bar"
         aria-label="Default"
         aria-describedby="inputGroup-sizing-default"
         onChange={handleChange}
