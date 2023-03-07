@@ -100,7 +100,8 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
               !status.review &&
               (status.idle || status.dirty) &&
               !status.pauseRequested &&
-              !experiment.isEnrollmentPaused && (
+              !experiment.isEnrollmentPaused &&
+              !experiment.isRollout && (
                 <EndEnrollment
                   {...{ isLoading, onSubmit: onConfirmEndEnrollmentClicked }}
                 />
