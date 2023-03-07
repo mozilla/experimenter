@@ -33,8 +33,8 @@ export const SERVER_ERRORS = {
 export const EXTERNAL_URLS = {
   TRAINING_AND_PLANNING_DOC:
     "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Onboarding",
-  NIMBUS_MANA_DOC: "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus",
-  WORKFLOW_MANA_DOC:
+  NIMBUS_CONFLUENCE_DOC: "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus",
+  WORKFLOW_CONFLUENCE_DOC:
     "https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=109990007",
   BRANCHES_GOOGLE_DOC:
     "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.i8g4ppfvkq0x",
