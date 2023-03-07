@@ -379,6 +379,29 @@ describe("Summary", () => {
     await waitFor(() => {
       expect(requestUpdateButton).toBeInTheDocument();
       expect(endExperimentButton).toBeInTheDocument();
+    });
+  });
+
+  it("do not show end enrollment button for live dirty rollout", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      statusNext: null,
+      isEnrollmentPaused: false,
+    });
+
+    const mutationMock = createMutationMock(
+      rollout.id!,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+      {
+        changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+        statusNext: null,
+        publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        status: NimbusExperimentStatusEnum.LIVE,
+      },
+    );
+    render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
+    await waitFor(() => {
       expect(
         screen.queryByTestId("end-enrollment-start"),
       ).not.toBeInTheDocument();
