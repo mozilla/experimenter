@@ -215,6 +215,9 @@ urlbar:
       description: >-
         The index of sponsored QuickSuggest results within the general group. A
         negative index is relative to the end of the group
+    recordNavigationalSuggestionTelemetry:
+      type: boolean
+      description: Whether to record navigational suggestion telemetry. Defaults to false.
     searchEngagementTelemetryEnabled:
       type: boolean
       fallbackPref: browser.urlbar.searchEngagementTelemetry.enabled
@@ -549,6 +552,10 @@ pocketNewtab:
       description: A comma-separated list of regions that get spocs by default.
       type: string
       setPref: "browser.newtabpage.activity-stream.discoverystream.region-spocs-config"
+    topSitesMaxSponsored:
+      # Defined under `pocketNewtab` as it needs to be used along with other variables
+      type: int
+      description: The maximum number of sponsored Top Sites to be displayed
 
 saveToPocket:
   description: The save to Pocket feature
@@ -817,6 +824,9 @@ pictureinpicture:
     showIconOnly:
       type: boolean
       description: Whether to show the first time PiP toggle or show the PiP icon only
+    oldToggle:
+      type: boolean
+      description: Whether to show the control style (true) or variant style (false) for the first time PiP toggle
 
 glean:
   description: "The Glean data collection SDK within Firefox Desktop"
@@ -952,6 +962,40 @@ echPrefs:
       description: Assumed echConfig padding length for GREASE extensions (1-255).
       type: int
       setPref: "security.tls.ech.grease_size"
+
+dohPrefs:
+  description: Prefs that control DNS over HTTPS.
+  owner: vgosu@mozilla.com
+  hasExposure: false
+  variables:
+    trrMode:
+      description: Has a value of 2 for TRR first, 3 for TRR only, 0 for off.
+      type: int
+      setPref: "network.trr.mode"
+    trrUri:
+      description: The URL of the DNS over HTTPS endpoint
+      type: string
+      setPref: "network.trr.uri"
+    dohMode:
+      description: Same as trrMode, but set by the DoHController module.
+      type: int
+      setPref: "doh-rollout.mode"
+    dohUri:
+      description: Same as trrUri, but set by the DoHController module.
+      type: string
+      setPref: "doh-rollout.uri"
+    ohttpEnabled:
+      description: Whether to use Oblivious HTTP for the resolution
+      type: boolean
+      setPref: "network.trr.use_ohttp"
+    ohttpRelayUri:
+      description: The URL of the Oblivious HTTP relay
+      type: string
+      setPref: "network.trr.ohttp.relay_uri"
+    ohttpConfigUri:
+      description: The URL used to fetch the configuration of the Oblivious HTTP gateway
+      type: string
+      setPref: "network.trr.ohttp.config_uri"
 
 pingsender:
   description: "In-product usage of the pingsender telemetry reporter."
