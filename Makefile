@@ -88,13 +88,13 @@ update_kinto:
 compose_build:
 	$(COMPOSE)  build
 
-build_dev: ssl compose_build
+build_dev: ssl
 	DOCKER_BUILDKIT=1 docker build --target dev -f experimenter/Dockerfile -t experimenter:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
-build_test: ssl compose_build
+build_test: ssl
 	DOCKER_BUILDKIT=1 docker build --target test -f experimenter/Dockerfile -t experimenter:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
-build_ui: ssl compose_build
+build_ui: ssl
 	DOCKER_BUILDKIT=1 docker build --target ui -f experimenter/Dockerfile -t experimenter:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
 build_prod: build_ui ssl
@@ -168,7 +168,7 @@ migrate: build_dev
 bash: build_dev
 	$(COMPOSE) run experimenter bash
 
-refresh: kill build_dev
+refresh: kill build_dev compose_build
 	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 dependabot_approve:
