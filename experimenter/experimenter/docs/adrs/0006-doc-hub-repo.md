@@ -6,7 +6,7 @@
 
 ## Context and Problem Statement
 
-ADR #5, ["Use Docusaurus + GH Pages for the Nimbus User Doc Hub"](https://github.com/mozilla/experimenter/blob/main/app/experimenter/docs/adrs/0005-doc-hub.md), determined that our approach to setting up a new central location for Experimenter/Nimbus and related project documentation would use [Docusaurus](https://v2.docusaurus.io/), a static site generator, with the static files being served from [GitHub Pages](https://pages.github.com/). While we knew we would be introducing a new set of code we didn't explicitly decide where it would live and what the process for deploying would look like, beyond suggesting it could live in the existing Experimenter repository.
+ADR #5, ["Use Docusaurus + GH Pages for the Nimbus User Doc Hub"](https://github.com/mozilla/experimenter/blob/main/experimenter/experimenter/docs/adrs/0005-doc-hub.md), determined that our approach to setting up a new central location for Experimenter/Nimbus and related project documentation would use [Docusaurus](https://v2.docusaurus.io/), a static site generator, with the static files being served from [GitHub Pages](https://pages.github.com/). While we knew we would be introducing a new set of code we didn't explicitly decide where it would live and what the process for deploying would look like, beyond suggesting it could live in the existing Experimenter repository.
 
 In investigating how to set all of this up we realized there would be certain caveats to hosting and deploying this code from the Experimenter repository, and this lead to the consideration of using a dedicated repository. This ADR outlines our options and end decision.
 
@@ -32,7 +32,7 @@ In investigating how to set all of this up we realized there would be certain ca
 
 ### Use the Experimenter repository, main branch
 
-This decision would have us use the `mozilla/experimenter` repository, housing the code and documentation files in the `main` branch (likely in a nested `/app/docs` directory), and the built/static files would be committed to and served from a `gh-pages` branch.
+This decision would have us use the `mozilla/experimenter` repository, housing the code and documentation files in the `main` branch (likely in a nested `/experimenter/docs` directory), and the built/static files would be committed to and served from a `gh-pages` branch.
 
 Pros
 
@@ -44,9 +44,9 @@ Cons
 
 - There is a caveat to "pulling in the latest changes and adding new files": this doesn't necessarily apply to drive-by contributors. If you are someone who regularly works with the Experimenter codebase this should be a familiar process, but if you are someone who only wants to contribute simple documentation or perhaps suggest a change you'll need to first understand what you're looking at [in the repository] and where everything is located.
 - The repository is set up to run a set of test and build CircleCI jobs any time a Pull Request is opened (initially, then on new pushes), and again when merging into `main`. They can be expensive with repeated runs, take a non-trivial amount of time, and are subject to hiccups and flaky tests. As such we would likely need to modify our existing CircleCI config to not run certain jobs if changes only occurred in documentation-related files, which could be a considerable amount of work.
-    - We _could_ alternatively ignore this altogether; we're under our CircleCI spend and in theory documentation-related runs wouldn't eat up too many credits. This would need to be monitored and evaluated at a later time.
-- If we want to utilise Experimenter's existing Yarn workspaces it means we need to place the Docusaurus code underneath the code's `/app` directory as this is where the root Yarn project is. This isn't as ideal as having a `/docs-hub` directory at the root of the project, which would be better for contributors less familiar with the rest of Experimenter.
-    - It's also a possibility that we don't need to use Yarn workspaces for this. The downside to that is that we'd then have two distinct Yarn installation processes and `node_modules` directories.
+  - We _could_ alternatively ignore this altogether; we're under our CircleCI spend and in theory documentation-related runs wouldn't eat up too many credits. This would need to be monitored and evaluated at a later time.
+- If we want to utilise Experimenter's existing Yarn workspaces it means we need to place the Docusaurus code underneath the code's `/experimenter` directory as this is where the root Yarn project is. This isn't as ideal as having a `/docs-hub` directory at the root of the project, which would be better for contributors less familiar with the rest of Experimenter.
+  - It's also a possibility that we don't need to use Yarn workspaces for this. The downside to that is that we'd then have two distinct Yarn installation processes and `node_modules` directories.
 - This hub is intended to provide documentation for a variety of services, and is not just scoped to Experimenter Console. Given that we already have other separate familial repositories it might seem odd to house this hub inside `mozilla/experimenter`.
 - Precludes us from using the repository's GitHub Pages path for another project that might be more specific to Experimenter Console.
 
@@ -89,8 +89,8 @@ Cons
 
 - Adds some cultural overhead as we are introducing Yet Another Repository for individuals to get familiar with, set up notifications for, etc.
 - Using a repository separate from `mozilla/experimenter`, or any established repository, involves some technical overhead. This means ensuring correct permissions for contributors, setting up or finding alternate solutions to integrations (e.g. Sentry, Slack, Jira, Dependabot) we decide we need, and individuals needing to clone and install dependencies for the new codebase. We also run the risk of encountering unknowns that have been addressed over time with mature repository.
-    - An example of finding an alternate solution to an integration is Jira, and specifically filing issues. Instead of connecting this new repository with Jira we could disable issue filing on the repository and require any new issues be filed under the EXP project in Jira, having them sync to `mozilla/experimenter`.
-    - When it comes to repository permissions, granting edit access to the [`@mozilla/project-nimbus`](https://github.com/orgs/mozilla/teams/project-nimbus/members) team seems like the easiest approach.
+  - An example of finding an alternate solution to an integration is Jira, and specifically filing issues. Instead of connecting this new repository with Jira we could disable issue filing on the repository and require any new issues be filed under the EXP project in Jira, having them sync to `mozilla/experimenter`.
+  - When it comes to repository permissions, granting edit access to the [`@mozilla/project-nimbus`](https://github.com/orgs/mozilla/teams/project-nimbus/members) team seems like the easiest approach.
 - You would not be able to merge changes to both documentation and the Experimenter codebase in the same Pull Request.
 
 ## Links

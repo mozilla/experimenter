@@ -9,7 +9,7 @@ services:
       - FIREFOX_VERSION
     volumes:
       - .:/code
-      - /code/app/tests/integration/.tox
+      - /code/experimenter/tests/integration/.tox
     links:
       - nginx
       - kinto
@@ -28,13 +28,12 @@ services:
       - PYTHONPATH
     volumes:
       - .:/code
-      - /code/app/tests/integration/.tox
+      - /code/experimenter/tests/integration/.tox
     working_dir: /code
     links:
       - nginx
       - kinto
   ping-server:
-    build: app/tests/integration/nimbus/utils/ping_server
+    build: experimenter/tests/integration/nimbus/utils/ping_server
     ports:
       - "5000:5000"
-
