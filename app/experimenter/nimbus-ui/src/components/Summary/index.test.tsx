@@ -2,11 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import React from "react";
 import { createMutationMock, Subject } from "src/components/Summary/mocks";
 import { CHANGELOG_MESSAGES, SUBMIT_ERROR } from "src/lib/constants";
-import { mockExperimentQuery } from "src/lib/mocks";
+import { mockExperimentQuery, mockLiveRolloutQuery } from "src/lib/mocks";
 import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
@@ -74,6 +80,31 @@ describe("Summary", () => {
       />,
     );
     await screen.findByText("End Experiment");
+  });
+
+  it("renders the end experiment button if dirty", async () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        }}
+      />,
+    );
+    await screen.findByText("End Experiment");
+  });
+
+  it("renders the end enrollment button if dirty", async () => {
+    render(
+      <Subject
+        props={{
+          status: NimbusExperimentStatusEnum.LIVE,
+          publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+          isEnrollmentPaused: false,
+        }}
+      />,
+    );
+    await screen.findByTestId("end-enrollment-start");
   });
 
   it("renders the cancel review button if the experiment is in review state", async () => {
@@ -291,6 +322,89 @@ describe("Summary", () => {
       fireEvent.click(screen.getByTestId("end-enrollment-start"));
       const errorContainer = await screen.findByTestId("submit-error");
       expect(errorContainer).toHaveTextContent(errorMessage);
+    });
+  });
+
+  it("handles dirty Live to Review as expected", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      statusNext: null,
+    });
+
+    const mutationMock = createMutationMock(
+      rollout.id!,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+      {
+        changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+        statusNext: null,
+        publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        status: NimbusExperimentStatusEnum.LIVE,
+      },
+    );
+    render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
+
+    const requestUpdateButton = await screen.findByTestId(
+      "update-live-to-review",
+    );
+    expect(requestUpdateButton).toBeEnabled();
+    await act(async () => void fireEvent.click(requestUpdateButton));
+  });
+
+  it("shows update and end experiment button for live dirty rollout", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      statusNext: null,
+      isEnrollmentPaused: false,
+    });
+
+    const mutationMock = createMutationMock(
+      rollout.id!,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+      {
+        changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+        statusNext: null,
+        publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        status: NimbusExperimentStatusEnum.LIVE,
+      },
+    );
+    render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
+    const requestUpdateButton = await screen.findByTestId(
+      "update-live-to-review",
+    );
+    const endExperimentButton = await screen.findByTestId(
+      "end-experiment-start",
+    );
+    await waitFor(() => {
+      expect(requestUpdateButton).toBeInTheDocument();
+      expect(endExperimentButton).toBeInTheDocument();
+    });
+  });
+
+  it("do not show end enrollment button for live dirty rollout", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      status: NimbusExperimentStatusEnum.LIVE,
+      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+      statusNext: null,
+      isEnrollmentPaused: false,
+    });
+
+    const mutationMock = createMutationMock(
+      rollout.id!,
+      NimbusExperimentPublishStatusEnum.DIRTY,
+      {
+        changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_UPDATE,
+        statusNext: null,
+        publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+        status: NimbusExperimentStatusEnum.LIVE,
+      },
+    );
+    render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("end-enrollment-start"),
+      ).not.toBeInTheDocument();
     });
   });
 });

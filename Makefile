@@ -193,3 +193,11 @@ integration_test_nimbus: build_prod
 
 integration_test_nimbus_rust: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod a+rwx /code/experimenter/tests/integration/.tox;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
+	
+# cirrus
+cirrus_up:
+	$(COMPOSE) up cirrus
+
+cirrus_down:
+	$(COMPOSE) down cirrus
+

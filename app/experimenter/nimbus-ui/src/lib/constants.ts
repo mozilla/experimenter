@@ -119,6 +119,7 @@ export const CHANGELOG_MESSAGES = {
   UPDATED_OVERVIEW: "Updated Overview",
   LAUNCHED_TO_PREVIEW: "Launched to Preview",
   RETURNED_TO_DRAFT: "Returned to Draft Status",
+  RETURNED_TO_LIVE: "Returned to Live Dirty Status",
   REQUESTED_REVIEW: "Review Requested for Launch",
   REVIEW_APPROVED: "Launch Review Approved",
   REQUESTED_REVIEW_UPDATE: "Review Requested for Update",

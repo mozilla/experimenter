@@ -1,2 +1,3 @@
-experimenter/tests @jrbenny35
-experimenter/experimenter/ @jaredlockhart
+app/tests @jrbenny35
+app/experimenter/ @jaredlockhart @yashikakhurana @eliserichards
+app/cirrus/ @jaredlockhart @yashikakhurana @jeddai

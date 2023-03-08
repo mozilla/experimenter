@@ -225,20 +225,6 @@ describe("PageSummary", () => {
     await launchFromDraftToReview();
   });
 
-  it("handles dirty Live to Review as expected", async () => {
-    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
-      status: NimbusExperimentStatusEnum.LIVE,
-      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
-    });
-    const mutationMock = createStatusMutationMock(rollout.id!);
-
-    render(<Subject mocks={[mockRollout, mutationMock]} />);
-
-    const submitButton = await screen.findByTestId("update-live-to-review");
-    expect(submitButton!).toBeEnabled();
-    await act(async () => void fireEvent.click(submitButton));
-  });
-
   it("handles cancelled Launch to Review as expected", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.DRAFT,
@@ -255,23 +241,6 @@ describe("PageSummary", () => {
     const cancelButton = await screen.findByTestId("cancel");
     fireEvent.click(cancelButton);
     await screen.findByTestId("launch-draft-to-preview");
-  });
-
-  it("handles cancelled update Live to Review as expected", async () => {
-    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
-      status: NimbusExperimentStatusEnum.LIVE,
-      publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
-    });
-    const mutationMock = createStatusMutationMock(rollout.id!);
-    render(<Subject mocks={[mockRollout, mutationMock]} />);
-
-    const submitButton = await screen.findByTestId("update-live-to-review");
-    expect(submitButton!).toBeEnabled();
-    await act(async () => void fireEvent.click(submitButton));
-
-    const cancelButton = await screen.findByTestId("cancel");
-    fireEvent.click(cancelButton);
-    await screen.findByTestId("request-live-update-alert");
   });
 
   it("handles Launch to Preview after reconsidering Launch to Review from Draft", async () => {

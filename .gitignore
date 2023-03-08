@@ -105,3 +105,6 @@ experimenter/experimenter/outcomes/metric-hub.zip
 **/commit-description.txt
 **/commit-summary.txt
 **/version.json
+
+# Cirrus
+cirrus/server/app/__pycache__
