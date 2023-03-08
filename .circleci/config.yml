@@ -493,11 +493,11 @@ workflows:
               ignore:
                 - main
       - integration_nimbus_dev_desktop_ui:
-        name: Test Desktop Nimbus UI Dev Environment (Release Firefox)
-        filters:
-          branches:
-            ignore:
-              - main
+          name: Test Desktop Nimbus UI Dev Environment (Release Firefox)
+          filters:
+            branches:
+              ignore:
+                - main
       - integration_nimbus_desktop_remote_settings:
           name: Test Desktop and Remote Settings (Release Firefox)
           filters:
