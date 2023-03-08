@@ -142,7 +142,7 @@ No set up required. Doc maintainers will go to the Experimenter Wiki page and ma
 
 [Storybook](https://github.com/storybookjs/storybook) is a versatile package that can not only be used to aid in UI development, but can also be used for various kinds of guides and documentation.
 
-We currently use Storybook in [`nimbus-ui`](https://github.com/mozilla/experimenter/tree/main/app/experimenter/nimbus-ui), which at the time of writing has a small documentation section, and builds are automatically deployed to [`mozilla-storybooks-experimenter`](https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html) per commit.
+We currently use Storybook in [`nimbus-ui`](https://github.com/mozilla/experimenter/tree/main/experimenter/experimenter/nimbus-ui), which at the time of writing has a small documentation section, and builds are automatically deployed to [`mozilla-storybooks-experimenter`](https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html) per commit.
 
 Pros
 

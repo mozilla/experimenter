@@ -230,7 +230,7 @@ Multiselects use the hooks similarly, but because the `Select` element comes fro
 
 ### Required for Launch Validation
 
-While an experiment is in `draft` status all fields are technically allowed to be empty/`null`. Some fields will use the client-side validation to ensure a value is always present (e.g. the "name" field), other fields will allow you to save without filling them out but must be completed and valid before the experiment can move to the `review` status (e.g. the "public description" field). These "optional while editing" fields should NOT be marked as `required` in the client, but instead should be made required in the [`NimbusReadyForReviewSerializer`](app/experimenter/experiments/api/v5/serializers.py).
+While an experiment is in `draft` status all fields are technically allowed to be empty/`null`. Some fields will use the client-side validation to ensure a value is always present (e.g. the "name" field), other fields will allow you to save without filling them out but must be completed and valid before the experiment can move to the `review` status (e.g. the "public description" field). These "optional while editing" fields should NOT be marked as `required` in the client, but instead should be made required in the [`NimbusReadyForReviewSerializer`](experimenter/experimenter/experiments/api/v5/serializers.py).
 
 No additional action is required; as long as you correctly set the form group's `controlId` and the form error's `name` these review-readiness messages will automatically appear as needed when a user attempts to go into review with incomplete fields.
 
@@ -260,7 +260,7 @@ Alternatively to view results locally, if you want to more closely mirror produc
 2. Set `FEATURE_ANALYSIS=true` in your local `.env` file
 3. Find a completed experiment in production that has analysis data ready that you'd like to test your changes against
 4. At `localhost/admin`, add a new Nimbus Experiment with the same experiment slug as the production experiment you'd like to test against. Set the status to "complete," add the matching reference/control branch from the production experiment (name and slug), and save the experiment. Then, select that branch in the "reference branch" drop down and save again.
-5. Either change `fetch_jetstream_data` in `app/experimenter/settings.py` to a much shorter number, like `30`, so it fetches and stores the data in the local database, or manually refetch the data in `/admin` as described in the next section
+5. Either change `fetch_jetstream_data` in `experimenter/experimenter/settings.py` to a much shorter number, like `30`, so it fetches and stores the data in the local database, or manually refetch the data in `/admin` as described in the next section
 
 You should now be able to navigate to `localhost/nimbus/your-experiment-slug/results` to test your changes locally.
 
