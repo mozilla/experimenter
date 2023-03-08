@@ -186,10 +186,10 @@ integration_vnc_up_detached: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox
 
 integration_test_legacy: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/experimenter/tests/integration/.tox;tox -c experimenter/tests/integration -e integration-test-legacy $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c experimenter/tests/integration -e integration-test-legacy $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
 
 integration_test_nimbus: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "if [ "$$UPDATE_FIREFOX_VERSION" = "true" ]; then sudo ./experimenter/tests/integration/nimbus/utils/nightly-install.sh; fi; firefox -V; sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/experimenter/tests/integration/.tox;PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) tox -c experimenter/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "if [ "$$UPDATE_FIREFOX_VERSION" = "true" ]; then sudo ./experimenter/tests/integration/nimbus/utils/nightly-install.sh; fi; firefox -V; sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/app/tests/integration/.tox;PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) tox -c experimenter/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
 
 integration_test_nimbus_rust: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod a+rwx /code/experimenter/tests/integration/.tox;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod a+rwx /code/app/tests/integration/.tox;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"

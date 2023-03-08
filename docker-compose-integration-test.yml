@@ -9,7 +9,7 @@ services:
       - FIREFOX_VERSION
     volumes:
       - .:/code
-      - /code/experimenter/tests/integration/.tox
+      - /code/app/tests/integration/.tox
     links:
       - nginx
       - kinto
@@ -28,7 +28,7 @@ services:
       - PYTHONPATH
     volumes:
       - .:/code
-      - /code/experimenter/tests/integration/.tox
+      - /code/app/tests/integration/.tox
     working_dir: /code
     links:
       - nginx
