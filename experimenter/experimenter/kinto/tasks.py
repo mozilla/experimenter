@@ -188,6 +188,7 @@ def handle_updating_experiments(applications, records):
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
             experiment.status_next = None
             experiment.published_dto = published_record
+            experiment.is_dirty = False
             experiment.save()
 
             generate_nimbus_changelog(

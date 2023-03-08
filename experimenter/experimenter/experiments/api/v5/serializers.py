@@ -1063,6 +1063,7 @@ class NimbusExperimentSerializer(
             # can be Live Update (Dirty), End Enrollment, or End Experiment
             # (including rejections) if we don't check validated_data
             validated_data["publish_status"] = NimbusConstants.PublishStatus.DIRTY
+            validated_data["is_dirty"] = True
 
         self.changelog_message = validated_data.pop("changelog_message")
         return super().update(experiment, validated_data)
