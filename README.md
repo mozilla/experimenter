@@ -34,17 +34,20 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 
 ### General Setup
 
-1. Prerequisites
+1.  Prerequisites
 
     On all platforms:
-    - Install [Node](https://nodejs.org/en/download/releases/) to match [current version](https://github.com/mozilla/experimenter/blob/main/app/Dockerfile#L29)
+
+    - Install [Node](https://nodejs.org/en/download/releases/) to match [current version](https://github.com/mozilla/experimenter/blob/main/experimenter/Dockerfile#L29)
 
     On Linux:
+
     - Install [Docker](https://www.docker.com/)
     - Install [yarn](https://classic.yarnpkg.com/lang/en/docs/install)
     - [Setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
 
     On MacOS:
+
     - Install [Docker](https://docs.docker.com/desktop/mac/install/)
       - Adjust resource settings
         - CPU: Max number of cores
@@ -53,45 +56,45 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
         - Disk: 100gb+
     - Install [yarn](https://github.com/yarnpkg)
 
-1. Clone the repo
+1.  Clone the repo
 
         git clone <your fork>
 
-1. Copy the sample env file
+1.  Copy the sample env file
 
         cp .env.sample .env
 
-1. Set DEBUG=True for local development
+1.  Set DEBUG=True for local development
 
         vi .env
 
-1. Create a new secret key and put it in .env
+1.  Create a new secret key and put it in .env
 
         make secretkey
 
-	vi .env
+    vi .env
 
-	```
-	...
-	SECRETKEY=mynewsecretkey
-	...
-	```
+    ```
+    ...
+    SECRETKEY=mynewsecretkey
+    ...
+    ```
 
-1. Run tests
+1.  Run tests
 
         make check
 
-1. Setup the database
+1.  Setup the database
 
         make refresh
 
 #### Fully Dockerized Setup (continuation from General Setup 1-7)
 
-1. Run a dev instance
+1.  Run a dev instance
 
         make up
 
-1. Navigate to it and add an SSL exception to your browser
+1.  Navigate to it and add an SSL exception to your browser
 
         https://localhost/
 
@@ -127,7 +130,8 @@ Notes:
         sudo apt install libpq5=12.9-0ubuntu0.20.04.1
         sudo apt install libpq-dev
 
-    _*Notes_
+    _\*Notes_
+
     - _the specific libpq5 version shown here is required for libpq-dev at time of writing_
     - _`poetry install` (next step) requires python 3.9, but there are multiple options for resolving this, see [here](https://python-poetry.org/docs/managing-environments/#switching-between-environments)_
 
@@ -135,7 +139,7 @@ Notes:
 
         source .env
 
-        cd app
+        cd experimenter
         poetry install # see note above
 
         yarn install
@@ -153,7 +157,7 @@ Notes:
 
 5.  Django app
 
-        # in app
+        # in experimenter
 
         poetry shell
 
@@ -164,7 +168,7 @@ Notes:
         yarn workspace @experimenter/nimbus-ui start
         ./manage.py runserver 0.0.0.0:7001
 
-*Pro-tip*: we have had at least one large code refactor. You can ignore specific large commits when blaming by setting the Git config's `ignoreRevsFile` to `.git-blame-ignore-revs`:
+_Pro-tip_: we have had at least one large code refactor. You can ignore specific large commits when blaming by setting the Git config's `ignoreRevsFile` to `.git-blame-ignore-revs`:
 
 ```
 git config blame.ignoreRevsFile .git-blame-ignore-revs
@@ -174,52 +178,55 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 
 1. If using VSCode, configure workspace folders
 
-   - Add `/experimenter/` and `/experimenter/app` folders to your workspace (File -> Add Folder to Workspace -> `path/to/experimenter/app`)
-   - From the `/experimenter/app` folder, run `yarn install`
-       - Make sure you are using the correct version of node
+   - Add `/experimenter/` and `/experimenter/experimenter` folders to your workspace (File -> Add Folder to Workspace -> `path/to/experimenter/experimenter`)
+   - From the `/experimenter/experimenter` folder, run `yarn install`
 
-           node -v
+     - Make sure you are using the correct version of node
 
-       - Troubleshooting:
-           - [Changing node version](https://stackoverflow.com/a/50817276/12178648)
-           - Clear npm cache: `npm cache clean --force`
+       node -v
+
+     - Troubleshooting:
+       - [Changing node version](https://stackoverflow.com/a/50817276/12178648)
+       - Clear npm cache: `npm cache clean --force`
 
 ### Google Credentials for Jetstream
 
 On certain pages an API endpoint is called to receive experiment analysis data from Jetstream to display visualization tables. To see experiment visualization data, you must provide GCP credentials.
 
 0. Prequisites
-    - Install GCP CLI
-      - Follow the instructions [here](https://cloud.google.com/sdk/docs/install)
-      - Project: `moz-fx-data-experiments`
+
+   - Install GCP CLI
+     - Follow the instructions [here](https://cloud.google.com/sdk/docs/install)
+     - Project: `moz-fx-data-experiments`
    - Verify/request project permissions
-      - Check if you already have access to the storage bucket [here](https://console.cloud.google.com/storage/browser/mozanalysis)
-      - If needed, ask in `#nimbus-dev` for a project admin to grant `storage.objects.list` permissions on the `moz-fx-data-experiments` project
+     - Check if you already have access to the storage bucket [here](https://console.cloud.google.com/storage/browser/mozanalysis)
+     - If needed, ask in `#nimbus-dev` for a project admin to grant `storage.objects.list` permissions on the `moz-fx-data-experiments` project
 
 1. Authorize CLI with your account
-    - `make auth_gcloud`
-      - this will save your credentials locally to a well-known location for use by any library that requests ADC
-      - **Note**: if this returns `Error saving Application Default Credentials: Unable to write file [...]: [Errno 21] Is a directory: ...`, delete the directory and try again (`rm -rf ~/.config/gcloud`)
+
+   - `make auth_gcloud`
+     - this will save your credentials locally to a well-known location for use by any library that requests ADC
+     - **Note**: if this returns `Error saving Application Default Credentials: Unable to write file [...]: [Errno 21] Is a directory: ...`, delete the directory and try again (`rm -rf ~/.config/gcloud`)
 
 2. The next time you rebuild the docker-compose environment, your credentials will be loaded as a volume
-    - Note that this will require the existing volume to be removed (hint: run `make refresh`)
+
+   - Note that this will require the existing volume to be removed (hint: run `make refresh`)
 
 3. (optional) Verify access
-    - `make refresh`
-    - `make bash`
-    - `./manage.py shell`
-        - ```
-          from django.core.files.storage import default_storage
-          default_storage.listdir('/')
-          ```
-        - Confirm this second command prints a list instead of an error
-
+   - `make refresh`
+   - `make bash`
+   - `./manage.py shell`
+     - ```
+       from django.core.files.storage import default_storage
+       default_storage.listdir('/')
+       ```
+     - Confirm this second command prints a list instead of an error
 
 ### Google Cloud Bucket for Media Storage
 
 We support user uploads of media (e.g. screenshots) for some features.
 
-In local development, the default is to store these files in `/app/media` using Django's `FileSystemStorage` class and the `MEDIA_ROOT` and `MEDIA_URL` settings.
+In local development, the default is to store these files in `/experimenter/media` using Django's `FileSystemStorage` class and the `MEDIA_ROOT` and `MEDIA_URL` settings.
 
 In production, a GCP bucket and credentials are required.
 
@@ -238,6 +245,7 @@ In the real production deployment, credentials are configured via [workload iden
 Experimenter uses [docker](https://www.docker.com/) for all development, testing, and deployment.
 
 ### Building
+
 #### make build
 
 Build the application container by executing the [build script](https://github.com/mozilla/experimenter/blob/main/scripts/build.sh)
@@ -259,7 +267,7 @@ WARNING: this will remove your database and all data. Use this to reset your dev
 
 #### make migrate
 
-Apply all django migrations to the database.  This must be run after removing database volumes before starting a dev instance.
+Apply all django migrations to the database. This must be run after removing database volumes before starting a dev instance.
 
 #### make load_dummy_experiments
 
@@ -267,12 +275,13 @@ Populates the database with dummy experiments of all types/statuses using the te
 
 #### make refresh
 
-Run kill, migrate, load_locales_countries load_dummy_experiments.  Useful for resetting your dev environment when switching branches or after package updates.
+Run kill, migrate, load_locales_countries load_dummy_experiments. Useful for resetting your dev environment when switching branches or after package updates.
 
 ### Running a dev instance
+
 #### make up
 
-Start a dev server listening on port 80 using the [Django runserver](https://docs.djangoproject.com/en/1.10/ref/django-admin/#runserver).  It is useful to run `make refresh` first to ensure your database is up to date with the latest migrations and test data.
+Start a dev server listening on port 80 using the [Django runserver](https://docs.djangoproject.com/en/1.10/ref/django-admin/#runserver). It is useful to run `make refresh` first to ensure your database is up to date with the latest migrations and test data.
 
 #### make up_db
 
@@ -284,7 +293,7 @@ Start Django runserver, Celery worker, postgresql, redis, autograph, kinto on th
 
 #### make up_detached
 
-Start all containers in the background (not attached to shell).  They can be stopped using `make kill`.
+Start all containers in the background (not attached to shell). They can be stopped using `make kill`.
 
 #### make update_kinto
 
@@ -297,6 +306,7 @@ Pull in the latest Kinto Docker image. Kinto is not automatically updated when n
 Run all test and lint suites, this is run in CI on all PRs and deploys.
 
 ##### Helpful UI Testing Tips
+
 If you have a test failing to find an element (or finding too many, etc.) and the DOM is being cut off in the console output,
 you can increase how much is printed by locally editing the `DEBUG_PRINT_LIMIT=7000` in the `Makefile` (line starts with `JS_TEST_NIMBUS_UI`).
 
@@ -306,9 +316,10 @@ Run only the python test suite.
 
 #### make bash
 
-Start a bash shell inside the container.  This lets you interact with the containerized filesystem and run Django management commands.
+Start a bash shell inside the container. This lets you interact with the containerized filesystem and run Django management commands.
 
 ##### Helpful Python Tips
+
 You can run the entire python test suite without coverage using the Django test runner:
 
 ```sh
@@ -368,6 +379,7 @@ nimbus_push_experiment_to_kinto(experiment.id)
 ```
 
 ##### Helpful Yarn Tips
+
 You can also interact with the yarn commands, such as checking TypeScript for Nimbus UI:
 
 ```sh
@@ -381,9 +393,6 @@ yarn workspace @experimenter/nimbus-ui test:cov
 ```
 
 For a full reference of all the common commands that can be run inside the container, refer to [this section of the Makefile](https://github.com/mozilla/experimenter/blob/main/Makefile#L16-L38)
-
-
-
 
 #### make integration_test_legacy
 
@@ -412,7 +421,7 @@ make FIREFOX_VERSION integration_vnc_up
 Then open your VNC client (Safari does this on OSX or just use [VNC Viewer](https://www.realvnc.com/en/connect/download/viewer/)) and open `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter:
 
 ```bash
-cd app
+cd experimenter
 sudo apt get update
 sudo apt install tox
 chmod a+rwx tests/integration/.tox
@@ -429,6 +438,7 @@ To use NoVNC, navgate to this url `http://localhost:7902` with the password `sec
 - `PYTEST_ARGS`: [Pytest](https://docs.pytest.org/en/6.2.x/usage.html#) commandline variables.
 
 An example using PYTEST_ARGS to run one test.
+
 ```bash
 make integration_test_legacy PYTEST_ARGS="-k test_addon_rollout_experiment_e2e"
 ```
@@ -438,15 +448,19 @@ make integration_test_legacy PYTEST_ARGS="-k test_addon_rollout_experiment_e2e"
 This builds and sets up the mobile sdk for use in testing.
 
 ### Testing Tools
-#### Targeting test tool
-Navigate to `app/tests/tools`
 
-To test a targeting expression, first add an app context named `app_context.json` to the `app/tests/tools` directory.
+#### Targeting test tool
+
+Navigate to `experimenter/tests/tools`
+
+To test a targeting expression, first add an app context named `app_context.json` to the `experimenter/tests/tools` directory.
 
 You can then invoke the script with the `--targeting-string` flag:
+
 ```bash
 python sdk_eval_check.py --targeting-string "(app_version|versionCompare('106.*') <= 0) && (is_already_enrolled)"
 ```
+
 The script should return the results, either `True`, `False`, or an error.
 
 Note that you can change the `app_context` live, and run the script again after.
@@ -461,7 +475,7 @@ There are three accounts you can log into Kinto with depending on what you want 
 - `experimenter` / `experimenter` - This account is used by Experimenter to push its changes to Remote Settings and mark them for review.
 - `review` / `review` - This account should generally be used by developers testing the workflow, it can be used to approve/reject changes pushed from Experimenter.
 
-The `admin` and `review` credentials are hard-coded [here](https://github.com/mozilla/experimenter/blob/main/app/bin/setup_kinto.py#L7-L8), and the `experimenter` credentials can be found or updated in your `.env` file under `KINTO_USER` and `KINTO_PASS`.
+The `admin` and `review` credentials are hard-coded [here](https://github.com/mozilla/experimenter/blob/main/experimenter/bin/setup_kinto.py#L7-L8), and the `experimenter` credentials can be found or updated in your `.env` file under `KINTO_USER` and `KINTO_PASS`.
 
 Any change in remote settings requires two accounts:
 
@@ -470,23 +484,22 @@ Any change in remote settings requires two accounts:
 
 Any of the accounts above can be used for any of those two roles, but your local Experimenter will be configured to make its changes through the `experimenter` account, so that account can't also be used to approve/reject those changes, hence the existence of the `review` account.
 
-For more detailed information on the Remote Settings integration please see the [Kinto module documentation](app/experimenter/kinto/README.md).
-
+For more detailed information on the Remote Settings integration please see the [Kinto module documentation](experimenter/experimenter/kinto/README.md).
 
 ## Frontend
 
 Experimenter has two front-end UIs:
 
-- [`core`](./app/experimenter/legacy/legacy-ui/core) is the legacy UI used for Experimenter intake which will remain until `nimbus-ui` supersedes it
-- [`nimbus-ui`](./app/experimenter/nimbus-ui) is the Nimbus Console UI for Experimenter that is actively being developed
+- [`core`](./experimenter/experimenter/legacy/legacy-ui/core) is the legacy UI used for Experimenter intake which will remain until `nimbus-ui` supersedes it
+- [`nimbus-ui`](./experimenter/experimenter/nimbus-ui) is the Nimbus Console UI for Experimenter that is actively being developed
 
-Learn more about the organization of these UIs [here](./app/experimenter/legacy/legacy-ui/README.md).
+Learn more about the organization of these UIs [here](./experimenter/experimenter/legacy/legacy-ui/README.md).
 
-**Also see the [nimbus-ui README](https://github.com/mozilla/experimenter/tree/main/app/experimenter/nimbus-ui) for relevent Nimbus documentation.**
+**Also see the [nimbus-ui README](https://github.com/mozilla/experimenter/tree/main/experimenter/experimenter/nimbus-ui) for relevent Nimbus documentation.**
 
 ## API
 
-API documentation can be found [here](https://htmlpreview.github.io/?https://github.com/mozilla/experimenter/blob/main/app/experimenter/docs/swagger-ui.html)
+API documentation can be found [here](https://htmlpreview.github.io/?https://github.com/mozilla/experimenter/blob/main/experimenter/experimenter/docs/swagger-ui.html)
 
 ## Contributing
 

@@ -38,6 +38,7 @@ class Request:
     _tzlocal = ...
     if notIS_PYPY:
         __slots__ = ...
+
     def __init__(
         self,
         message,
@@ -169,7 +170,8 @@ class Request:
     def on_retry(self, exc_info):  # -> None:
         """Handler called if the task should be retried."""
         ...
-    def on_failure(self, exc_info, send_failed_event=..., return_ok=...):  # -> None:
+    # -> None:
+    def on_failure(self, exc_info, send_failed_event=..., return_ok=...):
         """Handler called if the task raised an exception."""
         ...
     def acknowledge(self):  # -> None:

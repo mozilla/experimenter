@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  app:
-    image: app:test
+  experimenter:
+    image: experimenter:test
     env_file: .env.sample
     environment:
       - DEBUG=False

@@ -9,8 +9,15 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
+import os
+from urllib.parse import urljoin
+
+import pkg_resources
+import sentry_sdk
+from decouple import config
 from django.contrib.admin import ModelAdmin, StackedInline, TabularInline
 from django.db.models import DecimalField, ForeignKey, JSONField, ManyToManyField
+from sentry_sdk.integrations.django import DjangoIntegration
 
 for cls in [
     DecimalField,
@@ -23,14 +30,6 @@ for cls in [
 ]:
     cls.__class_getitem__ = classmethod(lambda cls, *args, **kwargs: cls)
 
-
-import os
-from urllib.parse import urljoin
-
-import pkg_resources
-import sentry_sdk
-from decouple import config
-from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
