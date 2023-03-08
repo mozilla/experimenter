@@ -754,7 +754,7 @@ class NimbusExperimentSerializer(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
     is_enrollment_paused = serializers.BooleanField(source="is_paused", required=False)
-    is_dirty = serializers.BooleanField(source="is_dirty", required=False)
+    is_dirty = serializers.BooleanField(required=False)
     risk_mitigation_link = serializers.URLField(
         min_length=0, max_length=255, required=False, allow_blank=True
     )

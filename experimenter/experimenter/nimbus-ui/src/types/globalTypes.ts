@@ -228,7 +228,6 @@ export interface ExperimentInput {
   hypothesis?: string | null;
   id?: number | null;
   isArchived?: boolean | null;
-  isDirty?: boolean | null;
   isEnrollmentPaused?: boolean | null;
   isFirstRun?: boolean | null;
   isRollout?: boolean | null;

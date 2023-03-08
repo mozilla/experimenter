@@ -22,6 +22,7 @@ type NimbusExperimentType {
   slug: String!
   publicDescription: String
   riskMitigationLink: String
+  isDirty: Boolean
   proposedDuration: Int!
   proposedEnrollment: Int!
   populationPercent: String
@@ -59,7 +60,6 @@ type NimbusExperimentType {
   computedEnrollmentDays: Int
   enrollmentEndDate: DateTime
   featureConfig: NimbusFeatureConfigType
-  isDirty: Boolean
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean
   jexlTargetingExpression: String
@@ -460,7 +460,6 @@ input ExperimentInput {
   hypothesis: String
   id: Int
   isArchived: Boolean
-  isDirty: Boolean
   isEnrollmentPaused: Boolean
   isFirstRun: Boolean
   isRollout: Boolean

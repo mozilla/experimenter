@@ -864,6 +864,7 @@ export function mockSingleDirectoryExperiment(
     targetingConfig: [MOCK_CONFIG.targetingConfigs![0]],
     isEnrollmentPaused: false,
     isEnrollmentPausePending: false,
+    isDirty: false,
     proposedEnrollment: 7,
     proposedDuration: 28,
     startDate: new Date(startTime).toISOString(),

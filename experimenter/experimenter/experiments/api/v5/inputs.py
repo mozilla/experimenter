@@ -54,7 +54,6 @@ class ExperimentInput(graphene.InputObjectType):
     hypothesis = graphene.String()
     id = graphene.Int()
     is_archived = graphene.Boolean()
-    is_dirty = graphene.Boolean()
     is_enrollment_paused = graphene.Boolean()
     is_first_run = graphene.Boolean()
     is_rollout = graphene.Boolean()
