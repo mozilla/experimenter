@@ -102,10 +102,12 @@ def selenium(selenium, experiment_name, kinto_client, base_url, slugify):
 
     experiment_slug = str(slugify(experiment_name))
     try:
-        summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+        summary = SummaryPage(selenium, urljoin(
+            base_url, experiment_slug)).open()
         summary.end_and_approve()
         kinto_client.approve()
-        summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+        summary = SummaryPage(selenium, urljoin(
+            base_url, experiment_slug)).open()
         summary.wait_for_complete_status()
     except Exception:
         pass
@@ -131,7 +133,8 @@ def _verify_url(request, base_url):
     verify = request.config.option.verify_base_url
     if base_url and verify:
         session = requests.Session()
-        retries = Retry(backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+        retries = Retry(backoff_factor=0.1, status_forcelist=[
+                        500, 502, 503, 504])
         session.mount(base_url, HTTPAdapter(max_retries=retries))
         session.get(base_url, verify=False)
 
@@ -165,7 +168,9 @@ def experiment_name(request):
 def fixture_load_experiment_outcomes():
     """Fixture to create a list of outcomes based on the current configs."""
     outcomes = {"firefox_desktop": "", "fenix": "", "firefox_ios": ""}
-    base_path = "/code/app/experimenter/outcomes/metric-hub-main/jetstream/outcomes"
+    base_path = (
+        "/code/experimenter/experimenter/outcomes/metric-hub-main/jetstream/outcomes"
+    )
 
     for k in list(outcomes):
         outcomes[k] = [
@@ -183,7 +188,8 @@ def default_data(application, experiment_name, load_experiment_outcomes):
     outcomes = {
         "firefox_desktop": BaseExperimentMetricsDataClass(
             primary_outcomes=[load_experiment_outcomes["firefox_desktop"][0]],
-            secondary_outcomes=[load_experiment_outcomes["firefox_desktop"][1]],
+            secondary_outcomes=[
+                load_experiment_outcomes["firefox_desktop"][1]],
         ),
         "fenix": BaseExperimentMetricsDataClass(
             primary_outcomes=[load_experiment_outcomes["fenix"][0]],
@@ -249,7 +255,8 @@ def create_experiment(base_url, default_data):
         overview.public_description = default_data.public_description
         overview.set_additional_links(value="DESIGN_DOC")
         overview.add_additional_links()
-        overview.set_additional_links(value="DS_JIRA", url="https://jira.jira.com")
+        overview.set_additional_links(
+            value="DS_JIRA", url="https://jira.jira.com")
         overview.add_additional_links()
         overview.set_additional_links(
             value="ENG_TICKET", url="https://www.smarter-engineering.eng"
@@ -271,7 +278,8 @@ def create_experiment(base_url, default_data):
         # Fill Metrics page
         metrics = branches.save_and_continue()
         if default_data.metrics.primary_outcomes:
-            metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
+            metrics.set_primary_outcomes(
+                values=default_data.metrics.primary_outcomes[0])
             assert metrics.primary_outcomes.text != "", "The primary outcome was not set"
             metrics.set_secondary_outcomes(
                 values=default_data.metrics.secondary_outcomes[0]
