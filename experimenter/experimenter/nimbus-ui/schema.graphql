@@ -59,6 +59,7 @@ type NimbusExperimentType {
   computedEnrollmentDays: Int
   enrollmentEndDate: DateTime
   featureConfig: NimbusFeatureConfigType
+  isDirty: Boolean
   isEnrollmentPausePending: Boolean
   isEnrollmentPaused: Boolean
   jexlTargetingExpression: String
@@ -459,6 +460,7 @@ input ExperimentInput {
   hypothesis: String
   id: Int
   isArchived: Boolean
+  isDirty: Boolean
   isEnrollmentPaused: Boolean
   isFirstRun: Boolean
   isRollout: Boolean

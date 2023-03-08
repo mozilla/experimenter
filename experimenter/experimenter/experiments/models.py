@@ -138,6 +138,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     public_description = models.TextField(default="")
     risk_mitigation_link = models.URLField(max_length=255, blank=True)
     is_paused = models.BooleanField(default=False)
+    is_dirty = models.BooleanField(default=False)
     proposed_duration = models.PositiveIntegerField(
         default=NimbusConstants.DEFAULT_PROPOSED_DURATION,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
@@ -547,6 +548,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def is_enrollment_pause_pending(self):
         return self.is_paused and not self.is_paused_published
+
+    @property
+    def is_dirty(self):
+        return self.is_dirty
 
     @property
     def monitoring_dashboard_url(self):
