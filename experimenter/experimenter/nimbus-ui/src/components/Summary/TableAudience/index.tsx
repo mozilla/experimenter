@@ -125,7 +125,7 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
               <th>Population %</th>
               <td data-testid="experiment-population">
                 {experiment.populationPercent ? (
-                  `${Number(experiment.populationPercent).toFixed(1)}%`
+                  `${experiment.populationPercent}%`
                 ) : (
                   <NotSet />
                 )}
