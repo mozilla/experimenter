@@ -47,7 +47,7 @@ export const Takeaways = (props: TakeawaysProps) => {
       <section id="takeaways" data-testid="Takeaways">
         <Card.Header as="h5">
           <Row>
-            <Col className="my-1">
+            <Col>
               Takeaways
               {conclusionRecommendationLabel && (
                 <Badge
