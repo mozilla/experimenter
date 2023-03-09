@@ -300,8 +300,12 @@ export const FormBranches = ({
               feedback={fieldMessages?.is_rollout}
               label={
                 <>
-                  This is a rollout (single branch). <a href="https://experimenter.info/deep-dives/experimenter/rollouts"
-                    target="_blank" rel="noopener noreferrer">
+                  This is a rollout (single branch).{" "}
+                  <a
+                    href="https://experimenter.info/deep-dives/experimenter/rollouts"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Learn more
                   </a>
                 </>
