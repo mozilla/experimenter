@@ -17,8 +17,7 @@ import {
 // `show_analysis` is the feature flag for turning visualization on/off.
 // `overall` and `weekly` will be `null` if the analysis isn't available yet.
 export const analysisAvailable = (analysis: AnalysisData | undefined) =>
-  analysis?.show_analysis &&
-  (analysis?.overall?.enrollments?.all || analysis?.weekly?.enrollments?.all);
+  analysis?.show_analysis && (analysis?.overall || analysis?.weekly);
 
 export const analysisUnavailable = (analysis: AnalysisData | undefined) =>
   analysis && !analysisAvailable(analysis);
