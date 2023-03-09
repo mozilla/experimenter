@@ -4,7 +4,12 @@
 
 import React, { useState } from "react";
 import { FormAudience } from "src/components/PageEditAudience/FormAudience";
-import { MockedCache, mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
+import {
+  MockedCache,
+  mockExperimentQuery,
+  mockLiveRolloutQuery,
+  MOCK_CONFIG,
+} from "src/lib/mocks";
 import { getConfig_nimbusConfig } from "src/types/getConfig";
 
 export const Subject = ({
@@ -38,3 +43,4 @@ export const Subject = ({
 };
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug").experiment;
+export const MOCK_ROLLOUT = mockLiveRolloutQuery("demo-slug").rollout;
