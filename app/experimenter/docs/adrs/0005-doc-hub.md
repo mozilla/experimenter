@@ -99,7 +99,7 @@ Cons
 
 - Requires some, albeit not a lot, of setup, including ensuring doc PRs don't trigger CI and incur unnecessary costs
 - Some doc maintainers don't prefer checking into code and using GH¹; however, if it's only Markdown files that need editing, they can can be edited in GitHub directly without checking into code
-- To preview  / other changes manually if the user desires, the user will need to check into the branch and run a build command
+- To preview sidebar / other changes manually if the user desires, the user will need to check into the branch and run a build command
 - May pose a small learning curve for the team¹
 
 **Workflow for this option**

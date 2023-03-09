@@ -232,4 +232,3 @@ export const SidebarActions = ({
 };
 
 export default SidebarActions;
-// GITHUB_TICKET
