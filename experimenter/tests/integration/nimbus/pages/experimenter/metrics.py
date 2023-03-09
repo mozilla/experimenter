@@ -6,39 +6,28 @@ from nimbus.pages.experimenter.base import ExperimenterBase
 
 
 class MetricsPage(ExperimenterBase):
-    """Experiment Metrics Page.."""
+    """Experiment Metrics Page."""
 
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditMetrics")
-    _outcomes_selector_locator = (By.CSS_SELECTOR, "#PageEditMetrics .form-group input")
-    _primary_outcome_root_locator = (
-        By.CSS_SELECTOR,
-        "div[data-testid='primary-outcomes']",
-    )
-    _secondary_outcome_root_locator = (
-        By.CSS_SELECTOR,
-        "div[data-testid='secondary-outcomes']",
-    )
-    _multifeature_element_locator = (By.CSS_SELECTOR, "div[class$='-multiValue']")
+    _primary_outcomes_locator = (By.CSS_SELECTOR, "div[data-testid='primary-outcomes'] div[class$='-multiValue'] div")
+    _secondary_outcomes_locator = (By.CSS_SELECTOR, "div[data-testid='secondary-outcomes'] div[class$='-multiValue'] div")
+    _outcome_input_locator = (By.CSS_SELECTOR, "#PageEditMetrics .form-group input")
     NEXT_PAGE = AudiencePage
 
     @property
     def primary_outcomes(self):
-        root_locator = self.find_element(*self._primary_outcome_root_locator)
-        multifeature_el = root_locator.find_element(*self._multifeature_element_locator)
-        return multifeature_el.find_element(By.CSS_SELECTOR, "div")
+        return [el.text for el in self.find_elements(*self._primary_outcomes_locator)]
 
     def set_primary_outcomes(self, values=None):
-        els = self.find_elements(*self._outcomes_selector_locator)
-        els[0].send_keys(values)
-        els[0].send_keys(Keys.RETURN)
+        el = self.find_element(*self._outcome_input_locator)
+        el.send_keys(values)
+        el.send_keys(Keys.RETURN)
 
     @property
     def secondary_outcomes(self):
-        root_locator = self.find_element(*self._secondary_outcome_root_locator)
-        multifeature_el = root_locator.find_element(*self._multifeature_element_locator)
-        return multifeature_el.find_element(By.CSS_SELECTOR, "div")
+        return [el.text for el in self.find_elements(*self._secondary_outcomes_locator)]
 
     def set_secondary_outcomes(self, values=None):
-        els = self.find_elements(*self._outcomes_selector_locator)
-        els[1].send_keys(values)
-        els[1].send_keys(Keys.RETURN)
+        el = self.find_element(*self._outcome_input_locator)
+        el.send_keys(values)
+        el.send_keys(Keys.RETURN)
