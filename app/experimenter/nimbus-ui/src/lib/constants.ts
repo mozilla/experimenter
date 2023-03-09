@@ -60,6 +60,7 @@ export const EXTERNAL_URLS = {
   EXPERIMENTER_DOCUMENTATION: "https://experimenter.info",
   ASK_EXPERIMENTER_SLACK: "https://slack.com/app_redirect?channel=CF94YGE03",
   FEEDBACK: "https://bit.ly/38dgkqR",
+  GITHUB_TICKET: "https://github.com/mozilla/experimenter/issues/new",
   DETAILED_ANALYSIS_TEMPLATE: (slug: string) =>
     `https://protosaur.dev/partybal/${slug.replace(/-/g, "_")}.html`,
   LAUNCH_DOCUMENTATION:
