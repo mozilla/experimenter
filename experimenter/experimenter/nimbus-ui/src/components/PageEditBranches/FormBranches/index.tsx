@@ -298,7 +298,18 @@ export const FormBranches = ({
               type="checkbox"
               isInvalid={!!fieldMessages?.is_rollout}
               feedback={fieldMessages?.is_rollout}
-              label="This is a rollout (single branch)"
+              label={
+                <>
+                  This is a rollout (single branch).{" "}
+                  <a
+                    href="https://experimenter.info/deep-dives/experimenter/rollouts"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Learn more
+                  </a>
+                </>
+              }
             />
           </Form.Group>
         </Form.Row>
