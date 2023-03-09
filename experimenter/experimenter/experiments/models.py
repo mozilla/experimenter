@@ -677,6 +677,34 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return datetime.date.today() >= resultsReadyDate
 
     @property
+    def has_displayable_results(self):
+        # True if self.results_data has weekly or overall results
+        if self.results_data and "v2" in self.results_data:
+            results_data = self.results_data["v2"]
+            if "overall" in results_data:
+                overall_results = results_data["overall"]
+                if "enrollments" in overall_results:
+                    enrollments = overall_results["enrollments"]
+                    if "all" in enrollments and enrollments["all"] is not None:
+                        return True
+
+            if "weekly" in results_data:
+                weekly_results = results_data["weekly"]
+                if "enrollments" in weekly_results:
+                    enrollments = weekly_results["enrollments"]
+                    if "all" in enrollments and enrollments["all"] is not None:
+                        return True
+
+        return False
+
+    @property
+    def show_results_url(self):
+        # TODO: more logic needed? if not then return IF directly
+        if self.has_displayable_results and self.results_ready and not self.is_rollout:
+            return True
+        return False
+
+    @property
     def signoff_recommendations(self):
         return {
             # QA signoff is always recommended

@@ -687,6 +687,7 @@ class TestFetchJetstreamDataTask(TestCase):
         tasks.fetch_experiment_data(experiment.id)
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.results_data, FULL_DATA)
+        self.assertTrue(experiment.has_displayable_results)
 
     @parameterized.expand(
         [
@@ -896,6 +897,7 @@ class TestFetchJetstreamDataTask(TestCase):
         tasks.fetch_experiment_data(experiment.id)
         experiment = NimbusExperiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.results_data, FULL_DATA)
+        self.assertTrue(experiment.has_displayable_results)
 
     @parameterized.expand(
         [
@@ -987,6 +989,7 @@ class TestFetchJetstreamDataTask(TestCase):
                 },
             },
         )
+        self.assertFalse(experiment.has_displayable_results)
 
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_data_fetch_in_loop(self, mock_delay):
