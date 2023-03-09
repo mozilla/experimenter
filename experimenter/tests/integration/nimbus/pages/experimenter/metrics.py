@@ -11,11 +11,11 @@ class MetricsPage(ExperimenterBase):
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditMetrics")
     _primary_outcomes_locator = (
         By.CSS_SELECTOR,
-        "div[data-testid='primary-outcomes'] div[class$='-multiValue'] div"
+        "div[data-testid='primary-outcomes'] div[class$='-multiValue'] div",
     )
     _secondary_outcomes_locator = (
         By.CSS_SELECTOR,
-        "div[data-testid='secondary-outcomes'] div[class$='-multiValue'] div"
+        "div[data-testid='secondary-outcomes'] div[class$='-multiValue'] div",
     )
     _outcome_input_locator = (By.CSS_SELECTOR, "#PageEditMetrics .form-group input")
     NEXT_PAGE = AudiencePage
