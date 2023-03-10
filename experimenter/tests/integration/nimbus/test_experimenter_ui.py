@@ -100,7 +100,7 @@ def test_create_new_experiment_timeout_remote_settings(
     assert metrics.primary_outcomes[0] != "", "The primary outcome was not set"
     metrics.set_secondary_outcomes(values=metrics.secondary_outcomes[0])
     for outcome in metrics.secondary_outcomes:
-        assert outcome[0] != "", "A secondary outcome was not set"
+        assert outcome[1] != "", "A secondary outcome was not set"
 
 
 @pytest.mark.nimbus_ui
