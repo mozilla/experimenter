@@ -63,12 +63,14 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
         "search",
       ) as string;
 
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        "value",
-      )?.set;
-      nativeInputValueSetter?.call(formRef.current, termFromURL);
+      // set the input value manually
+      // const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      //   window.HTMLInputElement.prototype,
+      //   "value",
+      // )?.set;
+      // nativeInputValueSetter?.call(formRef.current, termFromURL);
 
+      // trigger onChange by dispatching an input event
       const event = new Event("input", { bubbles: true });
       formRef.current?.dispatchEvent(event);
     }, 700);
@@ -91,6 +93,8 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       setClearIcon(true);
 
       const newTimer = setTimeout(() => {
+
+        // setSearchTerms has not taken place yet
         const results = fuse.search(event.target.value as string);
 
         const searchResults = results.map((character) => character.item);
@@ -118,7 +122,6 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       </InputGroup.Prepend>
       <FormControl
         ref={formRef}
-        id="search-bar"
         aria-label="Default"
         aria-describedby="inputGroup-sizing-default"
         onChange={handleChange}
