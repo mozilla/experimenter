@@ -17,7 +17,10 @@ class SummaryPage(ExperimenterBase):
     _header_slug = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-slug"]')
     _approve_request_button_locator = (By.CSS_SELECTOR, "#approve-request-button")
     _reject_request_button_locator = (By.CSS_SELECTOR, "#reject-request-button")
-    _reject_input_text_locator = (By.CSS_SELECTOR, 'textarea[data-testid="reject-reason"]')
+    _reject_input_text_locator = (
+        By.CSS_SELECTOR,
+        'textarea[data-testid="reject-reason"]',
+    )
     _reject_input_text_submit_locator = (By.CSS_SELECTOR, '[data-testid="reject-submit"]')
     _rejection_notice_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
     _launch_to_preview_locator = (By.CSS_SELECTOR, "#launch-to-preview-button")
@@ -138,7 +141,7 @@ class SummaryPage(ExperimenterBase):
 
     def set_rejection_reason(self):
         text_area = self.find_element(*self._reject_input_text_locator)
-        text_area.send_keys(f"oh no")
+        text_area.send_keys("oh no")
 
     def submit_rejection(self):
         button = self.find_element(*self._reject_input_text_submit_locator)
@@ -182,7 +185,7 @@ class SummaryPage(ExperimenterBase):
     def request_update_and_approve(self):
         self.request_update()
         self.find_element(*self._approve_request_button_locator).click()
-        
+
     def request_update_and_reject(self):
         self.request_update()
         self.find_element(*self._reject_request_button_locator).click()
@@ -194,7 +197,7 @@ class SummaryPage(ExperimenterBase):
             message="Summary Page: could not find update request button",
         )
         return self.find_element(*self._update_request_locator)
-  
+
     def request_update(self):
         self.request_update_action.click()
 
