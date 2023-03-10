@@ -60,7 +60,7 @@ describe("TableAudience", () => {
       const { experiment } = mockExperimentQuery("demo-slug");
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-population")).toHaveTextContent(
-        "40%",
+        "40.0%",
       );
     });
     it("when not set", () => {
