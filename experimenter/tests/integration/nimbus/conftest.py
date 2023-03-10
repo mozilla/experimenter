@@ -279,7 +279,7 @@ def create_experiment(base_url, default_data):
                 values=default_data.metrics.secondary_outcomes[0]
             )
             assert (
-                metrics.secondary_outcomes.text != ""
+                metrics.secondary_outcomes[1] != ""
             ), "The seconday outcome was not set"
 
         # Fill Audience page
