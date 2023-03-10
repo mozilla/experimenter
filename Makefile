@@ -204,3 +204,6 @@ cirrus_up:
 cirrus_down:
 	$(COMPOSE) down cirrus
 
+cirrus_test:
+	$(COMPOSE_TEST) up cirrus_test
+
