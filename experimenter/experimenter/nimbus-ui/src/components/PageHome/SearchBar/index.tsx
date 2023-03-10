@@ -64,11 +64,11 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       ) as string;
 
       // set the input value manually
-      // const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-      //   window.HTMLInputElement.prototype,
-      //   "value",
-      // )?.set;
-      // nativeInputValueSetter?.call(formRef.current, termFromURL);
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        "value",
+      )?.set;
+      nativeInputValueSetter?.call(formRef.current, termFromURL);
 
       // trigger onChange by dispatching an input event
       const event = new Event("input", { bubbles: true });
@@ -93,8 +93,7 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       setClearIcon(true);
 
       const newTimer = setTimeout(() => {
-
-        // setSearchTerms has not taken place yet
+        // setSearchTerms has not taken place yet so search with current value
         const results = fuse.search(event.target.value as string);
 
         const searchResults = results.map((character) => character.item);
