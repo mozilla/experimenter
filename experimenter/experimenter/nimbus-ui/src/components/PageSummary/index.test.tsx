@@ -96,7 +96,6 @@ describe("PageSummary", () => {
     render(<Subject mocks={[mock]} />);
     await screen.findByText("Cancel Review");
   });
-
   it("verify cancel review doesn't change enrollment days", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.LIVE,
@@ -615,133 +614,68 @@ describe("PageSummary", () => {
 
   it.each([
     [
+      true,
       NimbusExperimentStatusEnum.LIVE,
-      null,
       NimbusExperimentPublishStatusEnum.DIRTY,
       NimbusExperimentPublishStatusEnum.DIRTY,
     ],
     [
-      NimbusExperimentStatusEnum.LIVE,
+      true,
       NimbusExperimentStatusEnum.LIVE,
       NimbusExperimentPublishStatusEnum.DIRTY,
       NimbusExperimentPublishStatusEnum.REVIEW,
     ],
-  ])(
-    "renders unpublished changes status pill when live update",
-    async (
-      status: NimbusExperimentStatusEnum,
-      statusNext: NimbusExperimentStatusEnum | null,
-      publishStatus: NimbusExperimentPublishStatusEnum,
-      mutationPublishStatus: NimbusExperimentPublishStatusEnum,
-    ) => {
-      const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
-        status: status,
-        publishStatus: publishStatus,
-        statusNext: null,
-        isRollout: true,
-        isEnrollmentPaused: false,
-      });
-      const mutationMock = createFullStatusMutationMock(
-        rollout.id!,
-        status,
-        statusNext,
-        mutationPublishStatus,
-        CHANGELOG_MESSAGES.REQUESTED_REVIEW,
-      );
-      render(<Subject mocks={[mockRollout, mutationMock]} />);
-
-      expect(
-        screen.queryByTestId("pill-dirty-unpublished"),
-      ).toBeInTheDocument();
-    },
-  );
-
-  it.each([
     [
+      true,
       NimbusExperimentStatusEnum.LIVE,
-      NimbusExperimentPublishStatusEnum.REVIEW,
-      NimbusExperimentPublishStatusEnum.APPROVED,
-    ],
-    [
-      NimbusExperimentStatusEnum.LIVE,
-      NimbusExperimentPublishStatusEnum.APPROVED,
+      NimbusExperimentPublishStatusEnum.DIRTY,
       NimbusExperimentPublishStatusEnum.WAITING,
     ],
+    [
+      false,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+    ],
+    [
+      false,
+      NimbusExperimentStatusEnum.DRAFT,
+      NimbusExperimentPublishStatusEnum.IDLE,
+      NimbusExperimentPublishStatusEnum.IDLE,
+    ],
   ])(
-    "renders unpublished changes status pill when live update reviews",
+    "renders unpublished changes status pill when dirty",
     async (
-      liveStatus: NimbusExperimentStatusEnum,
+      shouldShowPill: boolean,
+      status: NimbusExperimentStatusEnum,
       publishStatus: NimbusExperimentPublishStatusEnum,
       mutationPublishStatus: NimbusExperimentPublishStatusEnum,
     ) => {
       const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
-        status: liveStatus,
+        status: status,
         publishStatus: publishStatus,
-        statusNext: liveStatus,
+        statusNext: null,
         isRollout: true,
         isEnrollmentPaused: false,
       });
       const mutationMock = createFullStatusMutationMock(
         rollout.id!,
-        liveStatus,
-        liveStatus,
+        status,
+        null,
         mutationPublishStatus,
         CHANGELOG_MESSAGES.REQUESTED_REVIEW,
       );
       render(<Subject mocks={[mockRollout, mutationMock]} />);
 
-      expect(
-        screen.queryByTestId("pill-dirty-unpublished"),
-      ).toBeInTheDocument();
-    },
-  );
-
-  it.each([
-    [
-      NimbusExperimentStatusEnum.DRAFT,
-      NimbusExperimentStatusEnum.LIVE,
-      NimbusExperimentPublishStatusEnum.REVIEW,
-      NimbusExperimentPublishStatusEnum.APPROVED,
-    ],
-    [
-      NimbusExperimentStatusEnum.DRAFT,
-      null,
-      NimbusExperimentPublishStatusEnum.IDLE,
-      NimbusExperimentPublishStatusEnum.IDLE,
-    ],
-    [
-      NimbusExperimentStatusEnum.LIVE,
-      null,
-      NimbusExperimentPublishStatusEnum.IDLE,
-      NimbusExperimentPublishStatusEnum.IDLE,
-    ],
-  ])(
-    "does not render unpublished changes status pill when not live update",
-    async (
-      status: NimbusExperimentStatusEnum,
-      statusNext: NimbusExperimentStatusEnum | null,
-      publishStatus: NimbusExperimentPublishStatusEnum,
-      mutationPublishStatus: NimbusExperimentPublishStatusEnum,
-    ) => {
-      const { mock, experiment } = mockExperimentQuery("demo-slug", {
-        status: status,
-        publishStatus: publishStatus,
-        statusNext: null,
-        isRollout: false,
-        isEnrollmentPaused: false,
-      });
-      const mutationMock = createFullStatusMutationMock(
-        experiment.id!,
-        status,
-        statusNext,
-        mutationPublishStatus,
-        CHANGELOG_MESSAGES.REQUESTED_REVIEW,
-      );
-      render(<Subject mocks={[mock, mutationMock]} />);
-
-      expect(
-        screen.queryByTestId("pill-dirty-unpublished"),
-      ).not.toBeInTheDocument();
+      if (shouldShowPill) {
+        expect(
+          screen.queryByTestId("pill-dirty-unpublished"),
+        ).toBeInTheDocument();
+      } else {
+        expect(
+          screen.queryByTestId("pill-dirty-unpublished"),
+        ).not.toBeInTheDocument();
+      }
     },
   );
 

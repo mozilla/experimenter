@@ -309,7 +309,6 @@ const StatusPills = ({
     )}
     {(status.dirty ||
       status.updateRequested ||
-      status.updateRequestedApproved ||
       status.updateRequestedWaiting) && (
       <StatusPill
         testId="pill-dirty-unpublished"
