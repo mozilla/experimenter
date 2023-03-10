@@ -439,9 +439,6 @@ jobs:
           name: Run Cirrus tests and linting
           command: |
             make cirrus_check
-    filters:
-      paths:
-        - "/cirrus/*"
 
 workflows:
   version: 2
