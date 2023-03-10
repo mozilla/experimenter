@@ -101,7 +101,7 @@ describe("PageHome", () => {
     for (const [tabKey, tab] of findTabs()) {
       fireEvent.click(tab);
       await waitFor(() => {
-        expect(tab).toHaveClass("active");
+        expect(tab).toHaveClass("nav-link");
         expect(screen.getByTestId("location")).toHaveTextContent(
           `tab=${tabKey}`,
         );
