@@ -76,9 +76,9 @@ target/
 **/.vscode/*
 
 # Hosted assets
-app/experimenter/served/
-app/experimenter/legacy/legacy-ui/assets/
-app/experimenter/reporting/reporting-ui/assets/
+experimenter/experimenter/served/
+experimenter/experimenter/legacy/legacy-ui/assets/
+experimenter/experimenter/reporting/reporting-ui/assets/
 
 # Key files
 *.pem
@@ -87,7 +87,7 @@ app/experimenter/reporting/reporting-ui/assets/
 .pytest_cache
 .testmondata
 .tmontmp
-app/coverage_html_report/
+experimenter/coverage_html_report/
 
 # Dependencies
 node_modules
@@ -95,11 +95,11 @@ node_modules
 google-credentials.json
 
 # Jetstream config
-app/experimenter/outcomes/metric-hub-main/*
-!app/experimenter/outcomes/metric-hub-main/jetstream/
-app/experimenter/outcomes/metric-hub-main/jetstream/*
-!app/experimenter/outcomes/metric-hub-main/jetstream/outcomes/
-app/experimenter/outcomes/metric-hub.zip
+experimenter/experimenter/outcomes/metric-hub-main/*
+!experimenter/experimenter/outcomes/metric-hub-main/jetstream/
+experimenter/experimenter/outcomes/metric-hub-main/jetstream/*
+!experimenter/experimenter/outcomes/metric-hub-main/jetstream/outcomes/
+experimenter/experimenter/outcomes/metric-hub.zip
 
 # Versioning assets generated on build
 **/commit-description.txt

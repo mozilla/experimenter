@@ -1,7 +1,7 @@
 SHELL = /bin/bash
 
-WAIT_FOR_DB = /app/bin/wait-for-it.sh -t 30 db:5432 &&
-WAIT_FOR_RUNSERVER = /app/bin/wait-for-it.sh -t 30 localhost:7001 &&
+WAIT_FOR_DB = /experimenter/bin/wait-for-it.sh -t 30 db:5432 &&
+WAIT_FOR_RUNSERVER = /experimenter/bin/wait-for-it.sh -t 30 localhost:7001 &&
 
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_LEGACY = ${COMPOSE} -f docker-compose-legacy.yml
@@ -68,16 +68,16 @@ auth_gcloud:
 	gcloud auth login --update-adc
 
 jetstream_config:
-	curl -LJ -o app/experimenter/outcomes/metric-hub.zip $(JETSTREAM_CONFIG_URL)
-	unzip -o -d app/experimenter/outcomes app/experimenter/outcomes/metric-hub.zip
-	rm -Rf app/experimenter/outcomes/metric-hub-main/.script/
+	curl -LJ -o experimenter/experimenter/outcomes/metric-hub.zip $(JETSTREAM_CONFIG_URL)
+	unzip -o -d experimenter/experimenter/outcomes experimenter/experimenter/outcomes/metric-hub.zip
+	rm -Rf experimenter/experimenter/outcomes/metric-hub-main/.script/
 
 feature_manifests:
-	curl -LJ --create-dirs -o app/experimenter/features/manifests/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
-	curl -LJ --create-dirs -o app/experimenter/features/manifests/fenix.yaml $(FEATURE_MANIFEST_FENIX_URL)
-	curl -LJ --create-dirs -o app/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
-	curl -LJ --create-dirs -o app/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
-	curl -LJ --create-dirs -o app/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
+	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/firefox-desktop.yaml $(FEATURE_MANIFEST_DESKTOP_URL)
+	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/fenix.yaml $(FEATURE_MANIFEST_FENIX_URL)
+	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/ios.yaml $(FEATURE_MANIFEST_FXIOS_URL)
+	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-android.yaml $(FEATURE_MANIFEST_FOCUS_ANDROID)
+	curl -LJ --create-dirs -o experimenter/experimenter/features/manifests/focus-ios.yaml $(FEATURE_MANIFEST_FOCUS_IOS)
 
 fetch_external_resources: jetstream_config feature_manifests
 	echo "External Resources Fetched"
@@ -85,17 +85,20 @@ fetch_external_resources: jetstream_config feature_manifests
 update_kinto:
 	docker pull mozilla/kinto-dist:latest
 
+compose_build:
+	$(COMPOSE)  build
+
 build_dev: ssl
-	DOCKER_BUILDKIT=1 docker build --target dev -f app/Dockerfile -t app:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
+	DOCKER_BUILDKIT=1 docker build --target dev -f experimenter/Dockerfile -t experimenter:dev --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_dev $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
 build_test: ssl
-	DOCKER_BUILDKIT=1 docker build --target test -f app/Dockerfile -t app:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
+	DOCKER_BUILDKIT=1 docker build --target test -f experimenter/Dockerfile -t experimenter:test --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_test $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
 build_ui: ssl
-	DOCKER_BUILDKIT=1 docker build --target ui -f app/Dockerfile -t app:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
+	DOCKER_BUILDKIT=1 docker build --target ui -f experimenter/Dockerfile -t experimenter:ui --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:build_ui $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
 build_prod: build_ui ssl
-	DOCKER_BUILDKIT=1 docker build --target deploy -f app/Dockerfile -t app:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") app/
+	DOCKER_BUILDKIT=1 docker build --target deploy -f experimenter/Dockerfile -t experimenter:deploy --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from mozilla/experimenter:latest $$([[ -z "$${CIRCLECI}" ]] || echo "--progress=plain") experimenter/
 
 compose_stop:
 	$(COMPOSE) kill || true
@@ -111,20 +114,20 @@ volumes_rm:
 	docker volume prune -f
 
 static_rm:
-	rm -Rf app/node_modules
-	rm -Rf app/experimenter/legacy/legacy-ui/core/node_modules/
-	rm -Rf app/experimenter/nimbus-ui/node_modules/
-	rm -Rf app/experimenter/legacy/legacy-ui/assets/
-	rm -Rf app/experimenter/nimbus-ui/build/
+	rm -Rf experimenter/node_modules
+	rm -Rf experimenter/experimenter/legacy/legacy-ui/core/node_modules/
+	rm -Rf experimenter/experimenter/nimbus-ui/node_modules/
+	rm -Rf experimenter/experimenter/legacy/legacy-ui/assets/
+	rm -Rf experimenter/experimenter/nimbus-ui/build/
 
 kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
 check: build_test
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(RUFF_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
+	$(COMPOSE_TEST) run experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(RUFF_CHECK)" "$(ESLINT_LEGACY)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_LEGACY)" "$(JS_TEST_NIMBUS_UI)" "$(JS_TEST_REPORTING)") ${COLOR_CHECK}'
 
 pytest: build_test
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
+	$(COMPOSE_TEST) run experimenter sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
 
 up: build_dev
 	$(COMPOSE) up
@@ -142,35 +145,35 @@ up_db: build_dev
 	$(COMPOSE) up db redis kinto autograph
 
 up_django: build_dev
-	$(COMPOSE) up nginx app worker beat db redis kinto autograph
+	$(COMPOSE) up nginx experimenter worker beat db redis kinto autograph
 
 up_detached: build_dev
 	$(COMPOSE) up -d
 
 generate_docs: build_dev
-	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
+	$(COMPOSE) run experimenter sh -c "$(GENERATE_DOCS)"
 
 generate_types: build_dev
-	$(COMPOSE) run app sh -c "$(NIMBUS_TYPES_GENERATE)"
+	$(COMPOSE) run experimenter sh -c "$(NIMBUS_TYPES_GENERATE)"
 
 code_format: build_dev
-	$(COMPOSE) run app sh -c '${PARALLEL} "$(RUFF_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)"'
+	$(COMPOSE) run experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)"'
 
 makemigrations: build_dev
-	$(COMPOSE) run app python manage.py makemigrations
+	$(COMPOSE) run experimenter python manage.py makemigrations
 
 migrate: build_dev
-	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_MIGRATE)"
+	$(COMPOSE) run experimenter sh -c "$(WAIT_FOR_DB) $(PYTHON_MIGRATE)"
 
 bash: build_dev
-	$(COMPOSE) run app bash
+	$(COMPOSE) run experimenter bash
 
-refresh: kill build_dev
-	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY app bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
+refresh: kill build_dev compose_build
+	$(COMPOSE) run -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 dependabot_approve:
 	echo "Install and configure the Github CLI https://github.com/cli/cli"
-	gh pr list --author app/dependabot | awk '{print $$1}' | xargs -n1 gh pr review -a -b "@dependabot squash and merge"
+	gh pr list --author experimenter/dependabot | awk '{print $$1}' | xargs -n1 gh pr review -a -b "@dependabot squash and merge"
 
 # integration tests
 integration_shell:
@@ -186,18 +189,18 @@ integration_vnc_up_detached: build_prod
 	$(COMPOSE_INTEGRATION) up -d firefox
 
 integration_test_legacy: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-legacy $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/experimenter/tests/integration/.tox;tox -c experimenter/tests/integration -e integration-test-legacy $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
 
 integration_test_nimbus: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "if [ "$$UPDATE_FIREFOX_VERSION" = "true" ]; then sudo ./app/tests/integration/nimbus/utils/nightly-install.sh; fi; firefox -V; sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/app/tests/integration/.tox;PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) tox -c app/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox sh -c "if [ "$$UPDATE_FIREFOX_VERSION" = "true" ]; then sudo ./experimenter/tests/integration/nimbus/utils/nightly-install.sh; fi; firefox -V; sudo apt-get -qqy update && sudo apt-get -qqy install tox;sudo chmod a+rwx /code/experimenter/tests/integration/.tox;PYTEST_SENTRY_DSN=$(PYTEST_SENTRY_DSN) PYTEST_SENTRY_ALWAYS_REPORT=$(PYTEST_SENTRY_ALWAYS_REPORT) tox -c experimenter/tests/integration -e integration-test-nimbus $(TOX_ARGS) -- $(PYTEST_ARGS)"
 
 integration_test_nimbus_rust: build_prod
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod a+rwx /code/app/tests/integration/.tox;tox -c app/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
-
-
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod a+rwx /code/experimenter/tests/integration/.tox;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
+	
 # cirrus
 cirrus_up:
 	$(COMPOSE) up cirrus
 
 cirrus_down:
 	$(COMPOSE) down cirrus
+
