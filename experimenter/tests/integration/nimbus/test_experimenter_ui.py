@@ -109,7 +109,7 @@ def test_every_form_page_can_be_resaved(
     assert summary.experiment_slug is not None
 
 
-@pytest.mark.remote_settings
+@pytest.mark.nimbus_ui
 def test_rollout_create_and_update(
     selenium,
     base_url,
@@ -134,7 +134,7 @@ def test_rollout_create_and_update(
     summary_page.wait_for_update_request_visible()
 
 
-@pytest.mark.remote_settings
+@pytest.mark.nimbus_ui
 def test_rollout_live_update_reject_on_experimenter(
     selenium,
     base_url,
