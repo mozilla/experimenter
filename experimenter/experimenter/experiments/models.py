@@ -677,6 +677,23 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return datetime.date.today() >= resultsReadyDate
 
     @property
+    def has_displayable_results(self):
+        # True if self.results_data has weekly or overall results
+        if self.results_data and "v2" in self.results_data:
+            results_data = self.results_data["v2"]
+            for window in ["overall", "weekly"]:
+                if window in results_data:
+                    enrollments = results_data[window].get("enrollments", {}).get("all")
+                    if enrollments is not None:
+                        return True
+
+        return False
+
+    @property
+    def show_results_url(self):
+        return self.has_displayable_results and self.results_ready and not self.is_rollout
+
+    @property
     def signoff_recommendations(self):
         return {
             # QA signoff is always recommended
