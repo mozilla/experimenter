@@ -19,8 +19,15 @@ jobs:
       - run:
           name: Run tests and linting
           command: |
-            cp .env.sample .env
-            make check
+            if git diff --name-only main HEAD | grep -E 'experimenter/'
+              then
+                echo "Changes detected in /experimenter directory. Running Experimenter tests and linting."
+                cp .env.sample .env
+                make check
+              else
+                echo "No changes in /experimenter directory. Skipping tests and linting."
+                circleci-agent step halt
+            fi
 
   integration_nimbus_desktop_release_targeting:
     machine:
