@@ -209,7 +209,7 @@ cirrus_up: cirrus_build
 cirrus_down:
 	$(COMPOSE) down cirrus
 
-cirrus_test:
+cirrus_test: cirrus_build
 	$(COMPOSE_TEST) up cirrus_test
 
 cirrus_check: cirrus_test
