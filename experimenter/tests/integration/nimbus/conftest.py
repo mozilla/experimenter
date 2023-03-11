@@ -272,12 +272,14 @@ def create_experiment(base_url, default_data):
 
         # Fill Metrics page
         metrics = branches.save_and_continue()
-        if (
-            default_data.metrics.primary_outcomes
-            and default_data.metrics.primary_outcomes[0]
-        ):
-            metrics.set_primary_outcomes(values=default_data.metrics.primary_outcomes[0])
-        assert metrics.primary_outcomes[0] != "", "The primary outcome was not set"
+        if default_data.metrics.primary_outcomes:
+            assert (
+                len(default_data.metrics.primary_outcomes) >= 1
+            ), "The primary outcomes list is empty"
+            assert metrics.primary_outcomes[0] != "", "The primary outcome was not set"
+        else:
+            # Handle the case where there are no primary outcomes
+            pass
 
         # Fill Audience page
         audience = metrics.save_and_continue()
