@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name="experimentchangelog",
-            name="changed_on",
+            name="updated_date_time",
             field=models.DateTimeField(
                 default=experimenter.legacy.legacy_experiments.models.ExperimentChangeLog.current_datetime
             ),

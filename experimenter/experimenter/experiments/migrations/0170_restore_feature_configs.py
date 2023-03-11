@@ -13,7 +13,7 @@ def restore_feature_configs(apps, schema_editor):
             .exclude(experiment_data__feature_config__slug="no-feature-firefox-desktop")
             .exclude(experiment_data__feature_config__slug="no-feature-fenix")
             .exclude(experiment_data__feature_config__slug="no-feature-ios")
-            .order_by("-changed_on")
+            .order_by("-updated_date_time")
             .values_list("experiment_data__feature_config__slug", flat=True)
             .first()
         )

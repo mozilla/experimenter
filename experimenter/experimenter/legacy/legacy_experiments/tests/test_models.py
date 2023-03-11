@@ -35,14 +35,14 @@ class TestExperimentManager(TestCase):
             experiment=experiment1,
             old_status=None,
             new_status=Experiment.STATUS_DRAFT,
-            changed_on=(now - datetime.timedelta(days=2)),
+            updated_date_time=(now - datetime.timedelta(days=2)),
         )
 
         ExperimentChangeLogFactory.create(
             experiment=experiment2,
             old_status=None,
             new_status=Experiment.STATUS_DRAFT,
-            changed_on=(now - datetime.timedelta(days=1)),
+            updated_date_time=(now - datetime.timedelta(days=1)),
         )
 
         self.assertEqual(
@@ -109,7 +109,7 @@ class TestExperimentModel(TestCase):
             experiment=experiment,
             old_status=Experiment.STATUS_ACCEPTED,
             new_status=Experiment.STATUS_LIVE,
-            changed_on=datetime.date(2019, 5, 1),
+            updated_date_time=datetime.date(2019, 5, 1),
         )
 
         from_date = datetime.date(2019, 4, 30)
@@ -136,14 +136,14 @@ class TestExperimentModel(TestCase):
             experiment=experiment,
             old_status=Experiment.STATUS_ACCEPTED,
             new_status=Experiment.STATUS_LIVE,
-            changed_on=datetime.date(2019, 5, 1),
+            updated_date_time=datetime.date(2019, 5, 1),
         )
 
         ExperimentChangeLogFactory.create(
             experiment=experiment,
             old_status=Experiment.STATUS_LIVE,
             new_status=Experiment.STATUS_COMPLETE,
-            changed_on=datetime.date(2019, 5, 10),
+            updated_date_time=datetime.date(2019, 5, 10),
         )
 
         from_date = datetime.date(2019, 4, 30)
@@ -170,7 +170,7 @@ class TestExperimentModel(TestCase):
             experiment=experiment,
             old_status=Experiment.STATUS_ACCEPTED,
             new_status=Experiment.STATUS_LIVE,
-            changed_on=datetime.date(2019, 5, 1),
+            updated_date_time=datetime.date(2019, 5, 1),
         )
 
         from_date = datetime.date(2019, 4, 30)
@@ -453,7 +453,7 @@ class TestExperimentModel(TestCase):
         change = ExperimentChangeLogFactory.create(
             old_status=Experiment.STATUS_ACCEPTED, new_status=Experiment.STATUS_LIVE
         )
-        self.assertEqual(change.experiment.start_date, change.changed_on.date())
+        self.assertEqual(change.experiment.start_date, change.updated_date_time.date())
 
     def test_observation_duration_returns_duration_minus_enrollment(self):
         experiment = ExperimentFactory.create_with_variants(
@@ -500,7 +500,7 @@ class TestExperimentModel(TestCase):
         change = ExperimentChangeLogFactory.create(
             old_status=Experiment.STATUS_LIVE, new_status=Experiment.STATUS_COMPLETE
         )
-        self.assertEqual(change.experiment.end_date, change.changed_on.date())
+        self.assertEqual(change.experiment.end_date, change.updated_date_time.date())
 
     def test_enrollment_end_date_uses_enrollment_duration(self):
         experiment = ExperimentFactory.create_with_variants(
@@ -602,7 +602,7 @@ class TestExperimentModel(TestCase):
             experiment=experiment,
             old_status=Experiment.STATUS_ACCEPTED,
             new_status=Experiment.STATUS_LIVE,
-            changed_on=four_days_ago,
+            updated_date_time=four_days_ago,
             changed_by=user,
         )
         ExperimentChangeLog.objects.create(
@@ -610,14 +610,14 @@ class TestExperimentModel(TestCase):
             old_status=Experiment.STATUS_LIVE,
             new_status=Experiment.STATUS_LIVE,
             message="Enrollment Complete",
-            changed_on=three_days_ago,
+            updated_date_time=three_days_ago,
             changed_by=user,
         )
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             old_status=Experiment.STATUS_LIVE,
             new_status=Experiment.STATUS_COMPLETE,
-            changed_on=today,
+            updated_date_time=today,
             changed_by=user,
         )
 
@@ -704,39 +704,39 @@ class TestExperimentModel(TestCase):
         user3 = UserFactory.create()
 
         change1 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user1, changed_on=date1
+            experiment=experiment, changed_by=user1, updated_date_time=date1
         )
         change2 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user1, changed_on=date1
+            experiment=experiment, changed_by=user1, updated_date_time=date1
         )
         change3 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user1, changed_on=date1
+            experiment=experiment, changed_by=user1, updated_date_time=date1
         )
         change4 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user2, changed_on=date1
+            experiment=experiment, changed_by=user2, updated_date_time=date1
         )
 
         change5 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user2, changed_on=date2
+            experiment=experiment, changed_by=user2, updated_date_time=date2
         )
         change6 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user3, changed_on=date2
+            experiment=experiment, changed_by=user3, updated_date_time=date2
         )
         change7 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user3, changed_on=date2
+            experiment=experiment, changed_by=user3, updated_date_time=date2
         )
 
         change8 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user1, changed_on=date3
+            experiment=experiment, changed_by=user1, updated_date_time=date3
         )
         change9 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user1, changed_on=date3
+            experiment=experiment, changed_by=user1, updated_date_time=date3
         )
         change10 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user2, changed_on=date3
+            experiment=experiment, changed_by=user2, updated_date_time=date3
         )
         change11 = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user3, changed_on=date3
+            experiment=experiment, changed_by=user3, updated_date_time=date3
         )
 
         self.assertEqual(
@@ -783,37 +783,37 @@ class TestExperimentModel(TestCase):
         user3 = UserFactory.create()
 
         a = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user1, changed_on=date1, message="a"
+            experiment=experiment, changed_by=user1, updated_date_time=date1, message="a"
         )
         b = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user1, changed_on=date1, message="b"
+            experiment=experiment, changed_by=user1, updated_date_time=date1, message="b"
         )
 
         c = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user2, changed_on=date1, message="c"
+            experiment=experiment, changed_by=user2, updated_date_time=date1, message="c"
         )
 
         d = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user2, changed_on=date2, message="d"
+            experiment=experiment, changed_by=user2, updated_date_time=date2, message="d"
         )
         e = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user3, changed_on=date2, message="e"
+            experiment=experiment, changed_by=user3, updated_date_time=date2, message="e"
         )
         f = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user3, changed_on=date2, message="f"
+            experiment=experiment, changed_by=user3, updated_date_time=date2, message="f"
         )
 
         g = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user1, changed_on=date3, message="g"
+            experiment=experiment, changed_by=user1, updated_date_time=date3, message="g"
         )
         h = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user1, changed_on=date3, message="h"
+            experiment=experiment, changed_by=user1, updated_date_time=date3, message="h"
         )
         i = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user2, changed_on=date3, message="i"
+            experiment=experiment, changed_by=user2, updated_date_time=date3, message="i"
         )
         j = ExperimentChangeLogFactory.create(
-            experiment=experiment, changed_by=user3, changed_on=date3, message="j"
+            experiment=experiment, changed_by=user3, updated_date_time=date3, message="j"
         )
 
         expected_changes = {
@@ -1676,7 +1676,7 @@ class TestExperimentChangeLog(TestCase):
             experiment=experiment,
             old_status=None,
             new_status=Experiment.STATUS_DRAFT,
-            changed_on=(now - datetime.timedelta(days=2)),
+            updated_date_time=(now - datetime.timedelta(days=2)),
         )
 
         self.assertEqual(experiment.changes.latest(), changelog1)
@@ -1685,7 +1685,7 @@ class TestExperimentChangeLog(TestCase):
             experiment=experiment,
             old_status=Experiment.STATUS_DRAFT,
             new_status=Experiment.STATUS_REVIEW,
-            changed_on=(now - datetime.timedelta(days=1)),
+            updated_date_time=(now - datetime.timedelta(days=1)),
         )
 
         self.assertEqual(experiment.changes.latest(), changelog2)

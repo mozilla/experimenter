@@ -156,7 +156,7 @@ class NimbusExperimentResource(resources.ModelResource):
 
         for change in import_changes:
             NimbusChangeLog.objects.get_or_create(
-                changed_on=change.get("changed_on"),
+                updated_date_time=change.get("updated_date_time"),
                 old_status=change.get("old_status"),
                 old_status_next=change.get("old_status_next"),
                 old_publish_status=change.get("old_publish_status"),

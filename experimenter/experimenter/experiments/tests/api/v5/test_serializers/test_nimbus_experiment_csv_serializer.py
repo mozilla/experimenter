@@ -52,7 +52,7 @@ class TestNimbusExperimentCsvSerializer(TestCase):
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
         ).update(
-            changed_on=datetime.date(2019, 5, 1),
+            updated_date_time=datetime.date(2019, 5, 1),
         )
         serializer = NimbusExperimentCsvSerializer(experiment)
         self.assertDictEqual(

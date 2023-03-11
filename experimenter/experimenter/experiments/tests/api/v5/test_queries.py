@@ -612,6 +612,9 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
         )
 
         review_request_change = experiment.changes.latest_review_request()
+        review_request_change_updated_date = (
+            review_request_change.updated_date_time.isoformat()
+        )
         rejection_change = experiment.changes.latest_rejection()
         timeout_change = experiment.changes.latest_timeout()
         reference_branch = experiment.reference_branch
@@ -758,7 +761,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
 
                     canReview
                     reviewRequest {
-                        changedOn
+                        updatedDateTime
                         changedBy {
                             email
                         }
@@ -767,13 +770,13 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         message
                         oldStatus
                         oldStatusNext
-                        changedOn
+                        updatedDateTime
                         changedBy {
                             email
                         }
                     }
                     timeout {
-                        changedOn
+                        updatedDateTime
                         changedBy {
                             email
                         }
@@ -914,7 +917,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "rejection": (
                     {
                         "changedBy": {"email": rejection_change.changed_by.email},
-                        "changedOn": rejection_change.changed_on.isoformat(),
+                        "updatedDateTime": rejection_change.updated_date_time.isoformat(),
                         "message": rejection_change.message,
                         "oldStatus": NimbusExperiment.Status(
                             rejection_change.old_status
@@ -930,7 +933,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "reviewRequest": (
                     {
                         "changedBy": {"email": review_request_change.changed_by.email},
-                        "changedOn": review_request_change.changed_on.isoformat(),
+                        "updatedDateTime": review_request_change_updated_date,
                     }
                     if review_request_change
                     else None
@@ -976,7 +979,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "timeout": (
                     {
                         "changedBy": {"email": timeout_change.changed_by.email},
-                        "changedOn": timeout_change.changed_on.isoformat(),
+                        "updatedDateTime": timeout_change.updated_date_time.isoformat(),
                     }
                     if timeout_change
                     else None
@@ -1893,7 +1896,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         changedBy {
                             email
                         }
-                        changedOn
+                        updatedDateTime
                         message
                         oldStatusNext
                         oldStatus
@@ -1914,12 +1917,12 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
             [
                 {
                     "changedBy": {"email": c.changed_by.email},
-                    "changedOn": c.changed_on.isoformat(),
+                    "updatedDateTime": c.updated_date_time.isoformat(),
                     "message": c.message,
                     "oldStatusNext": c.old_status_next,
                     "oldStatus": c.old_status,
                 }
-                for c in experiment.changes.all().order_by("changed_on")
+                for c in experiment.changes.all().order_by("updated_date_time")
             ],
         )
 

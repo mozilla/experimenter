@@ -252,7 +252,7 @@ class NimbusChangeLogType(DjangoObjectType):
         model = NimbusChangeLog
         fields = (
             "changed_by",
-            "changed_on",
+            "updated_date_time",
             "experiment_data",
             "message",
             "new_status_next",
@@ -666,4 +666,4 @@ class NimbusExperimentType(DjangoObjectType):
         return self.languages.all().order_by("name")
 
     def resolve_changes(self, info):
-        return self.changes.all().order_by("changed_on")
+        return self.changes.all().order_by("updated_date_time")

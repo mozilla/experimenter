@@ -27,7 +27,11 @@ def default_all_platforms():
 
 class ExperimentManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
+        return (
+            super()
+            .get_queryset()
+            .annotate(latest_change=Max("changes__updated_date_time"))
+        )
 
     def get_prefetched(self):
         return self.get_queryset().prefetch_related(
@@ -425,7 +429,7 @@ class Experiment(ExperimentConstants, models.Model):
     def _transition_date(self, old_status, new_status):
         for change in self.changes.all():
             if change.old_status == old_status and change.new_status == new_status:
-                return change.changed_on.date()
+                return change.updated_date_time.date()
 
     @property
     def start_date(self):
@@ -462,7 +466,7 @@ class Experiment(ExperimentConstants, models.Model):
     def enrollment_end_date(self):
         changes = self.changes.filter(message="Enrollment Complete")
         if changes:
-            return changes[0].changed_on.date()
+            return changes[0].updated_date_time.date()
         if self.proposed_enrollment:
             return self._compute_end_date(self.proposed_enrollment)
 
@@ -549,7 +553,9 @@ class Experiment(ExperimentConstants, models.Model):
         grouped_changes = defaultdict(lambda: defaultdict(set))
 
         for change in self.changes.all():
-            grouped_changes[change.changed_on.date()][change.changed_by].add(change)
+            grouped_changes[change.updated_date_time.date()][change.changed_by].add(
+                change
+            )
 
         return grouped_changes
 
@@ -1134,7 +1140,7 @@ class RolloutPreference(Preference):
 
 class ExperimentChangeLogManager(models.Manager):
     def latest(self):
-        return self.all().order_by("-changed_on").first()
+        return self.all().order_by("-updated_date_time").first()
 
 
 class ExperimentChangeLog(models.Model):
@@ -1187,7 +1193,7 @@ class ExperimentChangeLog(models.Model):
         related_name="changes",
         on_delete=models.CASCADE,
     )
-    changed_on = models.DateTimeField(default=current_datetime)
+    updated_date_time = models.DateTimeField(default=current_datetime)
     changed_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     old_status = models.CharField(
         max_length=255, blank=True, null=True, choices=Experiment.STATUS_CHOICES
@@ -1204,7 +1210,7 @@ class ExperimentChangeLog(models.Model):
         db_table = "experiments_experimentchangelog"
         verbose_name = "Experiment Change Log"
         verbose_name_plural = "Experiment Change Logs"
-        ordering = ("changed_on",)
+        ordering = ("updated_date_time",)
 
     def __str__(self):
         if self.message:

@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "changed_on",
+                    "updated_date_time",
                     models.DateTimeField(
                         default=experimenter.experiments.models.NimbusChangeLog.current_datetime
                     ),
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
             options={
                 "verbose_name": "Nimbus Experiment Change Log",
                 "verbose_name_plural": "Nimbus Experiment Change Logs",
-                "ordering": ("changed_on",),
+                "ordering": ("updated_date_time",),
             },
         ),
     ]

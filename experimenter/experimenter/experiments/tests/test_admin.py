@@ -262,7 +262,7 @@ class TestNimbusExperimentExport(TestCase):
             )
             changes.append(
                 {
-                    "changed_on": cl.changed_on,
+                    "updated_date_time": cl.updated_date_time,
                     "old_status": cl.old_status,
                     "old_status_next": cl.old_status_next,
                     "old_publish_status": cl.old_publish_status,

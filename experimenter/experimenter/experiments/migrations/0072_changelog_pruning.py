@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
 
         for experiment in Experiment.objects.all():
             change_logs = experiment.changes.filter(old_status=None).order_by(
-                "changed_on"
+                "updated_date_time"
             )[1:]
 
             for log in change_logs:
@@ -31,13 +31,13 @@ class Migration(migrations.Migration):
         for experiment in Experiment.objects.all():
             changes = experiment.changes.filter(
                 changed_values={}, old_status=F("new_status")
-            ).order_by("changed_on")
+            ).order_by("updated_date_time")
             seen_edits = set()
             current_date = None
             for change in changes:
-                if change.changed_on.date() != current_date:
+                if change.updated_date_time.date() != current_date:
                     seen_edits = set([change.changed_by.email])
-                    current_date = change.changed_on.date()
+                    current_date = change.updated_date_time.date()
                 elif change.changed_by.email in seen_edits:
                     change.delete()
                 else:

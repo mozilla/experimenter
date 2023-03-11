@@ -183,7 +183,9 @@ class TestExperimentSerializer(TestCase):
 class TestExperimentChangeLogSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         change_log = ExperimentChangeLogFactory.create(
-            changed_on="2019-08-02T18:19:26.267960Z"
+            updated_date_time="2019-08-02T18:19:26.267960Z"
         )
         serializer = ExperimentChangeLogSerializer(change_log)
-        self.assertEqual(serializer.data["changed_on"], change_log.changed_on)
+        self.assertEqual(
+            serializer.data["updated_date_time"], change_log.updated_date_time
+        )

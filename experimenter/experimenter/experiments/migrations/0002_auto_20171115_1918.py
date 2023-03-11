@@ -111,7 +111,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("changed_on", models.DateTimeField(auto_now_add=True)),
+                ("updated_date_time", models.DateTimeField(auto_now_add=True)),
                 (
                     "old_status",
                     models.CharField(
@@ -162,7 +162,7 @@ class Migration(migrations.Migration):
             options={
                 "verbose_name": "Experiment Change Log",
                 "verbose_name_plural": "Experiment Change Logs",
-                "ordering": ("changed_on",),
+                "ordering": ("updated_date_time",),
             },
         ),
         migrations.CreateModel(

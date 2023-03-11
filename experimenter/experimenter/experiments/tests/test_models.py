@@ -49,10 +49,10 @@ class TestNimbusExperimentManager(TestCase):
         newer_experiment = NimbusExperimentFactory.create()
 
         NimbusChangeLogFactory.create(
-            experiment=older_experiment, changed_on=datetime.datetime(2021, 1, 1)
+            experiment=older_experiment, updated_date_time=datetime.datetime(2021, 1, 1)
         )
         NimbusChangeLogFactory.create(
-            experiment=newer_experiment, changed_on=datetime.datetime(2021, 1, 2)
+            experiment=newer_experiment, updated_date_time=datetime.datetime(2021, 1, 2)
         )
 
         self.assertEqual(
@@ -846,15 +846,15 @@ class TestNimbusExperiment(TestCase):
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
-            changed_on=datetime.datetime.now() + datetime.timedelta(days=1),
+            updated_date_time=datetime.datetime.now() + datetime.timedelta(days=1),
         )
         start_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
-            changed_on=datetime.datetime.now() + datetime.timedelta(days=2),
+            updated_date_time=datetime.datetime.now() + datetime.timedelta(days=2),
         )
-        self.assertEqual(experiment.start_date, start_change.changed_on.date())
+        self.assertEqual(experiment.start_date, start_change.updated_date_time.date())
 
     @parameterized.expand(
         [[NimbusExperiment.Status.LIVE], [NimbusExperiment.Status.COMPLETE]]
@@ -871,7 +871,7 @@ class TestNimbusExperiment(TestCase):
             experiment=experiment,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.LIVE,
-            changed_on=changelog_date,
+            updated_date_time=changelog_date,
         )
 
         self.assertEqual(experiment.start_date, cached_date)
@@ -884,15 +884,15 @@ class TestNimbusExperiment(TestCase):
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
-            changed_on=datetime.datetime.now() + datetime.timedelta(days=1),
+            updated_date_time=datetime.datetime.now() + datetime.timedelta(days=1),
         )
         end_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
-            changed_on=datetime.datetime.now() + datetime.timedelta(days=2),
+            updated_date_time=datetime.datetime.now() + datetime.timedelta(days=2),
         )
-        self.assertEqual(experiment.end_date, end_change.changed_on.date())
+        self.assertEqual(experiment.end_date, end_change.updated_date_time.date())
 
     def test_end_date_uses_cached_end_date(self):
         cached_date = datetime.date(2022, 1, 1)
@@ -908,7 +908,7 @@ class TestNimbusExperiment(TestCase):
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
-            changed_on=changelog_date,
+            updated_date_time=changelog_date,
         )
 
         self.assertEqual(experiment.end_date, cached_date)
@@ -942,15 +942,15 @@ class TestNimbusExperiment(TestCase):
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
-            changed_on=datetime.datetime.now() + datetime.timedelta(days=1),
+            updated_date_time=datetime.datetime.now() + datetime.timedelta(days=1),
         )
         end_change = NimbusChangeLogFactory(
             experiment=experiment,
             old_status=NimbusExperiment.Status.LIVE,
             new_status=NimbusExperiment.Status.COMPLETE,
-            changed_on=datetime.datetime.now() + datetime.timedelta(days=2),
+            updated_date_time=datetime.datetime.now() + datetime.timedelta(days=2),
         )
-        self.assertEqual(experiment.end_date, end_change.changed_on.date())
+        self.assertEqual(experiment.end_date, end_change.updated_date_time.date())
 
     def test_proposed_end_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1003,7 +1003,7 @@ class TestNimbusExperiment(TestCase):
         )
         self.assertTrue(experiment.should_end_enrollment)
 
-    def test_computed_enrollment_days_returns_changed_on_minus_start_date(self):
+    def test_computed_enrollment_days_returns_updated_date_time_minus_start_date(self):
         expected_days = 3
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_APPROVE,
@@ -1011,7 +1011,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         experiment.changes.filter(experiment_data__is_paused=True).update(
-            changed_on=datetime.datetime.now()
+            updated_date_time=datetime.datetime.now()
         )
 
         self.assertEqual(
@@ -1062,7 +1062,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         experiment.changes.filter(experiment_data__is_paused=True).update(
-            changed_on=datetime.datetime.now()
+            updated_date_time=datetime.datetime.now()
         )
         self.assertEqual(
             experiment.computed_enrollment_days,
@@ -1107,7 +1107,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         experiment.changes.filter(experiment_data__is_paused=True).update(
-            changed_on=enrollment_end_date
+            updated_date_time=enrollment_end_date
         )
 
         self.assertEqual(
@@ -2291,7 +2291,7 @@ class TestNimbusChangeLog(TestCase):
         user = UserFactory.create()
         changelog = NimbusChangeLogFactory.create(
             changed_by=user,
-            changed_on=now,
+            updated_date_time=now,
             old_status=NimbusExperiment.Status.DRAFT,
             new_status=NimbusExperiment.Status.PREVIEW,
             message=None,

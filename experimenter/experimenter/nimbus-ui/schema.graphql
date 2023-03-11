@@ -328,7 +328,7 @@ enum NimbusExperimentDocumentationLinkEnum {
 }
 
 type NimbusChangeLogType {
-  changedOn: DateTime!
+  updatedDateTime: DateTime!
   changedBy: NimbusUserType!
   oldStatus: NimbusExperimentStatusEnum
   oldStatusNext: NimbusExperimentStatusEnum

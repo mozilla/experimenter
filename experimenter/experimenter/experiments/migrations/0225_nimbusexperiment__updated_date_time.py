@@ -4,15 +4,15 @@
 from django.db import migrations, models
 
 
-def update_updated_date_time_with_changelog_last_changed_on(apps, schema_editor):
+def update_updated_date_time_with_changelog_last_updated_date_time(apps, schema_editor):
     NimbusExperiment = apps.get_model("experiments", "NimbusExperiment")
     for experiment in NimbusExperiment.objects.all():
 
         # disabling auto_now
         experiment._meta.get_field("_updated_date_time").auto_now = False
 
-        if change := experiment.changes.all().order_by("-changed_on").first():
-            experiment._updated_date_time = change.changed_on
+        if change := experiment.changes.all().order_by("-updated_date_time").first():
+            experiment._updated_date_time = change.updated_date_time
             experiment.save()
         # Re-enabling auto_now
         experiment._meta.get_field("_updated_date_time").auto_now = True
@@ -30,5 +30,7 @@ class Migration(migrations.Migration):
             name="_updated_date_time",
             field=models.DateTimeField(auto_now=True),
         ),
-        migrations.RunPython(update_updated_date_time_with_changelog_last_changed_on),
+        migrations.RunPython(
+            update_updated_date_time_with_changelog_last_updated_date_time
+        ),
     ]

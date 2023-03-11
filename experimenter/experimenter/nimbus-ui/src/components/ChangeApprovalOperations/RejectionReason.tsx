@@ -14,7 +14,7 @@ export const RejectionReason = ({
 }: {
   rejectionEvent: getExperiment_experimentBySlug["rejection"];
 }) => {
-  const { message, changedOn, changedBy, oldStatus, oldStatusNext } =
+  const { message, updatedDateTime, changedBy, oldStatus, oldStatusNext } =
     rejectionEvent!;
 
   const rejectionActionDescription = useMemo(() => {
@@ -37,7 +37,7 @@ export const RejectionReason = ({
           <strong>Rejected</strong> due to:
         </p>
         <p className="mb-2">
-          {changedBy!.email} on {humanDate(changedOn!)}:
+          {changedBy!.email} on {humanDate(updatedDateTime!)}:
         </p>
         <p className="bg-white rounded border p-2 mb-0">{message}</p>
       </div>

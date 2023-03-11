@@ -1031,12 +1031,12 @@ export const mockUser = (email = "abc@mozilla.com"): NimbusUser => ({
 export const mockChangelog = (
   email = "abc@mozilla.com",
   message: string | null = null,
-  changedOn: DateTime = new Date().toISOString(),
+  updatedDateTime: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
   oldStatus: NimbusExperimentStatusEnum.LIVE,
   oldStatusNext: null,
   changedBy: mockUser(email),
-  changedOn,
+  updatedDateTime,
   message,
 });
 
@@ -1045,12 +1045,12 @@ export const mockRejectionChangelog = (
   message: string | null = null,
   oldStatus: NimbusExperimentStatusEnum = NimbusExperimentStatusEnum.LIVE,
   oldStatusNext: NimbusExperimentStatusEnum | null = null,
-  changedOn: DateTime = new Date().toISOString(),
+  updatedDateTime: DateTime = new Date().toISOString(),
 ): NimbusChangeLog => ({
   oldStatus,
   oldStatusNext,
   changedBy: mockUser(email),
-  changedOn,
+  updatedDateTime,
   message,
 });
 

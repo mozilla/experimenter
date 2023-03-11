@@ -156,7 +156,7 @@ export const GET_EXPERIMENT_QUERY = gql`
 
       canReview
       reviewRequest {
-        changedOn
+        updatedDateTime
         changedBy {
           email
         }
@@ -165,13 +165,13 @@ export const GET_EXPERIMENT_QUERY = gql`
         message
         oldStatus
         oldStatusNext
-        changedOn
+        updatedDateTime
         changedBy {
           email
         }
       }
       timeout {
-        changedOn
+        updatedDateTime
         changedBy {
           email
         }

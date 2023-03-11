@@ -55,7 +55,7 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
         return (
             super()
             .get_queryset()
-            .annotate(latest_change=Max("changes__changed_on"))
+            .annotate(latest_change=Max("changes__updated_date_time"))
             .order_by("-latest_change")
         )
 
@@ -433,10 +433,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                     old_status=self.Status.DRAFT,
                     new_status=self.Status.LIVE,
                 )
-                .order_by("-changed_on")
+                .order_by("-updated_date_time")
                 .first()
             ):
-                self._start_date = start_changelog.changed_on.date()
+                self._start_date = start_changelog.updated_date_time.date()
                 self.save()
                 return self._start_date
 
@@ -454,10 +454,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if (
                 end_changelog := self.changes.all()
                 .filter(old_status=self.Status.LIVE, new_status=self.Status.COMPLETE)
-                .order_by("-changed_on")
+                .order_by("-updated_date_time")
                 .first()
             ):
-                self._end_date = end_changelog.changed_on.date()
+                self._end_date = end_changelog.updated_date_time.date()
                 self.save()
                 return self._end_date
 
@@ -489,10 +489,11 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 and "is_paused" in c.experiment_data
                 and c.experiment_data["is_paused"]
             ]:
-                paused_change = sorted(paused_changelogs, key=lambda c: c.changed_on)[-1]
-                self._enrollment_end_date = paused_change.changed_on.date()
+                result = sorted(paused_changelogs, key=lambda c: c.updated_date_time)[-1]
+                paused_change = result
+                self._enrollment_end_date = paused_change.updated_date_time.date()
                 self.save()
-                return (paused_change.changed_on.date() - self.start_date).days
+                return (paused_change.updated_date_time.date() - self.start_date).days
 
         if self.end_date:
             return self.computed_duration_days
@@ -690,7 +691,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def should_timeout(self):
         review_expired = (
-            timezone.now() - self.changes.latest_change().changed_on
+            timezone.now() - self.changes.latest_change().updated_date_time
         ) >= datetime.timedelta(seconds=settings.KINTO_REVIEW_TIMEOUT)
         return self.publish_status == self.PublishStatus.WAITING and review_expired
 
@@ -1022,7 +1023,7 @@ class NimbusFeatureConfig(models.Model):
 
 class NimbusChangeLogManager(models.Manager["NimbusChangeLog"]):
     def latest_change(self):
-        return self.all().order_by("-changed_on").first()
+        return self.all().order_by("-updated_date_time").first()
 
     def latest_review_request(self):
         return (
@@ -1031,7 +1032,7 @@ class NimbusChangeLogManager(models.Manager["NimbusChangeLog"]):
                 NimbusChangeLog.Filters.IS_REVIEW_REQUEST
                 | NimbusChangeLog.Filters.IS_UPDATE_REVIEW_REQUEST
             )
-            .order_by("-changed_on")
+            .order_by("-updated_date_time")
         ).first()
 
     def latest_rejection(self):
@@ -1057,7 +1058,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
         related_name="changes",
         on_delete=models.CASCADE,
     )
-    changed_on = models.DateTimeField(default=current_datetime)
+    updated_date_time = models.DateTimeField(default=current_datetime)
     changed_by = models.ForeignKey(User, on_delete=models.CASCADE)
     old_status = models.CharField(
         max_length=255, blank=True, null=True, choices=NimbusExperiment.Status.choices
@@ -1089,7 +1090,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
     class Meta:
         verbose_name = "Nimbus Experiment Change Log"
         verbose_name_plural = "Nimbus Experiment Change Logs"
-        ordering = ("changed_on",)
+        ordering = ("updated_date_time",)
 
     class Filters:
         IS_REVIEW_REQUEST = Q(
@@ -1147,7 +1148,7 @@ class NimbusChangeLog(FilterMixin, models.Model):
     def __str__(self):
         return self.message or (
             f"{self.old_status} > {self.new_status} "
-            f"by {self.changed_by} on {self.changed_on}"
+            f"by {self.changed_by} on {self.updated_date_time}"
         )
 
 

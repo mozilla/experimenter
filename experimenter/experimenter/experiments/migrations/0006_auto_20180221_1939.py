@@ -13,7 +13,7 @@ def update_dates(apps, schema_editor):  # pragma: no cover
         try:
             start_date = ExperimentChangeLog.objects.get(
                 experiment=experiment, old_status="Accepted", new_status="Launched"
-            ).changed_on
+            ).updated_date_time
             experiment.proposed_start_date = start_date
         except:
             pass
@@ -21,7 +21,7 @@ def update_dates(apps, schema_editor):  # pragma: no cover
         try:
             end_date = ExperimentChangeLog.objects.get(
                 experiment=experiment, old_status="Launched", new_status="Complete"
-            ).changed_on
+            ).updated_date_time
             experiment.proposed_end_date = end_date
         except:
             pass

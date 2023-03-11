@@ -24,7 +24,7 @@ class ExperimentChangeLogInlineAdmin(admin.TabularInline):
 
     fields = (
         "changed_by",
-        "changed_on",
+        "updated_date_time",
         "old_status",
         "new_status",
         "message",

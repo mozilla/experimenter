@@ -149,7 +149,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
                 experiment=experiment,
                 old_status=old_status,
                 new_status=status_value,
-                changed_on=now,
+                updated_date_time=now,
             )
 
             if status_value == Experiment.STATUS_SHIP:

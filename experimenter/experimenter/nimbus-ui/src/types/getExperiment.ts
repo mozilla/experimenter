@@ -92,7 +92,7 @@ export interface getExperiment_experimentBySlug_reviewRequest_changedBy {
 }
 
 export interface getExperiment_experimentBySlug_reviewRequest {
-  changedOn: DateTime;
+  updatedDateTime: DateTime;
   changedBy: getExperiment_experimentBySlug_reviewRequest_changedBy;
 }
 
@@ -104,7 +104,7 @@ export interface getExperiment_experimentBySlug_rejection {
   message: string | null;
   oldStatus: NimbusExperimentStatusEnum | null;
   oldStatusNext: NimbusExperimentStatusEnum | null;
-  changedOn: DateTime;
+  updatedDateTime: DateTime;
   changedBy: getExperiment_experimentBySlug_rejection_changedBy;
 }
 
@@ -113,7 +113,7 @@ export interface getExperiment_experimentBySlug_timeout_changedBy {
 }
 
 export interface getExperiment_experimentBySlug_timeout {
-  changedOn: DateTime;
+  updatedDateTime: DateTime;
   changedBy: getExperiment_experimentBySlug_timeout_changedBy;
 }
 

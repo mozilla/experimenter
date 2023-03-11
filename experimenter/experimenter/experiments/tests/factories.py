@@ -471,13 +471,13 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 f"set lifecycle {lifecycle} state {state}",
             )
 
-            change.changed_on = current_datetime
+            change.updated_date_time = current_datetime
             change.save()
             current_datetime += datetime.timedelta(days=1)
 
         if with_latest_change_now:
             latest_change = experiment.changes.latest_change()
-            latest_change.changed_on = timezone.now()
+            latest_change.updated_date_time = timezone.now()
             latest_change.save()
 
         return NimbusExperiment.objects.get(id=experiment.id)
