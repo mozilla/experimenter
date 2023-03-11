@@ -438,7 +438,14 @@ jobs:
       - run:
           name: Run Cirrus tests and linting
           command: |
-            make cirrus_check
+            if git diff --name-only main HEAD | grep -E 'cirrus/'
+              then
+                echo "Changes detected in /cirrus directory. Running Cirrus tests and linting."
+                make cirrus_check
+              else
+                echo "No changes in /cirrus directory. Skipping tests and linting."
+                circleci-agent step halt
+            fi
 
 workflows:
   version: 2
