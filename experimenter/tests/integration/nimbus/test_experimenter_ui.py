@@ -97,7 +97,6 @@ def test_create_new_experiment_timeout_remote_settings(
     metrics = branches.save_and_continue()
     metrics.set_primary_outcomes(values=[metrics.primary_outcomes[0]])
     assert metrics.primary_outcomes != "", "The primary outcome was not set"
-    self.wait.until(method, message, wait=10)
 
 
 @pytest.mark.nimbus_ui
