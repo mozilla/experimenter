@@ -92,7 +92,7 @@ def test_create_new_experiment_timeout_remote_settings(
     summary = create_experiment(selenium)
     summary.launch_and_approve()
     summary.wait_for_timeout_alert()
-    branches = summary.navigate_to_branches()
+    branches = summary.navigate_to_branches(wait=10)
     # Fill Metrics page
     metrics = branches.save_and_continue()
     metrics.set_primary_outcomes(values=[metrics.primary_outcomes[0]])
