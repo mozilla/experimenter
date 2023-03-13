@@ -43,6 +43,17 @@ NO_TARGETING = NimbusTargetingConfig(
     application_choice_names=[a.name for a in Application],
 )
 
+NEW_PROFILE_CREATED = NimbusTargetingConfig(
+    name="New profile created",
+    slug="new_profile_created",
+    description="Profile with creation date within 24 hours",
+    targeting=NEW_PROFILE,
+    desktop_telemetry="environment.profile.creation_date",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users",
     slug="first_run",
