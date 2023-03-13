@@ -210,8 +210,8 @@ cirrus_down:
 cirrus_test:
 	$(COMPOSE_TEST) up cirrus_test
 
-cirrus_check: cirrus_test
-	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_RUFF_CHECK)"
+cirrus_check:
+    $(COMPOSE_TEST) run --rm cirrus_test sh -c "$(CIRRUS_RUFF_CHECK)"
 
 cirrus_code_format:
 	$(COMPOSE) run cirrus sh -c "$(CIRRUS_RUFF_FIX)"
