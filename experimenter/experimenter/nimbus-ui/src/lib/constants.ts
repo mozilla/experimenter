@@ -137,8 +137,7 @@ export const CHANGELOG_MESSAGES = {
 export const FIELD_MESSAGES = {
   REQUIRED: "This field may not be blank.",
   NUMBER: "This field must be a number.",
-  POSITIVE_NUMBER:
-    "This field must be a positive number and leading number cannot be 0.",
+  POSITIVE_NUMBER: "This field must be a positive number.",
   URL: "This field must be a URL.",
 };
 
@@ -159,14 +158,12 @@ export const POSITIVE_NUMBER_FIELD = {
 } as RegisterOptions;
 
 export const POSITIVE_NUMBER_WITH_COMMAS_FIELD = {
-  pattern: {
-    value: /^(?!0\d)\d+$/,
-    message: FIELD_MESSAGES.POSITIVE_NUMBER,
-  },
   setValueAs: (value) =>
     parseFloat(("" + value).trim().replace(/[^\d.-]+/g, "")),
-  validate: (value) =>
-    (!isNaN(value) && value >= 0) || FIELD_MESSAGES.POSITIVE_NUMBER,
+  pattern: {
+    value: /^(?!0\d)(\d{1,3}(,\d{3})*|\d+)$/,
+    message: FIELD_MESSAGES.POSITIVE_NUMBER,
+  },
 } as RegisterOptions;
 
 export const URL_FIELD = {
