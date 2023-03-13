@@ -33,7 +33,7 @@ export const SERVER_ERRORS = {
 export const EXTERNAL_URLS = {
   TRAINING_AND_PLANNING_DOC:
     "https://mana.mozilla.org/wiki/display/FJT/Nimbus+Onboarding",
-  NIMBUS_MANA_DOC: "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus",
+  NIMBUS_MANA_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
   WORKFLOW_MANA_DOC:
     "https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=109990007",
   BRANCHES_GOOGLE_DOC:
@@ -41,8 +41,7 @@ export const EXTERNAL_URLS = {
   METRICS_GOOGLE_DOC:
     "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.uq23fsvh16rc",
   // EXP-866 TBD URL
-  PREVIEW_LAUNCH_DOC:
-    "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus",
+  PREVIEW_LAUNCH_DOC: "https://mana.mozilla.org/wiki/display/FJT/Nimbus",
   RISK_BRAND:
     "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
   RISK_PARTNER:
