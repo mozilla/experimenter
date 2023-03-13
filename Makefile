@@ -200,16 +200,14 @@ integration_test_nimbus_rust: build_prod
 # cirrus
 CIRRUS_RUFF_CHECK = ruff cirrus/server
 CIRRUS_RUFF_FIX = ruff --fix cirrus/server
-cirrus_build:
-	$(COMPOSE) build cirrus
 
-cirrus_up: cirrus_build
+cirrus_up:
 	$(COMPOSE) up cirrus
 
 cirrus_down:
 	$(COMPOSE) down cirrus
 
-cirrus_test: cirrus_build
+cirrus_test:
 	$(COMPOSE_TEST) up cirrus_test
 
 cirrus_check: cirrus_test
