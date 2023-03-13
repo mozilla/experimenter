@@ -46,9 +46,9 @@ PYTHON_PATH_SDK = PYTHONPATH=/application-services/components/nimbus/src
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
 FEATURE_MANIFEST_DESKTOP_URL = https://hg.mozilla.org/mozilla-central/raw-file/tip/toolkit/components/nimbus/FeatureManifest.yaml
-FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/fenix/.experimenter.yaml
+FEATURE_MANIFEST_FENIX_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/fenix/app/.experimenter.yaml
 FEATURE_MANIFEST_FXIOS_URL = https://raw.githubusercontent.com/mozilla-mobile/firefox-ios/main/.experimenter.yaml
-FEATURE_MANIFEST_FOCUS_ANDROID = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/focus-android/.experimenter.yaml
+FEATURE_MANIFEST_FOCUS_ANDROID = https://raw.githubusercontent.com/mozilla-mobile/firefox-android/main/focus-android/app/.experimenter.yaml
 FEATURE_MANIFEST_FOCUS_IOS = https://raw.githubusercontent.com/mozilla-mobile/focus-ios/main/.experimenter.yaml
 
 ssl: nginx/key.pem nginx/cert.pem
@@ -196,7 +196,7 @@ integration_test_nimbus: build_prod
 
 integration_test_nimbus_rust: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod a+rwx /code/experimenter/tests/integration/.tox;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
-	
+
 # cirrus
 cirrus_up:
 	$(COMPOSE) up cirrus
