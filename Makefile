@@ -200,6 +200,8 @@ integration_test_nimbus_rust: build_prod
 # cirrus
 CIRRUS_RUFF_CHECK = ruff cirrus/server
 CIRRUS_RUFF_FIX = ruff --fix cirrus/server
+CIRRUS_PYTEST = pytest cirrus/server --cov=cirrus
+
 
 cirrus_up:
 	$(COMPOSE) up cirrus
@@ -208,10 +210,10 @@ cirrus_down:
 	$(COMPOSE) down cirrus
 
 cirrus_test:
-	$(COMPOSE_TEST) up cirrus_test
+	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_PYTEST)'
 
 cirrus_check:
-	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_RUFF_CHECK)"
+	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_PYTEST)"
 
 cirrus_code_format:
 	$(COMPOSE) run cirrus sh -c "$(CIRRUS_RUFF_FIX)"
