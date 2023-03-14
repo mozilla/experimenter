@@ -159,8 +159,10 @@ export const POSITIVE_NUMBER_FIELD = {
 export const POSITIVE_NUMBER_WITH_COMMAS_FIELD = {
   setValueAs: (value) =>
     parseFloat(("" + value).trim().replace(/[^\d.-]+/g, "")),
-  validate: (value) =>
-    (!isNaN(value) && value >= 0) || FIELD_MESSAGES.POSITIVE_NUMBER,
+  pattern: {
+    value: /^(?!0\d)(\d{1,3}(,\d{3})*|\d+)$/,
+    message: FIELD_MESSAGES.POSITIVE_NUMBER,
+  },
 } as RegisterOptions;
 
 export const URL_FIELD = {
