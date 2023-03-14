@@ -3,9 +3,6 @@ name = "cirrus"
 version = "0.1.0"
 description = ""
 authors = [""]
-packages = [
-    { include = "cirrus" },
-]
 
 [tool.poetry.dependencies]
 python = "^3.10.10"

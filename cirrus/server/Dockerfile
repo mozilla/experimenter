@@ -20,11 +20,10 @@ COPY cirrus/server/pyproject.toml cirrus/server/poetry.lock ./
 
 # Configure poetry and install dependencies
 RUN poetry config virtualenvs.create false && \
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry install --only=main --no-interaction --no-ansi
 
 # Copy all other files into the container's working directory
 COPY . .
 
 # Start application with Uvicorn server
 CMD ["uvicorn", "cirrus.main:app", "--host", "0.0.0.0", "--port", "8001"]
-
