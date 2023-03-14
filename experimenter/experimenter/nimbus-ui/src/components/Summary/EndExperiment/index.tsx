@@ -22,7 +22,7 @@ const EndExperiment = ({
           data-testid="end-experiment-start"
           disabled={isLoading}
         >
-          End Experiment
+          End Rollout
         </Button>
       }
     </div>
