@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 from urllib.parse import urljoin
 
-import pkg_resources
 import sentry_sdk
 from decouple import config
 from django.contrib.admin import ModelAdmin, StackedInline, TabularInline
@@ -456,7 +455,10 @@ UPLOADS_GS_BUCKET_NAME = config("UPLOADS_GS_BUCKET_NAME", default=None)
 # Custom file storage override for user uploads (e.g. for testing)
 UPLOADS_FILE_STORAGE = config("UPLOADS_FILE_STORAGE", default=None)
 
-NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").version
+NIMBUS_SCHEMA_VERSION = (
+    # TODO: #8492
+    "1.11.0"  # pkg_resources.get_distribution("mozilla-nimbus-shared").version
+)
 
 
 # Jetstream config paths
