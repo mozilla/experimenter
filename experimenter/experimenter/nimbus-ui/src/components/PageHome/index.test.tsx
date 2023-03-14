@@ -55,7 +55,7 @@ describe("PageHome", () => {
     [
       ["review", screen.getByText("Review (0)")],
       ["preview", screen.getByText("Preview (0)")],
-      ["completed", screen.getByText("Completed (2)")],
+      ["completed", screen.getByText("Completed (1)")],
       ["drafts", screen.getByText("Draft (0)")],
       ["live", screen.getByText("Live (0)")],
       ["archived", screen.getByText("Archived (0)")],
