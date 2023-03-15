@@ -1072,6 +1072,16 @@ FIVE_BOOKMARKS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NOT_MAC = NimbusTargetingConfig(
+    name="Not Mac Users",
+    slug="not_mac_users",
+    description="Clients not on mac",
+    targeting="!os.isMac",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
