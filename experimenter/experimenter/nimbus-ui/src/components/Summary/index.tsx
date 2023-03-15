@@ -112,7 +112,11 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
               !status.endRequested &&
               (status.idle || status.dirty) && (
                 <EndExperiment
-                  {...{ isLoading, onSubmit: onConfirmEndClicked }}
+                  {...{
+                    isLoading,
+                    onSubmit: onConfirmEndClicked,
+                    isRollout: !!experiment.isRollout, // Use double negation (!!) to coerce experiment to boolean value
+                  }}
                 />
               )}
             {status.review && (
