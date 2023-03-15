@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "cirrus"
+version = "0.1.0"
+description = ""
+authors = [""]
+
+[tool.poetry.dependencies]
+python = "^3.10.10"
+ruff = "^0.0.254"
+fastapi = "^0.92.0"
+uvicorn = "^0.20.0"
+pytest = "^7.2.2"
+httpx = "^0.23.3"
+pytest-cov = "^4.0.0"
+
+[tool.ruff]
+# # Enable Pyflakes `E` and `F` codes by default.
+select = ["F", "E", "W", "I", "N", "YTT", "A", "C4", "RET", "SIM"]
+ignore = [
+    "A003",
+    "E402",
+    "E741",
+    "F403",
+    "N802",
+    "N803",
+    "N806",
+    "N812",
+    "N815",
+    "RET503",
+    "RET504",
+    "RET505",
+    "SIM102",
+]
+
+# Same as Black.
+line-length = 90
