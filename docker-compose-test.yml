@@ -8,6 +8,8 @@ services:
       - DEBUG=False
       - CIRCLE_PULL_REQUEST
       - CIRCLE_BRANCH
+    volumes:
+      - ./docs/experimenter:/experimenter/experimenter/docs
     links:
       - db
 
