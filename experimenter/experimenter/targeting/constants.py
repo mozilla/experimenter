@@ -1077,6 +1077,7 @@ NOT_MAC = NimbusTargetingConfig(
     slug="not_mac_users",
     description="Clients not on mac",
     targeting="!os.isMac",
+    desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
