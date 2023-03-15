@@ -8,8 +8,10 @@ import { Button } from "react-bootstrap";
 const EndExperiment = ({
   onSubmit,
   isLoading,
+  isRollout,
 }: {
   isLoading: boolean;
+  isRollout: boolean;
   onSubmit: () => void;
 }) => {
   return (
@@ -22,7 +24,7 @@ const EndExperiment = ({
           data-testid="end-experiment-start"
           disabled={isLoading}
         >
-          End Experiment
+          End {isRollout ? "Rollout" : "Experiment"}
         </Button>
       }
     </div>

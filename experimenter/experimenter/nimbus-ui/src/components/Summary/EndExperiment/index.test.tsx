@@ -27,4 +27,18 @@ describe("EndExperiment", () => {
     const startEnd = await screen.findByTestId("end-experiment-start");
     expect(startEnd).toBeDisabled();
   });
+
+  it("ensures button contains Rollout if isRollout is true", async () => {
+    render(<Subject isRollout={true} />);
+
+    const startEnd = await screen.findByTestId("end-experiment-start");
+    expect(startEnd).toHaveTextContent("End Rollout");
+  });
+
+  it("ensures button remains 'End Experiment' if isRollout is false", async () => {
+    render(<Subject isRollout={false} />);
+
+    const startEnd = await screen.findByTestId("end-experiment-start");
+    expect(startEnd).toHaveTextContent("End Experiment");
+  });
 });

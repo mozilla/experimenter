@@ -12,15 +12,17 @@ export const Subject = ({
   experiment: overrides = {},
   isLoading = false,
   onSubmit = () => {},
+  isRollout = false,
 }: {
   experiment?: Partial<getExperiment["experimentBySlug"]>;
   isLoading?: boolean;
   onSubmit?: () => void;
+  isRollout?: boolean;
 }) => {
   const { experiment } = mockExperimentQuery("demo-slug", {
     status: NimbusExperimentStatusEnum.LIVE,
     ...overrides,
   });
 
-  return <EndExperiment {...{ experiment, isLoading, onSubmit }} />;
+  return <EndExperiment {...{ experiment, isLoading, onSubmit, isRollout }} />;
 };
