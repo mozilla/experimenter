@@ -8,7 +8,7 @@
 
 The front-end for Experimenter is currently composed of two applications. The application currently being used in production for legacy experimentation, survey, and delivery channels including Normandy pref-flips, roll-outs, and heartbeat surveys, lives at `app/experimenter/static/core`. It is composed of a mix of Django templates, vanilla JS, jQuery, and React components, and uses a combination of Bootstrap CSS, `react-bootstrap`, and custom CSS. A newer React application for Nimbus experiments (previously named Rapid experiments) can be found at `app/experimenter/static/rapid` and uses only Bootstrap CSS.
 
-With the decision made to build the Nimbus console as part of the Experimenter codebase ([see ADR #0001](https://github.com/mozilla/experimenter/blob/main/experimenter/experimenter/docs/adrs/0001-build-nimbus-console-in-experimenter.md)), it was determined we likely want a "new front-end." After that ADR was merged, through discussions it was agreed upon that [graphene-django](https://github.com/graphql-python/graphene-django) would be used in the back-end, allowing the use of GQL in the Nimbus UI.
+With the decision made to build the Nimbus console as part of the Experimenter codebase ([see ADR #0001](https://github.com/mozilla/experimenter/blob/main/docs/adrs/0001-build-nimbus-console-in-experimenter.md)), it was determined we likely want a "new front-end." After that ADR was merged, through discussions it was agreed upon that [graphene-django](https://github.com/graphql-python/graphene-django) would be used in the back-end, allowing the use of GQL in the Nimbus UI.
 
 This ADR, while slightly atypical as it does not serve to document a single architectural change, outlines a proposed directory tree change regarding the front-end, a proposed new front-end stack, how it compares to the current `rapid` stack, and how we will benefit from these changes.
 
@@ -128,6 +128,6 @@ Ultimately, Bootstrap was chosen to stick around because Bootstrap CSS and `reac
 
 ## Links
 
-[ADR #0001](https://github.com/mozilla/experimenter/blob/main/experimenter/experimenter/docs/adrs/0001-build-nimbus-console-in-experimenter.md) - documented decision to build Nimbus in this repository with the existing Django back-end\
+[ADR #0001](https://github.com/mozilla/experimenter/blob/main/docs/adrs/0001-build-nimbus-console-in-experimenter.md) - documented decision to build Nimbus in this repository with the existing Django back-end\
 [graphene-django](https://github.com/graphql-python/graphene-django) - package to allow GraphQL in Python/Django\
 [FxA Settings README](https://github.com/mozilla/fxa/tree/main/packages/fxa-settings) - well-documented project with a similar front-end stack that can be referenced for examples with other relevant ADRs (GQL, React Toolchain) linked at the top
