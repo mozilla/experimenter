@@ -24,8 +24,7 @@ services:
     build:
       context: .
       dockerfile: cirrus/server/Dockerfile
-    command: pytest cirrus/server --cov=cirrus
     volumes:
-      - .:/usr/src/cirrus
+      - .:/app/cirrus
 
 
