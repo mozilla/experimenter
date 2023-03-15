@@ -23,6 +23,6 @@ services:
       context: .
       dockerfile: cirrus/server/Dockerfile
     volumes:
-      - .:/usr/src/cirrus
+      - .:/app/cirrus
 
 
