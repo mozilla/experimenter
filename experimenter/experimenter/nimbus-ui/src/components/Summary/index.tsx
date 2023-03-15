@@ -61,7 +61,9 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
     },
     {
-      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      publishStatus: (
+        experiment.isRollout && status.live && experiment.statusNext === NimbusExperimentStatusEnum.LIVE
+        ) ? NimbusExperimentPublishStatusEnum.DIRTY : NimbusExperimentPublishStatusEnum.IDLE,
       changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
       statusNext:
         experiment.status === NimbusExperimentStatusEnum.LIVE
