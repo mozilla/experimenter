@@ -5,7 +5,7 @@
 import { Link } from "@reach/router";
 import classNames from "classnames";
 import React, { useCallback, useMemo } from "react";
-import { Button, Table } from "react-bootstrap";
+import { Badge, Button, Table } from "react-bootstrap";
 import LinkExternal from "src/components/LinkExternal";
 import NotSet from "src/components/NotSet";
 import { displayConfigLabelOrNotSet } from "src/components/Summary";
@@ -25,8 +25,10 @@ import {
   populationPercentSortSelector,
   resultsReadySortSelector,
   startDateSortSelector,
+  unpublishedUpdatesSortSelector,
 } from "src/lib/experiment";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
+import { NimbusExperimentPublishStatusEnum } from "src/types/globalTypes";
 
 // These are all render functions for column types in the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;
@@ -127,16 +129,39 @@ export const DirectoryColumnStartDate: ColumnComponent = ({ startDate: d }) => (
     {(d && humanDate(d)) || <NotSet />}
   </td>
 );
+
 export const DirectoryColumnEnrollmentDate: ColumnComponent = (experiment) => (
   <td data-testid="directory-table-cell">
     {getProposedEnrollmentRange(experiment) || <NotSet />}
   </td>
 );
+
 export const DirectoryColumnEndDate: ColumnComponent = ({
   computedEndDate: d,
 }) => (
   <td data-testid="directory-table-cell">
     {(d && humanDate(d)) || <NotSet />}
+  </td>
+);
+
+export const DirectoryColumnUnpublishedUpdates: ColumnComponent = ({
+  publishStatus: p,
+}) => (
+  <td data-testid="directory-table-cell">
+    {p ? (
+      <>
+        <Badge
+          className={
+            "ml-2 border rounded-pill px-2 bg-white font-weight-normal border-danger text-danger"
+          }
+          data-testid="directory-unpublished-updates"
+        >
+          {p === NimbusExperimentPublishStatusEnum.DIRTY ? "YES" : ""}
+        </Badge>
+      </>
+    ) : (
+      ""
+    )}
   </td>
 );
 
@@ -307,6 +332,11 @@ const commonColumns: Column[] = [
     label: "Results",
     sortBy: resultsReadySortSelector,
     component: DirectoryColumnResults,
+  },
+  {
+    label: "Unpublished Updates",
+    sortBy: unpublishedUpdatesSortSelector,
+    component: DirectoryColumnUnpublishedUpdates,
   },
 ];
 
