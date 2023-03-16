@@ -1188,30 +1188,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertTrue(serializer.is_valid())
 
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-        ]
-    )
     def test_valid_branches_for_rollout(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1305,14 +1281,14 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
         ]
     )
-    def test_rollout_valid_version_support(self):
-        desktop = NimbusExperiment.Application.DESKTOP
+    def test_rollout_valid_version_support(self, application, firefox_version):
+        # desktop = NimbusExperiment.Application.DESKTOP
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=desktop,
+            application=application,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
-            feature_configs=[NimbusFeatureConfigFactory(application=desktop)],
+            firefox_min_version=firefox_version,
+            feature_configs=[NimbusFeatureConfigFactory(application)],
             is_sticky=False,
             is_rollout=True,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -1322,13 +1298,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             branch.delete()
 
         data = {
-            "application": NimbusExperiment.Application.DESKTOP,
+            "application": application,
             "is_sticky": "false",
             "is_rollout": "true",
             "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
             "changelog_message": "test changelog message",
             "channel": "",
-            "firefox_min_version": NimbusExperiment.Version.FIREFOX_108,
+            "firefox_min_version": firefox_version,
         }
         serializer = NimbusReviewSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -1360,14 +1336,14 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
         ]
     )
-    def test_rollout_invalid_version_support(self):
-        desktop = NimbusExperiment.Application.DESKTOP
+    def test_rollout_invalid_version_support(self, application, firefox_version):
+        # desktop = NimbusExperiment.Application.DESKTOP
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            application=desktop,
+            application=application,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_50,
-            feature_configs=[NimbusFeatureConfigFactory(application=desktop)],
+            firefox_min_version=firefox_version,
+            feature_configs=[NimbusFeatureConfigFactory(application)],
             is_sticky=True,
             is_rollout=True,
             targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
@@ -1377,13 +1353,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             branch.delete()
 
         data = {
-            "application": NimbusExperiment.Application.DESKTOP,
+            "application": application,
             "is_sticky": "true",
             "is_rollout": "true",
             "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
             "changelog_message": "test changelog message",
             "channel": "",
-            "firefox_min_version": NimbusExperiment.Version.FIREFOX_50,
+            "firefox_min_version": firefox_version,
         }
         serializer = NimbusReviewSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
@@ -1426,30 +1402,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             {"reference_branch": {"feature_value": ["This field may not be blank."]}},
         )
 
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-        ]
-    )
     def test_bucket_namespace_warning_for_dupe_rollouts(self):
         desktop = NimbusExperiment.Application.DESKTOP
         channel = NimbusExperiment.Channel.NIGHTLY
@@ -1509,30 +1461,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             [NimbusConstants.ERROR_BUCKET_EXISTS],
         )
 
-    @parameterized.expand(
-        [
-            (
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_ANDROID,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.IOS,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-            (
-                NimbusExperiment.Application.FOCUS_IOS,
-                NimbusExperiment.Version.FIREFOX_105,
-            ),
-        ]
-    )
     def test_bucket_namespace_warning_for_non_dupe_rollouts(self):
         lifecycle = NimbusExperimentFactory.Lifecycles.CREATED
         desktop = NimbusExperiment.Application.DESKTOP
