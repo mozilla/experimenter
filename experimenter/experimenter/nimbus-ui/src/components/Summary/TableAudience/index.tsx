@@ -114,14 +114,13 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
               </td>
             </tr>
             <tr>
-              {experiment.totalEnrolledClients > 0 && (
-                <>
-                  <th>Expected enrolled clients</th>
-                  <td data-testid="experiment-total-enrolled">
-                    {experiment.totalEnrolledClients.toLocaleString()}
-                  </td>
-                </>
-              )}
+              <th>Expected enrolled clients</th>
+              <td data-testid="experiment-total-enrolled">
+                {experiment.totalEnrolledClients
+                  ? experiment.totalEnrolledClients.toLocaleString()
+                  : "0"}
+              </td>
+
               <th>Population %</th>
               <td data-testid="experiment-population">
                 {experiment.populationPercent ? (
