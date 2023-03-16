@@ -8,6 +8,8 @@ services:
       - DEBUG=False
       - CIRCLE_PULL_REQUEST
       - CIRCLE_BRANCH
+    volumes:
+      - ./docs/experimenter:/experimenter/experimenter/docs
     links:
       - db
 
@@ -22,8 +24,7 @@ services:
     build:
       context: .
       dockerfile: cirrus/server/Dockerfile
-    command: pytest cirrus/server --cov=cirrus
     volumes:
-      - .:/usr/src/cirrus
+      - .:/app/cirrus
 
 
