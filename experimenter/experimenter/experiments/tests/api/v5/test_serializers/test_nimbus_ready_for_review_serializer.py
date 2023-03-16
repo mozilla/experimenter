@@ -1188,6 +1188,30 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         )
         self.assertTrue(serializer.is_valid())
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+        ]
+    )
     def test_valid_branches_for_rollout(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1257,6 +1281,30 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             [NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT],
         )
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+        ]
+    )
     def test_rollout_valid_version_support(self):
         desktop = NimbusExperiment.Application.DESKTOP
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1288,6 +1336,30 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_101,
+            ),
+        ]
+    )
     def test_rollout_invalid_version_support(self):
         desktop = NimbusExperiment.Application.DESKTOP
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1354,6 +1426,30 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             {"reference_branch": {"feature_value": ["This field may not be blank."]}},
         )
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+        ]
+    )
     def test_bucket_namespace_warning_for_dupe_rollouts(self):
         desktop = NimbusExperiment.Application.DESKTOP
         channel = NimbusExperiment.Channel.NIGHTLY
@@ -1413,6 +1509,30 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             [NimbusConstants.ERROR_BUCKET_EXISTS],
         )
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_ANDROID,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.IOS,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+            (
+                NimbusExperiment.Application.FOCUS_IOS,
+                NimbusExperiment.Version.FIREFOX_105,
+            ),
+        ]
+    )
     def test_bucket_namespace_warning_for_non_dupe_rollouts(self):
         lifecycle = NimbusExperimentFactory.Lifecycles.CREATED
         desktop = NimbusExperiment.Application.DESKTOP
