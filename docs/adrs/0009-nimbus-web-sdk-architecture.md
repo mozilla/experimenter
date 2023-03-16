@@ -73,11 +73,12 @@ For more information, check out the Cargo Features reference[<sup>[1.ii]</sup>](
 
 This is roughly the same concept as above, but the features will be used in a different way.
 Instead of features for both Nimbus and Cirrus, we would include a `stateless` feature in the Nimbus library to disable state-oriented features and dependencies.
-The Cirrus library will then exist as a separate library from the Nimbus library.
+The Cirrus library will then exist as a separate library from the Nimbus library, primarily to function as a more visible separation of concerns between the two libraries.
+The new Cirrus library would mostly consist of the Cirrus UDL, as well as helper methods — e.g: parsing JSON received from Python before getting to the core function or other things along those lines.
 
 * Good, because all the good things in the "Cargo features, one library" option above.
 * Good, because the changes required will require minimal churn.
-* Good, because better separation of concerns between Nimbus and Cirrus
+* Good, because better separation of concerns between Nimbus and Cirrus.
 * Bad, because defining and using types and traits across the libraries could prove difficult.
   * See a similar point in the "Separate `nimbus-core`, `nimbus-sdk`, and `cirrus-sdk` libraries" option above.
 * Bad, because methods used across both libraries could result in collisions during development.
@@ -89,6 +90,9 @@ The UniFFI UDL would be updated to include the methods, resulting in the methods
 
 * Good, because it's simple and entirely additive.
 * Bad, because it makes Nimbus more prone to developer error.
+  * This is a "someone finds the function in the Nimbus internals and starts using it incorrectly" concern.
+  * As an example, the existing Nimbus SDK UDL includes a NimbusClient that compiles into direct FFI bindings into the Rust code. It does not include any utilities for threading methods that require persistence or object builders. This class shouldn't ever actually be used by iOS/Android directly, but it is there and _can_ be used. 
+  * By adding the stateless methods for experiment evaluation (and others), they would be available in Python, Kotlin, and Swift, even though they should only be used within the context of Cirrus.
 * Bad, because it increases the size of the binary both for Cirrus and Nimbus.
 
 ## Links
