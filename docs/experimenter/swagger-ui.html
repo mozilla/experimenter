@@ -1,4 +1,16 @@
-{
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Experimenter Api Docs</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="swagger-ui.css" />
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="swagger-ui-bundle.js"></script>
+    <script>
+      const spec = {
   "openapi": "3.0.2",
   "info": {
     "title": "Experimenter API",
@@ -3514,7 +3526,7 @@
           "schemaVersion": {
             "type": "string",
             "readOnly": true,
-            "default": "2.0.0"
+            "default": "1.11.0"
           },
           "slug": {
             "type": "string",
@@ -3679,4 +3691,16 @@
       }
     }
   }
-}
+};
+      const ui = SwaggerUIBundle({
+        spec: spec,
+        dom_id: "#swagger-ui",
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIBundle.SwaggerUIStandalonePreset,
+        ],
+        layout: "BaseLayout",
+      });
+    </script>
+  </body>
+</html>
