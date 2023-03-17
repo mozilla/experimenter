@@ -990,9 +990,15 @@ describe("FormAudience", () => {
         fireEvent.blur(field);
       });
 
-      expect(
-        container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
-      ).toHaveTextContent(FIELD_MESSAGES.POSITIVE_NUMBER);
+      if (fieldName === "totalEnrolledClients") {
+        expect(
+          container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
+        ).toHaveTextContent(FIELD_MESSAGES.NON_ZERO_POSITIVE_NUMBER);
+      } else {
+        expect(
+          container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
+        ).toHaveTextContent(FIELD_MESSAGES.POSITIVE_NUMBER);
+      }
     }
   });
 
@@ -1173,9 +1179,15 @@ describe("FormAudience", () => {
         fireEvent.blur(field);
       });
 
-      expect(
-        container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
-      ).toHaveTextContent(FIELD_MESSAGES.POSITIVE_NUMBER);
+      if (fieldName === "totalEnrolledClients") {
+        expect(
+          container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
+        ).toHaveTextContent(FIELD_MESSAGES.NON_ZERO_POSITIVE_NUMBER);
+      } else {
+        expect(
+          container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
+        ).toHaveTextContent(FIELD_MESSAGES.POSITIVE_NUMBER);
+      }
     }
   });
 

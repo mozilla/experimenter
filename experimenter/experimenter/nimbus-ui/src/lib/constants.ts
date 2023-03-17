@@ -138,6 +138,8 @@ export const FIELD_MESSAGES = {
   NUMBER: "This field must be a number.",
   POSITIVE_NUMBER: "This field must be a positive number.",
   URL: "This field must be a URL.",
+  NON_ZERO_POSITIVE_NUMBER:
+    "This field must be a positive number and must not start with a 0.",
 };
 
 export const PUBLIC_DESCRIPTION_PLACEHOLDER =
@@ -161,7 +163,7 @@ export const POSITIVE_NUMBER_WITH_COMMAS_FIELD = {
     parseFloat(("" + value).trim().replace(/[^\d.-]+/g, "")),
   pattern: {
     value: /^(?!0\d)(\d{1,3}(,\d{3})*|\d+)$/,
-    message: FIELD_MESSAGES.POSITIVE_NUMBER,
+    message: FIELD_MESSAGES.NON_ZERO_POSITIVE_NUMBER,
   },
 } as RegisterOptions;
 
