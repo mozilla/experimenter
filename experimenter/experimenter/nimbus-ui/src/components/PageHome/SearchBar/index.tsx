@@ -136,9 +136,9 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
             position: "absolute",
             right: "4px",
             zIndex: 99999,
-            backgroundColor:'white',
-            borderLeft:'1px solid lightgrey',
-            paddingLeft:'0.5em',       
+            backgroundColor: "white",
+            borderLeft: "1px solid lightgrey",
+            paddingLeft: "0.5em",
           }}
           data-testid="ClearSearchExperiments"
           onClick={handleClick}
