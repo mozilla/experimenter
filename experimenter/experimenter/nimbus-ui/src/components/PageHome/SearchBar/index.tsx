@@ -134,8 +134,11 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
         <DeleteIcon
           style={{
             position: "absolute",
-            right: "0px",
+            right: "4px",
             zIndex: 99999,
+            backgroundColor:'white',
+            borderLeft:'1px solid lightgrey',
+            paddingLeft:'0.5em',       
           }}
           data-testid="ClearSearchExperiments"
           onClick={handleClick}
