@@ -69,6 +69,9 @@ export const SidebarActions = ({
   const archiveDisabled = !experiment.canArchive;
 
   const cloneDialogProps = useCloneDialog(experiment);
+  const rebuildToolTip = () => {
+    ReactTooltip.rebuild();
+  };
 
   return (
     <div data-testid={"SidebarActions"}>
@@ -99,7 +102,7 @@ export const SidebarActions = ({
           onClick={onUpdateArchived}
           {...{ disabled: archiveDisabled || archiveIsLoading }}
         >
-          <TrashIcon className="sidebar-icon" onLoad={ReactTooltip.rebuild()} />
+          <TrashIcon className="sidebar-icon" onLoad={rebuildToolTip} />
           {experiment.isArchived ? "Unarchive" : "Archive"}
           {archiveDisabled && (
             <Info
