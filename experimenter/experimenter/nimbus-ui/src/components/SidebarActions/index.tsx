@@ -99,7 +99,7 @@ export const SidebarActions = ({
           onClick={onUpdateArchived}
           {...{ disabled: archiveDisabled || archiveIsLoading }}
         >
-          <TrashIcon className="sidebar-icon" />
+          <TrashIcon className="sidebar-icon" onLoad={ReactTooltip.rebuild()} />
           {experiment.isArchived ? "Unarchive" : "Archive"}
           {archiveDisabled && (
             <Info
