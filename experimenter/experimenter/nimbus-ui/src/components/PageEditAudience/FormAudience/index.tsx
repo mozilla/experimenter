@@ -224,6 +224,7 @@ export const FormAudience = ({
               {...formControlAttrs("channel")}
               as="select"
               disabled={isLocked!}
+              custom
             >
               <SelectOptions options={applicationConfig!.channels!} />
             </Form.Control>
@@ -237,6 +238,7 @@ export const FormAudience = ({
               {...formControlAttrs("firefoxMinVersion")}
               as="select"
               disabled={isLocked!}
+              custom
             >
               <SelectOptions options={config.firefoxVersions} />
             </Form.Control>
@@ -250,6 +252,7 @@ export const FormAudience = ({
               {...formControlAttrs("firefoxMaxVersion")}
               as="select"
               disabled={isLocked!}
+              custom
             >
               <SelectOptions options={config.firefoxVersions} />
             </Form.Control>
