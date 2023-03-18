@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 import HeaderExperiment from "src/components/HeaderExperiment";
 import { BASE_PATH } from "src/lib/constants";
@@ -132,5 +133,48 @@ describe("HeaderExperiment", () => {
       />,
     );
     expect(screen.queryByText("Rollout")).toBeInTheDocument();
+  });
+
+  it("copies experiment slug to clipboard when copy button is clicked", async () => {
+    const { experiment } = mockExperimentQuery("my-test-experiment", {});
+    render(
+      <HeaderExperiment
+        parent={null}
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        computedEndDate={experiment.computedEndDate}
+        computedDurationDays={experiment.computedDurationDays}
+        status={mockGetStatus(experiment)}
+        isArchived={false}
+        isRollout={true}
+      />,
+    );
+    const copyButton = screen.getByRole("button");
+
+    // const clipboard = {
+    //   writeText: jest.fn().mockResolvedValue(undefined),
+    // };
+    // const navigator = {
+    //   clipboard,
+    // };
+    // // @ts-ignore
+    // global.navigator = navigator;
+
+    Object.assign(navigator, {
+      clipboard: {
+        writeText: () => {},
+      },
+    });
+
+    jest.spyOn(navigator.clipboard, "writeText");
+
+    await userEvent.click(copyButton);
+    // fireEvent.click(copyButton);
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      "my-test-experiment",
+    );
+    expect(navigator.clipboard.writeText).toBeCalledTimes(1);
   });
 });
