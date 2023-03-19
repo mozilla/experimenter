@@ -47,10 +47,24 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
   const fuse = new Fuse(experiments, options, myIndex);
   const [searchTerms, setSearchTerms] = React.useState("");
   const [clearIcon, setClearIcon] = React.useState(false);
+  const resetWindowLocation = () => {
+    /**
+     * Specifically resets the address back to the default homepage
+     */
+    const url = new URL(`${window.location}`);
+    url.searchParams.delete("search");
+    window.history.pushState({}, "", `${url.origin + url.pathname}`);
+  };
   const handleClick = () => {
     setSearchTerms("");
     setClearIcon(false);
     onChange(experiments);
+
+    // clear stored search value
+    localStorage.removeItem("nimbus-ui-search");
+
+    // change address bar back to homepage
+    resetWindowLocation();
   };
   const formRef = React.useRef<any>();
 
@@ -62,15 +76,20 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       const termFromURL = new URL(window.location as any).searchParams.get(
         "search",
       ) as string;
+      console.log("use effect happening", termFromURL);
 
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        "value",
-      )?.set;
-      nativeInputValueSetter?.call(formRef.current, termFromURL);
+      if ("nimbus-ui-search" in localStorage) {
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          window.HTMLInputElement.prototype,
+          "value",
+        )?.set;
+        nativeInputValueSetter?.call(formRef.current, termFromURL);
 
-      const event = new Event("input", { bubbles: true });
-      formRef.current?.dispatchEvent(event);
+        const event = new Event("input", { bubbles: true });
+        formRef.current?.dispatchEvent(event);
+      } else {
+        resetWindowLocation();
+      }
     }, 700);
     return () => clearTimeout(newtimer);
   }, []);
@@ -82,6 +101,10 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
     const url = new URL(`${window.location}`);
     url.searchParams.set("search", event.target.value as string);
     window.history.pushState({}, "", `${url}`);
+
+    // Store url address to be used to go back
+    localStorage.setItem("nimbus-ui-search", url.search);
+    console.log(url.search);
 
     setSearchTerms(event.target.value);
     if (timer) {

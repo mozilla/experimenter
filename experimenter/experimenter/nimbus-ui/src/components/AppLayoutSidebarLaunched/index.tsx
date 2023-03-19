@@ -182,6 +182,8 @@ export const AppLayoutSidebarLaunched = ({
               <LinkNav
                 className="mb-3 small font-weight-bold"
                 textColor="text-secondary"
+                // attach route to LinkNav if search item is stored
+                route={localStorage.getItem("nimbus-ui-search") ?? undefined}
               >
                 <ChevronLeft className="ml-n1" width="18" height="18" />
                 Back to Experiments
