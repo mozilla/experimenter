@@ -76,7 +76,6 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       const termFromURL = new URL(window.location as any).searchParams.get(
         "search",
       ) as string;
-      console.log("use effect happening", termFromURL);
 
       if ("nimbus-ui-search" in localStorage) {
         const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
@@ -104,7 +103,6 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
 
     // Store url address to be used to go back
     localStorage.setItem("nimbus-ui-search", url.search);
-    console.log(url.search);
 
     setSearchTerms(event.target.value);
     if (timer) {

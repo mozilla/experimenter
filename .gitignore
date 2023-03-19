@@ -75,6 +75,9 @@ target/
 # VS Code
 **/.vscode/*
 
+# PYCHARM
+**/.idea/*
+
 # Hosted assets
 experimenter/experimenter/served/
 experimenter/experimenter/legacy/legacy-ui/assets/
