@@ -204,14 +204,13 @@ const FormMetrics = ({
     } else {
       setPrimaryValid(false);
     }
-  
+
     if (secondaryOutcomes.length > 0) {
       setSecondaryValid(true);
     } else {
       setSecondaryValid(false);
     }
   }, [primaryOutcomes, secondaryOutcomes]);
-  
 
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
@@ -248,11 +247,11 @@ const FormMetrics = ({
           options={primaryOutcomeOptions}
           isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
         />
-         <span style={{
-          width: 'fit-content',
-          border: 'none',
-          padding: 'none'
-        }} className={`valid-feedback form-control ${primaryValid ? "is-valid" : ""}`} /> 
+        <span
+          className={`valid-feedback form-control ${
+            primaryValid ? "is-valid" : ""
+          }`}
+        />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment. You may select up to 2 primary outcomes.
@@ -280,11 +279,11 @@ const FormMetrics = ({
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
         />
-        <span style={{
-          width: 'fit-content',
-          border: 'none',
-          padding: 'none'
-        }} className={`valid-feedback form-control ${secondaryValid ? "is-valid" : ""}`} /> 
+        <span
+          className={`valid-feedback form-control ${
+            secondaryValid ? "is-valid" : ""
+          }`}
+        />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment.
