@@ -128,6 +128,26 @@ const FormMetrics = ({
     [isLoading, onSave, handleSubmit, primaryOutcomes, secondaryOutcomes],
   );
 
+  // Two new variables to handle the states.
+  const [primaryValid, setPrimaryValid] = useState(false);
+  const [secondaryValid, setSecondaryValid] = useState(false);
+
+  // Listen for changes
+  useEffect(() => {
+    if (primaryOutcomes.length > 0) {
+      setPrimaryValid(true);
+    } else {
+      setPrimaryValid(false);
+    }
+  
+    if (secondaryOutcomes.length > 0) {
+      setSecondaryValid(true);
+    } else {
+      setSecondaryValid(false);
+    }
+  }, [primaryOutcomes, secondaryOutcomes]);
+  
+
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
 
@@ -143,8 +163,7 @@ const FormMetrics = ({
           {submitErrors["*"]}
         </Alert>
       )}
-
-      <Form.Group controlId="primaryOutcomes" data-testid="primary-outcomes">
+      <Form.Group controlId="primaryOutcomes" data-testid="primary-outcomes" >
         <Form.Label>
           Primary Outcomes{" "}
           <Info
@@ -161,18 +180,25 @@ const FormMetrics = ({
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
           isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
+          className={`select-control ${primaryValid ? "is-valid" : ""}`}
+          onChange={(selectedOptions) => {
+            setPrimaryOutcomes(
+              selectedOptions.map((option) => option.value)
+            );
+          }}
         />
+         <span style={{
+          width: 'fit-content',
+          border: 'none',
+          padding: 'none'
+        }} className={`valid-feedback form-control ${primaryValid ? "is-valid" : ""}`} /> 
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment. You may select up to 2 primary outcomes.
         </Form.Text>
         <FormErrors name="primaryOutcomes" />
       </Form.Group>
-
-      <Form.Group
-        controlId="secondaryOutcomes"
-        data-testid="secondary-outcomes"
-      >
+      <Form.Group controlId="secondaryOutcomes" data-testid="secondary-outcomes">
         <Form.Label>
           Secondary Outcomes{" "}
           <Info
@@ -187,7 +213,18 @@ const FormMetrics = ({
           isMulti
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
+          className={`select-control ${secondaryValid ? "is-valid" : ""}`}
+          onChange={(selectedOptions) => {
+            setSecondaryOutcomes(
+              selectedOptions.map((option) => option.value)
+            );
+          }}
         />
+        <span style={{
+          width: 'fit-content',
+          border: 'none',
+          padding: 'none'
+        }} className={`valid-feedback form-control ${secondaryValid ? "is-valid" : ""}`} /> 
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment.
