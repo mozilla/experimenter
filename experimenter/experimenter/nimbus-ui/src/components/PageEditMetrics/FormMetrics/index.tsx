@@ -186,7 +186,11 @@ const FormMetrics = ({
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
           isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
-          className={`select-control ${primaryValid ? "is-valid" : ""}`}
+          className={`${
+            primaryValid
+              ? "is-valid border border-success rounded"
+              : "is-invalid border border-danger rounded"
+          }`}
           onChange={(selectedOptions) => {
             setPrimaryOutcomes(selectedOptions.map((option) => option.value));
           }}
@@ -221,7 +225,11 @@ const FormMetrics = ({
           id="secondary-outcomes"
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
-          className={`select-control ${secondaryValid ? "is-valid" : ""}`}
+          className={`${
+            secondaryValid
+              ? "is-valid border border-success rounded"
+              : "is-invalid border border-danger rounded"
+          }`}
           onChange={(selectedOptions) => {
             setSecondaryOutcomes(selectedOptions.map((option) => option.value));
           }}
