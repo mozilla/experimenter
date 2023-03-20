@@ -198,9 +198,12 @@ integration_test_nimbus_rust: build_prod
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run rust-sdk sh -c "chmod a+rwx /code/experimenter/tests/integration/.tox;tox -c experimenter/tests/integration -e integration-test-nimbus-rust $(TOX_ARGS) -- -n 2 $(PYTEST_ARGS)"
 
 # cirrus
+CIRRUS_BLACK_CHECK = black -l 90 --check --diff cirrus/server
+CIRRUS_BLACK_FIX = black -l 90 cirrus/server
 CIRRUS_RUFF_CHECK = ruff cirrus/server
 CIRRUS_RUFF_FIX = ruff --fix cirrus/server
 CIRRUS_PYTEST = pytest cirrus/server --cov=cirrus
+
 
 
 cirrus_up:
@@ -213,7 +216,7 @@ cirrus_test:
 	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_PYTEST)'
 
 cirrus_check:
-	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_RUFF_CHECK) && $(CIRRUS_PYTEST)"
+	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_BLACK_CHECK) && $(CIRRUS_RUFF_CHECK) && $(CIRRUS_PYTEST)"
 
 cirrus_code_format:
-	$(COMPOSE) run cirrus sh -c "$(CIRRUS_RUFF_FIX)"
+	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_BLACK_FIX) && $(CIRRUS_RUFF_FIX)'
