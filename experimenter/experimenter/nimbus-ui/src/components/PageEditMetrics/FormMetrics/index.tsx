@@ -134,64 +134,25 @@ const FormMetrics = ({
     [isLoading, onSave, handleSubmit, primaryOutcomes, secondaryOutcomes],
   );
 
-  // Add state to check if user has chosen option
-  const [hasInteracted, setHasInteracted] = useState({
-    primary: false,
-    secondary: false,
-  });
+  // Two new variables to handle the states.
+  const [primaryValid, setPrimaryValid] = useState(false);
+  const [secondaryValid, setSecondaryValid] = useState(false);
 
-  const primaryContainerDivRef = useRef<HTMLDivElement>(null);
-  const secondaryContainerDivRef = useRef<HTMLDivElement>(null);
-
-  const toggleClasses = (valueContainer: HTMLElement, isValid: boolean) => {
-    valueContainer.classList.toggle("form-control", isValid);
-    valueContainer.classList.toggle("is-valid", isValid);
-    valueContainer.classList.toggle("border-0", isValid);
-  };
-
-  const validatePrimary = useCallback(() => {
-    const primaryContainerDiv = primaryContainerDivRef.current;
-    if (!primaryContainerDiv) {
-      return;
-    }
-    const valueContainerDiv = primaryContainerDiv.querySelector(
-      "#primary-outcomes > div",
-    );
-    const valueContainer = valueContainerDiv?.querySelector("div");
-    if (valueContainer && valueContainerDiv) {
-      const isValid = primaryOutcomes.length > 0;
-      toggleClasses(valueContainer, isValid);
-      valueContainerDiv.classList.toggle("border-success", isValid);
-    }
-  }, [primaryOutcomes]);
-
+  // Listen for changes
   useEffect(() => {
-    if (hasInteracted.primary) {
-      validatePrimary();
+    if (primaryOutcomes.length > 0) {
+      setPrimaryValid(true);
+    } else {
+      setPrimaryValid(false);
     }
-  }, [validatePrimary, hasInteracted.primary]);
-
-  const validateSecondary = useCallback(() => {
-    const secondaryContainerDiv = secondaryContainerDivRef.current;
-    if (!secondaryContainerDiv) {
-      return;
+  
+    if (secondaryOutcomes.length > 0) {
+      setSecondaryValid(true);
+    } else {
+      setSecondaryValid(false);
     }
-    const valueContainerDiv = secondaryContainerDiv.querySelector(
-      "#secondary-outcomes > div",
-    );
-    const valueContainer = valueContainerDiv?.querySelector("div");
-    if (valueContainer && valueContainerDiv) {
-      const isValid = secondaryOutcomes.length > 0;
-      toggleClasses(valueContainer, isValid);
-      valueContainerDiv.classList.toggle("border-success", isValid);
-    }
-  }, [secondaryOutcomes]);
-
-  useEffect(() => {
-    if (hasInteracted.secondary) {
-      validateSecondary();
-    }
-  }, [validateSecondary, hasInteracted.secondary]);
+  }, [primaryOutcomes, secondaryOutcomes]);
+  
 
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
@@ -208,12 +169,7 @@ const FormMetrics = ({
           {submitErrors["*"]}
         </Alert>
       )}
-
-      <Form.Group
-        controlId="primaryOutcomes"
-        data-testid="primary-outcomes"
-        ref={primaryContainerDivRef}
-      >
+      <Form.Group controlId="primaryOutcomes" data-testid="primary-outcomes" >
         <Form.Label>
           Primary Outcomes{" "}
           <Info
@@ -231,20 +187,25 @@ const FormMetrics = ({
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
           isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
-          onBlur={() => setHasInteracted({ ...hasInteracted, primary: true })}
+          className={`select-control ${primaryValid ? "is-valid" : ""}`}
+          onChange={(selectedOptions) => {
+            setPrimaryOutcomes(
+              selectedOptions.map((option) => option.value)
+            );
+          }}
         />
+         <span style={{
+          width: 'fit-content',
+          border: 'none',
+          padding: 'none'
+        }} className={`valid-feedback form-control ${primaryValid ? "is-valid" : ""}`} /> 
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment. You may select up to 2 primary outcomes.
         </Form.Text>
         <FormErrors name="primaryOutcomes" />
       </Form.Group>
-
-      <Form.Group
-        controlId="secondaryOutcomes"
-        data-testid="secondary-outcomes"
-        ref={secondaryContainerDivRef}
-      >
+      <Form.Group controlId="secondaryOutcomes" data-testid="secondary-outcomes">
         <Form.Label>
           Secondary Outcomes{" "}
           <Info
@@ -260,8 +221,18 @@ const FormMetrics = ({
           id="secondary-outcomes"
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
-          onBlur={() => setHasInteracted({ ...hasInteracted, secondary: true })}
+          className={`select-control ${secondaryValid ? "is-valid" : ""}`}
+          onChange={(selectedOptions) => {
+            setSecondaryOutcomes(
+              selectedOptions.map((option) => option.value)
+            );
+          }}
         />
+        <span style={{
+          width: 'fit-content',
+          border: 'none',
+          padding: 'none'
+        }} className={`valid-feedback form-control ${secondaryValid ? "is-valid" : ""}`} /> 
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment.
