@@ -309,6 +309,7 @@ export const FormAudience = ({
               as="select"
               onChange={TargetingOnChange.bind(this)}
               disabled={isLocked!}
+              custom
             >
               <TargetConfigSelectOptions options={targetingConfigSlugOptions} />
             </Form.Control>
