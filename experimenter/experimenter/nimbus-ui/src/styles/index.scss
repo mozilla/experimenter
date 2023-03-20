@@ -149,3 +149,10 @@ select.form-control.is-warning {
 .cursor-copy {
   cursor: copy;
 }
+
+// To add checkmark for metrics page
+.valid-feedback {
+  width: fit-content;
+  border: none;
+  padding: none;
+}
