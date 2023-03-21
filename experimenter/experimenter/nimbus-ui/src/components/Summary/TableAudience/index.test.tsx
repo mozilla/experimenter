@@ -87,9 +87,9 @@ describe("TableAudience", () => {
         totalEnrolledClients: 0,
       });
       render(<Subject {...{ experiment }} />);
-      expect(
-        screen.queryByTestId("experiment-total-enrolled"),
-      ).not.toBeInTheDocument();
+      expect(screen.getByTestId("experiment-total-enrolled")).toHaveTextContent(
+        "0",
+      );
     });
   });
 

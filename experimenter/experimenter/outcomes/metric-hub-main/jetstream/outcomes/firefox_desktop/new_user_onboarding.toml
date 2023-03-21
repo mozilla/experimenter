@@ -1,0 +1,16 @@
+friendly_name = "New User Onboarding"
+description = """
+    Measures changes to metrics we want to drive 
+    through onboarding, such as import rates of 
+    history and bookmarks, default & pin rates, 
+    and FxA sign-in rates. 
+"""
+
+[metrics.is_default_browser.statistics.binomial]
+[metrics.is_pinned.statistics.binomial]
+
+[metrics.imported_bookmarks.statistics.binomial]
+[metrics.imported_logins.statistics.binomial]
+[metrics.imported_history.statistics.binomial]
+
+[metrics.fxa_signed_in.statistics.binomial]
