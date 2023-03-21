@@ -35,13 +35,13 @@ const searchKeys = [
 ];
 
 export const resetWindowLocation = () => {
-    /**
-     * Specifically resets the address back to the default homepage
-     */
-    const url = new URL(`${window.location}`);
-    url.searchParams.delete("search");
-    window.history.pushState({}, "", `${url.origin + url.pathname}`);
-  };
+  /**
+   * Specifically resets the address back to the default homepage
+   */
+  const url = new URL(`${window.location}`);
+  url.searchParams.delete("search");
+  window.history.pushState({}, "", `${url.origin + url.pathname}`);
+};
 
 const SearchBar: React.FunctionComponent<SearchBarProps> = ({
   experiments,
