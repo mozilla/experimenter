@@ -63,7 +63,7 @@ export const FormDocumentationLink = ({
     >
       <Form.Row>
         <Form.Group as={Col} sm={4} md={3}>
-          <Form.Control as="select" {...formControlAttrs("title")}>
+          <Form.Control as="select" {...formControlAttrs("title")} custom>
             <option value="">Select document type...</option>
             {documentationLinkOptions &&
               documentationLinkOptions.map((linkType, optIdx) => (
