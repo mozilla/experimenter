@@ -14,7 +14,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import F, Max, Q
+from django.db.models import F, Q
 from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
@@ -52,12 +52,7 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
         )
 
     def latest_changed(self):
-        return (
-            super()
-            .get_queryset()
-            .annotate(latest_change=Max("changes__changed_on"))
-            .order_by("-latest_change")
-        )
+        return super().get_queryset().order_by("-_updated_date_time")
 
     def with_owner_features(self):
         return (
