@@ -21,7 +21,7 @@ export function getStatus(
     isEnrollmentPausePending,
     isArchived,
     isRollout,
-    isDirty,
+    isRolloutDirty,
   } = experiment || {};
 
   // The experiment is or was out in the wild (live or complete)
@@ -40,7 +40,9 @@ export function getStatus(
     approved: publishStatus === NimbusExperimentPublishStatusEnum.APPROVED,
     review: publishStatus === NimbusExperimentPublishStatusEnum.REVIEW,
     waiting: publishStatus === NimbusExperimentPublishStatusEnum.WAITING,
-    dirty: isDirty === true,
+    dirty:
+      publishStatus === NimbusExperimentPublishStatusEnum.DIRTY &&
+      isRolloutDirty === true,
     // TODO: EXP-1325 Need to check something else here for end enrollment in particular?
     pauseRequested:
       status === NimbusExperimentStatusEnum.LIVE &&
@@ -51,19 +53,19 @@ export function getStatus(
       statusNext === NimbusExperimentStatusEnum.COMPLETE,
     updateRequested:
       isRollout === true &&
-      isDirty === true &&
+      isRolloutDirty === true &&
       status === NimbusExperimentStatusEnum.LIVE &&
       publishStatus === NimbusExperimentPublishStatusEnum.REVIEW &&
       statusNext === NimbusExperimentStatusEnum.LIVE,
     updateRequestedApproved:
       isRollout === true &&
-      isDirty === true &&
+      isRolloutDirty === true &&
       status === NimbusExperimentStatusEnum.LIVE &&
       publishStatus === NimbusExperimentPublishStatusEnum.APPROVED &&
       statusNext === NimbusExperimentStatusEnum.LIVE,
     updateRequestedWaiting:
       isRollout === true &&
-      isDirty === true &&
+      isRolloutDirty === true &&
       status === NimbusExperimentStatusEnum.LIVE &&
       publishStatus === NimbusExperimentPublishStatusEnum.WAITING &&
       statusNext === NimbusExperimentStatusEnum.LIVE,
