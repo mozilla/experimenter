@@ -800,7 +800,7 @@ describe("FormAudience", () => {
     );
   });
 
-  it("does not allow letters within the expected number of client field (test123)", async () => {
+  it("does not allow letters within the expected number of client field", async () => {
     const onSubmit = jest.fn();
     const { container } = render(<Subject {...{ onSubmit }} />);
     await waitFor(() => {
