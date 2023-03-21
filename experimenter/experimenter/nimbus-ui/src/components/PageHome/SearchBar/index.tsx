@@ -34,6 +34,15 @@ const searchKeys = [
   "targetingConfig.value",
 ];
 
+export const resetWindowLocation = () => {
+    /**
+     * Specifically resets the address back to the default homepage
+     */
+    const url = new URL(`${window.location}`);
+    url.searchParams.delete("search");
+    window.history.pushState({}, "", `${url.origin + url.pathname}`);
+  };
+
 const SearchBar: React.FunctionComponent<SearchBarProps> = ({
   experiments,
   onChange,
@@ -47,14 +56,7 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
   const fuse = new Fuse(experiments, options, myIndex);
   const [searchTerms, setSearchTerms] = React.useState("");
   const [clearIcon, setClearIcon] = React.useState(false);
-  const resetWindowLocation = () => {
-    /**
-     * Specifically resets the address back to the default homepage
-     */
-    const url = new URL(`${window.location}`);
-    url.searchParams.delete("search");
-    window.history.pushState({}, "", `${url.origin + url.pathname}`);
-  };
+
   const handleClick = () => {
     setSearchTerms("");
     setClearIcon(false);
