@@ -112,7 +112,11 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
   }>(GET_EXPERIMENTS_QUERY, { fetchPolicy: "network-only" });
   const [searchedData, setSearchedData] =
     useState<getAllExperiments_experiments[]>();
-
+  useEffect(() => {
+    const url = new URL(`${window.location}`);
+    url.searchParams.set("search", "" as string);
+    window.history.replaceState({}, "", `${url}`);
+  }, []);
   useEffect(() => setSearchedData(data?.experiments), [data]);
   return (
     <AppLayout testid="PageHome">
