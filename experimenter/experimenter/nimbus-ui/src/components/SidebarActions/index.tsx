@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Link, RouteComponentProps } from "@reach/router";
-import React from "react";
+import React, { useEffect } from "react";
 import ReactTooltip from "react-tooltip";
 import { ReactComponent as CogIcon } from "src/components/AppLayoutWithSidebar/cog.svg";
 import CloneDialog, { useCloneDialog } from "src/components/CloneDialog";
@@ -69,6 +69,12 @@ export const SidebarActions = ({
   const archiveDisabled = !experiment.canArchive;
 
   const cloneDialogProps = useCloneDialog(experiment);
+  const rebuildToolTip = () => {
+    ReactTooltip.rebuild();
+  };
+  useEffect(() => {
+    rebuildToolTip();
+  }, [archiveDisabled]);
 
   return (
     <div data-testid={"SidebarActions"}>
