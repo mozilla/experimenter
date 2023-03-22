@@ -212,5 +212,15 @@ describe("AppLayoutSidebarLaunched", () => {
       expect(screen.queryByText("Summary")).toBeInTheDocument();
       expect(screen.queryByText("Audience")).not.toBeInTheDocument();
     });
+
+    it("when a completed rollout do not show audience page", () => {
+      const { experiment } = mockExperimentQuery("demo-slug");
+      experiment.isRollout = true;
+      experiment.status = NimbusExperimentStatusEnum.COMPLETE;
+      render(<Subject withAnalysis {...{ experiment }} />);
+
+      expect(screen.queryByText("Summary")).toBeInTheDocument();
+      expect(screen.queryByText("Audience")).not.toBeInTheDocument();
+    });
   });
 });
