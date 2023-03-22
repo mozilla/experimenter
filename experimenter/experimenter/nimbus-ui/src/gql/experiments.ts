@@ -195,6 +195,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         id
         name
       }
+      isRolloutDirty
     }
   }
 `;
@@ -230,6 +231,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       firefoxMinVersion
       firefoxMaxVersion
       startDate
+      isRolloutDirty
       isEnrollmentPausePending
       isEnrollmentPaused
       proposedDuration
