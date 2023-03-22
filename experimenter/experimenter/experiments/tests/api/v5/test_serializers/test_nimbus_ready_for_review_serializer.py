@@ -1281,7 +1281,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
         ]
     )
-    def test_rollout_valid_version_support(self, application, firefox_version, targeting_config):
+    def test_rollout_valid_version_support(
+        self, application, firefox_version, targeting_config
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
@@ -1335,7 +1337,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
         ]
     )
-    def test_rollout_invalid_version_support(self, application, firefox_version, targeting_config):
+    def test_rollout_invalid_version_support(
+        self, application, firefox_version, targeting_config
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
