@@ -747,9 +747,10 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 '(browserSettings.update.channel == "release") && '
+                "((experiment.slug in activeExperiments) || ("
                 "(!('nimbus.test.string'|preferenceIsUserSet)) && "
                 "(!('nimbus.test.int'|preferenceIsUserSet)) && "
-                "(!('nimbus.test.boolean'|preferenceIsUserSet))"
+                "(!('nimbus.test.boolean'|preferenceIsUserSet))))"
             ),
         )
         JEXLParser().parse(experiment.targeting)
