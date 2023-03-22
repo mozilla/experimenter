@@ -195,6 +195,7 @@ export const AppLayoutSidebarLaunched = ({
               />
 
               {experiment.isRollout &&
+                experiment.status !== "COMPLETE" &&
                 editPages.map((page, idx) => (
                   <LinkNav
                     key={`sidebar-${page.name}-${idx}`}
