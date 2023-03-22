@@ -1262,22 +1262,27 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             (
                 NimbusExperiment.Application.DESKTOP,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.TargetingConfig.MAC_ONLY,
             ),
             (
                 NimbusExperiment.Application.FENIX,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.TargetingConfig.MAC_ONLY,
             ),
             (
                 NimbusExperiment.Application.FOCUS_ANDROID,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.TargetingConfig.MAC_ONLY,
             ),
             (
                 NimbusExperiment.Application.IOS,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.TargetingConfig.MAC_ONLY,
             ),
             (
                 NimbusExperiment.Application.FOCUS_IOS,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.TargetingConfig.MAC_ONLY,
             ),
         ]
     )
