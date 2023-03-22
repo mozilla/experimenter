@@ -91,7 +91,6 @@ export const FormBranches = ({
   const isDirtyUnsaved = IsDirtyUnsaved(isDirty, isValid, isSubmitted);
   const [formSubmitted, setIsFormSubmitted] = useState(true);
 
-
   const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
     shouldWarnOnExit(isDirtyUnsaved);
@@ -196,18 +195,16 @@ export const FormBranches = ({
   const [handleSave, handleSaveNext] = [false, true].map((next) =>
     handleSubmit((dataIn: DefaultValues) => {
       try {
-        
+        setIsFormSubmitted(true);
         if (!isLoading) {
           commitFormData();
-        onSave(
-          extractSaveState(dataIn),
-          setSubmitErrors,
-          clearSubmitErrors,
-          next,
-        );
+          onSave(
+            extractSaveState(dataIn),
+            setSubmitErrors,
+            clearSubmitErrors,
+            next,
+          );
         }
-        setIsFormSubmitted(true);
-        
       } catch (error: any) {
         setSubmitErrors({ "*": [error.message] });
       }
@@ -235,7 +232,7 @@ export const FormBranches = ({
         className="my-3"
         noValidate
         onSubmit={handleSave}
-        validated = {isValid && formSubmitted}
+        validated={isValid && formSubmitted}
       >
         {globalErrors?.map((err, idx) => (
           <Alert
