@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import classNames from "classnames";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -89,10 +89,13 @@ export const FormBranches = ({
   } = formMethods;
 
   const isDirtyUnsaved = IsDirtyUnsaved(isDirty, isValid, isSubmitted);
+  const [formSubmitted, setIsFormSubmitted] = useState(true);
+
 
   const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
     shouldWarnOnExit(isDirtyUnsaved);
+    setIsFormSubmitted(false);
   }, [shouldWarnOnExit, isDirtyUnsaved]);
 
   // reset the form when defaultValues change, i.e. the reducer updates
@@ -193,13 +196,18 @@ export const FormBranches = ({
   const [handleSave, handleSaveNext] = [false, true].map((next) =>
     handleSubmit((dataIn: DefaultValues) => {
       try {
-        commitFormData();
+        
+        if (!isLoading) {
+          commitFormData();
         onSave(
           extractSaveState(dataIn),
           setSubmitErrors,
           clearSubmitErrors,
           next,
         );
+        }
+        setIsFormSubmitted(true);
+        
       } catch (error: any) {
         setSubmitErrors({ "*": [error.message] });
       }
@@ -227,6 +235,7 @@ export const FormBranches = ({
         className="my-3"
         noValidate
         onSubmit={handleSave}
+        validated = {isValid && formSubmitted}
       >
         {globalErrors?.map((err, idx) => (
           <Alert
