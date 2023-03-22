@@ -2,6 +2,7 @@ import Fuse from "fuse.js";
 import React from "react";
 import { FormControl } from "react-bootstrap";
 import InputGroup from "react-bootstrap/InputGroup";
+import { useSearchParamsState } from "src/hooks";
 import { ReactComponent as SearchIcon } from "src/images/search.svg";
 import { ReactComponent as DeleteIcon } from "src/images/x.svg";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
@@ -56,6 +57,7 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
   const fuse = new Fuse(experiments, options, myIndex);
   const [searchTerms, setSearchTerms] = React.useState("");
   const [clearIcon, setClearIcon] = React.useState(false);
+  const [searchParams, updateSearchParams] = useSearchParamsState("PageHome");
 
   const handleClick = () => {
     setSearchTerms("");
@@ -64,6 +66,7 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
 
     // clear stored search value
     localStorage.removeItem("nimbus-ui-search");
+    updateSearchParams((params) => params.delete("search"));
 
     // change address bar back to homepage
     resetWindowLocation();
@@ -79,18 +82,14 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
         "search",
       ) as string;
 
-      if ("nimbus-ui-search" in localStorage) {
-        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-          window.HTMLInputElement.prototype,
-          "value",
-        )?.set;
-        nativeInputValueSetter?.call(formRef.current, termFromURL);
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        "value",
+      )?.set;
+      nativeInputValueSetter?.call(formRef.current, termFromURL);
 
-        const event = new Event("input", { bubbles: true });
-        formRef.current?.dispatchEvent(event);
-      } else {
-        resetWindowLocation();
-      }
+      const event = new Event("input", { bubbles: true });
+      formRef.current?.dispatchEvent(event);
     }, 700);
     return () => clearTimeout(newtimer);
   }, []);
