@@ -2,17 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Button } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
-import Select from "react-select";
-import ReactTooltip from "react-tooltip";
 import {
   useCommonForm,
   useConfig,
@@ -238,26 +231,50 @@ const FormMetrics = ({
             height="20"
             className="ml-1"
           />
-          <ReactTooltip />
         </Form.Label>
-        <Select
-          isMulti
-          id="primary-outcomes"
-          {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
-          options={primaryOutcomeOptions}
-          isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
-        />
-        <span
-          className={`valid-feedback form-control ${
-            primaryValid ? "is-valid" : ""
-          }`}
-        />
+        <div className="d-flex justify-content-between mb-2">
+          <Form.Control
+            as="select"
+            multiple
+            {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
+            className={`${
+              primaryValid
+                ? "is-valid"
+                : "is-invalid border border-danger rounded"
+            }`}
+            onChange={(event) =>
+              setPrimaryOutcomes(
+                Array.from(
+                  (event.target as HTMLSelectElement).selectedOptions,
+                  (option) => option.value,
+                ),
+              )
+            }
+          >
+            {primaryOutcomeOptions?.map((selectedOptions) => (
+              <option
+                key={selectedOptions.value}
+                value={selectedOptions.value}
+                disabled={
+                  primaryOutcomes.length >= maxPrimaryOutcomes! &&
+                  !primaryOutcomes.includes(selectedOptions.value)
+                }
+              >
+                {selectedOptions.label}
+              </option>
+            ))}
+          </Form.Control>
+          <Button variant="light" onClick={() => setPrimaryOutcomes([])}>
+            Clear
+          </Button>
+        </div>
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment. You may select up to 2 primary outcomes.
         </Form.Text>
         <FormErrors name="primaryOutcomes" />
       </Form.Group>
+
 
       <Form.Group
         controlId="secondaryOutcomes"
@@ -273,17 +290,35 @@ const FormMetrics = ({
             className="ml-1"
           />
         </Form.Label>
-        <Select
-          isMulti
-          id="secondary-outcomes"
-          {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
-          options={secondaryOutcomeOptions}
-        />
-        <span
-          className={`valid-feedback form-control ${
-            secondaryValid ? "is-valid" : ""
-          }`}
-        />
+        <div className="d-flex justify-content-between mb-2">
+          <Form.Control
+            as="select"
+            multiple
+            {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
+            className={`${
+              secondaryValid
+                ? "is-valid"
+                : "is-invalid border border-danger rounded"
+            }`}
+            onChange={(event) =>
+              setSecondaryOutcomes(
+                Array.from(
+                  (event.target as HTMLSelectElement).selectedOptions,
+                  (option) => option.value,
+                ),
+              )
+            }
+          >
+            {secondaryOutcomeOptions?.map((selectedOptions) => (
+              <option key={selectedOptions.value} value={selectedOptions.value}>
+                {selectedOptions.label}
+              </option>
+            ))}
+          </Form.Control>
+          <Button variant="light" onClick={() => setSecondaryOutcomes([])}>
+            Clear
+          </Button>
+        </div>
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment.
