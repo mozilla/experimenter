@@ -800,6 +800,26 @@ describe("FormAudience", () => {
     );
   });
 
+  it("does not allow letters within the expected number of client field", async () => {
+    const onSubmit = jest.fn();
+    const { container } = render(<Subject {...{ onSubmit }} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+
+    for (const fieldName of ["totalEnrolledClients"]) {
+      await act(async () => {
+        const field = screen.getByTestId(fieldName);
+        fireEvent.change(field, { target: { value: "1234abc" } });
+        fireEvent.blur(field);
+      });
+
+      expect(
+        container.querySelector(`.invalid-feedback[data-for=${fieldName}]`),
+      ).toHaveTextContent(FIELD_MESSAGES.POSITIVE_NUMBER);
+    }
+  });
+
   it("using the population percent text box sets form value", async () => {
     const enteredValue = "45";
     const expectedValue = "45";

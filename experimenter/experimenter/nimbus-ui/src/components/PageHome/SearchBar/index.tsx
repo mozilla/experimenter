@@ -78,9 +78,19 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
   const handleChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
+    let inputValue = event.target.value as string;
+    // Check if the input value already has a space at the end
+    if (
+      inputValue.length > 0 &&
+      inputValue.charAt(inputValue.length - 1) !== " "
+    ) {
+      // If not, add a space at the end
+      inputValue = inputValue + " ";
+    }
+
     // add the search query to history state
     const url = new URL(`${window.location}`);
-    url.searchParams.set("search", event.target.value as string);
+    url.searchParams.set("search", inputValue);
     window.history.pushState({}, "", `${url}`);
 
     setSearchTerms(event.target.value);
@@ -91,7 +101,7 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       setClearIcon(true);
 
       const newTimer = setTimeout(() => {
-        const results = fuse.search(event.target.value as string);
+        const results = fuse.search(inputValue);
 
         const searchResults = results.map((character) => character.item);
         onChange(searchResults);
@@ -134,8 +144,11 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
         <DeleteIcon
           style={{
             position: "absolute",
-            right: "0px",
+            right: "4px",
             zIndex: 99999,
+            backgroundColor: "white",
+            borderLeft: "1px solid lightgrey",
+            paddingLeft: "0.5em",
           }}
           data-testid="ClearSearchExperiments"
           onClick={handleClick}
