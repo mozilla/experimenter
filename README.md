@@ -394,6 +394,14 @@ yarn workspace @experimenter/nimbus-ui test:cov
 
 For a full reference of all the common commands that can be run inside the container, refer to [this section of the Makefile](https://github.com/mozilla/experimenter/blob/main/Makefile#L16-L38)
 
+#### Intergration Tests
+
+Note: You need the following firefox version flag when running integration tests
+
+```sh
+FIREFOX_VERSION=nimbus-firefox-release
+```
+
 #### make integration_test_legacy
 
 Run the integration test suite for experimenter inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
