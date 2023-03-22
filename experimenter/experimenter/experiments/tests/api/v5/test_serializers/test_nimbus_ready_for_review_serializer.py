@@ -1281,8 +1281,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
         ]
     )
-    def test_rollout_valid_version_support(self, application, firefox_version):
-        # desktop = NimbusExperiment.Application.DESKTOP
+    def test_rollout_valid_version_support(self, application, firefox_version, targeting_config):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
@@ -1291,7 +1290,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
             is_sticky=False,
             is_rollout=True,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            targeting_config_slug=targeting_config,
         )
         experiment.save()
         for branch in experiment.treatment_branches:
@@ -1301,7 +1300,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             "application": application,
             "is_sticky": "false",
             "is_rollout": "true",
-            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "targeting_config_slug": targeting_config,
             "changelog_message": "test changelog message",
             "channel": "",
             "firefox_min_version": firefox_version,
@@ -1336,8 +1335,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             ),
         ]
     )
-    def test_rollout_invalid_version_support(self, application, firefox_version):
-        # desktop = NimbusExperiment.Application.DESKTOP
+    def test_rollout_invalid_version_support(self, application, firefox_version, targeting_config):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
@@ -1346,7 +1344,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
             is_sticky=True,
             is_rollout=True,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            targeting_config_slug=targeting_config,
         )
         experiment.save()
         for branch in experiment.treatment_branches:
@@ -1356,7 +1354,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             "application": application,
             "is_sticky": "true",
             "is_rollout": "true",
-            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "targeting_config_slug": targeting_config,
             "changelog_message": "test changelog message",
             "channel": "",
             "firefox_min_version": firefox_version,
