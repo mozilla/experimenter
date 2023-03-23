@@ -6,10 +6,12 @@ import { useSearchParamsState } from "src/hooks";
 import { ReactComponent as SearchIcon } from "src/images/search.svg";
 import { ReactComponent as DeleteIcon } from "src/images/x.svg";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
+
 interface SearchBarProps {
   experiments: getAllExperiments_experiments[];
   onChange: any;
 }
+
 const searchKeys = [
   "application",
   "channel",
@@ -35,15 +37,6 @@ const searchKeys = [
   "targetingConfig.value",
 ];
 
-export const resetWindowLocation = () => {
-  /**
-   * Specifically resets the address back to the default homepage
-   */
-  const url = new URL(`${window.location}`);
-  url.searchParams.delete("search");
-  window.history.pushState({}, "", `${url.origin + url.pathname}`);
-};
-
 const SearchBar: React.FunctionComponent<SearchBarProps> = ({
   experiments,
   onChange,
@@ -67,34 +60,41 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
     // clear stored search value
     localStorage.removeItem("nimbus-ui-search");
     updateSearchParams((params) => params.delete("search"));
-
-    // change address bar back to homepage
-    resetWindowLocation();
   };
+  const formRef = React.useRef<any>();
 
   const [timer, setTimer] = React.useState<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    const newtimer = setTimeout(() => {
+      // get search term from url history
+      const termFromURL = new URL(window.location as any).searchParams.get(
+        "search",
+      ) as string;
+
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        "value",
+      )?.set;
+      nativeInputValueSetter?.call(formRef.current, termFromURL);
+
+      const event = new Event("input", { bubbles: true });
+      formRef.current?.dispatchEvent(event);
+    }, 700);
+    return () => clearTimeout(newtimer);
+  }, []);
 
   const handleChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
-    let inputValue = event.target.value as string;
-    // Check if the input value already has a space at the end
-    if (
-      inputValue.length > 0 &&
-      inputValue.charAt(inputValue.length - 1) !== " "
-    ) {
-      // If not, add a space at the end
-      inputValue = inputValue + " ";
-    }
-
     // add the search query to history state
     const url = new URL(`${window.location}`);
-    url.searchParams.set("search", inputValue);
+    url.searchParams.set("search", event.target.value as string);
     window.history.pushState({}, "", `${url}`);
 
     // Store url address to be used to go back
     localStorage.setItem("nimbus-ui-search", url.search);
-    
+
     setSearchTerms(event.target.value);
     if (timer) {
       clearTimeout(timer);
@@ -103,7 +103,7 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       setClearIcon(true);
 
       const newTimer = setTimeout(() => {
-        const results = fuse.search(searchTerms);
+        const results = fuse.search(event.target.value as string);
 
         const searchResults = results.map((character) => character.item);
         onChange(searchResults);
@@ -129,6 +129,7 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
         </InputGroup.Text>
       </InputGroup.Prepend>
       <FormControl
+        ref={formRef}
         aria-label="Default"
         aria-describedby="inputGroup-sizing-default"
         onChange={handleChange}
@@ -145,7 +146,7 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
         <DeleteIcon
           style={{
             position: "absolute",
-            right: "4px",
+            right: "0px",
             zIndex: 99999,
             backgroundColor: "white",
             borderLeft: "1px solid lightgrey",

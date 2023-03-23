@@ -41,22 +41,6 @@ describe("SearchBar", () => {
   });
 });
 
-// describe("resetWindowLocation", () => {
-//     it("resets window location to default homepage", () => {
-//         // Mock the window.location object
-
-//         const oldLocation = window.location;
-//         delete window.location;
-//         window.location = {...oldLocation, search: "?query=test"};
-
-//         // Call the function
-//         resetWindowLocation();
-
-//         // Expect window.location to be updated
-//         expect(window.location.search).toBe("");
-//     });
-// });
-
 const Subject = ({
   experiments,
   onChange,
