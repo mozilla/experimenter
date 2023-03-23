@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Button } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
+import Select from "react-select";
+import ReactTooltip from "react-tooltip";
 import {
   useCommonForm,
   useConfig,
@@ -127,83 +128,68 @@ const FormMetrics = ({
     [isLoading, onSave, handleSubmit, primaryOutcomes, secondaryOutcomes],
   );
 
-  // Add state to check if user has chosen option
-  const [hasInteracted, setHasInteracted] = useState({
-    primary: false,
-    secondary: false,
-  });
-
-  const primaryContainerDivRef = useRef<HTMLDivElement>(null);
-  const secondaryContainerDivRef = useRef<HTMLDivElement>(null);
-
-  const toggleClasses = (valueContainer: HTMLElement, isValid: boolean) => {
-    valueContainer.classList.toggle("form-control", isValid);
-    valueContainer.classList.toggle("is-valid", isValid);
-    valueContainer.classList.toggle("border-0", isValid);
-  };
-
-  const validatePrimary = useCallback(() => {
-    const primaryContainerDiv = primaryContainerDivRef.current;
-    if (!primaryContainerDiv) {
-      return;
-    }
-    const valueContainerDiv = primaryContainerDiv.querySelector(
-      "#primary-outcomes > div",
-    );
-    const valueContainer = valueContainerDiv?.querySelector("div");
-    if (valueContainer && valueContainerDiv) {
-      const isValid = primaryOutcomes.length > 0;
-      toggleClasses(valueContainer, isValid);
-      valueContainerDiv.classList.toggle("border-success", isValid);
-    }
-  }, [primaryOutcomes]);
-
-  useEffect(() => {
-    if (hasInteracted.primary) {
-      validatePrimary();
-    }
-  }, [validatePrimary, hasInteracted.primary]);
-
-  const validateSecondary = useCallback(() => {
-    const secondaryContainerDiv = secondaryContainerDivRef.current;
-    if (!secondaryContainerDiv) {
-      return;
-    }
-    const valueContainerDiv = secondaryContainerDiv.querySelector(
-      "#secondary-outcomes > div",
-    );
-    const valueContainer = valueContainerDiv?.querySelector("div");
-    if (valueContainer && valueContainerDiv) {
-      const isValid = secondaryOutcomes.length > 0;
-      toggleClasses(valueContainer, isValid);
-      valueContainerDiv.classList.toggle("border-success", isValid);
-    }
-  }, [secondaryOutcomes]);
-
-  useEffect(() => {
-    if (hasInteracted.secondary) {
-      validateSecondary();
-    }
-  }, [validateSecondary, hasInteracted.secondary]);
-
-  // Two new variables to handle the states.
+  // Two new variables to handle the primary and secondary states.
   const [primaryValid, setPrimaryValid] = useState(false);
   const [secondaryValid, setSecondaryValid] = useState(false);
 
-  // Listen for changes
   useEffect(() => {
-    if (primaryOutcomes.length > 0) {
-      setPrimaryValid(true);
-    } else {
-      setPrimaryValid(false);
+    const primaryContainerDiv = document.querySelector(
+      '[data-testid="primary-outcomes"] .css-g1d714-ValueContainer',
+    );
+    const secondaryContainerDiv = document.querySelector(
+      '[data-testid="secondary-outcomes"] .css-g1d714-ValueContainer',
+    );
+    const primarySelectContainer = document.querySelector(
+      '[data-testid="primary-outcomes"] .css-yk16xz-control',
+    );
+    const secondarySelectContainer = document.querySelector(
+      '[data-testid="secondary-outcomes"] .css-yk16xz-control',
+    );
+
+    if (primaryContainerDiv) {
+      if (primaryValid) {
+        primaryContainerDiv.classList.add(
+          "form-control",
+          "is-valid",
+          "valid-right",
+        );
+        primarySelectContainer?.classList.add("border-success");
+      } else {
+        primaryContainerDiv.classList.remove(
+          "form-control",
+          "is-valid",
+          "valid-right",
+        );
+        primarySelectContainer?.classList.remove("border-success");
+      }
     }
 
-    if (secondaryOutcomes.length > 0) {
-      setSecondaryValid(true);
-    } else {
-      setSecondaryValid(false);
+    if (secondaryContainerDiv) {
+      if (secondaryValid) {
+        secondaryContainerDiv.classList.add(
+          "form-control",
+          "is-valid",
+          "valid-right",
+        );
+        secondarySelectContainer?.classList.add("border-success");
+      } else {
+        secondaryContainerDiv.classList.remove(
+          "form-control",
+          "is-valid",
+          "valid-right",
+        );
+        secondarySelectContainer?.classList.remove("border-success");
+      }
     }
-  }, [primaryOutcomes, secondaryOutcomes]);
+  }, [primaryValid, secondaryValid]);
+
+  useEffect(() => {
+    setPrimaryValid(primaryOutcomes.length > 0);
+  }, [primaryOutcomes]);
+
+  useEffect(() => {
+    setSecondaryValid(secondaryOutcomes.length > 0);
+  }, [secondaryOutcomes]);
 
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
@@ -221,6 +207,7 @@ const FormMetrics = ({
         </Alert>
       )}
 
+
       <Form.Group controlId="primaryOutcomes" data-testid="primary-outcomes">
         <Form.Label>
           Primary Outcomes{" "}
@@ -231,43 +218,18 @@ const FormMetrics = ({
             height="20"
             className="ml-1"
           />
+          <ReactTooltip />
         </Form.Label>
-        <div className="d-flex justify-content-between mb-2">
-          <Form.Control
-            as="select"
-            multiple
-            {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
-            className={`${
-              primaryValid
-                ? "is-valid"
-                : "is-invalid border border-danger rounded"
-            }`}
-            onChange={(event) =>
-              setPrimaryOutcomes(
-                Array.from(
-                  (event.target as HTMLSelectElement).selectedOptions,
-                  (option) => option.value,
-                ),
-              )
-            }
-          >
-            {primaryOutcomeOptions?.map((selectedOptions) => (
-              <option
-                key={selectedOptions.value}
-                value={selectedOptions.value}
-                disabled={
-                  primaryOutcomes.length >= maxPrimaryOutcomes! &&
-                  !primaryOutcomes.includes(selectedOptions.value)
-                }
-              >
-                {selectedOptions.label}
-              </option>
-            ))}
-          </Form.Control>
-          <Button variant="light" onClick={() => setPrimaryOutcomes([])}>
-            Clear
-          </Button>
-        </div>
+        <Select
+          isMulti
+          {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
+          options={primaryOutcomeOptions}
+          isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
+          className={`${primaryValid ? "is-valid" : ""}`}
+          onChange={(selected) => {
+            setPrimaryOutcomes(selected as string[]);
+          }}
+        />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment. You may select up to 2 primary outcomes.
@@ -290,35 +252,19 @@ const FormMetrics = ({
             className="ml-1"
           />
         </Form.Label>
-        <div className="d-flex justify-content-between mb-2">
-          <Form.Control
-            as="select"
-            multiple
-            {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
-            className={`${
-              secondaryValid
-                ? "is-valid"
-                : "is-invalid border border-danger rounded"
-            }`}
-            onChange={(event) =>
-              setSecondaryOutcomes(
-                Array.from(
-                  (event.target as HTMLSelectElement).selectedOptions,
-                  (option) => option.value,
-                ),
-              )
+        <Select
+          isMulti
+          {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
+          options={secondaryOutcomeOptions}
+          onChange={(selected) => {
+            setSecondaryOutcomes(selected as string[]);
+            if (selected && (selected as string[]).length > 0) {
+              setSecondaryValid(true);
+            } else {
+              setSecondaryValid(false);
             }
-          >
-            {secondaryOutcomeOptions?.map((selectedOptions) => (
-              <option key={selectedOptions.value} value={selectedOptions.value}>
-                {selectedOptions.label}
-              </option>
-            ))}
-          </Form.Control>
-          <Button variant="light" onClick={() => setSecondaryOutcomes([])}>
-            Clear
-          </Button>
-        </div>
+          }}
+        />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
           experiment.
