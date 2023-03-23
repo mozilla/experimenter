@@ -13,6 +13,7 @@ import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 describe("SearchBar", () => {
   it("renders as expected", async () => {
     const onChange = jest.fn();
+    const setClearIcon = jest.fn();
     render(<Subject experiments={[]} onChange={onChange} />);
     const searchInput = screen.getByTestId("SearchExperiments");
 
@@ -37,6 +38,22 @@ describe("SearchBar", () => {
     ).not.toBeInTheDocument();
     await waitFor(() => {
       expect(searchInput).toHaveValue("");
+    });
+
+    // once user type something and users backspace, Icon would be set to false
+    userEvent.type(searchInput, "a");
+
+    // Use backspace to clear input
+    userEvent.type(searchInput, "{backspace}");
+    await waitFor(() => {
+      expect(searchInput).toHaveValue("");
+      expect(onChange).toHaveBeenCalledWith([]);
+    });
+
+    await (async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0)); // Wait for state update to be processed
+      expect(onChange).toHaveBeenCalledWith([]);
+      expect(setClearIcon).toHaveBeenCalledWith(false);
     });
   });
 });
