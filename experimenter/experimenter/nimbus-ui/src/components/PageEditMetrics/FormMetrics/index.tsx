@@ -225,10 +225,6 @@ const FormMetrics = ({
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
           isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
-          className={`${primaryValid ? "is-valid" : ""}`}
-          onChange={(selected) => {
-            setPrimaryOutcomes(selected as string[]);
-          }}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
@@ -256,14 +252,6 @@ const FormMetrics = ({
           isMulti
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
-          onChange={(selected) => {
-            setSecondaryOutcomes(selected as string[]);
-            if (selected && (selected as string[]).length > 0) {
-              setSecondaryValid(true);
-            } else {
-              setSecondaryValid(false);
-            }
-          }}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
