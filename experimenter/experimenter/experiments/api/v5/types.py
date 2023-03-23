@@ -448,6 +448,7 @@ class NimbusExperimentType(DjangoObjectType):
     hypothesis = graphene.String()
     id = graphene.Int()
     is_archived = graphene.Boolean()
+    is_rollout_dirty = graphene.Boolean()
     is_enrollment_pause_pending = graphene.Boolean()
     is_enrollment_paused = graphene.Boolean()
     is_rollout = graphene.Boolean()
@@ -509,6 +510,7 @@ class NimbusExperimentType(DjangoObjectType):
             "hypothesis",
             "id",
             "is_archived",
+            "is_rollout_dirty",
             "is_enrollment_pause_pending",
             "is_enrollment_paused",
             "is_first_run",
