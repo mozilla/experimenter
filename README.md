@@ -443,6 +443,18 @@ An example using PYTEST_ARGS to run one test.
 make integration_test_legacy PYTEST_ARGS="-k test_addon_rollout_experiment_e2e"
 ```
 
+Note: You need the following firefox version flag when running integration tests
+
+```sh
+FIREFOX_VERSION=nimbus-firefox-release
+```
+
+An example for above:
+
+```sh
+make FIREFOX_VERSION=nimbus-firefox-release integration_test_nimbus PYTEST_ARGS=ktest_rollout_create_and_update
+```
+
 #### make integration_sdk_shell
 
 This builds and sets up the mobile sdk for use in testing.
