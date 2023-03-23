@@ -158,7 +158,10 @@ export const POSITIVE_NUMBER_FIELD = {
 
 export const POSITIVE_NUMBER_WITH_COMMAS_FIELD = {
   setValueAs: (value) =>
-    parseFloat(("" + value).trim().replace(/[^\d.-]+/g, "")),
+    !/[a-zA-Z]/.test("" + value)
+      ? parseFloat(("" + value).trim().replace(/[^\d.-]+/g, ""))
+      : FIELD_MESSAGES.POSITIVE_NUMBER,
+
   validate: (value) =>
     (!isNaN(value) && value >= 0) || FIELD_MESSAGES.POSITIVE_NUMBER,
 } as RegisterOptions;

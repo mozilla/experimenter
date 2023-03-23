@@ -754,6 +754,7 @@ class NimbusExperimentSerializer(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
     is_enrollment_paused = serializers.BooleanField(source="is_paused", required=False)
+    is_rollout_dirty = serializers.BooleanField(required=False)
     risk_mitigation_link = serializers.URLField(
         min_length=0, max_length=255, required=False, allow_blank=True
     )
@@ -852,6 +853,7 @@ class NimbusExperimentSerializer(
             "firefox_min_version",
             "hypothesis",
             "is_archived",
+            "is_rollout_dirty",
             "is_enrollment_paused",
             "is_first_run",
             "is_rollout",
