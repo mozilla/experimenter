@@ -150,21 +150,6 @@ select.form-control.is-warning {
   cursor: copy;
 }
 
-.custom-select {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 0 20 20' aria-hidden='true' focusable='false' class='css-tj5bde-Svg'%3E%3Cpath fill='lightgray' d='M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z'%3E%3C/path%3E%3C/svg%3E") right 0.60rem center/20px 25px no-repeat !important;
-  padding-right: calc(0.75em + 1.5rem);
-}
-
-.custom-select:focus {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 0 20 20' aria-hidden='true' focusable='false' class='css-tj5bde-Svg'%3E%3Cpath fill='gray' d='M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z'%3E%3C/path%3E%3C/svg%3E") right 0.60rem center/20px 25px no-repeat !important;
-}
-
-.was-validated .custom-select:valid, .custom-select.is-valid {
-    border-color: #28a745;
-    padding-right: calc(0.8em + 2.8rem);
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 0 20 20' aria-hidden='true' focusable='false' class='css-tj5bde-Svg'%3E%3Cpath fill='lightgray' d='M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z'%3E%3C/path%3E%3C/svg%3E") right 0.60rem center/20px 25px no-repeat,#fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") center right 2rem/calc(0.8em + 0.3rem) calc(0.8em + 0.3rem) no-repeat !important;
-}
-
 .valid-right {
   border: none;
 }
