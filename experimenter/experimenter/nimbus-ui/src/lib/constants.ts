@@ -63,6 +63,8 @@ export const EXTERNAL_URLS = {
     `https://protosaur.dev/partybal/${slug.replace(/-/g, "_")}.html`,
   LAUNCH_DOCUMENTATION:
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
+  BUCKET_WARNING_EXPLANATION:
+    "https://experimenter.info/faq/Rollouts-and-experiments#question-2",
 };
 
 export const RISK_QUESTIONS = {
