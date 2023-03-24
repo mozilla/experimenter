@@ -88,6 +88,7 @@ describe("Summary", () => {
         props={{
           status: NimbusExperimentStatusEnum.LIVE,
           publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+          isRolloutDirty: true,
         }}
       />,
     );
@@ -101,6 +102,7 @@ describe("Summary", () => {
           status: NimbusExperimentStatusEnum.LIVE,
           publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
           isEnrollmentPaused: false,
+          isRolloutDirty: true,
         }}
       />,
     );
@@ -330,6 +332,8 @@ describe("Summary", () => {
       status: NimbusExperimentStatusEnum.LIVE,
       publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
       statusNext: null,
+      isEnrollmentPaused: false,
+      isRolloutDirty: true,
     });
 
     const mutationMock = createMutationMock(
@@ -343,11 +347,16 @@ describe("Summary", () => {
       },
     );
     render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
-
     const requestUpdateButton = await screen.findByTestId(
       "update-live-to-review",
     );
-    expect(requestUpdateButton).toBeEnabled();
+    const endExperimentButton = await screen.findByTestId(
+      "end-experiment-start",
+    );
+    await waitFor(() => {
+      expect(requestUpdateButton).toBeInTheDocument();
+      expect(endExperimentButton).toBeInTheDocument();
+    });
     await act(async () => void fireEvent.click(requestUpdateButton));
   });
 
@@ -357,6 +366,7 @@ describe("Summary", () => {
       publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
       statusNext: null,
       isEnrollmentPaused: false,
+      isRolloutDirty: true,
     });
 
     const mutationMock = createMutationMock(
@@ -388,6 +398,7 @@ describe("Summary", () => {
       publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
       statusNext: null,
       isEnrollmentPaused: false,
+      isRolloutDirty: true,
     });
 
     const mutationMock = createMutationMock(

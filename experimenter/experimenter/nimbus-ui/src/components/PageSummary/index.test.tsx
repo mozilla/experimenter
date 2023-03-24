@@ -360,6 +360,7 @@ describe("PageSummary", () => {
     const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
       ...updateReviewRequestedBaseProps,
       canReview: true,
+      isRolloutDirty: true,
     });
     const mutationMock = createFullStatusMutationMock(
       rollout.id!,
@@ -383,6 +384,7 @@ describe("PageSummary", () => {
     const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
       ...updateReviewRequestedBaseProps,
       canReview: true,
+      isRolloutDirty: true,
     });
     const mutationMock = createFullStatusMutationMock(
       rollout.id!,
@@ -582,6 +584,7 @@ describe("PageSummary", () => {
     const { mockRollout } = mockLiveRolloutQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.LIVE,
       publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
+      isRolloutDirty: true,
     });
     render(<Subject mocks={[mockRollout]} />);
     await waitFor(() =>
@@ -640,6 +643,7 @@ describe("PageSummary", () => {
         statusNext: null,
         isRollout: true,
         isEnrollmentPaused: false,
+        isRolloutDirty: true,
       });
       const mutationMock = createFullStatusMutationMock(
         rollout.id!,
@@ -680,6 +684,7 @@ describe("PageSummary", () => {
         statusNext: liveStatus,
         isRollout: true,
         isEnrollmentPaused: false,
+        isRolloutDirty: true,
       });
       const mutationMock = createFullStatusMutationMock(
         rollout.id!,

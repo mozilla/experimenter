@@ -396,6 +396,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
             application=NimbusExperiment.Application.DESKTOP,
             is_rollout=True,
+            is_rollout_dirty=True,
         )
         self.setup_kinto_get_main_records([])
         self.setup_kinto_rejected_review()
@@ -415,6 +416,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         self.assertEqual(
             rejected_experiment.publish_status, NimbusExperiment.PublishStatus.DIRTY
         )
+        self.assertTrue(rejected_experiment.is_rollout_dirty)
         self.assertIsNone(rejected_experiment.status_next)
         self.assertFalse(rejected_experiment.is_paused)
 
@@ -509,6 +511,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
                 new_publish_status=NimbusExperiment.PublishStatus.IDLE,
             ).exists()
         )
+        self.assertFalse(updated_experiment.is_rollout_dirty)
 
     def test_check_with_missing_review_and_queued_launch_rolls_back_and_pushes(self):
         launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
