@@ -139,12 +139,11 @@ const FormMetrics = ({
     const secondaryContainerDiv = secondaryContainerDivRef.current;
 
     if (primaryContainerDiv) {
-      const valueContainer = primaryContainerDiv.querySelector(
-        ".css-g1d714-ValueContainer",
-      );
-      const valueContainerDiv = primaryContainerDiv.querySelector(
-        ".css-yk16xz-control",
-      );
+      const valueContainer = primaryContainerDiv.getElementsByClassName(
+        "css-g1d714-ValueContainer",
+      )[0];
+      const valueContainerDiv =
+        primaryContainerDiv.getElementsByClassName("css-yk16xz-control")[0];
       if (valueContainer) {
         valueContainer.classList.toggle("form-control", valid.primary);
         valueContainer.classList.toggle("is-valid", valid.primary);
@@ -154,12 +153,11 @@ const FormMetrics = ({
     }
 
     if (secondaryContainerDiv) {
-      const valueContainer = secondaryContainerDiv.querySelector(
-        ".css-g1d714-ValueContainer",
-      );
-      const valueContainerDiv = secondaryContainerDiv.querySelector(
-        ".css-yk16xz-control",
-      );
+      const valueContainer = secondaryContainerDiv.getElementsByClassName(
+        "css-g1d714-ValueContainer",
+      )[0];
+      const valueContainerDiv =
+        secondaryContainerDiv.getElementsByClassName("css-yk16xz-control")[0];
       if (valueContainer) {
         valueContainer.classList.toggle("form-control", valid.secondary);
         valueContainer.classList.toggle("is-valid", valid.secondary);
