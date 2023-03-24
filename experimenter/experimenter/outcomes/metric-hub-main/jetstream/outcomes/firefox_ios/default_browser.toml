@@ -8,7 +8,7 @@ description = """
     Fraction of users who opened Firefox through an external link,
     implying the client has Firefox set as the default browser
 """
-select_expression = "SUM(metrics.counter.app_opened_as_default_browser) > 0"
+select_expression = "COALESCE(CAST(SUM(metrics.counter.app_opened_as_default_browser) > 0 AS int), 0)"
 data_source = "metrics"
 statistics = { binomial = { pre_treatments = ["remove_nulls"] } }
 

@@ -201,6 +201,7 @@ export interface getExperiment_experimentBySlug {
   countries: getExperiment_experimentBySlug_countries[];
   languages: getExperiment_experimentBySlug_languages[];
   projects: (getExperiment_experimentBySlug_projects | null)[] | null;
+  isRolloutDirty: boolean | null;
 }
 
 export interface getExperiment {

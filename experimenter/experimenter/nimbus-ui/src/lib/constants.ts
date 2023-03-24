@@ -63,6 +63,8 @@ export const EXTERNAL_URLS = {
     `https://protosaur.dev/partybal/${slug.replace(/-/g, "_")}.html`,
   LAUNCH_DOCUMENTATION:
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
+  BUCKET_WARNING_EXPLANATION:
+    "https://experimenter.info/faq/Rollouts-and-experiments#question-2",
 };
 
 export const RISK_QUESTIONS = {
@@ -158,7 +160,10 @@ export const POSITIVE_NUMBER_FIELD = {
 
 export const POSITIVE_NUMBER_WITH_COMMAS_FIELD = {
   setValueAs: (value) =>
-    parseFloat(("" + value).trim().replace(/[^\d.-]+/g, "")),
+    !/[a-zA-Z]/.test("" + value)
+      ? parseFloat(("" + value).trim().replace(/[^\d.-]+/g, ""))
+      : FIELD_MESSAGES.POSITIVE_NUMBER,
+
   validate: (value) =>
     (!isNaN(value) && value >= 0) || FIELD_MESSAGES.POSITIVE_NUMBER,
 } as RegisterOptions;
