@@ -114,6 +114,7 @@ class LifecycleStates(Enum):
         "status": NimbusExperiment.Status.LIVE,
         "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.DIRTY,
+        "is_rollout_dirty": True,
     }
     LIVE_REVIEW = {
         "status": NimbusExperiment.Status.LIVE,
