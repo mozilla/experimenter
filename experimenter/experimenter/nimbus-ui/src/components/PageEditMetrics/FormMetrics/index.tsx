@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import Select from "react-select";
@@ -129,66 +129,58 @@ const FormMetrics = ({
   );
 
   // Two new variables to handle the primary and secondary states.
-  const [primaryValid, setPrimaryValid] = useState(false);
-  const [secondaryValid, setSecondaryValid] = useState(false);
+  const [valid, setValid] = useState({ primary: false, secondary: false });
+
+  const primaryContainerDivRef = useRef<HTMLDivElement>(null);
+  const secondaryContainerDivRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const primaryContainerDiv = document.querySelector(
-      '[data-testid="primary-outcomes"] .css-g1d714-ValueContainer',
-    );
-    const secondaryContainerDiv = document.querySelector(
-      '[data-testid="secondary-outcomes"] .css-g1d714-ValueContainer',
-    );
-    const primarySelectContainer = document.querySelector(
-      '[data-testid="primary-outcomes"] .css-yk16xz-control',
-    );
-    const secondarySelectContainer = document.querySelector(
-      '[data-testid="secondary-outcomes"] .css-yk16xz-control',
-    );
+    const primaryContainerDiv = primaryContainerDivRef.current;
+    const secondaryContainerDiv = secondaryContainerDivRef.current;
 
     if (primaryContainerDiv) {
-      if (primaryValid) {
-        primaryContainerDiv.classList.add(
-          "form-control",
-          "is-valid",
-          "valid-right",
-        );
-        primarySelectContainer?.classList.add("border-success");
-      } else {
-        primaryContainerDiv.classList.remove(
-          "form-control",
-          "is-valid",
-          "valid-right",
-        );
-        primarySelectContainer?.classList.remove("border-success");
+      const valueContainer = primaryContainerDiv.querySelector(
+        ".css-g1d714-ValueContainer",
+      );
+      const valueContainerDiv = primaryContainerDiv.querySelector(
+        ".css-yk16xz-control",
+      );
+      if (valueContainer) {
+        valueContainer.classList.toggle("form-control", valid.primary);
+        valueContainer.classList.toggle("is-valid", valid.primary);
+        valueContainer.classList.toggle("valid-right", valid.primary);
+        valueContainerDiv?.classList.toggle("border-success", valid.primary);
       }
     }
 
     if (secondaryContainerDiv) {
-      if (secondaryValid) {
-        secondaryContainerDiv.classList.add(
-          "form-control",
-          "is-valid",
-          "valid-right",
-        );
-        secondarySelectContainer?.classList.add("border-success");
-      } else {
-        secondaryContainerDiv.classList.remove(
-          "form-control",
-          "is-valid",
-          "valid-right",
-        );
-        secondarySelectContainer?.classList.remove("border-success");
+      const valueContainer = secondaryContainerDiv.querySelector(
+        ".css-g1d714-ValueContainer",
+      );
+      const valueContainerDiv = secondaryContainerDiv.querySelector(
+        ".css-yk16xz-control",
+      );
+      if (valueContainer) {
+        valueContainer.classList.toggle("form-control", valid.secondary);
+        valueContainer.classList.toggle("is-valid", valid.secondary);
+        valueContainer.classList.toggle("valid-right", valid.secondary);
+        valueContainerDiv?.classList.toggle("border-success", valid.secondary);
       }
     }
-  }, [primaryValid, secondaryValid]);
+  }, [valid]);
 
   useEffect(() => {
-    setPrimaryValid(primaryOutcomes.length > 0);
+    setValid((prevState) => ({
+      ...prevState,
+      primary: primaryOutcomes.length > 0,
+    }));
   }, [primaryOutcomes]);
 
   useEffect(() => {
-    setSecondaryValid(secondaryOutcomes.length > 0);
+    setValid((prevState) => ({
+      ...prevState,
+      secondary: secondaryOutcomes.length > 0,
+    }));
   }, [secondaryOutcomes]);
 
   const isArchived =
@@ -207,7 +199,11 @@ const FormMetrics = ({
         </Alert>
       )}
 
-      <Form.Group controlId="primaryOutcomes" data-testid="primary-outcomes">
+      <Form.Group
+        controlId="primaryOutcomes"
+        data-testid="primary-outcomes"
+        ref={primaryContainerDivRef}
+      >
         <Form.Label>
           Primary Outcomes{" "}
           <Info
@@ -235,6 +231,7 @@ const FormMetrics = ({
       <Form.Group
         controlId="secondaryOutcomes"
         data-testid="secondary-outcomes"
+        ref={secondaryContainerDivRef}
       >
         <Form.Label>
           Secondary Outcomes{" "}
