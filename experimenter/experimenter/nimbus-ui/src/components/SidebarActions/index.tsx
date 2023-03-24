@@ -191,7 +191,7 @@ export const SidebarActions = ({
 
         {recipeJson && (
           <Link
-            to={`${BASE_PATH}/${slug}#recipe-json`}
+            to={`#recipe-json`}
             onClick={() => scrollIntoView}
             className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
             data-testid="button-recipe-json"
