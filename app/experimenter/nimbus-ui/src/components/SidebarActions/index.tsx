@@ -23,7 +23,6 @@
  import { ReactComponent as Info } from "src/images/info.svg";
  import { ReactComponent as SlackIcon } from "src/images/slack.svg";
  import { ReactComponent as GithubIcon } from "src/images/github.svg";
- 
  import {
    ARCHIVE_DISABLED,
    BASE_PATH,
@@ -220,12 +219,11 @@
            <FeedbackIcon className="mr-2" /> Feedback
          </LinkExternal>
          <LinkExternal
-           className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
-           href={EXTERNAL_URLS.GITHUB_TICKET}
-         >
-           <GithubIcon className="mr-2" /> File targeting criteria request
-         </LinkExternal>
- 
+          className="mx-1 my-2 nav-item d-block text-dark w-100 font-weight-normal"
+          href={EXTERNAL_URLS.GITHUB_TICKET}
+        >
+          <GithubIcon className="mr-2" /> File targeting criteria request
+        </LinkExternal>
        </div>
      </div>
    );
