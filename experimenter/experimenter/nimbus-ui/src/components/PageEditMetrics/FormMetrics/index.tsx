@@ -138,6 +138,14 @@ const FormMetrics = ({
     const primaryContainerDiv = primaryContainerDivRef.current;
     const secondaryContainerDiv = secondaryContainerDivRef.current;
 
+    // Set the validation state for both primary and secondary outcomes
+    setValid((prevState) => ({
+      ...prevState,
+      primary: primaryOutcomes.length > 0,
+      secondary: secondaryOutcomes.length > 0,
+    }));
+
+    // Update the CSS classes based on the validation state
     if (primaryContainerDiv) {
       const valueContainer = primaryContainerDiv.getElementsByClassName(
         "css-g1d714-ValueContainer",
@@ -165,21 +173,7 @@ const FormMetrics = ({
         valueContainerDiv?.classList.toggle("border-success", valid.secondary);
       }
     }
-  }, [valid]);
-
-  useEffect(() => {
-    setValid((prevState) => ({
-      ...prevState,
-      primary: primaryOutcomes.length > 0,
-    }));
-  }, [primaryOutcomes]);
-
-  useEffect(() => {
-    setValid((prevState) => ({
-      ...prevState,
-      secondary: secondaryOutcomes.length > 0,
-    }));
-  }, [secondaryOutcomes]);
+  }, [primaryOutcomes, secondaryOutcomes, valid]);
 
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
