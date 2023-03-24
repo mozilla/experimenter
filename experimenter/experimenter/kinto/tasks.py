@@ -126,10 +126,14 @@ def handle_rejection(applications, kinto_client):
         if (
             experiment.is_rollout is True
             and experiment.status == NimbusExperiment.Status.LIVE
-            and experiment.status_next == NimbusExperiment.Status.LIVE
+            and (
+                experiment.status_next
+                in (NimbusExperiment.Status.LIVE, NimbusExperiment.Status.COMPLETE)
+            )
             and experiment.is_paused is False
         ):
             experiment.publish_status = NimbusExperiment.PublishStatus.DIRTY
+            experiment.is_rollout_dirty = True
         else:
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         experiment.status_next = None

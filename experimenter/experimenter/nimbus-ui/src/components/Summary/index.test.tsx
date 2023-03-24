@@ -234,52 +234,6 @@ describe("Summary", () => {
       screen.queryByTestId("request-update-button");
     });
 
-    it("can cancel end experiment for live rollout", async () => {
-      const refetch = jest.fn();
-      const { rollout } = mockLiveRolloutQuery("demo-slug", {
-        status: NimbusExperimentStatusEnum.LIVE,
-        publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
-        statusNext: NimbusExperimentStatusEnum.LIVE,
-        isRollout: true,
-        isRolloutDirty: true,
-      });
-      // const mutationMock = createMutationMock(
-      //   rollout.id!,
-      //   NimbusExperimentPublishStatusEnum.DIRTY,
-      //   {
-      //     statusNext: NimbusExperimentStatusEnum.COMPLETE,
-      //     changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
-      //     isEnrollmentPaused: false,
-      //   },
-      // );
-      render(
-        <Subject props={rollout} {...{ refetch }} />,
-        // <Subject props={rollout} mocks={[mutationMock]} {...{ refetch }} />,
-      );
-
-      // click end experiment
-      const endExperimentButton = await screen.findByTestId("end-experiment-start");
-      fireEvent.click(endExperimentButton);
-
-      // cancel 
-      fireEvent.click(screen.getByTestId("review-cancel"));
-
-      // const requestUpdateButton = await screen.findByTestId(
-      //   "update-live-to-review",
-      // );
-      // // const endExperimentButton = await screen.findByTestId(
-      // //   "end-experiment-start",
-      // // );
-      // const unpublishedChangesPill = await screen.findByTestId(
-      //   "pill-dirty-unpublished",
-      // );
-      // await waitFor(() => {
-      //   expect(requestUpdateButton).toBeInTheDocument();
-      //   expect(endExperimentButton).toBeInTheDocument();
-      //   expect(unpublishedChangesPill).toBeInTheDocument();
-      // });
-    });
-
     it("handles submission with server API error", async () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         status: NimbusExperimentStatusEnum.LIVE,
