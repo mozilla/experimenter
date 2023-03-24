@@ -90,6 +90,7 @@ export const FormBranches = ({
 
   const isDirtyUnsaved = IsDirtyUnsaved(isDirty, isValid, isSubmitted);
   const [formSubmitted, setIsFormSubmitted] = useState(true);
+  const [selectValid, setIsSelectValid] = useState(false);
 
   const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
@@ -171,6 +172,7 @@ export const FormBranches = ({
 
   const onFeatureConfigChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFeatureId = parseInt(ev.target.value, 10);
+    setIsSelectValid(true);
     return handleFeatureConfigsChange(
       isNaN(selectedFeatureId) ? [] : [selectedFeatureId],
     );
@@ -247,6 +249,7 @@ export const FormBranches = ({
 
         <Form.Group>
           <Form.Control
+            isValid={selectValid}
             as="select"
             name="featureConfig"
             data-testid="feature-config-select"
@@ -298,6 +301,7 @@ export const FormBranches = ({
         <Form.Row>
           <Form.Group as={Col} controlId="isRollout">
             <Form.Check
+              isValid={!!isRollout}
               data-testid="is-rollout-checkbox"
               onChange={handleIsRollout}
               checked={!!isRollout}
@@ -323,6 +327,7 @@ export const FormBranches = ({
         <Form.Row>
           <Form.Group as={Col} controlId="warnFeatureSchema">
             <Form.Check
+              isValid={!!warnFeatureSchema}
               data-testid="equal-warn-on-feature-value-schema-invalid-checkbox"
               onChange={handlewarnFeatureSchema}
               checked={!!warnFeatureSchema}
@@ -335,6 +340,7 @@ export const FormBranches = ({
         <Form.Row>
           <Form.Group as={Col} controlId="evenRatio">
             <Form.Check
+              isValid={equalRatio}
               data-testid="equal-ratio-checkbox"
               onChange={handleEqualRatioChange}
               checked={equalRatio}
