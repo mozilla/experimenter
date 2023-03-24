@@ -171,10 +171,15 @@ const FormMetrics = ({
     setValid((prevState) => ({
       ...prevState,
       primary: primaryOutcomes.length > 0,
+    }));
+  }, [primaryOutcomes]);
+
+  useEffect(() => {
+    setValid((prevState) => ({
+      ...prevState,
       secondary: secondaryOutcomes.length > 0,
     }));
-  }, [primaryOutcomes, secondaryOutcomes]);
-  
+  }, [secondaryOutcomes]);
 
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
