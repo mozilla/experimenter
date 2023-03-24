@@ -19,6 +19,7 @@ import {
   TOOLTIP_DURATION,
 } from "src/lib/constants";
 import { getStatus } from "src/lib/experiment";
+import "src/styles/index.scss";
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_targetingConfigs,
@@ -318,14 +319,22 @@ export const FormAudience = ({
         </Form.Row>
         <Form.Row>
           <Form.Group as={Col} controlId="isSticky">
-            <Form.Check
-              {...formControlAttrs("isSticky")}
-              type="checkbox"
-              checked={isSticky}
-              onChange={(e) => setIsSticky(e.target.checked)}
-              disabled={stickyRequiredWarning || isLocked!}
-              label="Sticky Enrollment (Clients remain enrolled until the experiment ends)"
-            />
+            <Form.Label>
+              <Form.Check
+                {...formControlAttrs("isSticky")}
+                type="checkbox"
+                checked={isSticky}
+                onChange={(e) => setIsSticky(e.target.checked)}
+                disabled={stickyRequiredWarning || isLocked!}
+                label="Sticky Enrollment (Clients remain enrolled until the experiment ends)"
+              />
+            </Form.Label>
+            <LinkExternal
+              href={EXTERNAL_URLS.CUSTOM_AUDIENCES_EXPLANATION}
+              className="custom-audiences-external-link"
+            >
+              Learn more
+            </LinkExternal>
             {stickyRequiredWarning && (
               <Alert data-testid="sticky-required-warning" variant="warning">
                 Sticky enrollment is required for this targeting configuration.

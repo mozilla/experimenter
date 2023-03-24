@@ -65,6 +65,8 @@ export const EXTERNAL_URLS = {
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
   BUCKET_WARNING_EXPLANATION:
     "https://experimenter.info/faq/Rollouts-and-experiments#question-2",
+  CUSTOM_AUDIENCES_EXPLANATION:
+    "https://experimenter.info/workflow/custom-audiences",
 };
 
 export const RISK_QUESTIONS = {
