@@ -1,0 +1,166 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+// Looking to customize Bootstrap styles? Place SCSS variables
+// modifications *above* the Bootstrap import below. Learn more:
+// https://getbootstrap.com/docs/4.4/getting-started/theming/
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 480px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1441px,
+);
+
+$sizes: (
+  3: 0.75rem,
+  100vh: 100vh,
+);
+
+@import "~bootstrap/scss/bootstrap";
+
+// This gives us responsive sizing such as `h-md-100`.
+// See https://github.com/twbs/bootstrap/issues/21943
+@each $breakpoint in map-keys($grid-breakpoints) {
+  @include media-breakpoint-up($breakpoint) {
+    $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+    @each $prop, $abbrev in (width: w, height: h) {
+      @each $size, $length in $sizes {
+        .#{$abbrev}#{$infix}-#{$size} {
+          #{$prop}: $length !important;
+        }
+      }
+    }
+  }
+}
+
+// Adds a new style of form feedback, warning, which is yellow
+// This adds the is-warning, warning-feedback form classes
+$form-feedback-warning-color: #e65722 !default;
+$form-feedback-icon-warning-color: $form-feedback-warning-color !default;
+$form-feedback-icon-warning: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='#{$form-feedback-icon-warning-color}' viewBox='0 0 12 12'><circle cx='6' cy='6' r='4.5'/><path stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/><circle cx='6' cy='8.2' r='.6' fill='#{$form-feedback-icon-warning-color}' stroke='none'/></svg>") !default;
+$form-validation-states: map-merge(
+  (
+    "warning": (
+      "color": $form-feedback-warning-color,
+      "icon": $form-feedback-icon-warning,
+    ),
+  ),
+  $form-validation-states
+);
+@each $state, $data in $form-validation-states {
+  @include form-validation-state(
+    $state,
+    map-get($data, color),
+    map-get($data, icon)
+  );
+}
+// There's already a border-warning class, so add a feedback-specific one
+.border-feedback-warning {
+  border: 1px solid $form-feedback-warning-color !important;
+}
+
+// This scoots the warning img to the left to prevent overlap with the drop-down caret
+select.form-control.is-warning {
+  background-position: right 1em center;
+}
+
+.font-weight-semibold {
+  font-weight: 600;
+}
+
+.flex-basis-0 {
+  flex-basis: 0px;
+}
+
+.mw-25 {
+  max-width: 25%;
+}
+
+.w-33 {
+  width: 33.33%;
+}
+
+// the green provided by Bootstrap does not pass ADA AA
+.text-success {
+  color: #058a00 !important;
+}
+
+.positive-significance {
+  @extend .text-success;
+  @extend .font-weight-bold;
+}
+
+.negative-significance {
+  @extend .text-danger;
+  @extend .font-weight-bold;
+}
+
+.positive {
+  @extend .bg-success;
+}
+
+.negative {
+  @extend .bg-danger;
+}
+
+.neutral {
+  @extend .bg-secondary;
+}
+
+.table-visualization-center {
+  @extend .table;
+  @extend .text-center;
+  @extend .border-bottom;
+}
+
+.border-3 {
+  border-width: 3px !important;
+}
+
+.inherit-color {
+  color: inherit;
+}
+
+.table-fixed {
+  table-layout: fixed;
+}
+
+.sidebar-icon {
+  @extend .mr-3;
+  min-width: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.__react_component_tooltip {
+  pre {
+    @extend .text-white;
+    margin-bottom: 0;
+  }
+
+  > p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.cursor-copy {
+  cursor: copy;
+}
+
+.custom-select {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 0 20 20' aria-hidden='true' focusable='false' class='css-tj5bde-Svg'%3E%3Cpath fill='lightgray' d='M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z'%3E%3C/path%3E%3C/svg%3E") right 0.60rem center/20px 25px no-repeat !important;
+  padding-right: calc(0.75em + 1.5rem);
+}
+
+.custom-select:focus {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 0 20 20' aria-hidden='true' focusable='false' class='css-tj5bde-Svg'%3E%3Cpath fill='gray' d='M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z'%3E%3C/path%3E%3C/svg%3E") right 0.60rem center/20px 25px no-repeat !important;
+}
+
+.was-validated .custom-select:valid, .custom-select.is-valid {
+    border-color: #28a745;
+    padding-right: calc(0.8em + 2.8rem);
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 0 20 20' aria-hidden='true' focusable='false' class='css-tj5bde-Svg'%3E%3Cpath fill='lightgray' d='M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z'%3E%3C/path%3E%3C/svg%3E") right 0.60rem center/20px 25px no-repeat,#fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") center right 2rem/calc(0.8em + 0.3rem) calc(0.8em + 0.3rem) no-repeat !important;
+}

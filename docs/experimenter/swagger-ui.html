@@ -1,0 +1,3706 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Experimenter Api Docs</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="swagger-ui.css" />
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="swagger-ui-bundle.js"></script>
+    <script>
+      const spec = {
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Experimenter API",
+    "version": ""
+  },
+  "paths": {
+    "/api/v1/experiments/{slug}/recipe/": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentRecipe"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Public"
+        ]
+      }
+    },
+    "/api/v1/experiments/{slug}/": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Experiment"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Public"
+        ]
+      }
+    },
+    "/api/v1/experiments/": {
+      "get": {
+        "operationId": "listExperiments",
+        "description": "",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Review",
+                "Ship",
+                "Accepted",
+                "Live",
+                "Complete",
+                "Rejected"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Experiment"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Public"
+        ]
+      }
+    },
+    "/api/v2/experiments/csv/": {
+      "get": {
+        "operationId": "listExperiments",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExperimentCSV"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-addon-rollout": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignAddonRollout"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddonRollout"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddonRollout"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddonRollout"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignAddonRollout"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddonRollout"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddonRollout"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddonRollout"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignAddonRollout"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-addon": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignAddon"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddon"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddon"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddon"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignAddon"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddon"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddon"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignAddon"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignAddon"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-pref-rollout": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignPrefRollout"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPrefRollout"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPrefRollout"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPrefRollout"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignPrefRollout"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPrefRollout"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPrefRollout"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPrefRollout"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignPrefRollout"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-pref": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignPref"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPref"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPref"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPref"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignPref"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPref"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPref"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignPref"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignPref"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-multi-pref": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignMultiPref"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMultiPref"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMultiPref"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMultiPref"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignMultiPref"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMultiPref"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMultiPref"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMultiPref"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignMultiPref"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-generic": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignGeneric"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignGeneric"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignGeneric"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignGeneric"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignGeneric"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignGeneric"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignGeneric"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignGeneric"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignGeneric"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-branched-addon": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignBranchedAddon"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignBranchedAddon"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignBranchedAddon"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignBranchedAddon"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignBranchedAddon"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignBranchedAddon"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignBranchedAddon"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignBranchedAddon"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignBranchedAddon"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-message": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignMessage"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMessage"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMessage"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMessage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignMessage"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMessage"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMessage"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentDesignMessage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentDesignMessage"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/timeline-population": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentTimelinePop"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentTimelinePop"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentTimelinePop"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentTimelinePop"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentTimelinePop"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentTimelinePop"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentTimelinePop"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentTimelinePop"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentTimelinePop"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v3/visualization/{slug}/": {
+      "get": {
+        "operationId": "retrieveanalysis_results_view",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
+    "/api/v5/csv/": {
+      "get": {
+        "operationId": "listNimbusExperiments",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NimbusExperimentCsv"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
+    "/api/v5/config/": {
+      "get": {
+        "operationId": "retrieveNimbusConfiguration",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NimbusConfiguration"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "api"
+        ]
+      }
+    },
+    "/api/v6/experiments/": {
+      "get": {
+        "operationId": "listNimbusExperiments",
+        "description": "",
+        "parameters": [
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NimbusExperiment"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Nimbus: Public"
+        ]
+      }
+    },
+    "/api/v6/experiments/{slug}/": {
+      "get": {
+        "operationId": "retrieveNimbusExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NimbusExperiment"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Nimbus: Public"
+        ]
+      }
+    },
+    "/api/v6/experiments-first-run/": {
+      "get": {
+        "operationId": "listNimbusExperiments",
+        "description": "",
+        "parameters": [
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NimbusExperiment"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Nimbus: Public"
+        ]
+      }
+    },
+    "/api/v6/experiments-first-run/{slug}/": {
+      "get": {
+        "operationId": "retrieveNimbusExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_first_run",
+            "required": false,
+            "in": "query",
+            "description": "is_first_run",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NimbusExperiment"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Nimbus: Public"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/intent-to-ship-email": {
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Experiment"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Experiment"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Experiment"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Experiment"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Experiment"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Experiment"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Experiment"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Experiment"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/clone": {
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentClone"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentClone"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentClone"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentClone"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentClone"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentClone"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ExperimentClone"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperimentClone"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ExperimentRecipe": {
+        "type": "object",
+        "properties": {
+          "action_name": {
+            "type": "string",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "filter_object": {
+            "type": "string",
+            "readOnly": true
+          },
+          "comment": {
+            "type": "string",
+            "readOnly": true
+          },
+          "arguments": {
+            "type": "string",
+            "readOnly": true
+          },
+          "experimenter_slug": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "Experiment": {
+        "type": "object",
+        "properties": {
+          "experiment_url": {
+            "type": "string",
+            "readOnly": true
+          },
+          "type": {
+            "enum": [
+              "pref",
+              "addon",
+              "generic",
+              "rollout",
+              "message"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 255,
+            "pattern": "^[-a-zA-Z0-9_]+$"
+          },
+          "public_description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              "Draft",
+              "Review",
+              "Ship",
+              "Accepted",
+              "Live",
+              "Complete",
+              "Rejected"
+            ],
+            "type": "string"
+          },
+          "client_matching": {
+            "type": "string",
+            "nullable": true
+          },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255
+                }
+              },
+              "required": [
+                "code",
+                "name"
+              ]
+            }
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255
+                }
+              },
+              "required": [
+                "code",
+                "name"
+              ]
+            }
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "population": {
+            "type": "string",
+            "readOnly": true
+          },
+          "population_percent": {
+            "type": "string",
+            "format": "decimal",
+            "multipleOf": 0.0001,
+            "maximum": 1000,
+            "minimum": -1000,
+            "nullable": true
+          },
+          "firefox_channel": {
+            "enum": [
+              null,
+              "Nightly",
+              "Beta",
+              "Release"
+            ],
+            "nullable": true
+          },
+          "firefox_min_version": {
+            "enum": [
+              "55.0",
+              "56.0",
+              "57.0",
+              "58.0",
+              "59.0",
+              "60.0",
+              "61.0",
+              "62.0",
+              "63.0",
+              "64.0",
+              "65.0",
+              "66.0",
+              "67.0",
+              "68.0",
+              "69.0",
+              "70.0",
+              "71.0",
+              "72.0",
+              "73.0",
+              "74.0",
+              "75.0",
+              "76.0",
+              "77.0",
+              "78.0",
+              "79.0",
+              "80.0",
+              "81.0",
+              "82.0",
+              "83.0",
+              "84.0",
+              "85.0",
+              "86.0",
+              "87.0",
+              "88.0",
+              "89.0",
+              "90.0",
+              "91.0",
+              "92.0",
+              "93.0",
+              "94.0",
+              "95.0",
+              "96.0",
+              "97.0",
+              "98.0",
+              "99.0",
+              "100.0",
+              "101.0",
+              "102.0",
+              "103.0",
+              "104.0",
+              "105.0",
+              "106.0",
+              "107.0",
+              "108.0",
+              "109.0",
+              "110.0",
+              "111.0",
+              "112.0",
+              "113.0",
+              "114.0",
+              "115.0",
+              "116.0",
+              "117.0",
+              "118.0",
+              "119.0",
+              "120.0"
+            ],
+            "type": "string",
+            "nullable": true
+          },
+          "firefox_max_version": {
+            "enum": [
+              "55.0",
+              "56.0",
+              "57.0",
+              "58.0",
+              "59.0",
+              "60.0",
+              "61.0",
+              "62.0",
+              "63.0",
+              "64.0",
+              "65.0",
+              "66.0",
+              "67.0",
+              "68.0",
+              "69.0",
+              "70.0",
+              "71.0",
+              "72.0",
+              "73.0",
+              "74.0",
+              "75.0",
+              "76.0",
+              "77.0",
+              "78.0",
+              "79.0",
+              "80.0",
+              "81.0",
+              "82.0",
+              "83.0",
+              "84.0",
+              "85.0",
+              "86.0",
+              "87.0",
+              "88.0",
+              "89.0",
+              "90.0",
+              "91.0",
+              "92.0",
+              "93.0",
+              "94.0",
+              "95.0",
+              "96.0",
+              "97.0",
+              "98.0",
+              "99.0",
+              "100.0",
+              "101.0",
+              "102.0",
+              "103.0",
+              "104.0",
+              "105.0",
+              "106.0",
+              "107.0",
+              "108.0",
+              "109.0",
+              "110.0",
+              "111.0",
+              "112.0",
+              "113.0",
+              "114.0",
+              "115.0",
+              "116.0",
+              "117.0",
+              "118.0",
+              "119.0",
+              "120.0"
+            ],
+            "type": "string",
+            "nullable": true
+          },
+          "addon_experiment_id": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "addon_release_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "maxLength": 400,
+            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+          },
+          "pref_branch": {
+            "enum": [
+              null,
+              "default",
+              "user"
+            ],
+            "nullable": true
+          },
+          "pref_name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "pref_type": {
+            "type": "string"
+          },
+          "proposed_start_date": {
+            "type": "string"
+          },
+          "proposed_enrollment": {
+            "type": "integer",
+            "maximum": 1000,
+            "nullable": true,
+            "minimum": 0
+          },
+          "proposed_duration": {
+            "type": "integer",
+            "maximum": 1000,
+            "nullable": true,
+            "minimum": 0
+          },
+          "normandy_slug": {
+            "type": "string"
+          },
+          "normandy_id": {
+            "type": "integer",
+            "maximum": 2147483647,
+            "nullable": true,
+            "minimum": 0
+          },
+          "other_normandy_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "maximum": 2147483647,
+              "minimum": -2147483648
+            },
+            "nullable": true
+          },
+          "is_high_population": {
+            "type": "boolean"
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "is_control": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "ratio": {
+                  "type": "integer",
+                  "maximum": 2147483647,
+                  "minimum": 0
+                },
+                "slug": {
+                  "type": "string",
+                  "maxLength": 255,
+                  "pattern": "^[-a-zA-Z0-9_]+$"
+                },
+                "value": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "addon_release_url": {
+                  "type": "string",
+                  "format": "uri",
+                  "nullable": true,
+                  "maxLength": 400,
+                  "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+                },
+                "preferences": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "pref_name": {
+                        "type": "string",
+                        "maxLength": 255
+                      },
+                      "pref_type": {
+                        "enum": [
+                          null,
+                          "boolean",
+                          "integer",
+                          "string",
+                          "json string"
+                        ]
+                      },
+                      "pref_branch": {
+                        "enum": [
+                          null,
+                          "default",
+                          "user"
+                        ]
+                      },
+                      "pref_value": {
+                        "type": "string",
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "pref_name",
+                      "pref_type",
+                      "pref_branch",
+                      "pref_value"
+                    ]
+                  }
+                },
+                "message_targeting": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "message_threshold": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "message_triggers": {
+                  "type": "string",
+                  "nullable": true
+                }
+              },
+              "required": [
+                "name",
+                "slug"
+              ]
+            }
+          },
+          "results": {
+            "type": "string",
+            "readOnly": true
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "changed_on": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "pretty_status": {
+                  "type": "string",
+                  "readOnly": true
+                },
+                "new_status": {
+                  "enum": [
+                    "Draft",
+                    "Review",
+                    "Ship",
+                    "Accepted",
+                    "Live",
+                    "Complete",
+                    "Rejected"
+                  ],
+                  "type": "string"
+                },
+                "old_status": {
+                  "enum": [
+                    "Draft",
+                    "Review",
+                    "Ship",
+                    "Accepted",
+                    "Live",
+                    "Complete",
+                    "Rejected"
+                  ],
+                  "type": "string",
+                  "nullable": true
+                }
+              },
+              "required": [
+                "new_status"
+              ]
+            }
+          },
+          "projects": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "locales",
+          "countries",
+          "start_date",
+          "end_date",
+          "pref_type",
+          "proposed_start_date",
+          "normandy_slug",
+          "variants",
+          "changes"
+        ]
+      },
+      "ExperimentCSV": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "status": {
+            "enum": [
+              "Draft",
+              "Review",
+              "Ship",
+              "Accepted",
+              "Live",
+              "Complete",
+              "Rejected"
+            ],
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "hypothesis": {
+            "type": "string"
+          },
+          "leading_indicators": {
+            "type": "string"
+          },
+          "experiment_url": {
+            "type": "string",
+            "readOnly": true
+          },
+          "start_date": {
+            "type": "string",
+            "readOnly": true
+          },
+          "type": {
+            "enum": [
+              "pref",
+              "addon",
+              "generic",
+              "rollout",
+              "message"
+            ],
+            "type": "string"
+          },
+          "length": {
+            "type": "string",
+            "readOnly": true
+          },
+          "channel": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string",
+            "readOnly": true
+          },
+          "data_scientist": {
+            "type": "string",
+            "readOnly": true
+          },
+          "enrolled_target": {
+            "type": "integer"
+          },
+          "results_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "maxLength": 200,
+            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+          },
+          "projects": {
+            "type": "string",
+            "readOnly": true
+          },
+          "locales": {
+            "type": "string",
+            "readOnly": true
+          },
+          "countries": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "hypothesis",
+          "leading_indicators",
+          "channel",
+          "enrolled_target"
+        ]
+      },
+      "ExperimentDesignAddonRollout": {
+        "type": "object",
+        "properties": {
+          "rollout_type": {
+            "enum": [
+              "pref",
+              "addon"
+            ],
+            "type": "string"
+          },
+          "design": {
+            "type": "string",
+            "nullable": true
+          },
+          "addon_release_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "maxLength": 400,
+            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+          }
+        },
+        "required": [
+          "rollout_type",
+          "addon_release_url"
+        ]
+      },
+      "ExperimentDesignAddon": {
+        "type": "object",
+        "properties": {
+          "addon_release_url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 400,
+            "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "is_control": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "ratio": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "description",
+                "is_control",
+                "name",
+                "ratio"
+              ]
+            }
+          },
+          "is_branched_addon": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "addon_release_url",
+          "variants",
+          "is_branched_addon"
+        ]
+      },
+      "ExperimentDesignPrefRollout": {
+        "type": "object",
+        "properties": {
+          "rollout_type": {
+            "enum": [
+              "pref",
+              "addon"
+            ],
+            "type": "string"
+          },
+          "design": {
+            "type": "string",
+            "nullable": true
+          },
+          "preferences": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "pref_name": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "pref_type": {
+                  "enum": [
+                    null,
+                    "boolean",
+                    "integer",
+                    "string",
+                    "json string"
+                  ]
+                },
+                "pref_value": {
+                  "type": "string",
+                  "maxLength": 4096
+                }
+              },
+              "required": [
+                "pref_name",
+                "pref_type",
+                "pref_value"
+              ]
+            }
+          }
+        },
+        "required": [
+          "rollout_type",
+          "preferences"
+        ]
+      },
+      "ExperimentDesignPref": {
+        "type": "object",
+        "properties": {
+          "is_multi_pref": {
+            "type": "boolean"
+          },
+          "pref_name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "pref_type": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "pref_branch": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "is_control": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "ratio": {
+                  "type": "integer"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "description",
+                "is_control",
+                "name",
+                "ratio",
+                "value"
+              ]
+            }
+          }
+        },
+        "required": [
+          "is_multi_pref",
+          "pref_name",
+          "pref_type",
+          "pref_branch",
+          "variants"
+        ]
+      },
+      "ExperimentDesignMultiPref": {
+        "type": "object",
+        "properties": {
+          "is_multi_pref": {
+            "type": "boolean"
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "is_control": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "ratio": {
+                  "type": "integer"
+                },
+                "preferences": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "pref_name": {
+                        "type": "string",
+                        "maxLength": 255
+                      },
+                      "pref_type": {
+                        "enum": [
+                          null,
+                          "boolean",
+                          "integer",
+                          "string",
+                          "json string"
+                        ]
+                      },
+                      "pref_branch": {
+                        "enum": [
+                          null,
+                          "default",
+                          "user"
+                        ]
+                      },
+                      "pref_value": {
+                        "type": "string",
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "pref_name",
+                      "pref_type",
+                      "pref_branch",
+                      "pref_value"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "description",
+                "is_control",
+                "name",
+                "ratio",
+                "preferences"
+              ]
+            }
+          }
+        },
+        "required": [
+          "is_multi_pref",
+          "variants"
+        ]
+      },
+      "ExperimentDesignGeneric": {
+        "type": "object",
+        "properties": {
+          "design": {
+            "type": "string",
+            "nullable": true
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "is_control": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "ratio": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "description",
+                "is_control",
+                "name",
+                "ratio"
+              ]
+            }
+          }
+        },
+        "required": [
+          "variants"
+        ]
+      },
+      "ExperimentDesignBranchedAddon": {
+        "type": "object",
+        "properties": {
+          "is_branched_addon": {
+            "type": "boolean"
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "addon_release_url": {
+                  "type": "string",
+                  "format": "uri",
+                  "maxLength": 400,
+                  "pattern": "^(?:[a-z0-9.+-]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)(?:\\.(?:0|25[0-5]|2[0-4]\\d|1\\d?\\d?|[1-9]\\d?)){3}|\\[[0-9a-f:.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\z"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "is_control": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "ratio": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "addon_release_url",
+                "description",
+                "is_control",
+                "name",
+                "ratio"
+              ]
+            }
+          }
+        },
+        "required": [
+          "is_branched_addon",
+          "variants"
+        ]
+      },
+      "ExperimentDesignMessage": {
+        "type": "object",
+        "properties": {
+          "message_type": {
+            "enum": [
+              "cfr",
+              "about:welcome"
+            ],
+            "type": "string"
+          },
+          "message_template": {
+            "enum": [
+              "cfr_doorhanger",
+              "cfr_urlbar_chiclet",
+              "milestone_message"
+            ],
+            "type": "string",
+            "nullable": true
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "is_control": {
+                  "type": "boolean"
+                },
+                "message_targeting": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "message_threshold": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "message_triggers": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "ratio": {
+                  "type": "integer"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "description",
+                "is_control",
+                "name",
+                "ratio",
+                "value"
+              ]
+            }
+          }
+        },
+        "required": [
+          "message_type",
+          "variants"
+        ]
+      },
+      "ExperimentTimelinePop": {
+        "type": "object",
+        "properties": {
+          "proposed_start_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "proposed_enrollment": {
+            "type": "integer",
+            "nullable": true
+          },
+          "rollout_playbook": {
+            "enum": [
+              null,
+              "low_risk",
+              "high_risk",
+              "marketing",
+              "custom"
+            ],
+            "nullable": true
+          },
+          "proposed_duration": {
+            "type": "integer",
+            "nullable": true
+          },
+          "population_percent": {
+            "type": "string",
+            "format": "decimal",
+            "multipleOf": 0.0001,
+            "maximum": 100.0,
+            "minimum": 0,
+            "nullable": true
+          },
+          "firefox_channel": {
+            "enum": [
+              null,
+              "Nightly",
+              "Beta",
+              "Release"
+            ],
+            "nullable": true
+          },
+          "firefox_min_version": {
+            "enum": [
+              "55.0",
+              "56.0",
+              "57.0",
+              "58.0",
+              "59.0",
+              "60.0",
+              "61.0",
+              "62.0",
+              "63.0",
+              "64.0",
+              "65.0",
+              "66.0",
+              "67.0",
+              "68.0",
+              "69.0",
+              "70.0",
+              "71.0",
+              "72.0",
+              "73.0",
+              "74.0",
+              "75.0",
+              "76.0",
+              "77.0",
+              "78.0",
+              "79.0",
+              "80.0",
+              "81.0",
+              "82.0",
+              "83.0",
+              "84.0",
+              "85.0",
+              "86.0",
+              "87.0",
+              "88.0",
+              "89.0",
+              "90.0",
+              "91.0",
+              "92.0",
+              "93.0",
+              "94.0",
+              "95.0",
+              "96.0",
+              "97.0",
+              "98.0",
+              "99.0",
+              "100.0",
+              "101.0",
+              "102.0",
+              "103.0",
+              "104.0",
+              "105.0",
+              "106.0",
+              "107.0",
+              "108.0",
+              "109.0",
+              "110.0",
+              "111.0",
+              "112.0",
+              "113.0",
+              "114.0",
+              "115.0",
+              "116.0",
+              "117.0",
+              "118.0",
+              "119.0",
+              "120.0"
+            ],
+            "type": "string",
+            "nullable": true
+          },
+          "firefox_max_version": {
+            "enum": [
+              "55.0",
+              "56.0",
+              "57.0",
+              "58.0",
+              "59.0",
+              "60.0",
+              "61.0",
+              "62.0",
+              "63.0",
+              "64.0",
+              "65.0",
+              "66.0",
+              "67.0",
+              "68.0",
+              "69.0",
+              "70.0",
+              "71.0",
+              "72.0",
+              "73.0",
+              "74.0",
+              "75.0",
+              "76.0",
+              "77.0",
+              "78.0",
+              "79.0",
+              "80.0",
+              "81.0",
+              "82.0",
+              "83.0",
+              "84.0",
+              "85.0",
+              "86.0",
+              "87.0",
+              "88.0",
+              "89.0",
+              "90.0",
+              "91.0",
+              "92.0",
+              "93.0",
+              "94.0",
+              "95.0",
+              "96.0",
+              "97.0",
+              "98.0",
+              "99.0",
+              "100.0",
+              "101.0",
+              "102.0",
+              "103.0",
+              "104.0",
+              "105.0",
+              "106.0",
+              "107.0",
+              "108.0",
+              "109.0",
+              "110.0",
+              "111.0",
+              "112.0",
+              "113.0",
+              "114.0",
+              "115.0",
+              "116.0",
+              "117.0",
+              "118.0",
+              "119.0",
+              "120.0"
+            ],
+            "type": "string",
+            "nullable": true
+          },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            },
+            "nullable": true
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            },
+            "nullable": true
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "windows_versions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {}
+            },
+            "nullable": true
+          },
+          "profile_age": {
+            "enum": [
+              "All Profiles",
+              "New Profiles Only",
+              "Existing Profiles Only"
+            ],
+            "type": "string",
+            "nullable": true
+          },
+          "client_matching": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "NimbusExperimentCsv": {
+        "type": "object",
+        "properties": {
+          "launch_month": {
+            "type": "string",
+            "readOnly": true
+          },
+          "product_area": {
+            "type": "string"
+          },
+          "experiment_name": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string",
+            "readOnly": true
+          },
+          "feature_configs": {
+            "type": "string",
+            "readOnly": true
+          },
+          "start_date": {
+            "type": "string",
+            "readOnly": true
+          },
+          "enrollment_duration": {
+            "type": "string",
+            "readOnly": true
+          },
+          "end_date": {
+            "type": "string",
+            "readOnly": true
+          },
+          "results_url": {
+            "type": "string",
+            "readOnly": true
+          },
+          "experiment_summary": {
+            "type": "string"
+          },
+          "rollout": {
+            "type": "boolean"
+          },
+          "hypothesis": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_area",
+          "experiment_name",
+          "experiment_summary",
+          "rollout"
+        ]
+      },
+      "NimbusConfiguration": {
+        "type": "object",
+        "properties": {
+          "applications": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
+          "applicationConfigs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "application": {
+                  "type": "string"
+                },
+                "channels": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "value"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "application",
+                "channels"
+              ]
+            }
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "code"
+              ]
+            }
+          },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "code"
+              ]
+            }
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "code"
+              ]
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "slug"
+              ]
+            }
+          },
+          "documentationLink": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
+          "allFeatureConfigs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "application": {
+                  "type": "string"
+                },
+                "ownerEmail": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "schema": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "setsPrefs": {
+                  "type": "boolean"
+                },
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "slug",
+                "description",
+                "application",
+                "ownerEmail",
+                "schema",
+                "setsPrefs",
+                "enabled"
+              ]
+            }
+          },
+          "firefoxVersions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
+          "outcomes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "application": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "friendlyName": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "isDefault": {
+                  "type": "boolean"
+                },
+                "metrics": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "slug": {
+                        "type": "string"
+                      },
+                      "friendlyName": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "slug",
+                      "friendlyName",
+                      "description"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "application",
+                "description",
+                "friendlyName",
+                "slug",
+                "isDefault",
+                "metrics"
+              ]
+            }
+          },
+          "owners": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "username"
+              ]
+            }
+          },
+          "targetingConfigs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                },
+                "applicationValues": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "description": {
+                  "type": "string"
+                },
+                "stickyRequired": {
+                  "type": "boolean"
+                },
+                "isFirstRunRequired": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "label",
+                "value",
+                "applicationValues",
+                "description",
+                "stickyRequired",
+                "isFirstRunRequired"
+              ]
+            }
+          },
+          "conclusionRecommendations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ]
+            }
+          },
+          "hypothesisDefault": {
+            "type": "string"
+          },
+          "maxPrimaryOutcomes": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "applications",
+          "channels",
+          "applicationConfigs",
+          "countries",
+          "locales",
+          "languages",
+          "projects",
+          "documentationLink",
+          "allFeatureConfigs",
+          "firefoxVersions",
+          "outcomes",
+          "owners",
+          "targetingConfigs",
+          "conclusionRecommendations",
+          "types"
+        ]
+      },
+      "NimbusExperiment": {
+        "type": "object",
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "readOnly": true,
+            "default": "1.11.0"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 80,
+            "pattern": "^[-a-zA-Z0-9_]+$"
+          },
+          "id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "arguments": {
+            "type": "string",
+            "readOnly": true,
+            "default": {}
+          },
+          "application": {
+            "type": "string",
+            "readOnly": true
+          },
+          "appName": {
+            "type": "string",
+            "readOnly": true
+          },
+          "appId": {
+            "type": "string",
+            "readOnly": true
+          },
+          "channel": {
+            "enum": [
+              "",
+              "default",
+              "nightly",
+              "beta",
+              "release",
+              "esr",
+              "testflight",
+              "aurora"
+            ],
+            "type": "string"
+          },
+          "userFacingName": {
+            "type": "string",
+            "readOnly": true
+          },
+          "userFacingDescription": {
+            "type": "string",
+            "readOnly": true
+          },
+          "isEnrollmentPaused": {
+            "type": "string",
+            "readOnly": true
+          },
+          "isRollout": {
+            "type": "string",
+            "readOnly": true
+          },
+          "bucketConfig": {
+            "type": "object",
+            "properties": {
+              "randomizationUnit": {
+                "type": "string",
+                "readOnly": true
+              },
+              "namespace": {
+                "type": "string",
+                "readOnly": true
+              },
+              "start": {
+                "type": "integer",
+                "maximum": 2147483647,
+                "minimum": 0
+              },
+              "count": {
+                "type": "integer",
+                "maximum": 2147483647,
+                "minimum": 0
+              },
+              "total": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "required": [
+              "start",
+              "count"
+            ]
+          },
+          "featureIds": {
+            "type": "string",
+            "readOnly": true
+          },
+          "probeSets": {
+            "type": "string",
+            "readOnly": true,
+            "default": []
+          },
+          "outcomes": {
+            "type": "string",
+            "readOnly": true
+          },
+          "branches": {
+            "type": "string",
+            "readOnly": true
+          },
+          "targeting": {
+            "type": "string",
+            "readOnly": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "enrollmentEndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "proposedDuration": {
+            "type": "string",
+            "readOnly": true
+          },
+          "proposedEnrollment": {
+            "type": "string",
+            "readOnly": true
+          },
+          "referenceBranch": {
+            "type": "string",
+            "readOnly": true
+          },
+          "featureValidationOptOut": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "slug",
+          "channel",
+          "bucketConfig",
+          "startDate",
+          "enrollmentEndDate",
+          "endDate"
+        ]
+      },
+      "ExperimentClone": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "clone_url": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    }
+  }
+};
+      const ui = SwaggerUIBundle({
+        spec: spec,
+        dom_id: "#swagger-ui",
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIBundle.SwaggerUIStandalonePreset,
+        ],
+        layout: "BaseLayout",
+      });
+    </script>
+  </body>
+</html>

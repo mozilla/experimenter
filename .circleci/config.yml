@@ -19,8 +19,15 @@ jobs:
       - run:
           name: Run tests and linting
           command: |
-            cp .env.sample .env
-            make check
+            if git diff --name-only main HEAD | grep -E 'experimenter/'
+              then
+                echo "Changes detected in /experimenter directory. Running Experimenter tests and linting."
+                cp .env.sample .env
+                make check
+              else
+                echo "No changes in /experimenter directory. Skipping tests and linting."
+                circleci-agent step halt
+            fi
 
   integration_nimbus_desktop_release_targeting:
     machine:
@@ -37,7 +44,7 @@ jobs:
       - run:
           name: Check file paths
           command: |
-            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments|app/tests'
+            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
               then
                 echo "Continuing"
               else
@@ -65,7 +72,7 @@ jobs:
       - run:
           name: Check file paths
           command: |
-            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments|app/tests'
+            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
               then
                 echo "Continuing"
               else
@@ -228,7 +235,7 @@ jobs:
       - run:
           name: Check file paths
           command: |
-            if git diff --name-only main HEAD | grep -E 'app/experimenter/targeting|app/experimenter/experiments|app/tests'
+            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
               then
                 echo "Continuing"
               else
@@ -277,10 +284,10 @@ jobs:
             make build_dev build_test build_ui
             ./scripts/store_git_info.sh
             make build_prod
-            docker tag app:dev ${DOCKERHUB_REPO}:build_dev
-            docker tag app:test ${DOCKERHUB_REPO}:build_test
-            docker tag app:ui ${DOCKERHUB_REPO}:build_ui
-            docker tag app:deploy ${DOCKERHUB_REPO}:latest
+            docker tag experimenter:dev ${DOCKERHUB_REPO}:build_dev
+            docker tag experimenter:test ${DOCKERHUB_REPO}:build_test
+            docker tag experimenter:ui ${DOCKERHUB_REPO}:build_ui
+            docker tag experimenter:deploy ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:build_dev
             docker push ${DOCKERHUB_REPO}:build_test
             docker push ${DOCKERHUB_REPO}:build_ui
@@ -415,12 +422,37 @@ jobs:
             AS_VERSION=$(git -c 'versionsort.suffix=-' \
               ls-remote --exit-code --refs --sort='version:refname' --tags https://github.com/mozilla/application-services.git \
               '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3)
-            docker build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f app/tests/integration/nimbus/utils/Dockerfile-rust-image --build-arg as_version=$AS_VERSION --progress=plain .
+            docker build -t ${DOCKERHUB_REPO}:nimbus-rust-image -f experimenter/tests/integration/nimbus/utils/Dockerfile-rust-image --build-arg as_version=$AS_VERSION --progress=plain .
             docker_id=$(docker run -t -d --name nimbus-rust-image ${DOCKERHUB_REPO}:nimbus-rust-image)
             docker cp /home/circleci/experimenter/application-services-current.txt nimbus-rust-image:/code/application-services-old.txt
             docker commit $docker_id ${DOCKERHUB_REPO}:nimbus-rust-image
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push ${DOCKERHUB_REPO}:nimbus-rust-image
+  cirrus_check:
+    machine:
+      image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
+      docker_layer_caching: true
+    resource_class: large
+    working_directory: ~/cirrus
+    steps:
+      - run:
+          name: Docker info
+          command: docker -v
+      - run:
+          name: Docker compose info
+          command: docker-compose -v
+      - checkout
+      - run:
+          name: Run Cirrus tests and linting
+          command: |
+            if git diff --name-only main HEAD | grep -E 'cirrus/'
+              then
+                echo "Changes detected in /cirrus directory. Running Cirrus tests and linting."
+                make cirrus_check
+              else
+                echo "No changes in /cirrus directory. Skipping tests and linting."
+                circleci-agent step halt
+            fi
 
 workflows:
   version: 2
@@ -529,3 +561,5 @@ workflows:
               only: main
           requires:
             - check
+      - cirrus_check:
+          name: Cirrus Check
