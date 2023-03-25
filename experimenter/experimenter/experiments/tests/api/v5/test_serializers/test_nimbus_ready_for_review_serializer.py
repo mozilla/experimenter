@@ -1262,26 +1262,33 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             (
                 NimbusExperiment.Application.DESKTOP,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.TargetingConfig.MAC_ONLY,
             ),
             (
                 NimbusExperiment.Application.FENIX,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
             (
                 NimbusExperiment.Application.FOCUS_ANDROID,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
             (
                 NimbusExperiment.Application.IOS,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
             (
                 NimbusExperiment.Application.FOCUS_IOS,
                 NimbusExperiment.Version.FIREFOX_105,
+                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
         ]
     )
-    def test_rollout_valid_version_support(self, application, firefox_version):
+    def test_rollout_valid_version_support(
+        self, application, firefox_version, targeting_config
+    ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
@@ -1290,7 +1297,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
             is_sticky=False,
             is_rollout=True,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.MAC_ONLY,
+            targeting_config_slug=targeting_config,
         )
         experiment.save()
         for branch in experiment.treatment_branches:
@@ -1300,9 +1307,9 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             "application": application,
             "is_sticky": "false",
             "is_rollout": "true",
-            "targeting_config_slug": NimbusExperiment.TargetingConfig.MAC_ONLY,
+            "targeting_config_slug": targeting_config,
             "changelog_message": "test changelog message",
-            "channel": "",
+            "channel": NimbusExperiment.Channel.RELEASE,
             "firefox_min_version": firefox_version,
         }
         serializer = NimbusReviewSerializer(
