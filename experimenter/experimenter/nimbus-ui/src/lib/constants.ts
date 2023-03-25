@@ -139,6 +139,7 @@ export const FIELD_MESSAGES = {
   REQUIRED: "This field may not be blank.",
   NUMBER: "This field must be a number.",
   POSITIVE_NUMBER: "This field must be a positive number.",
+  NOT_ZERO: "This field must not start with zero",
   URL: "This field must be a URL.",
 };
 
@@ -159,13 +160,20 @@ export const POSITIVE_NUMBER_FIELD = {
 } as RegisterOptions;
 
 export const POSITIVE_NUMBER_WITH_COMMAS_FIELD = {
-  setValueAs: (value) =>
-    !/[a-zA-Z]/.test("" + value)
-      ? parseFloat(("" + value).trim().replace(/[^\d.-]+/g, ""))
-      : FIELD_MESSAGES.POSITIVE_NUMBER,
+  setValueAs: (value) => {
+    const strValue = "" + value;
+    return strValue.startsWith("0")
+      ? 0
+      : !/[a-zA-Z]/.test(strValue)
+      ? parseFloat(strValue.trim().replace(/[^\d.-]+/g, ""))
+      : FIELD_MESSAGES.POSITIVE_NUMBER;
+  },
 
-  validate: (value) =>
-    (!isNaN(value) && value >= 0) || FIELD_MESSAGES.POSITIVE_NUMBER,
+  validate: (value) => {
+    return value === 0
+      ? FIELD_MESSAGES.NOT_ZERO
+      : (!isNaN(value) && value > 0) || FIELD_MESSAGES.POSITIVE_NUMBER;
+  },
 } as RegisterOptions;
 
 export const URL_FIELD = {
