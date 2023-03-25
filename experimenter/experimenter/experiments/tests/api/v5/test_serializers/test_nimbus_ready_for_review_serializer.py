@@ -1334,7 +1334,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
                 NimbusExperiment.Application.FOCUS_ANDROID,
                 NimbusExperiment.Version.FIREFOX_101,
                 NimbusExperiment.TargetingConfig.MAC_ONLY,
-                NimbusExperiment.Channel.RELEASE
             ),
             (
                 NimbusExperiment.Application.IOS,
@@ -1349,12 +1348,12 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         ]
     )
     def test_rollout_invalid_version_support(
-        self, application, firefox_version, targeting_config, channel
+        self, application, firefox_version, targeting_config
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            channel=channel,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
             firefox_min_version=firefox_version,
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
             is_sticky=True,
@@ -1371,7 +1370,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             "is_rollout": "true",
             "targeting_config_slug": targeting_config,
             "changelog_message": "test changelog message",
-            "channel": channel,
+            "channel": NimbusExperiment.Channel.RELEASE,
             "firefox_min_version": firefox_version,
         }
         serializer = NimbusReviewSerializer(
