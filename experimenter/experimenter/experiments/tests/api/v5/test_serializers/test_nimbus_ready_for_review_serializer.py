@@ -1282,7 +1282,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         ]
     )
     def test_rollout_valid_version_support(
-        self, application, firefox_version, targeting_config
+        self, application, firefox_version
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
