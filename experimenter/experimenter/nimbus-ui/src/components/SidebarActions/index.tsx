@@ -200,7 +200,6 @@ export const SidebarActions = ({
             Preview Recipe JSON
           </Link>
         )}
-
         <div className="edit-divider position-relative small my-3">
           <span className="position-relative bg-light pl-1 pr-2 text-muted">
             Help
