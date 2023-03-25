@@ -1309,7 +1309,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             "is_rollout": "true",
             "targeting_config_slug": targeting_config,
             "changelog_message": "test changelog message",
-            "channel": "",
+            "channel": NimbusExperiment.Channel.NO_CHANNEL,
             "firefox_min_version": firefox_version,
         }
         serializer = NimbusReviewSerializer(
