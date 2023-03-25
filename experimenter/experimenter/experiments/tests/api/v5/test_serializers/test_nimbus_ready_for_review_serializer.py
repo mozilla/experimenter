@@ -1277,12 +1277,12 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             (
                 NimbusExperiment.Application.IOS,
                 NimbusExperiment.Version.FIREFOX_105,
-                NimbusExperiment.TargetingConfig.IOS_CORE_ACTIVE_USER,
+                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
             (
                 NimbusExperiment.Application.FOCUS_IOS,
                 NimbusExperiment.Version.FIREFOX_105,
-                NimbusExperiment.TargetingConfig.IOS_CORE_ACTIVE_USER,
+                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
         ]
     )
