@@ -1267,7 +1267,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             (
                 NimbusExperiment.Application.FENIX,
                 NimbusExperiment.Version.FIREFOX_105,
-                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
+                NimbusExperiment.TargetingConfig.MOBILE_FIRST_RUN_USER,
             ),
             (
                 NimbusExperiment.Application.FOCUS_ANDROID,
