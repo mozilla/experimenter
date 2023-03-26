@@ -1267,7 +1267,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             (
                 NimbusExperiment.Application.FENIX,
                 NimbusExperiment.Version.FIREFOX_105,
-                NimbusExperiment.TargetingConfig.MOBILE_FIRST_RUN_USER,
+                NimbusExperiment.TargetingConfig.MOBILE_NEW_USERS,
             ),
             (
                 NimbusExperiment.Application.FOCUS_ANDROID,
@@ -1309,7 +1309,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             "is_rollout": "true",
             "targeting_config_slug": targeting_config,
             "changelog_message": "test changelog message",
-            "channel": NimbusExperiment.Channel.RELEASE,
+            "channel": "",
             "firefox_min_version": firefox_version,
         }
         serializer = NimbusReviewSerializer(
