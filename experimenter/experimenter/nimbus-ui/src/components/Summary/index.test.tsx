@@ -200,6 +200,40 @@ describe("Summary", () => {
       });
     });
 
+    it("can cancel review for live rollout", async () => {
+      const refetch = jest.fn();
+      const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+        statusNext: null,
+        isEnrollmentPaused: false,
+        isRolloutDirty: true,
+      });
+
+      const mutationMock = createMutationMock(
+        rollout.id!,
+        NimbusExperimentPublishStatusEnum.REVIEW,
+        {
+          statusNext: NimbusExperimentStatusEnum.LIVE,
+          changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
+          isEnrollmentPaused: false,
+        },
+      );
+
+      render(
+        <Subject
+          props={rollout}
+          mocks={[mockRollout, mutationMock]}
+          {...{ refetch }}
+        />,
+      );
+
+      await screen.findByTestId("cancel-review-start");
+      fireEvent.click(screen.getByTestId("cancel-review-start"));
+
+      screen.queryByTestId("request-update-button");
+    });
+
     it("handles submission with server API error", async () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         status: NimbusExperimentStatusEnum.LIVE,
