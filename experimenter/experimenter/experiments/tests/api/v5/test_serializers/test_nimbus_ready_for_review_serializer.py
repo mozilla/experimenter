@@ -1305,16 +1305,18 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
         data = {
             "application": application,
-            "is_sticky": "false",
+            "is_sticky": "true",
             "is_rollout": "true",
             "targeting_config_slug": targeting_config,
             "changelog_message": "test changelog message",
-            "channel": "",
+            "channel": NimbusExperiment.Channel.RELEASE,
             "firefox_min_version": firefox_version,
         }
         serializer = NimbusReviewSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
         )
+        serializer.is_valid()
+        print("==============>>>>>>>>>>>>>>>>>>=========", serializer.errors)
 
         self.assertTrue(serializer.is_valid())
 
