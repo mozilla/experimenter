@@ -369,26 +369,26 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             sticky_expressions.append(f"region in {countries}")
 
         if self.is_sticky and sticky_expressions:
-            sticky_clause = "is_already_enrolled"
-            if is_desktop:
-                if self.is_rollout:
-                    sticky_clause = "experiment.slug in activeRollouts"
-                else:
-                    sticky_clause = "experiment.slug in activeExperiments"
-            sticky_expressions_joined = " && ".join(
-                [f"({expression})" for expression in sticky_expressions]
+            expressions.append(
+                make_sticky_targeting_expression(
+                    is_desktop, self.is_rollout, sticky_expressions
+                )
             )
-            sticky_expression = f"({sticky_clause}) || ({sticky_expressions_joined})"
-            expressions.append(sticky_expression)
         else:
             expressions.extend(sticky_expressions)
 
         if prefs := self._get_targeting_pref_conflicts():
-            expressions.extend(f"!('{pref}'|preferenceIsUserSet)" for pref in prefs)
+            expressions.append(
+                make_sticky_targeting_expression(
+                    is_desktop,
+                    self.is_rollout,
+                    (f"!('{pref}'|preferenceIsUserSet)" for pref in prefs),
+                )
+            )
 
         #  If there is no targeting defined all clients should match, so we return "true"
         return (
-            " && ".join([f"({expression})" for expression in expressions])
+            " && ".join(f"({expression})" for expression in expressions)
             if expressions
             else "true"
         )
@@ -723,6 +723,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.parent = self
         cloned.is_archived = False
         cloned.is_paused = False
+        cloned.is_rollout_dirty = None
         cloned.reference_branch = None
         cloned.published_dto = None
         cloned.results_data = None
@@ -1179,3 +1180,17 @@ class NimbusEmail(models.Model):
 
     def __str__(self):  # pragma: no cover
         return f"Email: {self.experiment} {self.type} on {self.sent_on}"
+
+
+def make_sticky_targeting_expression(is_desktop, is_rollout, expressions):
+    if is_desktop:
+        if is_rollout:
+            sticky_clause = "experiment.slug in activeRollouts"
+        else:
+            sticky_clause = "experiment.slug in activeExperiments"
+    else:
+        sticky_clause = "is_already_enrolled"
+
+    expressions_joined = " && ".join(f"({expression})" for expression in expressions)
+
+    return f"({sticky_clause}) || ({expressions_joined})"
