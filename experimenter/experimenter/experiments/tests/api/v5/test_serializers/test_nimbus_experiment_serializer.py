@@ -1222,6 +1222,48 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = serializer.save()
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
 
+    def test_update_population_percent_for_live_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_rollout=True,
+            population_percent=50,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "population_percent": 77,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": experiment.owner},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.DIRTY)
+        self.assertTrue(experiment.is_rollout_dirty)
+
+    def test_no_change_to_population_percent_doesnt_update_live_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            is_rollout=True,
+            population_percent=50,
+        )
+
+        serializer = NimbusExperimentSerializer(
+            experiment,
+            data={
+                "population_percent": 50,
+                "changelog_message": "test changelog message",
+            },
+            context={"user": experiment.owner},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        experiment = serializer.save()
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertIsNone(experiment.is_rollout_dirty)
+
     def test_targeting_config_for_correct_application(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
