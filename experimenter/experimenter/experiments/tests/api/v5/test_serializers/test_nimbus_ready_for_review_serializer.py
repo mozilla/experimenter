@@ -1315,8 +1315,6 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         serializer = NimbusReviewSerializer(
             experiment, data=data, partial=True, context={"user": self.user}
         )
-        serializer.is_valid()
-        print("==============>>>>>>>>>>>>>>>>>>=========", serializer.errors)
 
         self.assertTrue(serializer.is_valid())
 
