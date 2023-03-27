@@ -152,6 +152,13 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
           Have feedback?{" "}
           <LinkExternal href="https://mozilla-hub.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10203&amp;issuetype=10097">
             Please file it here!
+          </LinkExternal>{" "}
+          <span role="img" aria-label="thinking_face emoji">
+            🤔
+          </span>{" "}
+          Have a question?{" "}
+          <LinkExternal href="https://mozilla.slack.com/archives/CF94YGE03">
+            Ask us here!.
           </LinkExternal>
         </div>
       </Alert>
