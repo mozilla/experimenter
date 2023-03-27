@@ -39,6 +39,30 @@ describe("SearchBar", () => {
       expect(searchInput).toHaveValue("");
     });
   });
+
+  it("updates the component when search values are saved in localStorage", async () => {
+    // Mock localStorage to return a particular value
+    jest.spyOn(Storage.prototype, "getItem").mockImplementation((key) => {
+      return JSON.stringify({
+        searchValue: "Experiment",
+        results: [{ item: "Saved experiment details" }],
+      });
+    });
+
+    const onChange = jest.fn();
+    render(<Subject experiments={[]} onChange={onChange} />);
+
+    // wait for useEffect to complete
+    await waitFor(() => {
+      // check that the component has updated with the values from localStorage
+      const searchInput = screen.getByTestId("SearchExperiments");
+      expect(searchInput).toBeInTheDocument();
+      expect(searchInput).toHaveValue("Experiment");
+      expect(onChange).toHaveBeenCalledWith(["Saved experiment details"]);
+      const clear = screen.getByTestId("ClearSearchExperiments");
+      expect(clear).toBeInTheDocument();
+    });
+  });
 });
 
 const Subject = ({

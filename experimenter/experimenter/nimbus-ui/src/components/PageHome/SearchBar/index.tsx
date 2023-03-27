@@ -51,9 +51,31 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
     setSearchTerms("");
     setClearIcon(false);
     onChange(experiments);
+
+    // clear stored search value
+    localStorage.removeItem("nimbus-ui-search");
   };
 
   const [timer, setTimer] = React.useState<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    const newtimer = setTimeout(() => {
+      // get search term from localStorage
+      let fetchedValues = localStorage.getItem("nimbus-ui-search");
+      if (fetchedValues !== null) {
+        fetchedValues = JSON.parse(fetchedValues);
+        const searchValue = (fetchedValues as any)["searchValue"] as string;
+        const results = (fetchedValues as any)["results"] as any[];
+        const searchResults = results.map((character) => character.item);
+
+        // Update components
+        onChange(searchResults);
+        setSearchTerms(searchValue);
+        setClearIcon(true);
+      }
+    }, 700);
+    return () => clearTimeout(newtimer);
+  });
 
   const handleChange = (event: {
     target: { value: React.SetStateAction<string> };
@@ -63,19 +85,29 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       clearTimeout(timer);
     }
     if (event.target.value) {
+      const searchValue = event.target.value as string;
       setClearIcon(true);
 
       const newTimer = setTimeout(() => {
         const results = fuse.search(searchTerms);
-
         const searchResults = results.map((character) => character.item);
         onChange(searchResults);
+
+        // Store search query and results
+        if (results.length > 0) {
+          const nimbusResults = { searchValue, results };
+          localStorage.setItem(
+            "nimbus-ui-search",
+            JSON.stringify(nimbusResults),
+          );
+        }
       }, 700);
 
       setTimer(newTimer);
     } else {
       setClearIcon(false);
       onChange(experiments);
+      localStorage.removeItem("nimbus-ui-search");
     }
   };
 
