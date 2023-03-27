@@ -10,7 +10,7 @@ Technical Story: https://mozilla-hub.atlassian.net/browse/EXP-3158
 
 This is part of a body of work necessary to support the use of Nimbus within web applications. 
 The current Nimbus SDK is written in such a way that it supports client-oriented experimentation — experiments are downloaded, evaluated, and stored on the client, and a feature store is exposed with the experiment branches applied. 
-In order to support web experimentation, the Nimbus SDK will need to be updated to be stateless, to support a more statically defined set of helper methods, and to have additional support for Python.
+In previous decisions (not in this repository), we've already decided that in order to support web experimentation the Nimbus SDK will need to be updated to be stateless, to support a more statically defined set of helper methods, and to have additional support for Python.
 
 Ultimately, the problem we're trying to solve can be boiled down to one question — how can we update the Nimbus SDK to support web applications while continuing to support the existing clients?
 
