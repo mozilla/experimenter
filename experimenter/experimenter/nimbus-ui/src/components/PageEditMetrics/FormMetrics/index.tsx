@@ -147,7 +147,7 @@ const FormMetrics = ({
       if (valueContainer) {
         valueContainer.classList.toggle("form-control", valid.primary);
         valueContainer.classList.toggle("is-valid", valid.primary);
-        valueContainer.classList.toggle("valid-right", valid.primary);
+        valueContainer.classList.toggle("border-0", valid.primary);
         valueContainerDiv?.classList.toggle("border-success", valid.primary);
       }
     }
@@ -161,7 +161,7 @@ const FormMetrics = ({
       if (valueContainer) {
         valueContainer.classList.toggle("form-control", valid.secondary);
         valueContainer.classList.toggle("is-valid", valid.secondary);
-        valueContainer.classList.toggle("valid-right", valid.secondary);
+        valueContainer.classList.toggle("border-0", valid.secondary);
         valueContainerDiv?.classList.toggle("border-success", valid.secondary);
       }
     }
