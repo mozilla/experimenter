@@ -1262,7 +1262,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             (
                 NimbusExperiment.Application.DESKTOP,
                 NimbusExperiment.Version.FIREFOX_105,
-                NimbusExperiment.TargetingConfig.MAC_ONLY,
+                NimbusExperiment.TargetingConfig.URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED,
             ),
             (
                 NimbusExperiment.Application.FENIX,
@@ -1292,10 +1292,10 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
-            is_sticky=False,
+            is_sticky=True,
             is_rollout=True,
             targeting_config_slug=targeting_config,
         )
@@ -1323,7 +1323,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             (
                 NimbusExperiment.Application.DESKTOP,
                 NimbusExperiment.Version.FIREFOX_101,
-                NimbusExperiment.TargetingConfig.MAC_ONLY,
+                NimbusExperiment.TargetingConfig.URLBAR_FIREFOX_SUGGEST_DATA_COLLECTION_ENABLED,
             ),
             (
                 NimbusExperiment.Application.FENIX,
@@ -1353,7 +1353,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channel=NimbusExperiment.Channel.RELEASE,
             firefox_min_version=firefox_version,
             feature_configs=[NimbusFeatureConfigFactory(application=application)],
             is_sticky=True,
