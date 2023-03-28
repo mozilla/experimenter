@@ -16,6 +16,7 @@ metrics = markus.get_metrics("jetstream.tasks")
 @metrics.timer_decorator("fetch_experiment_data")
 def fetch_experiment_data(experiment_id):
     metrics.incr("fetch_experiment_data.started")
+    experiment = None
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         experiment.results_data = get_experiment_data(experiment)
@@ -23,11 +24,10 @@ def fetch_experiment_data(experiment_id):
         metrics.incr("fetch_experiment_data.completed")
     except Exception as e:
         metrics.incr("fetch_experiment_data.failed")
-        failure_message = "Fetching experiment data for {experiment_id} "
+        failure_message = f"Fetching experiment data for {experiment_id} "
         if experiment is not None and hasattr(experiment, "slug"):
-            failure_message += experiment.slug
-            failure_message += " "
-        failure_message += "failed: {e}"
+            failure_message += f"{experiment.slug} "
+        failure_message += f"failed: {e}"
         logger.info(failure_message)
         raise e
 
@@ -60,7 +60,8 @@ def fetch_jetstream_data():
             else:
                 metrics.incr("fetch_jetstream_data.skipped")
                 logger.info(
-                    f"Skipping cache refresh for old experiment {experiment.name} ({experiment.slug})"
+                    f"Skipping cache refresh for old experiment {experiment.name}"
+                    + f" ({experiment.slug})"
                 )
 
     except Exception as e:
