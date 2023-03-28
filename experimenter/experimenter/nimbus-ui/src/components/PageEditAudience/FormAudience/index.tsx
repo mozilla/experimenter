@@ -331,7 +331,7 @@ export const FormAudience = ({
             </Form.Label>
             <LinkExternal
               href={EXTERNAL_URLS.CUSTOM_AUDIENCES_EXPLANATION}
-              className="custom-audiences-external-link"
+              className="ml-1"
             >
               Learn more
             </LinkExternal>
