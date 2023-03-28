@@ -88,6 +88,7 @@ describe("Summary", () => {
         props={{
           status: NimbusExperimentStatusEnum.LIVE,
           publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
+          isRolloutDirty: true,
         }}
       />,
     );
@@ -101,6 +102,7 @@ describe("Summary", () => {
           status: NimbusExperimentStatusEnum.LIVE,
           publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
           isEnrollmentPaused: false,
+          isRolloutDirty: true,
         }}
       />,
     );
@@ -196,6 +198,40 @@ describe("Summary", () => {
         expect(refetch).toHaveBeenCalled();
         expect(screen.queryByTestId("submit-error")).not.toBeInTheDocument();
       });
+    });
+
+    it("can cancel review for live rollout", async () => {
+      const refetch = jest.fn();
+      const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+        status: NimbusExperimentStatusEnum.LIVE,
+        publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,
+        statusNext: null,
+        isEnrollmentPaused: false,
+        isRolloutDirty: true,
+      });
+
+      const mutationMock = createMutationMock(
+        rollout.id!,
+        NimbusExperimentPublishStatusEnum.REVIEW,
+        {
+          statusNext: NimbusExperimentStatusEnum.LIVE,
+          changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
+          isEnrollmentPaused: false,
+        },
+      );
+
+      render(
+        <Subject
+          props={rollout}
+          mocks={[mockRollout, mutationMock]}
+          {...{ refetch }}
+        />,
+      );
+
+      await screen.findByTestId("cancel-review-start");
+      fireEvent.click(screen.getByTestId("cancel-review-start"));
+
+      screen.queryByTestId("request-update-button");
     });
 
     it("handles submission with server API error", async () => {
@@ -330,6 +366,8 @@ describe("Summary", () => {
       status: NimbusExperimentStatusEnum.LIVE,
       publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
       statusNext: null,
+      isEnrollmentPaused: false,
+      isRolloutDirty: true,
     });
 
     const mutationMock = createMutationMock(
@@ -343,11 +381,16 @@ describe("Summary", () => {
       },
     );
     render(<Subject props={rollout} mocks={[mockRollout, mutationMock]} />);
-
     const requestUpdateButton = await screen.findByTestId(
       "update-live-to-review",
     );
-    expect(requestUpdateButton).toBeEnabled();
+    const endExperimentButton = await screen.findByTestId(
+      "end-experiment-start",
+    );
+    await waitFor(() => {
+      expect(requestUpdateButton).toBeInTheDocument();
+      expect(endExperimentButton).toBeInTheDocument();
+    });
     await act(async () => void fireEvent.click(requestUpdateButton));
   });
 
@@ -357,6 +400,7 @@ describe("Summary", () => {
       publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
       statusNext: null,
       isEnrollmentPaused: false,
+      isRolloutDirty: true,
     });
 
     const mutationMock = createMutationMock(
@@ -388,6 +432,7 @@ describe("Summary", () => {
       publishStatus: NimbusExperimentPublishStatusEnum.DIRTY,
       statusNext: null,
       isEnrollmentPaused: false,
+      isRolloutDirty: true,
     });
 
     const mutationMock = createMutationMock(
