@@ -93,7 +93,6 @@ export const FormBranches = ({
   const [selectValid, setIsSelectValid] = useState(false);
   const [checkValid, setIsCheckValid] = useState(false);
 
-
   const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
     shouldWarnOnExit(isDirtyUnsaved);
