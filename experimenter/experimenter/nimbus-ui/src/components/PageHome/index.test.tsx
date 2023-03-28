@@ -53,7 +53,7 @@ describe("PageHome", () => {
 
   const findSearchTabs = () =>
     [
-      ["review", screen.getByText("Review (0)")],
+      ["review", screen.getByText("Review (1)")],
       ["preview", screen.getByText("Preview (0)")],
       ["completed", screen.getByText("Completed (2)")],
       ["drafts", screen.getByText("Draft (0)")],
