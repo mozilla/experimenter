@@ -126,10 +126,14 @@ def handle_rejection(applications, kinto_client):
         if (
             experiment.is_rollout is True
             and experiment.status == NimbusExperiment.Status.LIVE
-            and experiment.status_next == NimbusExperiment.Status.LIVE
+            and (
+                experiment.status_next
+                in (NimbusExperiment.Status.LIVE, NimbusExperiment.Status.COMPLETE)
+            )
             and experiment.is_paused is False
         ):
             experiment.publish_status = NimbusExperiment.PublishStatus.DIRTY
+            experiment.is_rollout_dirty = True
         else:
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
         experiment.status_next = None
@@ -188,6 +192,7 @@ def handle_updating_experiments(applications, records):
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
             experiment.status_next = None
             experiment.published_dto = published_record
+            experiment.is_rollout_dirty = False
             experiment.save()
 
             generate_nimbus_changelog(
@@ -211,6 +216,7 @@ def handle_ending_experiments(applications, records):
             experiment.status = NimbusExperiment.Status.COMPLETE
             experiment.status_next = None
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+            experiment.is_rollout_dirty = False
             experiment.save()
 
             generate_nimbus_changelog(
