@@ -89,8 +89,10 @@ export const FormBranches = ({
   } = formMethods;
 
   const isDirtyUnsaved = IsDirtyUnsaved(isDirty, isValid, isSubmitted);
-  const [formSubmitted, setIsFormSubmitted] = useState(true);
+  const [formSubmitted, setIsFormSubmitted] = useState(false);
   const [selectValid, setIsSelectValid] = useState(false);
+  const [checkValid, setIsCheckValid] = useState(false);
+
 
   const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
@@ -126,6 +128,7 @@ export const FormBranches = ({
   };
 
   const handleEqualRatioChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    setIsCheckValid(true);
     commitFormData();
     dispatch({ type: "setEqualRatio", value: ev.target.checked });
   };
@@ -141,6 +144,7 @@ export const FormBranches = ({
   };
 
   const handlewarnFeatureSchema = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    setIsCheckValid(true);
     commitFormData();
     dispatch({
       type: "setwarnFeatureSchema",
@@ -163,6 +167,7 @@ export const FormBranches = ({
   };
 
   const handleIsRollout = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    setIsCheckValid(true);
     commitFormData();
     dispatch({
       type: "setIsRollout",
@@ -301,7 +306,7 @@ export const FormBranches = ({
         <Form.Row>
           <Form.Group as={Col} controlId="isRollout">
             <Form.Check
-              isValid={!!isRollout}
+              isValid={!!isRollout && checkValid}
               data-testid="is-rollout-checkbox"
               onChange={handleIsRollout}
               checked={!!isRollout}
@@ -327,7 +332,7 @@ export const FormBranches = ({
         <Form.Row>
           <Form.Group as={Col} controlId="warnFeatureSchema">
             <Form.Check
-              isValid={!!warnFeatureSchema}
+              isValid={!!warnFeatureSchema && checkValid}
               data-testid="equal-warn-on-feature-value-schema-invalid-checkbox"
               onChange={handlewarnFeatureSchema}
               checked={!!warnFeatureSchema}
@@ -340,7 +345,7 @@ export const FormBranches = ({
         <Form.Row>
           <Form.Group as={Col} controlId="evenRatio">
             <Form.Check
-              isValid={equalRatio}
+              isValid={equalRatio && checkValid}
               data-testid="equal-ratio-checkbox"
               onChange={handleEqualRatioChange}
               checked={equalRatio}
