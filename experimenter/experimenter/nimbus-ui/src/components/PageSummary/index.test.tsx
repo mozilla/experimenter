@@ -144,6 +144,51 @@ describe("PageSummary", () => {
     });
   });
 
+  it("can cancel review when dirty rollout is in the review state", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      ...reviewRequestedBaseProps,
+      canReview: true,
+      isRolloutDirty: true,
+    });
+    const mutationMock = createFullStatusMutationMock(
+      rollout.id!,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentPublishStatusEnum.REVIEW,
+      CHANGELOG_MESSAGES.CANCEL_REVIEW,
+    );
+    render(<Subject mocks={[mockRollout, mutationMock]} />);
+
+    await screen.findByTestId("cancel-review-start");
+    fireEvent.click(screen.getByTestId("cancel-review-start"));
+
+    screen.queryByTestId("pill-dirty-unpublished");
+    screen.queryByTestId("update-live-to-review");
+  });
+
+  it("can reject ending when dirty rollout is in the review state", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      ...reviewRequestedBaseProps,
+      canReview: true,
+      isRolloutDirty: true,
+    });
+    const mutationMock = createFullStatusMutationMock(
+      rollout.id!,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentStatusEnum.COMPLETE,
+      NimbusExperimentPublishStatusEnum.REVIEW,
+      CHANGELOG_MESSAGES.CANCEL_REVIEW,
+    );
+    render(<Subject mocks={[mockRollout, mutationMock]} />);
+
+    screen.queryByTestId("pill-dirty-unpublished");
+
+    fireEvent.click(screen.getByTestId("reject-request"));
+
+    screen.queryByTestId("pill-dirty-unpublished");
+    screen.queryByTestId("update-live-to-review");
+  });
+
   it("hides takeaways section if experiment is not complete", async () => {
     const { mock } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.DRAFT,
@@ -360,6 +405,7 @@ describe("PageSummary", () => {
     const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
       ...updateReviewRequestedBaseProps,
       canReview: true,
+      isRolloutDirty: true,
     });
     const mutationMock = createFullStatusMutationMock(
       rollout.id!,
@@ -383,6 +429,7 @@ describe("PageSummary", () => {
     const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
       ...updateReviewRequestedBaseProps,
       canReview: true,
+      isRolloutDirty: true,
     });
     const mutationMock = createFullStatusMutationMock(
       rollout.id!,
@@ -582,6 +629,7 @@ describe("PageSummary", () => {
     const { mockRollout } = mockLiveRolloutQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.LIVE,
       publishStatus: NimbusExperimentPublishStatusEnum.APPROVED,
+      isRolloutDirty: true,
     });
     render(<Subject mocks={[mockRollout]} />);
     await waitFor(() =>
@@ -640,6 +688,7 @@ describe("PageSummary", () => {
         statusNext: null,
         isRollout: true,
         isEnrollmentPaused: false,
+        isRolloutDirty: true,
       });
       const mutationMock = createFullStatusMutationMock(
         rollout.id!,
@@ -680,6 +729,7 @@ describe("PageSummary", () => {
         statusNext: liveStatus,
         isRollout: true,
         isEnrollmentPaused: false,
+        isRolloutDirty: true,
       });
       const mutationMock = createFullStatusMutationMock(
         rollout.id!,
