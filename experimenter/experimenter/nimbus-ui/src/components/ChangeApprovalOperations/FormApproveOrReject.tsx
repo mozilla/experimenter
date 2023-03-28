@@ -58,6 +58,7 @@ const FormApproveOrReject = ({
               </Button>
               <Button
                 data-testid="reject-request"
+                id="reject-request-button"
                 className="btn btn-danger"
                 disabled={isLoading}
                 onClick={onReject}

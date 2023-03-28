@@ -16,6 +16,13 @@ class SummaryPage(ExperimenterBase):
     _promote_rollout_locator = (By.CSS_SELECTOR, 'button[data-testid="promote-rollout"]')
     _header_slug = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-slug"]')
     _approve_request_button_locator = (By.CSS_SELECTOR, "#approve-request-button")
+    _reject_request_button_locator = (By.CSS_SELECTOR, "#reject-request-button")
+    _reject_input_text_locator = (
+        By.CSS_SELECTOR,
+        'textarea[data-testid="reject-reason"]',
+    )
+    _reject_input_text_submit_locator = (By.CSS_SELECTOR, '[data-testid="reject-submit"]')
+    _rejection_notice_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
     _launch_to_preview_locator = (By.CSS_SELECTOR, "#launch-to-preview-button")
     _launch_without_preview_locator = (By.CSS_SELECTOR, "#launch-to-review-button")
     _rejected_text_alert_locator = (By.CSS_SELECTOR, '[data-testid="rejection-notice"]')
@@ -23,6 +30,7 @@ class SummaryPage(ExperimenterBase):
     _status_live_locator = (By.CSS_SELECTOR, ".status-Live.border-primary")
     _status_preview_locator = (By.CSS_SELECTOR, ".status-Preview.border-primary")
     _status_complete_locator = (By.CSS_SELECTOR, ".status-Complete.border-primary")
+    _update_request_locator = (By.CSS_SELECTOR, "#request-update-button")
     _experiment_status_icon_locator = (
         By.CSS_SELECTOR,
         ".header-experiment-status .border-primary",
@@ -114,6 +122,31 @@ class SummaryPage(ExperimenterBase):
             message="Summary Page: could not find clone parent",
         )
 
+    def wait_for_update_request_visible(self):
+        self.wait_with_refresh(
+            self._update_request_locator, "Summary Page: Unable to find update request"
+        )
+
+    def wait_for_rejection_reason_text_input_visible(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._reject_input_text_locator),
+            message="Summary Page: could not find rejection reason text input",
+        )
+
+    def wait_for_rejection_notice_visible(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._rejection_notice_locator),
+            message="Summary Page: could not find rejection notice",
+        )
+
+    def set_rejection_reason(self):
+        text_area = self.find_element(*self._reject_input_text_locator)
+        text_area.send_keys("oh no")
+
+    def submit_rejection(self):
+        button = self.find_element(*self._reject_input_text_submit_locator)
+        button.click()
+
     @property
     def experiment_slug(self):
         return self.wait_for_and_find_element(self._header_slug, "header slug").text
@@ -148,6 +181,25 @@ class SummaryPage(ExperimenterBase):
             EC.presence_of_element_located(self._approve_request_button_locator)
         )
         self.find_element(*self._approve_request_button_locator).click()
+
+    def request_update_and_approve(self):
+        self.request_update()
+        self.find_element(*self._approve_request_button_locator).click()
+
+    def request_update_and_reject(self):
+        self.request_update()
+        self.find_element(*self._reject_request_button_locator).click()
+
+    @property
+    def request_update_action(self):
+        self.wait.until(
+            EC.presence_of_all_elements_located(self._update_request_locator),
+            message="Summary Page: could not find update request button",
+        )
+        return self.find_element(*self._update_request_locator)
+
+    def request_update(self):
+        self.request_update_action.click()
 
     def launch_and_approve(self):
         self.launch_without_preview.click()
