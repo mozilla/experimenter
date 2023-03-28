@@ -96,7 +96,9 @@ const PageSummary = (props: RouteComponentProps) => {
     {
       status: NimbusExperimentStatusEnum.LIVE,
       statusNext: null,
-      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      publishStatus: experiment.isRolloutDirty
+        ? NimbusExperimentPublishStatusEnum.DIRTY
+        : NimbusExperimentPublishStatusEnum.IDLE,
     },
     {
       status: NimbusExperimentStatusEnum.LIVE,

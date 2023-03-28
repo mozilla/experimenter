@@ -166,6 +166,29 @@ describe("PageSummary", () => {
     screen.queryByTestId("update-live-to-review");
   });
 
+  it("can reject ending when dirty rollout is in the review state", async () => {
+    const { mockRollout, rollout } = mockLiveRolloutQuery("demo-slug", {
+      ...reviewRequestedBaseProps,
+      canReview: true,
+      isRolloutDirty: true,
+    });
+    const mutationMock = createFullStatusMutationMock(
+      rollout.id!,
+      NimbusExperimentStatusEnum.LIVE,
+      NimbusExperimentStatusEnum.COMPLETE,
+      NimbusExperimentPublishStatusEnum.REVIEW,
+      CHANGELOG_MESSAGES.CANCEL_REVIEW,
+    );
+    render(<Subject mocks={[mockRollout, mutationMock]} />);
+
+    screen.queryByTestId("pill-dirty-unpublished");
+
+    fireEvent.click(screen.getByTestId("reject-request"));
+
+    screen.queryByTestId("pill-dirty-unpublished");
+    screen.queryByTestId("update-live-to-review");
+  });
+
   it("hides takeaways section if experiment is not complete", async () => {
     const { mock } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatusEnum.DRAFT,
