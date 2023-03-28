@@ -723,6 +723,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.parent = self
         cloned.is_archived = False
         cloned.is_paused = False
+        cloned.is_rollout_dirty = None
         cloned.reference_branch = None
         cloned.published_dto = None
         cloned.results_data = None
