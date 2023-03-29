@@ -19,7 +19,6 @@ import {
   TOOLTIP_DURATION,
 } from "src/lib/constants";
 import { getStatus } from "src/lib/experiment";
-import "src/styles/index.scss";
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_targetingConfigs,
