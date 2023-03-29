@@ -220,3 +220,4 @@ cirrus_check:
 
 cirrus_code_format:
 	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_BLACK_FIX) && $(CIRRUS_RUFF_FIX)'
+
