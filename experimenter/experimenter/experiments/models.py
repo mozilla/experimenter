@@ -345,7 +345,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         is_desktop = self.application == self.Application.DESKTOP
         if is_desktop and self.channel:
-            expressions.append(f'browserSettings.update.channel == "{self.channel}"')
+            expressions.append(f"browserSettings.update.channel == '{self.channel}'")
 
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())
