@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import classNames from "classnames";
-import React, { useRef, useState } from "react";
-import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { ReactComponent as Copy } from "src/components/HeaderExperiment/copy.svg";
+import React from "react";
+import CopyToClipboardButton from "src/components/CopyToClipboardButton";
 import "src/components/HeaderExperiment/index.scss";
 import { BASE_PATH } from "src/lib/constants";
 import { humanDate } from "src/lib/dateUtils";
@@ -35,24 +34,6 @@ const HeaderExperiment = ({
   isArchived,
   isRollout,
 }: HeaderExperimentProps) => {
-  const [copyMessage, setCopyMessage] = useState("");
-  const experimentSlugRef = useRef<HTMLParagraphElement>(null);
-
-  function copyToClipboard(): void {
-    const slug = experimentSlugRef.current?.innerText;
-    if (!slug) return;
-
-    navigator.clipboard.writeText(slug).then(
-      function () {
-        setCopyMessage("Copied!");
-        setTimeout(() => setCopyMessage(""), 2000); // clear message after 2 seconds
-      },
-      function () {
-        console.error("Unable to copy experiment slug to clipboard.");
-      },
-    );
-  }
-
   return (
     <header className="border-bottom" data-testid="header-experiment">
       <h1
@@ -85,27 +66,10 @@ const HeaderExperiment = ({
         <p
           className="text-monospace text-secondary mb-1 small"
           data-testid="header-experiment-slug"
-          ref={experimentSlugRef}
         >
           {slug}
         </p>
-        <OverlayTrigger
-          placement="top"
-          overlay={
-            <Tooltip id="copy-tooltip">
-              {copyMessage ? copyMessage : "Copy"}
-            </Tooltip>
-          }
-        >
-          <Button
-            data-testid="header-copy-button"
-            variant="outlined"
-            className="rounded-circle copy-button"
-            onClick={copyToClipboard}
-          >
-            <Copy className="copy-to-clipboard-icon" title="" />
-          </Button>
-        </OverlayTrigger>
+        <CopyToClipboardButton text={slug} />
       </div>
       {parent && (
         <p
