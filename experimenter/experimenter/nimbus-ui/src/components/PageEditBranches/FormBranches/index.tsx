@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import classNames from "classnames";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -89,10 +89,14 @@ export const FormBranches = ({
   } = formMethods;
 
   const isDirtyUnsaved = IsDirtyUnsaved(isDirty, isValid, isSubmitted);
+  const [formSubmitted, setIsFormSubmitted] = useState(false);
+  const [selectValid, setIsSelectValid] = useState(false);
+  const [checkValid, setIsCheckValid] = useState(false);
 
   const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
     shouldWarnOnExit(isDirtyUnsaved);
+    setIsFormSubmitted(false);
   }, [shouldWarnOnExit, isDirtyUnsaved]);
 
   // reset the form when defaultValues change, i.e. the reducer updates
@@ -123,6 +127,7 @@ export const FormBranches = ({
   };
 
   const handleEqualRatioChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    setIsCheckValid(true);
     commitFormData();
     dispatch({ type: "setEqualRatio", value: ev.target.checked });
   };
@@ -138,6 +143,7 @@ export const FormBranches = ({
   };
 
   const handlewarnFeatureSchema = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    setIsCheckValid(true);
     commitFormData();
     dispatch({
       type: "setwarnFeatureSchema",
@@ -160,6 +166,7 @@ export const FormBranches = ({
   };
 
   const handleIsRollout = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    setIsCheckValid(true);
     commitFormData();
     dispatch({
       type: "setIsRollout",
@@ -169,6 +176,7 @@ export const FormBranches = ({
 
   const onFeatureConfigChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFeatureId = parseInt(ev.target.value, 10);
+    setIsSelectValid(true);
     return handleFeatureConfigsChange(
       isNaN(selectedFeatureId) ? [] : [selectedFeatureId],
     );
@@ -193,13 +201,16 @@ export const FormBranches = ({
   const [handleSave, handleSaveNext] = [false, true].map((next) =>
     handleSubmit((dataIn: DefaultValues) => {
       try {
-        commitFormData();
-        onSave(
-          extractSaveState(dataIn),
-          setSubmitErrors,
-          clearSubmitErrors,
-          next,
-        );
+        setIsFormSubmitted(true);
+        if (!isLoading) {
+          commitFormData();
+          onSave(
+            extractSaveState(dataIn),
+            setSubmitErrors,
+            clearSubmitErrors,
+            next,
+          );
+        }
       } catch (error: any) {
         setSubmitErrors({ "*": [error.message] });
       }
@@ -227,6 +238,7 @@ export const FormBranches = ({
         className="my-3"
         noValidate
         onSubmit={handleSave}
+        validated={isValid && formSubmitted}
       >
         {globalErrors?.map((err, idx) => (
           <Alert
@@ -241,6 +253,7 @@ export const FormBranches = ({
 
         <Form.Group>
           <Form.Control
+            isValid={selectValid}
             as="select"
             name="featureConfig"
             data-testid="feature-config-select"
@@ -292,6 +305,7 @@ export const FormBranches = ({
         <Form.Row>
           <Form.Group as={Col} controlId="isRollout">
             <Form.Check
+              isValid={!!isRollout && checkValid}
               data-testid="is-rollout-checkbox"
               onChange={handleIsRollout}
               checked={!!isRollout}
@@ -317,6 +331,7 @@ export const FormBranches = ({
         <Form.Row>
           <Form.Group as={Col} controlId="warnFeatureSchema">
             <Form.Check
+              isValid={!!warnFeatureSchema && checkValid}
               data-testid="equal-warn-on-feature-value-schema-invalid-checkbox"
               onChange={handlewarnFeatureSchema}
               checked={!!warnFeatureSchema}
@@ -329,6 +344,7 @@ export const FormBranches = ({
         <Form.Row>
           <Form.Group as={Col} controlId="evenRatio">
             <Form.Check
+              isValid={equalRatio && checkValid}
               data-testid="equal-ratio-checkbox"
               onChange={handleEqualRatioChange}
               checked={equalRatio}
