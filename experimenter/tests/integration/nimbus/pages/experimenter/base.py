@@ -12,6 +12,7 @@ class ExperimenterBase(Base):
     _sidebar_summary_link = (By.CSS_SELECTOR, 'a[data-testid="nav-summary"]')
     _sidebar_edit_overview_link = (By.CSS_SELECTOR, 'a[data-testid="nav-edit-overview"]')
     _sidebar_edit_branches_link = (By.CSS_SELECTOR, 'a[data-testid="nav-edit-branches"]')
+    _sidebar_edit_audience_link = (By.CSS_SELECTOR, 'a[data-testid="nav-edit-audience"]')
 
     NEXT_PAGE = None
     PAGE_TITLE = ""
@@ -70,3 +71,13 @@ class ExperimenterBase(Base):
         )
         element.click()
         return BranchesPage(self.driver, self.base_url).wait_for_page_to_load()
+
+    def navigate_to_audience(self):
+        # Avoid circular import
+        from nimbus.pages.experimenter.audience import AudiencePage
+
+        element = self.wait_for_and_find_element(
+            self._sidebar_edit_audience_link, "audience link"
+        )
+        element.click()
+        return AudiencePage(self.driver, self.base_url).wait_for_page_to_load()

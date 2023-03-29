@@ -114,6 +114,12 @@ class LifecycleStates(Enum):
         "status": NimbusExperiment.Status.LIVE,
         "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.DIRTY,
+        "is_rollout_dirty": True,
+    }
+    LIVE_DIRTY_REJECT = {
+        "status": NimbusExperiment.Status.LIVE,
+        "status_next": None,
+        "publish_status": NimbusExperiment.PublishStatus.DIRTY,
     }
     LIVE_REVIEW = {
         "status": NimbusExperiment.Status.LIVE,
@@ -219,6 +225,7 @@ class Lifecycles(Enum):
 
     LIVE_ENROLLING = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_IDLE,)
     LIVE_PAUSED = LIVE_ENROLLING + (LifecycleStates.LIVE_IDLE_PAUSED,)
+
     LIVE_DIRTY = LAUNCH_APPROVE_APPROVE + (LifecycleStates.LIVE_DIRTY,)
     LIVE_REVIEW_REQUESTED = LIVE_DIRTY + (LifecycleStates.LIVE_REVIEW,)
     LIVE_REJECT = LIVE_REVIEW_REQUESTED + (LifecycleStates.LIVE_DIRTY,)
@@ -228,6 +235,28 @@ class Lifecycles(Enum):
     LIVE_APPROVE_REJECT = LIVE_APPROVE_WAITING + (LifecycleStates.LIVE_DIRTY,)
     LIVE_APPROVE_TIMEOUT = LIVE_APPROVE_WAITING + (LifecycleStates.LIVE_DIRTY,)
     LIVE_REJECT_MANUAL_ROLLBACK = LIVE_APPROVE_REJECT + (LifecycleStates.LIVE_DIRTY,)
+
+    LIVE_DIRTY_ENDING_REVIEW_REQUESTED = LIVE_DIRTY + (
+        LifecycleStates.LIVE_REVIEW_ENDING,
+    )
+    LIVE_DIRTY_ENDING_APPROVE = LIVE_DIRTY_ENDING_REVIEW_REQUESTED + (
+        LifecycleStates.LIVE_APPROVED_ENDING,
+    )
+    LIVE_DIRTY_ENDING_REJECT = LIVE_DIRTY_ENDING_REVIEW_REQUESTED + (
+        LifecycleStates.LIVE_DIRTY_REJECT,
+    )
+    LIVE_DIRTY_ENDING_APPROVE_WAITING = LIVE_DIRTY_ENDING_APPROVE + (
+        LifecycleStates.LIVE_WAITING_ENDING,
+    )
+    LIVE_DIRTY_ENDING_APPROVE_REJECT = LIVE_DIRTY_ENDING_APPROVE + (
+        LifecycleStates.LIVE_DIRTY_REJECT,
+    )
+    LIVE_DIRTY_ENDING_APPROVE_TIMEOUT = LIVE_DIRTY_ENDING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_REVIEW_ENDING,
+    )
+    LIVE_DIRTY_ENDING_REJECT_MANUAL_ROLLBACK = LIVE_DIRTY_ENDING_APPROVE_REJECT + (
+        LifecycleStates.LIVE_REVIEW_ENDING,
+    )
 
     PAUSING_REVIEW_REQUESTED = LIVE_ENROLLING + (LifecycleStates.LIVE_REVIEW_PAUSING,)
     PAUSING_REJECT = PAUSING_REVIEW_REQUESTED + (
@@ -244,7 +273,7 @@ class Lifecycles(Enum):
     )
 
     ENDING_REVIEW_REQUESTED = LIVE_PAUSED + (LifecycleStates.LIVE_REVIEW_ENDING,)
-    ENDING_REJECT = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_IDLE,)
+    ENDING_REJECT = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_IDLE_REJECT,)
     ENDING_APPROVE = ENDING_REVIEW_REQUESTED + (LifecycleStates.LIVE_APPROVED_ENDING,)
     ENDING_APPROVE_WAITING = ENDING_APPROVE + (LifecycleStates.LIVE_WAITING_ENDING,)
     ENDING_APPROVE_APPROVE = ENDING_APPROVE_WAITING + (LifecycleStates.COMPLETE_IDLE,)
