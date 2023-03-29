@@ -52,6 +52,14 @@ export function useSearchParamsState(storageKey?: string) {
   useEffect(() => {
     if (!storage?.current || !storageKey) return;
     const params = new URLSearchParams(location.search);
+    params.delete("allFeatureConfigs");
+    params.delete("applications");
+    params.delete("owners");
+    params.delete("firefoxVersions");
+    params.delete("channels");
+    params.delete("types");
+    params.delete("projects");
+    params.delete("targetingConfigs");
     storage.current[storageKey] = params.toString();
   }, [navigate, storage, storageKey, location.pathname, location.search]);
 
