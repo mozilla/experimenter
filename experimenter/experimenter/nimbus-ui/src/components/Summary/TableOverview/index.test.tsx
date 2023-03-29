@@ -38,6 +38,21 @@ describe("TableOverview", () => {
         screen.getByTestId("experiment-outcome-primary"),
       ).toHaveTextContent("Picture-in-Picture");
     });
+    it("with correct documentation URl", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        primaryOutcomes: ["picture_in_picture"],
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.getByTestId("primary-outcome-picture_in_picture"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("primary-outcome-picture_in_picture"),
+      ).toHaveAttribute(
+        "href",
+        "https://mozilla.github.io/metric-hub/outcomes/firefox_desktop/picture_in_picture",
+      );
+    });
     it("with multiple outcomes", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         primaryOutcomes: ["picture_in_picture", "feature_c"],
@@ -45,7 +60,7 @@ describe("TableOverview", () => {
       render(<Subject {...{ experiment }} />);
       expect(
         screen.getByTestId("experiment-outcome-primary"),
-      ).toHaveTextContent("Picture-in-Picture, Feature C");
+      ).toHaveTextContent("Picture-in-Picture | Feature C");
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
@@ -66,6 +81,21 @@ describe("TableOverview", () => {
         screen.getByTestId("experiment-outcome-secondary"),
       ).toHaveTextContent("Feature B");
     });
+    it("with correct documentation URl", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        secondaryOutcomes: ["picture_in_picture"],
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.getByTestId("secondary-outcome-picture_in_picture"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("secondary-outcome-picture_in_picture"),
+      ).toHaveAttribute(
+        "href",
+        "https://mozilla.github.io/metric-hub/outcomes/firefox_desktop/picture_in_picture",
+      );
+    });
     it("with multiple outcomes", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
         secondaryOutcomes: ["picture_in_picture", "feature_b"],
@@ -73,7 +103,7 @@ describe("TableOverview", () => {
       render(<Subject {...{ experiment }} />);
       expect(
         screen.getByTestId("experiment-outcome-secondary"),
-      ).toHaveTextContent("Picture-in-Picture, Feature B");
+      ).toHaveTextContent("Picture-in-Picture | Feature B");
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
