@@ -754,6 +754,7 @@ class NimbusExperimentSerializer(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
     is_enrollment_paused = serializers.BooleanField(source="is_paused", required=False)
+    is_rollout_dirty = serializers.BooleanField(required=False)
     risk_mitigation_link = serializers.URLField(
         min_length=0, max_length=255, required=False, allow_blank=True
     )
@@ -852,6 +853,7 @@ class NimbusExperimentSerializer(
             "firefox_min_version",
             "hypothesis",
             "is_archived",
+            "is_rollout_dirty",
             "is_enrollment_paused",
             "is_first_run",
             "is_rollout",
@@ -1051,16 +1053,20 @@ class NimbusExperimentSerializer(
     def update(self, experiment, validated_data):
         if (
             experiment.is_rollout
-            and not experiment.is_paused
-            and experiment.status == NimbusExperiment.Status.LIVE
-            and experiment.status_next is None
-            and experiment.publish_status == NimbusExperiment.PublishStatus.IDLE
-            and validated_data.get("publish_status")
-            != NimbusConstants.PublishStatus.REVIEW
+            and validated_data.get("population_percent") != experiment.population_percent
         ):
-            # can be Live Update (Dirty), End Enrollment, or End Experiment
-            # (including rejections) if we don't check validated_data
-            validated_data["publish_status"] = NimbusConstants.PublishStatus.DIRTY
+            if (
+                not experiment.is_paused
+                and experiment.status == NimbusExperiment.Status.LIVE
+                and experiment.status_next is None
+                and experiment.publish_status == NimbusExperiment.PublishStatus.IDLE
+                and validated_data.get("publish_status")
+                != NimbusConstants.PublishStatus.REVIEW
+            ):
+                # can be Live Update (Dirty), End Enrollment, or End Experiment
+                # (including rejections) if we don't check validated_data
+                validated_data["publish_status"] = NimbusConstants.PublishStatus.DIRTY
+                validated_data["is_rollout_dirty"] = True
 
         self.changelog_message = validated_data.pop("changelog_message")
         return super().update(experiment, validated_data)
