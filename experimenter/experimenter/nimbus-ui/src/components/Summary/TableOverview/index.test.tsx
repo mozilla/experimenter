@@ -60,7 +60,7 @@ describe("TableOverview", () => {
       render(<Subject {...{ experiment }} />);
       expect(
         screen.getByTestId("experiment-outcome-primary"),
-      ).toHaveTextContent("Picture-in-Picture | Feature C");
+      ).toHaveTextContent("Picture-in-Picture , Feature C");
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
@@ -103,7 +103,7 @@ describe("TableOverview", () => {
       render(<Subject {...{ experiment }} />);
       expect(
         screen.getByTestId("experiment-outcome-secondary"),
-      ).toHaveTextContent("Picture-in-Picture | Feature B");
+      ).toHaveTextContent("Picture-in-Picture , Feature B");
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {

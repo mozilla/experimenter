@@ -48,7 +48,7 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
       ))
       .reduce((acc, curr) => (
         <>
-          {acc} | {curr}
+          {acc} , {curr}
         </>
       ));
 
@@ -70,7 +70,7 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
       ))
       .reduce((acc, curr) => (
         <>
-          {acc} | {curr}
+          {acc} , {curr}
         </>
       ));
 
