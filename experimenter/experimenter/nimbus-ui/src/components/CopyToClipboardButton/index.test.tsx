@@ -18,7 +18,7 @@ describe("CopyToClipboardButton", () => {
     const button = screen.getByTestId("copy-button");
     expect(button).toBeInTheDocument();
 
-    const icon = button.querySelector(".copy-to-clipboard-icon");
+    const icon = screen.getByTestId("copy-to-clipboard-icon");
     expect(icon).toBeInTheDocument();
   });
 

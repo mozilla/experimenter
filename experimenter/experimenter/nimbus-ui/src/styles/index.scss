@@ -135,24 +135,8 @@ select.form-control.is-warning {
   height: 18px;
 }
 
-.copy-to-clipboard-icon {
-  min-width: 18px;
-  width: 18px;
-  height: 18px;
-}
-
 .copy-button:hover svg {
   transform: scale(1.2);
-}
-
-.copy-button{
-  border: none;
-  margin-bottom: 0.35rem !important;
-}
-
-
-.copy-button:focus {
-  box-shadow: none !important;
 }
 
 .__react_component_tooltip {
