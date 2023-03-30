@@ -96,7 +96,9 @@ const PageSummary = (props: RouteComponentProps) => {
     {
       status: NimbusExperimentStatusEnum.LIVE,
       statusNext: null,
-      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      publishStatus: experiment.isRolloutDirty
+        ? NimbusExperimentPublishStatusEnum.DIRTY
+        : NimbusExperimentPublishStatusEnum.IDLE,
     },
     {
       status: NimbusExperimentStatusEnum.LIVE,
@@ -160,7 +162,11 @@ const PageSummary = (props: RouteComponentProps) => {
         approveChange: onLaunchReviewApprovedClicked,
         ...LIFECYCLE_REVIEW_FLOWS.LAUNCH,
       };
-    } else if (status.updateRequested) {
+    } else if (
+      status.updateRequested ||
+      status.updateRequestedApproved ||
+      status.updateRequestedWaiting
+    ) {
       return {
         rejectChange: onUpdateReviewRejectedClicked,
         approveChange: onUpdateReviewApprovedClicked,
