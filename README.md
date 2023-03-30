@@ -60,7 +60,7 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 
         git clone <your fork>
 
-1.  Go to your cloned directory and add main the main repository as your upstream
+1.  Go to your cloned directory and add the main repository as your upstream
 
         git remote add upstream  https://github.com/mozilla/experimenter
 
