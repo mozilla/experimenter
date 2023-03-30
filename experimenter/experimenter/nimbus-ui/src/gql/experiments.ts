@@ -39,6 +39,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       monitoringDashboardUrl
       rolloutMonitoringDashboardUrl
       resultsReady
+      showResultsUrl
 
       hypothesis
       application
@@ -241,6 +242,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       monitoringDashboardUrl
       rolloutMonitoringDashboardUrl
       resultsReady
+      showResultsUrl
       featureConfig {
         slug
         name

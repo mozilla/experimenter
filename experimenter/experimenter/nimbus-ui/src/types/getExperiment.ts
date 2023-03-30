@@ -151,6 +151,7 @@ export interface getExperiment_experimentBySlug {
   monitoringDashboardUrl: string | null;
   rolloutMonitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
+  showResultsUrl: boolean | null;
   hypothesis: string | null;
   application: NimbusExperimentApplicationEnum | null;
   publicDescription: string | null;

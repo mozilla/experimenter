@@ -68,6 +68,7 @@ export interface getAllExperiments_experiments {
   monitoringDashboardUrl: string | null;
   rolloutMonitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
+  showResultsUrl: boolean | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
   channel: NimbusExperimentChannelEnum | null;
   populationPercent: string | null;

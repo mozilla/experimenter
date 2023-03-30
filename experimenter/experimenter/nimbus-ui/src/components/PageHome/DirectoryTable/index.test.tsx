@@ -329,7 +329,7 @@ describe("DirectoryTable", () => {
       "results are ready",
       {
         ...experiment,
-        resultsReady: true,
+        showResultsUrl: true,
         monitoringDashboardUrl: null,
         rolloutMonitoringDashboardUrl: null,
       },
@@ -346,7 +346,11 @@ describe("DirectoryTable", () => {
     ],
     [
       "all are present",
-      { ...experiment, resultsReady: true },
+      {
+        ...experiment,
+        showResultsUrl: true,
+        resultsReady: true,
+      },
       "LookerOpens in new windowRollout dashboardOpens in new windowResults",
     ],
   ])(

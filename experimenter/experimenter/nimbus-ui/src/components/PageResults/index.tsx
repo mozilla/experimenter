@@ -29,18 +29,15 @@ import {
 } from "src/lib/contexts";
 import { GROUP, METRIC_TYPE } from "src/lib/visualization/constants";
 import { AnalysisBases, AnalysisError } from "src/lib/visualization/types";
-import {
-  analysisUnavailable,
-  getSortedBranchNames,
-} from "src/lib/visualization/utils";
+import { getSortedBranchNames } from "src/lib/visualization/utils";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { experiment, analysis, useRedirectCondition, useAnalysisRequired } =
     useContext(ExperimentContext)!;
 
-  useRedirectCondition(({ status, analysis }) => {
+  useRedirectCondition(({ status, experiment }) => {
     if (!status?.launched) return "edit/overview";
-    if (analysisUnavailable(analysis)) return "";
+    if (!experiment?.showResultsUrl) return "";
   });
 
   useAnalysisRequired();
@@ -60,7 +57,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   // For testing - users will be redirected if the analysis is unavailable
   // before reaching this return, but tests reach this return and
   // analysis.overall is expected to be an object (EXP-800)
-  if (!analysis || analysisUnavailable(analysis)) return null;
+  if (!analysis || !experiment.showResultsUrl) return null;
 
   const sortedBranchNames = getSortedBranchNames(analysis);
   const resultsContextValue: ResultsContextType = {

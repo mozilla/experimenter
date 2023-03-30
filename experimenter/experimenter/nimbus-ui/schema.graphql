@@ -70,6 +70,7 @@ type NimbusExperimentType {
   reviewRequest: NimbusChangeLogType
   reviewUrl: String
   rolloutMonitoringDashboardUrl: String
+  showResultsUrl: Boolean
   signoffRecommendations: NimbusSignoffRecommendationsType
   startDate: DateTime
   targetingConfig: [NimbusExperimentTargetingConfigType]

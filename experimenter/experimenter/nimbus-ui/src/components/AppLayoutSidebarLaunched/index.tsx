@@ -20,7 +20,6 @@ import { ReactComponent as ChevronLeft } from "src/images/chevron-left.svg";
 import { StatusCheck } from "src/lib/experiment";
 import { OutcomesList } from "src/lib/types";
 import { AnalysisData, MetadataPoint } from "src/lib/visualization/types";
-import { analysisAvailable } from "src/lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
@@ -204,7 +203,7 @@ export const AppLayoutSidebarLaunched = ({
                   </LinkNav>
                 ))}
 
-              {analysisAvailable(analysis) ? (
+              {experiment.showResultsUrl ? (
                 <ResultsAvailableNav />
               ) : (
                 <DisabledItem name="Results" testId="show-no-results">

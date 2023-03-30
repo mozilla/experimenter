@@ -160,15 +160,15 @@ export const DirectoryColumnResults: ColumnComponent = (experiment) => (
         Rollout dashboard
       </LinkExternal>
     )}
-    {experiment.monitoringDashboardUrl && experiment.resultsReady && <br />}
-    {!experiment.isRollout && experiment.resultsReady && (
+    {experiment.monitoringDashboardUrl && experiment.showResultsUrl && <br />}
+    {experiment.showResultsUrl && (
       <Link to={`${experiment.slug}/results`} data-sb-kind="pages/Results">
         Results
       </Link>
     )}
     {!experiment.monitoringDashboardUrl &&
       !experiment.rolloutMonitoringDashboardUrl &&
-      !experiment.resultsReady &&
+      !experiment.showResultsUrl &&
       "N/A"}
   </td>
 );

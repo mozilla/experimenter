@@ -137,7 +137,10 @@ describe("AppLayoutSidebarLaunched", () => {
     });
 
     it("when complete and has analysis results displays summary and results items", () => {
-      render(<Subject withAnalysis />);
+      const { experiment } = mockExperimentQuery("my-special-slug", {
+        showResultsUrl: true,
+      });
+      render(<Subject withAnalysis {...{ experiment }} />);
 
       for (const [label, path] of [
         ["Summary", ""],
@@ -152,7 +155,10 @@ describe("AppLayoutSidebarLaunched", () => {
     });
 
     it("shows correct sidebar items for 'other metrics'", () => {
-      render(<Subject withAnalysis />);
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        showResultsUrl: true,
+      });
+      render(<Subject withAnalysis {...{ experiment }} />);
       [
         "Overview",
         "Results Summary",
@@ -164,7 +170,9 @@ describe("AppLayoutSidebarLaunched", () => {
     });
 
     it("when complete has expected results page items in side bar", () => {
-      const { experiment } = mockExperimentQuery("demo-slug");
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        showResultsUrl: true,
+      });
       render(<Subject withAnalysis {...{ experiment }} />);
       [
         "Overview",
@@ -179,7 +187,9 @@ describe("AppLayoutSidebarLaunched", () => {
     });
 
     it("when complete and page does not require full analysis data, has expected results page items in side bar", () => {
-      const { experiment } = mockExperimentQuery("demo-slug");
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        showResultsUrl: true,
+      });
       render(
         <Subject withAnalysis analysisRequired={false} {...{ experiment }} />,
       );
@@ -196,8 +206,9 @@ describe("AppLayoutSidebarLaunched", () => {
     });
 
     it("when rollout show audience page", async () => {
-      const { experiment } = mockExperimentQuery("demo-slug");
-      experiment.isRollout = true;
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        isRollout: true,
+      });
       render(<Subject withAnalysis {...{ experiment }} />);
 
       expect(screen.queryByText("Summary")).toBeInTheDocument();
@@ -205,8 +216,9 @@ describe("AppLayoutSidebarLaunched", () => {
     });
 
     it("when experiment do not show audience page", () => {
-      const { experiment } = mockExperimentQuery("demo-slug");
-      experiment.isRollout = false;
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        isRollout: false,
+      });
       render(<Subject withAnalysis {...{ experiment }} />);
 
       expect(screen.queryByText("Summary")).toBeInTheDocument();
