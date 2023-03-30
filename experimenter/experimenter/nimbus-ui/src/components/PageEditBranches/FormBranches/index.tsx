@@ -19,6 +19,7 @@ import { FormBranchesState } from "src/components/PageEditBranches/FormBranches/
 import { FormData } from "src/components/PageEditBranches/FormBranches/reducer/update";
 import { useExitWarning, useForm, useReviewCheck } from "src/hooks";
 import { IsDirtyUnsaved } from "src/hooks/useCommonForm/useCommonFormMethods";
+import { getStatus } from "src/lib/experiment";
 import { getConfig_nimbusConfig } from "src/types/getConfig";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 import { NimbusExperimentApplicationEnum } from "src/types/globalTypes";
@@ -231,6 +232,8 @@ export const FormBranches = ({
     experimentFeatureConfigIds &&
     doFeaturesSetPrefs(experimentFeatureConfigIds);
 
+  const isArchivedOrComplete = experiment.isArchived || getStatus(experiment).complete;
+  
   return (
     <FormProvider {...formMethods}>
       <Form
@@ -442,7 +445,7 @@ export const FormBranches = ({
               data-testid="next-button"
               className="btn btn-secondary"
               id="save-and-continue-button"
-              disabled={isNextDisabled}
+              disabled={isNextDisabled || isArchivedOrComplete}
               onClick={handleSaveNext}
             >
               Save and Continue
@@ -454,7 +457,7 @@ export const FormBranches = ({
               type="submit"
               className="btn btn-primary"
               id="save-button"
-              disabled={isSaveDisabled}
+              disabled={isSaveDisabled || isArchivedOrComplete}
               onClick={handleSave}
             >
               <span>{isLoading ? "Saving" : "Save"}</span>
