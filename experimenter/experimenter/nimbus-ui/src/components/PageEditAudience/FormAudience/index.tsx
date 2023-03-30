@@ -200,7 +200,8 @@ export const FormAudience = ({
     experiment.application === NimbusExperimentApplicationEnum.DESKTOP;
   const isLiveRollout = experiment.isRollout && getStatus(experiment).live;
   const isLocked = isLiveRollout && !getStatus(experiment).draft;
-  const isArchivedOrComplete = experiment.isArchived || getStatus(experiment).complete;
+  const isArchived =
+    experiment?.isArchived != null ? experiment.isArchived : false;
 
   return (
     <Form
@@ -512,11 +513,7 @@ export const FormAudience = ({
             onClick={handleSaveNext}
             className="btn btn-secondary"
             id="save-and-continue-button"
-            disabled={
-              isLoading ||
-              (isLocked! && !isLiveRollout) ||
-              isArchivedOrComplete
-            }
+            disabled={isLoading || (isLocked! && !isLiveRollout) || isArchived}
             data-testid="next-button"
             data-sb-kind="pages/Summary"
           >
@@ -530,7 +527,7 @@ export const FormAudience = ({
             onClick={handleSave}
             className="btn btn-primary"
             id="save-button"
-            disabled={isLoading || (isLocked! && !isLiveRollout) || isArchivedOrComplete}
+            disabled={isLoading || (isLocked! && !isLiveRollout) || isArchived}
             data-sb-kind="pages/EditOverview"
           >
             <span>{isLoading ? "Saving" : "Save"}</span>

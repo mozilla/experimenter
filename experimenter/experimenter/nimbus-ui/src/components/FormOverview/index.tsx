@@ -27,7 +27,6 @@ import {
   REQUIRED_FIELD,
   RISK_QUESTIONS,
 } from "src/lib/constants";
-import { getStatus } from "src/lib/experiment";
 import { optionalBoolString } from "src/lib/utils";
 import { getConfig_nimbusConfig_projects } from "src/types/getConfig";
 import { getExperiment } from "src/types/getExperiment";
@@ -113,7 +112,8 @@ const FormOverview = ({
     fieldWarnings,
   );
 
-  const isArchivedOrComplete = experiment ? (experiment?.isArchived || getStatus(experiment).complete) : false;
+  const isArchived =
+    experiment?.isArchived != null ? experiment.isArchived : false;
 
   const { documentationLinks, addDocumentationLink, removeDocumentationLink } =
     useDocumentationLinks(experiment, control, setValue);
@@ -365,7 +365,7 @@ const FormOverview = ({
                 onClick={handleSaveNext}
                 className="btn btn-secondary"
                 id="save-and-continue-button"
-                disabled={isLoading || isArchivedOrComplete}
+                disabled={isLoading || isArchived}
                 data-sb-kind="pages/EditBranches"
               >
                 Save and Continue
@@ -379,7 +379,7 @@ const FormOverview = ({
               onClick={handleSave}
               className="btn btn-primary"
               id="submit-button"
-              disabled={isLoading || isArchivedOrComplete}
+              disabled={isLoading || isArchived}
               data-sb-kind="pages/EditOverview"
             >
               {isLoading ? (

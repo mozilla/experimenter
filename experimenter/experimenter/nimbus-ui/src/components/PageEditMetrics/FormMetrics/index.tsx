@@ -16,7 +16,6 @@ import {
 } from "src/hooks";
 import { SelectOption } from "src/hooks/useCommonForm/useCommonFormMethods";
 import { ReactComponent as Info } from "src/images/info.svg";
-import { getStatus } from "src/lib/experiment";
 import { getConfig_nimbusConfig_outcomes } from "src/types/getConfig";
 import { getExperiment } from "src/types/getExperiment";
 
@@ -129,7 +128,8 @@ const FormMetrics = ({
     [isLoading, onSave, handleSubmit, primaryOutcomes, secondaryOutcomes],
   );
 
-  const isArchivedOrComplete = experiment ? (experiment?.isArchived || getStatus(experiment).complete) : false;
+  const isArchived =
+    experiment?.isArchived != null ? experiment.isArchived : false;
 
   return (
     <Form
@@ -202,7 +202,7 @@ const FormMetrics = ({
             data-testid="next-button"
             id="save-and-continue-button"
             className="btn btn-secondary"
-            disabled={isLoading || isArchivedOrComplete}
+            disabled={isLoading || isArchived}
             data-sb-kind="pages/EditMetrics"
           >
             Save and Continue
@@ -215,7 +215,7 @@ const FormMetrics = ({
             onClick={handleSave}
             className="btn btn-primary"
             id="save-button"
-            disabled={isLoading || isArchivedOrComplete}
+            disabled={isLoading || isArchived}
             data-sb-kind="pages/EditMetrics"
           >
             {isLoading ? <span>Saving</span> : <span>Save</span>}
