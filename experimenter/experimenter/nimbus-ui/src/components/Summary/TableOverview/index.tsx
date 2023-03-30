@@ -30,7 +30,7 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
     IOS: "firefox_ios",
   };
 
-  const primaryOutcomeLinks =
+  const primaryOutcomeWithLinks =
     primaryOutcomes.length > 0 &&
     primaryOutcomes
       .map((outcome, index) => (
@@ -52,7 +52,7 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
         </>
       ));
 
-  const secondaryOutcomeLinks =
+  const secondaryOutcomeWithLinks =
     secondaryOutcomes.length > 0 &&
     secondaryOutcomes
       .map((outcome, index) => (
@@ -150,7 +150,7 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
               <tr>
                 <th>Primary outcomes</th>
                 <td colSpan={3} data-testid="experiment-outcome-primary">
-                  {primaryOutcomeLinks}
+                  {primaryOutcomeWithLinks}
                 </td>
               </tr>
             )}
@@ -158,7 +158,7 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
               <tr>
                 <th>Secondary outcomes</th>
                 <td colSpan={3} data-testid="experiment-outcome-secondary">
-                  {secondaryOutcomeLinks}
+                  {secondaryOutcomeWithLinks}
                 </td>
               </tr>
             )}
