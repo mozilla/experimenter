@@ -7,16 +7,23 @@ interface Props {
 }
 
 const CopyToClipboardButton = ({ text }: Props) => {
-  const [isCopied, setIsCopied] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  const [message, setMessage] = useState("");
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(text);
-      setIsCopied(true);
+      setIsClicked(true);
+      setMessage("Copied to clipboard!");
       setTimeout(() => {
-        setIsCopied(false);
+        setIsClicked(false);
       }, 3000);
     } catch (error) {
+      setIsClicked(true);
+      setMessage("Failed to copy slug");
+      setTimeout(() => {
+        setIsClicked(false);
+      }, 3000);
       console.error(error);
     }
   };
@@ -24,8 +31,8 @@ const CopyToClipboardButton = ({ text }: Props) => {
   return (
     <OverlayTrigger
       placement="top"
-      overlay={<Tooltip id="tooltip-copy">{isCopied && "Copied!"}</Tooltip>}
-      show={isCopied}
+      overlay={<Tooltip id="tooltip-copy">{message}</Tooltip>}
+      show={isClicked}
     >
       <Button
         data-testid="copy-button"
