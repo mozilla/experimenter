@@ -73,38 +73,11 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
         - Open Docker and go to settings.
         - Go to settings -> Resources -> WSL Integration and activate Ubuntu.
         - Click the activate and restart button to save your change.
-    - Download NPM for specific node version.
-        - Click Windows key to find `Ubuntu` and run it.
-        - Run `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash` to download NVM.
-        - Source the NVM script after installation using `source ~/.bashrc`.
-        - Run `nvm install 16.19.0` to install approved node version.
-        - Ensure you are using the approved node version by running `nvm use 16` still in the ubuntu terminal.
     - Install Make and Git
+        - Open the ubuntu terminal
         - You should install make using this command `sudo apt-get update && sudo apt install make` in the ubuntu terminal. 
         This is necessary for the `make secretkey` command and other commands.
         - Ensure git is available by running `git --version`. If it's not recognized, install git using `sudo apt install git`
-    - Build using steps below
-        - Open your ubuntu terminal if it is closed. 
-        - Clone your `forked repository` using `git clone <fork_url>` inside the ubuntu terminal.
-        - Enter `cd experimenter` to move into the experimenter directory.
-        - Proceed with the steps below. Don't forget to create an `.env` file and copy the content of `.env.sample` into it. You can do this by opening the experimenter project on your VS Code. 
-
-                Open VS Code
-                Click on file and Open Folder
-                You should see Linux on the left side of your explorer. Click on it (Restart your system if you don't see Linux)
-                Navigate to the folder Ubuntu-22.04 -> home -> experimenter
-                Inside experimenter, Click on the `select folder` at the bottom right. 
-                Create `.env file` and copy the contents of `.env.sample` into it. 
-
-        - Copy the generated secret key from `make secretkey` into the `.env` file. You can do this by adding this code into your `.env`
-
-                SECRETKEY=<generated key>
-
-        - Your `VS Code` can now work with the ubuntu terminal. Inside VS Code, press `CTRL + J` to open terminal.
-        - Click on the caret-down button `v` next to the plus `+` button. You should see `Ubuntu-22.04(WSL)`. Select it to work with ubuntu on your windows local machine. 
-        - Turn on your docker machine if it's turned on. In your terminal enter `docker ps` just to be sure your ubuntu is connected to 
-        your docker machine and it's on.
-        - Finally enter `make up` inside the ubuntu terminal to build and start the project. 
 
 1.  Clone the repo
 
