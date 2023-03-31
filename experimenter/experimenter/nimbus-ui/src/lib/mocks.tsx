@@ -873,6 +873,7 @@ export function mockSingleDirectoryExperiment(
     startDate: new Date(startTime).toISOString(),
     computedEndDate: new Date(endTime).toISOString(),
     resultsReady: false,
+    showResultsUrl: false,
     projects: [MOCK_CONFIG.projects![0]],
     hypothesis: "test hypothesis",
     ...overrides,
@@ -943,6 +944,7 @@ export function mockDirectoryExperiments(
       application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplicationEnum,
       resultsReady: true,
+      showResultsUrl: true,
     },
     {
       name: "Etiam congue risus quis aliquet eleifend",
@@ -957,6 +959,7 @@ export function mockDirectoryExperiments(
       application: MOCK_CONFIG.applications![1]!
         .value as NimbusExperimentApplicationEnum,
       resultsReady: false,
+      showResultsUrl: false,
     },
     {
       name: "Quam quis volutpat ornare",
