@@ -61,7 +61,14 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
     },
     {
-      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      publishStatus:
+        experiment.isRollout &&
+        status.live &&
+        experiment.statusNext ===
+          (NimbusExperimentStatusEnum.LIVE ||
+            NimbusExperimentStatusEnum.COMPLETE)
+          ? NimbusExperimentPublishStatusEnum.DIRTY
+          : NimbusExperimentPublishStatusEnum.IDLE,
       changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
       statusNext:
         experiment.status === NimbusExperimentStatusEnum.LIVE
@@ -112,7 +119,11 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
               !status.endRequested &&
               (status.idle || status.dirty) && (
                 <EndExperiment
-                  {...{ isLoading, onSubmit: onConfirmEndClicked }}
+                  {...{
+                    isLoading,
+                    onSubmit: onConfirmEndClicked,
+                    isRollout: !!experiment.isRollout, // Use double negation (!!) to coerce experiment to boolean value
+                  }}
                 />
               )}
             {status.review && (

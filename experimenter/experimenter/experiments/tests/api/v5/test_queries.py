@@ -84,6 +84,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     firefoxMinVersion
                     firefoxMaxVersion
                     startDate
+                    isRolloutDirty
                     isEnrollmentPausePending
                     isEnrollmentPaused
                     proposedDuration
@@ -151,6 +152,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     experiment.firefox_min_version
                 ).name,
                 "isArchived": experiment.is_archived,
+                "isRolloutDirty": experiment.is_rollout_dirty,
                 "isEnrollmentPausePending": experiment.is_enrollment_pause_pending,
                 "isEnrollmentPaused": experiment.is_paused_published,
                 "isRollout": experiment.is_rollout,
@@ -754,6 +756,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                         link
                     }
 
+                    isRolloutDirty
                     isEnrollmentPausePending
                     isEnrollmentPaused
                     enrollmentEndDate
@@ -861,6 +864,7 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                 "hypothesis": experiment.hypothesis,
                 "id": experiment.id,
                 "isArchived": experiment.is_archived,
+                "isRolloutDirty": experiment.is_rollout_dirty,
                 "isEnrollmentPausePending": experiment.is_enrollment_pause_pending,
                 "isEnrollmentPaused": experiment.is_paused_published,
                 "isFirstRun": experiment.is_first_run,

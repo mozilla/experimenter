@@ -19,6 +19,7 @@ import DirectoryTable, {
   DirectoryColumnPopulationPercent,
   DirectoryColumnStartDate,
   DirectoryColumnTitle,
+  DirectoryColumnUnpublishedUpdates,
   SortableColumnTitle,
 } from "src/components/PageHome/DirectoryTable";
 import { UpdateSearchParams } from "src/hooks/useSearchParamsState";
@@ -29,6 +30,7 @@ import {
 } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
+import { NimbusExperimentPublishStatusEnum } from "src/types/globalTypes";
 
 const experiment = mockSingleDirectoryExperiment();
 
@@ -160,6 +162,7 @@ describe("DirectoryColumnFirefoxMinVersion", () => {
     );
   });
 });
+
 describe("DirectoryColumnFirefoxMaxVersion", () => {
   it("renders the firefox max version", () => {
     render(
@@ -208,6 +211,7 @@ describe("DirectoryColumneEnrollmentDate", () => {
     );
   });
 });
+
 describe("DirectoryColumnStartDate", () => {
   it("renders the start date", () => {
     render(
@@ -251,6 +255,36 @@ describe("DirectoryColumnEndDate", () => {
     expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
       "Not set",
     );
+  });
+});
+
+describe("DirectoryColumnUnpublishedUpdates", () => {
+  it("renders unpublished updates badge when dirty", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnUnpublishedUpdates
+          {...experiment}
+          publishStatus={NimbusExperimentPublishStatusEnum.DIRTY}
+        />
+      </TestTable>,
+    );
+    expect(
+      screen.getByTestId("directory-unpublished-updates"),
+    ).toHaveTextContent("YES");
+  });
+
+  it("renders blank unpublished updates when not dirty", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnUnpublishedUpdates
+          {...experiment}
+          publishStatus={NimbusExperimentPublishStatusEnum.IDLE}
+        />
+      </TestTable>,
+    );
+    expect(
+      screen.getByTestId("directory-unpublished-updates"),
+    ).toHaveTextContent("");
   });
 });
 
@@ -374,6 +408,7 @@ describe("DirectoryTable", () => {
         "Enroll",
         "End",
         "Results",
+        "Unpublished Updates",
       ]);
       expectTableCells("directory-table-cell", [
         experiment.name,
@@ -388,6 +423,7 @@ describe("DirectoryTable", () => {
         getProposedEnrollmentRange(experiment) as string,
         humanDate(experiment.computedEndDate!),
         expectedResult,
+        "",
       ]);
     },
   );

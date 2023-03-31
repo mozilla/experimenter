@@ -22,6 +22,7 @@ type NimbusExperimentType {
   slug: String!
   publicDescription: String
   riskMitigationLink: String
+  isRolloutDirty: Boolean
   proposedDuration: Int!
   proposedEnrollment: Int!
   populationPercent: String
@@ -217,6 +218,7 @@ enum NimbusExperimentFirefoxVersionEnum {
   FIREFOX_109
   FIREFOX_110
   FIREFOX_111
+  FIREFOX_111_0_1
   FIREFOX_112
   FIREFOX_113
   FIREFOX_114
