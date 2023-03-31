@@ -217,7 +217,7 @@ cirrus_test:
 	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_PYTEST)'
 
 cirrus_check:
-	$(COMPOSE) build cirrus
+	$(COMPOSE_TEST) build cirrus_test
 	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_BLACK_CHECK) && $(CIRRUS_RUFF_CHECK)&& $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS)"
 
 cirrus_code_format:
