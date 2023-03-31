@@ -128,6 +128,9 @@ const FormMetrics = ({
     [isLoading, onSave, handleSubmit, primaryOutcomes, secondaryOutcomes],
   );
 
+  const isArchived =
+    experiment?.isArchived != null ? experiment.isArchived : false;
+
   return (
     <Form
       noValidate
@@ -199,7 +202,7 @@ const FormMetrics = ({
             data-testid="next-button"
             id="save-and-continue-button"
             className="btn btn-secondary"
-            disabled={isLoading}
+            disabled={isLoading || isArchived}
             data-sb-kind="pages/EditMetrics"
           >
             Save and Continue
@@ -212,7 +215,7 @@ const FormMetrics = ({
             onClick={handleSave}
             className="btn btn-primary"
             id="save-button"
-            disabled={isLoading}
+            disabled={isLoading || isArchived}
             data-sb-kind="pages/EditMetrics"
           >
             {isLoading ? <span>Saving</span> : <span>Save</span>}

@@ -445,6 +445,26 @@ describe("FormOverview", () => {
     });
   });
 
+  it("disables save buttons when archived", async () => {
+    const { experiment } = mockExperimentQuery("hellooooo", {
+      isArchived: true,
+    });
+    const onSubmit = jest.fn();
+    render(<Subject {...{ onSubmit, experiment }} />);
+
+    expect(screen.getByTestId("submit-button")).toBeDisabled();
+    expect(screen.getByTestId("next-button")).toBeDisabled();
+  });
+
+  it("enables save buttons when not archived", async () => {
+    const { experiment } = mockExperimentQuery("hellooooo");
+    const onSubmit = jest.fn();
+    render(<Subject {...{ onSubmit, experiment }} />);
+
+    expect(screen.getByTestId("submit-button")).toBeEnabled();
+    expect(screen.getByTestId("next-button")).toBeEnabled();
+  });
+
   it("displays an alert for overall submit error", async () => {
     const submitErrors = {
       "*": ["Big bad happened"],
