@@ -202,3 +202,118 @@ def test_rollout_live_status_on_home_page(
     summary.wait_for_live_status()
     home = HomePage(selenium, base_url).open()
     assert True in [experiment_name in item.text for item in home.tables[0].experiments]
+
+
+@pytest.mark.remote_settings
+def test_rollout_live_update_approve(
+    selenium,
+    base_url,
+    create_experiment,
+    kinto_client,
+    experiment_name,
+    slugify,
+):
+    experiment_slug = str(slugify(experiment_name))
+    create_experiment(selenium, is_rollout=True).launch_and_approve()
+
+    kinto_client.approve()
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+
+    summary.wait_for_live_status()
+    audience = summary.navigate_to_audience()
+
+    audience.percentage = "60"
+    audience.save_and_continue()
+
+    summary_page = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary_page.wait_for_update_request_visible()
+
+    summary_page.request_update_and_approve()
+    kinto_client.approve()
+
+
+@pytest.mark.remote_settings
+def test_rollout_live_update_approve_and_reject(
+    selenium,
+    base_url,
+    create_experiment,
+    kinto_client,
+    experiment_name,
+    slugify,
+):
+    experiment_slug = str(slugify(experiment_name))
+    create_experiment(selenium, is_rollout=True).launch_and_approve()
+
+    kinto_client.approve()
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+
+    summary.wait_for_live_status()
+    audience = summary.navigate_to_audience()
+
+    audience.percentage = "60"
+    audience.save_and_continue()
+
+    summary_page = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary_page.wait_for_update_request_visible()
+
+    summary_page.request_update_and_approve()
+    kinto_client.reject()
+
+    summary_page.wait_for_rejection_notice_visible()
+
+
+@pytest.mark.remote_settings
+def test_rollout_create_and_update(
+    selenium,
+    base_url,
+    create_experiment,
+    kinto_client,
+    experiment_name,
+    slugify,
+):
+    experiment_slug = str(slugify(experiment_name))
+    create_experiment(selenium, is_rollout=True).launch_and_approve()
+
+    kinto_client.approve()
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+
+    summary.wait_for_live_status()
+    audience = summary.navigate_to_audience()
+
+    audience.percentage = "60"
+    audience.save_and_continue()
+
+    summary_page = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary_page.wait_for_update_request_visible()
+
+
+@pytest.mark.remote_settings
+def test_rollout_live_update_reject_on_experimenter(
+    selenium,
+    base_url,
+    create_experiment,
+    kinto_client,
+    experiment_name,
+    slugify,
+):
+    experiment_slug = str(slugify(experiment_name))
+    create_experiment(selenium, is_rollout=True).launch_and_approve()
+
+    kinto_client.approve()
+    summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+
+    summary.wait_for_live_status()
+    audience = summary.navigate_to_audience()
+
+    audience.percentage = "60"
+    audience.save_and_continue()
+
+    summary_page = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
+    summary_page.wait_for_update_request_visible()
+
+    summary_page.request_update_and_reject()
+    summary_page.wait_for_rejection_reason_text_input_visible()
+
+    summary_page.set_rejection_reason()
+    summary_page.submit_rejection()
+    summary_page.wait_for_rejection_notice_visible()

@@ -63,6 +63,31 @@ describe("SearchBar", () => {
       expect(clear).toBeInTheDocument();
     });
   });
+
+  it("ensure localstorage is cleared when searchbar is emptied", async () => {
+    const onChange = jest.fn();
+    const setClearIcon = jest.fn();
+    const localStorageMock = jest.spyOn(Storage.prototype, "removeItem");
+    render(<Subject experiments={[]} onChange={onChange} />);
+
+    const searchInput = screen.getByTestId("SearchExperiments");
+
+    // once user type something and users backspace, Icon would be set to false
+    userEvent.type(searchInput, "a");
+
+    // Use backspace to clear input
+    userEvent.type(searchInput, "{backspace}");
+    await waitFor(() => {
+      expect(searchInput).toHaveValue("");
+    });
+
+    await (async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0)); // Wait for state update to be processed
+      expect(onChange).toHaveBeenCalledWith([]);
+      expect(setClearIcon).toHaveBeenCalledWith(false);
+      expect(localStorageMock).toHaveBeenCalledWith("nimbus-ui-search");
+    });
+  });
 });
 
 const Subject = ({

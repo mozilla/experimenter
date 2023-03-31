@@ -95,7 +95,17 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
       setClearIcon(true);
 
       const newTimer = setTimeout(() => {
-        const results = fuse.search(searchTerms);
+        let inputValue = event.target.value as string;
+        // Check if the input value already has a space at the end
+        if (
+          inputValue.length > 0 &&
+          inputValue.charAt(inputValue.length - 1) !== " "
+        ) {
+          // If not, add a space at the end
+          inputValue = inputValue + " ";
+        }
+        const results = fuse.search(inputValue);
+
         const searchResults = results.map((character) => character.item);
         onChange(searchResults);
 
