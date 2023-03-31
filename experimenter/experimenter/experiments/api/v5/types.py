@@ -476,6 +476,7 @@ class NimbusExperimentType(DjangoObjectType):
     risk_mitigation_link = graphene.String()
     rollout_monitoring_dashboard_url = graphene.String()
     secondary_outcomes = graphene.List(graphene.String)
+    show_results_url = graphene.Boolean()
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
     slug = graphene.String(required=True)
     start_date = graphene.DateTime()
@@ -544,6 +545,7 @@ class NimbusExperimentType(DjangoObjectType):
             "risk_revenue",
             "rollout_monitoring_dashboard_url",
             "secondary_outcomes",
+            "show_results_url",
             "signoff_recommendations",
             "slug",
             "start_date",
