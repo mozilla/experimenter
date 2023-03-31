@@ -26,6 +26,7 @@ describe("SidebarActions", () => {
           experiment: {
             slug: "demo-slug",
             status: NimbusExperimentStatusEnum.LIVE,
+            showResultsUrl: true,
             riskMitigationLink: "https://mozilla.org",
             documentationLinks: [
               {
@@ -55,7 +56,7 @@ describe("SidebarActions", () => {
     ).toHaveAttribute("href", expect.stringContaining("https://mozilla.org"));
   });
 
-  it("displays ops mon link when rollout and launched", async () => {
+  it("displays opmon link when rollout and launched", async () => {
     render(
       <Subject
         {...{
@@ -96,7 +97,7 @@ describe("SidebarActions", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("does not render ops mon URL if experiment has not been launched and not rollout", () => {
+  it("does not render opmon URL if experiment has not been launched and not rollout", () => {
     render(
       <Subject
         experiment={{

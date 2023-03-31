@@ -31,7 +31,6 @@ import {
 } from "src/lib/constants";
 import { StatusCheck } from "src/lib/experiment";
 import { AnalysisData } from "src/lib/visualization/types";
-import { analysisUnavailable } from "src/lib/visualization/utils";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
 
 type SidebarModifyExperimentProps = {
@@ -178,7 +177,7 @@ export const SidebarActions = ({
           </LinkExternal>
         )}
 
-        {status.launched && !analysisUnavailable(analysis) && (
+        {status.launched && experiment.showResultsUrl && (
           <LinkExternal
             href={EXTERNAL_URLS.DETAILED_ANALYSIS_TEMPLATE(slug)}
             data-testid="link-external-results"

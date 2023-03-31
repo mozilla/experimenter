@@ -27,7 +27,6 @@ import {
   mockAnalysisWithExposures,
   mockAnalysisWithSegments,
   MOCK_METADATA_WITH_CONFIG,
-  MOCK_UNAVAILABLE_ANALYSIS,
 } from "src/lib/visualization/mocks";
 import { AnalysisData } from "src/lib/visualization/types";
 import { getExperiment_experimentBySlug } from "src/types/getExperiment";
@@ -195,6 +194,7 @@ describe("PageResults", () => {
         mockExperiment={
           mockExperimentQuery("demo-slug", {
             status: NimbusExperimentStatusEnum.COMPLETE,
+            showResultsUrl: true,
           }).experiment
         }
       />,
@@ -223,6 +223,7 @@ describe("PageResults", () => {
         mockExperiment={
           mockExperimentQuery("demo-slug", {
             status: NimbusExperimentStatusEnum.COMPLETE,
+            showResultsUrl: true,
           }).experiment
         }
       />,
@@ -249,6 +250,7 @@ describe("PageResults", () => {
         mockExperiment={
           mockExperimentQuery("demo-slug", {
             status: NimbusExperimentStatusEnum.COMPLETE,
+            showResultsUrl: true,
           }).experiment
         }
       />,
@@ -293,6 +295,7 @@ describe("PageResults", () => {
         mockExperiment={
           mockExperimentQuery("demo-slug", {
             status: NimbusExperimentStatusEnum.COMPLETE,
+            showResultsUrl: true,
           }).experiment
         }
       />,
@@ -326,6 +329,7 @@ describe("PageResults", () => {
         mockAnalysisData: mockAnalysis({ show_analysis: false }),
         mockExperiment: mockExperimentQuery("demo-slug", {
           status: NimbusExperimentStatusEnum.COMPLETE,
+          showResultsUrl: true,
         }).experiment,
       }),
     ).toEqual("");
@@ -334,7 +338,6 @@ describe("PageResults", () => {
   it("redirects to the summary page if the visualization results are not ready", async () => {
     expect(
       redirectTestCommon({
-        mockAnalysisData: MOCK_UNAVAILABLE_ANALYSIS,
         mockExperiment: mockExperimentQuery("demo-slug", {
           status: NimbusExperimentStatusEnum.COMPLETE,
         }).experiment,
@@ -364,7 +367,7 @@ describe("PageResults", () => {
     });
   };
 
-  xit("displays grouped metrics via onClick", async () => {
+  it("displays grouped metrics via onClick", async () => {
     render(<Subject />);
     await waitFor(() => {
       expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
@@ -378,7 +381,8 @@ describe("PageResults", () => {
 });
 
 const Subject = ({
-  mockExperiment = mockExperimentQuery("demo-slug").experiment,
+  mockExperiment = mockExperimentQuery("demo-slug", { showResultsUrl: true })
+    .experiment,
   mockAnalysisData = mockAnalysis(),
   context = {},
 }: {
