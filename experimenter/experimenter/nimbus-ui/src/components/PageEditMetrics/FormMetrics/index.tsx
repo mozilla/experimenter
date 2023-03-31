@@ -139,11 +139,9 @@ const FormMetrics = ({
     const secondaryContainerDiv = secondaryContainerDivRef.current;
 
     if (primaryContainerDiv) {
-      const valueContainer = primaryContainerDiv.getElementsByClassName(
-        "css-g1d714-ValueContainer",
-      )[0];
+      const valueContainer = primaryContainerDiv.querySelector('#primary-outcomes > div > div');
       const valueContainerDiv =
-        primaryContainerDiv.getElementsByClassName("css-yk16xz-control")[0];
+      primaryContainerDiv.querySelector('#primary-outcomes > div');
       if (valueContainer) {
         valueContainer.classList.toggle("form-control", valid.primary);
         valueContainer.classList.toggle("is-valid", valid.primary);
@@ -153,11 +151,9 @@ const FormMetrics = ({
     }
 
     if (secondaryContainerDiv) {
-      const valueContainer = secondaryContainerDiv.getElementsByClassName(
-        "css-g1d714-ValueContainer",
-      )[0];
+      const valueContainer = secondaryContainerDiv.querySelector('#secondary-outcomes > div > div');
       const valueContainerDiv =
-        secondaryContainerDiv.getElementsByClassName("css-yk16xz-control")[0];
+        secondaryContainerDiv.querySelector('#secondary-outcomes > div');
       if (valueContainer) {
         valueContainer.classList.toggle("form-control", valid.secondary);
         valueContainer.classList.toggle("is-valid", valid.secondary);
@@ -215,6 +211,7 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
+          id="primary-outcomes"
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
           isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
@@ -244,6 +241,7 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
+          id="secondary-outcomes"
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
         />
