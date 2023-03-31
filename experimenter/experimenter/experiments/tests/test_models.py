@@ -747,9 +747,10 @@ class TestNimbusExperiment(TestCase):
             experiment.targeting,
             (
                 '(browserSettings.update.channel == "release") && '
+                "((experiment.slug in activeExperiments) || ("
                 "(!('nimbus.test.string'|preferenceIsUserSet)) && "
                 "(!('nimbus.test.int'|preferenceIsUserSet)) && "
-                "(!('nimbus.test.boolean'|preferenceIsUserSet))"
+                "(!('nimbus.test.boolean'|preferenceIsUserSet))))"
             ),
         )
         JEXLParser().parse(experiment.targeting)
@@ -1876,6 +1877,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.changes.all().count(), 1)
         self.assertIsNone(child.conclusion_recommendation)
         self.assertIsNone(child.takeaways_summary)
+        self.assertIsNone(child.is_rollout_dirty)
 
     def test_clone_completed_experiment(self):
         parent = NimbusExperimentFactory.create_with_lifecycle(
@@ -1907,6 +1909,19 @@ class TestNimbusExperiment(TestCase):
         with self.assertRaises(NimbusBranch.DoesNotExist):
             self._clone_experiment_and_assert_common_expectations(parent, "BAD SLUG")
 
+    def test_clone_dirty_rollout(self):
+        parent = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,
+            is_rollout=True,
+            is_rollout_dirty=True,
+        )
+        rollout_branch = parent.branches.first()
+        child = self._clone_experiment_and_assert_common_expectations(
+            parent,
+            rollout_branch.slug,
+        )
+        self.assertIsNone(child.is_rollout_dirty)
+
     def _clone_experiment_and_assert_common_expectations(
         self, parent, rollout_branch_slug=None
     ):
@@ -1920,6 +1935,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.parent, parent)
         self.assertEqual(child.is_archived, False)
         self.assertEqual(child.is_paused, False)
+        self.assertEqual(child.is_rollout_dirty, None)
         self.assertEqual(child.published_dto, None)
         self.assertEqual(child.results_data, None)
         self.assertEqual(child.takeaways_summary, None)

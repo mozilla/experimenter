@@ -10,12 +10,14 @@ import Alert from "react-bootstrap/Alert";
 import AppLayoutWithExperiment from "src/components/AppLayoutWithExperiment";
 import ChangeApprovalOperations from "src/components/ChangeApprovalOperations";
 import Head from "src/components/Head";
+import LinkExternal from "src/components/LinkExternal";
 import FormLaunchDraftToPreview from "src/components/PageSummary/FormLaunchDraftToPreview";
 import FormLaunchDraftToReview from "src/components/PageSummary/FormLaunchDraftToReview";
 import FormLaunchPreviewToReview from "src/components/PageSummary/FormLaunchPreviewToReview";
 import Summary from "src/components/Summary";
 import SummaryTimeline from "src/components/Summary/SummaryTimeline";
 import { useChangeOperationMutation, useReviewCheck } from "src/hooks";
+import { ReactComponent as ExternalIcon } from "src/images/external.svg";
 import { ReactComponent as InfoCircle } from "src/images/info-circle.svg";
 import {
   CHANGELOG_MESSAGES,
@@ -94,7 +96,9 @@ const PageSummary = (props: RouteComponentProps) => {
     {
       status: NimbusExperimentStatusEnum.LIVE,
       statusNext: null,
-      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
+      publishStatus: experiment.isRolloutDirty
+        ? NimbusExperimentPublishStatusEnum.DIRTY
+        : NimbusExperimentPublishStatusEnum.IDLE,
     },
     {
       status: NimbusExperimentStatusEnum.LIVE,
@@ -158,7 +162,11 @@ const PageSummary = (props: RouteComponentProps) => {
         approveChange: onLaunchReviewApprovedClicked,
         ...LIFECYCLE_REVIEW_FLOWS.LAUNCH,
       };
-    } else if (status.updateRequested) {
+    } else if (
+      status.updateRequested ||
+      status.updateRequestedApproved ||
+      status.updateRequestedWaiting
+    ) {
       return {
         rejectChange: onUpdateReviewRejectedClicked,
         approveChange: onUpdateReviewApprovedClicked,
@@ -220,6 +228,10 @@ const PageSummary = (props: RouteComponentProps) => {
         fieldWarnings.bucketing?.length > 0 && (
           <Alert data-testid="bucketing-warning" variant="danger">
             {fieldWarnings.bucketing as SerializerMessage}
+            <LinkExternal href={EXTERNAL_URLS.BUCKET_WARNING_EXPLANATION}>
+              <span className="mr-1">Learn more</span>
+              <ExternalIcon />
+            </LinkExternal>
           </Alert>
         )}
 

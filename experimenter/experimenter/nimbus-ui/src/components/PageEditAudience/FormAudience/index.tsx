@@ -224,6 +224,7 @@ export const FormAudience = ({
               {...formControlAttrs("channel")}
               as="select"
               disabled={isLocked!}
+              custom
             >
               <SelectOptions options={applicationConfig!.channels!} />
             </Form.Control>
@@ -237,6 +238,7 @@ export const FormAudience = ({
               {...formControlAttrs("firefoxMinVersion")}
               as="select"
               disabled={isLocked!}
+              custom
             >
               <SelectOptions options={config.firefoxVersions} />
             </Form.Control>
@@ -250,6 +252,7 @@ export const FormAudience = ({
               {...formControlAttrs("firefoxMaxVersion")}
               as="select"
               disabled={isLocked!}
+              custom
             >
               <SelectOptions options={config.firefoxVersions} />
             </Form.Control>
@@ -306,6 +309,7 @@ export const FormAudience = ({
               as="select"
               onChange={TargetingOnChange.bind(this)}
               disabled={isLocked!}
+              custom
             >
               <TargetConfigSelectOptions options={targetingConfigSlugOptions} />
             </Form.Control>
@@ -314,14 +318,22 @@ export const FormAudience = ({
         </Form.Row>
         <Form.Row>
           <Form.Group as={Col} controlId="isSticky">
-            <Form.Check
-              {...formControlAttrs("isSticky")}
-              type="checkbox"
-              checked={isSticky}
-              onChange={(e) => setIsSticky(e.target.checked)}
-              disabled={stickyRequiredWarning || isLocked!}
-              label="Sticky Enrollment (Clients remain enrolled until the experiment ends)"
-            />
+            <Form.Label>
+              <Form.Check
+                {...formControlAttrs("isSticky")}
+                type="checkbox"
+                checked={isSticky}
+                onChange={(e) => setIsSticky(e.target.checked)}
+                disabled={stickyRequiredWarning || isLocked!}
+                label="Sticky Enrollment (Clients remain enrolled until the experiment ends)"
+              />
+            </Form.Label>
+            <LinkExternal
+              href={EXTERNAL_URLS.CUSTOM_AUDIENCES_EXPLANATION}
+              className="ml-1"
+            >
+              Learn more
+            </LinkExternal>
             {stickyRequiredWarning && (
               <Alert data-testid="sticky-required-warning" variant="warning">
                 Sticky enrollment is required for this targeting configuration.

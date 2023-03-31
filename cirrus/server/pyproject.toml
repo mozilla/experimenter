@@ -12,6 +12,18 @@ uvicorn = "^0.20.0"
 pytest = "^7.2.2"
 httpx = "^0.23.3"
 pytest-cov = "^4.0.0"
+black = "^23.1.0"
+pyright = "^1.1.300"
+
+[tool.pyright]
+typeCheckingMode = "strict"
+include = ["cirrus"]
+exclude = [
+    "**/__pycache__",
+]
+reportUnnecessaryTypeIgnoreComment = "warning"
+pythonVersion = "3.10"
+
 
 [tool.ruff]
 # # Enable Pyflakes `E` and `F` codes by default.
@@ -34,3 +46,9 @@ ignore = [
 
 # Same as Black.
 line-length = 90
+
+
+[tool.black]
+exclude = [
+    "typings",
+]
