@@ -37,10 +37,17 @@ const CopyToClipboardButton = ({ text }: Props) => {
       <Button
         data-testid="copy-button"
         variant="outlined"
-        className="rounded-circle border-0 mb-2 shadow-none copy-button"
+        className="rounded-circle border-0 mb-2 shadow-none"
         onClick={handleCopy}
       >
-        <Copy data-testid="copy-to-clipboard-icon" width="18" height="18" />
+        <Copy
+          data-testid="copy-to-clipboard-icon"
+          onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
+          onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          width="18"
+          height="18"
+          title="Copy to Clipboard"
+        />
       </Button>
     </OverlayTrigger>
   );

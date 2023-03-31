@@ -70,6 +70,18 @@ describe("CopyToClipboardButton", () => {
     navigator.clipboard.writeText = originalClipboard;
   });
 
+  it("should scale up on mouse over and scale back to normal on mouse out", () => {
+    const textToCopy = "Hello, world!";
+    render(<CopyToClipboardButton text={textToCopy} />);
+    const icon = screen.getByTestId("copy-to-clipboard-icon");
+
+    fireEvent.mouseOver(icon);
+    expect(icon.style.transform).toBe("scale(1.2)");
+
+    fireEvent.mouseOut(icon);
+    expect(icon.style.transform).toBe("scale(1)");
+  });
+
   it("should show the 'Copied to clipboard!' tooltip when text is copied", async () => {
     const textToCopy = "Hello, world!";
     navigator.clipboard.writeText = jest.fn();
