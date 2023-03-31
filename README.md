@@ -60,18 +60,6 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 
         git clone <your fork>
 
-1.  Go to your cloned directory and add the main repository as your upstream
-
-        git remote add upstream  https://github.com/mozilla/experimenter
-
-1.  Fetch the latest changes from the main repository
-
-        git fetch upstream
-
-1.  Merge the changes from the main repository into your forked branch
-
-        git merge upstream/main
-
 1.  Copy the sample env file
 
         cp .env.sample .env

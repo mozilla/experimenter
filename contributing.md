@@ -199,3 +199,17 @@ If the deployment succeeds but the change inadvertently breaks stage/production,
 - Fix the change following the normal issue/PR processes above
 
 Because all changes will go to stage and prod automatically, you can use stage to validate your changes.
+
+## Updating an existing fork
+
+1.  Go to your cloned directory and add the main repository as your upstream
+
+        git remote add upstream  https://github.com/mozilla/experimenter
+
+1.  Fetch the latest changes from the main repository
+
+        git fetch upstream
+
+1.  Merge the changes from the main repository into your forked branch
+
+        git merge upstream/main
