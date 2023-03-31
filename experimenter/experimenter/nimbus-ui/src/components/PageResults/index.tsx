@@ -35,9 +35,11 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { experiment, analysis, useRedirectCondition, useAnalysisRequired } =
     useContext(ExperimentContext)!;
 
-  useRedirectCondition(({ status, experiment }) => {
+  useRedirectCondition(({ status, experiment, analysis }) => {
     if (!status?.launched) return "edit/overview";
-    if (!experiment?.showResultsUrl) return "";
+    // explicitly check for false to avoid undefined being falsy
+    if (experiment?.showResultsUrl === false || !analysis?.show_analysis)
+      return "";
   });
 
   useAnalysisRequired();
@@ -57,7 +59,12 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   // For testing - users will be redirected if the analysis is unavailable
   // before reaching this return, but tests reach this return and
   // analysis.overall is expected to be an object (EXP-800)
-  if (!analysis || !experiment.showResultsUrl) return null;
+  if (
+    !analysis ||
+    experiment?.showResultsUrl === false ||
+    !analysis?.show_analysis
+  )
+    return null;
 
   const sortedBranchNames = getSortedBranchNames(analysis);
   const resultsContextValue: ResultsContextType = {
