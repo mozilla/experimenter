@@ -59,7 +59,8 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
   const [timer, setTimer] = React.useState<NodeJS.Timeout | null>(null);
 
   React.useEffect(() => {
-    const newtimer = setTimeout(() => {
+    let isMounted = true;
+    setTimeout(() => {
       // get search term from localStorage
       let fetchedValues = localStorage.getItem("nimbus-ui-search");
       if (fetchedValues !== null) {
@@ -69,13 +70,18 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
         const searchResults = results.map((character) => character.item);
 
         // Update components
-        onChange(searchResults);
-        setSearchTerms(searchValue);
-        setClearIcon(true);
+        if (isMounted) {
+          onChange(searchResults);
+          setSearchTerms(searchValue);
+          setClearIcon(true);
+        }
       }
-    }, 700);
-    return () => clearTimeout(newtimer);
-  });
+    }, 300);
+    // Clean-up:
+    return () => {
+      isMounted = false;
+    };
+  }, [onChange]);
 
   const handleChange = (event: {
     target: { value: React.SetStateAction<string> };
