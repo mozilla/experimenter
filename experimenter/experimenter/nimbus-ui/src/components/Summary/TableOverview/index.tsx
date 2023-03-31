@@ -14,11 +14,65 @@ type TableOverviewProps = {
   experiment: getExperiment_experimentBySlug;
 };
 
+interface DocSlugs {
+  [key: string]: string;
+}
+
 // `<tr>`s showing optional fields that are not set are not displayed.
 
 const TableOverview = ({ experiment }: TableOverviewProps) => {
   const { applications } = useConfig();
   const { primaryOutcomes, secondaryOutcomes } = useOutcomes(experiment);
+
+  const docSlugs: DocSlugs = {
+    DESKTOP: "firefox_desktop",
+    FENIX: "fenix",
+    IOS: "firefox_ios",
+  };
+
+  const primaryOutcomeWithLinks =
+    primaryOutcomes.length > 0 &&
+    primaryOutcomes
+      .map((outcome, index) => (
+        <a
+          key={index}
+          target="_blank"
+          data-testid={`primary-outcome-${outcome?.slug}`}
+          href={`https://mozilla.github.io/metric-hub/outcomes/${
+            docSlugs[outcome?.application ?? ""]
+          }/${outcome?.slug}`}
+          rel="noreferrer"
+        >
+          {outcome?.friendlyName}
+        </a>
+      ))
+      .reduce((acc, curr) => (
+        <>
+          {acc}, {curr}
+        </>
+      ));
+
+  const secondaryOutcomeWithLinks =
+    secondaryOutcomes.length > 0 &&
+    secondaryOutcomes
+      .map((outcome, index) => (
+        <a
+          key={index}
+          target="_blank"
+          data-testid={`secondary-outcome-${outcome?.slug}`}
+          href={`https://mozilla.github.io/metric-hub/outcomes/${
+            docSlugs[outcome?.application ?? ""]
+          }/${outcome?.slug}`}
+          rel="noreferrer"
+        >
+          {outcome?.friendlyName}
+        </a>
+      ))
+      .reduce((acc, curr) => (
+        <>
+          {acc}, {curr}
+        </>
+      ));
 
   return (
     <Card className="my-4 border-left-0 border-right-0 border-bottom-0">
@@ -96,9 +150,7 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
               <tr>
                 <th>Primary outcomes</th>
                 <td colSpan={3} data-testid="experiment-outcome-primary">
-                  {primaryOutcomes
-                    .map((outcome) => outcome?.friendlyName)
-                    .join(", ")}
+                  {primaryOutcomeWithLinks}
                 </td>
               </tr>
             )}
@@ -106,9 +158,7 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
               <tr>
                 <th>Secondary outcomes</th>
                 <td colSpan={3} data-testid="experiment-outcome-secondary">
-                  {secondaryOutcomes
-                    .map((outcome) => outcome?.friendlyName)
-                    .join(", ")}
+                  {secondaryOutcomeWithLinks}
                 </td>
               </tr>
             )}
