@@ -96,6 +96,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     monitoringDashboardUrl
                     rolloutMonitoringDashboardUrl
                     resultsReady
+                    showResultsUrl
                     featureConfig {
                         slug
                         name
@@ -168,6 +169,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 "rolloutMonitoringDashboardUrl": (
                     experiment.rollout_monitoring_dashboard_url
                 ),
+                "showResultsUrl": experiment.show_results_url,
                 "slug": experiment.slug,
                 "startDate": (
                     str(experiment.start_date)

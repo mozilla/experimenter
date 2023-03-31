@@ -39,12 +39,14 @@ export type RedirectCheck = {
   };
   analysis?: AnalysisData;
   analysisError?: Error;
+  experiment?: getExperiment_experimentBySlug;
 };
 
 export type RedirectCondition = ({
   status,
   analysis,
   analysisError,
+  experiment,
 }: RedirectCheck) => string | void;
 
 export type ExperimentContextType = {
