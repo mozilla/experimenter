@@ -139,9 +139,12 @@ const FormMetrics = ({
     const secondaryContainerDiv = secondaryContainerDivRef.current;
 
     if (primaryContainerDiv) {
-      const valueContainer = primaryContainerDiv.querySelector('#primary-outcomes > div > div');
-      const valueContainerDiv =
-      primaryContainerDiv.querySelector('#primary-outcomes > div');
+      const valueContainer = primaryContainerDiv.querySelector(
+        "#primary-outcomes > div > div",
+      );
+      const valueContainerDiv = primaryContainerDiv.querySelector(
+        "#primary-outcomes > div",
+      );
       if (valueContainer) {
         valueContainer.classList.toggle("form-control", valid.primary);
         valueContainer.classList.toggle("is-valid", valid.primary);
@@ -151,9 +154,12 @@ const FormMetrics = ({
     }
 
     if (secondaryContainerDiv) {
-      const valueContainer = secondaryContainerDiv.querySelector('#secondary-outcomes > div > div');
-      const valueContainerDiv =
-        secondaryContainerDiv.querySelector('#secondary-outcomes > div');
+      const valueContainer = secondaryContainerDiv.querySelector(
+        "#secondary-outcomes > div > div",
+      );
+      const valueContainerDiv = secondaryContainerDiv.querySelector(
+        "#secondary-outcomes > div",
+      );
       if (valueContainer) {
         valueContainer.classList.toggle("form-control", valid.secondary);
         valueContainer.classList.toggle("is-valid", valid.secondary);
