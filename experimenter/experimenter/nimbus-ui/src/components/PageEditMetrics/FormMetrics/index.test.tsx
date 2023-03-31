@@ -68,6 +68,26 @@ describe("FormMetrics", () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 
+  it("disables save buttons when archived", async () => {
+    const { experiment } = mockExperimentQuery("helloooo", {
+      isArchived: true,
+    });
+    const onSave = jest.fn();
+    render(<Subject {...{ onSave, experiment }} />);
+
+    expect(screen.getByTestId("submit-button")).toBeDisabled();
+    expect(screen.getByTestId("next-button")).toBeDisabled();
+  });
+
+  it("enables save buttons when not archived", async () => {
+    const { experiment } = mockExperimentQuery("helloooo");
+    const onSave = jest.fn();
+    render(<Subject {...{ onSave, experiment }} />);
+
+    expect(screen.getByTestId("submit-button")).toBeEnabled();
+    expect(screen.getByTestId("next-button")).toBeEnabled();
+  });
+
   it("displays saving button when loading", async () => {
     const { experiment } = mockExperimentQuery("boo");
     const onSave = jest.fn();

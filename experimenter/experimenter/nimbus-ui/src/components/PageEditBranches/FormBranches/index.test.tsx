@@ -558,6 +558,47 @@ describe("FormBranches", () => {
     });
   });
 
+  it("disables save buttons when archived", async () => {
+    const onSave = jest.fn();
+    render(
+      <SubjectBranches
+        {...{
+          onSave,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            referenceBranch: {
+              ...MOCK_EXPERIMENT.referenceBranch!,
+              screenshots: [],
+            },
+            isArchived: true,
+          },
+        }}
+      />,
+    );
+    expect(screen.getByTestId("save-button")).toBeDisabled();
+    expect(screen.getByTestId("next-button")).toBeDisabled();
+  });
+
+  it("enables save buttons when not archived", async () => {
+    const onSave = jest.fn();
+    render(
+      <SubjectBranches
+        {...{
+          onSave,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            referenceBranch: {
+              ...MOCK_EXPERIMENT.referenceBranch!,
+              screenshots: [],
+            },
+          },
+        }}
+      />,
+    );
+    expect(screen.getByTestId("save-button")).toBeEnabled();
+    expect(screen.getByTestId("next-button")).toBeEnabled();
+  });
+
   describe("preventPrefConflicts checkbox", () => {
     it("doesn't render if no feature config set", () => {
       render(
