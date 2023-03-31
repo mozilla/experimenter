@@ -59,12 +59,15 @@ export const EXTERNAL_URLS = {
   EXPERIMENTER_DOCUMENTATION: "https://experimenter.info",
   ASK_EXPERIMENTER_SLACK: "https://slack.com/app_redirect?channel=CF94YGE03",
   FEEDBACK: "https://bit.ly/38dgkqR",
+  GITHUB_TICKET: "https://github.com/mozilla/experimenter/issues/new",
   DETAILED_ANALYSIS_TEMPLATE: (slug: string) =>
     `https://protosaur.dev/partybal/${slug.replace(/-/g, "_")}.html`,
   LAUNCH_DOCUMENTATION:
     "https://experimenter.info/access#onboarding-for-new-reviewers-l3",
   BUCKET_WARNING_EXPLANATION:
     "https://experimenter.info/faq/Rollouts-and-experiments#question-2",
+  CUSTOM_AUDIENCES_EXPLANATION:
+    "https://experimenter.info/workflow/custom-audiences",
 };
 
 export const RISK_QUESTIONS = {
