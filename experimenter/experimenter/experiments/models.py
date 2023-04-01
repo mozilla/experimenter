@@ -280,7 +280,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         expressions = []
 
         version_key = "version"
-        if self.application != self.Application.DESKTOP:
+        if self.application != NimbusExperiment.Application.DESKTOP:
             version_key = "app_version"
 
         min_version_supported = True
@@ -303,7 +303,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         expressions = []
 
         version_key = "version"
-        if self.application != self.Application.DESKTOP:
+        if self.application != NimbusExperiment.Application.DESKTOP:
             version_key = "app_version"
 
         max_version_supported = True
@@ -343,7 +343,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self.targeting_config and self.targeting_config.targeting:
             sticky_expressions.append(self.targeting_config.targeting)
 
-        is_desktop = self.application == self.Application.DESKTOP
+        is_desktop = self.application == NimbusExperiment.Application.DESKTOP
         if is_desktop and self.channel:
             expressions.append(f'browserSettings.update.channel == "{self.channel}"')
 
@@ -760,7 +760,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         cloned.feature_configs.add(*self.feature_configs.all())
         cloned.countries.add(*self.countries.all())
-        if self.application == self.Application.DESKTOP:
+        if self.application == NimbusExperiment.Application.DESKTOP:
             cloned.locales.add(*self.locales.all())
         cloned.languages.add(*self.languages.all())
         cloned.projects.add(*self.projects.all())
