@@ -1383,6 +1383,64 @@ it("enables fields when unlocked", async () => {
   expect(screen.queryByTestId("channel")).toBeEnabled();
 });
 
+it("disables save buttons when archived", async () => {
+  render(
+    <Subject
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        application: NimbusExperimentApplicationEnum.FENIX,
+        isRollout: false,
+        status: NimbusExperimentStatusEnum.DRAFT,
+        targetingConfig: [
+          {
+            label: "No Targeting",
+            value: "",
+            applicationValues: [
+              NimbusExperimentApplicationEnum.DESKTOP,
+              "TOASTER",
+            ],
+            description: "No targeting configuration",
+            stickyRequired: false,
+            isFirstRunRequired: false,
+          },
+        ],
+        isArchived: true,
+      }}
+    />,
+  );
+  expect(screen.getByTestId("submit-button")).toBeDisabled();
+  expect(screen.getByTestId("next-button")).toBeDisabled();
+});
+
+it("enables save buttons when not archived", async () => {
+  render(
+    <Subject
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        application: NimbusExperimentApplicationEnum.FENIX,
+        isRollout: false,
+        status: NimbusExperimentStatusEnum.DRAFT,
+        targetingConfig: [
+          {
+            label: "No Targeting",
+            value: "",
+            applicationValues: [
+              NimbusExperimentApplicationEnum.DESKTOP,
+              "TOASTER",
+            ],
+            description: "No targeting configuration",
+            stickyRequired: false,
+            isFirstRunRequired: false,
+          },
+        ],
+        isArchived: false,
+      }}
+    />,
+  );
+  expect(screen.getByTestId("submit-button")).toBeEnabled();
+  expect(screen.getByTestId("next-button")).toBeEnabled();
+});
+
 describe("filterAndSortTargetingConfigSlug", () => {
   it("filters for experiment application and sorts them as expected", () => {
     const expectedNoTargetingLabel = "No Targeting";
