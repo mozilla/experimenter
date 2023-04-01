@@ -112,6 +112,9 @@ const FormOverview = ({
     fieldWarnings,
   );
 
+  const isArchived =
+    experiment?.isArchived != null ? experiment.isArchived : false;
+
   const { documentationLinks, addDocumentationLink, removeDocumentationLink } =
     useDocumentationLinks(experiment, control, setValue);
 
@@ -362,7 +365,7 @@ const FormOverview = ({
                 onClick={handleSaveNext}
                 className="btn btn-secondary"
                 id="save-and-continue-button"
-                disabled={isLoading}
+                disabled={isLoading || isArchived}
                 data-sb-kind="pages/EditBranches"
               >
                 Save and Continue
@@ -376,7 +379,7 @@ const FormOverview = ({
               onClick={handleSave}
               className="btn btn-primary"
               id="submit-button"
-              disabled={isLoading}
+              disabled={isLoading || isArchived}
               data-sb-kind="pages/EditOverview"
             >
               {isLoading ? (
