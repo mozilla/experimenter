@@ -268,8 +268,8 @@ export const FormBranches = ({
                   fieldMessages.feature_config?.length > 0 ||
                   fieldWarnings.feature_config?.length > 0,
               },
-              "custom-select",
             )}
+            custom
             onChange={onFeatureConfigChange}
             value={
               experimentFeatureConfigIds?.length
