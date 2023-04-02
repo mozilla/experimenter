@@ -262,11 +262,14 @@ export const FormBranches = ({
             data-testid="feature-config-select"
             // Displaying the review-readiness error is handled here instead of `formControlAttrs`
             // due to a state conflict between `react-hook-form` and our internal branch state mangement
-            className={classNames({
-              "is-warning":
-                fieldMessages.feature_config?.length > 0 ||
-                fieldWarnings.feature_config?.length > 0,
-            })}
+            className={classNames(
+              {
+                "is-warning":
+                  fieldMessages.feature_config?.length > 0 ||
+                  fieldWarnings.feature_config?.length > 0,
+              },
+              "custom-select",
+            )}
             onChange={onFeatureConfigChange}
             value={
               experimentFeatureConfigIds?.length
