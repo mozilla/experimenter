@@ -20,9 +20,9 @@ const EndExperiment = ({
         <Button
           variant="primary"
           onClick={onSubmit}
+          className="end-experiment-start-button px-3"
           data-testid="end-experiment-start"
           disabled={isLoading}
-          className="px-3"
         >
           End {isRollout ? "Rollout" : "Experiment"}
         </Button>
