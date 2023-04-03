@@ -206,10 +206,10 @@ Because all changes will go to stage and prod automatically, you can use stage t
 
         git remote add upstream  https://github.com/mozilla/experimenter
 
-1.  Fetch the latest changes from the main repository
+2.  Fetch the latest changes from the main repository
 
         git fetch upstream
 
-1.  Merge the changes from the main repository into your forked branch
+3.  Merge the changes from the main repository into your forked branch
 
         git merge upstream/main
