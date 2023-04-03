@@ -231,6 +231,9 @@ export const FormBranches = ({
     experimentFeatureConfigIds &&
     doFeaturesSetPrefs(experimentFeatureConfigIds);
 
+  const isArchived =
+    experiment?.isArchived != null ? experiment.isArchived : false;
+
   return (
     <FormProvider {...formMethods}>
       <Form
@@ -442,7 +445,7 @@ export const FormBranches = ({
               data-testid="next-button"
               className="btn btn-secondary"
               id="save-and-continue-button"
-              disabled={isNextDisabled}
+              disabled={isNextDisabled || isArchived}
               onClick={handleSaveNext}
             >
               Save and Continue
@@ -454,7 +457,7 @@ export const FormBranches = ({
               type="submit"
               className="btn btn-primary"
               id="save-button"
-              disabled={isSaveDisabled}
+              disabled={isSaveDisabled || isArchived}
               onClick={handleSave}
             >
               <span>{isLoading ? "Saving" : "Save"}</span>
