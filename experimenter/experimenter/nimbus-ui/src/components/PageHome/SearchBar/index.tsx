@@ -47,6 +47,11 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
   const fuse = new Fuse(experiments, options, myIndex);
   const [searchTerms, setSearchTerms] = React.useState("");
   const [clearIcon, setClearIcon] = React.useState(false);
+  const resetWindowLocation = () => {
+      const url = new URL(`${window.location}`);
+      url.searchParams.delete("search");
+      window.history.pushState({}, "", `${url.origin + url.pathname}`);
+  }
   const handleClick = () => {
     setSearchTerms("");
     setClearIcon(false);
