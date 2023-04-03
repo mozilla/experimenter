@@ -75,6 +75,9 @@ target/
 # VS Code
 **/.vscode/*
 
+# WebStorm
+**/.idea/*
+
 # Hosted assets
 experimenter/experimenter/served/
 experimenter/experimenter/legacy/legacy-ui/assets/
