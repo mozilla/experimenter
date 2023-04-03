@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useQuery } from "@apollo/client";
 import React, { useMemo } from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -15,7 +16,9 @@ import {
   NonNullFilterOptions,
 } from "src/components/PageHome/types";
 import { displayConfigLabelOrNotSet } from "src/components/Summary";
+import { GET_EXPERIMENTS_QUERY } from "src/gql/experiments";
 import { useConfig } from "src/hooks";
+import { getAllExperiments_experiments } from "src/types/getAllExperiments";
 
 export type FilterBarProps = {
   options: FilterOptions;
@@ -130,7 +133,9 @@ const FilterSelect = <
 
   const fieldValue = filterValue[filterValueName];
   const { applications } = useConfig();
-
+  const { loading } = useQuery<{
+    experiments: getAllExperiments_experiments[];
+  }>(GET_EXPERIMENTS_QUERY, { fetchPolicy: "network-only" });
   return (
     <Nav.Item className="mb-2 text-left flex-basis-0 flex-grow-1 flex-shrink-1 w-100">
       <Select
@@ -139,6 +144,7 @@ const FilterSelect = <
           inputId: `filter-${filterValueName}`,
           isMulti: true,
           value: fieldValue,
+          isDisabled: loading,
           placeholder: "All " + fieldLabel + "s",
           getOptionLabel: (item: OptionTypeBase) =>
             fieldLabel === "Feature"
