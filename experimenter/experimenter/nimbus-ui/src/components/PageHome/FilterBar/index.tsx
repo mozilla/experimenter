@@ -136,7 +136,6 @@ const FilterSelect = <
   const { loading } = useQuery<{
     experiments: getAllExperiments_experiments[];
   }>(GET_EXPERIMENTS_QUERY, { fetchPolicy: "network-only" });
-  console.log(loading);
   return (
     <Nav.Item className="mb-2 text-left flex-basis-0 flex-grow-1 flex-shrink-1 w-100">
       <Select
