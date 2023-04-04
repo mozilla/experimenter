@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- import React, { useEffect, useMemo, useRef, useRef, useState } from "react";
+ import React, { useEffect, useMemo, useRef, useState } from "react";
  import Alert from "react-bootstrap/Alert";
  import Form from "react-bootstrap/Form";
  import Select from "react-select";
@@ -170,49 +170,7 @@
    const isArchived =
      experiment?.isArchived != null ? experiment.isArchived : false;
  
-   const primaryContainerDivRef = useRef<HTMLDivElement>(null);
-  const secondaryContainerDivRef = useRef<HTMLDivElement>(null);
-
-  const toggleClasses = (valueContainer: HTMLElement, isValid: boolean) => {
-    valueContainer.classList.toggle("form-control", isValid);
-    valueContainer.classList.toggle("is-valid", isValid);
-    valueContainer.classList.toggle("border-0", isValid);
-  };
-
-  const validatePrimary = () => {
-    const primaryContainerDiv = primaryContainerDivRef.current;
-    if (!primaryContainerDiv) {
-      return;
-    }
-    const valueContainerDiv = primaryContainerDiv.querySelector(
-      "#primary-outcomes > div",
-    );
-    const valueContainer = valueContainerDiv?.querySelector("div");
-    if (valueContainer && valueContainerDiv) {
-      toggleClasses(valueContainer, primaryOutcomes.length > 0);
-      valueContainerDiv.classList.toggle("border-success");
-    }
-  };
-
-  const validateSecondary = () => {
-    const secondaryContainerDiv = secondaryContainerDivRef.current;
-    if (!secondaryContainerDiv) {
-      return;
-    }
-    const valueContainerDiv = secondaryContainerDiv.querySelector(
-      "#secondary-outcomes > div",
-    );
-    const valueContainer = valueContainerDiv?.querySelector("div");
-    if (valueContainer && valueContainerDiv) {
-      toggleClasses(valueContainer, secondaryOutcomes.length > 0);
-      valueContainerDiv.classList.toggle("border-success");
-    }
-  };
-
-  const isArchived =
-    experiment?.isArchived != null ? experiment.isArchived : false;
-
-  return (
+   return (
      <Form
        noValidate
        onSubmit={handleSave}
@@ -226,14 +184,10 @@
        )}
  
        <Form.Group
-        
-        controlId="primaryOutcomes"
-        
-        data-testid="primary-outcomes"
+         controlId="primaryOutcomes"
+         data-testid="primary-outcomes"
          ref={primaryContainerDivRef}
-       
-        ref={primaryContainerDivRef}
-      >
+       >
          <Form.Label>
            Primary Outcomes{" "}
            <Info
@@ -248,13 +202,11 @@
          <Select
            isMulti
            id="primary-outcomes"
-           id="primary-outcomes"
-          {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
+           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
            options={primaryOutcomeOptions}
            isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
            onBlur={() => validatePrimary()}
-           onBlur={() => validatePrimary()}
-        />
+         />
          <Form.Text className="text-muted">
            Select the user action or feature that you are measuring with this
            experiment. You may select up to 2 primary outcomes.
@@ -266,8 +218,7 @@
          controlId="secondaryOutcomes"
          data-testid="secondary-outcomes"
          ref={secondaryContainerDivRef}
-         ref={secondaryContainerDivRef}
-      >
+       >
          <Form.Label>
            Secondary Outcomes{" "}
            <Info
@@ -281,12 +232,10 @@
          <Select
            isMulti
            id="secondary-outcomes"
-           id="secondary-outcomes"
-          {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
+           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
            options={secondaryOutcomeOptions}
            onBlur={() => validateSecondary()}
-           onBlur={() => validateSecondary()}
-        />
+         />
          <Form.Text className="text-muted">
            Select the user action or feature that you are measuring with this
            experiment.
@@ -301,7 +250,7 @@
              data-testid="next-button"
              id="save-and-continue-button"
              className="btn btn-secondary"
-             disabled={isLoading || isArchived || isArchived}
+             disabled={isLoading || isArchived}
              data-sb-kind="pages/EditMetrics"
            >
              Save and Continue
@@ -314,7 +263,7 @@
              onClick={handleSave}
              className="btn btn-primary"
              id="save-button"
-             disabled={isLoading || isArchived || isArchived}
+             disabled={isLoading || isArchived}
              data-sb-kind="pages/EditMetrics"
            >
              {isLoading ? <span>Saving</span> : <span>Save</span>}
