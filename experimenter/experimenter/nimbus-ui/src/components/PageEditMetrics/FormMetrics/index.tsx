@@ -128,56 +128,50 @@ const FormMetrics = ({
     [isLoading, onSave, handleSubmit, primaryOutcomes, secondaryOutcomes],
   );
 
-  // Two new variables to handle the primary and secondary states.
-  const [valid, setValid] = useState({ primary: false, secondary: false });
-
   const primaryContainerDivRef = useRef<HTMLDivElement>(null);
   const secondaryContainerDivRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const toggleClasses = (valueContainer: HTMLElement, isValid: boolean) => {
+    valueContainer.classList.toggle("form-control", isValid);
+    valueContainer.classList.toggle("is-valid", isValid);
+    valueContainer.classList.toggle("border-0", isValid);
+  };
+
+  const validatePrimary = () => {
     const primaryContainerDiv = primaryContainerDivRef.current;
+    if (!primaryContainerDiv) {
+      return;
+    }
+    const valueContainerDiv = primaryContainerDiv.querySelector(
+      "#primary-outcomes > div",
+    );
+    const valueContainer = valueContainerDiv?.querySelector("div");
+    if (valueContainer) {
+      toggleClasses(valueContainer, primaryOutcomes.length > 0);
+      valueContainerDiv?.classList.toggle(
+        "border-success",
+        primaryOutcomes.length > 0,
+      );
+    }
+  };
+
+  const validateSecondary = () => {
     const secondaryContainerDiv = secondaryContainerDivRef.current;
-
-    if (primaryContainerDiv) {
-      const valueContainerDiv = primaryContainerDiv.querySelector(
-        "#primary-outcomes > div",
-      );
-      const valueContainer = valueContainerDiv?.querySelector("div");
-      if (valueContainer) {
-        valueContainer.classList.toggle("form-control", valid.primary);
-        valueContainer.classList.toggle("is-valid", valid.primary);
-        valueContainer.classList.toggle("border-0", valid.primary);
-        valueContainerDiv?.classList.toggle("border-success", valid.primary);
-      }
+    if (!secondaryContainerDiv) {
+      return;
     }
-
-    if (secondaryContainerDiv) {
-      const valueContainerDiv = secondaryContainerDiv.querySelector(
-        "#secondary-outcomes > div",
+    const valueContainerDiv = secondaryContainerDiv.querySelector(
+      "#secondary-outcomes > div",
+    );
+    const valueContainer = valueContainerDiv?.querySelector("div");
+    if (valueContainer) {
+      toggleClasses(valueContainer, secondaryOutcomes.length > 0);
+      valueContainerDiv?.classList.toggle(
+        "border-success",
+        secondaryOutcomes.length > 0,
       );
-      const valueContainer = valueContainerDiv?.querySelector("div");
-      if (valueContainer) {
-        valueContainer.classList.toggle("form-control", valid.secondary);
-        valueContainer.classList.toggle("is-valid", valid.secondary);
-        valueContainer.classList.toggle("border-0", valid.secondary);
-        valueContainerDiv?.classList.toggle("border-success", valid.secondary);
-      }
     }
-  }, [valid]);
-
-  useEffect(() => {
-    setValid((prevState) => ({
-      ...prevState,
-      primary: primaryOutcomes.length > 0,
-    }));
-  }, [primaryOutcomes]);
-
-  useEffect(() => {
-    setValid((prevState) => ({
-      ...prevState,
-      secondary: secondaryOutcomes.length > 0,
-    }));
-  }, [secondaryOutcomes]);
+  };
 
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
@@ -217,6 +211,7 @@ const FormMetrics = ({
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
           isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
+          onBlur={() => validatePrimary()}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
@@ -245,6 +240,7 @@ const FormMetrics = ({
           id="secondary-outcomes"
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
+          onBlur={() => validateSecondary()}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
