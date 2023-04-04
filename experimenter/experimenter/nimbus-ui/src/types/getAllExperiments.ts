@@ -63,6 +63,7 @@ export interface getAllExperiments_experiments {
   proposedDuration: number;
   proposedEnrollment: number;
   computedEndDate: DateTime | null;
+  computedEnrollmentEndDate: DateTime | null;
   status: NimbusExperimentStatusEnum | null;
   statusNext: NimbusExperimentStatusEnum | null;
   publishStatus: NimbusExperimentPublishStatusEnum | null;
