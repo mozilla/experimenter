@@ -90,6 +90,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     proposedDuration
                     proposedEnrollment
                     computedEndDate
+                    computedEnrollmentEndDate
                     status
                     statusNext
                     publishStatus
@@ -126,6 +127,11 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 "computedEndDate": (
                     str(experiment.computed_end_date)
                     if experiment.computed_end_date is not None
+                    else None
+                ),
+                "computedEnrollmentEndDate": (
+                    str(experiment.computed_enrollment_end_date)
+                    if experiment.computed_enrollment_end_date is not None
                     else None
                 ),
                 "featureConfig": {
@@ -736,9 +742,10 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     }
 
                     startDate
+                    computedDurationDays
                     computedEndDate
                     computedEnrollmentDays
-                    computedDurationDays
+                    computedEnrollmentEndDate
 
                     riskMitigationLink
                     riskRevenue
@@ -827,6 +834,11 @@ class TestNimbusExperimentBySlugQuery(GraphQLTestCase):
                     else None
                 ),
                 "computedEnrollmentDays": experiment.computed_enrollment_days,
+                "computedEnrollmentEndDate": (
+                    str(experiment.computed_enrollment_end_date)
+                    if experiment.computed_enrollment_end_date
+                    else None
+                ),
                 "conclusionRecommendation": experiment.conclusion_recommendation,
                 "countries": [{"id": str(country.id), "name": country.name}],
                 "documentationLinks": [
