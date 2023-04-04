@@ -106,6 +106,7 @@ class SummaryPage(ExperimenterBase):
         )
 
     def wait_for_rejected_alert(self):
+        self.wait.until(EC.presence_of_element_located(self._rejected_text_alert_locator))
         self.wait_with_refresh(
             self._rejected_text_alert_locator,
             "Summary Page: Unable to find rejected alert",
@@ -188,6 +189,9 @@ class SummaryPage(ExperimenterBase):
 
     def request_update_and_reject(self):
         self.request_update()
+        self.wait.until(
+            EC.presence_of_element_located(self._reject_request_button_locator)
+        )
         self.find_element(*self._reject_request_button_locator).click()
 
     @property
