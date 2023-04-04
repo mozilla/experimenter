@@ -58,6 +58,7 @@ type NimbusExperimentType {
   computedDurationDays: Int
   computedEndDate: DateTime
   computedEnrollmentDays: Int
+  computedEnrollmentEndDate: DateTime
   enrollmentEndDate: DateTime
   featureConfig: NimbusFeatureConfigType
   isEnrollmentPausePending: Boolean
