@@ -128,40 +128,400 @@ The following actors are involved:
 A new experiment or rollout which has yet to be sent for review or put into preview is marked for Draft.
 ![draft](diagrams/create_draft_idle.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    title Draft (Create)
+    Note over Experiment Owner: An owner is ready to create <br/>  a new experiment/rollout <br/> and clicks the create button
+    
+    rect rgb(255,204,255) 
+        Experiment Owner->>Experimenter UI: Create experiment/rollout
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end
+%%{init:{'themeCSS':'g:nth-of-type(1) .note { stroke: purple ;fill: white; };'}}%%
+```
+
 ### Preview
 
 A draft experiment/rollout that has been validly completed is marked for Preview, is published to the preview collection in Remote Settings, and is then accessible to specially configured clients.
 ![draft to preview](diagrams/draft-to-preview.png)
+
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Preview
+    Note over Experiment Owner: An owner is ready to publish <br/> their draft experiment/rollout <br/> to Preview
+    
+    rect rgb(255,204,255) 
+        Experiment Owner->>Experimenter UI: Send to Preview
+        Experimenter UI->>Experimenter Backend: Update to Preview <br/> Status: Preview <br/> Publish status: Idle <br/> Status next: <none>
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds all Preview  <br/> experiments/rollouts. Any Preview  <br/> items not in Remote Settings are <br/> created. Any non-Preview items <br/> in RS are deleted.
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Send to Preview
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Create Record <br/> RS status: to-review
+        Experimenter Worker->>Remote Settings Backend: Delete Record <br/> RS status: to-review
+    end 
+%%{init:{'themeCSS':'g:nth-of-type(1) .note { stroke: purple ;fill: white; };'}}%%
+```
 
 ### Publish (Approve/Approve)
 
 A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, is reviewed and approved in Remote Settings, and is then accessible to clients.
 ![publish approved](diagrams/publish-approve-approve.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Publish (Approve/Approve)
+    Note over Experiment Owner: An owner is ready to launch <br/> their draft experiment/rollout <br/> from draft and clicks the <br/> Review button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner launches in Experimenter
+        Experiment Owner->>Experimenter UI: Send to Review
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the <br/> experiment/rollout's details on the <br/> summary page and clicks the <br/> approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Approved <br/> Status next: Live <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved experiment/rollout <br/> to publish, and creates the new published <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments/rollouts: <br/> Status: Draft <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Create Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Draft <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and approves <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer approves in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Approve
+        Remote Settings UI->>Remote Settings Backend: Approve
+        Remote Settings Backend->>Remote Settings UI: RS status: to-sign
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the <br/> experiment/rollout approved <br/> in the RS collection
+
+    rect rgb(204,255,255) 
+        Note over Experimenter Worker: Worker updates <br/> experiment/rollout
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end
+%%{init:{'themeCSS':'g:nth-of-type(1) .note { stroke: purple ;fill: white; };'}}%%
+```
+
 ### Publish (Reject/------)
 
 A draft experiment/rollout that has been validly completed (no errors) is rejected by a reviewer in Experimenter. A rejection reason is captured in Experimenter and is displayed to the owner in Experimenter.
 ![review rejected in experimenter](diagrams/publish-reject.png)
+
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Publish (Reject/----)
+    Note over Experiment Owner: An owner is ready to launch <br/> their draft experiment/rollout <br/> from draft and clicks the <br/> Launch button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner launches in Experimenter
+        Experiment Owner->>Experimenter UI: Send to Review
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the <br/> experiment/rollout's details on the <br/> summary page and clicks the <br/> reject button.
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer rejects in Experimenter
+        Reviewer->>Experimenter UI: Reject
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end 
+%%{init:{'themeCSS':'g:nth-of-type(1) .note { stroke: purple ;fill: white; };'}}%%
+```
 
 ### Publish (Approve/Reject)
 
 A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter.
 ![review approved reject](diagrams/publish-approve-reject.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Publish (Approve/Reject)
+    Note over Experiment Owner: An owner is ready to launch <br/> their draft experiment/rollout <br/> from draft and clicks the <br/> Launch button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner launches in Experimenter
+        Experiment Owner->>Experimenter UI: Send to Review
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the <br/> experiment/rollout's details on the <br/> summary page and clicks the <br/> approve button.
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Approved <br/> Status next: Live <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved experiment/rollout <br/> to publish, and creates the new published <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments/rollouts: <br/> Status: Draft <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Create Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Draft <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and rejects <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer rejects in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Reject
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the <br/> experiment/rollout in <br/> work-in-progress, collects the <br/> rejection message, and rolls back
+
+    rect rgb(204,255,255) 
+        Note over Experimenter Worker: Worker updates <br/> experiment/rollout
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
+        Experimenter Worker->>Remote Settings Backend: Rollback <br/> RS status: work-in-progress
+        Experimenter Worker->>Experimenter Backend:  Status: Draft <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end 
+%%{init:{'themeCSS':'g:nth-of-type(1) .note { stroke: purple ;fill: white; };'}}%%
+```
+
 ### Publish (Approve/Reject + Manual Rollback)
 
 A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer **manually rolls back** the Remote Settings collection. A rejection reason is captured in Remote Settings and but **unable to be recovered by Experimenter** because the collection as manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason.
 ![review approved rejected and manually rolled back](diagrams/publish-approve-reject-rollback.png)
+
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Publish (Approve/Reject + Manual Rollback)
+    Note over Experiment Owner: An owner is ready to launch <br/> their draft experiment/rollout <br/> from draft and clicks the <br/> Launch button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner launches in Experimenter
+        Experiment Owner->>Experimenter UI: Send to Review
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the <br/> experiment/rollout's details on the <br/> summary page and clicks the <br/> approve button.
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Approved <br/> Status next: Live <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved experiment/rollout <br/> to publish, and creates the new published <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments/rollouts: <br/> Status: Draft <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Create Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Draft <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and rejects <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer rejects in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Reject
+        Remote Settings UI->>Remote Settings Backend: RS status: to-rollback
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the <br/> collection in to-sign with no <br/> record of the rejection
+
+    rect rgb(204,255,255) 
+        Note over Experimenter Worker: Worker updates <br/> experiment/rollout
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: to-sign
+        Experimenter Worker->>Experimenter Backend:  Status: Draft <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end 
+%%{init:{'themeCSS':'g:nth-of-type(1) .note { stroke: purple ;fill: white; };'}}%%
+```
 
 ### Publish (Approve/Timeout)
 
 A draft experiment/rollout that has been validly completed is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
 ![timeout in remote settings](diagrams/publish-approve-timeout.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Publish (Approve/Timeout)
+    Note over Experiment Owner: An owner is ready to launch <br/> their draft experiment/rollout <br/> from draft and clicks the <br/> Launch button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner launches in Experimenter
+        Experiment Owner->>Experimenter UI: Send to Review
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the <br/> experiment/rollout's details on the <br/> summary page and clicks the <br/> approve button.
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Draft <br/> Publish status: Approved <br/> Status next: Live <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved experiment/rollout <br/> to publish, and creates the new published <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments/rollouts: <br/> Status: Draft <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Create Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Draft <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Note over Experimenter Backend: The scheduled background task is <br/> invoked, finds a pending unattended review, <br/> rolls back, and reverts the experiment/rollout <br/> back to the review state
+   
+    rect rgb(204,255,255) 
+        Note over Experimenter Worker: Worker updates <br/> experiment/rollout
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
+        Experimenter Worker->>Remote Settings Backend: RS status: to-rollback
+        Experimenter Worker->>Experimenter Backend:  Status: Draft <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end
+%%{init:{'themeCSS':'g:nth-of-type(1) .note { stroke: purple ;fill: white; };'}}%%
+```
+
 ### Update (Approve/Approve)
 
 A live rollout can have updates pushed to its state while remaining Live. These updated changes must be reviewed in order to be published to the user, following the same flow to be approved in both Experimenter and Remote Settings.
 ![rollout updates approved](diagrams/update-approve-approve.png)
+
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Update (Approve/Approve)
+    
+    Note over Experiment Owner: An owner is ready to update <br/> their live rollout
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner makes changes in Experimenter
+        Experiment Owner->>Experimenter UI: Make updates to live rollout
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+    end 
+
+    Note over Experiment Owner: The owner clicks the Request <br/> Update button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner requests update in Experimenter
+        Experiment Owner->>Experimenter UI: Send to Review
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the rollout's <br/> details on the summary page <br/> and clicks the approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Live <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> with updates to publish, and updates the <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and approves <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer approves in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Approve
+        Remote Settings UI->>Remote Settings Backend: Approve
+        Remote Settings Backend->>Remote Settings UI: RS status: to-sign
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the rollout <br/>approved in the RS collection
+
+    rect rgb(204,255,255) 
+        Note over Experimenter Worker: Worker updates rollout
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end 
+```
 
 ### Update (Reject/------)
 
@@ -169,55 +529,609 @@ A live rollout that has valid changes (making it "dirty") is reviewed and reject
 
 ![rollout updates rejected in experimenter](diagrams/update-reject.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Update (Reject/----)
+    Note over Experiment Owner: An owner is ready to update <br/> their live rollout
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner makes changes in Experimenter
+        Experiment Owner->>Experimenter UI: Make updates to live rollout
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+    end 
+    
+    Note over Experiment Owner: The owner clicks the Request <br/> Update button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner requests update in Experimenter
+        Experiment Owner->>Experimenter UI: Send to Review
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the <br/> rollout's details on the <br/> summary page and clicks the <br/> reject button.
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer rejects in Experimenter
+        Reviewer->>Experimenter UI: Reject
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+    end 
+```
+
 ### Update (Approve/Reject)
 
 A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter.
 ![rollout updates rejected and rolled back](diagrams/update-approve-reject.png)
+
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Update (Approve/Reject)
+    
+    Note over Experiment Owner: An owner is ready to update <br/> their live rollout
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner makes changes in Experimenter
+        Experiment Owner->>Experimenter UI: Make updates to live rollout
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+    end 
+
+    Note over Experiment Owner: The owner clicks the Request <br/> Update button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner requests update in Experimenter
+        Experiment Owner->>Experimenter UI: Send to Review
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the rollout's <br/> details on the summary page <br/> and clicks the approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Live <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> with updates to publish, and updates the <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and rejects <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer rejects in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Reject
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the collection in <br/> work-in-progress, collects the <br/> rejection message, and rolls back
+
+
+    rect rgb(204,255,255) 
+        Note over Experimenter Worker: Worker updates rollout
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
+        Experimenter Worker->>Remote Settings Backend: Rollback <br/> RS status: to-rollback
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+    end 
+```
 
 ### Update (Approve/Reject + Manual Rollback)
 
 A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer **manually rolls back** the Remote Settings collection. A rejection reason is captured in Remote Settings and but **unable to be recovered by Experimenter** because the collection as manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason.
 ![rollout update approve manual rollback](diagrams/update-approve-rollback.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Update (Approve/Reject + Manual rollback)
+    
+    Note over Experiment Owner: An owner is ready to update <br/> their live rollout
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner makes changes in Experimenter
+        Experiment Owner->>Experimenter UI: Make updates to live rollout
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+    end 
+
+    Note over Experiment Owner: The owner clicks the Request <br/> Update button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner requests update in Experimenter
+        Experiment Owner->>Experimenter UI: Send to Review
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the rollout's <br/> details on the summary page <br/> and clicks the approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Live <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> with updates to publish, and updates the <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and rejects <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer rejects in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Reject
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the collection in <br/> to-sign with no record of the rejection
+
+
+    rect rgb(204,255,255) 
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: to-sign
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+    end 
+```
+
 ### Update (Approve/Timeout)
 
 A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
 ![rollout update approve timeout](diagrams/update-approve-timeout.png)
+
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title Update (Approve/Timeout)
+    
+    Note over Experiment Owner: An owner is ready to update <br/> their live rollout
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner makes changes in Experimenter
+        Experiment Owner->>Experimenter UI: Make updates to live rollout
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+    end 
+
+    Note over Experiment Owner: The owner clicks the Request <br/> Update button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner requests update in Experimenter
+        Experiment Owner->>Experimenter UI: Send to Review
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the rollout's <br/> details on the summary page <br/> and clicks the approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Live <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> with updates to publish, and updates the <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Note over Experimenter Backend: The scheduled background task is <br/> invoked, finds a pending unattended review, <br/> rolls back, and reverts the rollout <br/> back to the review state
+
+    rect rgb(204,255,255) 
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout) 
+        Experimenter Worker->>Remote Settings Backend: RS status: to-rollback
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+    end 
+```
 
 ### End Enrollment (Approve/Approve)
 
 A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and approved in Experimenter and then Remote Settings, the record is updated, and no new clients will be enrolled in the experiment.
 ![end enrollment approved](diagrams/end-enrollment-approve.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title End enrollment (Approve/Approve)
+    
+    Note over Experiment Owner: An owner is ready to end <br/> enrollment for their live experiment <br/> and clicks the end enrollment button
+    
+    rect rgb(255,204,255) 
+        Experiment Owner->>Experimenter UI: End enrollment for experiment
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> is_paused: True <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the experiment's <br/> details on the summary page <br/> and clicks the approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Live <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved rollout <br/> with updates to publish, and updates the <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and approves <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer approves in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Approve
+        Remote Settings UI->>Remote Settings Backend: Approve <br/> RS status: to-sign
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the experiment <br/>approved in the RS collection
+
+    rect rgb(204,255,255) 
+        Note over Experimenter Worker: Worker updates experiment
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end 
+```
+
 ### End Enrollment (Reject/------)
 
 A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and rejected in Experimenter. No change is made to Remote Settings and clients will continue to enroll. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
 ![end enrollment rejected in experimenter](diagrams/end-enroll-reject-in-exp.png)
+
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title End enrollment (Reject/----)
+    
+    Note over Experiment Owner: An owner is ready to end <br/> enrollment for their live experiment <br/> and clicks the end enrollment button
+        
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner ends enrollment in Experimenter
+        Experiment Owner->>Experimenter UI: End Enrollment for Experiment
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> is_paused: True <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The experiment reviewer reviews <br/> the experiment's details on the <br/> summary page and clicks the <br/> reject button.
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer rejects in Experimenter
+        Reviewer->>Experimenter UI: Reject
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_paused: False <br/> + changelog
+    end
+```
 
 ### End Enrollment (Approve/Reject)
 
 A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and approved in Experimenter, and then rejected in Remote Settings. No change is made to Remote Settings and clients will continue to enroll. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
 ![end enrollment rejected in remote settings](diagrams/end-enrollment-approve-reject.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title End Enrollment (Approve/Reject)
+    
+    Note over Experiment Owner: An owner is ready to end <br/> enrollment for their live experiment <br/> and clicks the end enrollment button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner ends enrollment in Experimenter
+        Experiment Owner->>Experimenter UI: End Enrollment for Experiment
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> is_paused: True <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the rollout's <br/> details on the summary page <br/> and clicks the approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Live <br/> is_paused: True <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved experiment <br/> with updates to publish, and updates the <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and rejects <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer rejects in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Reject
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the collection in <br/> work-in-progress, collects the <br/> rejection message, and rolls back
+
+
+    rect rgb(204,255,255) 
+        Note over Experimenter Worker: Worker updates rollout
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: work-in-progress
+        Experimenter Worker->>Remote Settings Backend: Rollback <br/> RS status: to-rollback
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_paused: False <br/> + changelog
+    end 
+```
+
 ### End Enrollment (Approve/Reject+Manual Rollback)
 
 A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and approved in Experimenter, and then rejected in Remote Settings. No change is made to Remote Settings and clients will continue to enroll. A rejection reason is captured in Remote Settings and but is **unable to be recovered** by Experimenter because the collection as manually rolled back before Experimenter could query its status, and so Experimenter shows a generic rejection reason.
 ![end enrollment manually rolled back](diagrams/end-enrollment-approve-rollback.png)
+
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title End Enrollment (Approve/Reject + Manual rollback)
+    
+    Note over Experiment Owner: An owner is ready to end <br/> enrollment for their live experiment <br/> and clicks the end enrollment button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner ends enrollment in Experimenter
+        Experiment Owner->>Experimenter UI: End Enrollment for Experiment
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> is_paused: True <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the rollout's <br/> details on the summary page <br/> and clicks the approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Live <br/> is_paused: True <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved experiment <br/> with updates to publish, and updates the <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and rejects <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer rejects in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Reject
+        Remote Settings UI->>Remote Settings Backend: Reject <br/> RS Status: to-rollback
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the collection in <br/> to-sign with no record of the rejection
+
+
+    rect rgb(204,255,255) 
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: to-sign
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_paused: False <br/> + changelog
+    end 
+```
 
 ### End Enrollment (Approve/Timeout)
 
 A live experiment that is published in Remote Settings has passed its planned end enrollment date and the owner requests that enrollment ends. The request is reviewed and approved in Experimenter, and the change is pushed to Remote Settings. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
 ![end enrollment timed out](diagrams/end-enrollment-approve-timeout.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title End Enrollment (Approve/Timeout)
+    
+    Note over Experiment Owner: An owner is ready to end <br/> enrollment for their live experiment <br/> and clicks the end enrollment button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner ends enrollment in Experimenter
+        Experiment Owner->>Experimenter UI: End Enrollment for Experiment
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> is_paused: True <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the rollout's <br/> details on the summary page <br/> and clicks the approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Live <br/> is_paused: True <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved experiment <br/> with updates to publish, and updates the <br/> record with the serialized DTO
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Live
+        Note over Experimenter Worker: Worker publishes to <br/>Remote Settings
+        Experimenter Worker->>Remote Settings Backend: Update Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Live <br/> + changelog
+    end 
+
+    Note over Experimenter Backend: The scheduled background task is <br/> invoked, finds a pending unattended review, <br/> rolls back, and reverts the experiment <br/> back to the review state
+
+    rect rgb(204,255,255) 
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout) 
+        Experimenter Worker->>Remote Settings Backend: Rollback <br/> RS status: to-rollback
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Review <br/> Status next: Live<br/> is_paused: True <br/> + changelog
+    end 
+```
+
 ### End (Approve/Approve)
 
 A live experiment that is published in Remote Settings is requested to end by the owner, reviewed and approved in Experimenter, reviewed and approved in Remote Settings, is deleted from the collection, and is then no longer accessible by clients.
 ![end experiment approved](diagrams/end-approve-approve.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title End experiment (Approve/Approve)
+    
+    Note over Experiment Owner: An owner is ready to end <br/> their live experiment/rollout and <br/> clicks the end experiment button
+    
+    rect rgb(255,204,255) 
+        Experiment Owner->>Experimenter UI: End experiment/rollout
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Complete <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the <br/> end request and clicks the <br/> approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Complete <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task is <br/> invoked, finds an approved <br/> experiment/rollout to end, <br/> and deletes the record in  <br/> Remote Settings
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments/rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Complete
+        Experimenter Worker->>Remote Settings Backend: Delete Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Complete <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and approves <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer approves in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Approve
+        Remote Settings UI->>Remote Settings Backend: Approve <br/> RS status: to-sign
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the experiment <br/>deleted from the RS collection
+
+    rect rgb(204,255,255) 
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
+        Experimenter Worker->>Experimenter Backend:  Status: Complete <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end 
+```
+
 ### End (Reject/------)
 
 A live experiment that is published in Remote Settings is requested to end by the owner, and is then reviewed and rejected in Experimenter. A rejection reason is captured in Experimenter and is displayed to the experiment owner in Experimenter.
 ![end experiment rejected in experimenter](diagrams/end-experiment-reject-in-exp.png)
+
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title End experiment (Reject/----)
+    
+    Note over Experiment Owner: An owner is ready to end <br/> their live experiment/rollout and <br/> clicks the end experiment button
+        
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner ends in Experimenter
+        Experiment Owner->>Experimenter UI: End experiment/rollout
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Complete <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews <br/> the end request and clicks the <br/> reject button.
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer rejects in Experimenter
+        Reviewer->>Experimenter UI: Reject
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end 
+```
 
 ### End (Approve/Reject)
 
@@ -226,6 +1140,63 @@ A live experiment that is published in Remote Settings is requested to end by th
 ![end experiment rejected in remote settings](diagrams/end-experiment-reject-in-rs-2.png)
 ![experiment back in live](diagrams/end-experiment-reject-in-rs-3.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title End Experiment (Approve/Reject)
+    
+    Note over Experiment Owner: An owner is ready to end <br/> their live experiment/rollout and <br/> clicks the end experiment button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner ends in Experimenter
+        Experiment Owner->>Experimenter UI: End experiment/rollout
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Complete <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the <br/> end request and clicks the <br/> approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Complete <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved <br/> experiment/rollout to end, and deletes <br/> the record in Remote Settings
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments/rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Complete
+        Experimenter Worker->>Remote Settings Backend: Delete Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Complete <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and rejects <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer rejects in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Reject
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the collection in <br/> work-in-progress, collects the <br/> rejection message, and rolls back
+
+
+    rect rgb(204,255,255) 
+        Note over Experimenter Worker: Worker updates experiment/rollout
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: work-in-progress
+        Experimenter Worker->>Remote Settings Backend: Rollback <br/> RS status: to-rollback
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end 
+```
+
 ### End (Approve/Reject+Manual Rollback)
 
 A live experiment that is published in Remote Settings is requested to end by the owner, is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and but unable to be recovered by Experimenter because the collection as manually rolled back before Experimenter could query its status, and so Experimenter shows a generic rejection reason.
@@ -233,12 +1204,113 @@ A live experiment that is published in Remote Settings is requested to end by th
 ![end experiment rejected in remote settings](diagrams/end-experiment-manual-rollback-2.png)
 ![manual rollback found](diagrams/end-experiment-manual-rollback-3.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title End Experiment (Approve/Reject + Manual rollback)
+    
+Note over Experiment Owner: An owner is ready to end <br/> their live experiment/rollout and <br/> clicks the end experiment button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner ends in Experimenter
+        Experiment Owner->>Experimenter UI: End experiment/rollout
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Complete <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the <br/> end request and clicks the <br/> approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Complete <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved <br/> experiment/rollout to end, and deletes <br/> the record in Remote Settings
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments/rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Complete
+        Experimenter Worker->>Remote Settings Backend: Delete Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Complete <br/> + changelog
+    end 
+
+    Experimenter Backend-->>Reviewer: To review in Remote Settings
+    
+    Note over Reviewer: The reviewer opens Remote <br/> Settings and rejects <br/> the change in the collection.
+
+    rect rgb(255,255,204) 
+        Note right of Reviewer: Reviewer rejects in <br/>Remote Settings
+        Reviewer->>Remote Settings UI: Reject
+        Remote Settings UI->>Remote Settings Backend: Reject <br/> RS Status: to-rollback
+    end 
+
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked and finds the collection in <br/> to-sign with no record of the rejection
+
+
+    rect rgb(204,255,255) 
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: to-sign
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+    end
+```
+
 ### End (Approve/Timeout)
 
 A live experiment that is published in Remote Settings is requested to end by the owner, is reviewed and approved in Experimenter, is deleted from the collection, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
 ![end experiment approved in experimenter](diagrams/end-experiment-timeout-1.png)
 ![pending review times out](diagrams/end-experiment-timeout-2.png)
 
+```mermaid
+  sequenceDiagram
+    participant Reviewer
+    participant Experiment Owner
+    participant Experimenter UI
+    participant Experimenter Backend
+    participant Experimenter Worker
+    participant Remote Settings UI
+    participant Remote Settings Backend
+    title End Experiment (Approve/Timeout)
+    
+Note over Experiment Owner: An owner is ready to end <br/> their live experiment/rollout and <br/> clicks the end experiment button
+    
+    rect rgb(255,204,255) 
+        Note right of Experiment Owner: Owner ends in Experimenter
+        Experiment Owner->>Experimenter UI: End experiment/rollout
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Review <br/> Status next: Complete <br/> + changelog
+    end 
+    
+    Experimenter Backend-->>Reviewer: To review
+    Note over Reviewer: The reviewer reviews the <br/> end request and clicks the <br/> approve button
+    
+
+    rect rgb(255,255,204) 
+        Note over Experiment Owner: Reviewer approves in Experimenter
+        Reviewer->>Experimenter UI: Approve
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Approved <br/> Status next: Complete <br/> + changelog
+    end 
+ 
+    Note over Experimenter Backend: The scheduled background task <br/> is invoked, finds an approved <br/> experiment/rollout to end, and deletes <br/> the record in Remote Settings
+    
+    rect rgb(204,255,255) 
+        Experimenter Backend->>Experimenter Worker: Find experiments/rollouts: <br/> Status: Live <br/> Publish status: Approved <br/> Status next: Complete
+        Experimenter Worker->>Remote Settings Backend: Delete Record <br/> RS status: to-review
+        Experimenter Worker->>Experimenter Backend: Status: Live <br/> Publish status: Waiting <br/> Status next: Complete <br/> + changelog
+    end 
+
+    Note over Experimenter Backend: The scheduled background task is <br/> invoked, finds a pending unattended review, <br/> rolls back, and reverts the experiment <br/> back to the review state
+
+    rect rgb(204,255,255) 
+        Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: to-rollback
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Review <br/> Status next: Complete <br/> + changelog
+    end 
+```
+
 ## Maintaining These Docs
 
-As we make changes to the integration and workflow we'll need to keep these docs up to date. The diagrams are generated using https://sequencediagram.org/ and their source can be found in the `diagrams/` folder.
+As we make changes to the integration and workflow we'll need to keep these docs up to date. The diagrams are generated using [Mermaid sequence diagrams](https://mermaid.js.org/syntax/sequenceDiagram.html) and their source can be found in the `diagrams/` folder.
