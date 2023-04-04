@@ -224,6 +224,7 @@ const FormOverview = ({
             <Form.Control
               {...formControlAttrs("application", REQUIRED_FIELD)}
               as="select"
+              custom
             >
               <option value="">Select...</option>
               {applications!.map((app, idx) => (
