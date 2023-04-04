@@ -435,6 +435,7 @@ class NimbusExperimentType(DjangoObjectType):
     computed_duration_days = graphene.Int()
     computed_end_date = graphene.DateTime()
     computed_enrollment_days = graphene.Int()
+    computed_enrollment_end_date = graphene.DateTime()
     conclusion_recommendation = graphene.Field(
         NimbusExperimentConclusionRecommendationEnum
     )
@@ -500,6 +501,7 @@ class NimbusExperimentType(DjangoObjectType):
             "computed_duration_days",
             "computed_end_date",
             "computed_enrollment_days",
+            "computed_enrollment_end_date",
             "conclusion_recommendation",
             "countries",
             "documentation_links",

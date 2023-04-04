@@ -2,14 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  addDaysToDate,
-  getProposedEnrollmentRange,
-  humanDate,
-} from "src/lib/dateUtils";
+import { getProposedEnrollmentRange, humanDate } from "src/lib/dateUtils";
 import { mockSingleDirectoryExperiment as expFactory } from "src/lib/mocks";
 
 const FAKE_DATE = "Sat Dec 12 2020";
+const FAKE_DATE_2 = "Mon Dec 14 2020";
 const FAKE_ISO_DATE = "2020-12-25T15:28:01.821657+00:00";
 
 describe("humanDate", () => {
@@ -24,21 +21,15 @@ describe("humanDate", () => {
   });
 });
 
-describe("addDaysToDate", () => {
-  it("should add days to a date and return a date string", () => {
-    expect(addDaysToDate(FAKE_DATE, 2)).toEqual("Mon Dec 14 2020");
-  });
-});
-
 describe("getProposedEnrollmentRange", () => {
   it("should render a date range if startDate and proposedEnrollment are set", () => {
     const actual = getProposedEnrollmentRange(
       expFactory({
         startDate: FAKE_DATE,
-        proposedEnrollment: 4,
+        computedEnrollmentEndDate: FAKE_DATE_2,
       }),
     );
-    expect(actual).toBe("Dec 12, 2020 - Dec 16, 2020");
+    expect(actual).toBe("Dec 12, 2020 - Dec 14, 2020");
   });
   it("should render the enrollment duration if no startDate is set", () => {
     const actual = getProposedEnrollmentRange(
