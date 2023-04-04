@@ -49,6 +49,20 @@ def test_create_new_experiment_reject_remote_settings(
 
 
 @pytest.mark.remote_settings
+def test_create_new_rollout_reject_remote_settings(
+    selenium,
+    experiment_url,
+    create_experiment,
+    kinto_client,
+):
+    create_experiment(selenium, is_rollout=True).launch_and_approve()
+
+    kinto_client.reject()
+
+    SummaryPage(selenium, experiment_url).open().wait_for_rejected_alert()
+
+
+@pytest.mark.remote_settings
 def test_end_experiment_and_approve_end(
     selenium,
     experiment_url,
