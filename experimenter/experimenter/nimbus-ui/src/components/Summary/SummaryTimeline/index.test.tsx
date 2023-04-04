@@ -28,6 +28,9 @@ describe("SummaryTimeline", () => {
 
       expect(screen.queryByTestId("label-not-launched")).toBeInTheDocument();
       expect(screen.queryByTestId("label-start-date")).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("label-enrollment-end-date"),
+      ).not.toBeInTheDocument();
       expect(screen.queryByTestId("label-end-date")).not.toBeInTheDocument();
       expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
       expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();
@@ -44,6 +47,9 @@ describe("SummaryTimeline", () => {
 
     expect(screen.queryByTestId("label-not-launched")).not.toBeInTheDocument();
     expect(screen.queryByTestId("label-start-date")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("label-enrollment-end-date"),
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("label-end-date")).toBeInTheDocument();
     expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
     expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();
@@ -59,6 +65,9 @@ describe("SummaryTimeline", () => {
 
     expect(screen.queryByTestId("label-not-launched")).not.toBeInTheDocument();
     expect(screen.queryByTestId("label-start-date")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("label-enrollment-end-date"),
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("label-end-date")).toBeInTheDocument();
     expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
     expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();
