@@ -20,7 +20,7 @@ const EndExperiment = ({
         <Button
           variant="primary"
           onClick={onSubmit}
-          className="end-experiment-start-button px-3"
+          className="end-experiment-start-button btn btn-primary"
           data-testid="end-experiment-start"
           disabled={isLoading}
         >

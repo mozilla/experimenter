@@ -18,7 +18,7 @@ const EndEnrollment = ({
         variant="primary"
         onClick={onSubmit}
         disabled={isLoading}
-        className="px-3"
+        className="end-enrollment-btn"
         data-testid="end-enrollment-start"
       >
         End Enrollment
