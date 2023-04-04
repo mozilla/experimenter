@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import Select from "react-select";
@@ -128,45 +128,6 @@ const FormMetrics = ({
     [isLoading, onSave, handleSubmit, primaryOutcomes, secondaryOutcomes],
   );
 
-  const primaryContainerDivRef = useRef<HTMLDivElement>(null);
-  const secondaryContainerDivRef = useRef<HTMLDivElement>(null);
-
-  const toggleClasses = (valueContainer: HTMLElement, isValid: boolean) => {
-    valueContainer.classList.toggle("form-control", isValid);
-    valueContainer.classList.toggle("is-valid", isValid);
-    valueContainer.classList.toggle("border-0", isValid);
-  };
-
-  const validatePrimary = () => {
-    const primaryContainerDiv = primaryContainerDivRef.current;
-    if (!primaryContainerDiv) {
-      return;
-    }
-    const valueContainerDiv = primaryContainerDiv.querySelector(
-      "#primary-outcomes > div",
-    );
-    const valueContainer = valueContainerDiv?.querySelector("div");
-    if (valueContainer && valueContainerDiv) {
-      toggleClasses(valueContainer, primaryOutcomes.length > 0);
-      valueContainerDiv.classList.toggle("border-success");
-    }
-  };
-
-  const validateSecondary = () => {
-    const secondaryContainerDiv = secondaryContainerDivRef.current;
-    if (!secondaryContainerDiv) {
-      return;
-    }
-    const valueContainerDiv = secondaryContainerDiv.querySelector(
-      "#secondary-outcomes > div",
-    );
-    const valueContainer = valueContainerDiv?.querySelector("div");
-    if (valueContainer && valueContainerDiv) {
-      toggleClasses(valueContainer, secondaryOutcomes.length > 0);
-      valueContainerDiv.classList.toggle("border-success");
-    }
-  };
-
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
 
@@ -183,11 +144,7 @@ const FormMetrics = ({
         </Alert>
       )}
 
-      <Form.Group
-        controlId="primaryOutcomes"
-        data-testid="primary-outcomes"
-        ref={primaryContainerDivRef}
-      >
+      <Form.Group controlId="primaryOutcomes" data-testid="primary-outcomes">
         <Form.Label>
           Primary Outcomes{" "}
           <Info
@@ -201,11 +158,9 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
-          id="primary-outcomes"
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
           isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
-          onBlur={() => validatePrimary()}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
@@ -217,7 +172,6 @@ const FormMetrics = ({
       <Form.Group
         controlId="secondaryOutcomes"
         data-testid="secondary-outcomes"
-        ref={secondaryContainerDivRef}
       >
         <Form.Label>
           Secondary Outcomes{" "}
@@ -231,10 +185,8 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
-          id="secondary-outcomes"
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
-          onBlur={() => validateSecondary()}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
