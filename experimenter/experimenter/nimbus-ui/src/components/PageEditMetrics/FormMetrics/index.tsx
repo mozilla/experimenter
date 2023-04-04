@@ -146,12 +146,9 @@ const FormMetrics = ({
       "#primary-outcomes > div",
     );
     const valueContainer = valueContainerDiv?.querySelector("div");
-    if (valueContainer) {
+    if (valueContainer && valueContainerDiv) {
       toggleClasses(valueContainer, primaryOutcomes.length > 0);
-      valueContainerDiv?.classList.toggle(
-        "border-success",
-        primaryOutcomes.length > 0,
-      );
+      valueContainerDiv.classList.toggle("border-success");
     }
   };
 
@@ -162,14 +159,11 @@ const FormMetrics = ({
     }
     const valueContainerDiv = secondaryContainerDiv.querySelector(
       "#secondary-outcomes > div",
-    );
+    ) as HTMLElement;
     const valueContainer = valueContainerDiv?.querySelector("div");
-    if (valueContainer) {
+    if (valueContainer && valueContainerDiv) {
       toggleClasses(valueContainer, secondaryOutcomes.length > 0);
-      valueContainerDiv?.classList.toggle(
-        "border-success",
-        secondaryOutcomes.length > 0,
-      );
+      valueContainerDiv.classList.add("border-success");
     }
   };
 
