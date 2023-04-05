@@ -5,7 +5,6 @@ from parameterized import parameterized
 
 from experimenter.base.tests.factories import CountryFactory, LanguageFactory
 from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
@@ -191,7 +190,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"reference_branch": {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]}},
+            {"reference_branch": {"description": [NimbusExperiment.ERROR_REQUIRED_FIELD]}},
         )
 
     def test_invalid_experiment_requires_min_version_less_than_max_version(self):
@@ -703,7 +702,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["treatment_branches"][1],
-            {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]},
+            {"description": [NimbusExperiment.ERROR_REQUIRED_FIELD]},
         )
 
     def test_invalid_experiment_missing_feature_config(self):
@@ -724,7 +723,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["feature_config"],
-            [NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG],
+            [NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG],
         )
 
     def test_invalid_experiment_risk_questions(self):
@@ -752,15 +751,15 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             str(serializer.errors["risk_partner_related"][0]),
-            NimbusConstants.ERROR_REQUIRED_QUESTION,
+            NimbusExperiment.ERROR_REQUIRED_QUESTION,
         )
         self.assertEqual(
             str(serializer.errors["risk_revenue"][0]),
-            NimbusConstants.ERROR_REQUIRED_QUESTION,
+            NimbusExperiment.ERROR_REQUIRED_QUESTION,
         )
         self.assertEqual(
             str(serializer.errors["risk_brand"][0]),
-            NimbusConstants.ERROR_REQUIRED_QUESTION,
+            NimbusExperiment.ERROR_REQUIRED_QUESTION,
         )
 
     @parameterized.expand(
@@ -1254,7 +1253,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["treatment_branches"][0]["name"],
-            [NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT],
+            [NimbusExperiment.ERROR_SINGLE_BRANCH_FOR_ROLLOUT],
         )
 
     @parameterized.expand(
@@ -1463,7 +1462,7 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(
             serializer.warnings["bucketing"],
-            [NimbusConstants.ERROR_BUCKET_EXISTS],
+            [NimbusExperiment.ERROR_BUCKET_EXISTS],
         )
 
     def test_bucket_namespace_warning_for_non_dupe_rollouts(self):

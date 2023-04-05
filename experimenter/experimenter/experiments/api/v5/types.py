@@ -11,7 +11,6 @@ from experimenter.experiments.api.v5.serializers import (
     TransitionConstants,
 )
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -27,42 +26,42 @@ from experimenter.projects.models import Project
 
 class NimbusExperimentStatusEnum(graphene.Enum):
     class Meta:
-        enum = NimbusConstants.Status
+        enum = NimbusExperiment.Status
 
 
 class NimbusExperimentPublishStatusEnum(graphene.Enum):
     class Meta:
-        enum = NimbusConstants.PublishStatus
+        enum = NimbusExperiment.PublishStatus
 
 
 class NimbusExperimentFirefoxVersionEnum(graphene.Enum):
     class Meta:
-        enum = NimbusConstants.Version
+        enum = NimbusExperiment.Version
 
 
 class NimbusExperimentApplicationEnum(graphene.Enum):
     class Meta:
-        enum = NimbusConstants.Application
+        enum = NimbusExperiment.Application
 
 
 class NimbusTypeEnum(graphene.Enum):
     class Meta:
-        enum = NimbusConstants.Type
+        enum = NimbusExperiment.Type
 
 
 class NimbusExperimentChannelEnum(graphene.Enum):
     class Meta:
-        enum = NimbusConstants.Channel
+        enum = NimbusExperiment.Channel
 
 
 class NimbusExperimentConclusionRecommendationEnum(graphene.Enum):
     class Meta:
-        enum = NimbusConstants.ConclusionRecommendation
+        enum = NimbusExperiment.ConclusionRecommendation
 
 
 class NimbusExperimentDocumentationLinkEnum(graphene.Enum):
     class Meta:
-        enum = NimbusConstants.DocumentationLink
+        enum = NimbusExperiment.DocumentationLink
 
 
 class ObjectField(graphene.Scalar):
@@ -577,13 +576,13 @@ class NimbusExperimentType(DjangoObjectType):
 
     def resolve_reference_branch(self, info):
         return self.reference_branch or NimbusBranch(
-            name=NimbusConstants.DEFAULT_REFERENCE_BRANCH_NAME
+            name=NimbusExperiment.DEFAULT_REFERENCE_BRANCH_NAME
         )
 
     def resolve_treatment_branches(self, info):
         if self.branches.exists():
             return self.treatment_branches
-        return [NimbusBranch(name=NimbusConstants.DEFAULT_TREATMENT_BRANCH_NAME)]
+        return [NimbusBranch(name=NimbusExperiment.DEFAULT_TREATMENT_BRANCH_NAME)]
 
     def resolve_ready_for_review(self, info):
         serializer = NimbusReviewSerializer(

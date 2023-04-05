@@ -2,7 +2,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from experimenter.experiments.api.v5.serializers import NimbusBranchSerializer
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.models import NimbusBranch
 from experimenter.experiments.tests.factories import (
     TINY_PNG,
@@ -38,7 +38,7 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
         )
 
     def test_serializer_saves_new_branch(self):
-        application = NimbusConstants.Application.DESKTOP
+        application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         experiment = NimbusExperimentFactory.create(
             application=application, feature_configs=[feature_config]
@@ -65,7 +65,7 @@ class TestNimbusBranchSerializerSingleFeature(TestCase):
         self.assertEqual(branch_feature_value.value, "{}")
 
     def test_serializer_updates_existing_branch(self):
-        application = NimbusConstants.Application.DESKTOP
+        application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         experiment = NimbusExperimentFactory.create(
             application=application, feature_configs=[feature_config]
@@ -177,12 +177,12 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
                 "feature_values": [
                     {
                         "feature_config": (
-                            NimbusConstants.ERROR_DUPLICATE_BRANCH_FEATURE_VALUE
+                            NimbusExperiment.ERROR_DUPLICATE_BRANCH_FEATURE_VALUE
                         )
                     },
                     {
                         "feature_config": (
-                            NimbusConstants.ERROR_DUPLICATE_BRANCH_FEATURE_VALUE
+                            NimbusExperiment.ERROR_DUPLICATE_BRANCH_FEATURE_VALUE
                         )
                     },
                 ]
@@ -190,7 +190,7 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
         )
 
     def test_serializer_saves_new_branch(self):
-        application = NimbusConstants.Application.DESKTOP
+        application = NimbusExperiment.Application.DESKTOP
         feature_config1 = NimbusFeatureConfigFactory.create(application=application)
         feature_config2 = NimbusFeatureConfigFactory.create(application=application)
         experiment = NimbusExperimentFactory.create(
@@ -225,7 +225,7 @@ class TestNimbusBranchSerializerMultiFeature(TestCase):
             self.assertEqual(branch_feature_value.value, "{}")
 
     def test_serializer_updates_existing_branch(self):
-        application = NimbusConstants.Application.DESKTOP
+        application = NimbusExperiment.Application.DESKTOP
         feature_config1 = NimbusFeatureConfigFactory.create(application=application)
         feature_config2 = NimbusFeatureConfigFactory.create(application=application)
         experiment = NimbusExperimentFactory.create(
