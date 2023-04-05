@@ -237,7 +237,9 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         self.assertEqual(
             serializer.errors,
             {
-                "reference_branch": {"name": NimbusExperiment.ERROR_DUPLICATE_BRANCH_NAME},
+                "reference_branch": {
+                    "name": NimbusExperiment.ERROR_DUPLICATE_BRANCH_NAME
+                },
                 "treatment_branches": [
                     {"name": NimbusExperiment.ERROR_DUPLICATE_BRANCH_NAME}
                     for _ in (data.get("treatment_branches", []) or [])

@@ -190,7 +190,11 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"reference_branch": {"description": [NimbusExperiment.ERROR_REQUIRED_FIELD]}},
+            {
+                "reference_branch": {
+                    "description": [NimbusExperiment.ERROR_REQUIRED_FIELD]
+                }
+            },
         )
 
     def test_invalid_experiment_requires_min_version_less_than_max_version(self):
