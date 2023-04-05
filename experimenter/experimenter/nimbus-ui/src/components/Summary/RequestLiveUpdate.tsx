@@ -18,7 +18,7 @@ const RequestLiveUpdate = ({
         data-testid="request-update-button"
         id="request-update-button"
         type="button"
-        className="mr-2 btn btn-primary "
+        className="mr-2 btn btn-primary"
         disabled={isLoading}
         onClick={onSubmit}
       >
