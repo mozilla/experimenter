@@ -101,7 +101,7 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
         )
 
 
-class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.Model):
+class NimbusExperiment(NimbusExperiment, TargetingConstants, FilterMixin, models.Model):
     parent = models.ForeignKey["NimbusExperiment"](
         "experiments.NimbusExperiment", models.SET_NULL, blank=True, null=True
     )
