@@ -101,7 +101,7 @@ class NimbusExperimentManager(models.Manager["NimbusExperiment"]):
         )
 
 
-class NimbusExperiment(NimbusExperiment, TargetingConstants, FilterMixin, models.Model):
+class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.Model):
     parent = models.ForeignKey["NimbusExperiment"](
         "experiments.NimbusExperiment", models.SET_NULL, blank=True, null=True
     )
@@ -114,33 +114,33 @@ class NimbusExperiment(NimbusExperiment, TargetingConstants, FilterMixin, models
     )
     status = models.CharField(
         max_length=255,
-        default=NimbusExperiment.Status.DRAFT,
-        choices=NimbusExperiment.Status.choices,
+        default=NimbusConstants.Status.DRAFT,
+        choices=NimbusConstants.Status.choices,
     )
     status_next = models.CharField(
         max_length=255,
         blank=True,
         null=True,
-        choices=NimbusExperiment.Status.choices,
+        choices=NimbusConstants.Status.choices,
     )
     publish_status = models.CharField(
         max_length=255,
-        default=NimbusExperiment.PublishStatus.IDLE,
-        choices=NimbusExperiment.PublishStatus.choices,
+        default=NimbusConstants.PublishStatus.IDLE,
+        choices=NimbusConstants.PublishStatus.choices,
     )
     name = models.CharField(max_length=255, unique=True)
-    slug = models.SlugField(max_length=NimbusExperiment.MAX_SLUG_LEN, unique=True)
+    slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, unique=True)
     public_description = models.TextField(default="")
     risk_mitigation_link = models.URLField(max_length=255, blank=True)
     is_paused = models.BooleanField(default=False)
     is_rollout_dirty = models.BooleanField(blank=True, null=True)
     proposed_duration = models.PositiveIntegerField(
-        default=NimbusExperiment.DEFAULT_PROPOSED_DURATION,
-        validators=[MaxValueValidator(NimbusExperiment.MAX_DURATION)],
+        default=NimbusConstants.DEFAULT_PROPOSED_DURATION,
+        validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
     proposed_enrollment = models.PositiveIntegerField(
-        default=NimbusExperiment.DEFAULT_PROPOSED_ENROLLMENT,
-        validators=[MaxValueValidator(NimbusExperiment.MAX_DURATION)],
+        default=NimbusConstants.DEFAULT_PROPOSED_ENROLLMENT,
+        validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
     population_percent = models.DecimalField[Decimal](
         max_digits=7, decimal_places=4, default=0.0
@@ -148,28 +148,28 @@ class NimbusExperiment(NimbusExperiment, TargetingConstants, FilterMixin, models
     total_enrolled_clients = models.PositiveIntegerField(default=0)
     firefox_min_version = models.CharField(
         max_length=255,
-        default=NimbusExperiment.Version.NO_VERSION,
+        default=NimbusConstants.Version.NO_VERSION,
         blank=True,
     )
     firefox_max_version = models.CharField(
         max_length=255,
-        default=NimbusExperiment.Version.NO_VERSION,
+        default=NimbusConstants.Version.NO_VERSION,
         blank=True,
     )
     application = models.CharField(
         max_length=255,
-        choices=NimbusExperiment.Application.choices,
+        choices=NimbusConstants.Application.choices,
     )
     channel = models.CharField(
         max_length=255,
-        choices=NimbusExperiment.Channel.choices,
+        choices=NimbusConstants.Channel.choices,
     )
     locales = models.ManyToManyField[Locale](Locale, blank=True)
     countries = models.ManyToManyField[Country](Country, blank=True)
     languages = models.ManyToManyField[Language](Language, blank=True)
     is_sticky = models.BooleanField(default=False)
     projects = models.ManyToManyField[Project](Project, blank=True)
-    hypothesis = models.TextField(default=NimbusExperiment.HYPOTHESIS_DEFAULT)
+    hypothesis = models.TextField(default=NimbusConstants.HYPOTHESIS_DEFAULT)
     primary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
     secondary_outcomes = ArrayField(models.CharField(max_length=255), default=list)
     feature_configs = models.ManyToManyField["NimbusFeatureConfig"](
@@ -217,46 +217,46 @@ class NimbusExperiment(NimbusExperiment, TargetingConstants, FilterMixin, models
 
     class Filters:
         IS_LAUNCH_QUEUED = Q(
-            status=NimbusExperiment.Status.DRAFT,
-            status_next=NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            status=NimbusConstants.Status.DRAFT,
+            status_next=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.APPROVED,
         )
         IS_LAUNCHING = Q(
-            status=NimbusExperiment.Status.DRAFT,
-            status_next=NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            status=NimbusConstants.Status.DRAFT,
+            status_next=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.WAITING,
         )
         IS_UPDATE_QUEUED = Q(
-            status=NimbusExperiment.Status.LIVE,
-            status_next=NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            status=NimbusConstants.Status.LIVE,
+            status_next=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.APPROVED,
         )
         IS_UPDATING = Q(
-            status=NimbusExperiment.Status.LIVE,
-            status_next=NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            status=NimbusConstants.Status.LIVE,
+            status_next=NimbusConstants.Status.LIVE,
+            publish_status=NimbusConstants.PublishStatus.WAITING,
         )
         IS_END_QUEUED = Q(
-            status=NimbusExperiment.Status.LIVE,
-            status_next=NimbusExperiment.Status.COMPLETE,
-            publish_status=NimbusExperiment.PublishStatus.APPROVED,
+            status=NimbusConstants.Status.LIVE,
+            status_next=NimbusConstants.Status.COMPLETE,
+            publish_status=NimbusConstants.PublishStatus.APPROVED,
         )
         IS_ENDING = Q(
-            status=NimbusExperiment.Status.LIVE,
-            status_next=NimbusExperiment.Status.COMPLETE,
-            publish_status=NimbusExperiment.PublishStatus.WAITING,
+            status=NimbusConstants.Status.LIVE,
+            status_next=NimbusConstants.Status.COMPLETE,
+            publish_status=NimbusConstants.PublishStatus.WAITING,
         )
         SHOULD_ALLOCATE_BUCKETS = Q(
-            Q(status=NimbusExperiment.Status.PREVIEW)
+            Q(status=NimbusConstants.Status.PREVIEW)
             | Q(
-                status=NimbusExperiment.Status.DRAFT,
-                publish_status=NimbusExperiment.PublishStatus.APPROVED,
+                status=NimbusConstants.Status.DRAFT,
+                publish_status=NimbusConstants.PublishStatus.APPROVED,
             )
             | Q(
                 is_rollout=True,
-                status=NimbusExperiment.Status.LIVE,
-                status_next=NimbusExperiment.Status.LIVE,
-                publish_status=NimbusExperiment.PublishStatus.APPROVED,
+                status=NimbusConstants.Status.LIVE,
+                status_next=NimbusConstants.Status.LIVE,
+                publish_status=NimbusConstants.PublishStatus.APPROVED,
             )
         )
 
@@ -668,7 +668,7 @@ class NimbusExperiment(NimbusExperiment, TargetingConstants, FilterMixin, models
     def results_ready(self):
         if self.proposed_enrollment_end_date:
             resultsReadyDate = self.proposed_enrollment_end_date + datetime.timedelta(
-                days=NimbusExperiment.DAYS_UNTIL_ANALYSIS
+                days=NimbusConstants.DAYS_UNTIL_ANALYSIS
             )
             return datetime.date.today() >= resultsReadyDate
 
@@ -784,7 +784,7 @@ class NimbusBranch(models.Model):
         on_delete=models.CASCADE,
     )
     name = models.CharField(max_length=255, null=False)
-    slug = models.SlugField(max_length=NimbusExperiment.MAX_SLUG_LEN, null=False)
+    slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, null=False)
     description = models.TextField(blank=True, default="")
     ratio = models.PositiveIntegerField(default=1)
 
@@ -906,7 +906,7 @@ class NimbusDocumentationLink(models.Model):
     title = models.CharField(
         max_length=255,
         null=False,
-        choices=NimbusExperiment.DocumentationLink.choices,
+        choices=NimbusConstants.DocumentationLink.choices,
     )
     link = models.URLField(max_length=255, null=False)
 
@@ -925,7 +925,7 @@ class NimbusIsolationGroup(models.Model):
     )
     name = models.CharField(max_length=255)
     instance = models.PositiveIntegerField(default=1)
-    total = models.PositiveIntegerField(default=NimbusExperiment.BUCKET_TOTAL)
+    total = models.PositiveIntegerField(default=NimbusConstants.BUCKET_TOTAL)
 
     class Meta:
         verbose_name = "Bucket IsolationGroup"
@@ -1011,11 +1011,11 @@ class NimbusBucketRange(models.Model):
 class NimbusFeatureConfig(models.Model):
     id: int
     name = models.CharField(max_length=255, null=False)
-    slug = models.SlugField(max_length=NimbusExperiment.MAX_SLUG_LEN, null=False)
+    slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, null=False)
     description = models.TextField(blank=True, null=True)
     application = models.CharField(
         max_length=255,
-        choices=NimbusExperiment.Application.choices,
+        choices=NimbusConstants.Application.choices,
         blank=True,
         null=True,
     )
