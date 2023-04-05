@@ -180,9 +180,10 @@ export interface getExperiment_experimentBySlug {
   proposedDuration: number;
   readyForReview: getExperiment_experimentBySlug_readyForReview | null;
   startDate: DateTime | null;
+  computedDurationDays: number | null;
   computedEndDate: DateTime | null;
   computedEnrollmentDays: number | null;
-  computedDurationDays: number | null;
+  computedEnrollmentEndDate: DateTime | null;
   riskMitigationLink: string | null;
   riskRevenue: boolean | null;
   riskBrand: boolean | null;
