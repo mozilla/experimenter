@@ -13,7 +13,7 @@ from experimenter.experiments.changelog_utils import (
     NimbusBranchChangeLogSerializer,
     NimbusChangeLogSerializer,
 )
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -101,14 +101,14 @@ class NimbusExperimentResource(resources.ModelResource):
 
     def dehydrate_status_next(self, experiment):
         """Return None instead of empty string for nullable enums"""
-        if experiment.status_next not in dict(NimbusExperiment.Status.choices):
+        if experiment.status_next not in dict(NimbusConstants.Status.choices):
             return None
         return experiment.status_next
 
     def dehydrate_conclusion_recommendation(self, experiment):
         """Return None instead of empty string for nullable enums"""
         if experiment.conclusion_recommendation not in dict(
-            NimbusExperiment.ConclusionRecommendation.choices
+            NimbusConstants.ConclusionRecommendation.choices
         ):
             return None
         return experiment.conclusion_recommendation
