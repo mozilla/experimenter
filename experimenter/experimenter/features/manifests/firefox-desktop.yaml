@@ -222,10 +222,6 @@ urlbar:
       type: boolean
       setPref: browser.urlbar.resultMenu
       description: Enable the per-result three-dot menu with options such as Dismiss and Learn More.
-    searchEngagementTelemetryEnabled:
-      type: boolean
-      fallbackPref: browser.urlbar.searchEngagementTelemetry.enabled
-      description: Whether search engagement telemetry should be enabled.
     showSearchTermsFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.showSearchTerms.featureGate
@@ -364,6 +360,9 @@ newtab:
       type: boolean
       fallbackPref: browser.topsites.contile.enabled
       description: Enable the Contile integration for Sponsored Top Sites
+    topSitesUseAdditionalTilesFromContile:
+      type: boolean
+      description: Allow Contile to use additonal sponsored top sites
 
 pocketNewtab:
   description: The Pocket section in newtab
@@ -860,6 +859,9 @@ pictureinpicture:
     oldToggle:
       type: boolean
       description: Whether to show the control style (true) or variant style (false) for the first time PiP toggle
+    displayDuration:
+      type: int
+      description: Duration of PiP first time toggle display in days before switching to PiP icon toggle
 
 glean:
   description: "The Glean data collection SDK within Firefox Desktop"
@@ -1157,6 +1159,7 @@ migrationWizard:
   description: Prefs to control the Migration Wizard UI.
   owner: mconley@mozilla.com
   hasExposure: false
+  isEarlyStartup: true
   variables:
     useNewWizard:
       description: True if the "Variant 2" of the Migration Wizard browser / profile selection UI should be used.
@@ -1166,6 +1169,10 @@ migrationWizard:
       description: True if the "Variant 2" of the Migration Wizard browser / profile selection UI should be used. This is only meaningful in the new Migration Wizard.
       type: boolean
       setPref: browser.migrate.content-modal.import-all.enabled
+    showPreferencesEntrypoint:
+      description: True if an entrypoint to the migration wizard should be visible in about:preferences.
+      type: boolean
+      setPref: browser.migrate.preferences-entrypoint.enabled
 
 mixedContentUpgrading:
   description: Prefs to control whether we upgrade mixed passive content (images, audio, video) from http to https
