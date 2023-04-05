@@ -28,7 +28,7 @@ class Base(Page):
 
     def find_element(self, strategy, locator):
         self.wait.until(
-            EC.presence_of_all_elements_located((strategy, locator)),
+            EC.presence_of_all_element_located((strategy, locator)),
             message=f"Element {locator} not found within the timeout period.",
         )
         return self.selenium.find_element(strategy, locator)
