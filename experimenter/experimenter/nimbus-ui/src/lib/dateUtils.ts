@@ -34,11 +34,22 @@ export function humanDate(date: string): string {
 export function getProposedEnrollmentRange(
   experiment: getExperiment_experimentBySlug | getAllExperiments_experiments,
 ): string {
-  const { startDate, computedEnrollmentEndDate, proposedEnrollment } =
-    experiment;
-  if (startDate && computedEnrollmentEndDate) {
-    return `${humanDate(startDate)} - ${humanDate(computedEnrollmentEndDate)}`;
+  const {
+    startDate,
+    computedEnrollmentEndDate,
+    proposedEnrollment,
+    proposedDuration,
+    isRollout,
+  } = experiment;
+  if (!isRollout) {
+    if (startDate && computedEnrollmentEndDate) {
+      return `${humanDate(startDate)} - ${humanDate(
+        computedEnrollmentEndDate,
+      )}`;
+    } else {
+      return pluralize(proposedEnrollment, "day");
+    }
   } else {
-    return pluralize(proposedEnrollment, "day");
+    return pluralize(proposedDuration, "day");
   }
 }

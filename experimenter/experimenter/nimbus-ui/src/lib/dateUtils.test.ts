@@ -49,4 +49,13 @@ describe("getProposedEnrollmentRange", () => {
     );
     expect(actual).toBe("1 day");
   });
+  it("should render the proposed duration for rollouts", () => {
+    const actual = getProposedEnrollmentRange(
+      expFactory({
+        proposedDuration: 3,
+        isRollout: true,
+      }),
+    );
+    expect(actual).toBe("3 days");
+  });
 });
