@@ -28,6 +28,7 @@ const SummaryTimeline = ({
           startDate: experiment.startDate,
           computedEnrollmentEndDate: experiment.computedEnrollmentEndDate,
           computedEndDate: experiment.computedEndDate,
+          isRollout: experiment.isRollout,
         }}
       />
 
@@ -43,6 +44,7 @@ const SummaryTimeline = ({
         {...{
           duration: experiment.computedDurationDays,
           enrollment: experiment.computedEnrollmentDays,
+          isRollout: experiment.isRollout,
         }}
       />
     </div>
@@ -54,11 +56,13 @@ const StartEnd = ({
   startDate,
   computedEnrollmentEndDate,
   computedEndDate,
+  isRollout,
 }: {
   status: StatusCheck;
   startDate: string | null;
   computedEnrollmentEndDate: string | null;
   computedEndDate: string | null;
+  isRollout: boolean | null;
 }) => (
   <div className="d-flex">
     {status.draft || status.preview ? (
@@ -70,7 +74,7 @@ const StartEnd = ({
         <span className="flex-fill" data-testid="label-start-date">
           Start: <b>{humanDate(startDate!)}</b>
         </span>
-        {computedEnrollmentEndDate && (
+        {computedEnrollmentEndDate && !isRollout && (
           <span
             className="flex-fill text-center"
             data-testid="label-enrollment-end-date"
@@ -123,9 +127,11 @@ const Progress = ({
 const Duration = ({
   duration,
   enrollment,
+  isRollout,
 }: {
   duration: number | null;
   enrollment: number | null;
+  isRollout: boolean | null;
 }) => (
   <span>
     Total duration:{" "}
@@ -143,12 +149,19 @@ const Duration = ({
       </>
     ) : (
       <NotSet data-testid="label-duration-not-set" />
-    )}{" "}
-    / Enrollment:{" "}
-    {enrollment !== null ? (
-      <b data-testid="label-enrollment-days">{pluralize(enrollment, "day")}</b>
-    ) : (
-      <NotSet data-testid="label-enrollment-not-set" />
+    )}
+    {!isRollout && (
+      <>
+        {" "}
+        / Enrollment:{" "}
+        {enrollment !== null ? (
+          <b data-testid="label-enrollment-days">
+            {pluralize(enrollment, "day")}
+          </b>
+        ) : (
+          <NotSet data-testid="label-enrollment-not-set" />
+        )}
+      </>
     )}
   </span>
 );
