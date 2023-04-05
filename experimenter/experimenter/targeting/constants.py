@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from django.db import models
 
-from experimenter.experiments.models import Application, NimbusExperiment
+from experimenter.experiments.constants import Application, NimbusConstants
 
 
 @dataclass
@@ -1101,8 +1101,8 @@ class TargetingConstants:
     )
 
     TARGETING_APPLICATION_SUPPORTED_VERSION = {
-        Application.FENIX: NimbusExperiment.Version.FIREFOX_98,
-        Application.FOCUS_ANDROID: NimbusExperiment.Version.FIREFOX_98,
-        Application.IOS: NimbusExperiment.Version.FIREFOX_98,
-        Application.FOCUS_IOS: NimbusExperiment.Version.FIREFOX_97,
+        Application.FENIX: NimbusConstants.Version.FIREFOX_98,
+        Application.FOCUS_ANDROID: NimbusConstants.Version.FIREFOX_98,
+        Application.IOS: NimbusConstants.Version.FIREFOX_98,
+        Application.FOCUS_IOS: NimbusConstants.Version.FIREFOX_97,
     }
