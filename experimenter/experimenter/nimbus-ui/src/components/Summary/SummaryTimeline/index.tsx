@@ -26,6 +26,7 @@ const SummaryTimeline = ({
         {...{
           status,
           startDate: experiment.startDate,
+          computedEnrollmentEndDate: experiment.computedEnrollmentEndDate,
           computedEndDate: experiment.computedEndDate,
         }}
       />
@@ -51,10 +52,12 @@ const SummaryTimeline = ({
 const StartEnd = ({
   status,
   startDate,
+  computedEnrollmentEndDate,
   computedEndDate,
 }: {
   status: StatusCheck;
   startDate: string | null;
+  computedEnrollmentEndDate: string | null;
   computedEndDate: string | null;
 }) => (
   <div className="d-flex">
@@ -65,11 +68,19 @@ const StartEnd = ({
     ) : (
       <>
         <span className="flex-fill" data-testid="label-start-date">
-          {humanDate(startDate!)}
+          Start: <b>{humanDate(startDate!)}</b>
         </span>
+        {computedEnrollmentEndDate && (
+          <span
+            className="flex-fill text-center"
+            data-testid="label-enrollment-end-date"
+          >
+            Enrollment End: <b>{humanDate(computedEnrollmentEndDate!)}</b>
+          </span>
+        )}
         {computedEndDate && (
           <span className="flex-fill text-right" data-testid="label-end-date">
-            {humanDate(computedEndDate!)}
+            End: <b>{humanDate(computedEndDate!)}</b>
           </span>
         )}
       </>
