@@ -24,12 +24,6 @@ export function humanDate(date: string): string {
   return parsedDate.toLocaleString("en-US", options);
 }
 
-export function addDaysToDate(datestring: string, days: number): string {
-  const date = new Date(datestring);
-  date.setDate(date.getDate() + days);
-  return date.toDateString();
-}
-
 /**
  *  Renders period of enrollment depend on what's available
  *  If startDate is set, it will return a range of dates
@@ -40,12 +34,22 @@ export function addDaysToDate(datestring: string, days: number): string {
 export function getProposedEnrollmentRange(
   experiment: getExperiment_experimentBySlug | getAllExperiments_experiments,
 ): string {
-  const { startDate, proposedEnrollment } = experiment;
-  if (startDate) {
-    return `${humanDate(startDate)} - ${humanDate(
-      addDaysToDate(startDate, proposedEnrollment),
-    )}`;
+  const {
+    startDate,
+    computedEnrollmentEndDate,
+    proposedEnrollment,
+    proposedDuration,
+    isRollout,
+  } = experiment;
+  if (!isRollout) {
+    if (startDate && computedEnrollmentEndDate) {
+      return `${humanDate(startDate)} - ${humanDate(
+        computedEnrollmentEndDate,
+      )}`;
+    } else {
+      return pluralize(proposedEnrollment, "day");
+    }
   } else {
-    return pluralize(proposedEnrollment, "day");
+    return pluralize(proposedDuration, "day");
   }
 }
