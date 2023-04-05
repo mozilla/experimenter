@@ -70,7 +70,7 @@ describe("CopyToClipboardButton", () => {
     navigator.clipboard.writeText = originalClipboard;
   });
 
-  it("should scale up on mouse over and scale back to normal on mouse out", () => {
+  it("should scale up the icon on mouse over and scale back to normal on mouse out", () => {
     const textToCopy = "Hello, world!";
     render(<CopyToClipboardButton text={textToCopy} />);
     const icon = screen.getByTestId("copy-to-clipboard-icon");
