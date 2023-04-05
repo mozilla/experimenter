@@ -28,6 +28,9 @@ describe("SummaryTimeline", () => {
 
       expect(screen.queryByTestId("label-not-launched")).toBeInTheDocument();
       expect(screen.queryByTestId("label-start-date")).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("label-enrollment-end-date"),
+      ).not.toBeInTheDocument();
       expect(screen.queryByTestId("label-end-date")).not.toBeInTheDocument();
       expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
       expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();
@@ -44,9 +47,35 @@ describe("SummaryTimeline", () => {
 
     expect(screen.queryByTestId("label-not-launched")).not.toBeInTheDocument();
     expect(screen.queryByTestId("label-start-date")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("label-enrollment-end-date"),
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("label-end-date")).toBeInTheDocument();
     expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
     expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();
+    expect(
+      await screen.findByTestId("tooltip-duration-summary"),
+    ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
+  });
+
+  it("renders with a live rollout", async () => {
+    render(
+      <Subject status={NimbusExperimentStatusEnum.LIVE} isRollout={true} />,
+    );
+
+    expect(innerBar().classList).toContain("progress-bar-animated");
+    expect(innerBar().classList).toContain("progress-bar-striped");
+
+    expect(screen.queryByTestId("label-not-launched")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("label-start-date")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("label-enrollment-end-date"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("label-end-date")).toBeInTheDocument();
+    expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("label-enrollment-days"),
+    ).not.toBeInTheDocument();
     expect(
       await screen.findByTestId("tooltip-duration-summary"),
     ).toHaveAttribute("data-tip", TOOLTIP_DURATION);
@@ -59,6 +88,9 @@ describe("SummaryTimeline", () => {
 
     expect(screen.queryByTestId("label-not-launched")).not.toBeInTheDocument();
     expect(screen.queryByTestId("label-start-date")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("label-enrollment-end-date"),
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("label-end-date")).toBeInTheDocument();
     expect(screen.queryByTestId("label-duration-days")).toBeInTheDocument();
     expect(screen.queryByTestId("label-enrollment-days")).toBeInTheDocument();

@@ -435,6 +435,7 @@ class NimbusExperimentType(DjangoObjectType):
     computed_duration_days = graphene.Int()
     computed_end_date = graphene.DateTime()
     computed_enrollment_days = graphene.Int()
+    computed_enrollment_end_date = graphene.DateTime()
     conclusion_recommendation = graphene.Field(
         NimbusExperimentConclusionRecommendationEnum
     )
@@ -476,6 +477,7 @@ class NimbusExperimentType(DjangoObjectType):
     risk_mitigation_link = graphene.String()
     rollout_monitoring_dashboard_url = graphene.String()
     secondary_outcomes = graphene.List(graphene.String)
+    show_results_url = graphene.Boolean()
     signoff_recommendations = graphene.Field(NimbusSignoffRecommendationsType)
     slug = graphene.String(required=True)
     start_date = graphene.DateTime()
@@ -499,6 +501,7 @@ class NimbusExperimentType(DjangoObjectType):
             "computed_duration_days",
             "computed_end_date",
             "computed_enrollment_days",
+            "computed_enrollment_end_date",
             "conclusion_recommendation",
             "countries",
             "documentation_links",
@@ -544,6 +547,7 @@ class NimbusExperimentType(DjangoObjectType):
             "risk_revenue",
             "rollout_monitoring_dashboard_url",
             "secondary_outcomes",
+            "show_results_url",
             "signoff_recommendations",
             "slug",
             "start_date",

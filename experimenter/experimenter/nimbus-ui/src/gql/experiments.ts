@@ -39,6 +39,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       monitoringDashboardUrl
       rolloutMonitoringDashboardUrl
       resultsReady
+      showResultsUrl
 
       hypothesis
       application
@@ -130,9 +131,10 @@ export const GET_EXPERIMENT_QUERY = gql`
       }
 
       startDate
+      computedDurationDays
       computedEndDate
       computedEnrollmentDays
-      computedDurationDays
+      computedEnrollmentEndDate
 
       riskMitigationLink
       riskRevenue
@@ -237,12 +239,14 @@ export const GET_EXPERIMENTS_QUERY = gql`
       proposedDuration
       proposedEnrollment
       computedEndDate
+      computedEnrollmentEndDate
       status
       statusNext
       publishStatus
       monitoringDashboardUrl
       rolloutMonitoringDashboardUrl
       resultsReady
+      showResultsUrl
       featureConfig {
         slug
         name

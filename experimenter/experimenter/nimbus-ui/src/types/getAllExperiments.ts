@@ -63,12 +63,14 @@ export interface getAllExperiments_experiments {
   proposedDuration: number;
   proposedEnrollment: number;
   computedEndDate: DateTime | null;
+  computedEnrollmentEndDate: DateTime | null;
   status: NimbusExperimentStatusEnum | null;
   statusNext: NimbusExperimentStatusEnum | null;
   publishStatus: NimbusExperimentPublishStatusEnum | null;
   monitoringDashboardUrl: string | null;
   rolloutMonitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
+  showResultsUrl: boolean | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;
   channel: NimbusExperimentChannelEnum | null;
   populationPercent: string | null;

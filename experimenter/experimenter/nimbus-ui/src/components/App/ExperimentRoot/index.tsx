@@ -9,9 +9,8 @@ import PageExperimentNotFound from "src/components/PageExperimentNotFound";
 import PageLoading from "src/components/PageLoading";
 import { useAnalysis, useExperiment } from "src/hooks";
 import { BASE_PATH, POLL_INTERVAL } from "src/lib/constants";
-import { ExperimentContext } from "src/lib/contexts";
-import { getStatus, StatusCheck } from "src/lib/experiment";
-import { AnalysisData } from "src/lib/visualization/types";
+import { ExperimentContext, RedirectCondition } from "src/lib/contexts";
+import { getStatus } from "src/lib/experiment";
 
 export const ExperimentRoot = ({
   // BASE_PATH is a constant in App, but some tests vary in RouterSlugProvider
@@ -145,21 +144,5 @@ export const ExperimentRoot = ({
     </ExperimentContext.Provider>
   );
 };
-
-export type RedirectCheck = {
-  status: StatusCheck;
-  review?: {
-    ready: boolean;
-    invalidPages: string[];
-  };
-  analysis?: AnalysisData;
-  analysisError?: Error;
-};
-
-export type RedirectCondition = ({
-  status,
-  analysis,
-  analysisError,
-}: RedirectCheck) => string | void;
 
 export default ExperimentRoot;

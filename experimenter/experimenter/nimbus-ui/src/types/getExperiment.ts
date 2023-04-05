@@ -151,6 +151,7 @@ export interface getExperiment_experimentBySlug {
   monitoringDashboardUrl: string | null;
   rolloutMonitoringDashboardUrl: string | null;
   resultsReady: boolean | null;
+  showResultsUrl: boolean | null;
   hypothesis: string | null;
   application: NimbusExperimentApplicationEnum | null;
   publicDescription: string | null;
@@ -179,9 +180,10 @@ export interface getExperiment_experimentBySlug {
   proposedDuration: number;
   readyForReview: getExperiment_experimentBySlug_readyForReview | null;
   startDate: DateTime | null;
+  computedDurationDays: number | null;
   computedEndDate: DateTime | null;
   computedEnrollmentDays: number | null;
-  computedDurationDays: number | null;
+  computedEnrollmentEndDate: DateTime | null;
   riskMitigationLink: string | null;
   riskRevenue: boolean | null;
   riskBrand: boolean | null;
