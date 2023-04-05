@@ -18,6 +18,7 @@ export const Subject = ({
   computedEnrollmentDays = 1,
   status = NimbusExperimentStatusEnum.DRAFT,
   publishStatus = NimbusExperimentPublishStatusEnum.IDLE,
+  isRollout = false,
 }: {
   startDate?: string;
   computedDurationDays?: number;
@@ -26,6 +27,7 @@ export const Subject = ({
   computedEnrollmentEndDate?: string;
   status?: NimbusExperimentStatusEnum;
   publishStatus?: NimbusExperimentPublishStatusEnum;
+  isRollout?: boolean;
 }) => {
   const { experiment } = mockExperimentQuery("something-vague", {
     startDate,
@@ -35,6 +37,7 @@ export const Subject = ({
     computedEnrollmentEndDate,
     status,
     publishStatus,
+    isRollout,
   });
   return <SummaryTimeline {...{ experiment }} />;
 };
