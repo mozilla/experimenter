@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import Select from "react-select";
@@ -143,7 +149,7 @@ const FormMetrics = ({
     valueContainer.classList.toggle("border-0", isValid);
   };
 
-  const validatePrimary = () => {
+  const validatePrimary = useCallback(() => {
     const primaryContainerDiv = primaryContainerDivRef.current;
     if (!primaryContainerDiv) {
       return;
@@ -157,15 +163,15 @@ const FormMetrics = ({
       toggleClasses(valueContainer, isValid);
       valueContainerDiv.classList.toggle("border-success", isValid);
     }
-  };
+  }, [primaryOutcomes]);
 
   useEffect(() => {
     if (hasInteracted.primary) {
       validatePrimary();
     }
-  }, [primaryOutcomes, hasInteracted.primary]);
+  }, [validatePrimary, hasInteracted.primary]);
 
-  const validateSecondary = () => {
+  const validateSecondary = useCallback(() => {
     const secondaryContainerDiv = secondaryContainerDivRef.current;
     if (!secondaryContainerDiv) {
       return;
@@ -179,13 +185,13 @@ const FormMetrics = ({
       toggleClasses(valueContainer, isValid);
       valueContainerDiv.classList.toggle("border-success", isValid);
     }
-  };
+  }, [secondaryOutcomes]);
 
   useEffect(() => {
     if (hasInteracted.secondary) {
       validateSecondary();
     }
-  }, [secondaryOutcomes, hasInteracted.secondary]);
+  }, [validateSecondary, hasInteracted.secondary]);
 
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
