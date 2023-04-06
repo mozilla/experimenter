@@ -1,7 +1,7 @@
 from django.core.checks import Error
 from django.test import TestCase
 
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.outcomes import Metric, Outcome, Outcomes, check_outcome_tomls
 from experimenter.outcomes.tests import mock_invalid_outcomes, mock_valid_outcomes
 
@@ -18,7 +18,7 @@ class TestOutcomes(TestCase):
         self.assertEqual(len(outcomes), 4)
         self.assertIn(
             Outcome(
-                application=NimbusConstants.Application.FENIX,
+                application=NimbusExperiment.Application.FENIX,
                 description="Fenix config used for testing",
                 friendly_name="Fenix config",
                 slug="fenix_outcome",
@@ -36,7 +36,7 @@ class TestOutcomes(TestCase):
         for i in range(1, 4):
             self.assertIn(
                 Outcome(
-                    application=NimbusConstants.Application.DESKTOP,
+                    application=NimbusExperiment.Application.DESKTOP,
                     description="Firefox desktop config used for testing",
                     friendly_name=f"Desktop config {i}",
                     slug=f"desktop_outcome_{i}",
@@ -58,12 +58,12 @@ class TestOutcomes(TestCase):
             )
 
     def test_load_outcomes_by_application(self):
-        desktop_outcomes = Outcomes.by_application(NimbusConstants.Application.DESKTOP)
+        desktop_outcomes = Outcomes.by_application(NimbusExperiment.Application.DESKTOP)
         self.assertEqual(len(desktop_outcomes), 3)
         for i in range(1, 4):
             self.assertIn(
                 Outcome(
-                    application=NimbusConstants.Application.DESKTOP,
+                    application=NimbusExperiment.Application.DESKTOP,
                     description="Firefox desktop config used for testing",
                     friendly_name=f"Desktop config {i}",
                     slug=f"desktop_outcome_{i}",

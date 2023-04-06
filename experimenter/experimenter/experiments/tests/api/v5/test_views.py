@@ -10,7 +10,7 @@ from experimenter.experiments.api.v5.serializers import (
     NimbusExperimentCsvSerializer,
 )
 from experimenter.experiments.api.v5.views import NimbusExperimentCsvRenderer
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -20,7 +20,7 @@ from experimenter.experiments.tests.factories import (
 class TestNimbusExperimentCsvListView(TestCase):
     def test_get_returns_csv_info_sorted_by_start_date(self):
         user_email = "user@example.com"
-        application = NimbusConstants.Application.DESKTOP
+        application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
@@ -73,7 +73,7 @@ class TestNimbusExperimentCsvListView(TestCase):
 
     def test_get_returns_csv_filter_archived_experiments_info(self):
         user_email = "user@example.com"
-        application = NimbusConstants.Application.DESKTOP
+        application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
         experiment_1 = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,

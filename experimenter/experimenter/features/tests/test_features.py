@@ -5,7 +5,7 @@ import requests
 from django.core.checks import Error
 from django.test import TestCase
 
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.features import (
     Feature,
     Features,
@@ -83,7 +83,7 @@ class TestFeatures(TestCase):
         )
 
     def test_load_features_by_application(self):
-        desktop_features = Features.by_application(NimbusConstants.Application.DESKTOP)
+        desktop_features = Features.by_application(NimbusExperiment.Application.DESKTOP)
         self.assertEqual(len(desktop_features), 3)
         self.assertIn(
             Feature(
@@ -118,7 +118,7 @@ class TestFeatures(TestCase):
         )
 
     def test_feature_generates_schema(self):
-        desktop_feature = Features.by_application(NimbusConstants.Application.DESKTOP)[0]
+        desktop_feature = Features.by_application(NimbusExperiment.Application.DESKTOP)[0]
         self.assertEqual(
             json.loads(desktop_feature.get_jsonschema()),
             {
@@ -183,7 +183,7 @@ class TestRemoteSchemaFeatures(TestCase):
     def test_loads_remote_schema(self):
         self.setup_valid_remote_schema()
 
-        desktop_feature = Features.by_application(NimbusConstants.Application.DESKTOP)[0]
+        desktop_feature = Features.by_application(NimbusExperiment.Application.DESKTOP)[0]
         remote_schema = desktop_feature.get_jsonschema()
 
         self.mock_requests_get.assert_called_once_with(
@@ -197,14 +197,14 @@ class TestRemoteSchemaFeatures(TestCase):
 
         with self.assertRaises(requests.ConnectionError):
             desktop_feature = Features.by_application(
-                NimbusConstants.Application.DESKTOP
+                NimbusExperiment.Application.DESKTOP
             )[0]
             desktop_feature.get_jsonschema()
 
     def test_returns_none_for_invalid_json(self):
         self.setup_json_error()
 
-        desktop_feature = Features.by_application(NimbusConstants.Application.DESKTOP)[0]
+        desktop_feature = Features.by_application(NimbusExperiment.Application.DESKTOP)[0]
         self.assertIsNone(desktop_feature.get_jsonschema())
 
 

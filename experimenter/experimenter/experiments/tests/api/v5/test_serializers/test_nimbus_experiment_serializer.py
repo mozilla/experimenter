@@ -12,7 +12,6 @@ from experimenter.base.tests.factories import (
 )
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusBucketRange, NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
@@ -465,8 +464,8 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             {
-                "channel": NimbusConstants.Channel.BETA,
-                "firefox_min_version": NimbusConstants.Version.FIREFOX_83,
+                "channel": NimbusExperiment.Channel.BETA,
+                "firefox_min_version": NimbusExperiment.Version.FIREFOX_83,
                 "population_percent": 10,
                 "proposed_duration": 120,
                 "proposed_enrollment": 42,
@@ -485,9 +484,9 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 1)
-        self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA)
+        self.assertEqual(experiment.channel, NimbusExperiment.Channel.BETA)
         self.assertEqual(
-            experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83
+            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_83
         )
         self.assertEqual(experiment.population_percent, 10)
         self.assertEqual(experiment.proposed_duration, 120)
@@ -999,7 +998,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIn("primary_outcomes", serializer.errors)
 
     def test_serializer_rejects_too_many_primary_outcomes(self):
-        NimbusConstants.MAX_PRIMARY_OUTCOMES = 1
+        NimbusExperiment.MAX_PRIMARY_OUTCOMES = 1
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
