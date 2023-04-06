@@ -13,6 +13,7 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 from experimenter.experiments.tests.factories import (
     TINY_PNG,
@@ -437,10 +438,12 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(response.status_code, 200)
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
+
         self.assertTrue(experiment.is_rollout)
+        self.assertTrue(experiment.is_rollout_dirty)
+
         self.assertEqual(experiment.population_percent, 50.0)
-        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.DIRTY)
-        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertEqual(experiment.status, NimbusConstants.Status.LIVE)
         self.assertEqual(experiment.status_next, None)
 
     @parameterized.expand(
@@ -483,10 +486,7 @@ class TestUpdateExperimentMutationSingleFeature(
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertEqual(experiment.population_percent, 50.0)
-        self.assertEqual(
-            experiment.publish_status == NimbusExperiment.PublishStatus.DIRTY,
-            is_dirty_expected,
-        )
+        self.assertEqual(experiment.is_rollout_dirty, is_dirty_expected)
 
     def test_do_not_update_live_experiment(self):
         user_email = "user@example.com"

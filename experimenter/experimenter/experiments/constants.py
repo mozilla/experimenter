@@ -166,7 +166,6 @@ class NimbusConstants(object):
 
     class PublishStatus(models.TextChoices):
         IDLE = "Idle"
-        DIRTY = "Dirty"
         REVIEW = "Review"
         APPROVED = "Approved"
         WAITING = "Waiting"

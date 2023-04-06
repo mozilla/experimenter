@@ -103,7 +103,6 @@ enum NimbusExperimentStatusEnum {
 
 enum NimbusExperimentPublishStatusEnum {
   IDLE
-  DIRTY
   REVIEW
   APPROVED
   WAITING

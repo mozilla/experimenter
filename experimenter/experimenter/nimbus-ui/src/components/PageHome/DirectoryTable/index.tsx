@@ -145,10 +145,10 @@ export const DirectoryColumnEndDate: ColumnComponent = ({
 );
 
 export const DirectoryColumnUnpublishedUpdates: ColumnComponent = ({
-  publishStatus: p,
+  isRolloutDirty: d,
 }) => (
   <td data-testid="directory-table-cell">
-    {p ? (
+    {d ? (
       <>
         <Badge
           className={
@@ -156,7 +156,7 @@ export const DirectoryColumnUnpublishedUpdates: ColumnComponent = ({
           }
           data-testid="directory-unpublished-updates"
         >
-          {p === NimbusExperimentPublishStatusEnum.DIRTY ? "YES" : ""}
+          {d === true ? "YES" : ""}
         </Badge>
       </>
     ) : (

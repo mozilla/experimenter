@@ -61,20 +61,20 @@ const Summary = ({ experiment, refetch }: SummaryProps) => {
       changelogMessage: CHANGELOG_MESSAGES.REQUESTED_REVIEW_END_ENROLLMENT,
     },
     {
-      publishStatus:
-        experiment.isRollout &&
-        status.live &&
-        experiment.statusNext ===
-          (NimbusExperimentStatusEnum.LIVE ||
-            NimbusExperimentStatusEnum.COMPLETE)
-          ? NimbusExperimentPublishStatusEnum.DIRTY
-          : NimbusExperimentPublishStatusEnum.IDLE,
+      publishStatus: NimbusExperimentPublishStatusEnum.IDLE,
       changelogMessage: CHANGELOG_MESSAGES.CANCEL_REVIEW,
       statusNext:
         experiment.status === NimbusExperimentStatusEnum.LIVE
           ? NimbusExperimentStatusEnum.LIVE
           : null,
       isEnrollmentPaused: false,
+      isRolloutDirty: 
+        experiment.isRollout &&
+        status.live &&
+        experiment.statusNext ===
+          (NimbusExperimentStatusEnum.LIVE ||
+            NimbusExperimentStatusEnum.COMPLETE) &&
+        experiment.isRolloutDirty != null ? true : false
     },
     {
       publishStatus: NimbusExperimentPublishStatusEnum.REVIEW,

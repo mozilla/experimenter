@@ -170,7 +170,6 @@ export enum NimbusExperimentFirefoxVersionEnum {
 
 export enum NimbusExperimentPublishStatusEnum {
   APPROVED = "APPROVED",
-  DIRTY = "DIRTY",
   IDLE = "IDLE",
   REVIEW = "REVIEW",
   WAITING = "WAITING",

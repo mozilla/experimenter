@@ -40,9 +40,7 @@ export function getStatus(
     approved: publishStatus === NimbusExperimentPublishStatusEnum.APPROVED,
     review: publishStatus === NimbusExperimentPublishStatusEnum.REVIEW,
     waiting: publishStatus === NimbusExperimentPublishStatusEnum.WAITING,
-    dirty:
-      publishStatus === NimbusExperimentPublishStatusEnum.DIRTY &&
-      isRolloutDirty === true,
+    dirty: isRolloutDirty === true,
     // TODO: EXP-1325 Need to check something else here for end enrollment in particular?
     pauseRequested:
       status === NimbusExperimentStatusEnum.LIVE &&
@@ -164,7 +162,7 @@ export const resultsReadySortSelector: ExperimentSortSelector = (experiment) =>
 export const unpublishedUpdatesSortSelector: ExperimentSortSelector = (
   experiment,
 ) =>
-  experiment.publishStatus === NimbusExperimentPublishStatusEnum.DIRTY
+  experiment.isRolloutDirty === true
     ? "1"
     : "0";
 

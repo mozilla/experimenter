@@ -2320,7 +2320,7 @@ class TestNimbusChangeLogManager(TestCase):
         changes = []
         for publish_status in (
             NimbusExperiment.PublishStatus.REVIEW,
-            NimbusExperiment.PublishStatus.DIRTY,
+            NimbusExperiment.PublishStatus.IDLE,
         ):
             experiment.publish_status = publish_status
             experiment.save()

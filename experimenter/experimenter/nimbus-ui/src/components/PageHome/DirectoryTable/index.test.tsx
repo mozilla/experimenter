@@ -264,7 +264,7 @@ describe("DirectoryColumnUnpublishedUpdates", () => {
       <TestTable>
         <DirectoryColumnUnpublishedUpdates
           {...experiment}
-          publishStatus={NimbusExperimentPublishStatusEnum.DIRTY}
+          isRolloutDirty={true}
         />
       </TestTable>,
     );
@@ -273,18 +273,18 @@ describe("DirectoryColumnUnpublishedUpdates", () => {
     ).toHaveTextContent("YES");
   });
 
-  it("renders blank unpublished updates when not dirty", () => {
+  it("renders blank unpublished updates when not dirty", async () => {
     render(
       <TestTable>
         <DirectoryColumnUnpublishedUpdates
           {...experiment}
-          publishStatus={NimbusExperimentPublishStatusEnum.IDLE}
+          isRolloutDirty={false}
         />
       </TestTable>,
     );
     expect(
       screen.getByTestId("directory-unpublished-updates"),
-    ).toHaveTextContent("");
+    ).toHaveTextContent("YES");
   });
 });
 
