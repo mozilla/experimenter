@@ -232,6 +232,7 @@ export interface ExperimentInput {
   isEnrollmentPaused?: boolean | null;
   isFirstRun?: boolean | null;
   isRollout?: boolean | null;
+  isRolloutDirty?: boolean | null;
   isSticky?: boolean | null;
   languages?: (string | null)[] | null;
   locales?: (string | null)[] | null;
