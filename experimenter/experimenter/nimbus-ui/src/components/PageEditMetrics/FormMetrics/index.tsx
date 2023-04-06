@@ -128,6 +128,12 @@ const FormMetrics = ({
     [isLoading, onSave, handleSubmit, primaryOutcomes, secondaryOutcomes],
   );
 
+  // Add state to check if user has chosen option
+  const [hasInteracted, setHasInteracted] = useState({
+    primary: false,
+    secondary: false,
+  });
+
   const primaryContainerDivRef = useRef<HTMLDivElement>(null);
   const secondaryContainerDivRef = useRef<HTMLDivElement>(null);
 
@@ -147,10 +153,17 @@ const FormMetrics = ({
     );
     const valueContainer = valueContainerDiv?.querySelector("div");
     if (valueContainer && valueContainerDiv) {
-      toggleClasses(valueContainer, primaryOutcomes.length > 0);
-      valueContainerDiv.classList.toggle("border-success");
+      const isValid = primaryOutcomes.length > 0;
+      toggleClasses(valueContainer, isValid);
+      valueContainerDiv.classList.toggle("border-success", isValid);
     }
   };
+
+  useEffect(() => {
+    if (hasInteracted.primary) {
+      validatePrimary();
+    }
+  }, [primaryOutcomes, hasInteracted.primary]);
 
   const validateSecondary = () => {
     const secondaryContainerDiv = secondaryContainerDivRef.current;
@@ -159,13 +172,20 @@ const FormMetrics = ({
     }
     const valueContainerDiv = secondaryContainerDiv.querySelector(
       "#secondary-outcomes > div",
-    ) as HTMLElement;
+    );
     const valueContainer = valueContainerDiv?.querySelector("div");
     if (valueContainer && valueContainerDiv) {
-      toggleClasses(valueContainer, secondaryOutcomes.length > 0);
-      valueContainerDiv.classList.add("border-success");
+      const isValid = secondaryOutcomes.length > 0;
+      toggleClasses(valueContainer, isValid);
+      valueContainerDiv.classList.toggle("border-success", isValid);
     }
   };
+
+  useEffect(() => {
+    if (hasInteracted.secondary) {
+      validateSecondary();
+    }
+  }, [secondaryOutcomes, hasInteracted.secondary]);
 
   const isArchived =
     experiment?.isArchived != null ? experiment.isArchived : false;
@@ -205,7 +225,7 @@ const FormMetrics = ({
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
           isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
-          onBlur={() => validatePrimary()}
+          onBlur={() => setHasInteracted({ ...hasInteracted, primary: true })}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
@@ -234,7 +254,7 @@ const FormMetrics = ({
           id="secondary-outcomes"
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
-          onBlur={() => validateSecondary()}
+          onBlur={() => setHasInteracted({ ...hasInteracted, secondary: true })}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
