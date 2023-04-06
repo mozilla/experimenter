@@ -214,6 +214,11 @@ const FormMetrics = ({
         data-testid="primary-outcomes"
         ref={primaryContainerDivRef}
       >
+      <Form.Group
+        controlId="primaryOutcomes"
+        data-testid="primary-outcomes"
+        ref={primaryContainerDivRef}
+      >
         <Form.Label>
           Primary Outcomes{" "}
           <Info
@@ -227,6 +232,7 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
+          id="primary-outcomes"
           id="primary-outcomes"
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
@@ -244,6 +250,7 @@ const FormMetrics = ({
         controlId="secondaryOutcomes"
         data-testid="secondary-outcomes"
         ref={secondaryContainerDivRef}
+        ref={secondaryContainerDivRef}
       >
         <Form.Label>
           Secondary Outcomes{" "}
@@ -257,6 +264,7 @@ const FormMetrics = ({
         </Form.Label>
         <Select
           isMulti
+          id="secondary-outcomes"
           id="secondary-outcomes"
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
