@@ -4,6 +4,7 @@
 
 import classNames from "classnames";
 import React from "react";
+import CopyToClipboardButton from "src/components/CopyToClipboardButton";
 import "src/components/HeaderExperiment/index.scss";
 import { BASE_PATH } from "src/lib/constants";
 import { humanDate } from "src/lib/dateUtils";
@@ -32,92 +33,97 @@ const HeaderExperiment = ({
   computedDurationDays,
   isArchived,
   isRollout,
-}: HeaderExperimentProps) => (
-  <header className="border-bottom" data-testid="header-experiment">
-    <h1
-      className="h5 font-weight-normal d-inline mr-2"
-      data-testid="header-experiment-name"
-    >
-      {name}
-    </h1>
-    {isRollout && (
-      <StatusPill
-        label="Rollout"
-        color="info"
-        active={true}
-        padded={false}
-        className="mr-2"
-        testid="header-experiment-status-rollout"
-      />
-    )}
-    {isArchived && (
-      <StatusPill
-        label="Archived"
-        color="danger"
-        active={true}
-        padded={false}
-        className="mr-2"
-        testid="header-experiment-status-archived"
-      />
-    )}
-    <p
-      className="text-monospace text-secondary mb-1 small"
-      data-testid="header-experiment-slug"
-    >
-      {slug}
-    </p>
-    {parent && (
-      <p
-        className="text-secondary mb-1 small"
-        data-testid="header-experiment-parent"
+}: HeaderExperimentProps) => {
+  return (
+    <header className="border-bottom" data-testid="header-experiment">
+      <h1
+        className="h5 font-weight-normal d-inline mr-2"
+        data-testid="header-experiment-name"
       >
-        Cloned from{" "}
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href={`${BASE_PATH}/${parent.slug}`}
-        >
-          {parent.name}
-        </a>
-      </p>
-    )}
-    <div className="row">
-      <div className="col">
-        <p className="header-experiment-status position-relative mt-2 d-inline-block">
-          <StatusPill label="Draft" active={status.draft && status.idle} />
-          {status.preview && status.idle && (
-            <StatusPill label="Preview" active />
-          )}
-          <StatusPill
-            label="Review"
-            active={(status.draft || status.preview) && !status.idle}
-          />
-          <StatusPill label="Live" active={status.live} />
-          <StatusPill
-            label="Complete"
-            active={status.complete}
-            padded={false}
-          />
-        </p>
-      </div>
-      {(status.live || status.complete) && (
-        <div className="text-right col mt-2" data-testid="header-dates">
-          <span className="font-weight-bold">{humanDate(startDate!)}</span> to{" "}
-          {computedEndDate ? (
-            <>
-              <span className="font-weight-bold">
-                {humanDate(computedEndDate!)}
-              </span>{" "}
-              ({computedDurationDays} days)
-            </>
-          ) : (
-            <span className="font-weight-bold">Present</span>
-          )}
-        </div>
+        {name}
+      </h1>
+      {isRollout && (
+        <StatusPill
+          label="Rollout"
+          color="info"
+          active={true}
+          padded={false}
+          className="mr-2"
+          testid="header-experiment-status-rollout"
+        />
       )}
-    </div>
-  </header>
-);
+      {isArchived && (
+        <StatusPill
+          label="Archived"
+          color="danger"
+          active={true}
+          padded={false}
+          className="mr-2"
+          testid="header-experiment-status-archived"
+        />
+      )}
+      <div className="d-flex align-items-center justify-content-start">
+        <p
+          className="text-monospace text-secondary mb-1 small"
+          data-testid="header-experiment-slug"
+        >
+          {slug}
+        </p>
+        <CopyToClipboardButton text={slug} />
+      </div>
+      {parent && (
+        <p
+          className="text-secondary mb-1 small"
+          data-testid="header-experiment-parent"
+        >
+          Cloned from{" "}
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href={`${BASE_PATH}/${parent.slug}`}
+          >
+            {parent.name}
+          </a>
+        </p>
+      )}
+      <div className="row">
+        <div className="col">
+          <p className="header-experiment-status position-relative mt-2 d-inline-block">
+            <StatusPill label="Draft" active={status.draft && status.idle} />
+            {status.preview && status.idle && (
+              <StatusPill label="Preview" active />
+            )}
+            <StatusPill
+              label="Review"
+              active={(status.draft || status.preview) && !status.idle}
+            />
+            <StatusPill label="Live" active={status.live} />
+            <StatusPill
+              label="Complete"
+              active={status.complete}
+              padded={false}
+            />
+          </p>
+        </div>
+        {(status.live || status.complete) && (
+          <div className="text-right col mt-2" data-testid="header-dates">
+            <span className="font-weight-bold">{humanDate(startDate!)}</span> to{" "}
+            {computedEndDate ? (
+              <>
+                <span className="font-weight-bold">
+                  {humanDate(computedEndDate!)}
+                </span>{" "}
+                ({computedDurationDays} days)
+              </>
+            ) : (
+              <span className="font-weight-bold">Present</span>
+            )}
+          </div>
+        )}
+      </div>
+    </header>
+  );
+};
 
 const StatusPill = ({
   label,
