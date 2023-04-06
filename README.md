@@ -56,6 +56,29 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
         - Disk: 100gb+
     - Install [yarn](https://github.com/yarnpkg)
 
+    On Windows:
+
+    - Install WSL on Windows
+        - Download from Microsoft store. Or
+        - Download within Powershell.
+
+                Open PowerShell as administrator.
+                Run `wsl --install` to install wsl.
+                Run `wsl --list --online` to see list of available Ubuntu distributions.
+                Run `wsl --install -d <distroname>` to install a particular distribution e.g `wsl --install -d Ubuntu-22.04`.
+
+        - After installation, press Windows Key and search for Ubuntu. Open it and set up username and password.
+    - Download and Install [Docker](https://docs.docker.com/desktop/install/windows-install/)
+        - Restart System after Installation.
+        - Open Docker and go to settings.
+        - Go to settings -> Resources -> WSL Integration and activate Ubuntu.
+        - Click the activate and restart button to save your change.
+    - Install Make and Git
+        - Open the ubuntu terminal
+        - You should install make using this command `sudo apt-get update && sudo apt install make` in the ubuntu terminal. 
+        This is necessary for the `make secretkey` command and other commands.
+        - Ensure git is available by running `git --version`. If it's not recognized, install git using `sudo apt install git`
+
 1.  Clone the repo
 
         git clone <your fork>
