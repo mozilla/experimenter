@@ -4,6 +4,7 @@ import markus
 from celery.utils.log import get_task_logger
 
 from experimenter.celery import app
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.jetstream.client import get_experiment_data
 
@@ -46,7 +47,7 @@ def fetch_jetstream_data():
                     experiment.computed_end_date
                     and (
                         experiment.computed_end_date
-                        + dt.timedelta(days=NimbusExperiment.DAYS_ANALYSIS_BUFFER)
+                        + dt.timedelta(days=NimbusConstants.DAYS_ANALYSIS_BUFFER)
                     )
                     >= dt.date.today()
                 )
