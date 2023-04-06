@@ -4,7 +4,6 @@ import mock
 from django.core.management import call_command
 from django.test import TestCase
 
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 from experimenter.experiments.tests.factories import NimbusFeatureConfigFactory
 from experimenter.features import Features
@@ -137,7 +136,7 @@ class TestLoadFeatureConfigs(TestCase):
     def test_load_feature_set_features_slug_enabled_to_false_if_not_found_yaml(self):
         NimbusFeatureConfigFactory.create(
             slug="test-feature",
-            application=NimbusConstants.Application.DESKTOP,
+            application=NimbusExperiment.Application.DESKTOP,
             schema="{}",
             enabled=True,
         )
@@ -150,14 +149,14 @@ class TestLoadFeatureConfigs(TestCase):
     def test_load_feature_set_features_slug_enabled_to_false_with_duplicate_slug(self):
         feature_desktop = NimbusFeatureConfigFactory.create(
             slug="someFeature",
-            application=NimbusConstants.Application.DESKTOP,
+            application=NimbusExperiment.Application.DESKTOP,
             schema="{}",
             enabled=True,
         )
 
         feature_fenix = NimbusFeatureConfigFactory.create(
             slug="someFeature",
-            application=NimbusConstants.Application.FENIX,
+            application=NimbusExperiment.Application.FENIX,
             schema="{}",
             enabled=True,
         )
@@ -165,10 +164,10 @@ class TestLoadFeatureConfigs(TestCase):
         call_command("load_feature_configs")
 
         feature_desktop = NimbusFeatureConfig.objects.get(
-            slug="someFeature", application=NimbusConstants.Application.DESKTOP
+            slug="someFeature", application=NimbusExperiment.Application.DESKTOP
         )
         feature_fenix = NimbusFeatureConfig.objects.get(
-            slug="someFeature", application=NimbusConstants.Application.FENIX
+            slug="someFeature", application=NimbusExperiment.Application.FENIX
         )
         self.assertTrue(feature_desktop.enabled)
         self.assertFalse(feature_fenix.enabled)
@@ -194,7 +193,7 @@ class TestLoadInvalidRemoteSchemaFeatureConfigs(TestCase):
     def test_load_feature_config_ignores_invalid_remote_json(self):
         schema = "{}"
         NimbusFeatureConfigFactory.create(
-            slug="cfr", application=NimbusConstants.Application.DESKTOP, schema=schema
+            slug="cfr", application=NimbusExperiment.Application.DESKTOP, schema=schema
         )
 
         call_command("load_feature_configs")
