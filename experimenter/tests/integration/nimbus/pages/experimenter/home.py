@@ -21,16 +21,16 @@ class HomePage(Base):
     @property
     def tabs(self):
         _tabs_locator = (By.CSS_SELECTOR, ".nav-item")
-        return self.find_elements(*_tabs_locator)
+        return self.wait_for_and_find_elements(*_tabs_locator)
 
     @property
     def active_tab_text(self):
         _active_tab_locator = (By.CSS_SELECTOR, ".nav-item.active")
-        el = self.find_element(*_active_tab_locator)
+        el = self.wait_for_and_find_element(*_active_tab_locator)
         return el.text
 
     def create_new_button(self):
-        el = self.find_element(*self._create_new_btn_locator)
+        el = self.wait_for_and_find_element(*self._create_new_btn_locator)
         el.click()
         from nimbus.pages.experimenter.new_experiment import NewExperiment
 
@@ -56,4 +56,4 @@ class HomePage(Base):
         @property
         def experiments(self):
             self.wait.until(EC.presence_of_element_located(self._experiment_link_locator))
-            return self.find_elements(*self._experiment_link_locator)
+            return self.wait_for_and_find_elements(*self._experiment_link_locator)

@@ -102,11 +102,8 @@ def selenium(selenium, experiment_name, kinto_client, base_url, slugify):
 
     experiment_slug = str(slugify(experiment_name))
     try:
-        summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
-        summary.end_and_approve()
+        helpers.approve_and_launch_experiment(experiment_slug)
         kinto_client.approve()
-        summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
-        summary.wait_for_complete_status()
     except Exception:
         pass
 

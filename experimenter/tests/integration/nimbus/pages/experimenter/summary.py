@@ -141,11 +141,11 @@ class SummaryPage(ExperimenterBase):
         )
 
     def set_rejection_reason(self):
-        text_area = self.find_element(*self._reject_input_text_locator)
+        text_area = self.wait_for_and_find_element(*self._reject_input_text_locator)
         text_area.send_keys("oh no")
 
     def submit_rejection(self):
-        button = self.find_element(*self._reject_input_text_submit_locator)
+        button = self.wait_for_and_find_element(*self._reject_input_text_submit_locator)
         button.click()
 
     @property
@@ -154,23 +154,15 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def experiment_status(self):
-        el = self.find_element(*self._experiment_status_icon_locator)
+        el = self.wait_for_and_find_element(*self._experiment_status_icon_locator)
         return el.text
 
     @property
     def launch_without_preview(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._launch_without_preview_locator),
-            message="Summary Page: could not find launch without preview button",
-        )
-        return self.find_element(*self._launch_without_preview_locator)
+        return self.wait_for_and_find_element(*self._launch_without_preview_locator)
 
     def launch_to_preview(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._launch_to_preview_locator),
-            message="Summary Page: could not find preview button",
-        )
-        self.find_element(*self._launch_to_preview_locator).click()
+        self.wait_for_and_find_element(*self._launch_to_preview_locator).click()
         return self
 
     @property
@@ -178,29 +170,19 @@ class SummaryPage(ExperimenterBase):
         return self.RequestReview(self)
 
     def approve(self):
-        self.wait.until(
-            EC.presence_of_element_located(self._approve_request_button_locator)
-        )
-        self.find_element(*self._approve_request_button_locator).click()
+        self.wait_for_and_find_element(*self._approve_request_button_locator).click()
 
     def request_update_and_approve(self):
         self.request_update()
-        self.find_element(*self._approve_request_button_locator).click()
+        self.wait_for_and_find_element(*self._approve_request_button_locator).click()
 
     def request_update_and_reject(self):
         self.request_update()
-        self.wait.until(
-            EC.presence_of_element_located(self._reject_request_button_locator)
-        )
-        self.find_element(*self._reject_request_button_locator).click()
+        self.wait_for_and_find_element(*self._reject_request_button_locator).click()
 
     @property
     def request_update_action(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._update_request_locator),
-            message="Summary Page: could not find update request button",
-        )
-        return self.find_element(*self._update_request_locator)
+        return self.wait_for_and_find_element(*self._update_request_locator)
 
     def request_update(self):
         self.request_update_action.click()
@@ -212,19 +194,19 @@ class SummaryPage(ExperimenterBase):
         self.approve()
 
     def end_and_approve(self, action="End"):
-        el = self.find_element(*self._end_experiment_button_locator)
+        el = self.wait_for_and_find_element(*self._end_experiment_button_locator)
         el.click()
 
         self.approve()
 
     @property
     def rejected_text(self):
-        el = self.find_element(*self._rejected_text_alert_locator)
+        el = self.wait_for_and_find_element(*self._rejected_text_alert_locator)
         return el.is_displayed()
 
     @property
     def timeout_text(self):
-        return self.selenium.find_element(*self._timeout_alert_locator)
+        return self.selenium.wait_for_and_find_element(*self._timeout_alert_locator)
 
     class RequestReview(Region):
         _root_locator = (By.CSS_SELECTOR, "#request-launch-alert")
@@ -233,35 +215,27 @@ class SummaryPage(ExperimenterBase):
         _request_launch_locator = (By.CSS_SELECTOR, "#request-launch-button")
 
         def click_launch_checkboxes(self):
-            self.find_element(*self._checkbox0_locator).click()
-            self.find_element(*self._checkbox1_locator).click()
+            self.wait_for_and_find_element(*self._checkbox0_locator).click()
+            self.wait_for_and_find_element(*self._checkbox1_locator).click()
 
         @property
         def request_launch_button(self):
-            return self.find_element(*self._request_launch_locator)
+            return self.wait_for_and_find_element(*self._request_launch_locator)
 
     def archive(self):
-        self.find_element(*self._archive_button_locator).click()
+        self.wait_for_and_find_element(*self._archive_button_locator).click()
 
     @property
     def archive_label(self):
-        return self.find_element(*self._archive_label_locator)
+        return self.wait_for_and_find_element(*self._archive_label_locator)
 
     @property
     def clone_action(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._clone_action_locator),
-            message="Summary Page: could not find clone action",
-        )
-        return self.find_element(*self._clone_action_locator)
+        return self.wait_for_and_find_element(*self._clone_action_locator)
 
     @property
     def clone_name_field(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._clone_name_field_locator),
-            message="Summary Page: could not find clone name field",
-        )
-        return self.find_element(*self._clone_name_field_locator)
+        return self.wait_for_and_find_element(*self._clone_name_field_locator)
 
     @property
     def clone_name(self):
@@ -275,11 +249,7 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def clone_save(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._clone_save_locator),
-            message="Summary Page: could not find clone save",
-        )
-        return self.find_element(*self._clone_save_locator)
+        return self.wait_for_and_find_element(*self._clone_save_locator)
 
     def clone(self):
         self.clone_action.click()
@@ -287,11 +257,7 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def promote_to_rollout_buttons(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._promote_rollout_locator),
-            message="Summary Page: could not find promote to rollout buttons",
-        )
-        return self.find_elements(*self._promote_rollout_locator)
+        return self.wait_for_and_find_element(*self._promote_rollout_locator)
 
     def promote_first_branch_to_rollout(self):
         self.promote_to_rollout_buttons[0].click()
@@ -303,49 +269,26 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def takeaways_edit_button(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._takeaways_edit_button),
-            message="Summary Page: could not find takeaways edit button",
-        )
-        return self.find_element(*self._takeaways_edit_button)
+        return self.wait_for_and_find_element(*self._takeaways_edit_button)
 
     @property
     def takeaways_save_button(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._takeaways_save_button),
-            message="Summary Page: could not find takeaways save button",
-        )
-        return self.find_element(*self._takeaways_save_button)
+        return self.wait_for_and_find_element(*self._takeaways_save_button)
 
     def takeaways_recommendation_radio_button(self, value=""):
         selection_locator = (
             By.CSS_SELECTOR,
             f'input[type=radio][name="conclusionRecommendation"][value="{value}"]',
         )
-        self.wait.until(
-            EC.presence_of_all_elements_located(selection_locator),
-            message=(
-                f"Summary Page: could not find recommendation radio button "
-                f"for {value}"
-            ),
-        )
-        return self.find_element(*selection_locator)
+        return self.wait_for_and_find_element(*selection_locator)
 
     @property
     def takeaways_recommendation_badge_text(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._takeaways_recommendation_badge),
-            message="Summary Page: could not find takeaways recommendation badge",
-        )
-        return self.find_element(*self._takeaways_recommendation_badge).text
+        return self.wait_for_and_find_element(*self._takeaways_recommendation_badge).text
 
     @property
     def takeaways_summary_field(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._takeaways_summary_field),
-            message="Summary Page: could not find takeaways summary field",
-        )
-        return self.find_element(*self._takeaways_summary_field)
+        return self.wait_for_and_find_element(*self._takeaways_summary_field)
 
     @takeaways_summary_field.setter
     def takeaways_summary_field(self, text=None):
@@ -355,11 +298,7 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def takeaways_summary_text(self):
-        self.wait.until(
-            EC.presence_of_all_elements_located(self._takeaways_summary_text),
-            message="Summary Page: could not find takeaways summary text",
-        )
-        return self.find_element(*self._takeaways_summary_text).text
+        return self.wait_for_and_find_element(*self._takeaways_summary_text).text
 
     @property
     def branch_screenshot_description(self):
