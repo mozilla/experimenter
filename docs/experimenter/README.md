@@ -88,7 +88,7 @@ An experiment/rollout now has two distinct states:
 - Its lifecycle state
 - Its publish state
 
-![](diagrams/states-v2.svg)
+![](diagrams/state-diagrams-v3.svg)
 
 ### Lifecycle States
 
@@ -104,7 +104,6 @@ An experiment/rollout now has two distinct states:
 #### States
 
 - **Idle**: An experiment/rollout has no changes that require review or modification in Remote Settings.
-- **Dirty**: A rollout has changes that require review or modification in Experimenter before they can be published to Remote Settings. Experiments do not have a dirty state as they are non-editable after moving to the Live lifecycle state.
 - **Review**: An experiment/rollout has changes that require review in Experimenter before they can be published to Remote Settings.
 - **Approved**: An experiment/rollout has changes that have been approved in Experimenter and must be published to Remote Settings.
 - **Waiting**: An experiment/rollout has changes that have been published to Remote Settings and are awaiting further review in Remote Settings.
@@ -113,7 +112,7 @@ An experiment/rollout now has two distinct states:
 
 - **Next**: A lifecycle status which the experiment/rollout will move to if it is successfully approved and updated in Remote Settings
 
-In theory an experiment/rollout can occupy any combination of these two states, but in practice an experiment will only have a publish state other than Idle when the experiment is in the Draft or Live lifecycle state. For rollouts, the publish state can become dirty when in the Live state to allow updates to the rollout; this moves the rollout through the review flow and back to the Idle publish state. Preview experiments can be modified in Remote Settings without any review, and Complete experiments will never be published to Remote Settings.
+In theory an experiment/rollout can occupy any combination of these two states, but in practice an experiment will only have a publish state other than Idle when the experiment is in the Draft or Live lifecycle state. Rollouts can become "dirty" (`is_dirty`: True) when in the Live state to allow updates to the rollout; this moves the rollout through the review flow and back to the Idle publish state (`is_dirty`: False). Preview experiments can be modified in Remote Settings without any review, and Complete experiments will never be published to Remote Settings.
 
 ## Workflows
 
@@ -471,7 +470,7 @@ A live rollout can have updates pushed to its state while remaining Live. These 
     rect rgb(255,204,255) 
         Note right of Experiment Owner: Owner makes changes in Experimenter
         Experiment Owner->>Experimenter UI: Make updates to live rollout
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
     end 
 
     Note over Experiment Owner: The owner clicks the Request <br/> Update button
@@ -517,13 +516,13 @@ A live rollout can have updates pushed to its state while remaining Live. These 
     rect rgb(204,255,255) 
         Note over Experimenter Worker: Worker updates rollout
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
-        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: False <br/> + changelog
     end 
 ```
 
 ### Update (Reject/------)
 
-A live rollout that has valid changes (making it "dirty") is reviewed and rejected in Experimenter. A rejection reason is captured in Experimenter and is displayed to the owner in Experimenter.
+A live rollout that has valid changes (making it "dirty") is reviewed and rejected in Experimenter. A rejection reason is captured in Experimenter and is displayed to the owner in Experimenter. The rollout remains dirty after the rejection.
 
 ```mermaid
   sequenceDiagram
@@ -540,7 +539,7 @@ A live rollout that has valid changes (making it "dirty") is reviewed and reject
     rect rgb(255,204,255) 
         Note right of Experiment Owner: Owner makes changes in Experimenter
         Experiment Owner->>Experimenter UI: Make updates to live rollout
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
     end 
     
     Note over Experiment Owner: The owner clicks the Request <br/> Update button
@@ -558,13 +557,13 @@ A live rollout that has valid changes (making it "dirty") is reviewed and reject
     rect rgb(255,255,204) 
         Note over Experiment Owner: Reviewer rejects in Experimenter
         Reviewer->>Experimenter UI: Reject
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
     end 
 ```
 
 ### Update (Approve/Reject)
 
-A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter.
+A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. A rejection reason is captured in Remote Settings and is displayed to the owner in Experimenter. The rollout remains dirty after the rejection.
 
 ```mermaid
   sequenceDiagram
@@ -582,7 +581,7 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
     rect rgb(255,204,255) 
         Note right of Experiment Owner: Owner makes changes in Experimenter
         Experiment Owner->>Experimenter UI: Make updates to live rollout
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
     end 
 
     Note over Experiment Owner: The owner clicks the Request <br/> Update button
@@ -628,13 +627,13 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
         Note over Experimenter Worker: Worker updates rollout
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
         Experimenter Worker->>Remote Settings Backend: Rollback <br/> RS status: to-rollback
-        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
     end 
 ```
 
 ### Update (Approve/Reject + Manual Rollback)
 
-A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer **manually rolls back** the Remote Settings collection. A rejection reason is captured in Remote Settings and but **unable to be recovered by Experimenter** because the collection as manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason.
+A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, and is then reviewed and rejected in Remote Settings. The reviewer **manually rolls back** the Remote Settings collection. A rejection reason is captured in Remote Settings and but **unable to be recovered by Experimenter** because the collection as manually rolled back **before Experimenter could query its status**, and so Experimenter shows a generic rejection reason. The rollout remains dirty after the rejection.
 
 ```mermaid
   sequenceDiagram
@@ -652,7 +651,7 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
     rect rgb(255,204,255) 
         Note right of Experiment Owner: Owner makes changes in Experimenter
         Experiment Owner->>Experimenter UI: Make updates to live rollout
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
     end 
 
     Note over Experiment Owner: The owner clicks the Request <br/> Update button
@@ -696,13 +695,13 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
 
     rect rgb(204,255,255) 
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: to-sign
-        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
     end 
 ```
 
 ### Update (Approve/Timeout)
 
-A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes.
+A live rollout that has valid changes (making it "dirty") is reviewed and approved in Experimenter, is published to Remote Settings, and the collection is marked for review. Before the reviewer is able to review it in Remote Settings, the scheduled celery task is invoked and finds that the collection is blocked from further changes by having an unattended review pending. It rolls back the pending review to allow other queued changes to be made. This prevents unattended reviews in a collection from blocking other queued changes. The rollout remains dirty after the timeout.
 
 ```mermaid
   sequenceDiagram
@@ -720,7 +719,7 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
     rect rgb(255,204,255) 
         Note right of Experiment Owner: Owner makes changes in Experimenter
         Experiment Owner->>Experimenter UI: Make updates to live rollout
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Dirty <br/> Status next: <none> <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
     end 
 
     Note over Experiment Owner: The owner clicks the Request <br/> Update button
@@ -755,7 +754,7 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
     rect rgb(204,255,255) 
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout) 
         Experimenter Worker->>Remote Settings Backend: RS status: to-rollback
-        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> is_dirty: True <br/> + changelog
     end 
 ```
 
