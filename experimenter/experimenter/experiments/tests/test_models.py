@@ -18,7 +18,6 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchScreenshot,
@@ -737,7 +736,7 @@ class TestNimbusExperiment(TestCase):
             prevent_pref_conflicts=True,
             feature_configs=[
                 NimbusFeatureConfig.objects.get(
-                    application=NimbusConstants.Application.DESKTOP,
+                    application=NimbusExperiment.Application.DESKTOP,
                     slug="prefSettingFeature",
                 )
             ],
@@ -773,7 +772,7 @@ class TestNimbusExperiment(TestCase):
             prevent_pref_conflicts=False,
             feature_configs=[
                 NimbusFeatureConfig.objects.get(
-                    application=NimbusConstants.Application.DESKTOP,
+                    application=NimbusExperiment.Application.DESKTOP,
                     slug="prefSettingFeature",
                 )
             ],

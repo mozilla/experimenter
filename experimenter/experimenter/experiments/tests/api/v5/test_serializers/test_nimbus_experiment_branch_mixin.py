@@ -1,7 +1,6 @@
 from django.test import TestCase
 
 from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
@@ -238,9 +237,11 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         self.assertEqual(
             serializer.errors,
             {
-                "reference_branch": {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME},
+                "reference_branch": {
+                    "name": NimbusExperiment.ERROR_DUPLICATE_BRANCH_NAME
+                },
                 "treatment_branches": [
-                    {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
+                    {"name": NimbusExperiment.ERROR_DUPLICATE_BRANCH_NAME}
                     for _ in (data.get("treatment_branches", []) or [])
                 ],
             },
@@ -303,9 +304,9 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         self.assertEqual(
             serializer.errors,
             {
-                "reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP},
+                "reference_branch": {"name": NimbusExperiment.ERROR_BRANCH_SWAP},
                 "treatment_branches": [
-                    {"name": NimbusConstants.ERROR_BRANCH_SWAP}
+                    {"name": NimbusExperiment.ERROR_BRANCH_SWAP}
                     for _ in (data.get("treatment_branches", []) or [])
                 ],
             },
@@ -368,9 +369,9 @@ class TestNimbusExperimentBranchMixinSingleFeature(TestCase):
         self.assertEqual(
             serializer.errors,
             {
-                "reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP},
+                "reference_branch": {"name": NimbusExperiment.ERROR_BRANCH_SWAP},
                 "treatment_branches": [
-                    {"name": NimbusConstants.ERROR_BRANCH_SWAP}
+                    {"name": NimbusExperiment.ERROR_BRANCH_SWAP}
                     for _ in (data.get("treatment_branches", []) or [])
                 ],
             },
