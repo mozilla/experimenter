@@ -160,7 +160,7 @@ const FormMetrics = ({
     const valueContainerDiv = primaryContainerDiv.querySelector(
       "#primary-outcomes > div",
     );
-    const valueContainer = valueContainerDiv.querySelector("div");
+    const valueContainer = valueContainerDiv?.querySelector("div");
     if (valueContainer && valueContainerDiv) {
       const isValid = primaryOutcomes.length > 0;
       toggleClasses(valueContainer, isValid);
@@ -182,7 +182,7 @@ const FormMetrics = ({
     const valueContainerDiv = secondaryContainerDiv.querySelector(
       "#secondary-outcomes > div",
     );
-    const valueContainer = valueContainerDiv.querySelector("div");
+    const valueContainer = valueContainerDiv?.querySelector("div");
     if (valueContainer && valueContainerDiv) {
       const isValid = secondaryOutcomes.length > 0;
       toggleClasses(valueContainer, isValid);
@@ -195,6 +195,18 @@ const FormMetrics = ({
       validateSecondary();
     }
   }, [validateSecondary, hasInteracted.secondary]);
+
+  const handlePrimaryBlur = () => {
+    if (!hasInteracted.primary) {
+      setHasInteracted((prevState) => ({ ...prevState, primary: true }));
+    }
+  };
+
+  const handleSecondaryBlur = () => {
+    if (!hasInteracted.secondary) {
+      setHasInteracted((prevState) => ({ ...prevState, secondary: true }));
+    }
+  };
 
   return (
     <Form
@@ -231,7 +243,7 @@ const FormMetrics = ({
           {...formSelectAttrs("primaryOutcomes", setPrimaryOutcomes)}
           options={primaryOutcomeOptions}
           isOptionDisabled={() => primaryOutcomes.length >= maxPrimaryOutcomes!}
-          onBlur={() => setHasInteracted({ ...hasInteracted, primary: true })}
+          onBlur={handlePrimaryBlur}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
@@ -260,7 +272,7 @@ const FormMetrics = ({
           id="secondary-outcomes"
           {...formSelectAttrs("secondaryOutcomes", setSecondaryOutcomes)}
           options={secondaryOutcomeOptions}
-          onBlur={() => setHasInteracted({ ...hasInteracted, secondary: true })}
+          onBlur={handleSecondaryBlur}
         />
         <Form.Text className="text-muted">
           Select the user action or feature that you are measuring with this
