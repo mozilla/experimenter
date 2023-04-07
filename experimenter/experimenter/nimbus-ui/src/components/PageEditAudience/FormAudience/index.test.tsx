@@ -1168,7 +1168,7 @@ describe("FormAudience", () => {
         .findByText("This field", {
           selector: `.invalid-feedback[data-for={populationPercent}]`,
         })
-        .then(() => { }),
+        .then(() => {}),
     ).toBeTruthy();
   });
 
@@ -1193,7 +1193,7 @@ describe("FormAudience", () => {
         .findByText("This field", {
           selector: `.invalid-feedback[data-for={populationPercent}]`,
         })
-        .then(() => { }),
+        .then(() => {}),
     ).toBeTruthy();
   });
 
@@ -1214,7 +1214,7 @@ describe("FormAudience", () => {
         .findByText("100", {
           selector: `[data-for={populationPercent}]`,
         })
-        .then(() => { }),
+        .then(() => {}),
     ).toBeTruthy();
   });
 
@@ -1262,7 +1262,7 @@ describe("FormAudience", () => {
         .findByText("50", {
           selector: `[data-for={populationPercent}]`,
         })
-        .then(() => { }),
+        .then(() => {}),
     ).toBeTruthy();
 
     await act(async () => {
@@ -1277,7 +1277,7 @@ describe("FormAudience", () => {
         .findByText(expectedValue, {
           selector: `[data-for={populationPercent}]`,
         })
-        .then(() => { }),
+        .then(() => {}),
     ).toBeTruthy();
   });
 
@@ -1333,7 +1333,7 @@ describe("FormAudience", () => {
           .findByText("This field", {
             selector: `.invalid-feedback[data-for={populationPercent}]`,
           })
-          .then(() => { }),
+          .then(() => {}),
       ).toBeTruthy();
     });
   });
@@ -1586,7 +1586,7 @@ describe("filterAndSortTargetingConfigSlug", () => {
   });
 });
 
-const renderSubjectWithDefaultValues = (onSubmit = () => { }) =>
+const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
   render(
     <Subject
       {...{ onSubmit }}
