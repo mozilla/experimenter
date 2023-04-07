@@ -466,6 +466,7 @@ input ExperimentInput {
   isEnrollmentPaused: Boolean
   isFirstRun: Boolean
   isRollout: Boolean
+  isRolloutDirty: Boolean
   isSticky: Boolean
   languages: [String]
   locales: [String]
