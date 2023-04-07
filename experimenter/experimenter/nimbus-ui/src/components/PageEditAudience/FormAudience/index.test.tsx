@@ -121,7 +121,7 @@ describe("FormAudience", () => {
     );
 
     expect(screen.getByTestId("isSticky")).toBeChecked();
-    expect(screen.queryByText("isFirstRun")).not.toBeInTheDocument();
+    expect(screen.queryByText("First Run Experiment")).not.toBeInTheDocument();
   });
 
   it("expect sticky enrollment to be not selected as sticky is not required for the selected targeting", async () => {
