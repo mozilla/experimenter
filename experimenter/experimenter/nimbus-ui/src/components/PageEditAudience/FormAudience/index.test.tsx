@@ -525,6 +525,71 @@ describe("FormAudience", () => {
       screen.getByTestId("is-first-run-required-warning"),
     ).toBeInTheDocument();
   });
+  it("expect first run not to be present in desktop as it is not required for selected targeting", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          targetingConfigSlug: "WIN_ONLY",
+          targetingConfig: [
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+              isFirstRunRequired: true,
+            },
+          ],
+          isSticky: true,
+          isFirstRun: true,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigs: [
+            {
+              label: "No Targeting",
+              value: "",
+              applicationValues: [
+                NimbusExperimentApplicationEnum.DESKTOP,
+                "TOASTER",
+              ],
+              description: "No Targeting configuration",
+              stickyRequired: false,
+              isFirstRunRequired: false,
+            },
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+              isFirstRunRequired: true,
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
+              stickyRequired: false,
+              isFirstRunRequired: false,
+            },
+          ],
+        }}
+      />,
+    );
+
+    const targetingConfigSlug = (await screen.findByTestId(
+      "targetingConfigSlug",
+    )) as HTMLSelectElement;
+
+    expect(targetingConfigSlug.value).toEqual(
+      MOCK_CONFIG!.targetingConfigs![1]!.value,
+    );
+    expect(screen.queryByText("First Run Experiment")).not.toBeInTheDocument();
+  });
 
   it("expect sticky enrollment to be optional as changing targeting from sticky required to sticky not required", async () => {
     render(
@@ -1103,7 +1168,7 @@ describe("FormAudience", () => {
         .findByText("This field", {
           selector: `.invalid-feedback[data-for={populationPercent}]`,
         })
-        .then(() => {}),
+        .then(() => { }),
     ).toBeTruthy();
   });
 
@@ -1128,7 +1193,7 @@ describe("FormAudience", () => {
         .findByText("This field", {
           selector: `.invalid-feedback[data-for={populationPercent}]`,
         })
-        .then(() => {}),
+        .then(() => { }),
     ).toBeTruthy();
   });
 
@@ -1149,7 +1214,7 @@ describe("FormAudience", () => {
         .findByText("100", {
           selector: `[data-for={populationPercent}]`,
         })
-        .then(() => {}),
+        .then(() => { }),
     ).toBeTruthy();
   });
 
@@ -1197,7 +1262,7 @@ describe("FormAudience", () => {
         .findByText("50", {
           selector: `[data-for={populationPercent}]`,
         })
-        .then(() => {}),
+        .then(() => { }),
     ).toBeTruthy();
 
     await act(async () => {
@@ -1212,7 +1277,7 @@ describe("FormAudience", () => {
         .findByText(expectedValue, {
           selector: `[data-for={populationPercent}]`,
         })
-        .then(() => {}),
+        .then(() => { }),
     ).toBeTruthy();
   });
 
@@ -1268,7 +1333,7 @@ describe("FormAudience", () => {
           .findByText("This field", {
             selector: `.invalid-feedback[data-for={populationPercent}]`,
           })
-          .then(() => {}),
+          .then(() => { }),
       ).toBeTruthy();
     });
   });
@@ -1521,7 +1586,7 @@ describe("filterAndSortTargetingConfigSlug", () => {
   });
 });
 
-const renderSubjectWithDefaultValues = (onSubmit = () => {}) =>
+const renderSubjectWithDefaultValues = (onSubmit = () => { }) =>
   render(
     <Subject
       {...{ onSubmit }}
