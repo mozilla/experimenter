@@ -18,7 +18,6 @@ from experimenter.base.models import (
     SiteFlagNameChoices,
 )
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchFeatureValue,
@@ -451,7 +450,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
                         "feature_values": [
                             {
                                 "feature_config": (
-                                    NimbusConstants.ERROR_DUPLICATE_BRANCH_FEATURE_VALUE
+                                    NimbusExperiment.ERROR_DUPLICATE_BRANCH_FEATURE_VALUE
                                 )
                             }
                             for _ in feature_values
@@ -535,7 +534,7 @@ class NimbusExperimentBranchMixin:
             treatment_branch_names = [b["name"] for b in data["treatment_branches"]]
             all_names = [ref_branch_name, *treatment_branch_names]
             if len(all_names) != len(set(all_names)):
-                error = {"name": NimbusConstants.ERROR_DUPLICATE_BRANCH_NAME}
+                error = {"name": NimbusExperiment.ERROR_DUPLICATE_BRANCH_NAME}
                 raise serializers.ValidationError(
                     {
                         "reference_branch": error,
@@ -560,9 +559,9 @@ class NimbusExperimentBranchMixin:
             if len(swapped_branches) > 1:
                 raise serializers.ValidationError(
                     {
-                        "reference_branch": {"name": NimbusConstants.ERROR_BRANCH_SWAP},
+                        "reference_branch": {"name": NimbusExperiment.ERROR_BRANCH_SWAP},
                         "treatment_branches": [
-                            {"name": NimbusConstants.ERROR_BRANCH_SWAP}
+                            {"name": NimbusExperiment.ERROR_BRANCH_SWAP}
                             for _ in data["treatment_branches"]
                         ],
                     }
@@ -1061,11 +1060,11 @@ class NimbusExperimentSerializer(
                 and experiment.status_next is None
                 and experiment.publish_status == NimbusExperiment.PublishStatus.IDLE
                 and validated_data.get("publish_status")
-                != NimbusConstants.PublishStatus.REVIEW
+                != experiment.PublishStatus.REVIEW
             ):
                 # can be Live Update (Dirty), End Enrollment, or End Experiment
                 # (including rejections) if we don't check validated_data
-                validated_data["publish_status"] = NimbusConstants.PublishStatus.DIRTY
+                validated_data["publish_status"] = experiment.PublishStatus.DIRTY
                 validated_data["is_rollout_dirty"] = True
 
         self.changelog_message = validated_data.pop("changelog_message")
@@ -1244,7 +1243,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         min_value=0.00009,
         max_value=100.0,
         required=True,
-        error_messages={"min_value": NimbusConstants.ERROR_POPULATION_PERCENT_MIN},
+        error_messages={"min_value": NimbusExperiment.ERROR_POPULATION_PERCENT_MIN},
     )
     total_enrolled_clients = serializers.IntegerField(required=True, min_value=1)
     firefox_min_version = serializers.ChoiceField(
@@ -1263,14 +1262,14 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     feature_config = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
         allow_null=False,
-        error_messages={"null": NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG},
+        error_messages={"null": NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG},
         write_only=True,
     )
     feature_configs = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
         many=True,
         allow_empty=False,
-        error_messages={"empty": NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG},
+        error_messages={"empty": NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG},
     )
     primary_outcomes = serializers.ListField(
         child=serializers.CharField(), required=False
@@ -1281,17 +1280,17 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     risk_partner_related = serializers.BooleanField(
         required=True,
         allow_null=False,
-        error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
+        error_messages={"null": NimbusExperiment.ERROR_REQUIRED_QUESTION},
     )
     risk_revenue = serializers.BooleanField(
         required=True,
         allow_null=False,
-        error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
+        error_messages={"null": NimbusExperiment.ERROR_REQUIRED_QUESTION},
     )
     risk_brand = serializers.BooleanField(
         required=True,
         allow_null=False,
-        error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
+        error_messages={"null": NimbusExperiment.ERROR_REQUIRED_QUESTION},
     )
 
     class Meta:
@@ -1314,7 +1313,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def validate_reference_branch(self, value):
         if value["description"] == "":
             raise serializers.ValidationError(
-                {"description": [NimbusConstants.ERROR_REQUIRED_FIELD]}
+                {"description": [NimbusExperiment.ERROR_REQUIRED_FIELD]}
             )
         return value
 
@@ -1324,9 +1323,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         for branch in value:
             error = {}
             if self.instance and self.instance.is_rollout:
-                error["name"] = [NimbusConstants.ERROR_SINGLE_BRANCH_FOR_ROLLOUT]
+                error["name"] = [NimbusExperiment.ERROR_SINGLE_BRANCH_FOR_ROLLOUT]
             if branch["description"] == "":
-                error["description"] = [NimbusConstants.ERROR_REQUIRED_FIELD]
+                error["description"] = [NimbusExperiment.ERROR_REQUIRED_FIELD]
             errors.append(error)
 
         if any(errors):
@@ -1442,7 +1441,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         if data.get("languages", []):
             min_supported_version = (
-                NimbusConstants.LANGUAGES_APPLICATION_SUPPORTED_VERSION[application]
+                NimbusExperiment.LANGUAGES_APPLICATION_SUPPORTED_VERSION[application]
             )
             if NimbusExperiment.Version.parse(
                 min_version
@@ -1462,7 +1461,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         if data.get("countries", []):
             min_supported_version = (
-                NimbusConstants.COUNTRIES_APPLICATION_SUPPORTED_VERSION[application]
+                NimbusExperiment.COUNTRIES_APPLICATION_SUPPORTED_VERSION[application]
             )
             if NimbusExperiment.Version.parse(
                 min_version
@@ -1527,7 +1526,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         ).count()
 
         if count > 0:
-            self.warnings["bucketing"] = [NimbusConstants.ERROR_BUCKET_EXISTS]
+            self.warnings["bucketing"] = [NimbusExperiment.ERROR_BUCKET_EXISTS]
 
         return data
 

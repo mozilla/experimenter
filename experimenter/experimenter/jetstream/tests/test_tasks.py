@@ -5,7 +5,6 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 from parameterized import parameterized
 
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.jetstream import tasks
@@ -1025,7 +1024,7 @@ class TestFetchJetstreamDataTask(TestCase):
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_data_fetch_skip_preview(self, mock_delay):
         lifecycle = NimbusExperimentFactory.Lifecycles.PREVIEW
-        offset = NimbusConstants.DAYS_ANALYSIS_BUFFER + 1
+        offset = NimbusExperiment.DAYS_ANALYSIS_BUFFER + 1
         _ = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=offset)
         )
@@ -1035,7 +1034,7 @@ class TestFetchJetstreamDataTask(TestCase):
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_data_expired_in_loop(self, mock_delay):
         lifecycle = NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
-        offset = NimbusConstants.DAYS_ANALYSIS_BUFFER + 1
+        offset = NimbusExperiment.DAYS_ANALYSIS_BUFFER + 1
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=offset)
         )
@@ -1056,7 +1055,7 @@ class TestFetchJetstreamDataTask(TestCase):
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_data_null_fetches(self, mock_delay):
         lifecycle = NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE
-        offset = NimbusConstants.DAYS_ANALYSIS_BUFFER + 1
+        offset = NimbusExperiment.DAYS_ANALYSIS_BUFFER + 1
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, end_date=datetime.date.today() - datetime.timedelta(days=offset)
         )

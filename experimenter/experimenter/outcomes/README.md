@@ -19,7 +19,7 @@ Outcomes can be accessed by using the Outcome and Outcomes classes. An Outcome h
 - `slug: str` A unique identifier to include in the experiment DTO when deploying experiments
 
 ```py
-from experimenter.experiments.constants import NimbusConstants
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.outcomes import Outcomes
 
 # All outcomes for all applications
@@ -27,7 +27,7 @@ for outcome in Outcomes.all():
     print(outcome.slug)
 
 # All outcomes for a given application
-for outcome in Outcomes.by_app_id(NimbusConstants.Application.FENIX):
+for outcome in Outcomes.by_app_id(NimbusExperiment.Application.FENIX):
     print(outcome.slug)
 ```
 

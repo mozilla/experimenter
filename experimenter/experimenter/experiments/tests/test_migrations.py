@@ -1,6 +1,5 @@
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment as Experiment
 
 
@@ -28,7 +27,7 @@ class TestMigration(MigratorTestCase):
             name="test experiment",
             slug="test-experiment",
             application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
+            status=Experiment.Status.DRAFT,
             results_data={
                 "v1": {
                     "daily": {"all": {"control": [], "treatment": []}},
@@ -57,7 +56,7 @@ class TestMigration(MigratorTestCase):
             name="empty experiment",
             slug="empty-experiment",
             application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
+            status=Experiment.Status.DRAFT,
         )
 
         # create experiment with empty results_data
@@ -66,7 +65,7 @@ class TestMigration(MigratorTestCase):
             name="empty results experiment",
             slug="empty-results-experiment",
             application=Experiment.Application.DESKTOP,
-            status=NimbusConstants.Status.DRAFT,
+            status=Experiment.Status.DRAFT,
             results_data={
                 "v2": {
                     "daily": None,

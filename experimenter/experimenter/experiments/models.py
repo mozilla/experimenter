@@ -668,7 +668,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def results_ready(self):
         if self.proposed_enrollment_end_date:
             resultsReadyDate = self.proposed_enrollment_end_date + datetime.timedelta(
-                days=NimbusConstants.DAYS_UNTIL_ANALYSIS
+                days=self.DAYS_UNTIL_ANALYSIS
             )
             return datetime.date.today() >= resultsReadyDate
 
