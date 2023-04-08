@@ -58,6 +58,7 @@ type NimbusExperimentType {
   computedDurationDays: Int
   computedEndDate: DateTime
   computedEnrollmentDays: Int
+  computedEnrollmentEndDate: DateTime
   enrollmentEndDate: DateTime
   featureConfig: NimbusFeatureConfigType
   isEnrollmentPausePending: Boolean
@@ -465,6 +466,7 @@ input ExperimentInput {
   isEnrollmentPaused: Boolean
   isFirstRun: Boolean
   isRollout: Boolean
+  isRolloutDirty: Boolean
   isSticky: Boolean
   languages: [String]
   locales: [String]

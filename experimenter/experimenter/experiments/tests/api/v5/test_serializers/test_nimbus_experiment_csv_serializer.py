@@ -3,7 +3,6 @@ import datetime
 from django.test import TestCase
 
 from experimenter.experiments.api.v5.serializers import NimbusExperimentCsvSerializer
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
@@ -13,7 +12,7 @@ from experimenter.experiments.tests.factories import (
 
 class TestNimbusExperimentCsvSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        application = NimbusConstants.Application.DESKTOP
+        application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
 
         experiment = NimbusExperimentFactory.create(
@@ -40,7 +39,7 @@ class TestNimbusExperimentCsvSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_schema_with_results_link(self):
-        application = NimbusConstants.Application.DESKTOP
+        application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create(application=application)
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(

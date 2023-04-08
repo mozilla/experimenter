@@ -13,7 +13,6 @@ from experimenter.base.tests.factories import (
     LanguageFactory,
     LocaleFactory,
 )
-from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment, NimbusFeatureConfig
 from experimenter.experiments.tests.factories import (
     TINY_PNG,
@@ -385,6 +384,57 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertTrue(experiment.warn_feature_schema)
 
+    def test_update_experiment_is_rollout_dirty(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            is_rollout=True,
+            is_rollout_dirty=False,
+        )
+        experiment_id = experiment.id
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "isRolloutDirty": True,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        self.assertTrue(experiment.is_rollout)
+        self.assertTrue(experiment.is_rollout_dirty)
+
+    def test_update_experiment_add_is_rollout_dirty(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            is_rollout=True,
+        )
+        experiment_id = experiment.id
+        response = self.query(
+            UPDATE_EXPERIMENT_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "isRolloutDirty": True,
+                    "changelogMessage": "test changelog message",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        self.assertTrue(experiment.is_rollout)
+        self.assertTrue(experiment.is_rollout_dirty)
+
     def test_update_draft_experiment_to_rollout(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -434,8 +484,8 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertTrue(experiment.is_rollout)
         self.assertEqual(experiment.population_percent, 50.0)
-        self.assertEqual(experiment.publish_status, NimbusConstants.PublishStatus.DIRTY)
-        self.assertEqual(experiment.status, NimbusConstants.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.DIRTY)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, None)
 
     @parameterized.expand(
@@ -479,7 +529,7 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertEqual(experiment.population_percent, 50.0)
         self.assertEqual(
-            experiment.publish_status == NimbusConstants.PublishStatus.DIRTY,
+            experiment.publish_status == NimbusExperiment.PublishStatus.DIRTY,
             is_dirty_expected,
         )
 
@@ -511,8 +561,8 @@ class TestUpdateExperimentMutationSingleFeature(
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertEqual(experiment.population_percent, 40.0)
-        self.assertEqual(experiment.publish_status, NimbusConstants.PublishStatus.IDLE)
-        self.assertEqual(experiment.status, NimbusConstants.Status.LIVE)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
         self.assertEqual(experiment.status_next, None)
 
     def test_update_experiment_branches_without_feature_config(self):
@@ -763,7 +813,7 @@ class TestUpdateExperimentMutationSingleFeature(
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            application=NimbusConstants.Application.DESKTOP,
+            application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
             population_percent=0.0,
@@ -778,9 +828,9 @@ class TestUpdateExperimentMutationSingleFeature(
             variables={
                 "input": {
                     "id": experiment.id,
-                    "channel": NimbusConstants.Channel.BETA.name,
-                    "firefoxMinVersion": NimbusConstants.Version.FIREFOX_83.name,
-                    "firefoxMaxVersion": NimbusConstants.Version.FIREFOX_95.name,
+                    "channel": NimbusExperiment.Channel.BETA.name,
+                    "firefoxMinVersion": NimbusExperiment.Version.FIREFOX_83.name,
+                    "firefoxMaxVersion": NimbusExperiment.Version.FIREFOX_95.name,
                     "populationPercent": "10",
                     "proposedDuration": "120",
                     "proposedEnrollment": "42",
@@ -801,12 +851,12 @@ class TestUpdateExperimentMutationSingleFeature(
         self.assertEqual(content["data"]["updateExperiment"]["message"], "success")
 
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA)
+        self.assertEqual(experiment.channel, NimbusExperiment.Channel.BETA)
         self.assertEqual(
-            experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83
+            experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_83
         )
         self.assertEqual(
-            experiment.firefox_max_version, NimbusConstants.Version.FIREFOX_95
+            experiment.firefox_max_version, NimbusExperiment.Version.FIREFOX_95
         )
         self.assertEqual(experiment.population_percent, 10.0)
         self.assertEqual(experiment.proposed_duration, 120)

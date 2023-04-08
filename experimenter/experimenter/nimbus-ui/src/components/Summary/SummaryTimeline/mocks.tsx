@@ -12,26 +12,32 @@ import {
 
 export const Subject = ({
   startDate = "2020-11-28T14:52:44.704811+00:00",
+  computedEnrollmentEndDate = "2020-12-02T14:52:44.704811+00:00",
   computedEndDate = "2020-12-08T14:52:44.704811+00:00",
   computedDurationDays = 10,
   computedEnrollmentDays = 1,
   status = NimbusExperimentStatusEnum.DRAFT,
   publishStatus = NimbusExperimentPublishStatusEnum.IDLE,
+  isRollout = false,
 }: {
   startDate?: string;
-  computedEndDate?: string;
   computedDurationDays?: number;
+  computedEndDate?: string;
   computedEnrollmentDays?: number;
+  computedEnrollmentEndDate?: string;
   status?: NimbusExperimentStatusEnum;
   publishStatus?: NimbusExperimentPublishStatusEnum;
+  isRollout?: boolean;
 }) => {
   const { experiment } = mockExperimentQuery("something-vague", {
     startDate,
-    computedEndDate,
     computedDurationDays,
+    computedEndDate,
     computedEnrollmentDays,
+    computedEnrollmentEndDate,
     status,
     publishStatus,
+    isRollout,
   });
   return <SummaryTimeline {...{ experiment }} />;
 };
