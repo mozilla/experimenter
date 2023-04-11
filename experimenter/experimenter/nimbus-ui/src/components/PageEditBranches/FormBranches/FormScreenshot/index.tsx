@@ -152,7 +152,7 @@ const UploadPreviewImage = ({ upload }: { upload: Upload | null }) => {
     <Image
       data-testid="upload-preview"
       fluid
-      className="mt-3"
+      className="mt-4"
       alt={`${uploadToLabel(upload)} preview`}
       src={previewUrl}
     />
