@@ -223,13 +223,18 @@ export const AppLayoutSidebarLaunched = ({
                   ) : analysis?.metadata?.external_config?.skip ? (
                     "Experiment analysis was skipped"
                   ) : (
-                    `Experiment analysis not ready yet. ${
-                      experiment.resultsExpectedDate
-                        ? `Results expected ${humanDate(
-                            experiment.resultsExpectedDate,
-                          )} (or 8 days after enrollment ends).`
-                        : ""
-                    }`
+                    <>
+                      Experiment analysis not ready yet.
+                      {experiment.resultsExpectedDate && (
+                        <>
+                          {" "}
+                          Results are expected 8 days after enrollment ends{" "}
+                          (currently{" "}
+                          <b>{humanDate(experiment.resultsExpectedDate)}</b>
+                          ).
+                        </>
+                      )}
+                    </>
                   )}
                 </DisabledItem>
               )}

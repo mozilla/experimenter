@@ -105,11 +105,9 @@ describe("AppLayoutSidebarLaunched", () => {
         `${BASE_PATH}/my-special-slug`,
       );
 
-      screen.getByText(
-        `Experiment analysis not ready yet. Results expected ${humanDate(
-          expectedDate,
-        )} (or 8 days after enrollment ends).`,
-      );
+      screen.getByText("Experiment analysis not ready yet.", { exact: false });
+
+      screen.getByText(humanDate(expectedDate));
     });
 
     it("when complete and analysis results fetch errors", () => {
