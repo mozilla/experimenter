@@ -665,11 +665,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     # Results are available if enrollment is complete and
     # more than a week has passed after that.
     @property
-    def results_ready(self):
+    def results_ready_date(self):
         if self.proposed_enrollment_end_date:
-            resultsReadyDate = self.proposed_enrollment_end_date + datetime.timedelta(
+            return self.proposed_enrollment_end_date + datetime.timedelta(
                 days=NimbusConstants.DAYS_UNTIL_ANALYSIS
             )
+
+    @property
+    def results_ready(self):
+        if self.proposed_enrollment_end_date:
+            resultsReadyDate = self.results_ready_date
             return datetime.date.today() >= resultsReadyDate
 
     @property
@@ -688,6 +693,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def show_results_url(self):
         return self.has_displayable_results and self.results_ready and not self.is_rollout
+
+    @property
+    def results_expected_date(self):
+        if not self.is_rollout:
+            if self._enrollment_end_date:
+                return self._enrollment_end_date + datetime.timedelta(
+                    days=NimbusConstants.DAYS_UNTIL_ANALYSIS
+                )
+            else:
+                return self.results_ready_date
 
     @property
     def signoff_recommendations(self):
