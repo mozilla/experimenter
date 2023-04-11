@@ -10,6 +10,7 @@ import {
   RESULTS_WAITING_FOR_LAUNCH_TEXT,
 } from "src/components/AppLayoutSidebarLaunched";
 import { BASE_PATH } from "src/lib/constants";
+import { humanDate } from "src/lib/dateUtils";
 import { mockExperimentQuery, mockGetStatus } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
 import {
@@ -104,11 +105,10 @@ describe("AppLayoutSidebarLaunched", () => {
         `${BASE_PATH}/my-special-slug`,
       );
 
-      // screen.getByText("Experiment analysis not ready yet.");
       screen.getByText(
-        `Experiment analysis not ready yet. Results expected ${new Date(
+        `Experiment analysis not ready yet. Results expected ${humanDate(
           expectedDate,
-        ).toLocaleDateString()} (or 8 days after enrollment ends).`,
+        )} (or 8 days after enrollment ends).`,
       );
     });
 

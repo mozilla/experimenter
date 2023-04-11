@@ -17,6 +17,7 @@ import LinkNavSummary from "src/components/LinkNavSummary";
 import SidebarActions from "src/components/SidebarActions";
 import { useOutcomes } from "src/hooks";
 import { ReactComponent as ChevronLeft } from "src/images/chevron-left.svg";
+import { humanDate } from "src/lib/dateUtils";
 import { StatusCheck } from "src/lib/experiment";
 import { OutcomesList } from "src/lib/types";
 import { AnalysisData, MetadataPoint } from "src/lib/visualization/types";
@@ -224,9 +225,9 @@ export const AppLayoutSidebarLaunched = ({
                   ) : (
                     `Experiment analysis not ready yet. ${
                       experiment.resultsExpectedDate
-                        ? `Results expected ${new Date(
+                        ? `Results expected ${humanDate(
                             experiment.resultsExpectedDate,
-                          ).toLocaleDateString()} (or 8 days after enrollment ends).`
+                          )} (or 8 days after enrollment ends).`
                         : ""
                     }`
                   )}
