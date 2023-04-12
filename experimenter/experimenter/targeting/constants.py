@@ -180,26 +180,28 @@ FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903_EXCLUDE_RTAMO = NimbusTargetingConfig(
+FIRST_RUN_NEW_PROFILE_WINDOWS_1903_EXCLUDE_RTAMO = NimbusTargetingConfig(
     name=(
         "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
         "new profile, needing default w/ pin, excluding users coming from RTAMO"
     ),
-    slug="first_run_new_profile_need_default_has_pin_exclude_rtamo",
+    slug="first_run_new_profile_exclude_rtamo",
     description=(
         "First start-up users (e.g. for about:welcome) on Windows 1903+, "
         "with a new profile, needing default w/ pin, excluding RTAMO"
     ),
     targeting=(
-        "{first_run} && {has_pin} && attributionData.source !== ‘addons.mozilla.org’".format(
+        "{first_run} && {has_pin} && {exclude_rtamo}".format(
             first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
             has_pin=HAS_PIN,
+            exclude_rtamo="attributionData.source !== ‘addons.mozilla.org’",
         )
     ),
     desktop_telemetry=(
-        "{first_run} AND {has_pin} AND attributionData.source !== ‘addons.mozilla.org’".format(
+        "{first_run} AND {has_pin} AND {exclude_rtamo}".format(
             first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
             has_pin=HAS_PIN,
+            exclude_rtamo="attributionData.source !== ‘addons.mozilla.org’",
         )
     ),
     sticky_required=True,
