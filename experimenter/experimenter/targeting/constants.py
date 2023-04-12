@@ -191,17 +191,17 @@ FIRST_RUN_NEW_PROFILE_WINDOWS_1903_EXCLUDE_RTAMO = NimbusTargetingConfig(
         "with a new profile, needing default w/ pin, excluding RTAMO"
     ),
     targeting=(
-        "{first_run} && {has_pin} && attributionData.source !== 'addons.mozilla.org'"
-        .format(
+        "{first_run} && {has_pin} && {attribution}".format(
             first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
             has_pin=HAS_PIN,
+            attribution="attributionData.source != 'addons.mozilla.org'",
         )
     ),
     desktop_telemetry=(
-        "{first_run} AND {has_pin} AND attributionData.source !== 'addons.mozilla.org'"
-        .format(
+        "{first_run} AND {has_pin} AND {attribution}".format(
             first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
             has_pin=HAS_PIN,
+            attribution="attributionData.source != 'addons.mozilla.org'",
         )
     ),
     sticky_required=True,
