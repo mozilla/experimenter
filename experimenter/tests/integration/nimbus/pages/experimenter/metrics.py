@@ -1,6 +1,5 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
 
 from nimbus.pages.experimenter.audience import AudiencePage
 from nimbus.pages.experimenter.base import ExperimenterBase
@@ -26,8 +25,10 @@ class MetricsPage(ExperimenterBase):
 
     @property
     def primary_outcomes(self):
-        root_locator = self.wait_for_and_find_element(*self._primary_outcome_root_locator)
-        multifeature_el = self.wait_for_and_find_element(*self._multifeature_element_locator)
+        self.wait_for_and_find_element(*self._primary_outcome_root_locator)
+        multifeature_el = self.wait_for_and_find_element(
+            *self._multifeature_element_locator
+        )
         # self.wait.until(
         #     EC.presence_of_all_elements_located(
         #         self._multifeature_element_locator
@@ -46,7 +47,9 @@ class MetricsPage(ExperimenterBase):
         # root_locator = self.wait_for_and_find_element(
         #     *self._secondary_outcome_root_locator
         # )
-        multifeature_el = self.wait_for_and_find_element(*self._multifeature_element_locator)
+        multifeature_el = self.wait_for_and_find_element(
+            *self._multifeature_element_locator
+        )
         # multifeature_el = root_locator.wait_for_and_find_element(
         #     *self._multifeature_element_locator
         # )
