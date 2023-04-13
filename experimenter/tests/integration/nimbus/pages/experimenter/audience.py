@@ -9,6 +9,8 @@ from nimbus.pages.experimenter.summary import SummaryPage
 class AudiencePage(ExperimenterBase):
     """Experiment Audience Page."""
 
+    PAGE_TITLE = "Audience Page"
+
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditAudience")
     _channel_select_locator = (By.CSS_SELECTOR, "#channel")
     _min_version_select_locator = (By.CSS_SELECTOR, "#minVersion")
@@ -91,7 +93,8 @@ class AudiencePage(ExperimenterBase):
     @property
     def locales(self):
         return [
-            element.text for element in self.wait_for_and_find_elements(*self._locales_value_locator)
+            element.text
+            for element in self.wait_for_and_find_elements(*self._locales_value_locator)
         ]
 
     @locales.setter
@@ -104,7 +107,8 @@ class AudiencePage(ExperimenterBase):
     @property
     def countries(self):
         return [
-            element.text for element in self.wait_for_and_find_elements(*self._countries_value_locator)
+            element.text
+            for element in self.wait_for_and_find_elements(*self._countries_value_locator)
         ]
 
     @countries.setter
@@ -117,7 +121,8 @@ class AudiencePage(ExperimenterBase):
     @property
     def languages(self):
         return [
-            element.text for element in self.wait_for_and_find_elements(*self._languages_value_locator)
+            element.text
+            for element in self.wait_for_and_find_elements(*self._languages_value_locator)
         ]
 
     @languages.setter

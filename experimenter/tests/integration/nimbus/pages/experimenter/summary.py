@@ -12,6 +12,8 @@ from nimbus.pages.experimenter.base import ExperimenterBase
 class SummaryPage(ExperimenterBase):
     """Experiment Summary Page."""
 
+    PAGE_TITLE = "Summary Page"
+
     _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary")
     _promote_rollout_locator = (By.CSS_SELECTOR, 'button[data-testid="promote-rollout"]')
     _header_slug = (By.CSS_SELECTOR, 'p[data-testid="header-experiment-slug"]')
@@ -150,7 +152,7 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def experiment_slug(self):
-        return self.wait_for_and_find_element(self._header_slug, "header slug").text
+        return self.wait_for_and_find_element(*self._header_slug, "header slug").text
 
     @property
     def experiment_status(self):
@@ -215,12 +217,12 @@ class SummaryPage(ExperimenterBase):
         _request_launch_locator = (By.CSS_SELECTOR, "#request-launch-button")
 
         def click_launch_checkboxes(self):
-            self.wait_for_and_find_element(*self._checkbox0_locator).click()
-            self.wait_for_and_find_element(*self._checkbox1_locator).click()
+            self.find_element(*self._checkbox0_locator).click()
+            self.find_element(*self._checkbox1_locator).click()
 
         @property
         def request_launch_button(self):
-            return self.wait_for_and_find_element(*self._request_launch_locator)
+            return self.find_element(*self._request_launch_locator)
 
     def archive(self):
         self.wait_for_and_find_element(*self._archive_button_locator).click()

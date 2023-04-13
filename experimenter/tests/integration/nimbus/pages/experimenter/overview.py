@@ -9,6 +9,8 @@ from nimbus.pages.experimenter.branches import BranchesPage
 class OverviewPage(ExperimenterBase):
     """Experiment Overview Page."""
 
+    PAGE_TITLE = "Overview Page"
+
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditOverview")
     _additional_link_root_locator = (By.CSS_SELECTOR, "#documentation-link")
     _additional_link_type_locator = (By.CSS_SELECTOR, "#documentation-link select")

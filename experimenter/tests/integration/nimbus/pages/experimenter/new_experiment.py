@@ -8,6 +8,8 @@ from nimbus.pages.experimenter.overview import OverviewPage
 class NewExperiment(ExperimenterBase):
     """New Experiment Page."""
 
+    PAGE_TITLE = "New Experiment Page"
+
     _page_wait_locator = (By.CSS_SELECTOR, "#PageNew-page")
     _public_name_locator = (By.CSS_SELECTOR, "#name")
     _hypothesis_locator = (By.CSS_SELECTOR, "#hypothesis")

@@ -26,16 +26,18 @@ class Base(Page):
 
         self.wait.until(_wait_for_it, message=message)
 
-    def wait_for_locator(self, locator, description):
+    def wait_for_locator(self, locator, description=None):
+        if not description:
+            description = "locator"
         self.wait.until(
             EC.presence_of_all_elements_located(locator),
             message=f"{self.PAGE_TITLE}: could not find {description}",
         )
 
-    def wait_for_and_find_element(self, locator, description):
-        self.wait_for_locator(locator, description)
-        return self.find_element(*locator)
+    def wait_for_and_find_element(self, strategy, locator, description=None):
+        self.wait_for_locator((strategy, locator), description)
+        return self.find_element(strategy, locator)
 
-    def wait_for_and_find_elements(self, locator, description):
-        self.wait_for_locator(locator, description)
-        return self.find_elements(*locator)
+    def wait_for_and_find_elements(self, strategy, locator, description=None):
+        self.wait_for_locator((strategy, locator), description)
+        return self.find_elements(strategy, locator)

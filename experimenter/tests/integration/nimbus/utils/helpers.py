@@ -215,6 +215,7 @@ def create_desktop_experiment(slug, app, targeting, data):
         }
     )
 
+
 def approve_and_launch_experiment(slug):
     experiment_id = load_experiment_data(slug)["data"]["experimentBySlug"]["id"]
 
@@ -223,10 +224,10 @@ def approve_and_launch_experiment(slug):
         "changelogMessage": "Update Experiment",
         "publishStatus": "APPROVED",
         "status": "LIVE",
-        "statusNext": "COMPLETE"
+        "statusNext": "COMPLETE",
     }
 
-    gql_data = load_graphql_data(
+    load_graphql_data(
         {
             "operationName": "updateExperiment",
             "variables": {"input": data},

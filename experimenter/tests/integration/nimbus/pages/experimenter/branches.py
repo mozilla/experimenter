@@ -49,78 +49,78 @@ class BranchesPage(ExperimenterBase):
     @property
     def reference_branch_description(self):
         return self.wait_for_and_find_element(
-            self._reference_branch_description_locator, "reference branch description"
+            *self._reference_branch_description_locator, "reference branch description"
         ).text
 
     @reference_branch_description.setter
     def reference_branch_description(self, text=None):
         self.wait_for_and_find_element(
-            self._reference_branch_description_locator, "reference_branch description"
+            *self._reference_branch_description_locator, "reference_branch description"
         ).send_keys(f"{text}")
 
     @property
     def reference_branch_value(self):
         return self.wait_for_and_find_element(
-            self._reference_branch_value_locator, "reference branch value"
+            *self._reference_branch_value_locator, "reference branch value"
         ).text
 
     @reference_branch_value.setter
     def reference_branch_value(self, text=None):
         self.wait_for_and_find_element(
-            self._reference_branch_value_locator, "reference branch value"
+            *self._reference_branch_value_locator, "reference branch value"
         ).send_keys(f"{text}")
 
     @property
     def treatment_branch_name(self):
         return self.wait_for_and_find_element(
-            self._treatment_branch_name_locator, "treatment branch name"
+            *self._treatment_branch_name_locator, "treatment branch name"
         ).text
 
     @treatment_branch_name.setter
     def treatment_branch_name(self, text=None):
         self.wait_for_and_find_element(
-            self._treatment_branch_name_locator, "treatment branch name"
+            *self._treatment_branch_name_locator, "treatment branch name"
         ).send_keys(f"{text}")
 
     @property
     def treatment_branch_description(self):
         return self.wait_for_and_find_element(
-            self._treatment_branch_description_locator, "treatment branch description"
+            *self._treatment_branch_description_locator, "treatment branch description"
         ).text
 
     @treatment_branch_description.setter
     def treatment_branch_description(self, text=None):
         self.wait_for_and_find_element(
-            self._treatment_branch_description_locator, "treatment branch description"
+            *self._treatment_branch_description_locator, "treatment branch description"
         ).send_keys(f"{text}")
 
     @property
     def treatment_branch_value(self):
         return self.wait_for_and_find_element(
-            self._treatment_branch_value_locator, "treatment branch value"
+            *self._treatment_branch_value_locator, "treatment branch value"
         ).text
 
     @treatment_branch_value.setter
     def treatment_branch_value(self, text=None):
         self.wait_for_and_find_element(
-            self._treatment_branch_value_locator, "treatment branch value"
+            *self._treatment_branch_value_locator, "treatment branch value"
         ).send_keys(f"{text}")
 
     def remove_branch(self):
         self.wait_for_and_find_element(
-            self._remove_branch_locator, "remove branch button"
+            *self._remove_branch_locator, "remove branch button"
         ).click()
 
     @property
     def feature_config(self):
         return self.wait_for_and_find_element(
-            self._feature_select_locator, "feature config"
+            *self._feature_select_locator, "feature config"
         ).text
 
     @feature_config.setter
     def feature_config(self, feature_config_id):
         el = self.wait_for_and_find_element(
-            self._feature_select_locator, "feature_config"
+            *self._feature_select_locator, "feature_config"
         )
         select = Select(el)
         select.select_by_value(feature_config_id)
@@ -128,18 +128,18 @@ class BranchesPage(ExperimenterBase):
     @property
     def is_rollout(self):
         return self.wait_for_and_find_element(
-            self._rollout_checkbox_locator, "is rollout"
+            *self._rollout_checkbox_locator, "is rollout"
         )
 
     def make_rollout(self):
         self.wait_for_and_find_element(
-            self._rollout_checkbox_locator, "is_rollout"
+            *self._rollout_checkbox_locator, "is_rollout"
         ).click()
 
     @property
     def add_screenshot_buttons(self):
         return self.wait_for_and_find_elements(
-            self._add_screenshot_buttons_locator,
+            *self._add_screenshot_buttons_locator,
             "branch add screenshot button",
         )
 

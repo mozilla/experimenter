@@ -98,14 +98,13 @@ def firefox_options(firefox_options):
 def selenium(selenium, experiment_name, kinto_client, base_url, slugify):
     yield selenium
 
-    from nimbus.pages.experimenter.summary import SummaryPage
-
-    experiment_slug = str(slugify(experiment_name))
-    try:
-        helpers.approve_and_launch_experiment(experiment_slug)
-        kinto_client.approve()
-    except Exception:
-        pass
+    if os.getenv("CIRCLECI") is None:
+        experiment_slug = str(slugify(experiment_name))
+        try:
+            helpers.approve_and_launch_experiment(experiment_slug)
+            kinto_client.approve()
+        except Exception:
+            pass
 
 
 @pytest.fixture(

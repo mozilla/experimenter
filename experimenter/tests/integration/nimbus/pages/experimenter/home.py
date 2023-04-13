@@ -8,6 +8,8 @@ from nimbus.pages.experimenter.base import Base
 class HomePage(Base):
     """Nimbus Home page."""
 
+    PAGE_TITLE = "Home Page"
+
     _page_wait_locator = (By.CSS_SELECTOR, "#PageHome-page")
     _create_new_btn_locator = (By.CSS_SELECTOR, "#create-new-button")
 
@@ -56,4 +58,4 @@ class HomePage(Base):
         @property
         def experiments(self):
             self.wait.until(EC.presence_of_element_located(self._experiment_link_locator))
-            return self.wait_for_and_find_elements(*self._experiment_link_locator)
+            return self.find_elements(*self._experiment_link_locator)
