@@ -43,6 +43,17 @@ NO_TARGETING = NimbusTargetingConfig(
     application_choice_names=[a.name for a in Application],
 )
 
+ATTRIBUTION_MEDIUM_EMAIL = NimbusTargetingConfig(
+    name="Attribution Medium Email",
+    slug="attribution_medium_email",
+    description="Firefox installed with email attribution",
+    targeting="attributionData.medium == 'email'",
+    desktop_telemetry="environment.settings.attribution.medium = 'email'",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEW_PROFILE_CREATED = NimbusTargetingConfig(
     name="New profile created",
     slug="new_profile_created",
