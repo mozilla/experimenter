@@ -3514,7 +3514,7 @@
           "schemaVersion": {
             "type": "string",
             "readOnly": true,
-            "default": "1.11.0"
+            "default": "1.12.0"
           },
           "slug": {
             "type": "string",
