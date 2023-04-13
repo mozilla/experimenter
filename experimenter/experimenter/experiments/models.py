@@ -674,8 +674,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     @property
     def results_ready(self):
         if self.proposed_enrollment_end_date:
-            resultsReadyDate = self.results_ready_date
-            return datetime.date.today() >= resultsReadyDate
+            results_ready_date = self.results_ready_date
+            return datetime.date.today() >= results_ready_date
 
     @property
     def has_displayable_results(self):

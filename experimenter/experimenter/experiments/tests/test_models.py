@@ -1646,7 +1646,6 @@ class TestNimbusExperiment(TestCase):
             start_date=start_date,
             end_date=end_date,
             proposed_enrollment=proposed_enrollment,
-            # is_paused_published=is_paused_published,
         )
 
         expected_date = (
