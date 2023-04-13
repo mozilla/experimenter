@@ -457,7 +457,7 @@ UPLOADS_FILE_STORAGE = config("UPLOADS_FILE_STORAGE", default=None)
 
 NIMBUS_SCHEMA_VERSION = (
     # TODO: #8492
-    "1.11.0"  # pkg_resources.get_distribution("mozilla-nimbus-shared").version
+    "1.12.0"  # pkg_resources.get_distribution("mozilla-nimbus-shared").version
 )
 
 
