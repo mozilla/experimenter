@@ -228,10 +228,8 @@ export const AppLayoutSidebarLaunched = ({
                       {experiment.resultsExpectedDate && (
                         <>
                           {" "}
-                          Results are expected 8 days after enrollment ends{" "}
-                          (currently{" "}
-                          <b>{humanDate(experiment.resultsExpectedDate)}</b>
-                          ).
+                          Results expected{" "}
+                          <b>{humanDate(experiment.resultsExpectedDate)}</b>.
                         </>
                       )}
                     </>
