@@ -180,6 +180,35 @@ FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_NEW_PROFILE_WINDOWS_1903_EXCLUDE_RTAMO = NimbusTargetingConfig(
+    name=(
+        "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
+        "new profile, needing default w/ pin, excluding users coming from RTAMO"
+    ),
+    slug="first_run_new_profile_exclude_rtamo",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Windows 1903+, "
+        "with a new profile, needing default w/ pin, excluding RTAMO"
+    ),
+    targeting=(
+        "{first_run} && {has_pin} && {attribution}".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
+            has_pin=HAS_PIN,
+            attribution="attributionData.source != 'addons.mozilla.org'",
+        )
+    ),
+    desktop_telemetry=(
+        "{first_run} AND {has_pin} AND {attribution}".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
+            has_pin=HAS_PIN,
+            attribution="attributionData.source != 'addons.mozilla.org'",
+        )
+    ),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_TCP_STUDY = NimbusTargetingConfig(
     name="Exclude users in the TCP revenue study",
     slug="not_tcp_study",
