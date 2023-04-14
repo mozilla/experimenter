@@ -1123,6 +1123,17 @@ NOT_MAC = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EARLY_DAY_USER = NimbusTargetingConfig(
+    name="Early day user (28 days or less)",
+    slug="early_day_user",
+    description="Users with profiles that are 28 days old or less",
+    targeting="(currentDate|date - profileAgeCreated|date) / 86400000 <= 28",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
