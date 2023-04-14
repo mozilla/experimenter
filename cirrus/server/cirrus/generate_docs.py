@@ -22,8 +22,10 @@ def generate_openapi_schema():
             with open(OPENAPI_PATH, "w") as f:
                 json.dump(openapi_schema, f)
             print("openapi.json has been updated!")
+            return False
         else:
             print("openapi.json is already up-to-date.")
+            return False
 
 
 if __name__ == "__main__":
