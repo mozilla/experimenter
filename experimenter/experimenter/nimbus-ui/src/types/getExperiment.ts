@@ -150,6 +150,7 @@ export interface getExperiment_experimentBySlug {
   publishStatus: NimbusExperimentPublishStatusEnum | null;
   monitoringDashboardUrl: string | null;
   rolloutMonitoringDashboardUrl: string | null;
+  resultsExpectedDate: DateTime | null;
   resultsReady: boolean | null;
   showResultsUrl: boolean | null;
   hypothesis: string | null;

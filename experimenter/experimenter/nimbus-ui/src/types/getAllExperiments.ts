@@ -69,6 +69,7 @@ export interface getAllExperiments_experiments {
   publishStatus: NimbusExperimentPublishStatusEnum | null;
   monitoringDashboardUrl: string | null;
   rolloutMonitoringDashboardUrl: string | null;
+  resultsExpectedDate: DateTime | null;
   resultsReady: boolean | null;
   showResultsUrl: boolean | null;
   featureConfig: getAllExperiments_experiments_featureConfig | null;

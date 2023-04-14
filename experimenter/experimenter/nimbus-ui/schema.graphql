@@ -68,6 +68,7 @@ type NimbusExperimentType {
   readyForReview: NimbusReviewType
   recipeJson: String
   rejection: NimbusChangeLogType
+  resultsExpectedDate: DateTime
   resultsReady: Boolean
   reviewRequest: NimbusChangeLogType
   reviewUrl: String

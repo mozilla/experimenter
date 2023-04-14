@@ -96,6 +96,7 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                     publishStatus
                     monitoringDashboardUrl
                     rolloutMonitoringDashboardUrl
+                    resultsExpectedDate
                     resultsReady
                     showResultsUrl
                     featureConfig {
@@ -171,6 +172,11 @@ class TestNimbusExperimentsQuery(GraphQLTestCase):
                 "publishStatus": NimbusExperiment.PublishStatus(
                     experiment.publish_status
                 ).name,
+                "resultsExpectedDate": (
+                    str(experiment.results_expected_date)
+                    if experiment.results_expected_date is not None
+                    else None
+                ),
                 "resultsReady": experiment.results_ready,
                 "rolloutMonitoringDashboardUrl": (
                     experiment.rollout_monitoring_dashboard_url

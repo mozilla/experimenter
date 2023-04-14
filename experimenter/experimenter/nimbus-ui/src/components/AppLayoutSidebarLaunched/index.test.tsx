@@ -10,6 +10,7 @@ import {
   RESULTS_WAITING_FOR_LAUNCH_TEXT,
 } from "src/components/AppLayoutSidebarLaunched";
 import { BASE_PATH } from "src/lib/constants";
+import { humanDate } from "src/lib/dateUtils";
 import { mockExperimentQuery, mockGetStatus } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
 import {
@@ -79,7 +80,17 @@ const Subject = ({
 describe("AppLayoutSidebarLaunched", () => {
   describe("navigation links", () => {
     it("when live, hides edit links, displays summary link and disabled results item", () => {
-      render(<Subject status={NimbusExperimentStatusEnum.LIVE} />);
+      const expectedDate = "2023-01-01T00:00:00.000+0000";
+      render(
+        <Subject
+          status={NimbusExperimentStatusEnum.LIVE}
+          experiment={
+            mockExperimentQuery("my-special-slug/design", {
+              resultsExpectedDate: expectedDate,
+            }).experiment
+          }
+        />,
+      );
       ["Overview", "Branches", "Metrics", "Audience"].forEach((text) => {
         expect(
           screen.queryByText(text, { selector: navLinkSelector }),
@@ -94,7 +105,9 @@ describe("AppLayoutSidebarLaunched", () => {
         `${BASE_PATH}/my-special-slug`,
       );
 
-      screen.getByText("Experiment analysis not ready yet");
+      screen.getByText("Experiment analysis not ready yet.", { exact: false });
+
+      screen.getByText(humanDate(expectedDate));
     });
 
     it("when complete and analysis results fetch errors", () => {
