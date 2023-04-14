@@ -471,6 +471,7 @@ class NimbusExperimentType(DjangoObjectType):
     recipe_json = graphene.String()
     reference_branch = graphene.Field(NimbusBranchType)
     rejection = graphene.Field(NimbusChangeLogType)
+    results_expected_date = graphene.DateTime()
     results_ready = graphene.Boolean()
     review_request = graphene.Field(NimbusChangeLogType)
     review_url = graphene.String()
@@ -538,6 +539,7 @@ class NimbusExperimentType(DjangoObjectType):
             "recipe_json",
             "reference_branch",
             "rejection",
+            "results_expected_date",
             "results_ready",
             "review_request",
             "review_url",

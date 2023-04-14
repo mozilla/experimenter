@@ -38,6 +38,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       publishStatus
       monitoringDashboardUrl
       rolloutMonitoringDashboardUrl
+      resultsExpectedDate
       resultsReady
       showResultsUrl
 
@@ -245,6 +246,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       publishStatus
       monitoringDashboardUrl
       rolloutMonitoringDashboardUrl
+      resultsExpectedDate
       resultsReady
       showResultsUrl
       featureConfig {
