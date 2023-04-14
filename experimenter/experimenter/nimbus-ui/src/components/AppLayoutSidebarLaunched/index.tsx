@@ -17,6 +17,7 @@ import LinkNavSummary from "src/components/LinkNavSummary";
 import SidebarActions from "src/components/SidebarActions";
 import { useOutcomes } from "src/hooks";
 import { ReactComponent as ChevronLeft } from "src/images/chevron-left.svg";
+import { humanDate } from "src/lib/dateUtils";
 import { StatusCheck } from "src/lib/experiment";
 import { OutcomesList } from "src/lib/types";
 import { AnalysisData, MetadataPoint } from "src/lib/visualization/types";
@@ -222,7 +223,16 @@ export const AppLayoutSidebarLaunched = ({
                   ) : analysis?.metadata?.external_config?.skip ? (
                     "Experiment analysis was skipped"
                   ) : (
-                    "Experiment analysis not ready yet"
+                    <>
+                      Experiment analysis not ready yet.
+                      {experiment.resultsExpectedDate && (
+                        <>
+                          {" "}
+                          Results expected{" "}
+                          <b>{humanDate(experiment.resultsExpectedDate)}</b>.
+                        </>
+                      )}
+                    </>
                   )}
                 </DisabledItem>
               )}
