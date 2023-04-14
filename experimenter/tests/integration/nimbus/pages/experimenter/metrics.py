@@ -44,15 +44,9 @@ class MetricsPage(ExperimenterBase):
 
     @property
     def secondary_outcomes(self):
-        # root_locator = self.wait_for_and_find_element(
-        #     *self._secondary_outcome_root_locator
-        # )
         multifeature_el = self.wait_for_and_find_element(
             *self._multifeature_element_locator
         )
-        # multifeature_el = root_locator.wait_for_and_find_element(
-        #     *self._multifeature_element_locator
-        # )
         return multifeature_el.find_element(By.CSS_SELECTOR, "div")
 
     def set_secondary_outcomes(self, values=None):
