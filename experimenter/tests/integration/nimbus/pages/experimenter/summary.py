@@ -259,7 +259,7 @@ class SummaryPage(ExperimenterBase):
 
     @property
     def promote_to_rollout_buttons(self):
-        return self.wait_for_and_find_element(*self._promote_rollout_locator)
+        return self.wait_for_and_find_elements(*self._promote_rollout_locator)
 
     def promote_first_branch_to_rollout(self):
         self.promote_to_rollout_buttons[0].click()
@@ -305,11 +305,11 @@ class SummaryPage(ExperimenterBase):
     @property
     def branch_screenshot_description(self):
         return self.wait_for_and_find_elements(
-            self._branch_screenshot_description_locator, "branch screenshot description"
+            *self._branch_screenshot_description_locator, "branch screenshot description"
         )[0].text
 
     @property
     def branch_screenshot_image(self):
         return self.wait_for_and_find_elements(
-            self._branch_screenshot_image_locator, "branch screenshot image"
+            *self._branch_screenshot_image_locator, "branch screenshot image"
         )[0]

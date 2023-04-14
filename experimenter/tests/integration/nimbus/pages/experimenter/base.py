@@ -32,7 +32,7 @@ class ExperimenterBase(Base):
         from nimbus.pages.experimenter.summary import SummaryPage
 
         element = self.wait_for_and_find_element(
-            self._sidebar_summary_link, "summary link"
+            *self._sidebar_summary_link, "summary link"
         )
         element.click()
         return SummaryPage(self.driver, self.base_url).wait_for_page_to_load()
