@@ -807,7 +807,7 @@ describe("FormAudience", () => {
     expect(screen.queryByTestId("locales")).not.toBeInTheDocument();
   });
 
-  it("enables isFirstRun for mobile", async () => {
+  it("isFirstRun renders for mobile application", async () => {
     render(
       <Subject
         experiment={{
@@ -833,7 +833,7 @@ describe("FormAudience", () => {
     expect(screen.queryByTestId("languages")).not.toBeInTheDocument();
     expect(screen.queryByTestId("locales")).toBeInTheDocument();
   });
-  it("disables isFirstRun for desktop", async () => {
+  it("isFirstRun does not renders for mobile application", async () => {
     render(
       <Subject
         experiment={{
