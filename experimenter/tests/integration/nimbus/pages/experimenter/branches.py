@@ -149,7 +149,8 @@ class BranchesPage(ExperimenterBase):
             f'textarea[data-testid="{branch}.screenshots[{screenshot_idx}].description"]'
         )
         return self.wait_for_and_find_element(
-            By.CSS_SELECTOR, selector,
+            By.CSS_SELECTOR,
+            selector,
             f"screenshot description field for {branch} screenshot {screenshot_idx}",
         )
 
@@ -160,6 +161,7 @@ class BranchesPage(ExperimenterBase):
             f'[data-testid="{branch}.screenshots[{screenshot_idx}].image"]'
         )
         return self.wait_for_and_find_element(
-            By.CSS_SELECTOR, selector,
+            By.CSS_SELECTOR,
+            selector,
             f"screenshot image field for {branch} screenshot {screenshot_idx}",
         )
