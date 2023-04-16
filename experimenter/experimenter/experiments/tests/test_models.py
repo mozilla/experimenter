@@ -18,6 +18,7 @@ from experimenter.base.tests.factories import (
     LocaleFactory,
 )
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBranchScreenshot,
@@ -1613,6 +1614,56 @@ class TestNimbusExperiment(TestCase):
         experiment.save()
 
         self.assertFalse(experiment.show_results_url)
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                datetime.date(2020, 1, 1),
+                None,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+                datetime.date.today(),
+                None,
+                False,
+            ),
+            (
+                NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+                datetime.date(2020, 1, 1),
+                datetime.date(2020, 2, 3),
+                True,
+            ),
+        ]
+    )
+    def test_results_expected_date(
+        self, lifecycle, start_date, end_date, is_paused_published
+    ):
+        proposed_enrollment = 2
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle=lifecycle,
+            start_date=start_date,
+            end_date=end_date,
+            proposed_enrollment=proposed_enrollment,
+        )
+
+        expected_date = (
+            start_date
+            + datetime.timedelta(days=proposed_enrollment)
+            + datetime.timedelta(days=NimbusConstants.DAYS_UNTIL_ANALYSIS)
+        )
+        self.assertEqual(experiment.results_expected_date, expected_date)
+
+    def test_results_expected_date_null(self):
+        lifecycle = NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, start_date=datetime.date(2020, 1, 1), proposed_enrollment=2
+        )
+        experiment.is_rollout = True
+        experiment.save()
+
+        self.assertIsNone(experiment.results_expected_date)
 
     @parameterized.expand(
         [

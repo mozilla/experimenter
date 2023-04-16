@@ -43,6 +43,17 @@ NO_TARGETING = NimbusTargetingConfig(
     application_choice_names=[a.name for a in Application],
 )
 
+ATTRIBUTION_MEDIUM_EMAIL = NimbusTargetingConfig(
+    name="Attribution Medium Email",
+    slug="attribution_medium_email",
+    description="Firefox installed with email attribution",
+    targeting="attributionData.medium == 'email'",
+    desktop_telemetry="environment.settings.attribution.medium = 'email'",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEW_PROFILE_CREATED = NimbusTargetingConfig(
     name="New profile created",
     slug="new_profile_created",
@@ -173,6 +184,35 @@ FIRST_RUN_NEW_PROFILE_HAS_PIN_NEED_DEFAULT_WINDOWS_1903 = NimbusTargetingConfig(
         "{first_run} AND {has_pin}".format(
             first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
             has_pin=HAS_PIN,
+        )
+    ),
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FIRST_RUN_NEW_PROFILE_WINDOWS_1903_EXCLUDE_RTAMO = NimbusTargetingConfig(
+    name=(
+        "First start-up users on Windows 10 1903 (build 18362) or newer, with a "
+        "new profile, needing default w/ pin, excluding users coming from RTAMO"
+    ),
+    slug="first_run_new_profile_exclude_rtamo",
+    description=(
+        "First start-up users (e.g. for about:welcome) on Windows 1903+, "
+        "with a new profile, needing default w/ pin, excluding RTAMO"
+    ),
+    targeting=(
+        "{first_run} && {has_pin} && {attribution}".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.targeting,
+            has_pin=HAS_PIN,
+            attribution="attributionData.source != 'addons.mozilla.org'",
+        )
+    ),
+    desktop_telemetry=(
+        "{first_run} AND {has_pin} AND {attribution}".format(
+            first_run=FIRST_RUN_NEW_PROFILE_NEED_DEFAULT_WINDOWS_1903.desktop_telemetry,
+            has_pin=HAS_PIN,
+            attribution="attributionData.source != 'addons.mozilla.org'",
         )
     ),
     sticky_required=True,
@@ -1079,6 +1119,17 @@ NOT_MAC = NimbusTargetingConfig(
     targeting="!os.isMac",
     desktop_telemetry="",
     sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EARLY_DAY_USER = NimbusTargetingConfig(
+    name="Early day user (28 days or less)",
+    slug="early_day_user",
+    description="Users with profiles that are 28 days old or less",
+    targeting="(currentDate|date - profileAgeCreated|date) / 86400000 <= 28",
+    desktop_telemetry="",
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )

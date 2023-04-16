@@ -847,6 +847,7 @@ export function mockSingleDirectoryExperiment(
   const startTime = now - oneDay * 60 - 21 * oneDay * Math.random();
   const enrollmentEndTime = now - oneDay * 60 + 7 * oneDay * Math.random();
   const endTime = now - oneDay * 30 + 21 * oneDay * Math.random();
+  const expectedResultsTime = enrollmentEndTime + 8 * oneDay;
 
   return {
     isArchived: false,
@@ -882,6 +883,7 @@ export function mockSingleDirectoryExperiment(
     startDate: new Date(startTime).toISOString(),
     computedEndDate: new Date(endTime).toISOString(),
     computedEnrollmentEndDate: new Date(enrollmentEndTime).toISOString(),
+    resultsExpectedDate: new Date(expectedResultsTime).toISOString(),
     resultsReady: false,
     showResultsUrl: false,
     projects: [MOCK_CONFIG.projects![0]],
