@@ -833,7 +833,7 @@ describe("FormAudience", () => {
     expect(screen.queryByTestId("languages")).not.toBeInTheDocument();
     expect(screen.queryByTestId("locales")).toBeInTheDocument();
   });
-  it("isFirstRun does not renders for mobile application", async () => {
+  it("isFirstRun does not renders for desktop application", async () => {
     render(
       <Subject
         experiment={{
