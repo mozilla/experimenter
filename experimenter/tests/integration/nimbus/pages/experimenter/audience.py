@@ -9,6 +9,8 @@ from nimbus.pages.experimenter.summary import SummaryPage
 class AudiencePage(ExperimenterBase):
     """Experiment Audience Page."""
 
+    PAGE_TITLE = "Audience Page"
+
     _page_wait_locator = (By.CSS_SELECTOR, "#PageEditAudience")
     _channel_select_locator = (By.CSS_SELECTOR, "#channel")
     _min_version_select_locator = (By.CSS_SELECTOR, "#minVersion")
@@ -40,63 +42,64 @@ class AudiencePage(ExperimenterBase):
 
     @property
     def channel(self):
-        return self.find_element(*self._channel_select_locator).text
+        return self.wait_for_and_find_element(*self._channel_select_locator).text
 
     @channel.setter
     def channel(self, channel="Nightly"):
-        el = self.find_element(*self._channel_select_locator)
+        el = self.wait_for_and_find_element(*self._channel_select_locator)
         select = Select(el)
         select.select_by_visible_text(channel)
 
     @property
     def min_version(self):
-        return self.find_element(*self._min_version_select_locator).text
+        return self.wait_for_and_find_element(*self._min_version_select_locator).text
 
     @min_version.setter
     def min_version(self, version=80):
-        el = self.find_element(*self._min_version_select_locator)
+        el = self.wait_for_and_find_element(*self._min_version_select_locator)
         select = Select(el)
         select.select_by_value(f"FIREFOX_{version}")
 
     @property
     def targeting(self):
-        return self.find_element(*self._targeting_select_locator).text
+        return self.wait_for_and_find_element(*self._targeting_select_locator).text
 
     @targeting.setter
     def targeting(self, targeting=""):
-        el = self.find_element(*self._targeting_select_locator)
+        el = self.wait_for_and_find_element(*self._targeting_select_locator)
         select = Select(el)
         select.select_by_value(targeting)
 
     @property
     def percentage(self):
-        return self.find_element(*self._population_fill_locator).text
+        return self.wait_for_and_find_element(*self._population_fill_locator).text
 
     @percentage.setter
     def percentage(self, text) -> None:
-        name = self.find_element(*self._population_fill_locator)
+        name = self.wait_for_and_find_element(*self._population_fill_locator)
         name.clear()
         name.send_keys(f"{text}")
 
     @property
     def expected_clients(self):
-        el = self.find_element(*self._expected_clients_locator)
+        el = self.wait_for_and_find_element(*self._expected_clients_locator)
         return el.get_attribute("value")
 
     @expected_clients.setter
     def expected_clients(self, text):
-        el = self.find_element(*self._expected_clients_locator)
+        el = self.wait_for_and_find_element(*self._expected_clients_locator)
         el.send_keys(text)
 
     @property
     def locales(self):
         return [
-            element.text for element in self.find_elements(*self._locales_value_locator)
+            element.text
+            for element in self.wait_for_and_find_elements(*self._locales_value_locator)
         ]
 
     @locales.setter
     def locales(self, text=None):
-        el = self.find_element(*self._locales_input_locator)
+        el = self.wait_for_and_find_element(*self._locales_input_locator)
         for _ in text:
             el.send_keys(f"{_}")
             el.send_keys(Keys.ENTER)
@@ -104,12 +107,13 @@ class AudiencePage(ExperimenterBase):
     @property
     def countries(self):
         return [
-            element.text for element in self.find_elements(*self._countries_value_locator)
+            element.text
+            for element in self.wait_for_and_find_elements(*self._countries_value_locator)
         ]
 
     @countries.setter
     def countries(self, text=None):
-        el = self.find_element(*self._countries_input_locator)
+        el = self.wait_for_and_find_element(*self._countries_input_locator)
         for _ in text:
             el.send_keys(f"{_}")
             el.send_keys(Keys.ENTER)
@@ -117,12 +121,13 @@ class AudiencePage(ExperimenterBase):
     @property
     def languages(self):
         return [
-            element.text for element in self.find_elements(*self._languages_value_locator)
+            element.text
+            for element in self.wait_for_and_find_elements(*self._languages_value_locator)
         ]
 
     @languages.setter
     def languages(self, text=None):
-        el = self.find_element(*self._languages_input_locator)
+        el = self.wait_for_and_find_element(*self._languages_input_locator)
         for _ in text:
             el.send_keys(f"{_}")
             el.send_keys(Keys.ENTER)
