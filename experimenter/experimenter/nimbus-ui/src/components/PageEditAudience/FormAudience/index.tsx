@@ -344,27 +344,29 @@ export const FormAudience = ({
             <FormErrors name="isSticky" />
           </Form.Group>
         </Form.Row>
-        <Form.Row>
-          <Form.Group as={Col} controlId="isFirstRun">
-            <Form.Check
-              {...formControlAttrs("isFirstRun")}
-              type="checkbox"
-              onChange={(e) => setIsFirstRun(e.target.checked)}
-              checked={isFirstRun}
-              disabled={isFirstRunRequiredWarning || isLocked!}
-              label="First Run Experiment"
-            />
-            {isFirstRunRequiredWarning && (
-              <Alert
-                data-testid="is-first-run-required-warning"
-                variant="warning"
-              >
-                First run is required for this targeting configuration.
-              </Alert>
-            )}
-            <FormErrors name="isFirstRun" />
-          </Form.Group>
-        </Form.Row>
+        {!isDesktop && (
+          <Form.Row>
+            <Form.Group as={Col} controlId="isFirstRun">
+              <Form.Check
+                {...formControlAttrs("isFirstRun")}
+                type="checkbox"
+                onChange={(e) => setIsFirstRun(e.target.checked)}
+                checked={isFirstRun}
+                disabled={isFirstRunRequiredWarning || isLocked!}
+                label="First Run Experiment"
+              />
+              {isFirstRunRequiredWarning && (
+                <Alert
+                  data-testid="is-first-run-required-warning"
+                  variant="warning"
+                >
+                  First run is required for this targeting configuration.
+                </Alert>
+              )}
+              <FormErrors name="isFirstRun" />
+            </Form.Group>
+          </Form.Row>
+        )}
       </Form.Group>
 
       <Form.Group className="bg-light p-4">
