@@ -121,7 +121,7 @@ describe("FormAudience", () => {
     );
 
     expect(screen.getByTestId("isSticky")).toBeChecked();
-    expect(screen.getByTestId("isFirstRun")).toBeChecked();
+    expect(screen.queryByText("First Run Experiment")).not.toBeInTheDocument();
   });
 
   it("expect sticky enrollment to be not selected as sticky is not required for the selected targeting", async () => {
@@ -453,15 +453,15 @@ describe("FormAudience", () => {
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplicationEnum.DESKTOP,
+          application: NimbusExperimentApplicationEnum.FENIX,
           channel: NimbusExperimentChannelEnum.NIGHTLY,
-          targetingConfigSlug: "WIN_ONLY",
+          targetingConfigSlug: "MOBILE_ONLY",
           targetingConfig: [
             {
-              label: "Win Only",
-              value: "WIN_ONLY",
-              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
-              description: "Win Only configuration",
+              label: "Mobile Only",
+              value: "MOBILE_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.FENIX],
+              description: "Mobile only configuration",
               stickyRequired: true,
               isFirstRunRequired: true,
             },
@@ -489,7 +489,7 @@ describe("FormAudience", () => {
               applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
               description: "Win Only configuration",
               stickyRequired: true,
-              isFirstRunRequired: true,
+              isFirstRunRequired: false,
             },
             {
               label: "Toaster thing",
@@ -498,6 +498,14 @@ describe("FormAudience", () => {
               description: "Toaster thing description",
               stickyRequired: false,
               isFirstRunRequired: false,
+            },
+            {
+              label: "Mobile Only",
+              value: "MOBILE_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.FENIX],
+              description: "Mobile only configuration",
+              stickyRequired: true,
+              isFirstRunRequired: true,
             },
           ],
         }}
@@ -509,7 +517,7 @@ describe("FormAudience", () => {
     )) as HTMLSelectElement;
 
     expect(targetingConfigSlug.value).toEqual(
-      MOCK_CONFIG!.targetingConfigs![1]!.value,
+      MOCK_CONFIG!.targetingConfigs![2]!.value,
     );
     expect(screen.getByTestId("isFirstRun")).toHaveProperty("checked", true);
     expect(screen.getByTestId("isFirstRun")).toBeDisabled();
@@ -517,8 +525,7 @@ describe("FormAudience", () => {
       screen.getByTestId("is-first-run-required-warning"),
     ).toBeInTheDocument();
   });
-
-  it("expect sticky enrollment to be optional as changing targeting from sticky required to sticky not required", async () => {
+  it("expect first run not to be present in desktop as it is not required for selected targeting", async () => {
     render(
       <Subject
         experiment={{
@@ -573,12 +580,86 @@ describe("FormAudience", () => {
         }}
       />,
     );
+
     const targetingConfigSlug = (await screen.findByTestId(
       "targetingConfigSlug",
     )) as HTMLSelectElement;
 
     expect(targetingConfigSlug.value).toEqual(
       MOCK_CONFIG!.targetingConfigs![1]!.value,
+    );
+    expect(screen.queryByText("First Run Experiment")).not.toBeInTheDocument();
+  });
+
+  it("expect sticky enrollment to be optional as changing targeting from sticky required to sticky not required", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          targetingConfigSlug: "MOBILE_ONLY",
+          targetingConfig: [
+            {
+              label: "Mobile Only",
+              value: "MOBILE_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.FENIX],
+              description: "Mobile only configuration",
+              stickyRequired: true,
+              isFirstRunRequired: true,
+            },
+          ],
+          isSticky: true,
+          isFirstRun: true,
+        }}
+        config={{
+          ...MOCK_CONFIG,
+          targetingConfigs: [
+            {
+              label: "No Targeting",
+              value: "",
+              applicationValues: [
+                NimbusExperimentApplicationEnum.DESKTOP,
+                "TOASTER",
+              ],
+              description: "No Targeting configuration",
+              stickyRequired: false,
+              isFirstRunRequired: false,
+            },
+            {
+              label: "Win Only",
+              value: "WIN_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.DESKTOP],
+              description: "Win Only configuration",
+              stickyRequired: true,
+              isFirstRunRequired: false,
+            },
+            {
+              label: "Toaster thing",
+              value: "TOASTER_THING",
+              applicationValues: ["TOASTER"],
+              description: "Toaster thing description",
+              stickyRequired: false,
+              isFirstRunRequired: false,
+            },
+            {
+              label: "Mobile Only",
+              value: "MOBILE_ONLY",
+              applicationValues: [NimbusExperimentApplicationEnum.FENIX],
+              description: "Mobile only configuration",
+              stickyRequired: true,
+              isFirstRunRequired: true,
+            },
+          ],
+        }}
+      />,
+    );
+    const targetingConfigSlug = (await screen.findByTestId(
+      "targetingConfigSlug",
+    )) as HTMLSelectElement;
+
+    expect(targetingConfigSlug.value).toEqual(
+      MOCK_CONFIG!.targetingConfigs![2]!.value,
     );
     fireEvent.change(screen.getByTestId("targetingConfigSlug"), {
       target: { value: MOCK_CONFIG!.targetingConfigs![0]!.value },
@@ -587,10 +668,10 @@ describe("FormAudience", () => {
       target: { checked: false },
     });
     expect(screen.getByTestId("isFirstRun")).toHaveProperty("checked", true);
-    expect(screen.getByTestId("isFirstRun")).not.toBeDisabled();
+    expect(screen.getByTestId("isFirstRun")).toBeDisabled();
     await expect(
       screen.queryByTestId("is-first-run-required-warning"),
-    ).not.toBeInTheDocument();
+    ).toBeInTheDocument();
   });
 
   it("expect First Run to be  unchecked", async () => {
@@ -598,7 +679,7 @@ describe("FormAudience", () => {
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplicationEnum.DESKTOP,
+          application: NimbusExperimentApplicationEnum.FENIX,
           channel: NimbusExperimentChannelEnum.NIGHTLY,
           isFirstRun: false,
         }}
@@ -613,7 +694,7 @@ describe("FormAudience", () => {
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplicationEnum.DESKTOP,
+          application: NimbusExperimentApplicationEnum.FENIX,
           channel: NimbusExperimentChannelEnum.NIGHTLY,
           isFirstRun: true,
         }}
@@ -628,7 +709,7 @@ describe("FormAudience", () => {
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplicationEnum.DESKTOP,
+          application: NimbusExperimentApplicationEnum.FENIX,
           channel: NimbusExperimentChannelEnum.NIGHTLY,
           isFirstRun: false,
         }}
@@ -648,7 +729,7 @@ describe("FormAudience", () => {
       <Subject
         experiment={{
           ...MOCK_EXPERIMENT,
-          application: NimbusExperimentApplicationEnum.DESKTOP,
+          application: NimbusExperimentApplicationEnum.FENIX,
           channel: NimbusExperimentChannelEnum.NIGHTLY,
           isFirstRun: true,
         }}
@@ -726,6 +807,19 @@ describe("FormAudience", () => {
     expect(screen.queryByTestId("locales")).not.toBeInTheDocument();
   });
 
+  it("isFirstRun renders for mobile application", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.FENIX,
+        }}
+      />,
+    );
+
+    expect(screen.queryByTestId("isFirstRun")).toBeInTheDocument();
+  });
+
   it("disables language field for desktop", async () => {
     render(
       <Subject
@@ -738,6 +832,18 @@ describe("FormAudience", () => {
 
     expect(screen.queryByTestId("languages")).not.toBeInTheDocument();
     expect(screen.queryByTestId("locales")).toBeInTheDocument();
+  });
+  it("isFirstRun does not renders for desktop application", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+        }}
+      />,
+    );
+
+    expect(screen.queryByTestId("isFirstRun")).not.toBeInTheDocument();
   });
 
   it("calls onSubmit when save and next buttons are clicked", async () => {
