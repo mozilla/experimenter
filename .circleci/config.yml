@@ -129,7 +129,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k "FENIX and (circleci tests glob "experimenter/tests/integration/nimbus/test_remote_settings.py" | circleci tests split --total=2 test_filenames.txt)" -m remote_settings
+      PYTEST_ARGS: -k 'FENIX and (circleci tests glob "experimenter/tests/integration/nimbus/test_remote_settings.py" | circleci tests split --total=2)' -m remote_settings
     steps:
       - checkout
       - run:
