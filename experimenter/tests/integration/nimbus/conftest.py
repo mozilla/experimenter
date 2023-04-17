@@ -101,7 +101,7 @@ def selenium(selenium, experiment_name, kinto_client, base_url, slugify):
     if os.getenv("CIRCLECI") is None:
         experiment_slug = str(slugify(experiment_name))
         try:
-            helpers.approve_and_launch_experiment(experiment_slug)
+            helpers.end_experiment(experiment_slug)
             kinto_client.approve()
         except Exception:
             pass

@@ -216,7 +216,7 @@ def create_desktop_experiment(slug, app, targeting, data):
     )
 
 
-def approve_and_launch_experiment(slug):
+def end_experiment(slug):
     experiment_id = load_experiment_data(slug)["data"]["experimentBySlug"]["id"]
 
     data = {

@@ -29,12 +29,6 @@ class MetricsPage(ExperimenterBase):
         multifeature_el = self.wait_for_and_find_element(
             *self._multifeature_element_locator
         )
-        # self.wait.until(
-        #     EC.presence_of_all_elements_located(
-        #         self._multifeature_element_locator
-        #     )
-        # )
-        # multifeature_el = root_locator.find_element(self._multifeature_element_locator)
         return multifeature_el.find_element(By.CSS_SELECTOR, "div")
 
     def set_primary_outcomes(self, values=None):
