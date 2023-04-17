@@ -351,6 +351,14 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       stickyRequired: true,
       isFirstRunRequired: false,
     },
+    {
+      label: "Mobile Only",
+      value: "MOBILE_ONLY",
+      applicationValues: ["FENIX"],
+      description: "Mobile only configuration",
+      stickyRequired: true,
+      isFirstRunRequired: true,
+    },
   ],
   hypothesisDefault: "Enter a hypothesis",
   documentationLink: [
