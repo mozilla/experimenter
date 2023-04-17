@@ -1134,6 +1134,17 @@ EARLY_DAY_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+TRR_MODE_ZERO = NimbusTargetingConfig(
+    name="network.trr.mode = 0",
+    slug="network_trr_mode_0",
+    description="Users who are not using a trusted resolver",
+    targeting="'network.trr.mode'|preferenceValue == 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
