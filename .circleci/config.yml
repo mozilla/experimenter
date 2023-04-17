@@ -124,11 +124,12 @@ jobs:
     machine:
       image: ubuntu-2004:202107-02 # Ubuntu 20.04, Docker v20.10.7, Docker Compose v1.29.2
       docker_layer_caching: true
+    parallelish: 2
     resource_class: medium
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FENIX -m remote_settings
+      PYTEST_ARGS: -k "FENIX and (circleci tests glob "experimenter/tests/integration/nimbus/test_remote_settings.py" | circleci tests split --total=2 test_filenames.txt)" -m remote_settings
     steps:
       - checkout
       - run:
