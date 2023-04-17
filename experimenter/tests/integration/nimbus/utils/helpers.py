@@ -214,3 +214,29 @@ def create_desktop_experiment(slug, app, targeting, data):
             """,
         }
     )
+
+
+def end_experiment(slug):
+    experiment_id = load_experiment_data(slug)["data"]["experimentBySlug"]["id"]
+
+    data = {
+        "id": experiment_id,
+        "changelogMessage": "Update Experiment",
+        "publishStatus": "APPROVED",
+        "status": "LIVE",
+        "statusNext": "COMPLETE",
+    }
+
+    load_graphql_data(
+        {
+            "operationName": "updateExperiment",
+            "variables": {"input": data},
+            "query": """
+                mutation updateExperiment($input: ExperimentInput!) {
+                    updateExperiment(input: $input) {
+                        message
+                    }
+                }
+            """,
+        }
+    )
