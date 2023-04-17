@@ -205,7 +205,7 @@ CIRRUS_RUFF_FIX = ruff --fix cirrus/server
 CIRRUS_PYTEST = pytest cirrus/server --cov=cirrus
 CIRRUS_PYTHON_TYPECHECK = pyright -p cirrus/server
 CIRRUS_PYTHON_TYPECHECK_CREATESTUB = pyright -p cirrus/server --createstub cirrus
-CIRRUS_GENERATE_DOCS = python cirrus/server/cirrus/generate_docs.py --check=true
+CIRRUS_GENERATE_DOCS = python cirrus/server/cirrus/generate_docs.py
 
 cirrus_up:
 	$(COMPOSE) up cirrus
@@ -218,11 +218,14 @@ cirrus_test:
 
 cirrus_check:
 	$(COMPOSE_TEST) build cirrus_test
-	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_BLACK_CHECK) && $(CIRRUS_RUFF_CHECK)&& $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS)"
+	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_BLACK_CHECK) && $(CIRRUS_RUFF_CHECK)&& $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_code_format:
 	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_BLACK_FIX) && $(CIRRUS_RUFF_FIX)'
 
 cirrus_typecheck_createstub:
 	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
+
+cirrus_generate_docs:
+	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_GENERATE_DOCS)'
 
