@@ -1314,12 +1314,17 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Hypothesis cannot be the default value.")
         return value
 
-    def _validate_feature_value_against_schema(self, schema, value):
-        json_value = json.loads(value)
-        try:
-            jsonschema.validate(json_value, schema, resolver=NestedRefResolver(schema))
-        except jsonschema.ValidationError as exc:
-            return [exc.message]
+    def _validate_feature_value_against_schema(self, feature_config, value):
+        if feature_config.schema:
+            schema = json.loads(feature_config.schema)
+
+            json_value = json.loads(value)
+            try:
+                jsonschema.validate(
+                    json_value, schema, resolver=NestedRefResolver(schema)
+                )
+            except jsonschema.ValidationError as exc:
+                return [exc.message]
 
     def _validate_feature_configs(self, data):
         errors = {}
@@ -1342,14 +1347,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         for feature_value_data in data.get("reference_branch", {}).get(
             "feature_values", []
         ):
-            if feature_value_data["feature_config"].schema:
-                schema = json.loads(feature_value_data["feature_config"].schema)
-
-                if schema_errors := self._validate_feature_value_against_schema(
-                    schema, feature_value_data["value"]
-                ):
-                    reference_branch_errors.append({"value": schema_errors})
-                    continue
+            if schema_errors := self._validate_feature_value_against_schema(
+                feature_value_data["feature_config"], feature_value_data["value"]
+            ):
+                reference_branch_errors.append({"value": schema_errors})
+                continue
 
             reference_branch_errors.append({})
 
@@ -1362,15 +1364,12 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             treatment_branch_errors = []
 
             for feature_value_data in treatment_branch_data["feature_values"]:
-                if feature_value_data["feature_config"].schema:
-                    schema = json.loads(feature_value_data["feature_config"].schema)
-
-                    if schema_errors := self._validate_feature_value_against_schema(
-                        schema, feature_value_data["value"]
-                    ):
-                        treatment_branch_errors.append({"value": schema_errors})
-                        treatment_branches_errors_found = True
-                        continue
+                if schema_errors := self._validate_feature_value_against_schema(
+                    feature_value_data["feature_config"], feature_value_data["value"]
+                ):
+                    treatment_branch_errors.append({"value": schema_errors})
+                    treatment_branches_errors_found = True
+                    continue
 
                 treatment_branch_errors.append({})
 
@@ -1406,9 +1405,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 f"not match experiment application {self.instance.application}."
             ]
 
-        schema = json.loads(feature_config.schema)
         if schema_errors := self._validate_feature_value_against_schema(
-            schema, data["reference_branch"]["feature_value"]
+            feature_config, data["reference_branch"]["feature_value"]
         ):
             errors["reference_branch"] = {"feature_value": schema_errors}
 
@@ -1417,7 +1415,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             branch_error = {}
 
             if schema_errors := self._validate_feature_value_against_schema(
-                schema, branch_data["feature_value"]
+                feature_config, branch_data["feature_value"]
             ):
                 branch_error = {"feature_value": schema_errors}
 
@@ -1555,11 +1553,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"channel": "Channel is required for this application."}
             )
-
         data = super().validate(data)
-        data = self._validate_feature_configs(data)
-
         data = self._validate_feature_config(data)
+        data = self._validate_feature_configs(data)
         data = self._validate_versions(data)
         data = self._validate_sticky_enrollment(data)
         data = self._validate_rollout_version_support(data)
