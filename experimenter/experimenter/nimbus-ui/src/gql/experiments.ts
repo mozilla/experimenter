@@ -142,6 +142,9 @@ export const GET_EXPERIMENT_QUERY = gql`
       riskBrand
       riskPartnerRelated
 
+      isLocalized
+      localizedContent
+
       signoffRecommendations {
         qaSignoff
         vpSignoff

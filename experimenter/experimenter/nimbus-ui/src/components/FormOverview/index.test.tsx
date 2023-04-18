@@ -180,6 +180,7 @@ describe("FormOverview", () => {
       riskRevenue: optionalBoolString(experiment.riskRevenue),
       riskPartnerRelated: optionalBoolString(experiment.riskPartnerRelated),
       projects: experiment.projects!.map((v) => "" + v!.id),
+      isLocalized: experiment.isLocalized,
     };
 
     const { container } = render(<Subject {...{ onSubmit, experiment }} />);
@@ -505,5 +506,39 @@ describe("FormOverview", () => {
         },
       ],
     });
+  });
+
+  it("renders localization checkbox", async () => {
+    const { experiment } = mockExperimentQuery("boo");
+
+    render(<Subject {...{ experiment }} />);
+    const checkbox = screen.getByTestId("isLocalized");
+
+    expect(checkbox).toBeInTheDocument();
+  });
+
+  it("renders localized content text field when localization checkbox is checked", async () => {
+    const { experiment } = mockExperimentQuery("boo");
+    render(<Subject {...{ experiment }} />);
+
+    const checkbox = screen.getByTestId("isLocalized");
+    fireEvent.click(checkbox);
+    const textField = screen.getByTestId("localizedContent");
+
+    expect(textField).toBeInTheDocument();
+  });
+
+  it("renders localized content from experiment", async () => {
+    const { experiment } = mockExperimentQuery("boo", {
+      isLocalized: true,
+      localizedContent: "This is localized content",
+    });
+
+    render(<Subject {...{ experiment }} />);
+    const checkbox = screen.getByTestId("isLocalized") as HTMLInputElement;
+    const textField = screen.getByTestId("localizedContent");
+
+    expect(checkbox.checked).toEqual(true);
+    expect(textField).toHaveValue(experiment.localizedContent);
   });
 });

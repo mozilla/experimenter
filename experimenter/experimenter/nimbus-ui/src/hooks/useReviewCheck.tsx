@@ -16,6 +16,7 @@ const fieldPageMap: { [page: string]: string[] } = {
     "risk_brand",
     "risk_revenue",
     "risk_partner_related",
+    "localized_content",
   ],
   branches: [
     "reference_branch",

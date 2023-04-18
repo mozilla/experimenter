@@ -2,6 +2,7 @@ import json
 import typing
 from collections import defaultdict
 from dataclasses import dataclass
+from importlib.resources import files
 
 import jsonschema
 from django.contrib.auth.models import User
@@ -856,9 +857,11 @@ class NimbusExperimentSerializer(
             "is_rollout_dirty",
             "is_enrollment_paused",
             "is_first_run",
+            "is_localized",
             "is_rollout",
             "is_sticky",
             "languages",
+            "localized_content",
             "locales",
             "name",
             "population_percent",
@@ -1293,6 +1296,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         allow_null=False,
         error_messages={"null": NimbusConstants.ERROR_REQUIRED_QUESTION},
     )
+    is_localized = serializers.BooleanField(required=False)
+    localized_content = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = NimbusExperiment
@@ -1531,6 +1536,79 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_localization_content(self, data):
+        is_localized = data.get("is_localized")
+
+        if not is_localized:
+            return data
+
+        localized_content = data.get("localized_content")
+        locales = data.get("locales")
+        min_version = data.get("firefox_min_version", "")
+        if min_version == "" or (
+            NimbusExperiment.Version.parse(min_version)
+            < NimbusExperiment.Version.parse(NimbusExperiment.Version.FIREFOX_113)
+        ):
+            raise serializers.ValidationError(
+                {
+                    "firefox_min_version": [
+                        "Firefox version must not be < 113 for localized experiments."
+                    ],
+                }
+            )
+        if not locales:
+            raise serializers.ValidationError(
+                {"locales": "Locales must not be empty for a localized experiment."}
+            )
+
+        locales = [locale.code for locale in locales]
+
+        try:
+            json_content = json.loads(localized_content)
+        except Exception as e:
+            raise serializers.ValidationError({"localized_content": f"Invalid JSON: {e}"})
+
+        path = (
+            files("mozilla_nimbus_shared")
+            / "schemas"
+            / "experiments"
+            / "NimbusExperiment.json"
+        )
+        schema = json.loads(path.read_text())
+        schema = schema["definitions"]["NimbusExperiment"]["properties"]["localizations"]
+
+        if is_localized and localized_content:
+            try:
+                jsonschema.validate(json_content, schema)
+            except Exception as e:
+                raise serializers.ValidationError(
+                    {"localized_content": f"Localization schema error: {e}"}
+                )
+
+            for locale in locales:
+                if locale not in json_content:
+                    raise serializers.ValidationError(
+                        {
+                            "localized_content": (
+                                f"Experiment locale {locale} not present "
+                                f"in localizations."
+                            )
+                        }
+                    )
+
+            for localization in json_content:
+                if localization not in locales:
+                    raise serializers.ValidationError(
+                        {
+                            "localized_content": (
+                                f"Localization locale {localization} "
+                                f"does not exist in experiment locales."
+                            )
+                        }
+                    )
+
+        return data
+
     def validate(self, data):
         application = data.get("application")
         channel = data.get("channel")
@@ -1545,6 +1623,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_sticky_enrollment(data)
         data = self._validate_rollout_version_support(data)
         data = self._validate_bucket_duplicates(data)
+        data = self._validate_localization_content(data)
         if application != NimbusExperiment.Application.DESKTOP:
             data = self._validate_languages_versions(data)
             data = self._validate_countries_versions(data)

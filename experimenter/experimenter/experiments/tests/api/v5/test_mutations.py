@@ -142,6 +142,8 @@ class TestUpdateExperimentMutationSingleFeature(
             risk_brand=False,
             risk_revenue=False,
             risk_partner_related=False,
+            is_localized=False,
+            localized_content=None,
         )
         response = self.query(
             UPDATE_EXPERIMENT_MUTATION,
@@ -158,6 +160,8 @@ class TestUpdateExperimentMutationSingleFeature(
                     "conclusionRecommendation": "RERUN",
                     "takeawaysSummary": "the test worked",
                     "projects": [str(project.id)],
+                    "isLocalized": True,
+                    "localizedContent": "test localized content",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -181,6 +185,8 @@ class TestUpdateExperimentMutationSingleFeature(
         )
         self.assertEqual(experiment.takeaways_summary, "the test worked")
         self.assertEqual(list(experiment.projects.all()), [project])
+        self.assertEqual(experiment.is_localized, True)
+        self.assertEqual(experiment.localized_content, "test localized content")
 
     def test_update_experiment_error(self):
         user_email = "user@example.com"

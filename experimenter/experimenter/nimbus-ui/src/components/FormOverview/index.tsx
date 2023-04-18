@@ -54,6 +54,8 @@ export const overviewFieldNames = [
   "riskRevenue",
   "riskPartnerRelated",
   "projects",
+  "isLocalized",
+  "localizedContent",
 ] as const;
 
 const selectOptions = (items: SelectIdItems) =>
@@ -88,7 +90,12 @@ const FormOverview = ({
     riskRevenue: optionalBoolString(experiment?.riskRevenue),
     riskPartnerRelated: optionalBoolString(experiment?.riskPartnerRelated),
     projects: selectOptions(experiment?.projects as SelectIdItems),
+    isLocalized: experiment?.isLocalized,
+    localizedContent: experiment?.localizedContent,
   };
+  const [isLocalized, setIsLocalized] = useState<boolean>(
+    experiment?.isLocalized ?? false,
+  );
 
   const {
     FormErrors,
@@ -273,6 +280,36 @@ const FormOverview = ({
                 This description will be public to users on about:studies
               </Form.Text>
               <FormErrors name="publicDescription" />
+            </Form.Group>
+
+            <Form.Group id="localizaton">
+              <Form.Group controlId="isLocalized">
+                <Form.Label className="d-flex align-items-center">
+                  Localization
+                </Form.Label>
+                <Form.Check
+                  label="Does this experiment require localization?"
+                  checked={!!isLocalized}
+                  type="checkbox"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setIsLocalized(e.target.checked);
+                  }}
+                  {...formControlAttrs("isLocalized", {}, false)}
+                />
+                <FormErrors name="isLocalized" />
+              </Form.Group>
+              {isLocalized && (
+                <Form.Group controlId="localizedContent" className="mt-2">
+                  <Form.Label>Localized Content</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={5}
+                    placeholder="Localization JSON object"
+                    {...formControlAttrs("localizedContent")}
+                  />
+                  <FormErrors name="localizedContent" />
+                </Form.Group>
+              )}
             </Form.Group>
 
             <InputRadios

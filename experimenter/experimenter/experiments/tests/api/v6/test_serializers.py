@@ -5,9 +5,11 @@ from django.test import TestCase
 from mozilla_nimbus_shared import check_schema
 from parameterized import parameterized
 
+from experimenter.base.tests.factories import LocaleFactory
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusBranchFeatureValue, NimbusExperiment
 from experimenter.experiments.tests.factories import (
+    FAKER_LOCALIZED_CONTENT,
     NimbusBranchFactory,
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
@@ -403,3 +405,26 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(serializer.data["targeting"], "true")
         check_schema("experiments/NimbusExperiment", serializer.data)
+
+    def test_localized_desktop(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        locale_en_ca = LocaleFactory.create(code="en-CA")
+        locale_fr = LocaleFactory.create(code="fr")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NIGHTLY,
+            primary_outcomes=["foo", "bar", "baz"],
+            secondary_outcomes=["qux", "quux"],
+            is_localized=True,
+            locales=[locale_en_us, locale_en_ca, locale_fr],
+        )
+
+        serializer = NimbusExperimentSerializer(experiment)
+
+        self.assertIn("localizations", serializer.data)
+        self.assertEquals(
+            serializer.data["localizations"], json.loads(FAKER_LOCALIZED_CONTENT)
+        )

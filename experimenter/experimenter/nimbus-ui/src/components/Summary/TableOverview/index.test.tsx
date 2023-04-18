@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import React from "react";
 import TableOverview from "src/components/Summary/TableOverview";
 import { MockedCache, mockExperimentQuery, MOCK_CONFIG } from "src/lib/mocks";
@@ -205,6 +205,52 @@ describe("TableOverview", () => {
         screen.queryByTestId("experiment-team-projects"),
       ).toHaveTextContent("Not set");
     });
+  });
+});
+
+describe("renders localization row as expected", () => {
+  it("when set", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      isLocalized: true,
+      localizedContent: "test",
+    });
+    render(<Subject {...{ experiment }} />);
+    expect(
+      screen.getByTestId("experiment-localized-content"),
+    ).toHaveTextContent("test");
+  });
+
+  it("when isLocalized checked with no localized content set", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      isLocalized: true,
+      localizedContent: null,
+    });
+    render(<Subject {...{ experiment }} />);
+    expect(screen.queryByTestId("experiment-localized-projects")).toBeNull();
+  });
+
+  it("when isLocalized is not checked and localized content is set", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      isLocalized: false,
+      localizedContent: "test",
+    });
+    render(<Subject {...{ experiment }} />);
+    expect(screen.queryByTestId("experiment-localized-projects")).toBeNull();
+  });
+
+  it("renders show button for localized content", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      isLocalized: true,
+      localizedContent: "test",
+    });
+    render(<Subject {...{ experiment }} />);
+    const localizedContent = screen.getByTestId("experiment-localized-content");
+    expect(localizedContent).toHaveTextContent("test");
+    screen.getByTestId("experiment-localized-content-show-more");
+    fireEvent.click(
+      screen.getByTestId("experiment-localized-content-show-more"),
+    );
+    screen.getByTestId("experiment-localized-content-hide");
   });
 });
 
