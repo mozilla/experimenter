@@ -218,11 +218,14 @@ cirrus_test:
 
 cirrus_check:
 	$(COMPOSE_TEST) build cirrus_test
-	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_BLACK_CHECK) && $(CIRRUS_RUFF_CHECK)&& $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS)"
+	$(COMPOSE_TEST) run cirrus_test sh -c "$(CIRRUS_BLACK_CHECK) && $(CIRRUS_RUFF_CHECK)&& $(CIRRUS_PYTHON_TYPECHECK) && $(CIRRUS_PYTEST) && $(CIRRUS_GENERATE_DOCS) --check"
 
 cirrus_code_format:
 	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_BLACK_FIX) && $(CIRRUS_RUFF_FIX)'
 
 cirrus_typecheck_createstub:
 	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_PYTHON_TYPECHECK_CREATESTUB)'
+
+cirrus_generate_docs:
+	$(COMPOSE_TEST) run cirrus_test sh -c '$(CIRRUS_GENERATE_DOCS)'
 
