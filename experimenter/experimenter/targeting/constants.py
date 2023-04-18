@@ -950,7 +950,7 @@ EXISTING_WINDOWS_USER_NO_FX_ACCOUNT = NimbusTargetingConfig(
 
 EXISTING_USER_UNSUPPORTED_WINDOWS_VERSION = NimbusTargetingConfig(
     name="Existing Windows <10 version user",
-    slug="existing_windows_user_usupported_windows_version",
+    slug="existing_user_usupported_windows_version",
     description="Users on Windows <10 with profiles older than 28 days",
     targeting=f"{PROFILE28DAYS} && os.isWindows && os.windowsVersion < 10",
     desktop_telemetry="",
