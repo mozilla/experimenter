@@ -98,6 +98,16 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Check file paths
+          command: |
+            if git diff --name-only main HEAD | grep -E 'experimenter/experimenter/targeting|experimenter/experimenter/experiments|experimenter/tests'
+              then
+                echo "Continuing"
+              else
+                echo "No targeting changes, skipping"
+                circleci-agent step halt
+            fi
+      - run:
           name: Run integration tests
           command: |
             cp .env.integration-tests .env
