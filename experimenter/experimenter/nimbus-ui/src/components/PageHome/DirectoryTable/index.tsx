@@ -28,7 +28,6 @@ import {
   unpublishedUpdatesSortSelector,
 } from "src/lib/experiment";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
-import { NimbusExperimentPublishStatusEnum } from "src/types/globalTypes";
 
 // These are all render functions for column types in the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;

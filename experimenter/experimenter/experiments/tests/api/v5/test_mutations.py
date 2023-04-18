@@ -448,21 +448,20 @@ class TestUpdateExperimentMutationSingleFeature(
 
     @parameterized.expand(
         [
-            [True, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING],
-            [True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_REJECT],
-            [True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_TIMEOUT],
-            [True, NimbusExperimentFactory.Lifecycles.LIVE_REJECT_MANUAL_ROLLBACK],
-            [True, NimbusExperimentFactory.Lifecycles.LIVE_DIRTY],
-            [True, NimbusExperimentFactory.Lifecycles.LIVE_REJECT],
-            [True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE],
-            [True, NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING],
-            [True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE],
-            [False, NimbusExperimentFactory.Lifecycles.LIVE_PAUSED],
-            [False, NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED],
-            [False, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE],
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_TIMEOUT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_REJECT_MANUAL_ROLLBACK,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,),
         ]
     )
-    def test_update_rollout_is_dirty(self, is_dirty_expected, lifecycle):
+    def test_update_rollout_is_dirty(self, lifecycle):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle=lifecycle,
@@ -486,7 +485,7 @@ class TestUpdateExperimentMutationSingleFeature(
 
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertEqual(experiment.population_percent, 50.0)
-        self.assertEqual(experiment.is_rollout_dirty, is_dirty_expected)
+        self.assertTrue(experiment.is_rollout_dirty)
 
     def test_do_not_update_live_experiment(self):
         user_email = "user@example.com"

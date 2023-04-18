@@ -30,7 +30,6 @@ import {
 } from "src/lib/mocks";
 import { RouterSlugProvider } from "src/lib/test-utils";
 import { getAllExperiments_experiments } from "src/types/getAllExperiments";
-import { NimbusExperimentPublishStatusEnum } from "src/types/globalTypes";
 
 const experiment = mockSingleDirectoryExperiment();
 
@@ -268,12 +267,10 @@ describe("DirectoryColumnUnpublishedUpdates", () => {
         />
       </TestTable>,
     );
-    expect(
-      screen.getByTestId("directory-unpublished-updates"),
-    ).toHaveTextContent("YES");
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent("YES");
   });
 
-  it("renders blank unpublished updates when not dirty", async () => {
+  it("renders blank unpublished updates when not dirty", () => {
     render(
       <TestTable>
         <DirectoryColumnUnpublishedUpdates
@@ -282,9 +279,19 @@ describe("DirectoryColumnUnpublishedUpdates", () => {
         />
       </TestTable>,
     );
-    expect(
-      screen.getByTestId("directory-unpublished-updates"),
-    ).toHaveTextContent("YES");
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent("");
+  });
+
+  it("renders blank unpublished updates when dirty is null", () => {
+    render(
+      <TestTable>
+        <DirectoryColumnUnpublishedUpdates
+          {...experiment}
+          isRolloutDirty={null}
+        />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent("");
   });
 });
 

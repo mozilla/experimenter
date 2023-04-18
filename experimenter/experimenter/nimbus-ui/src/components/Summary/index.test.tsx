@@ -17,7 +17,6 @@ import {
   NimbusExperimentPublishStatusEnum,
   NimbusExperimentStatusEnum,
 } from "src/types/globalTypes";
-import { None } from "vega";
 
 describe("Summary", () => {
   it("renders expected components", () => {

@@ -161,10 +161,7 @@ export const resultsReadySortSelector: ExperimentSortSelector = (experiment) =>
 
 export const unpublishedUpdatesSortSelector: ExperimentSortSelector = (
   experiment,
-) =>
-  experiment.isRolloutDirty === true
-    ? "1"
-    : "0";
+) => (experiment.isRolloutDirty === true ? "1" : "0");
 
 export const selectFromExperiment = (
   experiment: getAllExperiments_experiments,

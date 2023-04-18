@@ -836,12 +836,12 @@ class TestNimbusExperimentSerializer(TestCase):
     @parameterized.expand(
         [
             [True, True, NimbusExperiment.PublishStatus.IDLE],
-            [True, False, NimbusExperiment.PublishStatus.IDLE],
-            [False, True, NimbusExperiment.PublishStatus.IDLE],
-            [False, False, NimbusExperiment.PublishStatus.IDLE],
             [True, True, NimbusExperiment.PublishStatus.REVIEW],
+            [True, False, NimbusExperiment.PublishStatus.IDLE],
             [True, False, NimbusExperiment.PublishStatus.REVIEW],
+            [False, True, NimbusExperiment.PublishStatus.IDLE],
             [False, True, NimbusExperiment.PublishStatus.REVIEW],
+            [False, False, NimbusExperiment.PublishStatus.IDLE],
             [False, False, NimbusExperiment.PublishStatus.REVIEW],
         ]
     )
@@ -854,6 +854,7 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
             is_rollout=is_rollout,
+            population_percent=50,
         )
 
         serializer = NimbusExperimentSerializer(
@@ -861,6 +862,7 @@ class TestNimbusExperimentSerializer(TestCase):
             data={
                 "publish_status": publish_status,
                 "is_rollout_dirty": is_dirty,
+                "population_percent": 50.0,
                 "changelog_message": "test changelog message",
             },
             context={"user": self.user},

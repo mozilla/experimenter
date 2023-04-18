@@ -1695,31 +1695,49 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
-            (True, NimbusExperimentFactory.Lifecycles.CREATED),
-            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE),
-            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_REJECT),
-            (True, NimbusExperimentFactory.Lifecycles.LAUNCH_REJECT),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_DIRTY),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_REJECT),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_TIMEOUT),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_REJECT),
-            (True, NimbusExperimentFactory.Lifecycles.LIVE_REJECT_MANUAL_ROLLBACK),
-            (False, NimbusExperimentFactory.Lifecycles.PREVIEW),
-            (False, NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING),
-            (False, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE),
-            (False, NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING),
-            (False, NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED),
-            (False, NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED),
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_TIMEOUT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_REJECT_MANUAL_ROLLBACK,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_REJECT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_APPROVE_REJECT,),
         ]
     )
-    def test_rollout_can_edit(self, expected_can_edit, lifecycle):
+    def test_rollout_can_edit(self, lifecycle):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle, is_rollout=True
         )
-        self.assertEqual(experiment.can_edit, expected_can_edit)
+        self.assertTrue(experiment.can_edit)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_APPROVE_TIMEOUT,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_APPROVE_WAITING,),
+            (
+                NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_REJECT_MANUAL_ROLLBACK,
+            ),
+            (NimbusExperimentFactory.Lifecycles.LIVE_DIRTY_ENDING_APPROVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_WAITING,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,),
+            (NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED,),
+            (NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,),
+        ]
+    )
+    def test_rollout_cannot_edit(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle, is_rollout=True
+        )
+        self.assertFalse(experiment.can_edit)
 
     @parameterized.expand(
         [

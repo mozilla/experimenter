@@ -232,6 +232,12 @@ class LifecycleStates(Enum):
         "status_next": None,
         "publish_status": NimbusExperiment.PublishStatus.IDLE,
     }
+    LIVE_DIRTY_COMPLETE_IDLE = {
+        "status": NimbusExperiment.Status.COMPLETE,
+        "status_next": None,
+        "publish_status": NimbusExperiment.PublishStatus.IDLE,
+        "is_rollout_dirty": False,
+    }
 
 
 class Lifecycles(Enum):
@@ -273,6 +279,9 @@ class Lifecycles(Enum):
     )
     LIVE_DIRTY_ENDING_APPROVE_WAITING = LIVE_DIRTY_ENDING_APPROVE + (
         LifecycleStates.LIVE_WAITING_ENDING,
+    )
+    LIVE_DIRTY_ENDING_APPROVE_APPROVE = LIVE_DIRTY_ENDING_APPROVE_WAITING + (
+        LifecycleStates.LIVE_DIRTY_COMPLETE_IDLE,
     )
     LIVE_DIRTY_ENDING_APPROVE_REJECT = LIVE_DIRTY_ENDING_APPROVE + (
         LifecycleStates.LIVE_DIRTY_REJECT,
