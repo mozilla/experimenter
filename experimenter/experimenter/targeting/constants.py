@@ -948,6 +948,17 @@ EXISTING_WINDOWS_USER_NO_FX_ACCOUNT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_USER_UNSUPPORTED_WINDOWS_VERSION = NimbusTargetingConfig(
+    name="Existing Windows <10 version user",
+    slug="existing_user_usupported_windows_version",
+    description="Users on Windows <10 with profiles older than 28 days",
+    targeting=f"{PROFILE28DAYS} && os.isWindows && os.windowsVersion < 10",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 TEST_STICKY_TARGETING = NimbusTargetingConfig(
     name="Test targeting",
     slug="test_targeting",
