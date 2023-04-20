@@ -1194,30 +1194,6 @@ class NimbusBranchFeatureValueReviewSerializer(NimbusBranchFeatureValueSerialize
                 raise serializers.ValidationError(f"Invalid JSON: {e.msg}") from e
         return value
 
-    def validate(self, data):
-        feature_config = data.get("feature_config")
-        value = data.get("value")
-        branch = data.get("branch")
-
-        # We can only run this validation for the multifeature case
-        # otherwise it will prevent the single feature validation from running
-        # so we check that there's more than 1 feature or return early
-        # This check can be removed with #6744
-        branch_feature_value_id = data.get("id")
-        branch_feature_value = self.Meta.model.objects.get(id=branch_feature_value_id)
-        if branch_feature_value.branch.experiment.feature_configs.count() <= 1:
-            return data
-
-        if all([branch, feature_config, value]) and feature_config.schema:
-            json_value = json.loads(value)
-            try:
-                jsonschema.validate(json_value, json.loads(feature_config.schema))
-            except jsonschema.ValidationError as e:
-                if not branch.experiment.warn_feature_schema:
-                    raise serializers.ValidationError({"value": e.message}) from e
-
-        return data
-
 
 class NimbusBranchReviewSerializer(NimbusBranchSerializer):
     feature_values = NimbusBranchFeatureValueReviewSerializer(many=True, required=True)
@@ -1338,31 +1314,85 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Hypothesis cannot be the default value.")
         return value
 
-    def _validate_feature_value_against_schema(self, schema, value):
-        json_value = json.loads(value)
-        try:
-            jsonschema.validate(json_value, schema, resolver=NestedRefResolver(schema))
-        except jsonschema.ValidationError as exc:
-            return [exc.message]
+    def _validate_feature_value_against_schema(self, feature_config, value):
+        if feature_config.schema:
+            schema = json.loads(feature_config.schema)
+
+            json_value = json.loads(value)
+            try:
+                jsonschema.validate(
+                    json_value, schema, resolver=NestedRefResolver(schema)
+                )
+            except jsonschema.ValidationError as exc:
+                return [exc.message]
 
     def _validate_feature_configs(self, data):
+        errors = {}
+
         feature_configs = data.get("feature_configs", [])
+        if len(feature_configs) <= 1:
+            return data
+
+        warn_feature_schema = data.get("warn_feature_schema", False)
 
         for feature_config in feature_configs:
             if self.instance.application != feature_config.application:
-                raise serializers.ValidationError(
-                    {
-                        "feature_configs": [
-                            f"Feature Config application {feature_config.application} "
-                            f"does not match experiment application "
-                            f"{self.instance.application}."
-                        ]
-                    }
-                )
+                errors["feature_configs"] = [
+                    f"Feature Config application {feature_config.application} "
+                    f"does not match experiment application "
+                    f"{self.instance.application}."
+                ]
+
+        reference_branch_errors = []
+        for feature_value_data in data.get("reference_branch", {}).get(
+            "feature_values", []
+        ):
+            if schema_errors := self._validate_feature_value_against_schema(
+                feature_value_data["feature_config"], feature_value_data["value"]
+            ):
+                reference_branch_errors.append({"value": schema_errors})
+                continue
+
+            reference_branch_errors.append({})
+
+        if any(reference_branch_errors):
+            errors["reference_branch"] = {"feature_values": reference_branch_errors}
+
+        treatment_branches_errors = []
+        treatment_branches_errors_found = False
+        for treatment_branch_data in data.get("treatment_branches", []):
+            treatment_branch_errors = []
+
+            for feature_value_data in treatment_branch_data["feature_values"]:
+                if schema_errors := self._validate_feature_value_against_schema(
+                    feature_value_data["feature_config"], feature_value_data["value"]
+                ):
+                    treatment_branch_errors.append({"value": schema_errors})
+                    treatment_branches_errors_found = True
+                    continue
+
+                treatment_branch_errors.append({})
+
+            treatment_branches_errors.append({"feature_values": treatment_branch_errors})
+
+        if treatment_branches_errors_found:
+            errors["treatment_branches"] = treatment_branches_errors
+
+        if any(errors):
+            if warn_feature_schema:
+                self.warnings = errors
+            else:
+                raise serializers.ValidationError(errors)
 
         return data
 
     def _validate_feature_config(self, data):
+        errors = {}
+
+        feature_configs = data.get("feature_configs", [])
+        if len(feature_configs) > 1:
+            return data
+
         feature_config = data.get("feature_config", None)
         warn_feature_schema = data.get("warn_feature_schema", False)
 
@@ -1370,50 +1400,35 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             return data
 
         if self.instance.application != feature_config.application:
-            raise serializers.ValidationError(
-                {
-                    "feature_config": [
-                        f"Feature Config application {feature_config.application} does "
-                        f"not match experiment application {self.instance.application}."
-                    ]
-                }
-            )
+            errors["feature_config"] = [
+                f"Feature Config application {feature_config.application} does "
+                f"not match experiment application {self.instance.application}."
+            ]
 
-        schema = json.loads(feature_config.schema)
-        error_result = {}
-        if errors := self._validate_feature_value_against_schema(
-            schema, data["reference_branch"]["feature_value"]
+        if schema_errors := self._validate_feature_value_against_schema(
+            feature_config, data["reference_branch"]["feature_value"]
         ):
-            if warn_feature_schema:
-                self.warnings["reference_branch"] = {"feature_value": errors}
-            else:
-                error_result["reference_branch"] = {"feature_value": errors}
+            errors["reference_branch"] = {"feature_value": schema_errors}
 
         treatment_branches_errors = []
-        treatment_branches_warnings = []
         for branch_data in data["treatment_branches"]:
             branch_error = {}
-            branch_warning = {}
 
-            if errors := self._validate_feature_value_against_schema(
-                schema, branch_data["feature_value"]
+            if schema_errors := self._validate_feature_value_against_schema(
+                feature_config, branch_data["feature_value"]
             ):
-                if warn_feature_schema:
-                    branch_warning = {"feature_value": errors}
-                else:
-                    branch_error = {"feature_value": errors}
+                branch_error = {"feature_value": schema_errors}
 
             treatment_branches_errors.append(branch_error)
-            treatment_branches_warnings.append(branch_warning)
-
-        if any(treatment_branches_warnings):
-            self.warnings["treatment_branches"] = treatment_branches_warnings
 
         if any(treatment_branches_errors):
-            error_result["treatment_branches"] = treatment_branches_errors
+            errors["treatment_branches"] = treatment_branches_errors
 
-        if error_result:
-            raise serializers.ValidationError(error_result)
+        if any(errors):
+            if warn_feature_schema:
+                self.warnings = errors
+            else:
+                raise serializers.ValidationError(errors)
 
         return data
 
