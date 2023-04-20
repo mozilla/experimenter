@@ -1435,6 +1435,19 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     def _validate_versions(self, data):
         min_version = data.get("firefox_min_version", "")
         max_version = data.get("firefox_max_version", "")
+        is_rollout = data.get("is_rollout")
+        application = data.get("application")
+
+        if (
+            application == NimbusExperiment.Application.DESKTOP
+            and is_rollout
+            and NimbusExperiment.Version.parse(min_version)
+            < NimbusExperiment.Version.parse(NimbusExperiment.Version.FIREFOX_114)
+        ):
+            self.warnings["firefox_min_version"] = [
+                NimbusConstants.ERROR_DESKTOP_ROLLOUT_VERSION
+            ]
+
         if (
             min_version != ""
             and max_version != ""
