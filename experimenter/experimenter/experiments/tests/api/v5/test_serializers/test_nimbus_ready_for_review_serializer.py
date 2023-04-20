@@ -1570,15 +1570,17 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         super().setUp()
         self.user = UserFactory()
         self.feature_without_schema = NimbusFeatureConfigFactory.create(
+            slug="feature_without_schema",
             schema=None,
             application=NimbusExperiment.Application.DESKTOP,
         )
         self.feature_with_schema = NimbusFeatureConfigFactory.create(
+            slug="feature_with_schema",
             schema=BASIC_JSON_SCHEMA,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-    def test_serializer_feature_config_validation_application_mismatches_error(self):
+    def test_feature_configs_application_mismatches_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             status=NimbusExperiment.Status.DRAFT,
@@ -1615,7 +1617,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             ],
         )
 
-    def test_serializer_feature_config_validation_missing_feature_config(self):
+    def test_feature_configs_missing_feature_config(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             status=NimbusExperiment.Status.DRAFT,
@@ -1641,12 +1643,13 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             ],
         )
 
-    def test_serializer_feature_config_validation_bad_json_value(self):
+    def test_feature_configs_reference_bad_json_value(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 self.feature_without_schema,
                 self.feature_with_schema,
@@ -1681,23 +1684,64 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(len(serializer.errors), 1)
-        feature_values_errors = [
-            e
-            for e in serializer.errors["reference_branch"]["feature_values"]
-            if "value" in e
-        ]
-        self.assertEqual(len(feature_values_errors), 1)
         self.assertIn(
             "Unterminated string",
-            feature_values_errors[0]["value"][0],
+            serializer.errors["reference_branch"]["feature_values"][1]["value"][0],
         )
 
-    def test_serializer_feature_config_validation_reference_value_schema_error(self):
+    def test_feature_configs_treatment_bad_json_value(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            feature_configs=[
+                self.feature_without_schema,
+                self.feature_with_schema,
+            ],
+            is_sticky=True,
+        )
+
+        reference_feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=self.feature_with_schema
+        )
+        reference_feature_value.value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        reference_feature_value.save()
+
+        treatment_branch_value = experiment.treatment_branches[0].feature_values.get(
+            feature_config=self.feature_with_schema
+        )
+        treatment_branch_value.value = """\
+            {"directMigrateSingleProfile: true}
+        """.strip()
+        treatment_branch_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(len(serializer.errors), 1, serializer.errors)
+        self.assertIn(
+            "Unterminated string",
+            serializer.errors["treatment_branches"][0]["feature_values"][1]["value"][0],
+        )
+
+    def test_feature_configs_reference_value_schema_error(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 self.feature_without_schema,
                 self.feature_with_schema,
@@ -1732,25 +1776,20 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(len(serializer.errors), 1)
-        feature_values_errors = [
-            e
-            for e in serializer.errors["reference_branch"]["feature_values"]
-            if "value" in e
-        ]
-        self.assertEqual(len(feature_values_errors), 1)
         self.assertTrue(
-            feature_values_errors[0]["value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.errors["reference_branch"]["feature_values"][1]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.errors,
         )
 
-    def test_serializer_feature_config_validation_treatment_value_schema_error(self):
+    def test_feature_configs_treatment_value_schema_error(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             feature_configs=[
                 self.feature_without_schema,
                 self.feature_with_schema,
@@ -1784,50 +1823,39 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(len(serializer.errors), 1)
-        feature_values_errors = [
-            e
-            for e in serializer.errors["treatment_branches"][0]["feature_values"]
-            if "value" in e
-        ]
-        self.assertEqual(len(feature_values_errors), 1)
         self.assertTrue(
-            feature_values_errors[0]["value"][0].startswith(
-                "Additional properties are not allowed"
-            ),
+            serializer.errors["treatment_branches"][0]["feature_values"][1]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
             serializer.errors,
         )
 
-    def test_serializer_feature_config_validation_treatment_value_no_schema(self):
-        feature1 = NimbusFeatureConfigFactory.create(
-            schema=None,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        feature2 = NimbusFeatureConfigFactory.create(
-            schema=None,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
+    def test_feature_configs_no_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            feature_configs=[feature1, feature2],
-            is_sticky=True,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            warn_feature_schema=False,
+            feature_configs=[
+                self.feature_without_schema,
+                self.feature_with_schema,
+            ],
         )
-
         reference_feature_value = experiment.reference_branch.feature_values.get(
-            feature_config=feature1
+            feature_config=self.feature_with_schema
         )
         reference_feature_value.value = """\
-            {"directMigrateSingleProfile": true}
+            {"directMigrateSingleProfile": false}
         """.strip()
         reference_feature_value.save()
 
         treatment_feature_value = experiment.treatment_branches[0].feature_values.get(
-            feature_config=feature2
+            feature_config=self.feature_with_schema
         )
         treatment_feature_value.value = """\
-            {"DDirectMigrateSingleProfile": true}
+            {"directMigrateSingleProfile": true}
         """.strip()
         treatment_feature_value.save()
 
@@ -1839,96 +1867,140 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             ).data,
             context={"user": self.user},
         )
+
         self.assertTrue(serializer.is_valid())
 
-    # Add schema warn logic for multifeature in #7028
-    # def test_serializer_feature_config_validation_reference_value_schema_warn(self):
-    #     experiment = NimbusExperimentFactory.create_with_lifecycle(
-    #         NimbusExperimentFactory.Lifecycles.CREATED,
-    #         status=NimbusExperiment.Status.DRAFT,
-    #         application=NimbusExperiment.Application.DESKTOP,
-    #         channel=NimbusExperiment.Channel.NO_CHANNEL,
-    #         warn_feature_schema=True,
-    #         feature_configs=[
-    #             self.feature_without_schema,
-    #             self.feature_with_schema,
-    #         ],
-    #     )
+    def test_feature_configs_reference_value_schema_warn(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            warn_feature_schema=True,
+            feature_configs=[
+                self.feature_without_schema,
+                self.feature_with_schema,
+            ],
+        )
 
-    #     reference_feature_value = experiment.reference_branch.feature_values.get(
-    #         feature_config=self.feature_with_schema
-    #     )
-    #     reference_feature_value.value = """\
-    #         {"DDirectMigrateSingleProfile": true}
-    #     """.strip()
-    #     reference_feature_value.save()
+        reference_feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=self.feature_with_schema
+        )
+        reference_feature_value.value = """\
+            {"DDirectMigrateSingleProfile": true}
+        """.strip()
+        reference_feature_value.save()
 
-    #     treatment_feature_value = experiment.treatment_branches[0].feature_values.get(
-    #         feature_config=self.feature_with_schema
-    #     )
-    #     treatment_feature_value.value = """\
-    #         {"directMigrateSingleProfile": true}
-    #     """.strip()
-    #     treatment_feature_value.save()
+        treatment_feature_value = experiment.treatment_branches[0].feature_values.get(
+            feature_config=self.feature_with_schema
+        )
+        treatment_feature_value.value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        treatment_feature_value.save()
 
-    #     serializer = NimbusReviewSerializer(
-    #         experiment,
-    #         data=NimbusReviewSerializer(
-    #             experiment,
-    #             context={"user": self.user},
-    #         ).data,
-    #         context={"user": self.user},
-    #     )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
 
-    #     self.assertTrue(serializer.is_valid())
-    #     self.assertTrue(
-    #         serializer.warnings["reference_branch"]["feature_values"][1]["value"][
-    #             0
-    #         ].startswith("Additional properties are not allowed"),
-    #         serializer.warnings,
-    #     )
-    #     self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertTrue(
+            serializer.warnings["reference_branch"]["feature_values"][1]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
+            serializer.warnings,
+        )
 
-    # def test_serializer_feature_config_validation_treatment_value_schema_warn(self):
-    #     experiment = NimbusExperimentFactory.create_with_lifecycle(
-    #         NimbusExperimentFactory.Lifecycles.CREATED,
-    #         status=NimbusExperiment.Status.DRAFT,
-    #         application=NimbusExperiment.Application.DESKTOP,
-    #         channel=NimbusExperiment.Channel.NO_CHANNEL,
-    #         warn_feature_schema=True,
-    #         feature_configs=[
-    #             NimbusFeatureConfigFactory.create(
-    #                 schema=BASIC_JSON_SCHEMA,
-    #                 application=NimbusExperiment.Application.DESKTOP,
-    #             )
-    #         ],
-    #     )
-    #     reference_feature_value = experiment.reference_branch.feature_values.get()
-    #     reference_feature_value.value = """\
-    #         {"directMigrateSingleProfile": true}
-    #     """.strip()
-    #     reference_feature_value.save()
+    def test_feature_configs_treatment_value_schema_warn(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            warn_feature_schema=True,
+            feature_configs=[
+                self.feature_without_schema,
+                self.feature_with_schema,
+            ],
+        )
+        reference_feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=self.feature_with_schema
+        )
+        reference_feature_value.value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        reference_feature_value.save()
 
-    #     treatment_feature_value = experiment.treatment_branches[0].feature_values.get()
-    #     treatment_feature_value.value = """\
-    #         {"DDirectMigrateSingleProfile": true}
-    #     """.strip()
-    #     treatment_feature_value.save()
+        treatment_feature_value = experiment.treatment_branches[0].feature_values.get(
+            feature_config=self.feature_with_schema
+        )
+        treatment_feature_value.value = """\
+            {"DDirectMigrateSingleProfile": true}
+        """.strip()
+        treatment_feature_value.save()
 
-    #     serializer = NimbusReviewSerializer(
-    #         experiment,
-    #         data=NimbusReviewSerializer(
-    #             experiment,
-    #             context={"user": self.user},
-    #         ).data,
-    #         context={"user": self.user},
-    #     )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
 
-    #     self.assertTrue(serializer.is_valid())
-    #     self.assertEqual(len(serializer.warnings), 1, serializer.warnings)
-    #     self.assertTrue(
-    #         serializer.warnings["treatment_branches"][0]["feature_value"][0].startswith(
-    #             "Additional properties are not allowed"
-    #         ),
-    #         serializer.warnings,
-    #     )
+        self.assertTrue(serializer.is_valid())
+        self.assertTrue(
+            serializer.warnings["treatment_branches"][0]["feature_values"][1]["value"][
+                0
+            ].startswith("Additional properties are not allowed"),
+            serializer.warnings,
+        )
+
+    def test_feature_configs_no_warnings(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            status=NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            warn_feature_schema=True,
+            feature_configs=[
+                self.feature_without_schema,
+                self.feature_with_schema,
+            ],
+        )
+        reference_feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=self.feature_with_schema
+        )
+        reference_feature_value.value = """\
+            {"directMigrateSingleProfile": false}
+        """.strip()
+        reference_feature_value.save()
+
+        treatment_feature_value = experiment.treatment_branches[0].feature_values.get(
+            feature_config=self.feature_with_schema
+        )
+        treatment_feature_value.value = """\
+            {"directMigrateSingleProfile": true}
+        """.strip()
+        treatment_feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid())
+        self.assertNotIn("reference_branch", serializer.warnings)
+        self.assertNotIn("treatment_branch", serializer.warnings)
