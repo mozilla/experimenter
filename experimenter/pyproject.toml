@@ -65,7 +65,7 @@ graphene-django = "^3.0.0"
 pyright = "^1.1.291"
 django-types = "^0.17.0"
 ruff = "^0.0.239"
-mozilla-nimbus-shared = "^2.0.1"
+mozilla-nimbus-shared = "^2.1.0"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.23.0"

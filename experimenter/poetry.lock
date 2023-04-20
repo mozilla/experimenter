@@ -1413,14 +1413,14 @@ test = ["pytest (<5.4)", "pytest-cov"]
 
 [[package]]
 name = "mozilla-nimbus-shared"
-version = "2.0.1"
+version = "2.1.0"
 description = "Shared data and schemas for Project Nimbus"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "mozilla_nimbus_shared-2.0.1-py3-none-any.whl", hash = "sha256:fa268ef7ff5ec5f1470c5bacbbebcae6093c9e4bbfe594df484027cca3aa97f7"},
-    {file = "mozilla_nimbus_shared-2.0.1.tar.gz", hash = "sha256:1b01b291533e1f364cce77e3d4b78eaccd02a09cd1c84e35a0bbbb16b66b7473"},
+    {file = "mozilla_nimbus_shared-2.1.0-py3-none-any.whl", hash = "sha256:4ded1701f3fa4503bf86f2d30d2f172a8d0e119901092a12b86fd254db8d5710"},
+    {file = "mozilla_nimbus_shared-2.1.0.tar.gz", hash = "sha256:29e2a8d55f98ece8ed7c0ed5e6d2527eada46e21ea7a84a6d364db67ffcee63a"},
 ]
 
 [package.dependencies]
@@ -2775,4 +2775,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "237e2feb26dd372025ed39a1761610e5a4639390ee180f0fee2c4e1af0fec690"
+content-hash = "de83a7e1ae321426a3e94929edd359c3256d6bc0f16ebe66d9b6b9933f265088"
