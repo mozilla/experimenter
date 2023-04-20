@@ -1570,10 +1570,12 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         super().setUp()
         self.user = UserFactory()
         self.feature_without_schema = NimbusFeatureConfigFactory.create(
+            slug="feature_without_schema",
             schema=None,
             application=NimbusExperiment.Application.DESKTOP,
         )
         self.feature_with_schema = NimbusFeatureConfigFactory.create(
+            slug="feature_with_schema",
             schema=BASIC_JSON_SCHEMA,
             application=NimbusExperiment.Application.DESKTOP,
         )
@@ -1962,14 +1964,6 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         )
 
     def test_feature_configs_no_warnings(self):
-        feature1 = NimbusFeatureConfigFactory.create(
-            schema=BASIC_JSON_SCHEMA,
-            application=NimbusExperiment.Application.DESKTOP,
-        )
-        feature2 = NimbusFeatureConfigFactory.create(
-            schema="",
-            application=NimbusExperiment.Application.DESKTOP,
-        )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             status=NimbusExperiment.Status.DRAFT,
@@ -1977,10 +1971,13 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
             channel=NimbusExperiment.Channel.NO_CHANNEL,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             warn_feature_schema=True,
-            feature_configs=[feature1, feature2],
+            feature_configs=[
+                self.feature_without_schema,
+                self.feature_with_schema,
+            ],
         )
         reference_feature_value = experiment.reference_branch.feature_values.get(
-            feature_config=feature1
+            feature_config=self.feature_with_schema
         )
         reference_feature_value.value = """\
             {"directMigrateSingleProfile": false}
@@ -1988,7 +1985,7 @@ class TestNimbusReviewSerializerMultiFeature(TestCase):
         reference_feature_value.save()
 
         treatment_feature_value = experiment.treatment_branches[0].feature_values.get(
-            feature_config=feature1
+            feature_config=self.feature_with_schema
         )
         treatment_feature_value.value = """\
             {"directMigrateSingleProfile": true}
