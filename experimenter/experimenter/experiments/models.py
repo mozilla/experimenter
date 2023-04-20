@@ -856,6 +856,11 @@ class NimbusBranchFeatureValue(models.Model):
                 condition=Q(feature_config__isnull=False),
             ),
         )
+        # Note: Feature values are serialized as an array of dicts
+        # and the ordering must always match at serialization/deserialization
+        # time for validation, so we introduce a stable ordering
+        # by feature config slug
+        ordering = ["feature_config__slug"]
 
     def __str__(self):  # pragma: no cover
         return f"{self.branch}: {self.feature_config}"
