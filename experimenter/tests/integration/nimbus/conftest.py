@@ -95,14 +95,14 @@ def firefox_options(firefox_options):
 
 
 @pytest.fixture
-def selenium(selenium, experiment_name, kinto_client, base_url, slugify):
+def selenium(selenium, experiment_name, remote_settings_client, base_url, slugify):
     yield selenium
 
     if os.getenv("CIRCLECI") is None:
         experiment_slug = str(slugify(experiment_name))
         try:
             helpers.end_experiment(experiment_slug)
-            kinto_client.approve()
+            remote_settings_client.approve()
         except Exception:
             pass
 
@@ -133,7 +133,7 @@ def _verify_url(request, base_url):
 
 
 @pytest.fixture
-def kinto_client(default_data):
+def remote_settings_client(default_data):
     return RemoteSettingsClient(APPLICATION_REMOTE_SETTINGS_COLLECTION[default_data.application.value])
 
 

@@ -66,7 +66,7 @@ def firefox_options(firefox_options):
 def test_check_telemetry_enrollment_unenrollment(
     base_url,
     selenium,
-    kinto_client,
+    remote_settings_client,
     slugify,
     experiment_name,
     telemetry_event_check,
@@ -103,7 +103,7 @@ def test_check_telemetry_enrollment_unenrollment(
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    remote_settings_client.approve()
 
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.wait_for_live_status()
@@ -133,7 +133,7 @@ def test_check_telemetry_enrollment_unenrollment(
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.end_and_approve()
-    kinto_client.approve()
+    remote_settings_client.approve()
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.wait_for_complete_status()
 
@@ -153,7 +153,7 @@ def test_check_telemetry_enrollment_unenrollment(
 def test_check_telemetry_pref_flip(
     base_url,
     selenium,
-    kinto_client,
+    remote_settings_client,
     slugify,
     experiment_name,
     experiment_default_data,
@@ -189,7 +189,7 @@ def test_check_telemetry_pref_flip(
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    remote_settings_client.approve()
 
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.wait_for_live_status()
@@ -216,7 +216,7 @@ def test_check_telemetry_pref_flip(
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.end_and_approve()
-    kinto_client.approve()
+    remote_settings_client.approve()
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.wait_for_complete_status()
 
@@ -241,7 +241,7 @@ def test_check_telemetry_pref_flip(
 def test_check_telemetry_sticky_targeting(
     base_url,
     selenium,
-    kinto_client,
+    remote_settings_client,
     slugify,
     experiment_name,
     experiment_default_data,
@@ -275,7 +275,7 @@ def test_check_telemetry_sticky_targeting(
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.launch_and_approve()
 
-    kinto_client.approve()
+    remote_settings_client.approve()
 
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.wait_for_live_status()
@@ -315,7 +315,7 @@ def test_check_telemetry_sticky_targeting(
     # unenroll
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.end_and_approve()
-    kinto_client.approve()
+    remote_settings_client.approve()
     summary = SummaryPage(selenium, urljoin(base_url, experiment_slug)).open()
     summary.wait_for_complete_status()
 
