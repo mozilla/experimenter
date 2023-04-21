@@ -95,7 +95,7 @@ services:
     links:
       - autograph
     volumes:
-      - ./kinto/server.ini:/etc/kinto.ini
+      - ./remote-settings/server.ini:/etc/kinto.ini
 
   autograph:
     image: mozilla/autograph:4.1.1
