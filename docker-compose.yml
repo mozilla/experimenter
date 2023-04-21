@@ -9,7 +9,7 @@ services:
     links:
       - db
       - redis
-      - kinto
+      - remote-settings
     ports:
       - "7001:7001"
     volumes:
@@ -86,7 +86,7 @@ services:
     ports:
       - "6379:6379"
 
-  kinto:
+  remote-settings:
     image: mozilla/remote-settings:30.1.1
     environment:
       KINTO_INI: /etc/kinto.ini

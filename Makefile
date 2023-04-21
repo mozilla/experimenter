@@ -143,10 +143,10 @@ up_prod_detached: build_prod
 	$(COMPOSE_PROD) up -d
 
 up_db: build_dev
-	$(COMPOSE) up db redis kinto autograph
+	$(COMPOSE) up db redis remote-settings autograph
 
 up_django: build_dev
-	$(COMPOSE) up nginx experimenter worker beat db redis kinto autograph
+	$(COMPOSE) up nginx experimenter worker beat db redis remote-settings autograph
 
 up_detached: build_dev
 	$(COMPOSE) up -d

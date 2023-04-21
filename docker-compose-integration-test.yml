@@ -12,7 +12,7 @@ services:
       - /code/experimenter/tests/integration/.tox
     links:
       - nginx
-      - kinto
+      - remote-settings
       - ping-server
     expose:
       - "4444"
@@ -32,7 +32,7 @@ services:
     working_dir: /code
     links:
       - nginx
-      - kinto
+      - remote-settings
   ping-server:
     build: experimenter/tests/integration/nimbus/utils/ping_server
     ports:

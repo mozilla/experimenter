@@ -174,7 +174,7 @@ Notes:
         DB_HOST=localhost
         HOSTNAME=localhost
 
-4.  Start postgresql, redis, autograph, kinto
+4.  Start postgresql, redis, autograph, remote-settings
 
         make up_db (from project root)
 
@@ -308,11 +308,11 @@ Start a dev server listening on port 80 using the [Django runserver](https://doc
 
 #### make up_db
 
-Start postgresql, redis, autograph, kinto on their respective ports to allow running the Django runserver and yarn watchers locally (non containerized)
+Start postgresql, redis, autograph, remote-settings on their respective ports to allow running the Django runserver and yarn watchers locally (non containerized)
 
 #### make up_django
 
-Start Django runserver, Celery worker, postgresql, redis, autograph, kinto on their respective ports to allow running the yarn watchers locally (non containerized)
+Start Django runserver, Celery worker, postgresql, redis, autograph, remote-settings on their respective ports to allow running the yarn watchers locally (non containerized)
 
 #### make up_detached
 
@@ -504,7 +504,7 @@ Note that you can change the `app_context` live, and run the script again after.
 
 In development you may wish to approve or reject changes to experiments as if they were on Remote Settings. You can do so here: `http://localhost:8888/v1/admin/`
 
-There are three accounts you can log into Kinto with depending on what you want to do:
+There are three accounts you can log into Remote Settings with depending on what you want to do:
 
 - `admin` / `admin` - This account has permission to view and edit all of the collections.
 - `experimenter` / `experimenter` - This account is used by Experimenter to push its changes to Remote Settings and mark them for review.
