@@ -18,7 +18,7 @@ REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
 
 
 def create_user(user, passw):
-    print(f">>>> Creating kinto user: {user}:{passw}")
+    print(f">>>> Creating Remote Settings user: {user}:{passw}")
     print(
         requests.put(
             urllib.parse.urljoin(REMOTE_SETTINGS_HOST, f"/accounts/{user}"),
@@ -34,7 +34,7 @@ def setup():
 
     client = kinto_http.Client(server_url=REMOTE_SETTINGS_HOST, auth=(ADMIN_USER, ADMIN_PASS))
 
-    print(f">>>> Creating kinto bucket: {REMOTE_SETTINGS_BUCKET_WORKSPACE}")
+    print(f">>>> Creating Remote Settings bucket: {REMOTE_SETTINGS_BUCKET_WORKSPACE}")
     print(
         client.create_bucket(
             id=REMOTE_SETTINGS_BUCKET_WORKSPACE,
@@ -48,7 +48,7 @@ def setup():
         REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
         REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW,
     ]:
-        print(">>>> Creating kinto group: editors")
+        print(">>>> Creating Remote Settings group: editors")
         print(
             client.create_group(
                 id=f"{collection}-editors",
@@ -58,7 +58,7 @@ def setup():
             )
         )
 
-        print(">>>> Creating kinto group: reviewers")
+        print(">>>> Creating Remote Settings group: reviewers")
         print(
             client.create_group(
                 id=f"{collection}-reviewers",
@@ -68,7 +68,7 @@ def setup():
             )
         )
 
-        print(f">>>> Creating kinto collection: {collection}")
+        print(f">>>> Creating Remote Settings collection: {collection}")
         print(
             client.create_collection(
                 id=collection,
