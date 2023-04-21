@@ -470,7 +470,9 @@ A live rollout can have updates pushed to its state while remaining Live. These 
     rect rgb(255,204,255) 
         Note right of Experiment Owner: Owner makes changes in Experimenter
         Experiment Owner->>Experimenter UI: Make updates to live rollout
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
+        Note over Experimenter Backend: The experiment is updated and is <br/> marked as dirty on the backend
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none>  <br/> + changelog
+        Experimenter Backend->>Experimenter Backend: is_dirty: True 
     end 
 
     Note over Experiment Owner: The owner clicks the Request <br/> Update button
@@ -516,7 +518,7 @@ A live rollout can have updates pushed to its state while remaining Live. These 
     rect rgb(204,255,255) 
         Note over Experimenter Worker: Worker updates rollout
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
-        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: False <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
     end 
 ```
 
@@ -539,7 +541,9 @@ A live rollout that has valid changes (making it "dirty") is reviewed and reject
     rect rgb(255,204,255) 
         Note right of Experiment Owner: Owner makes changes in Experimenter
         Experiment Owner->>Experimenter UI: Make updates to live rollout
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
+        Note over Experimenter Backend: The experiment is updated and is <br/> marked as dirty on the backend
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none>  <br/> + changelog
+        Experimenter Backend->>Experimenter Backend: is_dirty: True 
     end 
     
     Note over Experiment Owner: The owner clicks the Request <br/> Update button
@@ -557,7 +561,8 @@ A live rollout that has valid changes (making it "dirty") is reviewed and reject
     rect rgb(255,255,204) 
         Note over Experiment Owner: Reviewer rejects in Experimenter
         Reviewer->>Experimenter UI: Reject
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+        Experimenter Backend->>Experimenter Backend: is_dirty: True 
     end 
 ```
 
@@ -581,7 +586,9 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
     rect rgb(255,204,255) 
         Note right of Experiment Owner: Owner makes changes in Experimenter
         Experiment Owner->>Experimenter UI: Make updates to live rollout
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
+        Note over Experimenter Backend: The experiment is updated and is <br/> marked as dirty on the backend
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none>  <br/> + changelog
+        Experimenter Backend->>Experimenter Backend: is_dirty: True 
     end 
 
     Note over Experiment Owner: The owner clicks the Request <br/> Update button
@@ -627,7 +634,8 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
         Note over Experimenter Worker: Worker updates rollout
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout)
         Experimenter Worker->>Remote Settings Backend: Rollback <br/> RS status: to-rollback
-        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+        Experimenter Backend->>Experimenter Backend: is_dirty: True 
     end 
 ```
 
@@ -651,7 +659,9 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
     rect rgb(255,204,255) 
         Note right of Experiment Owner: Owner makes changes in Experimenter
         Experiment Owner->>Experimenter UI: Make updates to live rollout
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
+        Note over Experimenter Backend: The experiment is updated and is <br/> marked as dirty on the backend
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none>  <br/> + changelog
+        Experimenter Backend->>Experimenter Backend: is_dirty: True 
     end 
 
     Note over Experiment Owner: The owner clicks the Request <br/> Update button
@@ -695,7 +705,8 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
 
     rect rgb(204,255,255) 
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout) <br/> RS status: to-sign
-        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> + changelog
+        Experimenter Backend->>Experimenter Backend: is_dirty: True
     end 
 ```
 
@@ -719,7 +730,9 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
     rect rgb(255,204,255) 
         Note right of Experiment Owner: Owner makes changes in Experimenter
         Experiment Owner->>Experimenter UI: Make updates to live rollout
-        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none> <br/> is_dirty: True <br/> + changelog
+        Note over Experimenter Backend: The experiment is updated and is <br/> marked as dirty on the backend
+        Experimenter UI->>Experimenter Backend: Status: Live <br/> Publish status: Idle <br/> Status next: <none>  <br/> + changelog
+        Experimenter Backend->>Experimenter Backend: is_dirty: True 
     end 
 
     Note over Experiment Owner: The owner clicks the Request <br/> Update button
@@ -754,7 +767,8 @@ A live rollout that has valid changes (making it "dirty") is reviewed and approv
     rect rgb(204,255,255) 
         Experimenter Worker->>Remote Settings Backend: Check collection (timeout) 
         Experimenter Worker->>Remote Settings Backend: RS status: to-rollback
-        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> is_dirty: True <br/> + changelog
+        Experimenter Worker->>Experimenter Backend:  Status: Live <br/> Publish status: Review <br/> Status next: Live <br/> + changelog
+        Experimenter Backend->>Experimenter Backend: is_dirty: True 
     end 
 ```
 
