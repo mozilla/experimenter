@@ -890,7 +890,7 @@ class TestNimbusExperimentSerializer(TestCase):
         )
         self.mock_push_task.apply_async.assert_called_with(
             countdown=5,
-            args=[experiment.application_config.kinto_collection],
+            args=[experiment.application_config.remote_settings_collection],
         )
 
     def test_serializer_updates_outcomes_on_experiment(self):

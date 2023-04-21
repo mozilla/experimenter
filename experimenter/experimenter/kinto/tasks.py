@@ -60,7 +60,7 @@ def nimbus_check_remote_settings_push_queue_by_collection(collection):
     applications = [
         application.slug
         for application in NimbusExperiment.APPLICATION_CONFIGS.values()
-        if application.kinto_collection == collection
+        if application.remote_settings_collection == collection
     ]
     rs_client = RemoteSettingsClient(collection)
 

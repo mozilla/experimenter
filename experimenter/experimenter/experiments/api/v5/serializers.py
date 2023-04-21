@@ -1118,7 +1118,7 @@ class NimbusExperimentSerializer(
                 nimbus_synchronize_preview_experiments_in_remote_settings.apply_async(countdown=5)
 
             if self.should_call_push_task:
-                collection = experiment.application_config.kinto_collection
+                collection = experiment.application_config.remote_settings_collection
                 nimbus_check_remote_settings_push_queue_by_collection.apply_async(
                     countdown=5, args=[collection]
                 )
