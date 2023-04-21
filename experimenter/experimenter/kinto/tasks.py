@@ -27,33 +27,33 @@ def get_remote_settings_user():
 
 @app.task
 @metrics.timer_decorator("check_kinto_push_queue")
-def nimbus_check_kinto_push_queue():
+def nimbus_check_remote_settings_push_queue():
     """
     A scheduled task that passes each application to a new scheduled
-    task for working with kinto
+    task for working with Remote Settings
     """
     for collection in (
         settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
         settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
     ):
-        nimbus_check_kinto_push_queue_by_collection.delay(collection)
+        nimbus_check_remote_settings_push_queue_by_collection.delay(collection)
 
 
 @app.task
 @metrics.timer_decorator("check_kinto_push_queue_by_application")
-def nimbus_check_kinto_push_queue_by_collection(collection):
+def nimbus_check_remote_settings_push_queue_by_collection(collection):
     """
-    Because kinto has a restriction that it can only have a single pending review, this
-    task brokers the queue of all experiments ready to be pushed to kinto and ensures
+    Because Remote Settings has a restriction that it can only have a single pending review, this
+    task brokers the queue of all experiments ready to be pushed to Remote Settings and ensures
     that only a single experiment is ever in review.
 
     A scheduled task that
-    - Checks the kinto collection for a single rejected experiment from a previous push
+    - Checks the Remote Settings collection for a single rejected experiment from a previous push
        - If one exists, pull it out of the collection and mark it as rejected
     - Checks if there is still a pending review and if so, aborts
-    - Gets the list of all experiments ready to be pushed to kinto and pushes the first
+    - Gets the list of all experiments ready to be pushed to Remote Settings and pushes the first
       one
-    - Checks for experiments that should be paused but are not paused in the kinto
+    - Checks for experiments that should be paused but are not paused in the Remote Settings
       collection and marks them as paused and updates the record in the collection.
     """
     metrics.incr(f"check_kinto_push_queue_by_collection:{collection}.started")
@@ -62,25 +62,25 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
         for application in NimbusExperiment.APPLICATION_CONFIGS.values()
         if application.kinto_collection == collection
     ]
-    kinto_client = RemoteSettingsClient(collection)
+    rs_client = RemoteSettingsClient(collection)
 
     should_rollback = False
-    if kinto_client.has_pending_review():
+    if rs_client.has_pending_review():
         logger.info(f"{collection} has pending review")
         if handle_pending_review(applications):
             return
 
         should_rollback = True
 
-    if kinto_client.has_rejection():
+    if rs_client.has_rejection():
         logger.info(f"{collection} has rejection")
-        handle_rejection(applications, kinto_client)
+        handle_rejection(applications, rs_client)
         should_rollback = True
 
     if should_rollback:
-        kinto_client.rollback_changes()
+        rs_client.rollback_changes()
 
-    records = kinto_client.get_main_records()
+    records = rs_client.get_main_records()
     handle_launching_experiments(applications, records)
     handle_updating_experiments(applications, records)
     handle_ending_experiments(applications, records)
@@ -89,11 +89,11 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
     if queued_launch_experiment := NimbusExperiment.objects.launch_queue(
         applications
     ).first():
-        nimbus_push_experiment_to_kinto.delay(collection, queued_launch_experiment.id)
+        nimbus_push_experiment_to_remote_settings.delay(collection, queued_launch_experiment.id)
     elif queued_end_experiment := NimbusExperiment.objects.end_queue(
         applications
     ).first():
-        nimbus_end_experiment_in_kinto.delay(collection, queued_end_experiment.id)
+        nimbus_end_experiment_in_remote_settings.delay(collection, queued_end_experiment.id)
     elif queued_pause_experiment := NimbusExperiment.objects.update_queue(
         applications
     ).first():
@@ -120,8 +120,8 @@ def handle_pending_review(applications):
             return True
 
 
-def handle_rejection(applications, kinto_client):
-    collection_data = kinto_client.get_rejected_collection_data()
+def handle_rejection(applications, rs_client):
+    collection_data = rs_client.get_rejected_collection_data()
     if experiment := NimbusExperiment.objects.waiting(applications).first():
         if (
             experiment.is_rollout is True
@@ -249,7 +249,7 @@ def handle_waiting_experiments(applications):
 
 @app.task
 @metrics.timer_decorator("push_experiment_to_kinto.timing")
-def nimbus_push_experiment_to_kinto(collection, experiment_id):
+def nimbus_push_experiment_to_remote_settings(collection, experiment_id):
     """
     An invoked task that given a single experiment id, query it in the db, serialize it,
     and push its data to the configured collection. If it fails for any reason, log the
@@ -260,13 +260,13 @@ def nimbus_push_experiment_to_kinto(collection, experiment_id):
 
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.info(f"Pushing {experiment.slug} to Kinto")
+        logger.info(f"Pushing {experiment.slug} to Remote Settings")
 
-        kinto_client = RemoteSettingsClient(collection)
+        rs_client = RemoteSettingsClient(collection)
 
         data = NimbusExperimentSerializer(experiment).data
 
-        kinto_client.create_record(data)
+        rs_client.create_record(data)
 
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
@@ -277,11 +277,11 @@ def nimbus_push_experiment_to_kinto(collection, experiment_id):
             message=NimbusChangeLog.Messages.LAUNCHING_TO_REMOTE_SETTINGS,
         )
 
-        logger.info(f"{experiment.slug} pushed to Kinto")
+        logger.info(f"{experiment.slug} pushed to Remote Settings")
         metrics.incr("push_experiment_to_kinto.completed")
     except Exception as e:
         metrics.incr("push_experiment_to_kinto.failed")
-        logger.info(f"Pushing experiment {experiment_id} to Kinto failed: {e}")
+        logger.info(f"Pushing experiment {experiment_id} to Remote Settings failed: {e}")
         raise e
 
 
@@ -299,11 +299,11 @@ def nimbus_update_experiment_in_kinto(collection, experiment_id):
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         logger.info(f"Updating {experiment.slug} in Remote Settings")
 
-        kinto_client = RemoteSettingsClient(collection)
+        rs_client = RemoteSettingsClient(collection)
 
         data = NimbusExperimentSerializer(experiment).data
 
-        kinto_client.update_record(data)
+        rs_client.update_record(data)
 
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
@@ -325,7 +325,7 @@ def nimbus_update_experiment_in_kinto(collection, experiment_id):
 
 @app.task
 @metrics.timer_decorator("end_experiment_in_kinto")
-def nimbus_end_experiment_in_kinto(collection, experiment_id):
+def nimbus_end_experiment_in_remote_settings(collection, experiment_id):
     """
     An invoked task that given a single experiment id, delete its data from
     the configured collection. If it fails for any reason, log the error and
@@ -337,8 +337,8 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         logger.info(f"Deleting {experiment.slug} from Remote Settings")
 
-        kinto_client = RemoteSettingsClient(collection)
-        kinto_client.delete_record(experiment.slug)
+        rs_client = RemoteSettingsClient(collection)
+        rs_client.delete_record(experiment.slug)
 
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
         experiment.save()
@@ -359,7 +359,7 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
 
 @app.task
 @metrics.timer_decorator("nimbus_synchronize_preview_experiments_in_kinto")
-def nimbus_synchronize_preview_experiments_in_kinto():
+def nimbus_synchronize_preview_experiments_in_remote_settings():
     """
     A scheduled task that pushes any experiments with status PREVIEW to the preview
     collection and removes any experiments not with status PREVIEW from the preview
@@ -367,10 +367,10 @@ def nimbus_synchronize_preview_experiments_in_kinto():
     """
     metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.started")
 
-    kinto_client = RemoteSettingsClient(settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW, review=False)
+    rs_client = RemoteSettingsClient(settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW, review=False)
 
     try:
-        published_preview_slugs = kinto_client.get_main_records().keys()
+        published_preview_slugs = rs_client.get_main_records().keys()
 
         should_publish_experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.PREVIEW
@@ -378,7 +378,7 @@ def nimbus_synchronize_preview_experiments_in_kinto():
 
         for experiment in should_publish_experiments:
             data = NimbusExperimentSerializer(experiment).data
-            kinto_client.create_record(data)
+            rs_client.create_record(data)
             experiment.published_dto = data
             experiment.save()
             logger.info(f"{experiment.slug} is being pushed to preview")
@@ -388,7 +388,7 @@ def nimbus_synchronize_preview_experiments_in_kinto():
         ).exclude(status=NimbusExperiment.Status.PREVIEW)
 
         for experiment in should_unpublish_experiments:
-            kinto_client.delete_record(experiment.slug)
+            rs_client.delete_record(experiment.slug)
             experiment.published_dto = None
             experiment.save()
             logger.info(f"{experiment.slug} is being removed from preview")

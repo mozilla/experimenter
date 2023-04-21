@@ -17,17 +17,17 @@ from experimenter.kinto.client import REMOTE_SETTINGS_REVIEW_STATUS, REMOTE_SETT
 from experimenter.kinto.tests.mixins import MockRemoteSettingsClientMixin
 
 
-class TestNimbusCheckKintoPushQueue(MockRemoteSettingsClientMixin, TestCase):
+class TestNimbusCheckRemoteSettingsPushQueue(MockRemoteSettingsClientMixin, TestCase):
     def setUp(self):
         super().setUp()
         mock_dispatchee_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_check_kinto_push_queue_by_collection.delay"
+            "experimenter.kinto.tasks.nimbus_check_remote_settings_push_queue_by_collection.delay"
         )
         self.mock_dispatchee_task = mock_dispatchee_task_patcher.start()
         self.addCleanup(mock_dispatchee_task_patcher.stop)
 
     def test_dispatches_check_push_queue(self):
-        tasks.nimbus_check_kinto_push_queue()
+        tasks.nimbus_check_remote_settings_push_queue()
         for collection in (
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
@@ -35,36 +35,36 @@ class TestNimbusCheckKintoPushQueue(MockRemoteSettingsClientMixin, TestCase):
             self.mock_dispatchee_task.assert_any_call(collection)
 
 
-class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, TestCase):
+class TestNimbusCheckRemoteSettingsPushQueueByCollection(MockRemoteSettingsClientMixin, TestCase):
     def setUp(self):
         super().setUp()
         mock_push_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_push_experiment_to_kinto.delay"
+            "experimenter.kinto.tasks.nimbus_push_experiment_to_remote_settings.delay"
         )
         self.mock_push_task = mock_push_task_patcher.start()
         self.addCleanup(mock_push_task_patcher.stop)
 
         mock_update_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_update_experiment_in_kinto.delay"
+            "experimenter.kinto.tasks.nimbus_update_experiment_in_remote_settings.delay"
         )
         self.mock_update_task = mock_update_task_patcher.start()
         self.addCleanup(mock_update_task_patcher.stop)
 
         mock_end_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_end_experiment_in_kinto.delay"
+            "experimenter.kinto.tasks.nimbus_end_experiment_in_remote_settings.delay"
         )
         self.mock_end_task = mock_end_task_patcher.start()
         self.addCleanup(mock_end_task_patcher.stop)
 
     def test_check_with_empty_queue_pushes_nothing(self):
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_no_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_no_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
-        self.mock_kinto_client.patch_collection.assert_not_called()
+        self.mock_rs_client.patch_collection.assert_not_called()
         self.mock_push_task.assert_not_called()
         self.mock_update_task.assert_not_called()
         self.mock_end_task.assert_not_called()
@@ -83,13 +83,13 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
                 application=NimbusExperiment.Application.DESKTOP,
             )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_no_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_no_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
-        self.mock_kinto_client.patch_collection.assert_not_called()
+        self.mock_rs_client.patch_collection.assert_not_called()
         self.mock_push_task.assert_not_called()
         self.mock_update_task.assert_not_called()
         self.mock_end_task.assert_not_called()
@@ -115,18 +115,18 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             with_latest_change_now=True,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
-        self.mock_kinto_client.patch_collection.assert_not_called()
+        self.mock_rs_client.patch_collection.assert_not_called()
         self.mock_push_task.assert_not_called()
         self.mock_update_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
-    def test_check_with_approved_launch_and_no_kinto_pending_pushes_experiment(
+    def test_check_with_approved_launch_and_no_remote_settings_pending_pushes_experiment(
         self,
     ):
         launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -134,17 +134,17 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_no_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_no_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
         self.mock_push_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
         )
 
-    def test_check_with_approved_update_and_no_kinto_pending_updates_experiment(
+    def test_check_with_approved_update_and_no_remote_settings_pending_updates_experiment(
         self,
     ):
         launching_experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -152,26 +152,26 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_no_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_no_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
         self.mock_update_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
         )
 
-    def test_check_with_approved_end_and_no_kinto_pending_ends_experiment(self):
+    def test_check_with_approved_end_and_no_remote_settings_pending_ends_experiment(self):
         ending_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_no_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_no_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
         self.mock_end_task.assert_called_with(
@@ -191,17 +191,17 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
         self.mock_push_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
         )
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             data={"status": "to-rollback"},
             bucket="main-workspace",
@@ -233,17 +233,17 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
         self.mock_push_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
         )
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             data={"status": "to-rollback"},
             bucket="main-workspace",
@@ -275,17 +275,17 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
         self.mock_push_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
         )
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             data={"status": "to-rollback"},
             bucket="main-workspace",
@@ -314,17 +314,17 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_rejected_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
         self.mock_push_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
         )
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             data={"status": REMOTE_SETTINGS_ROLLBACK_STATUS},
@@ -357,17 +357,17 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_rejected_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
         self.mock_push_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
         )
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             data={"status": REMOTE_SETTINGS_ROLLBACK_STATUS},
@@ -398,14 +398,14 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             is_rollout=True,
             is_rollout_dirty=True,
         )
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_rejected_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             data={"status": REMOTE_SETTINGS_ROLLBACK_STATUS},
@@ -440,17 +440,17 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_rejected_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
         self.mock_push_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
         )
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             data={"status": REMOTE_SETTINGS_ROLLBACK_STATUS},
@@ -485,17 +485,17 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             is_rollout=True,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_rejected_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
         self.mock_push_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_rollout.id
         )
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             data={"status": REMOTE_SETTINGS_ROLLBACK_STATUS},
@@ -532,10 +532,10 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
         )
 
         # launch
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_rejected_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
@@ -543,7 +543,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_rollout.id
         )
 
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             data={"status": REMOTE_SETTINGS_ROLLBACK_STATUS},
@@ -579,10 +579,10 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             },
         )
 
-        self.setup_kinto_get_main_records([updated_experiment.slug])
-        self.setup_kinto_no_pending_review()
+        self.setup_remote_settings_get_main_records([updated_experiment.slug])
+        self.setup_remote_settings_no_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
@@ -613,17 +613,17 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
         self.mock_push_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
         )
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             data={"status": "to-rollback"},
             bucket="main-workspace",
@@ -635,17 +635,17 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_rejected_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_rejected_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
         self.mock_push_task.assert_called_with(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, launching_experiment.id
         )
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             data={"status": "to-rollback"},
             bucket="main-workspace",
@@ -657,10 +657,10 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([])
-        self.setup_kinto_no_pending_review()
+        self.setup_remote_settings_get_main_records([])
+        self.setup_remote_settings_no_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
@@ -687,10 +687,10 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([launching_experiment.slug])
-        self.setup_kinto_no_pending_review()
+        self.setup_remote_settings_get_main_records([launching_experiment.slug])
+        self.setup_remote_settings_no_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
@@ -724,10 +724,10 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.setup_kinto_get_main_records([experiment1.slug])
-        self.setup_kinto_no_pending_review()
+        self.setup_remote_settings_get_main_records([experiment1.slug])
+        self.setup_remote_settings_no_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
@@ -749,21 +749,21 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
             published_dto=None,
         )
 
-        self.setup_kinto_get_main_records([experiment.slug])
-        self.setup_kinto_no_pending_review()
+        self.setup_remote_settings_get_main_records([experiment.slug])
+        self.setup_remote_settings_no_pending_review()
 
-        tasks.nimbus_check_kinto_push_queue_by_collection(
+        tasks.nimbus_check_remote_settings_push_queue_by_collection(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP
         )
 
-        self.mock_kinto_client.patch_collection.assert_not_called()
+        self.mock_rs_client.patch_collection.assert_not_called()
         self.mock_push_task.assert_not_called()
         self.mock_update_task.assert_not_called()
         self.mock_end_task.assert_not_called()
 
 
-class TestNimbusPushExperimentToKintoTask(MockRemoteSettingsClientMixin, TestCase):
-    def test_push_experiment_to_kinto_sends_desktop_experiment_data_and_sets_accepted(
+class TestNimbusPushExperimentToRemoteSettingsTask(MockRemoteSettingsClientMixin, TestCase):
+    def test_push_experiment_to_remote_settings_sends_desktop_experiment_data_and_sets_accepted(
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -771,13 +771,13 @@ class TestNimbusPushExperimentToKintoTask(MockRemoteSettingsClientMixin, TestCas
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        tasks.nimbus_push_experiment_to_kinto(
+        tasks.nimbus_push_experiment_to_remote_settings(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, experiment.id
         )
 
         data = NimbusExperimentSerializer(experiment).data
 
-        self.mock_kinto_client.create_record.assert_called_with(
+        self.mock_rs_client.create_record.assert_called_with(
             data=data,
             collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
@@ -796,38 +796,38 @@ class TestNimbusPushExperimentToKintoTask(MockRemoteSettingsClientMixin, TestCas
             ).exists()
         )
 
-    def test_push_experiment_to_kinto_reraises_exception(self):
+    def test_push_experiment_to_remote_settings_reraises_exception(self):
         experiment = NimbusExperimentFactory.create(
             publish_status=NimbusExperiment.PublishStatus.APPROVED,
         )
-        self.mock_kinto_client.create_record.side_effect = Exception
+        self.mock_rs_client.create_record.side_effect = Exception
         with self.assertRaises(Exception):
-            tasks.nimbus_push_experiment_to_kinto(
+            tasks.nimbus_push_experiment_to_remote_settings(
                 settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, experiment.id
             )
 
 
-class TestNimbusUpdateExperimentInKinto(MockRemoteSettingsClientMixin, TestCase):
-    def test_updates_experiment_record_in_kinto(self):
+class TestNimbusUpdateExperimentInRemoteSettings(MockRemoteSettingsClientMixin, TestCase):
+    def test_updates_experiment_record_in_remote_settings(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        tasks.nimbus_update_experiment_in_kinto(
+        tasks.nimbus_update_experiment_in_remote_settings(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, experiment.id
         )
 
         data = NimbusExperimentSerializer(experiment).data
 
-        self.mock_kinto_client.update_record.assert_called_with(
+        self.mock_rs_client.update_record.assert_called_with(
             data=data,
             collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             if_match='"0"',
         )
 
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             data={"status": REMOTE_SETTINGS_REVIEW_STATUS},
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
@@ -846,46 +846,46 @@ class TestNimbusUpdateExperimentInKinto(MockRemoteSettingsClientMixin, TestCase)
             ).exists()
         )
 
-    def test_push_experiment_to_kinto_reraises_exception(self):
+    def test_push_experiment_to_remote_settings_reraises_exception(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
         )
-        self.mock_kinto_client.update_record.side_effect = Exception
+        self.mock_rs_client.update_record.side_effect = Exception
         with self.assertRaises(Exception):
-            tasks.nimbus_update_experiment_in_kinto(
+            tasks.nimbus_update_experiment_in_remote_settings(
                 settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, experiment.id
             )
 
 
-class TestNimbusEndExperimentInKinto(MockRemoteSettingsClientMixin, TestCase):
+class TestNimbusEndExperimentInRemoteSettings(MockRemoteSettingsClientMixin, TestCase):
     def test_exception_for_failed_delete(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
         )
-        self.mock_kinto_client.delete_record.side_effect = Exception
+        self.mock_rs_client.delete_record.side_effect = Exception
         with self.assertRaises(Exception):
-            tasks.nimbus_end_experiment_in_kinto(
+            tasks.nimbus_end_experiment_in_remote_settings(
                 settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, experiment.id
             )
 
-    def test_end_experiment_in_kinto_deletes_experiment(self):
+    def test_end_experiment_in_remote_settings_deletes_experiment(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        tasks.nimbus_end_experiment_in_kinto(
+        tasks.nimbus_end_experiment_in_remote_settings(
             settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP, experiment.id
         )
 
-        self.mock_kinto_client.delete_record.assert_called_with(
+        self.mock_rs_client.delete_record.assert_called_with(
             id=experiment.slug,
             collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
         )
 
-        self.mock_kinto_client.patch_collection.assert_called_with(
+        self.mock_rs_client.patch_collection.assert_called_with(
             id=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             data={"status": REMOTE_SETTINGS_REVIEW_STATUS},
@@ -904,7 +904,7 @@ class TestNimbusEndExperimentInKinto(MockRemoteSettingsClientMixin, TestCase):
         )
 
 
-class TestNimbusSynchronizePreviewExperimentsInKinto(MockRemoteSettingsClientMixin, TestCase):
+class TestNimbusSynchronizePreviewExperimentsInRemoteSettings(MockRemoteSettingsClientMixin, TestCase):
     def test_publishes_preview_experiments_and_unpublishes_non_preview_experiments(self):
         should_publish_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PREVIEW,
@@ -913,9 +913,9 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockRemoteSettingsClientMix
             NimbusExperimentFactory.Lifecycles.CREATED,
         )
 
-        self.setup_kinto_get_main_records([should_unpublish_experiment.slug])
+        self.setup_remote_settings_get_main_records([should_unpublish_experiment.slug])
 
-        tasks.nimbus_synchronize_preview_experiments_in_kinto()
+        tasks.nimbus_synchronize_preview_experiments_in_remote_settings()
 
         data = NimbusExperimentSerializer(should_publish_experiment).data
 
@@ -929,22 +929,22 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockRemoteSettingsClientMix
         )
         self.assertIsNone(should_unpublish_experiment.published_dto)
 
-        self.mock_kinto_client.create_record.assert_called_with(
+        self.mock_rs_client.create_record.assert_called_with(
             data=data,
             collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             if_not_exists=True,
         )
-        self.mock_kinto_client.delete_record.assert_called_with(
+        self.mock_rs_client.delete_record.assert_called_with(
             id=should_unpublish_experiment.slug,
             collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW,
             bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
         )
 
     def test_reraises_exception(self):
-        self.mock_kinto_client.create_record.side_effect = Exception
+        self.mock_rs_client.create_record.side_effect = Exception
         with self.assertRaises(Exception):
-            tasks.nimbus_synchronize_preview_experiments_in_kinto()
+            tasks.nimbus_synchronize_preview_experiments_in_remote_settings()
 
 
 class TestNimbusSendEmails(MockRemoteSettingsClientMixin, TestCase):

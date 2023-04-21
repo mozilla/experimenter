@@ -20,7 +20,7 @@ WORKDIR /experimenter
 ENV PYTHONDONTWRITEBYTECODE 1
 
 
-# Scripts for waiting for the db and setting up kinto
+# Scripts for waiting for the db and setting up Remote Settings
 COPY --from=file-loader /experimenter/bin/ /experimenter/bin/
 RUN chmod +x /experimenter/bin/wait-for-it.sh
 

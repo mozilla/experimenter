@@ -395,10 +395,10 @@ And then you can import and execute arbitrary code:
 ```py
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.kinto.tasks import nimbus_push_experiment_to_kinto
+from experimenter.kinto.tasks import nimbus_push_experiment_to_remote_settings
 
 experiment = NimbusExperimentFactory.create_with_status(NimbusExperiment.Status.DRAFT, name="Look at me, I'm Mr Experiment")
-nimbus_push_experiment_to_kinto(experiment.id)
+nimbus_push_experiment_to_remote_settings(experiment.id)
 ```
 
 ##### Helpful Yarn Tips

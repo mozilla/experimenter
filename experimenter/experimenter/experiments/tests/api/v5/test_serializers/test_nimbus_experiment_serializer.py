@@ -39,14 +39,14 @@ class TestNimbusExperimentSerializer(TestCase):
 
         mock_preview_task_patcher = mock.patch(
             "experimenter.experiments.api.v5.serializers."
-            "nimbus_synchronize_preview_experiments_in_kinto"
+            "nimbus_synchronize_preview_experiments_in_remote_settings"
         )
         self.mock_preview_task = mock_preview_task_patcher.start()
         self.addCleanup(mock_preview_task_patcher.stop)
 
         mock_push_task_patcher = mock.patch(
             "experimenter.experiments.api.v5.serializers."
-            "nimbus_check_kinto_push_queue_by_collection"
+            "nimbus_check_remote_settings_push_queue_by_collection"
         )
         self.mock_push_task = mock_push_task_patcher.start()
         self.addCleanup(mock_push_task_patcher.stop)
@@ -761,7 +761,7 @@ class TestNimbusExperimentSerializer(TestCase):
             [NimbusExperimentFactory.Lifecycles.PREVIEW, NimbusExperiment.Status.DRAFT],
         ]
     )
-    def test_preview_draft_transition_invokes_kinto_task(
+    def test_preview_draft_transition_invokes_remote_settings_task(
         self, start_lifecycle, to_status
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -782,7 +782,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.status, to_status)
         self.mock_preview_task.apply_async.assert_called_with(countdown=5)
 
-    def test_set_status_already_draft_doesnt_invoke_kinto_task(self):
+    def test_set_status_already_draft_doesnt_invoke_remote_settings_task(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED, population_percent=Decimal("50.0")
         )

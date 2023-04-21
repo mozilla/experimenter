@@ -125,7 +125,7 @@ class TestUpdateExperimentMutationSingleFeature(
     def setUp(self):
         mock_preview_task_patcher = mock.patch(
             "experimenter.experiments.api.v5.serializers."
-            "nimbus_synchronize_preview_experiments_in_kinto"
+            "nimbus_synchronize_preview_experiments_in_remote_settings"
         )
         self.mock_preview_task = mock_preview_task_patcher.start()
         self.addCleanup(mock_preview_task_patcher.stop)

@@ -348,13 +348,13 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.legacy.normandy.tasks.update_launched_experiments",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
-    "nimbus_check_kinto_push_queue_task": {
-        "task": "experimenter.kinto.tasks.nimbus_check_kinto_push_queue",
+    "nimbus_check_remote_settings_push_queue_task": {
+        "task": "experimenter.kinto.tasks.nimbus_check_remote_settings_push_queue",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
-    "nimbus_synchronize_preview_experiments_in_kinto": {
+    "nimbus_synchronize_preview_experiments_in_remote_settings": {
         "task": (
-            "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_kinto"
+            "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_remote_settings"
         ),
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
@@ -432,7 +432,7 @@ SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004", "models.W042"]
 FEATURE_MESSAGE_TYPE = config("FEATURE_MESSAGE_TYPE", default=False, cast=bool)
 FEATURE_ANALYSIS = config("FEATURE_ANALYSIS", default=False, cast=bool)
 
-# Kinto settings
+# Remote Settings
 REMOTE_SETTINGS_HOST = config("REMOTE_SETTINGS_HOST", default=config("KINTO_HOST"))
 REMOTE_SETTINGS_USER = config("REMOTE_SETTINGS_USER", default=config("KINTO_USER"))
 REMOTE_SETTINGS_PASS = config("REMOTE_SETTINGS_PASS", default=config("KINTO_PASS"))
