@@ -3,7 +3,7 @@ import mock
 from experimenter.kinto.client import REMOTE_SETTINGS_REJECTED_STATUS, REMOTE_SETTINGS_REVIEW_STATUS
 
 
-class MockKintoClientMixin(object):
+class MockRemoteSettingsClientMixin(object):
     def setUp(self):
         super().setUp()
 

@@ -13,7 +13,7 @@ REMOTE_SETTINGS_REJECTED_STATUS = "work-in-progress"
 REMOTE_SETTINGS_SIGN_STATUS = "to-sign"
 
 
-class KintoClient:
+class RemoteSettingsClient:
     def __init__(self, collection):
         self.collection = collection
         self.kinto_http_client = kinto_http.Client(

@@ -6,16 +6,16 @@ from experimenter.kinto.client import (
     REMOTE_SETTINGS_REVIEW_STATUS,
     REMOTE_SETTINGS_ROLLBACK_STATUS,
     REMOTE_SETTINGS_SIGN_STATUS,
-    KintoClient,
+    RemoteSettingsClient,
 )
-from experimenter.kinto.tests.mixins import MockKintoClientMixin
+from experimenter.kinto.tests.mixins import MockRemoteSettingsClientMixin
 
 
-class TestKintoClient(MockKintoClientMixin, TestCase):
+class TestRemoteSettingsClient(MockRemoteSettingsClientMixin, TestCase):
     def setUp(self):
         super().setUp()
         self.collection = "test-collection"
-        self.client = KintoClient(self.collection)
+        self.client = RemoteSettingsClient(self.collection)
 
     @parameterized.expand(
         [
@@ -24,7 +24,7 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         ]
     )
     def test_create_record_creates_record_patches_collection(self, review, status):
-        client = KintoClient(self.collection, review=review)
+        client = RemoteSettingsClient(self.collection, review=review)
         client.create_record({"test": "data"})
 
         self.mock_kinto_client_creator.assert_called_with(
@@ -52,7 +52,7 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         ]
     )
     def test_update_record_updates_record_patches_collection(self, review, status):
-        client = KintoClient(self.collection, review=review)
+        client = RemoteSettingsClient(self.collection, review=review)
 
         data = {"id": "my-record", "field": "value"}
         client.update_record(data)
@@ -77,7 +77,7 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         ]
     )
     def test_delete_record_deletes_record_patches_collection(self, review, status):
-        client = KintoClient(self.collection, review=review)
+        client = RemoteSettingsClient(self.collection, review=review)
 
         record_id = "abc-123"
         client.delete_record(record_id)

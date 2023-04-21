@@ -11,7 +11,7 @@ from experimenter.experiments.email import (
     nimbus_send_experiment_ending_email,
 )
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
-from experimenter.kinto.client import KintoClient
+from experimenter.kinto.client import RemoteSettingsClient
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("kinto.nimbus_tasks")
@@ -62,7 +62,7 @@ def nimbus_check_kinto_push_queue_by_collection(collection):
         for application in NimbusExperiment.APPLICATION_CONFIGS.values()
         if application.kinto_collection == collection
     ]
-    kinto_client = KintoClient(collection)
+    kinto_client = RemoteSettingsClient(collection)
 
     should_rollback = False
     if kinto_client.has_pending_review():
@@ -262,7 +262,7 @@ def nimbus_push_experiment_to_kinto(collection, experiment_id):
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         logger.info(f"Pushing {experiment.slug} to Kinto")
 
-        kinto_client = KintoClient(collection)
+        kinto_client = RemoteSettingsClient(collection)
 
         data = NimbusExperimentSerializer(experiment).data
 
@@ -299,7 +299,7 @@ def nimbus_update_experiment_in_kinto(collection, experiment_id):
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         logger.info(f"Updating {experiment.slug} in Kinto")
 
-        kinto_client = KintoClient(collection)
+        kinto_client = RemoteSettingsClient(collection)
 
         data = NimbusExperimentSerializer(experiment).data
 
@@ -337,7 +337,7 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         logger.info(f"Deleting {experiment.slug} from Kinto")
 
-        kinto_client = KintoClient(collection)
+        kinto_client = RemoteSettingsClient(collection)
         kinto_client.delete_record(experiment.slug)
 
         experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
@@ -367,7 +367,7 @@ def nimbus_synchronize_preview_experiments_in_kinto():
     """
     metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.started")
 
-    kinto_client = KintoClient(settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW, review=False)
+    kinto_client = RemoteSettingsClient(settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW, review=False)
 
     try:
         published_preview_slugs = kinto_client.get_main_records().keys()

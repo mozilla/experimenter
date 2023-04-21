@@ -14,10 +14,10 @@ from experimenter.experiments.models import (
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.kinto import tasks
 from experimenter.kinto.client import REMOTE_SETTINGS_REVIEW_STATUS, REMOTE_SETTINGS_ROLLBACK_STATUS
-from experimenter.kinto.tests.mixins import MockKintoClientMixin
+from experimenter.kinto.tests.mixins import MockRemoteSettingsClientMixin
 
 
-class TestNimbusCheckKintoPushQueue(MockKintoClientMixin, TestCase):
+class TestNimbusCheckKintoPushQueue(MockRemoteSettingsClientMixin, TestCase):
     def setUp(self):
         super().setUp()
         mock_dispatchee_task_patcher = mock.patch(
@@ -35,7 +35,7 @@ class TestNimbusCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             self.mock_dispatchee_task.assert_any_call(collection)
 
 
-class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
+class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, TestCase):
     def setUp(self):
         super().setUp()
         mock_push_task_patcher = mock.patch(
@@ -762,7 +762,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockKintoClientMixin, TestCase):
         self.mock_end_task.assert_not_called()
 
 
-class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
+class TestNimbusPushExperimentToKintoTask(MockRemoteSettingsClientMixin, TestCase):
     def test_push_experiment_to_kinto_sends_desktop_experiment_data_and_sets_accepted(
         self,
     ):
@@ -807,7 +807,7 @@ class TestNimbusPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             )
 
 
-class TestNimbusUpdateExperimentInKinto(MockKintoClientMixin, TestCase):
+class TestNimbusUpdateExperimentInKinto(MockRemoteSettingsClientMixin, TestCase):
     def test_updates_experiment_record_in_kinto(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE,
@@ -857,7 +857,7 @@ class TestNimbusUpdateExperimentInKinto(MockKintoClientMixin, TestCase):
             )
 
 
-class TestNimbusEndExperimentInKinto(MockKintoClientMixin, TestCase):
+class TestNimbusEndExperimentInKinto(MockRemoteSettingsClientMixin, TestCase):
     def test_exception_for_failed_delete(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -904,7 +904,7 @@ class TestNimbusEndExperimentInKinto(MockKintoClientMixin, TestCase):
         )
 
 
-class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestCase):
+class TestNimbusSynchronizePreviewExperimentsInKinto(MockRemoteSettingsClientMixin, TestCase):
     def test_publishes_preview_experiments_and_unpublishes_non_preview_experiments(self):
         should_publish_experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.PREVIEW,
@@ -947,7 +947,7 @@ class TestNimbusSynchronizePreviewExperimentsInKinto(MockKintoClientMixin, TestC
             tasks.nimbus_synchronize_preview_experiments_in_kinto()
 
 
-class TestNimbusSendEmails(MockKintoClientMixin, TestCase):
+class TestNimbusSendEmails(MockRemoteSettingsClientMixin, TestCase):
     def test_enrollment_ending_email_not_sent_for_experiments_before_enrollment_end_date(
         self,
     ):

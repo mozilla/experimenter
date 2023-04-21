@@ -11,7 +11,7 @@ from requests.packages.urllib3.util.retry import Retry
 from nimbus.kinto.client import (
     REMOTE_SETTINGS_COLLECTION_DESKTOP,
     REMOTE_SETTINGS_COLLECTION_MOBILE,
-    KintoClient,
+    RemoteSettingsClient,
 )
 from nimbus.models.base_dataclass import (
     BaseExperimentApplications,
@@ -134,7 +134,7 @@ def _verify_url(request, base_url):
 
 @pytest.fixture
 def kinto_client(default_data):
-    return KintoClient(APPLICATION_REMOTE_SETTINGS_COLLECTION[default_data.application.value])
+    return RemoteSettingsClient(APPLICATION_REMOTE_SETTINGS_COLLECTION[default_data.application.value])
 
 
 @pytest.fixture

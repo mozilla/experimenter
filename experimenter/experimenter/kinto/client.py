@@ -7,7 +7,7 @@ REMOTE_SETTINGS_ROLLBACK_STATUS = "to-rollback"
 REMOTE_SETTINGS_SIGN_STATUS = "to-sign"
 
 
-class KintoClient:
+class RemoteSettingsClient:
     def __init__(self, collection, review=True):
         self.collection = collection
         self.kinto_http_client = kinto_http.Client(
