@@ -318,9 +318,9 @@ Start Django runserver, Celery worker, postgresql, redis, autograph, kinto on th
 
 Start all containers in the background (not attached to shell). They can be stopped using `make kill`.
 
-#### make update_kinto
+#### make update_remote_settings
 
-Pull in the latest Kinto Docker image. Kinto is not automatically updated when new versions are available, so this command can be used occasionally to stay in sync.
+Pull in the latest Remote Settings Docker image. The Remote Settings container is not automatically updated when new versions are available, so this command can be used occasionally to stay in sync.
 
 ### Running tests and checks
 

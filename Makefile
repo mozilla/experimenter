@@ -83,7 +83,8 @@ fetch_external_resources: jetstream_config feature_manifests
 	echo "External Resources Fetched"
 
 update_kinto:
-	docker pull mozilla/kinto-dist:latest
+update_remote_settings:
+	docker pull mozilla/remote-settings:latest
 
 compose_build:
 	$(COMPOSE)  build
