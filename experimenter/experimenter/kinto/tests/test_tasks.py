@@ -677,7 +677,7 @@ class TestNimbusCheckKintoPushQueueByCollection(MockRemoteSettingsClientMixin, T
                 old_publish_status=NimbusExperiment.PublishStatus.WAITING,
                 new_status=NimbusExperiment.Status.DRAFT,
                 new_publish_status=NimbusExperiment.PublishStatus.IDLE,
-                message=NimbusChangeLog.Messages.REJECTED_FROM_KINTO,
+                message=NimbusChangeLog.Messages.REJECTED_FROM_REMOTE_SETTINGS,
             ).exists()
         )
 
@@ -792,7 +792,7 @@ class TestNimbusPushExperimentToKintoTask(MockRemoteSettingsClientMixin, TestCas
             experiment.changes.filter(
                 old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
                 new_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                message=NimbusChangeLog.Messages.LAUNCHING_TO_KINTO,
+                message=NimbusChangeLog.Messages.LAUNCHING_TO_REMOTE_SETTINGS,
             ).exists()
         )
 
@@ -842,7 +842,7 @@ class TestNimbusUpdateExperimentInKinto(MockRemoteSettingsClientMixin, TestCase)
             experiment.changes.filter(
                 old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
                 new_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                message=NimbusChangeLog.Messages.UPDATING_IN_KINTO,
+                message=NimbusChangeLog.Messages.UPDATING_IN_REMOTE_SETTINGS,
             ).exists()
         )
 
@@ -899,7 +899,7 @@ class TestNimbusEndExperimentInKinto(MockRemoteSettingsClientMixin, TestCase):
             experiment.changes.filter(
                 old_publish_status=NimbusExperiment.PublishStatus.APPROVED,
                 new_publish_status=NimbusExperiment.PublishStatus.WAITING,
-                message=NimbusChangeLog.Messages.DELETING_FROM_KINTO,
+                message=NimbusChangeLog.Messages.DELETING_FROM_REMOTE_SETTINGS,
             ).exists()
         )
 

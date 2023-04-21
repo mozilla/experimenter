@@ -1169,12 +1169,12 @@ class NimbusChangeLog(FilterMixin, models.Model):
         )
 
     class Messages:
-        TIMED_OUT_IN_KINTO = "Timed Out"
-        LAUNCHING_TO_KINTO = "Launching to Remote Settings"
-        UPDATING_IN_KINTO = "Updating in Remote Settings"
-        UPDATED_IN_KINTO = "Updated in Remote Settings"
-        DELETING_FROM_KINTO = "Deleting from Remote Settings"
-        REJECTED_FROM_KINTO = "Rejected from Remote Settings"
+        TIMED_OUT_IN_REMOTE_SETTINGS = "Timed Out"
+        LAUNCHING_TO_REMOTE_SETTINGS = "Launching to Remote Settings"
+        UPDATING_IN_REMOTE_SETTINGS = "Updating in Remote Settings"
+        UPDATED_IN_REMOTE_SETTINGS = "Updated in Remote Settings"
+        DELETING_FROM_REMOTE_SETTINGS = "Deleting from Remote Settings"
+        REJECTED_FROM_REMOTE_SETTINGS = "Rejected from Remote Settings"
         LIVE = "Experiment is live"
         COMPLETED = "Experiment is complete"
 

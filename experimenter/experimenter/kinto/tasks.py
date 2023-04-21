@@ -17,7 +17,7 @@ logger = get_task_logger(__name__)
 metrics = markus.get_metrics("kinto.nimbus_tasks")
 
 
-def get_kinto_user():
+def get_remote_settings_user():
     user, _ = User.objects.get_or_create(
         email=settings.REMOTE_SETTINGS_DEFAULT_CHANGELOG_USER,
         username=settings.REMOTE_SETTINGS_DEFAULT_CHANGELOG_USER,
@@ -110,8 +110,8 @@ def handle_pending_review(applications):
 
             generate_nimbus_changelog(
                 experiment,
-                get_kinto_user(),
-                message=NimbusChangeLog.Messages.TIMED_OUT_IN_KINTO,
+                get_remote_settings_user(),
+                message=NimbusChangeLog.Messages.TIMED_OUT_IN_REMOTE_SETTINGS,
             )
 
             logger.info(f"{experiment.slug} timed out")
@@ -142,7 +142,7 @@ def handle_rejection(applications, kinto_client):
 
         generate_nimbus_changelog(
             experiment,
-            get_kinto_user(),
+            get_remote_settings_user(),
             message=collection_data["last_reviewer_comment"],
         )
 
@@ -169,7 +169,7 @@ def handle_launching_experiments(applications, records):
 
             generate_nimbus_changelog(
                 experiment,
-                get_kinto_user(),
+                get_remote_settings_user(),
                 message=NimbusChangeLog.Messages.LIVE,
             )
 
@@ -188,7 +188,7 @@ def handle_updating_experiments(applications, records):
         stored_record.pop("last_modified", None)
 
         if published_record != stored_record:
-            logger.info(f"{experiment} is updated in Kinto".format(experiment=experiment))
+            logger.info(f"{experiment} is updated in Remote Settings".format(experiment=experiment))
             experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
             experiment.status_next = None
             experiment.published_dto = published_record
@@ -197,8 +197,8 @@ def handle_updating_experiments(applications, records):
 
             generate_nimbus_changelog(
                 experiment,
-                get_kinto_user(),
-                message=NimbusChangeLog.Messages.UPDATED_IN_KINTO,
+                get_remote_settings_user(),
+                message=NimbusChangeLog.Messages.UPDATED_IN_REMOTE_SETTINGS,
             )
 
             logger.info(f"{experiment.slug} updated")
@@ -221,7 +221,7 @@ def handle_ending_experiments(applications, records):
 
             generate_nimbus_changelog(
                 experiment,
-                get_kinto_user(),
+                get_remote_settings_user(),
                 message=NimbusChangeLog.Messages.COMPLETED,
             )
 
@@ -240,8 +240,8 @@ def handle_waiting_experiments(applications):
 
         generate_nimbus_changelog(
             experiment,
-            get_kinto_user(),
-            message=NimbusChangeLog.Messages.REJECTED_FROM_KINTO,
+            get_remote_settings_user(),
+            message=NimbusChangeLog.Messages.REJECTED_FROM_REMOTE_SETTINGS,
         )
 
         logger.info(f"{experiment.slug} rejected without reason(rollback)")
@@ -273,8 +273,8 @@ def nimbus_push_experiment_to_kinto(collection, experiment_id):
 
         generate_nimbus_changelog(
             experiment,
-            get_kinto_user(),
-            message=NimbusChangeLog.Messages.LAUNCHING_TO_KINTO,
+            get_remote_settings_user(),
+            message=NimbusChangeLog.Messages.LAUNCHING_TO_REMOTE_SETTINGS,
         )
 
         logger.info(f"{experiment.slug} pushed to Kinto")
@@ -297,7 +297,7 @@ def nimbus_update_experiment_in_kinto(collection, experiment_id):
 
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.info(f"Updating {experiment.slug} in Kinto")
+        logger.info(f"Updating {experiment.slug} in Remote Settings")
 
         kinto_client = RemoteSettingsClient(collection)
 
@@ -310,16 +310,16 @@ def nimbus_update_experiment_in_kinto(collection, experiment_id):
 
         generate_nimbus_changelog(
             experiment,
-            get_kinto_user(),
-            message=NimbusChangeLog.Messages.UPDATING_IN_KINTO,
+            get_remote_settings_user(),
+            message=NimbusChangeLog.Messages.UPDATING_IN_REMOTE_SETTINGS,
         )
 
-        logger.info(f"{experiment.slug} updated in Kinto")
+        logger.info(f"{experiment.slug} updated in Remote Settings")
 
         metrics.incr("update_experiment_in_kinto.completed")
     except Exception as e:
         metrics.incr("update_experiment_in_kinto.failed")
-        logger.info(f"Updating experiment {experiment_id} in Kinto failed: {e}")
+        logger.info(f"Updating experiment {experiment_id} in Remote Settings failed: {e}")
         raise e
 
 
@@ -335,7 +335,7 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
 
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
-        logger.info(f"Deleting {experiment.slug} from Kinto")
+        logger.info(f"Deleting {experiment.slug} from Remote Settings")
 
         kinto_client = RemoteSettingsClient(collection)
         kinto_client.delete_record(experiment.slug)
@@ -345,15 +345,15 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
 
         generate_nimbus_changelog(
             experiment,
-            get_kinto_user(),
-            message=NimbusChangeLog.Messages.DELETING_FROM_KINTO,
+            get_remote_settings_user(),
+            message=NimbusChangeLog.Messages.DELETING_FROM_REMOTE_SETTINGS,
         )
 
-        logger.info(f"{experiment.slug} deleted from Kinto")
+        logger.info(f"{experiment.slug} deleted from Remote Settings")
         metrics.incr("end_experiment_in_kinto.completed")
     except Exception as e:
         metrics.incr("end_experiment_in_kinto.failed")
-        logger.info(f"Deleting experiment {experiment_id} from Kinto failed: {e}")
+        logger.info(f"Deleting experiment {experiment_id} from Remote Settings failed: {e}")
         raise e
 
 
