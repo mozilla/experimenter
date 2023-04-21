@@ -1,7 +1,7 @@
 # Jetstream/Nimbus Shared Schema Architecture
 
 * Status: proposed
-* Deciders: Mike Williams, Jared Lockhart
+* Deciders: Mike Williams
 * Date: 2023-04-21
 
 Technical Story: https://mozilla-hub.atlassian.net/browse/EXP-2265
