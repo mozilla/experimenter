@@ -46,7 +46,7 @@ DEV_USER_EMAIL = "dev@example.com"
 
 NORMANDY_DEFAULT_CHANGELOG_USER = "unknown-user@normandy.mozilla.com"
 
-KINTO_DEFAULT_CHANGELOG_USER = "experimenter@experimenter.services.mozilla.com"
+REMOTE_SETTINGS_DEFAULT_CHANGELOG_USER = "experimenter@experimenter.services.mozilla.com"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
@@ -433,16 +433,16 @@ FEATURE_MESSAGE_TYPE = config("FEATURE_MESSAGE_TYPE", default=False, cast=bool)
 FEATURE_ANALYSIS = config("FEATURE_ANALYSIS", default=False, cast=bool)
 
 # Kinto settings
-KINTO_HOST = config("KINTO_HOST")
-KINTO_USER = config("KINTO_USER")
-KINTO_PASS = config("KINTO_PASS")
-KINTO_BUCKET_WORKSPACE = "main-workspace"
-KINTO_BUCKET_MAIN = "main"
-KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
-KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
-KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
-KINTO_ADMIN_URL = config("KINTO_ADMIN_URL", default=urljoin(KINTO_HOST, "/admin/"))
-KINTO_REVIEW_TIMEOUT = config("KINTO_REVIEW_TIMEOUT", cast=int)
+REMOTE_SETTINGS_HOST = config("REMOTE_SETTINGS_HOST", default=config("KINTO_HOST"))
+REMOTE_SETTINGS_USER = config("REMOTE_SETTINGS_USER", default=config("KINTO_USER"))
+REMOTE_SETTINGS_PASS = config("REMOTE_SETTINGS_PASS", default=config("KINTO_PASS"))
+REMOTE_SETTINGS_BUCKET_WORKSPACE = "main-workspace"
+REMOTE_SETTINGS_BUCKET_MAIN = "main"
+REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
+REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
+REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
+REMOTE_SETTINGS_ADMIN_URL = config("REMOTE_SETTINGS_ADMIN_URL", default=config("KINTO_ADMIN_URL", default=urljoin(REMOTE_SETTINGS_HOST, "/admin/")))
+REMOTE_SETTINGS_REVIEW_TIMEOUT = config("REMOTE_SETTINGS_REVIEW_TIMEOUT", cast=int, default=config("KINTO_REVIEW_TIMEOUT", cast=int))
 
 # Jetstream GCS Bucket data
 DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"

@@ -576,7 +576,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def review_url(self):
         if self.application_config:
             return "{base_url}{collection_path}/{collection}/{review_path}".format(
-                base_url=settings.KINTO_ADMIN_URL,
+                base_url=settings.REMOTE_SETTINGS_ADMIN_URL,
                 collection_path="#/buckets/main-workspace/collections",
                 collection=self.application_config.kinto_collection,
                 review_path="simple-review",
@@ -719,7 +719,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     def should_timeout(self):
         review_expired = (
             timezone.now() - self.changes.latest_change().changed_on
-        ) >= datetime.timedelta(seconds=settings.KINTO_REVIEW_TIMEOUT)
+        ) >= datetime.timedelta(seconds=settings.REMOTE_SETTINGS_REVIEW_TIMEOUT)
         return self.publish_status == self.PublishStatus.WAITING and review_expired
 
     def clone(self, name, user, rollout_branch_slug=None):

@@ -3,9 +3,9 @@ from django.test import TestCase
 from parameterized import parameterized
 
 from experimenter.kinto.client import (
-    KINTO_REVIEW_STATUS,
-    KINTO_ROLLBACK_STATUS,
-    KINTO_SIGN_STATUS,
+    REMOTE_SETTINGS_REVIEW_STATUS,
+    REMOTE_SETTINGS_ROLLBACK_STATUS,
+    REMOTE_SETTINGS_SIGN_STATUS,
     KintoClient,
 )
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
@@ -19,8 +19,8 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
 
     @parameterized.expand(
         [
-            [False, KINTO_SIGN_STATUS],
-            [True, KINTO_REVIEW_STATUS],
+            [False, REMOTE_SETTINGS_SIGN_STATUS],
+            [True, REMOTE_SETTINGS_REVIEW_STATUS],
         ]
     )
     def test_create_record_creates_record_patches_collection(self, review, status):
@@ -28,27 +28,27 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         client.create_record({"test": "data"})
 
         self.mock_kinto_client_creator.assert_called_with(
-            server_url=settings.KINTO_HOST,
-            auth=(settings.KINTO_USER, settings.KINTO_PASS),
+            server_url=settings.REMOTE_SETTINGS_HOST,
+            auth=(settings.REMOTE_SETTINGS_USER, settings.REMOTE_SETTINGS_PASS),
         )
 
         self.mock_kinto_client.create_record.assert_called_with(
             data={"test": "data"},
             collection=self.collection,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             if_not_exists=True,
         )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=self.collection,
             data={"status": status},
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
         )
 
     @parameterized.expand(
         [
-            [False, KINTO_SIGN_STATUS],
-            [True, KINTO_REVIEW_STATUS],
+            [False, REMOTE_SETTINGS_SIGN_STATUS],
+            [True, REMOTE_SETTINGS_REVIEW_STATUS],
         ]
     )
     def test_update_record_updates_record_patches_collection(self, review, status):
@@ -60,20 +60,20 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         self.mock_kinto_client.update_record.assert_called_with(
             data=data,
             collection=self.collection,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
             if_match='"0"',
         )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=self.collection,
             data={"status": status},
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
         )
 
     @parameterized.expand(
         [
-            [False, KINTO_SIGN_STATUS],
-            [True, KINTO_REVIEW_STATUS],
+            [False, REMOTE_SETTINGS_SIGN_STATUS],
+            [True, REMOTE_SETTINGS_REVIEW_STATUS],
         ]
     )
     def test_delete_record_deletes_record_patches_collection(self, review, status):
@@ -83,34 +83,34 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         client.delete_record(record_id)
 
         self.mock_kinto_client_creator.assert_called_with(
-            server_url=settings.KINTO_HOST,
-            auth=(settings.KINTO_USER, settings.KINTO_PASS),
+            server_url=settings.REMOTE_SETTINGS_HOST,
+            auth=(settings.REMOTE_SETTINGS_USER, settings.REMOTE_SETTINGS_PASS),
         )
 
         self.mock_kinto_client.delete_record.assert_called_with(
             id=record_id,
             collection=self.collection,
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
         )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=self.collection,
             data={"status": status},
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            bucket=settings.REMOTE_SETTINGS_BUCKET_WORKSPACE,
         )
 
     def test_rollback_changes_patches_collection(self):
         self.client.rollback_changes()
 
         self.mock_kinto_client_creator.assert_called_with(
-            server_url=settings.KINTO_HOST,
-            auth=(settings.KINTO_USER, settings.KINTO_PASS),
+            server_url=settings.REMOTE_SETTINGS_HOST,
+            auth=(settings.REMOTE_SETTINGS_USER, settings.REMOTE_SETTINGS_PASS),
         )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=self.collection,
-            data={"status": KINTO_ROLLBACK_STATUS},
-            bucket=settings.KINTO_BUCKET_WORKSPACE,
+            data={"status": REMOTE_SETTINGS_ROLLBACK_STATUS},
+            bucket=settings.REMOTE_SETTINGS_SIGN_STATUS,
         )
 
     def test_returns_true_for_pending_review(self):

@@ -45,7 +45,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
         Channel.ESR: "firefox-desktop",
         Channel.AURORA: "firefox-desktop",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+    kinto_collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
     randomization_unit=BucketRandomizationUnit.NORMANDY,
 )
 
@@ -58,7 +58,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
         Channel.BETA: "org.mozilla.firefox_beta",
         Channel.RELEASE: "org.mozilla.firefox",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    kinto_collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
@@ -71,7 +71,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
         Channel.BETA: "org.mozilla.ios.FirefoxBeta",
         Channel.RELEASE: "org.mozilla.ios.Firefox",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    kinto_collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
@@ -84,7 +84,7 @@ APPLICATION_CONFIG_FOCUS_ANDROID = ApplicationConfig(
         Channel.BETA: "org.mozilla.focus.beta",
         Channel.RELEASE: "org.mozilla.focus",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    kinto_collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
@@ -95,7 +95,7 @@ APPLICATION_CONFIG_KLAR_ANDROID = ApplicationConfig(
     channel_app_id={
         Channel.RELEASE: "org.mozilla.klar",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    kinto_collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
@@ -108,7 +108,7 @@ APPLICATION_CONFIG_FOCUS_IOS = ApplicationConfig(
         Channel.RELEASE: "org.mozilla.ios.Focus",
         Channel.TESTFLIGHT: "org.mozilla.ios.Focus",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    kinto_collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
@@ -120,7 +120,7 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
         Channel.RELEASE: "org.mozilla.ios.Klar",
         Channel.TESTFLIGHT: "org.mozilla.ios.Klar",
     },
-    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    kinto_collection=settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 

@@ -9,8 +9,8 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 from nimbus.kinto.client import (
-    KINTO_COLLECTION_DESKTOP,
-    KINTO_COLLECTION_MOBILE,
+    REMOTE_SETTINGS_COLLECTION_DESKTOP,
+    REMOTE_SETTINGS_COLLECTION_MOBILE,
     KintoClient,
 )
 from nimbus.models.base_dataclass import (
@@ -32,7 +32,7 @@ APPLICATION_FEATURE_IDS = {
     BaseExperimentApplications.FOCUS_IOS: "6",
 }
 
-APPLICATION_KINTO_REVIEW_PATH = {
+APPLICATION_REMOTE_SETTINGS_REVIEW_PATH = {
     BaseExperimentApplications.FIREFOX_DESKTOP: (
         "#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"
     ),
@@ -50,12 +50,12 @@ APPLICATION_KINTO_REVIEW_PATH = {
     ),
 }
 
-APPLICATION_KINTO_COLLECTION = {
-    "DESKTOP": KINTO_COLLECTION_DESKTOP,
-    "FENIX": KINTO_COLLECTION_MOBILE,
-    "IOS": KINTO_COLLECTION_MOBILE,
-    "FOCUS_ANDROID": KINTO_COLLECTION_MOBILE,
-    "FOCUS_IOS": KINTO_COLLECTION_MOBILE,
+APPLICATION_REMOTE_SETTINGS_COLLECTION = {
+    "DESKTOP": REMOTE_SETTINGS_COLLECTION_DESKTOP,
+    "FENIX": REMOTE_SETTINGS_COLLECTION_MOBILE,
+    "IOS": REMOTE_SETTINGS_COLLECTION_MOBILE,
+    "FOCUS_ANDROID": REMOTE_SETTINGS_COLLECTION_MOBILE,
+    "FOCUS_IOS": REMOTE_SETTINGS_COLLECTION_MOBILE,
 }
 
 
@@ -134,7 +134,7 @@ def _verify_url(request, base_url):
 
 @pytest.fixture
 def kinto_client(default_data):
-    return KintoClient(APPLICATION_KINTO_COLLECTION[default_data.application.value])
+    return KintoClient(APPLICATION_REMOTE_SETTINGS_COLLECTION[default_data.application.value])
 
 
 @pytest.fixture

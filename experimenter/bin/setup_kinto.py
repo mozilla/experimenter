@@ -7,21 +7,21 @@ import requests
 
 ADMIN_USER = ADMIN_PASS = "admin"
 REVIEW_USER = REVIEW_PASS = "review"
-EXPERIMENTER_USER = os.environ["KINTO_USER"]
-EXPERIMENTER_PASS = os.environ["KINTO_PASS"]
-KINTO_HOST = os.environ["KINTO_HOST"]
-KINTO_BUCKET_WORKSPACE = "main-workspace"
-KINTO_BUCKET_MAIN = "main"
-KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
-KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
-KINTO_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
+EXPERIMENTER_USER = os.getenv("REMOTE_SETTINGS_USER", os.getenv("KINTO_USER"))
+EXPERIMENTER_PASS = os.getenv("REMOTE_SETTINGS_PASS", os.getenv("KINTO_PASS"))
+REMOTE_SETTINGS_HOST = os.getenv("REMOTE_SETTINGS_HOST", os.getenv("KINTO_HOST"))
+REMOTE_SETTINGS_BUCKET_WORKSPACE = "main-workspace"
+REMOTE_SETTINGS_BUCKET_MAIN = "main"
+REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
+REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
+REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW = "nimbus-preview"
 
 
 def create_user(user, passw):
     print(f">>>> Creating kinto user: {user}:{passw}")
     print(
         requests.put(
-            urllib.parse.urljoin(KINTO_HOST, f"/accounts/{user}"),
+            urllib.parse.urljoin(REMOTE_SETTINGS_HOST, f"/accounts/{user}"),
             json={"data": {"password": passw}},
         ).content,
     )
@@ -32,27 +32,27 @@ def setup():
     create_user(REVIEW_USER, REVIEW_PASS)
     create_user(EXPERIMENTER_USER, EXPERIMENTER_PASS)
 
-    client = kinto_http.Client(server_url=KINTO_HOST, auth=(ADMIN_USER, ADMIN_PASS))
+    client = kinto_http.Client(server_url=REMOTE_SETTINGS_HOST, auth=(ADMIN_USER, ADMIN_PASS))
 
-    print(f">>>> Creating kinto bucket: {KINTO_BUCKET_WORKSPACE}")
+    print(f">>>> Creating kinto bucket: {REMOTE_SETTINGS_BUCKET_WORKSPACE}")
     print(
         client.create_bucket(
-            id=KINTO_BUCKET_WORKSPACE,
+            id=REMOTE_SETTINGS_BUCKET_WORKSPACE,
             permissions={"read": ["system.Everyone"]},
             if_not_exists=True,
         )
     )
 
     for collection in [
-        KINTO_COLLECTION_NIMBUS_DESKTOP,
-        KINTO_COLLECTION_NIMBUS_MOBILE,
-        KINTO_COLLECTION_NIMBUS_PREVIEW,
+        REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
+        REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
+        REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW,
     ]:
         print(">>>> Creating kinto group: editors")
         print(
             client.create_group(
                 id=f"{collection}-editors",
-                bucket=KINTO_BUCKET_WORKSPACE,
+                bucket=REMOTE_SETTINGS_BUCKET_WORKSPACE,
                 data={"members": [f"account:{EXPERIMENTER_USER}"]},
                 if_not_exists=True,
             )
@@ -62,7 +62,7 @@ def setup():
         print(
             client.create_group(
                 id=f"{collection}-reviewers",
-                bucket=KINTO_BUCKET_WORKSPACE,
+                bucket=REMOTE_SETTINGS_BUCKET_WORKSPACE,
                 data={"members": [f"account:{REVIEW_USER}"]},
                 if_not_exists=True,
             )
@@ -72,16 +72,16 @@ def setup():
         print(
             client.create_collection(
                 id=collection,
-                bucket=KINTO_BUCKET_WORKSPACE,
+                bucket=REMOTE_SETTINGS_BUCKET_WORKSPACE,
                 permissions={
                     "read": ["system.Everyone"],
                     "write": [
                         (
-                            f"/buckets/{KINTO_BUCKET_WORKSPACE}/groups/"
+                            f"/buckets/{REMOTE_SETTINGS_BUCKET_WORKSPACE}/groups/"
                             f"{collection}-editors"
                         ),
                         (
-                            f"/buckets/{KINTO_BUCKET_WORKSPACE}/groups/"
+                            f"/buckets/{REMOTE_SETTINGS_BUCKET_WORKSPACE}/groups/"
                             f"{collection}-reviewers"
                         ),
                     ],

@@ -1314,7 +1314,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_review_url_should_return_simple_review_url(self):
         with override_settings(
-            KINTO_ADMIN_URL="https://settings-writer.stage.mozaws.net/v1/admin/",
+            REMOTE_SETTINGS_ADMIN_URL="https://settings-writer.stage.mozaws.net/v1/admin/",
         ):
             expected = "https://settings-writer.stage.mozaws.net/v1/admin/#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
             experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1325,7 +1325,7 @@ class TestNimbusExperiment(TestCase):
 
     def test_review_url_stage_should_return_simple_review_url_without_slash(self):
         with override_settings(
-            KINTO_ADMIN_URL="http://localhost:8888/v1/admin",
+            REMOTE_SETTINGS_ADMIN_URL="http://localhost:8888/v1/admin",
         ):
             expected = "http://localhost:8888/v1/admin#/buckets/main-workspace/collections/nimbus-desktop-experiments/simple-review"  # noqa E501
             experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1874,7 +1874,7 @@ class TestNimbusExperiment(TestCase):
         ]
     )
     def test_should_timeout(self, expected, timeout, lifecycle):
-        with override_settings(KINTO_REVIEW_TIMEOUT=timeout):
+        with override_settings(REMOTE_SETTINGS_REVIEW_TIMEOUT=timeout):
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 lifecycle, with_latest_change_now=True
             )

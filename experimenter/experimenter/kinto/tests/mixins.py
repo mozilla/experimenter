@@ -1,6 +1,6 @@
 import mock
 
-from experimenter.kinto.client import KINTO_REJECTED_STATUS, KINTO_REVIEW_STATUS
+from experimenter.kinto.client import REMOTE_SETTINGS_REJECTED_STATUS, REMOTE_SETTINGS_REVIEW_STATUS
 
 
 class MockKintoClientMixin(object):
@@ -17,7 +17,7 @@ class MockKintoClientMixin(object):
 
     def setup_kinto_pending_review(self):
         self.mock_kinto_client.get_collection.return_value = {
-            "data": {"status": KINTO_REVIEW_STATUS}
+            "data": {"status": REMOTE_SETTINGS_REVIEW_STATUS}
         }
 
     def setup_kinto_no_pending_review(self):
@@ -28,7 +28,7 @@ class MockKintoClientMixin(object):
     def setup_kinto_rejected_review(self):
         self.mock_kinto_client.get_collection.return_value = {
             "data": {
-                "status": KINTO_REJECTED_STATUS,
+                "status": REMOTE_SETTINGS_REJECTED_STATUS,
                 "last_reviewer_comment": "it's no good",
             }
         }

@@ -19,8 +19,8 @@ metrics = markus.get_metrics("kinto.nimbus_tasks")
 
 def get_kinto_user():
     user, _ = User.objects.get_or_create(
-        email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-        username=settings.KINTO_DEFAULT_CHANGELOG_USER,
+        email=settings.REMOTE_SETTINGS_DEFAULT_CHANGELOG_USER,
+        username=settings.REMOTE_SETTINGS_DEFAULT_CHANGELOG_USER,
     )
     return user
 
@@ -33,8 +33,8 @@ def nimbus_check_kinto_push_queue():
     task for working with kinto
     """
     for collection in (
-        settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
-        settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+        settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_DESKTOP,
+        settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_MOBILE,
     ):
         nimbus_check_kinto_push_queue_by_collection.delay(collection)
 
@@ -367,7 +367,7 @@ def nimbus_synchronize_preview_experiments_in_kinto():
     """
     metrics.incr("nimbus_synchronize_preview_experiments_in_kinto.started")
 
-    kinto_client = KintoClient(settings.KINTO_COLLECTION_NIMBUS_PREVIEW, review=False)
+    kinto_client = KintoClient(settings.REMOTE_SETTINGS_COLLECTION_NIMBUS_PREVIEW, review=False)
 
     try:
         published_preview_slugs = kinto_client.get_main_records().keys()

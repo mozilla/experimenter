@@ -75,7 +75,7 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
         - Click the activate and restart button to save your change.
     - Install Make and Git
         - Open the ubuntu terminal
-        - You should install make using this command `sudo apt-get update && sudo apt install make` in the ubuntu terminal. 
+        - You should install make using this command `sudo apt-get update && sudo apt install make` in the ubuntu terminal.
         This is necessary for the `make secretkey` command and other commands.
         - Ensure git is available by running `git --version`. If it's not recognized, install git using `sudo apt install git`
 
@@ -510,7 +510,7 @@ There are three accounts you can log into Remote Settings with depending on what
 - `experimenter` / `experimenter` - This account is used by Experimenter to push its changes to Remote Settings and mark them for review.
 - `review` / `review` - This account should generally be used by developers testing the workflow, it can be used to approve/reject changes pushed from Experimenter.
 
-The `admin` and `review` credentials are hard-coded [here](https://github.com/mozilla/experimenter/blob/main/experimenter/bin/setup_kinto.py#L7-L8), and the `experimenter` credentials can be found or updated in your `.env` file under `KINTO_USER` and `KINTO_PASS`.
+The `admin` and `review` credentials are hard-coded [here](https://github.com/mozilla/experimenter/blob/main/experimenter/bin/setup_kinto.py#L7-L8), and the `experimenter` credentials can be found or updated in your `.env` file under `REMOTE_SETTINGS_USER` and `REMOTE_SETTINGS_PASS`.
 
 Any change in remote settings requires two accounts:
 
