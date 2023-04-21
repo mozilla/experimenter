@@ -17,7 +17,7 @@ services:
       - "7001:7001"
     volumes:
       - media_volume:/experimenter/experimenter/media
-    command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python manage.py collectstatic --noinput&&gunicorn -w 4 -b 0.0.0.0:7001 experimenter.wsgi"
+    command: bash -c "python bin/setup_remote_settings.py;/experimenter/bin/wait-for-it.sh db:5432 -- python manage.py collectstatic --noinput&&gunicorn -w 4 -b 0.0.0.0:7001 experimenter.wsgi"
 
   worker:
     image: experimenter:deploy

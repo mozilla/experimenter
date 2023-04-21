@@ -22,7 +22,7 @@ services:
       - /experimenter/experimenter/served/
       - /experimenter/node_modules/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
-    command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python /experimenter/manage.py runserver 0:7001"
+    command: bash -c "python bin/setup_remote_settings.py;/experimenter/bin/wait-for-it.sh db:5432 -- python /experimenter/manage.py runserver 0:7001"
 
   yarn-nimbus-ui:
     image: experimenter:dev

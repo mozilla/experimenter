@@ -2,13 +2,13 @@ from django.conf import settings
 from django.test import TestCase
 from parameterized import parameterized
 
-from experimenter.kinto.client import (
+from experimenter.remotesettings.client import (
     REMOTE_SETTINGS_REVIEW_STATUS,
     REMOTE_SETTINGS_ROLLBACK_STATUS,
     REMOTE_SETTINGS_SIGN_STATUS,
     RemoteSettingsClient,
 )
-from experimenter.kinto.tests.mixins import MockRemoteSettingsClientMixin
+from experimenter.remotesettings.tests.mixins import MockRemoteSettingsClientMixin
 
 
 class TestRemoteSettingsClient(MockRemoteSettingsClientMixin, TestCase):

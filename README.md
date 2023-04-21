@@ -395,7 +395,7 @@ And then you can import and execute arbitrary code:
 ```py
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.kinto.tasks import nimbus_push_experiment_to_remote_settings
+from experimenter.remotesettings.tasks import nimbus_push_experiment_to_remote_settings
 
 experiment = NimbusExperimentFactory.create_with_status(NimbusExperiment.Status.DRAFT, name="Look at me, I'm Mr Experiment")
 nimbus_push_experiment_to_remote_settings(experiment.id)
@@ -510,7 +510,7 @@ There are three accounts you can log into Remote Settings with depending on what
 - `experimenter` / `experimenter` - This account is used by Experimenter to push its changes to Remote Settings and mark them for review.
 - `review` / `review` - This account should generally be used by developers testing the workflow, it can be used to approve/reject changes pushed from Experimenter.
 
-The `admin` and `review` credentials are hard-coded [here](https://github.com/mozilla/experimenter/blob/main/experimenter/bin/setup_kinto.py#L7-L8), and the `experimenter` credentials can be found or updated in your `.env` file under `REMOTE_SETTINGS_USER` and `REMOTE_SETTINGS_PASS`.
+The `admin` and `review` credentials are hard-coded [here](https://github.com/mozilla/experimenter/blob/main/experimenter/bin/setup_remote_settings.py#L8-L9), and the `experimenter` credentials can be found or updated in your `.env` file under `REMOTE_SETTINGS_USER` and `REMOTE_SETTINGS_PASS`.
 
 Any change in remote settings requires two accounts:
 

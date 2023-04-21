@@ -27,7 +27,7 @@ from experimenter.experiments.models import (
     NimbusExperiment,
     NimbusFeatureConfig,
 )
-from experimenter.kinto.tasks import (
+from experimenter.remotesettings.tasks import (
     nimbus_check_remote_settings_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_remote_settings,
 )

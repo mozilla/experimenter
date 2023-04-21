@@ -89,7 +89,7 @@ INSTALLED_APPS = [
     "experimenter.experiments",
     "experimenter.features",
     "experimenter.jetstream",
-    "experimenter.kinto",
+    "experimenter.remotesettings",
     "experimenter.legacy.legacy_experiments",
     "experimenter.legacy.normandy",
     "experimenter.legacy.notifications",
@@ -349,17 +349,17 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "nimbus_check_remote_settings_push_queue_task": {
-        "task": "experimenter.kinto.tasks.nimbus_check_remote_settings_push_queue",
+        "task": "experimenter.remotesettings.tasks.nimbus_check_remote_settings_push_queue",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "nimbus_synchronize_preview_experiments_in_remote_settings": {
         "task": (
-            "experimenter.kinto.tasks.nimbus_synchronize_preview_experiments_in_remote_settings"
+            "experimenter.remotesettings.tasks.nimbus_synchronize_preview_experiments_in_remote_settings"
         ),
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "nimbus_send_emails": {
-        "task": "experimenter.kinto.tasks.nimbus_send_emails",
+        "task": "experimenter.remotesettings.tasks.nimbus_send_emails",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "fetch_jetstream_data": {

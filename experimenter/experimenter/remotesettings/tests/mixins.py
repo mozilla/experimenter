@@ -1,6 +1,6 @@
 import mock
 
-from experimenter.kinto.client import REMOTE_SETTINGS_REJECTED_STATUS, REMOTE_SETTINGS_REVIEW_STATUS
+from experimenter.remotesettings.client import REMOTE_SETTINGS_REJECTED_STATUS, REMOTE_SETTINGS_REVIEW_STATUS
 
 
 class MockRemoteSettingsClientMixin(object):
@@ -8,7 +8,7 @@ class MockRemoteSettingsClientMixin(object):
         super().setUp()
 
         mock_rs_client_patcher = mock.patch(
-            "experimenter.kinto.client.kinto_http.Client"
+            "experimenter.remotesettings.client.kinto_http.Client"
         )
         self.mock_rs_client_creator = mock_rs_client_patcher.start()
         self.mock_rs_client = mock.Mock()

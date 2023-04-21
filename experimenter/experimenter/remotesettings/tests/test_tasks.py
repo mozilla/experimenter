@@ -12,16 +12,16 @@ from experimenter.experiments.models import (
     NimbusExperiment,
 )
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.kinto import tasks
-from experimenter.kinto.client import REMOTE_SETTINGS_REVIEW_STATUS, REMOTE_SETTINGS_ROLLBACK_STATUS
-from experimenter.kinto.tests.mixins import MockRemoteSettingsClientMixin
+from experimenter.remotesettings import tasks
+from experimenter.remotesettings.client import REMOTE_SETTINGS_REVIEW_STATUS, REMOTE_SETTINGS_ROLLBACK_STATUS
+from experimenter.remotesettings.tests.mixins import MockRemoteSettingsClientMixin
 
 
 class TestNimbusCheckRemoteSettingsPushQueue(MockRemoteSettingsClientMixin, TestCase):
     def setUp(self):
         super().setUp()
         mock_dispatchee_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_check_remote_settings_push_queue_by_collection.delay"
+            "experimenter.remotesettings.tasks.nimbus_check_remote_settings_push_queue_by_collection.delay"
         )
         self.mock_dispatchee_task = mock_dispatchee_task_patcher.start()
         self.addCleanup(mock_dispatchee_task_patcher.stop)
@@ -39,19 +39,19 @@ class TestNimbusCheckRemoteSettingsPushQueueByCollection(MockRemoteSettingsClien
     def setUp(self):
         super().setUp()
         mock_push_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_push_experiment_to_remote_settings.delay"
+            "experimenter.remotesettings.tasks.nimbus_push_experiment_to_remote_settings.delay"
         )
         self.mock_push_task = mock_push_task_patcher.start()
         self.addCleanup(mock_push_task_patcher.stop)
 
         mock_update_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_update_experiment_in_remote_settings.delay"
+            "experimenter.remotesettings.tasks.nimbus_update_experiment_in_remote_settings.delay"
         )
         self.mock_update_task = mock_update_task_patcher.start()
         self.addCleanup(mock_update_task_patcher.stop)
 
         mock_end_task_patcher = mock.patch(
-            "experimenter.kinto.tasks.nimbus_end_experiment_in_remote_settings.delay"
+            "experimenter.remotesettings.tasks.nimbus_end_experiment_in_remote_settings.delay"
         )
         self.mock_end_task = mock_end_task_patcher.start()
         self.addCleanup(mock_end_task_patcher.stop)

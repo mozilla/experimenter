@@ -11,7 +11,7 @@ from experimenter.experiments.email import (
     nimbus_send_experiment_ending_email,
 )
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
-from experimenter.kinto.client import RemoteSettingsClient
+from experimenter.remotesettings.client import RemoteSettingsClient
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("kinto.nimbus_tasks")
@@ -97,7 +97,7 @@ def nimbus_check_remote_settings_push_queue_by_collection(collection):
     elif queued_pause_experiment := NimbusExperiment.objects.update_queue(
         applications
     ).first():
-        nimbus_update_experiment_in_kinto.delay(collection, queued_pause_experiment.id)
+        nimbus_update_experiment_in_remote_settings.delay(collection, queued_pause_experiment.id)
 
     metrics.incr(f"check_kinto_push_queue_by_collection:{collection}.completed")
 
@@ -287,7 +287,7 @@ def nimbus_push_experiment_to_remote_settings(collection, experiment_id):
 
 @app.task
 @metrics.timer_decorator("update_experiment_in_kinto")
-def nimbus_update_experiment_in_kinto(collection, experiment_id):
+def nimbus_update_experiment_in_remote_settings(collection, experiment_id):
     """
     An invoked task that given a single experiment id, reserializes
     and updates the record. If it fails for any reason, log the error and
