@@ -418,9 +418,9 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         will be enrolled in one and not the other and \
         you will not be able to adjust the sizing for this rollout."
 
-    ERROR_DESKTOP_ROLLOUT_VERSION = "WARNING: Decreasing the population size while live \
-        is not supported for Desktop versions under 114. You will still be able to \
-        increase the population size."
+    ERROR_DESKTOP_ROLLOUT_VERSION = "WARNING: Decreasing the population size while the \
+        rollout is live is not supported for Desktop versions under 114. You will still \
+        be able to increase the population size."
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra
