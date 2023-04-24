@@ -355,7 +355,9 @@ class NimbusConstants(object):
         Application.IOS: Version.FIREFOX_101,
         Application.FOCUS_IOS: Version.FIREFOX_101,
     }
+
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
+    DESKTOP_ROLLOUT_MIN_SUPPORTED_VERSION = Version.FIREFOX_114
 
     ROLLOUT_SUPPORT_VERSION = {
         Application.DESKTOP: Version.FIREFOX_105,

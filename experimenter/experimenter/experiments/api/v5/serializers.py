@@ -1442,7 +1442,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             application == NimbusExperiment.Application.DESKTOP
             and is_rollout
             and NimbusExperiment.Version.parse(min_version)
-            < NimbusExperiment.Version.parse(NimbusExperiment.Version.FIREFOX_114)
+            < NimbusExperiment.Version.parse(
+                NimbusConstants.DESKTOP_ROLLOUT_MIN_SUPPORTED_VERSION
+            )
         ):
             self.warnings["firefox_min_version"] = [
                 NimbusConstants.ERROR_DESKTOP_ROLLOUT_VERSION
