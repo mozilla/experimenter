@@ -3,6 +3,13 @@ import json
 import os
 import sys
 
+# Get the path of the 'cirrus' directory by navigating up from the location of this script
+cirrus_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Append the 'cirrus' directory to the system path
+sys.path.append(cirrus_path)
+
+
 from fastapi.openapi.utils import get_openapi
 from main import app
 
