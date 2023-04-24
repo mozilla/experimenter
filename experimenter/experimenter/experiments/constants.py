@@ -355,7 +355,9 @@ class NimbusConstants(object):
         Application.IOS: Version.FIREFOX_101,
         Application.FOCUS_IOS: Version.FIREFOX_101,
     }
+
     FEATURE_ENABLED_MIN_UNSUPPORTED_VERSION = Version.FIREFOX_104
+    DESKTOP_ROLLOUT_MIN_SUPPORTED_VERSION = Version.FIREFOX_114
 
     ROLLOUT_SUPPORT_VERSION = {
         Application.DESKTOP: Version.FIREFOX_105,
@@ -415,6 +417,10 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         If this rollout is launched, a client meeting the advanced targeting criteria \
         will be enrolled in one and not the other and \
         you will not be able to adjust the sizing for this rollout."
+
+    ERROR_DESKTOP_ROLLOUT_VERSION = "WARNING: Decreasing the population size while the \
+        rollout is live is not supported for Desktop versions under 114. You will still \
+        be able to increase the population size."
 
     # Analysis can be computed starting the week after enrollment
     # completion for "week 1" of the experiment. However, an extra

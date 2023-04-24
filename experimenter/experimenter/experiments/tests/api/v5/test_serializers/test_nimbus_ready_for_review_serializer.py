@@ -222,6 +222,76 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             },
         )
 
+    def test_desktop_min_version_under_113_shows_warning(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
+            is_rollout=True,
+            is_sticky=True,
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        experiment.save()
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(
+            serializer.warnings,
+            {
+                "firefox_min_version": [NimbusExperiment.ERROR_DESKTOP_ROLLOUT_VERSION],
+            },
+        )
+
+    def test_desktop_min_version_over_113_no_warning(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_118,
+            is_rollout=True,
+            is_sticky=True,
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        experiment.save()
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.warnings, {})
+
+    def test_mobile_min_version_under_113_no_warning(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_106,
+            is_rollout=True,
+            is_sticky=True,
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        experiment.save()
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.warnings, {})
+
     def test_valid_experiment_min_dot_version_less_than_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -1471,9 +1541,13 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
 
     def test_bucket_namespace_warning_for_non_dupe_rollouts(self):
         lifecycle = NimbusExperimentFactory.Lifecycles.CREATED
-        desktop = NimbusExperiment.Application.DESKTOP
         channel = NimbusExperiment.Channel.NIGHTLY
-        feature_configs = [NimbusFeatureConfigFactory(application=desktop)]
+        feature_configs_fenix = [
+            NimbusFeatureConfigFactory(application=NimbusExperiment.Application.FENIX)
+        ]
+        feature_configs_ios = [
+            NimbusFeatureConfigFactory(application=NimbusExperiment.Application.IOS)
+        ]
         targeting_config_slug = NimbusExperiment.TargetingConfig.MAC_ONLY
 
         experiment1 = NimbusExperimentFactory.create_with_lifecycle(
@@ -1481,17 +1555,17 @@ class TestNimbusReviewSerializerSingleFeature(TestCase):
             application=NimbusExperiment.Application.FENIX,
             channel=channel,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
-            feature_configs=feature_configs,
+            feature_configs=feature_configs_fenix,
             is_sticky=False,
             is_rollout=True,
             targeting_config_slug=targeting_config_slug,
         )
         experiment2 = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            application=desktop,
+            application=NimbusExperiment.Application.IOS,
             channel=channel,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_108,
-            feature_configs=feature_configs,
+            feature_configs=feature_configs_ios,
             is_sticky=False,
             is_rollout=True,
             targeting_config_slug=targeting_config_slug,
