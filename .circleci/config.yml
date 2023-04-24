@@ -57,7 +57,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_desktop_beta_targeting:
     machine:
@@ -87,7 +87,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_desktop_nightly_targeting:
     machine:
@@ -117,7 +117,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_desktop_remote_settings:
     machine:
@@ -136,7 +136,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_fenix_remote_settings:
     machine:
@@ -155,7 +155,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_ios_remote_settings:
     machine:
@@ -174,7 +174,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_focus_android_remote_settings:
     machine:
@@ -193,7 +193,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_focus_ios_remote_settings:
     machine:
@@ -212,7 +212,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_desktop_enrollment:
     machine:
@@ -233,7 +233,7 @@ jobs:
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus PYTEST_ARGS="$PYTEST_ARGS"
           no_output_timeout: 30m
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_nimbus_desktop_ui:
     machine:
@@ -278,7 +278,7 @@ jobs:
             cp .env.integration-tests .env
             make refresh SKIP_DUMMY=1 PYTEST_SENTRY_DSN=$PYTEST_SENTRY_DSN CIRCLECI=$CIRCLECI up_prod_detached integration_test_nimbus_rust PYTEST_ARGS="$PYTEST_ARGS"
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   integration_legacy:
     machine:
@@ -302,7 +302,7 @@ jobs:
             cp .env.sample .env
             make refresh up_prod_detached integration_test_legacy
       - store_artifacts:
-          path: /experimenter/experimenter/tests/integration/test-reports/report.htm
+          path: ~/experimenter/experimenter/tests/integration/test-reports/report.htm
 
   deploy:
     working_directory: ~/experimenter
