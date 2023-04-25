@@ -422,19 +422,24 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         if self._start_date is not None:
             return self._start_date
 
-        if self.is_started:
-            if (
-                start_changelog := self.changes.all()
-                .filter(
-                    old_status=self.Status.DRAFT,
-                    new_status=self.Status.LIVE,
-                )
-                .order_by("-changed_on")
-                .first()
-            ):
-                self._start_date = start_changelog.changed_on.date()
-                self.save()
-                return self._start_date
+        if self.proposed_release_date is not None:
+            self._start_date = self.proposed_release_date
+            self.save()
+            return self._start_date
+        else:
+            if self.is_started:
+                if (
+                    start_changelog := self.changes.all()
+                    .filter(
+                        old_status=self.Status.DRAFT,
+                        new_status=self.Status.LIVE,
+                    )
+                    .order_by("-changed_on")
+                    .first()
+                ):
+                    self._start_date = start_changelog.changed_on.date()
+                    self.save()
+                    return self._start_date
 
     @property
     def launch_month(self):
