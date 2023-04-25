@@ -177,6 +177,7 @@ describe("FormAudience", () => {
 
     expect(screen.getByTestId("isSticky")).not.toBeChecked();
   });
+
   it("expect sticky enrollment to be selected as sticky is required for the selected targeting", async () => {
     render(
       <Subject
@@ -244,6 +245,40 @@ describe("FormAudience", () => {
     await expect(
       screen.getByTestId("sticky-required-warning"),
     ).toBeInTheDocument();
+  });
+
+  it("expect desktop version warning when under 114", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_ROLLOUT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          status: NimbusExperimentStatusEnum.DRAFT,
+          isRollout: true,
+          isSticky: true,
+          firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_107,
+        }}
+      />,
+    );
+    screen.queryByText("WARNING", { selector: `[data-for=firefoxMinVersion]` });
+  });
+
+  it("expect no desktop version warning when over 114", async () => {
+    render(
+      <Subject
+        experiment={{
+          ...MOCK_ROLLOUT,
+          application: NimbusExperimentApplicationEnum.DESKTOP,
+          channel: NimbusExperimentChannelEnum.NIGHTLY,
+          status: NimbusExperimentStatusEnum.DRAFT,
+          isRollout: true,
+          isSticky: true,
+          firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_118,
+        }}
+      />,
+    );
+    screen.queryByText("", { selector: `[data-for=firefoxMinVersion]` });
   });
 
   it("expect sticky enrollment to be optional as changing targeting from sticky required to sticky not required", async () => {
