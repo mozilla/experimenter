@@ -838,4 +838,68 @@ describe("PageSummary", () => {
     render(<Subject mocks={[mock]} />);
     expect(screen.queryByTestId("bucketing-warning")).not.toBeInTheDocument();
   });
+
+  it("displays a warning for desktop rollouts under v114", async () => {
+    const WARNING = "WARNING: Decreasing the population size while live";
+    const { mockRollout } = mockLiveRolloutQuery("demo-slug", {
+      readyForReview: {
+        ready: true,
+        message: {},
+        warnings: {
+          firefox_min_version: [WARNING],
+        },
+      },
+      isRollout: true,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      targetingConfigSlug: "OH_NO",
+    });
+    render(<Subject mocks={[mockRollout]} />);
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId("desktop-min-version-warning"),
+      ).toBeInTheDocument(),
+    );
+  });
+
+  it("displays no warning for desktop rollouts above v113", async () => {
+    const { mockRollout } = mockLiveRolloutQuery("demo-slug", {
+      readyForReview: {
+        ready: true,
+        message: {},
+        warnings: {},
+      },
+      isRollout: true,
+      application: NimbusExperimentApplicationEnum.DESKTOP,
+      firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_116,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      targetingConfigSlug: "OH_NO",
+    });
+    render(<Subject mocks={[mockRollout]} />);
+    expect(
+      screen.queryByTestId("desktop-min-version-warning"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("displays no min version warning for non-desktop rollouts", async () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      readyForReview: {
+        ready: true,
+        message: {},
+        warnings: {},
+      },
+      isRollout: true,
+      application: NimbusExperimentApplicationEnum.FENIX,
+      firefoxMinVersion: NimbusExperimentFirefoxVersionEnum.FIREFOX_106,
+      channel: NimbusExperimentChannelEnum.NIGHTLY,
+      status: NimbusExperimentStatusEnum.DRAFT,
+      targetingConfigSlug: "OH_NO",
+    });
+    render(<Subject mocks={[mock]} />);
+    expect(
+      screen.queryByTestId("desktop-min-version-warning"),
+    ).not.toBeInTheDocument();
+  });
 });
