@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('experiments', '0230_alter_nimbusbranchfeaturevalue_options'),
+        ("experiments", "0230_alter_nimbusbranchfeaturevalue_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='nimbusexperiment',
-            name='proposed_release_date',
+            model_name="nimbusexperiment",
+            name="proposed_release_date",
             field=models.DateField(blank=True, null=True),
         ),
     ]
