@@ -18,8 +18,8 @@ PAD = -------------------------------------------------\n
 COLOR_CHECK = && echo "${GREEN}${PAD}All Checks Passed\n${PAD}${NOCOLOR}" || (echo "${RED}${PAD}Some Checks Failed\n${PAD}${NOCOLOR}";exit 1)
 PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_TYPECHECK = pyright experimenter/
-PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
-PYTHON_MIGRATE = python manage.py migrate
+PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput --skip-checks
+PYTHON_MIGRATE = python manage.py migrate --skip-checks
 ESLINT_LEGACY = yarn workspace @experimenter/core lint
 ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
 ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint
@@ -34,13 +34,13 @@ RUFF_CHECK = ruff experimenter/ tests/
 RUFF_FIX = ruff --fix experimenter/ tests/
 BLACK_CHECK = black -l 90 --check --diff . --exclude node_modules
 BLACK_FIX = black -l 90 . --exclude node_modules
-CHECK_DOCS = python manage.py generate_docs --check=true
-GENERATE_DOCS = python manage.py generate_docs
-LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
-LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
-LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json
-LOAD_FEATURES = python manage.py load_feature_configs
-LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_projects
+CHECK_DOCS = python manage.py generate_docs --check=true --skip-checks
+GENERATE_DOCS = python manage.py generate_docs --skip-checks
+LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json --skip-checks
+LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json --skip-checks
+LOAD_LANGUAGES = python manage.py loaddata ./experimenter/base/fixtures/languages.json --skip-checks
+LOAD_FEATURES = python manage.py load_feature_configs --skip-checks
+LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments --skip-checks || python manage.py load_dummy_projects --skip-checks
 PYTHON_PATH_SDK = PYTHONPATH=/application-services/components/nimbus/src
 
 
@@ -160,7 +160,7 @@ code_format: build_dev
 	$(COMPOSE) run experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)"'
 
 makemigrations: build_dev
-	$(COMPOSE) run experimenter python manage.py makemigrations
+	$(COMPOSE) run experimenter python manage.py makemigrations --skip-checks
 
 migrate: build_dev
 	$(COMPOSE) run experimenter sh -c "$(WAIT_FOR_DB) $(PYTHON_MIGRATE)"
