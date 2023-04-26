@@ -73,6 +73,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "projects": [],
                 "proposed_duration": NimbusExperiment.DEFAULT_PROPOSED_DURATION,
                 "proposed_enrollment": NimbusExperiment.DEFAULT_PROPOSED_ENROLLMENT,
+                "proposed_release_date": None,
                 "public_description": "",
                 "publish_status": NimbusExperiment.PublishStatus.IDLE,
                 "published_dto": None,
@@ -109,6 +110,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
 
             experiment = NimbusExperimentFactory.create_with_lifecycle(
                 NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+                proposed_release_date=datetime.date(2020, 1, 1),
                 start_date=datetime.date(2020, 1, 1),
                 end_date=datetime.date(2020, 2, 1),
                 application=application,
@@ -156,6 +158,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "projects": [project.slug],
                 "proposed_duration": experiment.proposed_duration,
                 "proposed_enrollment": experiment.proposed_enrollment,
+                "proposed_release_date": "2020-01-01",
                 "public_description": experiment.public_description,
                 "publish_status": experiment.publish_status,
                 "results_data": None,

@@ -206,8 +206,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     _start_date = models.DateField(blank=True, null=True)
     _enrollment_end_date = models.DateField(blank=True, null=True)
     _end_date = models.DateField(blank=True, null=True)
-
     prevent_pref_conflicts = models.BooleanField(blank=True, null=True, default=False)
+    proposed_release_date = models.DateField(blank=True, null=True)
 
     objects = NimbusExperimentManager()
 

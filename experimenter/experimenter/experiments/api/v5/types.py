@@ -465,6 +465,7 @@ class NimbusExperimentType(DjangoObjectType):
     prevent_pref_conflicts = graphene.Boolean()
     primary_outcomes = graphene.List(graphene.String)
     projects = graphene.List(NimbusProjectType)
+    proposed_release_date = graphene.DateTime()
     public_description = graphene.String()
     publish_status = NimbusExperimentPublishStatusEnum()
     ready_for_review = graphene.Field(NimbusReviewType)
@@ -533,6 +534,7 @@ class NimbusExperimentType(DjangoObjectType):
             "projects",
             "proposed_duration",
             "proposed_enrollment",
+            "proposed_release_date",
             "public_description",
             "publish_status",
             "ready_for_review",
