@@ -89,6 +89,8 @@ Chosen option is marked in **bold**.
 * Refactor needed to truly make use of advantages
   * Refactor ingest using schema for serialization/deserialization
   * Refactor test cases using serializers
+* Adding versioning to schema definition adds complexity
+  * Sync schema versions between consuming applications
 
 ### [Option 2] Typescript
 
