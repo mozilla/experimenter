@@ -1,9 +1,9 @@
 from fastapi import FastAPI, status
 
-from cirrus.experiment_recipes import RemoteSetting
-from cirrus.fml import FML
-from cirrus.manifest_loader import ManifestLoader
-from cirrus.sdk import SDK
+from .experiment_recipes import RemoteSetting
+from .fml import FML
+from .manifest_loader import ManifestLoader
+from .sdk import SDK
 
 app = FastAPI()
 rs = RemoteSetting()

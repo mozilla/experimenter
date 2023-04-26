@@ -11,7 +11,8 @@ sys.path.append(cirrus_path)
 
 
 from fastapi.openapi.utils import get_openapi
-from main import app
+
+from cirrus.main import app
 
 DOCS_DIR = "cirrus/server/cirrus/docs"
 OPENAPI_PATH = os.path.join(DOCS_DIR, "openapi.json")

@@ -1,4 +1,4 @@
-from cirrus.experiment_recipes import RemoteSetting
+from ..cirrus.experiment_recipes import RemoteSetting
 
 
 def test_get_recipes_empty():

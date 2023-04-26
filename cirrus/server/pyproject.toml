@@ -20,6 +20,7 @@ typeCheckingMode = "strict"
 include = ["cirrus"]
 exclude = [
     "**/__pycache__",
+    "cirrus/generate_docs.py",
 ]
 reportUnnecessaryTypeIgnoreComment = "warning"
 pythonVersion = "3.10"
