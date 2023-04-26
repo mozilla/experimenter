@@ -124,6 +124,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       totalEnrolledClients
       proposedEnrollment
       proposedDuration
+      proposedReleaseDate
 
       readyForReview {
         ready
@@ -239,6 +240,7 @@ export const GET_EXPERIMENTS_QUERY = gql`
       isEnrollmentPaused
       proposedDuration
       proposedEnrollment
+      proposedReleaseDate
       computedEndDate
       computedEnrollmentEndDate
       status

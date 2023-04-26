@@ -50,6 +50,7 @@ type NimbusExperimentType {
   takeawaysSummary: String
   isFirstRun: Boolean!
   preventPrefConflicts: Boolean
+  proposedReleaseDate: DateTime
   documentationLinks: [NimbusDocumentationLinkType!]
   changes: [NimbusChangeLogType]
   canArchive: Boolean
@@ -321,6 +322,13 @@ enum NimbusExperimentConclusionRecommendationEnum {
   FOLLOWUP
 }
 
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
 type NimbusDocumentationLinkType {
   title: NimbusExperimentDocumentationLinkEnum
   link: String!
@@ -342,13 +350,6 @@ type NimbusChangeLogType {
   message: String
   experimentData: JSONString
 }
-
-"""
-The `DateTime` scalar type represents a DateTime
-value as specified by
-[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
-"""
-scalar DateTime
 
 """
 Allows use of a JSON String for input / output from the GraphQL schema.
@@ -478,6 +479,7 @@ input ExperimentInput {
   projects: [String]
   proposedDuration: String
   proposedEnrollment: String
+  proposedReleaseDate: DateTime
   publicDescription: String
   publishStatus: NimbusExperimentPublishStatusEnum
   referenceBranch: BranchInput = null

@@ -837,6 +837,10 @@ class NimbusExperimentSerializer(
         allow_null=True,
         required=False,
     )
+    proposed_release_date = serializers.DateField(
+        allow_null=True,
+        required=False,
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -867,6 +871,7 @@ class NimbusExperimentSerializer(
             "projects",
             "proposed_duration",
             "proposed_enrollment",
+            "proposed_release_date",
             "public_description",
             "publish_status",
             "reference_branch",

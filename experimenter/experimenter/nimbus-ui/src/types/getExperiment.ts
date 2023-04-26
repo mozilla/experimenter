@@ -179,6 +179,7 @@ export interface getExperiment_experimentBySlug {
   totalEnrolledClients: number;
   proposedEnrollment: number;
   proposedDuration: number;
+  proposedReleaseDate: DateTime | null;
   readyForReview: getExperiment_experimentBySlug_readyForReview | null;
   startDate: DateTime | null;
   computedDurationDays: number | null;
