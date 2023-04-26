@@ -243,6 +243,7 @@ export interface ExperimentInput {
   projects?: (string | null)[] | null;
   proposedDuration?: string | null;
   proposedEnrollment?: string | null;
+  proposedReleaseDate?: DateTime | null;
   publicDescription?: string | null;
   publishStatus?: NimbusExperimentPublishStatusEnum | null;
   referenceBranch?: BranchInput | null;

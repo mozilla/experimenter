@@ -68,6 +68,7 @@ class ExperimentInput(graphene.InputObjectType):
     projects = graphene.List(graphene.String)
     proposed_duration = graphene.String()
     proposed_enrollment = graphene.String()
+    proposed_release_date = graphene.DateTime()
     public_description = graphene.String()
     publish_status = NimbusExperimentPublishStatusEnum()
     reference_branch = graphene.Field(BranchInput)
