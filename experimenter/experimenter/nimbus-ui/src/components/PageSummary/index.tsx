@@ -235,6 +235,15 @@ const PageSummary = (props: RouteComponentProps) => {
           </Alert>
         )}
 
+      {experiment.isRollout &&
+        (experiment.status === NimbusExperimentStatusEnum.DRAFT ||
+          experiment.status === NimbusExperimentStatusEnum.PREVIEW) &&
+        fieldWarnings.firefox_min_version?.length > 0 && (
+          <Alert data-testid="desktop-min-version-warning" variant="warning">
+            {fieldWarnings.firefox_min_version as SerializerMessage}
+          </Alert>
+        )}
+
       {summaryAction && (
         <h5 className="mt-3 mb-4 ml-3">
           {summaryAction} {launchDocs}
