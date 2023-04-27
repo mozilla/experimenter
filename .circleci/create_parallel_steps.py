@@ -16,10 +16,8 @@ if __name__ == "__main__":
         for item in tests:
             _.write(f"{item} ")
     # split using circleci
-    stream = os.popen("circleci tests split ../_test_names.txt")
-    output = stream.read()
-    
+    stream = os.popen("circleci tests split ../_test_names.txt --total=2")
+    output = stream.read().strip("\n").split(" ")
     length_of_tests = len(tests)
-    final_string = f"-k '({' and '.join(output)}')"
-    os.environ["PYTEST_ARGS"] = final_string
-    print(final_string)
+    print(f"-k '({' and '.join(output)})'")
+
