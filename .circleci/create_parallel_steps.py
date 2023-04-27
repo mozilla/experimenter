@@ -6,7 +6,7 @@ if __name__ == "__main__":
     tests = []
     final_string = "()"
 
-    with open("../test_names.txt") as r:
+    with open("../tmp_test_names.txt") as r:
         for item in r:
             if "test_" in item and "pytest_" not in item and ".py" not in item:
                 item = item.split()[1].split("[")[0]
