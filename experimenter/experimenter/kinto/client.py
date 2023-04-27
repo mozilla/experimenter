@@ -17,13 +17,6 @@ class KintoClient:
         self.review = review
         self.collection_data = None
 
-    def heartbeat(self):
-        return self.kinto_http_client.session.request("GET", "/__heartbeat__")
-
-    def authenticated(self):
-        server_info = self.kinto_http_client.server_info()
-        return "id" in server_info.get("user", {})
-
     def _fetch_collection_data(self):
         self.collection_data = (
             self.collection_data
