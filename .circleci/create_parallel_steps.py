@@ -17,8 +17,7 @@ if __name__ == "__main__":
             _.write(f"{item} \n")
     # split using circleci
     stream = os.popen("circleci tests split _test_names.txt")
-    output = stream.read().strip(" ").splitlines()[0].split(" ")
-    output = ' or '.join(output)
-    print(f"-k '{''.join(output)}'")
-
+    output = stream.read().splitlines()
+    output = 'or '.join(output)
+    print(f"-k '{''.join(output).rstrip(' ')}'")
 
