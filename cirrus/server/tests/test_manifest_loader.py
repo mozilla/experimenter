@@ -1,7 +1,7 @@
 from ..cirrus.manifest_loader import ManifestLoader
 
 
-def test_get_latest_feature_manifest_empty():
+def test_get_latest_feature_manifest_is_empty():
     manifest_loader = ManifestLoader()
     assert manifest_loader.get_latest_feature_manifest() == []
 
