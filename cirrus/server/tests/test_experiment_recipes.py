@@ -1,7 +1,7 @@
 from ..cirrus.experiment_recipes import RemoteSetting
 
 
-def test_get_recipes_empty():
+def test_get_recipes_is_empty():
     rs = RemoteSetting()
     assert rs.get_recipes() == []
 
