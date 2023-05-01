@@ -1,12 +1,12 @@
 from fastapi import FastAPI, status
 
-from .experiment_recipes import RemoteSetting
+from .experiment_recipes import RemoteSettings
 from .feature_manifest import FeatureManifestLanguage as FML
 from .manifest_loader import ManifestLoader
 from .sdk import SDK
 
 app = FastAPI()
-remote_setting = RemoteSetting()
+remote_setting = RemoteSettings()
 sdk = SDK()
 manifest_loader = ManifestLoader()
 fml = FML()
