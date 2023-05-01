@@ -1,12 +1,12 @@
 from fastapi import FastAPI, status
 
 from .experiment_recipes import RemoteSetting
-from .fml import FML
+from .feature_manifest import FeatureManifestLanguage as FML
 from .manifest_loader import ManifestLoader
 from .sdk import SDK
 
 app = FastAPI()
-rs = RemoteSetting()
+remote_setting = RemoteSetting()
 sdk = SDK()
 manifest_loader = ManifestLoader()
 fml = FML()
@@ -19,7 +19,7 @@ def read_root():
 
 @app.get("/enrollment_status", status_code=status.HTTP_200_OK)
 async def compute_enrollment_status():
-    recipes = rs.get_recipes()
+    recipes = remote_setting.get_recipes()
     # will recieve as part of incoming request
     targeting_context = {"client_id": "testid"}
     enrolled_partial_configuration = sdk.compute_enrollments(recipes, targeting_context)

@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
 
-class RemoteSetting:
+class RemoteSettings:
     recipes: List[Dict[str, Any]] = []
 
     @classmethod
