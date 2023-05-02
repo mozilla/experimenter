@@ -1172,6 +1172,20 @@ NOT_IMPORT_INFREQUENT_ROLLOUT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+SET_DEFAULT_PDF_EXPERIMENT_ENROLLEES = NimbusTargetingConfig(
+    name="Set Default PDF Experiment enrollees",
+    slug="set_default_pdf_experiment_enrollees",
+    description="Users who are enrolled in the set default pdf experiment",
+    targeting=(
+        "'existing-users-set-default-pdf-handler' in activeExperiments"
+        " || 'existing-users-set-default-pdf-handler' in activeRollouts"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
