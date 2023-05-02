@@ -56,6 +56,23 @@ FAKER_JSON_SCHEMA = """\
 }
 """
 
+TEST_LOCALIZATIONS = """\
+{
+    "en-US": {
+        "bar": "en-US text",
+        "foo": "More en-US text"
+    },
+    "en-CA": {
+        "foo": "en-CA text",
+        "bar": "More en-CA text"
+    },
+    "fr": {
+        "foo": "fr text",
+        "bar": "More fr text"
+    }
+}
+"""
+
 
 class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
@@ -335,6 +352,8 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     risk_partner_related = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_revenue = factory.LazyAttribute(lambda o: random.choice([True, False]))
     risk_brand = factory.LazyAttribute(lambda o: random.choice([True, False]))
+    is_localized = factory.LazyAttribute(lambda o: False)
+    localizations = factory.LazyAttribute(lambda o: None)
 
     class Meta:
         model = NimbusExperiment
