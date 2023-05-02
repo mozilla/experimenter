@@ -1156,6 +1156,22 @@ TRR_MODE_ZERO = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NOT_IMPORT_INFREQUENT_ROLLOUT = NimbusTargetingConfig(
+    name="Not in Import Infrequent Rollouts",
+    slug="not_import_infrequent_rollout",
+    description="Exclude users in the import infrequent rollouts",
+    targeting=(
+        "(activeRollouts intersect ["
+        "   'import-infrequent-rollout-make-yourself-at-home',"
+        "   'updated-import-infrequent-rollout-make-yourself-at-home-copy'"
+        "])|length == 0"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
