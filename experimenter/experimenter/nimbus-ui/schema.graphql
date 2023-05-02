@@ -51,6 +51,8 @@ type NimbusExperimentType {
   isFirstRun: Boolean!
   preventPrefConflicts: Boolean
   proposedReleaseDate: DateTime
+  isLocalized: Boolean
+  localizations: String
   documentationLinks: [NimbusDocumentationLinkType!]
   changes: [NimbusChangeLogType]
   canArchive: Boolean
@@ -467,11 +469,13 @@ input ExperimentInput {
   isArchived: Boolean
   isEnrollmentPaused: Boolean
   isFirstRun: Boolean
+  isLocalized: Boolean
   isRollout: Boolean
   isRolloutDirty: Boolean
   isSticky: Boolean
   languages: [String]
   locales: [String]
+  localizations: String
   name: String
   populationPercent: String
   preventPrefConflicts: Boolean
