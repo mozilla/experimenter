@@ -222,7 +222,7 @@ jobs:
     working_directory: ~/experimenter
     environment:
       FIREFOX_VERSION: nimbus-firefox-release
-      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --dist=loadgroup -n=2
+      PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment
       UPDATE_FIREFOX_VERSION: true
     steps:
       - checkout
