@@ -11,11 +11,8 @@ This Cirrus API allows clients to obtain a set of features based on their provid
 The input should be a JSON object with the following properties:
 
 - `client_id` (string): Used for bucketing calculation.
-- `context` (object): Used for context. It has the following properties:
-  - `locale` (string): The locale for the user.
-  - `user` (object): The user object has the following properties:
-    - `is_premium` (bool): Indicates if the user is a premium user.
-    - `session_id` (string): The session ID for the user.
+- `context` (object): Used for context. It can have any key-value pair.
+  - `any-key` (anytype).
 
 Example input:
 
@@ -23,10 +20,10 @@ Example input:
 {
   "client_id": "4a1d71ab-29a2-4c5f-9e1d-9d9df2e6e449",
   "context": {
-    "locale": "en-US",
-    "user": {
-      "is_premium": true,
-      "session_id": "f1a987754824be035f349b0809b731d3"
+    "key1": "value1",
+    "key2": {
+      "key2.1": "value2",
+      "key2.2": "value3"
     }
   }
 }
