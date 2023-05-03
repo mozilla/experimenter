@@ -2,7 +2,7 @@
 FROM python:3.11.2-slim-buster
 
 # Set working directory for the container
-WORKDIR /app/cirrus
+WORKDIR /cirrus
 
 # Install curl and bash utilities
 RUN apt-get update && \
